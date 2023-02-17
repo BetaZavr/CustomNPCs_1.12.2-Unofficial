@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "rotation=0": { "model": "customnpcs:npcborder" },
+        "rotation=1": { "model": "customnpcs:npcborder", y=90 },
+        "rotation=2": { "model": "customnpcs:npcborder", y=180 },
+        "rotation=3": { "model": "customnpcs:npcborder", y=270 }
+    }
+}

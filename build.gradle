@@ -1,0 +1,81 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+//Отредактируйте только под этой строкой, приведенный выше код добавляет и разрешает настройку Forge.
+
+
+version = "17Feb23-Snapshot"
+group = "noppes.npcs" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "CustomNPCs_1.12.2-Unofficial"
+
+sourceCompatibility = targetCompatibility = '1.8' // Это нужно здесь, чтобы задача eclipse сгенерировалась правильно.
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+minecraft {
+    version = "1.12.2-14.23.5.2768"
+    runDir = "run"
+    // сопоставления можно изменить в любое время, и они должны быть в следующем формате.
+    // snapshot_YYYYMMDD   snapshot строятся каждую ночь.
+    // stable_#            stables строятся на усмотрение команды MCP.
+    // Используйте сопоставления не по умолчанию на свой страх и риск. они не всегда могут работать.
+    // просто повторно запустите задачу установки после изменения сопоставлений, чтобы обновить рабочее пространство.
+    mappings = "snapshot_20171003"
+    // makeObfSourceJar = false // jar с именами Srg создается по умолчанию. раскомментируйте это, чтобы отключить.
+}
+
+dependencies {
+	// compile fileTree(dir: 'jars', include: ['*.jar'])
+    // вы можете поместить jars, от которых вы зависите, в ./libs
+    // или вы можете определить их так ..
+    //compile "some.group:artifact:version:classifier"
+    //compile "some.group:artifact:version"
+      
+    // реальные примеры
+    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // добавляет buildcraft в среду разработки
+    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // добавляет ejml в среду разработки
+
+    // «предоставленная» конфигурация предназначена для необязательных зависимостей, которые существуют во время компиляции, но могут отсутствовать во время выполнения.
+    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // конфигурации deobf:  'deobfCompile' и 'deobfProvided' такие же, как и при обычной компиляции, и предоставляются,
+    // за исключением того, что эти зависимости переназначаются на ваши текущие сопоставления MCP
+    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // для получения дополнительной информации...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+}
+
+processResources {
+    // это обеспечит повторное выполнение этой задачи при изменении версий.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+    // замените материал в mcmod.info, больше ничего
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        // заменить версию и mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+    // скопируйте все остальное, кроме mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+jar {
+  manifest {
+	  attributes 'FMLAT': 'cnpcs_at.cfg'
+  }
+}
+

@@ -1,0 +1,43 @@
+{
+    "forge_marker": 1,	
+	"defaults": {
+        "model": "customnpcs:obj/npcmobcloner.obj"
+	},
+    "variants": {
+		"inventory":[{
+			"transform": {
+				"firstperson": {
+					"rotation": [ { "x": 20 } ]
+				},
+				"firstperson_lefthand": {
+					"rotation": [ { "x": 20 } ]
+				},
+				"thirdperson": {
+					"translation": [0, 0.1875, 0.0625],
+					"rotation": [ { "x": -5 } ]
+				},
+				"thirdperson_lefthand": {
+					"translation": [0, 0.1875, 0.0625],
+					"rotation": [ { "x": -5 } ]
+				},
+				"gui": {
+					"translation": [0, -0.0625, 0],
+					"rotation": [ { "z": -45 }, { "y": 90 } ]
+				},
+				"ground": {
+					"scale": 0.75,
+					"rotation": [ { "x": 45 } ]
+				},
+				"head": {
+					"translation": [0.0625, 0.4375, -0.6875],
+					"scale": 1.5,
+					"rotation": [ { "x": 60 }, { "y": 195 }, { "z": -30 } ]
+				},
+				"fixed": {
+					"rotation": [ { "y": 90 } ]
+				}
+			}
+		}],
+		"normal": [{}]
+    }
+}

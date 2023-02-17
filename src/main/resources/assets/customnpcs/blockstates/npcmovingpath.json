@@ -1,0 +1,47 @@
+{
+    "forge_marker": 1,	
+	"defaults": {
+        "model": "customnpcs:obj/npcmovingpath.obj"
+	},
+    "variants": {
+		"inventory":[{
+			"transform": {
+				"firstperson": {
+					"translation": [0, 0.125, 0.0625],
+					"scale": 0.82,
+					"rotation": [ { "x": 22.5 } ]
+				},
+				"firstperson_lefthand": {
+					"translation": [0, 0.125, 0.0625],
+					"scale": 0.82,
+					"rotation": [ { "x": 22.5 } ]
+				},
+				"thirdperson": {
+					"translation": [0, 0.1875, 0.0625],
+					"rotation": [ { "x": -5 } ]
+				},
+				"thirdperson_lefthand": {
+					"translation": [0, 0.1875, 0.0625],
+					"rotation": [ { "x": -5 } ]
+				},
+				"gui": {
+					"translation": [0, -0.0625, 0],
+					"rotation": [ { "z": -45 }, { "y": 90 } ]
+				},
+				"ground": {
+					"scale": 0.75,
+					"rotation": [ { "x": 45 } ]
+				},
+				"head": {
+					"translation": [0, 0.875, 0],
+					"scale": 1.5,
+					"rotation": [ { "x": -180 }, { "y": 90 } ]
+				},
+				"fixed": {
+					"rotation": [ { "y": 90 } ]
+				}
+			}
+		}],
+		"normal": [{}]
+    }
+}

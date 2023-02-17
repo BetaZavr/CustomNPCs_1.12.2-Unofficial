@@ -1,0 +1,36 @@
+package noppes.npcs.blocks;
+
+import net.minecraft.block.material.Material;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fluids.BlockFluidClassic;
+import net.minecraftforge.fluids.Fluid;
+import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.item.ICustomItem;
+
+public class CustomLiquid
+extends BlockFluidClassic
+implements ICustomItem {
+	
+	public NBTTagCompound nbtData = new NBTTagCompound();
+
+	public CustomLiquid(Fluid fluid, Material material, NBTTagCompound nbtBlock) {
+		super(fluid, material);
+		this.nbtData = nbtBlock;
+		String name = "custom_fluid_"+nbtBlock.getString("RegistryName");
+		this.setRegistryName(CustomNpcs.MODID, name.toLowerCase());
+		this.setUnlocalizedName(name.toLowerCase());	
+	}
+
+    public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
+        return true;
+    }
+
+	@Override
+	public NBTTagCompound getData() { return this.nbtData; }
+
+	@Override
+	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
+    
+}

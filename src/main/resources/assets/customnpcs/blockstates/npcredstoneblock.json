@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "active=true": { "model": "customnpcs:npcredstoneactiveblock" },
+        "active=false": { "model": "customnpcs:npcredstoneblock" }
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "parent": "block/door_bottom",
+    "textures": {
+        "bottom": "customnpcs:blocks/npcscripteddoor_lower",
+        "top": "customnpcs:blocks/npcscripteddoor_upper"
+    }
+}

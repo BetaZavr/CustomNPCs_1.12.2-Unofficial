@@ -1,0 +1,13 @@
+newmtl block
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd customnpcs:blocks/npcscriptedblock
+
+newmtl chip
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd customnpcs:items/npcchip
+
+newmtl wood
+Kd 0.200000 0.050000 0.010000
+d 1.000000
