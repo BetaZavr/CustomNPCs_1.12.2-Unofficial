@@ -15,6 +15,7 @@ public class PlayerGameData {
 	public NBTTagList mousePress = new NBTTagList();
 	public boolean update; // ServerTickHandler
 	public double[] windowSize = new double[] { 0, 0 };
+	private String currentLanguage = "en_us";
 
 	public void addMoney(long money) {
 		this.money += money;
@@ -52,7 +53,12 @@ public class PlayerGameData {
 		list.appendTag(new NBTTagDouble(this.windowSize[1]));
 		compound.setTag("WindowSize", list);
 		compound.setLong("Money", this.money);
+		compound.setString("currentLanguage", this.currentLanguage);
 		return compound;
+	}
+
+	public String getCurrentLanguage() {
+		return this.currentLanguage;
 	}
 
 	public String getTextMoney() {
@@ -105,6 +111,7 @@ public class PlayerGameData {
 				this.windowSize[i] = comTemp.getTagList("WindowSize", 6).getDoubleAt(i);
 			}
 			this.money = comTemp.getLong("Money");
+			this.currentLanguage = compound.getString("currentLanguage");
 		}
 	}
 

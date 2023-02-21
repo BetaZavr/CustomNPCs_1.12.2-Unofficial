@@ -189,18 +189,15 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					}
 					int u = this.px - 10 + (pos % 3) * 18;
 					int v = this.py + 38 + (pos / 3) * 18;
-
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
 					this.mc.getRenderItem().renderItemAndEffectIntoGUI(curr, 0, 0);
 					// this.mc.getRenderItem().renderItemOverlayIntoGUI(this.mc.fontRenderer, stack,
 					// 0, 0, (String)null);
-					GlStateManager.translate(0.0f, 0.0f, 150.5f);
-					this.drawString(this.mc.fontRenderer, "" + curr.getCount(), (12 - (curr.getCount() > 9 ? 6 : 0)),
-							10, 0xFFFFFFFF);
+					GlStateManager.translate(0.0f, 0.0f, 200.0f);
+					this.drawString(this.mc.fontRenderer, "" + curr.getCount(), (12 - (curr.getCount() > 9 ? 6 : 0)), 10, 0xFFFFFFFF);
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
-
 					if (isMouseHover(i, j, u, v, 18, 18)) {
 						List<String> list = new ArrayList<String>();
 						list.add(new TextComponentTranslation("market.hover.item").getFormattedText());

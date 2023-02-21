@@ -224,8 +224,13 @@ public class ClientTickHandler {
 
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
-		/*EntityLivingBase entity = event.getEntityLiving();
-		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }*/
+		//EntityLivingBase entity = event.getEntityLiving();
+		//if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
+		//IPlayer player = (IPlayer) NpcAPI.Instance().getIEntity(((EntityPlayerMP) entity));
+		//player.giveItem(CustomNpcs.MODID+":npcscripted", 0, 1);
+		//System.out.println("CNPCs: "+player);
+		
+		//NpcAPI.Instance().executeCommand(player.getWorld(), "gamemode  "+player.getName()+" 1");
 	}
 	
 }

@@ -59,11 +59,11 @@ extends GuiNPCInterface {
 		this.guiTop = 30;
 		
 		GuiMenuTopButton general = new GuiMenuTopButton(0, this.guiLeft + 4, this.guiTop - 17, "gui.help.general");
-		GuiMenuTopButton npcEdit = new GuiMenuTopButton(1, general.x + general.getWidth(), guiTop - 17, "gui.help.npc");
+		//GuiMenuTopButton npcEdit = new GuiMenuTopButton(1, general.x + general.getWidth(), guiTop - 17, "gui.help.npc");
 		general.active = general.id==this.activeTopTab;
-		npcEdit.active = npcEdit.id==this.activeTopTab;
+		//npcEdit.active = npcEdit.id==this.activeTopTab;
 		this.addTopButton(general);
-		this.addTopButton(npcEdit);
+		//this.addTopButton(npcEdit);
 		
 		if (this.activeTopTab==0) {
 			if (this.activeLeftTab<10 || this.activeLeftTab>13) { this.activeLeftTab = 10; }

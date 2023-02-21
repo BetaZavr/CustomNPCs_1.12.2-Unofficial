@@ -79,6 +79,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.ModelData;
 import noppes.npcs.ModelPartData;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
 import noppes.npcs.api.IPotion;
@@ -161,6 +162,7 @@ import noppes.npcs.client.renderer.RenderNpcSlime;
 import noppes.npcs.client.renderer.RenderProjectile;
 import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.containers.ContainerCarpentryBench;
 import noppes.npcs.containers.ContainerCustomChest;
@@ -184,6 +186,7 @@ import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.PlayerGameData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPC64x32;
@@ -1304,6 +1307,10 @@ extends CommonProxy {
 			catch (IOException e) { }
 		}
 		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, languageManager, String.class);
+		if (ClientProxy.playerData!=null && CustomNpcs.proxy.getPlayer()!=null && CustomNpcs.proxy.getPlayer().world!=null) {
+			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, currentLanguage, String.class);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.CurrentLanguage, currentLanguage);
+		}
 		if (!currentLanguage.equals("en_us")) {
 			lang = new File(langDir, currentLanguage+".lang");
 			if (lang.exists() && lang.isFile()) {

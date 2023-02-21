@@ -47,6 +47,7 @@ public enum EnumPlayerPacket
 	TraderMarketReset,
 	TraderMarketRemove,
 	TakeMoney,
-	ScriptDataGetVar;
+	ScriptDataGetVar,
+	CurrentLanguage;
 	
 }

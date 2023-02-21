@@ -30,6 +30,7 @@ import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -60,6 +61,7 @@ import noppes.npcs.items.ItemScripted;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ServerNpcRecipeBookHelper;
 
 public class PacketHandlerPlayer {
@@ -522,6 +524,8 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.ScriptDataGetVar) {
 			// AdditionalMethods.createAndSendVarFuncData(player, Server.readNBT(buffer));
+		} else if (type == EnumPlayerPacket.CurrentLanguage) {
+			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, Server.readString(buffer), String.class);
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
