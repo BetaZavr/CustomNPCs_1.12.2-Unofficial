@@ -235,8 +235,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				category.title += "_";
 			}
 			this.selectedCategory = category.title;
-			Client.sendData(EnumPacketServer.QuestCategorySave,
-					this.categoryData.get(this.selectedCategory).writeNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 			this.initGui();
 		}
 		if (subgui.id == 11) {
