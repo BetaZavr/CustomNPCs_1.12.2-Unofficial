@@ -180,6 +180,8 @@ bard.jukebox=Звук возле NPC.
 bard.offdistance=Расстояние выкл.
 bard.ondistance=Расстояние вкл.
 
+barrier.copied.around=§8Скопированы и установлены настройки из соседнего барьера
+
 beacon.affect=Эмоции
 beacon.availableEffects=Доступные Эффекты
 beacon.currentEffects=Текущие Эффекты

@@ -179,6 +179,8 @@ bard.jukebox=Play as jukebox
 bard.offdistance=Off Distance
 bard.ondistance=On Distance
 
+barrier.copied.around=§8Copied and installed settings from an adjacent barrier
+
 beacon.affect=Affect
 beacon.availableEffects=Available Effects
 beacon.currentEffects=Current Effects
