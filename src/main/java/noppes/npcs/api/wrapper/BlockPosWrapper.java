@@ -5,12 +5,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import noppes.npcs.api.IPos;
 
-public class BlockPosWrapper implements IPos {
+public class BlockPosWrapper
+implements IPos {
+	
 	private BlockPos blockPos;
 
-	public BlockPosWrapper(BlockPos pos) {
-		this.blockPos = pos;
-	}
+	public BlockPosWrapper(BlockPos pos) { this.blockPos = pos; }
 
 	@Override
 	public IPos add(int x, int y, int z) {
@@ -42,12 +42,12 @@ public class BlockPosWrapper implements IPos {
 
 	@Override
 	public IPos east() {
-		return new BlockPosWrapper(this.blockPos.north());
+		return new BlockPosWrapper(this.blockPos.east());
 	}
 
 	@Override
 	public IPos east(int n) {
-		return new BlockPosWrapper(this.blockPos.north(n));
+		return new BlockPosWrapper(this.blockPos.east(n));
 	}
 
 	@Override
@@ -99,12 +99,12 @@ public class BlockPosWrapper implements IPos {
 
 	@Override
 	public IPos south() {
-		return new BlockPosWrapper(this.blockPos.north());
+		return new BlockPosWrapper(this.blockPos.south());
 	}
 
 	@Override
 	public IPos south(int n) {
-		return new BlockPosWrapper(this.blockPos.north(n));
+		return new BlockPosWrapper(this.blockPos.south(n));
 	}
 
 	@Override
@@ -129,11 +129,12 @@ public class BlockPosWrapper implements IPos {
 
 	@Override
 	public IPos west() {
-		return new BlockPosWrapper(this.blockPos.north());
+		return new BlockPosWrapper(this.blockPos.west());
 	}
 
 	@Override
 	public IPos west(int n) {
-		return new BlockPosWrapper(this.blockPos.north(n));
+		return new BlockPosWrapper(this.blockPos.west(n));
 	}
+	
 }
