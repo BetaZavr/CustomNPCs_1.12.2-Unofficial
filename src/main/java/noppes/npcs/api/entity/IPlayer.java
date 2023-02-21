@@ -9,13 +9,12 @@ import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IPlayer<T extends EntityPlayerMP> extends IEntityLivingBase<T> {
+public interface IPlayer<T extends EntityPlayerMP>
+extends IEntityLivingBase<T> {
 	
 	void addDialog(int id);
 
 	void addFactionPoints(int p0, int p1);
-
-	void addMoney(long value);
 
 	boolean canQuestBeAccepted(int id);
 
@@ -47,14 +46,7 @@ public interface IPlayer<T extends EntityPlayerMP> extends IEntityLivingBase<T> 
 
 	IItemStack getInventoryHeldItem();
 
-	// New
-	int[] getKeyPressed();
-
 	T getMCEntity();
-
-	long getMoney();
-
-	int[] getMousePressed();
 
 	IContainer getOpenContainer();
 
@@ -64,21 +56,15 @@ public interface IPlayer<T extends EntityPlayerMP> extends IEntityLivingBase<T> 
 
 	ITimers getTimers();
 
-	double[] getWindowSize();
-
 	boolean giveItem(IItemStack p0);
 
-	boolean giveItem(String p0, int p1, int p2);
+	boolean giveItem(String id, int damage, int amount);
 
 	boolean hasAchievement(String p0);
 
 	boolean hasActiveQuest(int p0);
 
 	boolean hasFinishedQuest(int p0);
-
-	boolean hasKeyPressed(int key);
-
-	boolean hasMousePress(int key);
 
 	boolean hasPermission(String p0);
 
@@ -91,8 +77,6 @@ public interface IPlayer<T extends EntityPlayerMP> extends IEntityLivingBase<T> 
 
 	@Deprecated
 	int inventoryItemCount(String p0, int p1);
-
-	boolean isMoved();
 
 	void kick(String p0);
 
@@ -122,8 +106,6 @@ public interface IPlayer<T extends EntityPlayerMP> extends IEntityLivingBase<T> 
 
 	void setHunger(int p0);
 
-	void setMoney(long value);
-
 	void setSpawnpoint(int p0, int p1, int p2);
 
 	void setSpawnPoint(IBlock p0);
@@ -140,7 +122,27 @@ public interface IPlayer<T extends EntityPlayerMP> extends IEntityLivingBase<T> 
 	void stopQuest(int p0);
 
 	void updatePlayerInventory();
+
+	boolean isMoved(); // New
+
+	void addMoney(long value); // New
+
+	long getMoney(); // New
+
+	void setMoney(long value); // New
+
+	double[] getWindowSize(); // New
+
+	int[] getKeyPressed(); // New
+
+	boolean hasKeyPressed(int key); // New
+
+	int[] getMousePressed(); // New
+
+	boolean hasMousePress(int key); // New
 	
 	void completeQuest(int id); // New
+	
+	String getCurrentLanguage(); // new
 	
 }

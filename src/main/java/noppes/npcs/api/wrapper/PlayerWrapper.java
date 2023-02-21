@@ -710,5 +710,9 @@ implements IPlayer {
 			}
 		}
 	}
+	
+	public String getCurrentLanguage() { // New
+		return this.getData().game.getCurrentLanguage();
+	}
 
 }
