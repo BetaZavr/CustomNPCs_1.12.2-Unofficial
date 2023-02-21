@@ -86,15 +86,39 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		l %= 4;
 		world.setBlockState(pos, state.withProperty(BlockBorder.ROTATION, l));
 		TileBorder tile = (TileBorder) world.getTileEntity(pos);
-		TileBorder adjacent = this.getTile(world, pos.west());
+		TileBorder adjacent = this.getTile(world, pos.south());
 		if (adjacent == null) {
-			adjacent = this.getTile(world, pos.south());
-		}
-		if (adjacent == null) {
-			adjacent = this.getTile(world, pos.north());
-		}
-		if (adjacent == null) {
-			adjacent = this.getTile(world, pos.east());
+			for (int i=0; i<26; i++) {
+				switch(i) {
+					case 0: { adjacent = this.getTile(world, pos.south()); break; }
+					case 1: { adjacent = this.getTile(world, pos.north()); break; }
+					case 2: { adjacent = this.getTile(world, pos.east()); break; }
+					case 3: { adjacent = this.getTile(world, pos.west()); break; }
+					case 4: { adjacent = this.getTile(world, pos.up()); break; }
+					case 5: { adjacent = this.getTile(world, pos.down()); break; }
+					case 6: { adjacent = this.getTile(world, pos.south().east()); break; }
+					case 7: { adjacent = this.getTile(world, pos.south().west()); break; }
+					case 8: { adjacent = this.getTile(world, pos.north().east()); break; }
+					case 9: { adjacent = this.getTile(world, pos.north().west()); break; }
+					case 10: { adjacent = this.getTile(world, pos.down().south()); break; }
+					case 11: { adjacent = this.getTile(world, pos.down().north()); break; }
+					case 12: { adjacent = this.getTile(world, pos.down().east()); break; }
+					case 13: { adjacent = this.getTile(world, pos.down().west()); break; }
+					case 14: { adjacent = this.getTile(world, pos.down().south().east()); break; }
+					case 15: { adjacent = this.getTile(world, pos.down().south().west()); break; }
+					case 16: { adjacent = this.getTile(world, pos.down().north().east()); break; }
+					case 17: { adjacent = this.getTile(world, pos.down().north().west()); break; }
+					case 18: { adjacent = this.getTile(world, pos.up().south()); break; }
+					case 19: { adjacent = this.getTile(world, pos.up().north()); break; }
+					case 20: { adjacent = this.getTile(world, pos.up().east()); break; }
+					case 21: { adjacent = this.getTile(world, pos.up().west()); break; }
+					case 22: { adjacent = this.getTile(world, pos.up().south().east()); break; }
+					case 23: { adjacent = this.getTile(world, pos.up().south().west()); break; }
+					case 24: { adjacent = this.getTile(world, pos.up().north().east()); break; }
+					case 25: { adjacent = this.getTile(world, pos.up().north().west()); break; }
+				}
+				if (adjacent != null) { break; }
+			}
 		}
 		if (adjacent != null) {
 			NBTTagCompound compound = new NBTTagCompound();
@@ -103,8 +127,7 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		}
 		tile.rotation = l;
 		if (entity instanceof EntityPlayer && !world.isRemote) {
-			NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(),
-					pos.getZ());
+			NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
 	
