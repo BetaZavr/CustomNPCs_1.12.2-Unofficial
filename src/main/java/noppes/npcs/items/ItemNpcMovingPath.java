@@ -110,10 +110,10 @@ implements IPermission {
 		list.add(new TextComponentTranslation("info.item.moving.path").getFormattedText());
 		for (int i=0; i<3; i++) {
 			if (i==2) {
-				list.add(new TextComponentTranslation("info.item.wand."+i, new TextComponentTranslation("ai.movingpath").getFormattedText()).getFormattedText());
+				list.add(new TextComponentTranslation("info.item.moving.path."+i, new TextComponentTranslation("ai.movingpath").getFormattedText()).getFormattedText());
 				continue;
 			}
-			list.add(new TextComponentTranslation("info.item.wand."+i).getFormattedText());
+			list.add(new TextComponentTranslation("info.item.moving.path."+i).getFormattedText());
 		}
 	}
 }
