@@ -85,6 +85,7 @@ public class ItemNpcWand extends Item implements IPermission {
 	@Override
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
 		if (list==null) { return; }
+		list.add(new TextComponentTranslation("info.item.wand").getFormattedText());
 		for (int i=0; i<3; i++) {
 			list.add(new TextComponentTranslation("info.item.wand."+i).getFormattedText());
 		}

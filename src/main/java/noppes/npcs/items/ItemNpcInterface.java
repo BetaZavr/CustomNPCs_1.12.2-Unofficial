@@ -91,4 +91,5 @@ public class ItemNpcInterface extends Item {
 		this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, name));
 		return this;
 	}
+	
 }

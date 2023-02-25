@@ -2,6 +2,9 @@ package noppes.npcs.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,7 +17,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
@@ -24,7 +30,10 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.IPermission;
 
-public class ItemNpcMovingPath extends Item implements IPermission {
+public class ItemNpcMovingPath
+extends Item
+implements IPermission {
+	
 	public ItemNpcMovingPath() {
 		this.setRegistryName(CustomNpcs.MODID, "npcmovingpath");
 		this.setUnlocalizedName("npcmovingpath");
@@ -92,5 +101,19 @@ public class ItemNpcMovingPath extends Item implements IPermission {
 			}
 		}
 		return EnumActionResult.FAIL;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list==null) { return; }
+		list.add(new TextComponentTranslation("info.item.moving.path").getFormattedText());
+		for (int i=0; i<3; i++) {
+			if (i==2) {
+				list.add(new TextComponentTranslation("info.item.wand."+i, new TextComponentTranslation("ai.movingpath").getFormattedText()).getFormattedText());
+				continue;
+			}
+			list.add(new TextComponentTranslation("info.item.wand."+i).getFormattedText());
+		}
 	}
 }

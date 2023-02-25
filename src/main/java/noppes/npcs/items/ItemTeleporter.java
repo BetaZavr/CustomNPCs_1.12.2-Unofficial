@@ -2,6 +2,9 @@ package noppes.npcs.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,7 +20,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.EnumGuiType;
@@ -25,7 +31,10 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.IPermission;
 
-public class ItemTeleporter extends Item implements IPermission {
+public class ItemTeleporter
+extends Item
+implements IPermission {
+	
 	public ItemTeleporter() {
 		this.setRegistryName(CustomNpcs.MODID, "npcteleporter");
 		this.setUnlocalizedName("npcteleporter");
@@ -100,4 +109,14 @@ public class ItemTeleporter extends Item implements IPermission {
 		CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
 		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 	}
+
+	
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list==null) { return; }
+		list.add(new TextComponentTranslation("info.item.teleporter").getFormattedText());
+		list.add(new TextComponentTranslation("info.item.teleporter.0").getFormattedText());
+	}
+	
 }

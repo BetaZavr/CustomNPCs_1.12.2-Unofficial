@@ -73,6 +73,7 @@ implements IPermission {
 	@Override
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
 		if (list==null) { return; }
+		list.add(new TextComponentTranslation("info.item.cloner").getFormattedText());
 		NBTTagCompound nbt = stack.getTagCompound();
 		if (nbt==null || !nbt.hasKey("Settings", 10)) {
 			list.add(new TextComponentTranslation("info.item.cloner.empty.0").getFormattedText());

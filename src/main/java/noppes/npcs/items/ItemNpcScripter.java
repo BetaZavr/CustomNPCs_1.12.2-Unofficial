@@ -1,5 +1,10 @@
 package noppes.npcs.items;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -7,7 +12,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.EnumGuiType;
@@ -39,4 +47,13 @@ public class ItemNpcScripter extends Item implements IPermission {
 		CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.ScriptPlayers, player);
 		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 	}
+	
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list==null) { return; }
+		list.add(new TextComponentTranslation("info.item.scripter").getFormattedText());
+		list.add(new TextComponentTranslation("info.item.scripter.0").getFormattedText());
+	}
+	
 }
