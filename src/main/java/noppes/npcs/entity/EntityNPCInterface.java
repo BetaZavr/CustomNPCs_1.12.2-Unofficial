@@ -155,28 +155,20 @@ public abstract class EntityNPCInterface
 extends EntityCreature
 implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
 
-	protected static DataParameter<Integer> Animation = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.VARINT);
-	public static DataParameter<Boolean> Attacking = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
+	protected static DataParameter<Integer> Animation = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.VARINT);
+	public static DataParameter<Boolean> Attacking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
 	public static FakePlayer ChatEventPlayer;
 	public static GameProfileAlt ChatEventProfile = new GameProfileAlt();
 	public static FakePlayer CommandPlayer;
 	public static GameProfileAlt CommandProfile = new GameProfileAlt();
-	private static DataParameter<Integer> FactionData = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.VARINT);
+	private static DataParameter<Integer> FactionData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.VARINT);
 	public static FakePlayer GenericPlayer;
 	public static GameProfileAlt GenericProfile = new GameProfileAlt();
-	private static DataParameter<Boolean> Interacting = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
-	private static DataParameter<Boolean> IsDead = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
-	private static DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.STRING);
-	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.STRING);
-	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> Interacting = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> IsDead = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	private static DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
+	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
+	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
 	public DataAbilities abilities;
 	public DataAdvanced advanced;
 	private EntityAIBase aiAttackTarget;

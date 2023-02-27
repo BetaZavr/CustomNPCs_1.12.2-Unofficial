@@ -47,15 +47,47 @@ extends GuiNPCInterface {
 	public void initGui() {
 		super.initGui();
 		int maxW = 0, w = 0;
-		if (this.activeTopTab==0) {
-			w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.config").getFormattedText());
-			maxW = w;
-			w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.blocks").getFormattedText());
-			if (maxW<w) { maxW = w; }
-			w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.items").getFormattedText());
-			if (maxW<w) { maxW = w; }
-			w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.potions").getFormattedText());
-			if (maxW<w) { maxW = w; }
+		
+		switch(this.activeTopTab) {
+			case 1: { // npcEdit
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.display").getFormattedText());
+				maxW = w;
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.stats").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.ai").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.inventory").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.advanced").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				break;
+			}
+			case 2: { // news
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("inv.drops").getFormattedText());
+				maxW = w;
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.blocks").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				break;
+			}
+			case 3: { // scripts
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.general").getFormattedText());
+				maxW = w;
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.old.api").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.new.api").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				break;
+			}
+			default: { // general
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.config").getFormattedText());
+				maxW = w;
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.blocks").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.items").getFormattedText());
+				if (maxW<w) { maxW = w; }
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.potions").getFormattedText());
+				if (maxW<w) { maxW = w; }
+			}
 		}
 		ScaledResolution sr = new ScaledResolution(this.mc);
 		this.xSize = (int) (sr.getScaledWidth_double() - maxW - 40);
@@ -71,8 +103,8 @@ extends GuiNPCInterface {
 		GuiMenuTopButton scripts = new GuiMenuTopButton(3, news.x + news.getWidth(), guiTop - 17, "gui.help.scripts");
 		general.active = general.id==this.activeTopTab;
 		npcEdit.active = npcEdit.id==this.activeTopTab;
-		npcEdit.active = news.id==this.activeTopTab;
-		npcEdit.active = scripts.id==this.activeTopTab;
+		news.active = news.id==this.activeTopTab;
+		scripts.active = scripts.id==this.activeTopTab;
 		this.addTopButton(general);
 		this.addTopButton(npcEdit);
 		this.addTopButton(news);
@@ -85,7 +117,7 @@ extends GuiNPCInterface {
 				GuiMenuLeftButton stats = new GuiMenuLeftButton(11, this.guiLeft, display.y+display.getHeight(), "menu.stats");
 				GuiMenuLeftButton ais = new GuiMenuLeftButton(12, this.guiLeft, stats.y+stats.getHeight(), "menu.ai");
 				GuiMenuLeftButton inventory = new GuiMenuLeftButton(13, this.guiLeft, ais.y+ais.getHeight(), "menu.inventory");
-				GuiMenuLeftButton advanced = new GuiMenuLeftButton(13, this.guiLeft, inventory.y+inventory.getHeight(), "menu.advanced");
+				GuiMenuLeftButton advanced = new GuiMenuLeftButton(14, this.guiLeft, inventory.y+inventory.getHeight(), "menu.advanced");
 				display.active = display.id==this.activeLeftTab;
 				stats.active = stats.id==this.activeLeftTab;
 				ais.active = ais.id==this.activeLeftTab;
@@ -100,8 +132,8 @@ extends GuiNPCInterface {
 			}
 			case 2: { // news
 				if (this.activeLeftTab<20 || this.activeLeftTab>29) { this.activeLeftTab = 20; }
-				GuiMenuLeftButton items = new GuiMenuLeftButton(0, this.guiLeft, this.guiTop + 4, "inv.drops");
-				GuiMenuLeftButton blocks = new GuiMenuLeftButton(1, this.guiLeft, items.y+items.getHeight(), "gui.help.blocks");
+				GuiMenuLeftButton items = new GuiMenuLeftButton(20, this.guiLeft, this.guiTop + 4, "inv.drops");
+				GuiMenuLeftButton blocks = new GuiMenuLeftButton(21, this.guiLeft, items.y+items.getHeight(), "gui.help.blocks");
 				items.active = items.id==this.activeLeftTab;
 				blocks.active = blocks.id==this.activeLeftTab;
 				this.addLeftButton(items);
@@ -149,7 +181,7 @@ extends GuiNPCInterface {
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		if (button.id<10) { this.activeTopTab = button.id; }
+		if (button instanceof GuiMenuTopButton) { this.activeTopTab = button.id; }
 		else { this.activeLeftTab = button.id; }
 		this.initGui();
 	}

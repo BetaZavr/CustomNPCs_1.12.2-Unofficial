@@ -89,8 +89,11 @@ extends GuiButton {
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
 			this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20,
-					this.width / 2, this.height);
+			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+			if (this.height<20 && this.height>=6) {
+				this.drawTexturedModalRect(this.x, this.y+this.height-3, 0, 63 + i * 20, this.width / 2, 3);
+				this.drawTexturedModalRect(this.x + this.width / 2, this.y+this.height-3, 200 - this.width / 2, 63 + i * 20, this.width / 2, 3);
+			}
 
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -105,8 +108,7 @@ extends GuiButton {
 				j = 16777120;
 			}
 
-			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2,
-					this.y + (this.height - 8) / 2, j);
+			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 		} else {
 			mc.getTextureManager().bindTexture(this.texture);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

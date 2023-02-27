@@ -172,16 +172,12 @@ public class CommonProxy implements IGuiHandler {
 	}
 
 	public PlayerData getPlayerData(EntityPlayer player) {
-		if (player == null) {
-			return null;
-		}
+		if (player == null) { return null; }
 		return PlayerData.get(player);
 	}
 
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		if (ID > EnumGuiType.values().length) {
-			return null;
-		}
+		if (ID > EnumGuiType.values().length) { return null; }
 		EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 		EnumGuiType gui = EnumGuiType.values()[ID];
 		return this.getContainer(gui, player, x, y, z, npc);
@@ -650,7 +646,7 @@ public class CommonProxy implements IGuiHandler {
 				nbtModel.setString("parent", "minecraft:item/handheld");
 			}
 			else if (customitem instanceof CustomArmor) {
-				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/armor/"+name.toLowerCase());
+				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/armor/"+name.toLowerCase()+"_"+((CustomArmor) customitem).getEquipmentSlot().name().toLowerCase());
 			}
 			else {
 				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/"+name.toLowerCase());

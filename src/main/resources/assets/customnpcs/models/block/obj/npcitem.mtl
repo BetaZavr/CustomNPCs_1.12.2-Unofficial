@@ -8,6 +8,11 @@ Kd 1.000000 1.000000 1.000000
 d 1.000000
 map_Kd customnpcs:items/npcchip
 
+newmtl portal
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd minecraft:blocks/portal
+
 newmtl wood
 Kd 0.200000 0.050000 0.010000
 d 1.000000

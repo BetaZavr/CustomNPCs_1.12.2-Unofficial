@@ -23,7 +23,9 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemLingeringPotion;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemSplashPotion;
@@ -31,6 +33,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTippedArrow;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.potion.Potion;
@@ -94,6 +97,8 @@ import noppes.npcs.items.CustomItemTippedArrow;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
+import noppes.npcs.items.ItemBoundary;
+import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemHeplBook;
 import noppes.npcs.items.ItemMounter;
 import noppes.npcs.items.ItemNbtBook;
@@ -153,8 +158,12 @@ public class CustomItems {
 	public static Item teleporter = null;
 	@GameRegistry.ObjectHolder("npcwand")
 	public static Item wand = null;
-	@GameRegistry.ObjectHolder("npchelpbook")
-	public static Item helpbook = null;
+	@GameRegistry.ObjectHolder("npchelpbook") // New
+	public static Item helpbook = null; // New
+	@GameRegistry.ObjectHolder("npcboundary") // New
+	public static ItemBoundary npcboundary = null; // New
+	@GameRegistry.ObjectHolder("npcbuilder") // New
+	public static Item npcbuilder = null; // New
 
 	@GameRegistry.ObjectHolder("nbt_book")
 	public static ItemNbtBook nbt_book = null;
@@ -428,7 +437,9 @@ public class CustomItems {
 		CustomItems.scripted_item = new ItemScripted();
 		CustomItems.nbt_book = new ItemNbtBook();
 		CustomItems.helpbook = new ItemHeplBook();
-
+		CustomItems.npcboundary = new ItemBoundary();
+		CustomItems.npcbuilder = new ItemBuilder();
+		
 		List<Item> items = Lists.<Item>newArrayList();
 		List<String> names = Lists.<String>newArrayList();
 		items.add(CustomItems.wand);
@@ -443,6 +454,8 @@ public class CustomItems {
 		items.add(CustomItems.scripted_item);
 		items.add(CustomItems.nbt_book);
 		items.add(CustomItems.helpbook);
+		items.add(CustomItems.npcboundary);
+		items.add(CustomItems.npcbuilder);
 		items.add(new ItemNpcBlock(CustomItems.redstoneBlock));
 		items.add(new ItemNpcBlock(CustomItems.carpentyBench));
 		items.add(new ItemNpcBlock(CustomItems.mailbox).setHasSubtypes(true));
@@ -549,11 +562,9 @@ public class CustomItems {
 				LogWriter.error("Attempt to load item pos: "+i+"; name: \""+nbtItem.getString("RegistryName")+"\" - failed");
 				continue;
 			}
-			String name = "custom_"+nbtItem.getString("RegistryName").toLowerCase();
-			Item item = null;
 			switch(nbtItem.getByte("ItemType")) {
 				case (byte) 1: // Weapon
-					item = new CustomWeapon(CustomItem.getMaterialTool(nbtItem), nbtItem);
+					this.registryItem(new CustomWeapon(CustomItem.getMaterialTool(nbtItem), nbtItem), names, items, nbtItem);
 					break;
 				case (byte) 2: // Tool
 					Set<Block> effectiveBlocks = Sets.<Block>newHashSet();
@@ -563,40 +574,44 @@ public class CustomItems {
 							if (block!=null) { effectiveBlocks.add(block); }
 						}
 					}
-					item = new CustomTool((float)nbtItem.getDouble("EntityDamage"), (float) nbtItem.getDouble("SpeedAttack"), CustomItem.getMaterialTool(nbtItem), effectiveBlocks, nbtItem);
+					this.registryItem(new CustomTool((float)nbtItem.getDouble("EntityDamage"), (float) nbtItem.getDouble("SpeedAttack"), CustomItem.getMaterialTool(nbtItem), effectiveBlocks, nbtItem), names, items, nbtItem);
 					break;
 				case (byte) 3: // Armor
-					item = new CustomArmor(CustomArmor.getMaterialArmor(nbtItem), nbtItem.getInteger("RenderIndex"), CustomArmor.getSlotEquipment(nbtItem), nbtItem);
+					ArmorMaterial mat = CustomArmor.getMaterialArmor(nbtItem);
+					for (int a=0; a<nbtItem.getTagList("EquipmentSlots", 8).tagCount(); a++) {
+						EntityEquipmentSlot slot = CustomArmor.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
+						int maxStDam = 0;
+						if (nbtItem.hasKey("MaxStackDamage", 11) && a<nbtItem.getIntArray("MaxStackDamage").length) {
+							maxStDam = nbtItem.getIntArray("MaxStackDamage")[a];
+						}
+						int damReAmt = 0;
+						if (nbtItem.hasKey("DamageReduceAmount", 11) && a<nbtItem.getIntArray("DamageReduceAmount").length) {
+							damReAmt = nbtItem.getIntArray("DamageReduceAmount")[a];
+						}
+						float tough = 0.0f;
+						if (nbtItem.getTagList("Toughness", 5)!=null && a<nbtItem.getTagList("Toughness", 5).tagCount()) {
+							tough = nbtItem.getTagList("Toughness", 5).getFloatAt(a);
+						}
+						this.registryItem(new CustomArmor(mat, nbtItem.getInteger("RenderIndex"), slot, maxStDam, damReAmt, tough, nbtItem), names, items, nbtItem);
+					}
 					break;
 				case (byte) 4: // Shield
-					item = new CustomShield(nbtItem);
+					this.registryItem(new CustomShield(nbtItem), names, items, nbtItem);
 					break;
 				case (byte) 5: // Bow
-					item = new CustomBow(nbtItem);
+					this.registryItem(new CustomBow(nbtItem), names, items, nbtItem);
 					break;
 				case (byte) 6: // Food
-					item = new CustomFood(nbtItem.getInteger("HealAmount"), nbtItem.getFloat("SaturationModifier"), nbtItem.getBoolean("IsWolfFood"), nbtItem);
+					this.registryItem(new CustomFood(nbtItem.getInteger("HealAmount"), nbtItem.getFloat("SaturationModifier"), nbtItem.getBoolean("IsWolfFood"), nbtItem), names, items, nbtItem);
 					break;
 				case (byte) 7: // Potion
 					continue;
 				default: // Simple
-					item = new CustomItem(nbtItem);
-			}
-			if (names.contains(item.getRegistryName().toString()) || Item.getByNameOrId(item.getRegistryName().toString())!=null) {
-				LogWriter.error("Attempt to load a registred item \""+item.getRegistryName()+"\"");
-				continue;
+					this.registryItem(new CustomItem(nbtItem), names, items, nbtItem);
 			}
 			if (nbtItem.hasKey("CreateAllFiles") && nbtItem.getBoolean("CreateAllFiles")) {
-				CustomNpcs.proxy.checkItemFiles((ICustomItem) item);
 				nbtItem.setBoolean("CreateAllFiles", false);
 				resave = true;
-			}
-			LogWriter.info("Load Custom Item \""+CustomNpcs.MODID+":"+name+"\"");
-			items.add(item);
-			CustomItems.customitems.add(item);
-			names.add(item.getRegistryName().toString());
-			if (item.getRegistryName().getResourcePath().equals("custom_itemexample") || CustomItems.tabItems.item==CustomItems.scripted_item) {
-				CustomItems.tabItems.item = item;
 			}
 		}
 		
@@ -617,6 +632,22 @@ public class CustomItems {
 			}
 		});
 		
+	}
+
+	private void registryItem(Item item, List<String> names, List<Item> items, NBTTagCompound nbtItem) {
+		if (names.contains(item.getRegistryName().toString()) || Item.getByNameOrId(item.getRegistryName().toString())!=null) {
+			LogWriter.error("Attempt to load a registred item \""+item.getRegistryName()+"\"");
+		}
+		if (nbtItem.hasKey("CreateAllFiles") && nbtItem.getBoolean("CreateAllFiles")) {
+			CustomNpcs.proxy.checkItemFiles((ICustomItem) item);
+		}
+		LogWriter.info("Load Custom Item \""+item.getRegistryName()+"\"");
+		items.add(item);
+		CustomItems.customitems.add(item);
+		names.add(item.getRegistryName().toString());
+		if (item.getRegistryName().getResourcePath().equals("custom_itemexample") || CustomItems.tabItems.item==CustomItems.scripted_item) {
+			CustomItems.tabItems.item = item;
+		}
 	}
 
 	@SuppressWarnings({ "deprecation" })
@@ -654,6 +685,8 @@ public class CustomItems {
 		ModelLoader.setCustomModelResourceLocation(CustomItems.scripted_item, 0, new ModelResourceLocation(CustomNpcs.MODID + ":scripted_item", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomItems.nbt_book, 0, new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomItems.helpbook, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npchelpbook", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomItems.npcboundary, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomItems.npcbuilder, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder", "inventory"));
 		for (Item item : CustomItems.customitems) { ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory")); }
 		
 		// Render Tiles
@@ -778,15 +811,24 @@ public class CustomItems {
 		NBTTagCompound exampleArmor = new NBTTagCompound();
 		exampleArmor.setString("RegistryName", "armorexample");
 		exampleArmor.setByte("ItemType", (byte) 3);
-		exampleArmor.setInteger("MaxStackDamage", 2250);
 		exampleArmor.setDouble("EntityDamage", 0.0d);
+		exampleArmor.setInteger("RenderIndex", 4);
 		exampleArmor.setString("Material", "GOLD");
 		exampleArmor.setTag("RepairItem", (new ItemStack(Items.GOLD_NUGGET)).writeToNBT(new NBTTagCompound()));
-		exampleArmor.setString("EquipmentSlot", "HEAD");
-		exampleArmor.setInteger("RenderIndex", 4);
-		exampleArmor.setInteger("DamageReduceAmount", 5);
-		exampleArmor.setFloat("Toughness", 2.2f);
 		exampleArmor.setBoolean("CreateAllFiles", true);
+
+		exampleArmor.setIntArray("MaxStackDamage", new int[] { 2250, 3100, 1800 });
+		NBTTagList slots = new NBTTagList();
+		slots.appendTag(new NBTTagString("HEAD"));
+		slots.appendTag(new NBTTagString("Chest"));
+		slots.appendTag(new NBTTagString("feet"));
+		exampleArmor.setTag("EquipmentSlots", slots);
+		exampleArmor.setIntArray("DamageReduceAmount", new int[] { 5, 7, 4 });
+		NBTTagList toughness = new NBTTagList();
+		toughness.appendTag(new NBTTagFloat(2.2f));
+		toughness.appendTag(new NBTTagFloat(3.5f));
+		toughness.appendTag(new NBTTagFloat(1.8f));
+		exampleArmor.setTag("Toughness", toughness);
 		listItems.appendTag(exampleArmor);
 		
 		NBTTagCompound exampleShield = new NBTTagCompound();

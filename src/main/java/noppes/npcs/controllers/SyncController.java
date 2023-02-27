@@ -281,11 +281,17 @@ public class SyncController {
 		Server.sendData(player, EnumPacketClient.SYNC_END, 7, compound);
 
 		PlayerData data = PlayerData.get((EntityPlayer) player);
-		Server.sendData(player, EnumPacketClient.SYNC_END, 8, data.getNBT());
+		if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
+			data.game.op = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+		}
+		compound = data.getNBT();
+		Server.sendData(player, EnumPacketClient.SYNC_END, 8, compound);
 
 		syncScriptItems(player);
 
 		syncScriptRecipes(player);
+		
+		BorderController.getInstance().sendTo(player);
 	}
 
 	public static void syncScriptItems(EntityPlayerMP player) {

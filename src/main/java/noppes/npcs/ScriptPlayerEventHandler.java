@@ -17,6 +17,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
@@ -59,6 +61,7 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 
@@ -277,8 +280,12 @@ public class ScriptPlayerEventHandler {
 
 	@SubscribeEvent
 	public void invoke(PlayerInteractEvent.LeftClickBlock event) {
-		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
-				|| !(event.getWorld() instanceof WorldServer)) {
+		if (event.getHand()!=EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
+			return;
+		}
+		if (event.getItemStack().getItem() == CustomItems.npcboundary) {
+			((ItemBoundary) event.getItemStack().getItem()).leftClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
+			event.setCanceled(true);
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
@@ -296,12 +303,17 @@ public class ScriptPlayerEventHandler {
 
 	@SubscribeEvent
 	public void invoke(PlayerInteractEvent.RightClickBlock event) {
-		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
+		if (event.getHand()!=EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
 				|| !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
 		if (event.getItemStack().getItem() == CustomItems.nbt_book) {
 			((ItemNbtBook) event.getItemStack().getItem()).blockEvent(event);
+			event.setCanceled(true);
+			return;
+		}
+		if (event.getItemStack().getItem() == CustomItems.npcboundary) {
+			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
 			event.setCanceled(true);
 			return;
 		}
@@ -320,14 +332,34 @@ public class ScriptPlayerEventHandler {
 
 	@SubscribeEvent
 	public void invoke(PlayerInteractEvent.RightClickItem event) {
-		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
-				|| !(event.getWorld() instanceof WorldServer)) {
+		if (event.getHand()!=EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
 		if (event.getEntityPlayer().isCreative() && event.getEntityPlayer().isSneaking()
 				&& event.getItemStack().getItem() == CustomItems.scripted_item) {
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.ScriptItem, null);
 			return;
+		}
+		// Empty Click:
+		if (event.getItemStack().getItem() == CustomItems.nbt_book ||
+				event.getItemStack().getItem() == CustomItems.npcboundary ||
+				event.getItemStack().getItem() == CustomItems.npcbuilder) {
+			EntityPlayer player = event.getEntityPlayer();
+			Vec3d vec3d = player.getPositionEyes(1.0f);
+			Vec3d vec3d2 = player.getLook(1.0f);
+			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 6.0d, vec3d2.y * 6.0d, vec3d2.z * 6.0d);
+			RayTraceResult result = player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
+			if (result!=null) { return; }
+			if (!event.getEntityPlayer().world.isRemote && event.getItemStack().getItem() == CustomItems.nbt_book) {
+				if (!player.getHeldItemOffhand().isEmpty()) {
+					((ItemNbtBook) event.getItemStack().getItem()).itemEvent(event);
+					return;
+				}
+			}
+			if (event.getItemStack().getItem() == CustomItems.npcboundary) {
+				((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
+				return;
+			}
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		if (handler.hadInteract) {

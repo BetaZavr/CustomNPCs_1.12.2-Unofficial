@@ -37,7 +37,6 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
-import noppes.npcs.util.NBTJsonUtil;
 
 public class RecipeController implements IRecipeHandler {
 	
@@ -219,9 +218,6 @@ public class RecipeController implements IRecipeHandler {
 			file.renameTo(file3);
 			if (file.exists()) {
 				file.delete();
-			}
-			if (CustomNpcs.VerboseDebug) {
-				NBTJsonUtil.SaveFile(new File(saveDir, "recipes_debug.json"), nbtFile);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

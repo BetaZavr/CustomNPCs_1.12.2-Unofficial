@@ -16,6 +16,7 @@ public class PlayerGameData {
 	public boolean update; // ServerTickHandler
 	public double[] windowSize = new double[] { 0, 0 };
 	private String currentLanguage = "en_us";
+	public boolean op = false;
 
 	public void addMoney(long money) {
 		this.money += money;
@@ -53,7 +54,8 @@ public class PlayerGameData {
 		list.appendTag(new NBTTagDouble(this.windowSize[1]));
 		compound.setTag("WindowSize", list);
 		compound.setLong("Money", this.money);
-		compound.setString("currentLanguage", this.currentLanguage);
+		compound.setString("CurrentLanguage", this.currentLanguage);
+		compound.setBoolean("IsOP", this.op);
 		return compound;
 	}
 
@@ -104,14 +106,15 @@ public class PlayerGameData {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		if (compound != null && compound.hasKey("GameData", 10)) {
-			NBTTagCompound comTemp = compound.getCompoundTag("GameData");
-			this.keyPress = comTemp.getTagList("KeyPress", 3);
-			this.mousePress = comTemp.getTagList("MousePress", 3);
-			for (int i = 0; i < 2 && i < comTemp.getTagList("WindowSize", 6).tagCount(); i++) {
-				this.windowSize[i] = comTemp.getTagList("WindowSize", 6).getDoubleAt(i);
+			NBTTagCompound gameNBT = compound.getCompoundTag("GameData");
+			this.keyPress = gameNBT.getTagList("KeyPress", 3);
+			this.mousePress = gameNBT.getTagList("MousePress", 3);
+			for (int i = 0; i < 2 && i < gameNBT.getTagList("WindowSize", 6).tagCount(); i++) {
+				this.windowSize[i] = gameNBT.getTagList("WindowSize", 6).getDoubleAt(i);
 			}
-			this.money = comTemp.getLong("Money");
-			this.currentLanguage = compound.getString("currentLanguage");
+			this.money = gameNBT.getLong("Money");
+			this.currentLanguage = gameNBT.getString("CurrentLanguage");
+			this.op = gameNBT.getBoolean("IsOP");
 		}
 	}
 

@@ -95,6 +95,7 @@ import noppes.npcs.client.fx.EntityEnderFX;
 import noppes.npcs.client.gui.GuiBlockBuilder;
 import noppes.npcs.client.gui.GuiBlockCopy;
 import noppes.npcs.client.gui.GuiBorderBlock;
+import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.client.gui.GuiHelpBook;
 import noppes.npcs.client.gui.GuiMerchantAdd;
 import noppes.npcs.client.gui.GuiNbtBook;
@@ -545,6 +546,9 @@ extends CommonProxy {
 			case HelpBook: {
 				return new GuiHelpBook();
 			}
+			case BoundarySetting: {
+				return new GuiBoundarySetting(x, y);
+			}
 			default: {
 				return null;
 			}
@@ -558,13 +562,8 @@ extends CommonProxy {
 
 	@Override
 	public PlayerData getPlayerData(EntityPlayer player) {
-		if (player.getUniqueID() == Minecraft.getMinecraft().player.getUniqueID()) {
-			if (ClientProxy.playerData.player != player) {
-				ClientProxy.playerData.player = player;
-			}
-			return ClientProxy.playerData;
-		}
-		return null;
+		if (ClientProxy.playerData.player != player) { ClientProxy.playerData.player = player; }
+		return ClientProxy.playerData;
 	}
 
 	@Override
@@ -1006,7 +1005,10 @@ extends CommonProxy {
 		if (name.equals("itemexample")) { n = "Simple Item Example"; }
 		else if (name.equals("weaponexample")) { n = "Weapon Example"; }
 		else if (name.equals("toolexample")) { n = "Tool Example"; }
-		else if (name.equals("armorexample")) { n = "Armor Example"; }
+		else if (name.equals("armorexample")) {
+			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
+			n = "Armor Example "+(""+slot.charAt(0)).toUpperCase()+slot.toLowerCase().substring(1);
+		}
 		else if (name.equals("shieldexample")) { n = "Shield Example"; }
 		else if (name.equals("bowexample")) { n = "Bow Example"; }
 		else if (name.equals("foodexample")) { n = "Food Example"; }
@@ -1057,7 +1059,20 @@ extends CommonProxy {
 			type = "iron_pickaxe";
 		}
 		else if (customitem instanceof CustomArmor) {
-			type = "iron_helmet";
+			switch(((CustomArmor) customitem).getEquipmentSlot()) {
+				case HEAD:
+					type = "iron_helmet";
+					break;
+				case CHEST:
+					type = "iron_chestplate";
+					break;
+				case LEGS:
+					type = "iron_leggings";
+					break;
+				default:
+					type = "iron_boots";
+					break;
+			}
 			armorTexture = new File(texturesDir, textureName+"_layer_1.png");
 		}
 		else if (customitem instanceof CustomBow) {

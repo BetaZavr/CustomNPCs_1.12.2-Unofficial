@@ -261,6 +261,7 @@ extends GuiScreen {
 			}
 			GlStateManager.popMatrix();
 		}
+		GlStateManager.translate(0, 0, 1.0f);
 		this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, this.height + 10, 16777215);
 		for (GuiNpcLabel label : new ArrayList<GuiNpcLabel>(this.labels.values())) {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);

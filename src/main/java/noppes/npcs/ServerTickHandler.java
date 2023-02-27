@@ -27,7 +27,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.AnalyticsTracking;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.SyncController;
@@ -57,9 +57,22 @@ public class ServerTickHandler {
 		}
 		// New - Fix setAttackTarget(player)
 		PlayerData data = PlayerData.get(player);
-		long resTime = (long) player.getName().codePointAt(0) % 100L;
-		if (player.getEntityWorld().getWorldTime() % 100L == resTime) {
+		long resTime = (long) player.getName().codePointAt(0);
+		if (player.getEntityWorld().getWorldTime() % 100L == resTime % 100L) {
 			VisibilityController.onUpdate((EntityPlayerMP) player); // any 5 sec.
+		}
+		if (player.getEntityWorld().getWorldTime() % 20L == resTime % 20L) {
+			if (player!=null &&
+					player.getServer()!=null &&
+					player.getServer().getPlayerList()!=null &&
+					player.getGameProfile()!=null)
+				{
+				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+				if (data.game.op!=opn) {
+					data.game.op = opn;
+					data.updateClient = true;
+				}
+			}
 		}
 		if (data.updateClient) {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.SYNC_END, 8, data.getSyncNBT());
@@ -79,7 +92,14 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.side == Side.SERVER && event.phase == TickEvent.Phase.START && this.ticks++ >= 20) {
+		if (event.side == Side.CLIENT) {
+			return;
+		}
+		BorderController.getInstance().update();
+		if (event.phase == TickEvent.Phase.END) {
+			return;
+		}
+		if (this.ticks++ >= 20) {
 			CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			SchematicController.Instance.updateBuilding();
 			MassBlockController.Update();
@@ -94,8 +114,8 @@ public class ServerTickHandler {
 				entry.update();
 			}
 			DataScenes.ScenesToRun = new ArrayList<DataScenes.SceneContainer>();
-			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 		}
+		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 	}
 
 	@SubscribeEvent
@@ -105,9 +125,6 @@ public class ServerTickHandler {
 			if (event.phase == TickEvent.Phase.START) {
 				NPCSpawning.findChunksForSpawning((WorldServer) event.world);
 			}
-			if (event.world.provider.getDimension() == 0 && event.world.getTotalWorldTime() % 10 == 0) {
-				MarcetController.getInstance().update();
-			}
 			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerWorldTick");
 		}
 	}
@@ -115,9 +132,7 @@ public class ServerTickHandler {
 	@SubscribeEvent
 	public void playerLogin(PlayerEvent.PlayerLoggedInEvent event) {
 		CustomNpcs.proxy.updateRecipeBook(event.player);
-		if (event.player.world.isRemote) {
-			return;
-		}
+		if (event.player.world.isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", event.player, "ServerTickHandler_playerLogin");
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
 		MinecraftServer server = event.player.getServer();

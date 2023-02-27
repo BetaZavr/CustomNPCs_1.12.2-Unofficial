@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +26,12 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.gui.recipebook.GuiRecipeBook;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.util.RecipeBookClient;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandBase.CoordinateArg;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.NumberInvalidException;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IProjectile;
@@ -36,8 +42,15 @@ import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -151,8 +164,14 @@ import noppes.npcs.controllers.data.QuestData;
 public class AdditionalMethods {
 
 	private static Map<Class<?>, Class<?>> map = Maps.newHashMap();
+	private static Method copyDataFromOld;
 
 	static {
+		try {
+			AdditionalMethods.copyDataFromOld = Entity.class.getDeclaredMethod((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")?"copyDataFromOld":"func_180432_n", Entity.class);
+			AdditionalMethods.copyDataFromOld.setAccessible(true);
+		}
+		catch (Exception e) { e.printStackTrace(); }
 		AdditionalMethods.map.put(IAnimal.class, AnimalWrapper.class);
 		AdditionalMethods.map.put(IArrow.class, ArrowWrapper.class);
 		AdditionalMethods.map.put(IBlockFluidContainer.class, BlockFluidContainerWrapper.class);
@@ -1087,4 +1106,193 @@ public class AdditionalMethods {
 				stack1.isStackable() &&
 				stack1.getCount() < stack1.getMaxStackSize();
 	}
+
+	public static double distanceTo(double x0, double y0, double z0, double x1, double y1, double z1) {
+		double d0 = x0 - x1;
+		double d1 = y0 - y1;
+		double d2 = z0 - z1;
+		return Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+	}
+
+	public static double distanceTo(BlockPos pos0, BlockPos pos1) {
+		return distanceTo(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+	}
+
+	/**
+	 * @param dx - posX from look angles
+	 * @param dy - posY from look angles
+	 * @param dz - posZ from look angles
+	 * @param mx - posX to look angles
+	 * @param my - posY to look angles
+	 * @param mz - posZ to look angles
+	 * @return {yaw, pitch, radiusXZ, dist}
+	 */
+	public static double[] getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
+		double yaw, pitch, dist, xVal = mx - dx, yVal = my - dy, zVal = mz - dz;
+		double radiusXZ = Math.sqrt(Math.pow(xVal, 2) + Math.pow(zVal, 2));
+		pitch = Math.atan(yVal / radiusXZ) * 180 / Math.PI;
+		if (!(pitch >= -90 && pitch <= 90)) {pitch = 0;}
+		if (xVal <= 0) {yaw=90 + Math.atan(zVal / xVal) * 180 / Math.PI;}
+		else {yaw = 270 + Math.atan(zVal / xVal) * 180 / Math.PI;}
+		if (!(yaw >= 0 && yaw <= 360)) {yaw = 0;}
+		dist = Math.sqrt(Math.pow(radiusXZ, 2) + Math.pow(yVal, 2));
+		return new double[] {yaw, pitch, radiusXZ, dist};
+	}
+
+	/**
+	 * @param pos0 - block position from look angles
+	 * @param pos1 - block position to look angles
+	 * @return {yaw, pitch, radiusXZ, dist}
+	 */
+	public static double[] getAngles3D(BlockPos pos0, BlockPos pos1) {
+		return getAngles3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+	}
+
+	/**
+	 * @param cx - X-axis position center
+	 * @param cy - Y-axis position center
+	 * @param cz - Z-axis position center
+	 * @param radius
+	 * @return {x, y, z}
+	 */
+	public static double[] getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
+		if (radius<0.0d) { radius *= -1.0d; }
+		double x = Math.sin(yaw * Math.PI / 180) * radius * -1;
+		double y = Math.sin(pitch * Math.PI / 180) * radius;
+		double z = Math.cos(yaw * Math.PI / 180) * radius;
+		return new double[] {cx+x, cy+y, cz+z};
+	}
+
+	/**
+	 * @param pos - block position center
+	 * @param radius
+	 * @return {x, y, z}
+	 */
+	public static double[] getPosition(BlockPos pos, double yaw, double pitch, double radius) {
+		return getPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, radius);
+	}
+
+	public static double[] getVector3D(double dx, double dy, double dz, double mx, double my, double mz) {
+		double ax,ay,az, yaw, hVal = 1.5D + my - dy;
+		if (hVal < 0.35D) {hVal = 0.35D;}
+		double xVal = mx - dx, zVal = mz - dz;
+		ay = (-3.0D + Math.sqrt(9.0D - 16.0D * (-0.75D - hVal))) / 8.0D;
+		double radiusXZ = Math.sqrt(Math.pow(xVal, 2.0D) + Math.pow(zVal, 2.0D));
+		double impXZ = -4.5D + Math.sqrt(20.25D + 4.0D * radiusXZ);
+		if (xVal <= 0) {yaw = 90.0D + Math.atan(zVal / xVal) * 180 / Math.PI;}
+		else {yaw = 270.0D + Math.atan(zVal / xVal) * 180 / Math.PI;}
+		if (!(yaw >= 0 && yaw <= 360)) {yaw = 0;}
+		if (yaw == 0.0D) {yaw = 180.0D;}
+		else if (yaw == 180.0D) {yaw = 0.0D;}
+		ax = Math.sin(yaw * Math.PI / 180) * impXZ * -1;
+		az = Math.cos(yaw * Math.PI / 180) * impXZ;
+		return new double[] {ax, ay, az, yaw};
+	}
+
+	public static double[] getVector3D(BlockPos pos0, BlockPos pos1) {
+		return getVector3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+	}
+
+	
+	// Teleport Entity to Spawn next Dimensions
+	public static Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
+		World world = server.getWorld(dimension);
+		if (world == null) { throw new CommandException("Couldn't find dimension " + dimension); }
+		if (entity instanceof EntityPlayerMP) {
+			server.getPlayerList().transferPlayerToDimension((EntityPlayerMP) entity, dimension, new CustomNpcsTeleporter((WorldServer) server.getEntityWorld()));
+			return entity;
+		}
+		else { return travelEntity(server, entity, dimension); }
+	}
+	
+	// [Teleport] Copy and Place Entity to Spawn next Dimensions
+	public static Entity travelEntity(MinecraftServer server, Entity entity, int dimensionId) {
+		if (!entity.world.isRemote && !entity.isDead) {
+			entity.world.profiler.startSection("changeDimension");
+			int dimensionStart = entity.dimension;
+			WorldServer worldserverStart = server.getWorld(dimensionStart);
+			WorldServer worldserverEnd = server.getWorld(dimensionId);
+			entity.dimension = dimensionId;
+			Entity newEntity = EntityList.createEntityByIDFromName(EntityList.getKey(entity.getClass()), worldserverEnd);
+			if (newEntity != null) {
+				try { AdditionalMethods.copyDataFromOld.invoke(newEntity, entity); }
+				catch (Exception e) { e.printStackTrace(); }
+				entity.world.removeEntity(entity);
+				newEntity.forceSpawn = true;
+				worldserverEnd.spawnEntity(newEntity);
+			}
+			worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
+			entity.isDead = true;
+			entity.world.profiler.endSection();
+			worldserverStart.resetUpdateEntityTick();
+			worldserverEnd.resetUpdateEntityTick();
+			entity.world.profiler.endSection();
+			return newEntity;
+		}
+		return entity;
+	}
+	
+	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, double x, double y, double z) throws CommandException {
+		if (entity==null) { return null; }
+		if (entity.world.provider.getDimension()!=dimension) { entity = travelAndCopyEntity(server, entity, dimension); }
+		CoordinateArg xn = CommandBase.parseCoordinate(entity.posX, ""+x, true);
+		CoordinateArg yn = CommandBase.parseCoordinate(entity.posY, ""+y, -4096, 4096, false);
+		CoordinateArg zn = CommandBase.parseCoordinate(entity.posZ, ""+z, true);
+		CoordinateArg w = CommandBase.parseCoordinate((double)entity.rotationYaw, "~", false);
+		CoordinateArg p = CommandBase.parseCoordinate((double)entity.rotationPitch, "~", false);
+		teleportEntity(entity, xn, yn, zn, w, p);
+		return entity;
+	}
+	
+	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, BlockPos pos) throws CommandException {
+		return AdditionalMethods.teleportEntity(server, entity, dimension, (double) pos.getX()+0.5d, (double) pos.getY(), (double) pos.getZ()+0.5d);
+	}
+
+	
+	public static void teleportEntity(Entity entityIn, double x, double y, double z) {
+		teleportEntity(entityIn, x, y, z, 0.0f, 0.0f);
+	}
+	
+	public static void teleportEntity(Entity entityIn, double x, double y, double z, float yaw, float pitch) {
+		try {
+			CommandBase.CoordinateArg argX = CommandBase.parseCoordinate(entityIn.posX, ""+x, true);
+			CommandBase.CoordinateArg argY = CommandBase.parseCoordinate(entityIn.posY, ""+y, -4096, 4096, false);
+			CommandBase.CoordinateArg argZ = CommandBase.parseCoordinate(entityIn.posZ, ""+z, true);
+			CommandBase.CoordinateArg argYaw = CommandBase.parseCoordinate((double) entityIn.rotationYaw, ""+yaw, false);
+			CommandBase.CoordinateArg argPitch = CommandBase.parseCoordinate((double) entityIn.rotationPitch, ""+pitch, false);
+			teleportEntity(entityIn, argX, argY, argZ, argYaw, argPitch);
+		}
+		catch (NumberInvalidException e) { }
+	}
+	
+	// Vanila Teleport in world
+	public static void teleportEntity(Entity entityIn, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch) {
+		if (entityIn instanceof EntityPlayerMP)
+		{
+			Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.<SPacketPlayerPosLook.EnumFlags>noneOf(SPacketPlayerPosLook.EnumFlags.class);
+			if (argX.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.X); }
+			if (argY.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.Y); }
+			if (argZ.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.Z); }
+			if (argPitch.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.X_ROT); }
+			if (argYaw.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.Y_ROT); }
+			float f = (float) argYaw.getAmount();
+			if (!argYaw.isRelative()) { f = MathHelper.wrapDegrees(f); }
+			float f1 = (float) argPitch.getAmount();
+			if (!argPitch.isRelative()) { f1 = MathHelper.wrapDegrees(f1); }
+			entityIn.dismountRidingEntity();
+			((EntityPlayerMP)entityIn).connection.setPlayerLocation(argX.getAmount(), argY.getAmount(), argZ.getAmount(), f, f1, set);
+			entityIn.setRotationYawHead(f);
+		} else {
+			float f2 = (float) MathHelper.wrapDegrees(argYaw.getResult());
+			float f3 = (float) MathHelper.wrapDegrees(argPitch.getResult());
+			f3 = MathHelper.clamp(f3, -90.0F, 90.0F);
+			entityIn.setLocationAndAngles(argX.getResult(), argY.getResult(), argZ.getResult(), f2, f3);
+			entityIn.setRotationYawHead(f2);
+		}
+		if (!(entityIn instanceof EntityLivingBase) || !((EntityLivingBase) entityIn).isElytraFlying()) {
+			entityIn.motionY = 0.0D;
+			entityIn.onGround = true;
+		}
+	}
+	
 }

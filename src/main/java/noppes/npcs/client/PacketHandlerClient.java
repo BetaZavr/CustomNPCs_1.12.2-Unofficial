@@ -61,6 +61,7 @@ import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.QuestController;
@@ -73,7 +74,31 @@ import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
 
-public class PacketHandlerClient extends PacketHandlerServer {
+public class PacketHandlerClient
+extends PacketHandlerServer {
+
+	@SubscribeEvent
+	public void onPacketData(FMLNetworkEvent.ClientCustomPacketEvent event) {
+		EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().player;
+		if (player == null) {
+			return;
+		}
+		ByteBuf buffer = event.getPacket().payload();
+		Minecraft.getMinecraft().addScheduledTask(() -> {
+			EnumPacketClient type = null;
+			try {
+				type = EnumPacketClient.values()[buffer.readInt()];
+				if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.NPC_VISUAL_DATA) {
+					LogWriter.debug("Received: " + type);
+				} // Changed
+				this.client(buffer, player, type);
+			} catch (Exception e) {
+				LogWriter.error("Error with EnumPacketClient." + type, e);
+			} finally {
+				buffer.release();
+			}
+		});
+	}
 	
 	private void client(ByteBuf buffer, EntityPlayer player, EnumPacketClient type) throws Exception {
 		CustomNpcs.debugData.startDebug("Client", player, "PackageReceived_"+type.toString());
@@ -462,31 +487,24 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
 			ItemStack held = new ItemStack(Server.readNBT(buffer));
 			player.inventory.setItemStack(held);
+		} else if (type == EnumPacketClient.BORDER_DATA) {
+			int id = buffer.readInt();
+			if (id==-1) {
+				BorderController.getInstance().regions.clear();
+				return;
+			}
+			else if (id==-2) {
+				GuiScreen gui = Minecraft.getMinecraft().currentScreen;
+				if (gui instanceof GuiNPCInterface) {
+					((GuiNPCInterface) gui).initGui();
+				}
+				return;
+			}
+			BorderController.getInstance().loadRegion(Server.readNBT(buffer));
+			
 		}
 		
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}
-
-	@SubscribeEvent
-	public void onPacketData(FMLNetworkEvent.ClientCustomPacketEvent event) {
-		EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().player;
-		if (player == null) {
-			return;
-		}
-		ByteBuf buffer = event.getPacket().payload();
-		Minecraft.getMinecraft().addScheduledTask(() -> {
-			EnumPacketClient type = null;
-			try {
-				type = EnumPacketClient.values()[buffer.readInt()];
-				if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.NPC_VISUAL_DATA) {
-					LogWriter.debug("Received: " + type);
-				} // Changed
-				this.client(buffer, player, type);
-			} catch (Exception e) {
-				LogWriter.error("Error with EnumPacketClient." + type, e);
-			} finally {
-				buffer.release();
-			}
-		});
-	}
+	
 }

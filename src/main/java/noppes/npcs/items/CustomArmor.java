@@ -19,19 +19,16 @@ implements ICustomItem {
 	protected ItemStack repairItemStack = ItemStack.EMPTY;
 	protected int enchantability = 0;
 	
-	public CustomArmor(ItemArmor.ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn, NBTTagCompound nbtItem) {
+	public CustomArmor(ItemArmor.ArmorMaterial materialIn, int renderIndexIn, EntityEquipmentSlot equipmentSlotIn, int maxStackDamage, int damageReduceAmount, float toughness, NBTTagCompound nbtItem) {
 		super(materialIn, renderIndexIn, equipmentSlotIn);
 		this.nbtData = nbtItem;
-		this.setRegistryName(CustomNpcs.MODID, "custom_"+nbtItem.getString("RegistryName"));
-		this.setUnlocalizedName("custom_"+nbtItem.getString("RegistryName"));
+		String name = "custom_"+nbtItem.getString("RegistryName")+"_"+equipmentSlotIn.name().toLowerCase();
+		this.setRegistryName(CustomNpcs.MODID, name);
+		this.setUnlocalizedName(name);
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) { this.setFull3D(); }
-		if (nbtItem.getInteger("MaxStackDamage")>1) { this.setMaxDamage(nbtItem.getInteger("MaxStackDamage")); }
-		if (nbtItem.hasKey("DamageReduceAmount", 3)) {
-			ObfuscationHelper.setValue(ItemArmor.class, this,  nbtItem.getInteger("DamageReduceAmount"), 5);
-		}
-		if (nbtItem.hasKey("Toughness", 5)) {
-			ObfuscationHelper.setValue(ItemArmor.class, this,  nbtItem.getFloat("Toughness"), 6);
-		}
+		if (maxStackDamage>1) { this.setMaxDamage(maxStackDamage); }
+		if (damageReduceAmount>0) { ObfuscationHelper.setValue(ItemArmor.class, this,  damageReduceAmount, 5); }
+		if (toughness>0.0f) { ObfuscationHelper.setValue(ItemArmor.class, this,  toughness, 6); }
 		if (nbtItem.hasKey("RepairItem", 10)) { this.repairItemStack = new ItemStack(nbtItem.getCompoundTag("RepairItem")); }
 		else { this.repairItemStack = materialIn.getRepairItemStack(); }
 		if (nbtItem.hasKey("Enchantability", 3)) { this.enchantability = nbtItem.getInteger("Enchantability"); }
@@ -68,8 +65,8 @@ implements ICustomItem {
 		}
 	}
 	
-	public static EntityEquipmentSlot getSlotEquipment(NBTTagCompound nbtItem) {
-		String slotName = nbtItem.hasKey("EquipmentSlot", 8) ? nbtItem.getString("EquipmentSlot").toLowerCase() : "feet";
+	public static EntityEquipmentSlot getSlotEquipment(String slotName) {
+		slotName = slotName.toLowerCase();
 		switch(slotName) {
 			case "head":
 				return EntityEquipmentSlot.HEAD;

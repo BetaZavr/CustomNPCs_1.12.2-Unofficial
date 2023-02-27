@@ -35,7 +35,7 @@ public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 40, this.guiTop + 40, 120, 20, "Availability Options"));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 40, this.guiTop + 40, 120, 20, "availability.available"));
 		this.addLabel(new GuiNpcLabel(0, "Height", this.guiLeft + 1, this.guiTop + 76, 16777215));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 71, 40, 20,
 				this.tile.height + ""));

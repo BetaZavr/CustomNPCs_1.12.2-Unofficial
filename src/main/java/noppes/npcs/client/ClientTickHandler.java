@@ -131,6 +131,20 @@ public class ClientTickHandler {
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
 		}
+		if (mc.currentScreen!=null) {
+			if (ClientProxy.playerData.game.mousePress.tagCount()>0) {
+				ClientProxy.playerData.game.mousePress = new NBTTagList();
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setTag("keys", ClientProxy.playerData.game.mousePress);
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, compound);
+			}
+			if (ClientProxy.playerData.game.keyPress.tagCount()>0) {
+				ClientProxy.playerData.game.keyPress = new NBTTagList();
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setTag("keys", ClientProxy.playerData.game.keyPress);
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeysPressed, compound);
+			}
+		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
 	}
 

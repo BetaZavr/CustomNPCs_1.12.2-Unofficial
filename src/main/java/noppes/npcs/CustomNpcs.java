@@ -73,6 +73,7 @@ import noppes.npcs.command.CommandNoppes;
 import noppes.npcs.config.ConfigLoader;
 import noppes.npcs.config.ConfigProp;
 import noppes.npcs.controllers.BankController;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
@@ -383,7 +384,6 @@ public class CustomNpcs {
 				}
 				return;
 			});
-
 			board.addDirtyRunnable(() -> {
 				List<EntityPlayerMP> players = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList()
 						.getPlayers();
@@ -435,6 +435,7 @@ public class CustomNpcs {
 	public void started(FMLServerStartedEvent event) {
 		new BankController();
 		new MarcetController();
+		new BorderController(); // new
 		DialogController.instance.load();
 		QuestController.instance.load();
 		ScriptController.HasStart = true;

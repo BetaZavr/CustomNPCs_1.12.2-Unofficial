@@ -88,9 +88,7 @@ implements IPermission {
 				}
 			}
 		}
-		if (flag) {
-			return false;
-		}
+		if (flag) { return false; }
 		if (movingobjectposition.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos pos;
 			for (pos = movingobjectposition.getBlockPos(); par3EntityPlayer.world.getBlockState(pos)
@@ -109,7 +107,6 @@ implements IPermission {
 		CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
 		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 	}
-
 	
 	@SideOnly(Side.CLIENT)
 	@Override

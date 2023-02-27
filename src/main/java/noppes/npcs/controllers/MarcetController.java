@@ -18,7 +18,6 @@ import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.NBTJsonUtil;
 
 public class MarcetController {
 	
@@ -268,9 +267,6 @@ public class MarcetController {
 			file.renameTo(file3);
 			if (file.exists()) {
 				file.delete();
-			}
-			if (CustomNpcs.VerboseDebug) {
-				NBTJsonUtil.SaveFile(new File(saveDir, "marcet_debug.json"), this.getNBT());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

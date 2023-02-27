@@ -21,7 +21,10 @@ import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.controllers.data.Availability;
 
 @SuppressWarnings("rawtypes")
-public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
+public class TileBorder
+extends TileNpcEntity
+implements Predicate, ITickable {
+	
 	public Availability availability;
 	public AxisAlignedBB boundingbox;
 	public int height;
@@ -92,8 +95,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 		for (Entity entity : list) {
 			if (entity instanceof EntityEnderPearl) {
 				EntityEnderPearl pearl = (EntityEnderPearl) entity;
-				if (!(pearl.getThrower() instanceof EntityPlayer)
-						|| this.availability.isAvailable((EntityPlayer) pearl.getThrower())) {
+				if (!(pearl.getThrower() instanceof EntityPlayer) || this.availability.isAvailable((EntityPlayer) pearl.getThrower())) {
 					continue;
 				}
 				entity.isDead = true;
@@ -112,7 +114,7 @@ public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
 				} else if (this.rotation == 3) {
 					pos2 = pos2.west();
 				}
-				while (!this.world.isAirBlock(pos2)) {
+				while (!this.world.isAirBlock(pos2) || !entity.world.isAirBlock(pos.up())) {
 					pos2 = pos2.up();
 				}
 				player.setPositionAndUpdate(pos2.getX() + 0.5, pos2.getY(), pos2.getZ() + 0.5);

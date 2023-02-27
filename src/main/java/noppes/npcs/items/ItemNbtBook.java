@@ -36,8 +36,7 @@ implements IPermission {
 	}
 	
 	public void itemEvent(PlayerInteractEvent.RightClickItem event) {
-		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook,
-				event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setBoolean("Item", true);
 		compound.setTag("Data", event.getEntityPlayer().getHeldItemOffhand().writeToNBT(new NBTTagCompound()));

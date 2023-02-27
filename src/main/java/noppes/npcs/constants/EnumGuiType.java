@@ -60,5 +60,7 @@ public enum EnumGuiType
 	NbtBook, 
 	CustomChest, 
 	CustomGui,
-	HelpBook; // New
+	HelpBook, // New
+	BoundarySetting; // New
+	
 }

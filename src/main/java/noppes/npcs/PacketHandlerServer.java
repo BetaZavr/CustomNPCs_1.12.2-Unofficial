@@ -50,6 +50,7 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.BankController;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.LinkedNpcController;
@@ -76,9 +77,11 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.controllers.data.TransportLocation;
+import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
+import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.roles.JobSpawner;
@@ -87,6 +90,7 @@ import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.schematics.SchematicWrapper;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.IPermission;
 
 public class PacketHandlerServer {
@@ -1143,6 +1147,54 @@ public class PacketHandlerServer {
 		else if (type == EnumPacketServer.ScriptPotionSave) { // New
 			ScriptController.Instance.setPotionScripts(Server.readNBT(buffer));
 		}
+		else if (type == EnumPacketServer.TeleportTo) { // New
+			int dimensionId = buffer.readInt();
+			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
+			if (player.world.provider.getDimension()==dimensionId) {
+				player.setPositionAndUpdate(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d);
+				return;
+			}
+			try { AdditionalMethods.teleportEntity(CustomNpcs.Server, player, dimensionId, pos); } catch (Exception e) { }
+		}
+		else if (type == EnumPacketServer.RegionData) { // New
+			int t = buffer.readInt();
+			BorderController bData = BorderController.getInstance();
+			if (t==0) { // set reg id to item
+				int regId = buffer.readInt();
+				if (!bData.regions.containsKey(regId)) {
+					bData.sendTo(player);
+					return;
+				}
+				if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
+					NBTTagCompound compound = player.getHeldItemMainhand().getTagCompound();
+					if (compound==null) { player.getHeldItemMainhand().setTagCompound(compound = new NBTTagCompound()); }
+					compound.setInteger("RegionID", regId);
+				}
+			}
+			else if (t==1) { // remove region
+				int regId = buffer.readInt();
+				if (!bData.regions.containsKey(regId)) {
+					bData.sendTo(player);
+					return;
+				}
+				if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
+					NBTTagCompound compound = player.getHeldItemMainhand().getTagCompound();
+					if (compound==null) { player.getHeldItemMainhand().setTagCompound(compound = new NBTTagCompound()); }
+					compound.removeTag("RegionID");
+				}
+				if (bData.removeRegion(regId)) {
+					for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) { bData.sendTo(p); }
+				}
+			}
+			if (t==2) { // save region
+				Zone3D reg = bData.loadRegion(Server.readNBT(buffer));
+				if (reg!=null) {
+					bData.saveRegions();
+					bData.sendToAll(reg.id);
+				}
+			}
+		}
+		
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 	}
 	

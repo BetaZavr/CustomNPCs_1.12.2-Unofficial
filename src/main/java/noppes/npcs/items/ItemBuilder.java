@@ -14,12 +14,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 
-public class ItemDimension
+public class ItemBuilder
 extends Item {
 
-	public ItemDimension() {
-		this.setRegistryName(CustomNpcs.MODID, "npcdimension");
-		this.setUnlocalizedName("npcdimension");
+	public ItemBuilder() {
+		this.setRegistryName(CustomNpcs.MODID, "npcbuilder");
+		this.setUnlocalizedName("npcbuilder");
 		this.maxStackSize = 1;
 		this.setCreativeTab((CreativeTabs) CustomItems.tab);
 	}
