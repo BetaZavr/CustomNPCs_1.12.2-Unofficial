@@ -45,19 +45,23 @@ public class ClientTickHandler {
 	
 	@SubscribeEvent
 	public void cnpcMouseInput(MouseEvent event) {
-		if (event.getButton() == -1) {
-			return;
-		}
+		int key = event.getButton();
+		if (key == -1) { return; }
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_cnpcMouseInput");
 		if (Minecraft.getMinecraft().currentScreen==null) {
 			boolean isCtrlPressed = ClientProxy.playerData.game.hasOrKeysPressed(157, 29);
 			boolean isShiftPressed = ClientProxy.playerData.game.hasOrKeysPressed(54, 42);
 			boolean isAltPressed = ClientProxy.playerData.game.hasOrKeysPressed(184, 56);
 			boolean isMetaPressed = ClientProxy.playerData.game.hasOrKeysPressed(220, 219);
-			if (event.isButtonstate()) { ClientProxy.playerData.game.mousePress.add(event.getButton()); }
-			else { ClientProxy.playerData.game.mousePress.remove(event.getButton()); }
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, event.getButton(), event.isButtonstate(), isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.game.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
+			boolean isDown = event.isButtonstate();
+			if (isDown) { ClientProxy.playerData.game.mousePress.add(key); }
+			else {
+				if (ClientProxy.playerData.game.hasMousePress(key)) { ClientProxy.playerData.game.mousePress.remove((Integer)key); }
+			}
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
+		} else if (ClientProxy.playerData.game.mousePress.size()>0) {
+			ClientProxy.playerData.game.mousePress.clear();
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_cnpcMouseInput");
 	}
@@ -95,8 +99,14 @@ public class ClientTickHandler {
 			MarcetController.getInstance().updateTime();
 		}
 		if (mc.currentScreen!=null) {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
+			if (ClientProxy.playerData.game.keyPress.size()>0) {
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
+				ClientProxy.playerData.game.keyPress.clear();
+			}
+			if (ClientProxy.playerData.game.mousePress.size()>0) {
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
+				ClientProxy.playerData.game.mousePress.clear();
+			}
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
 	}
@@ -131,8 +141,17 @@ public class ClientTickHandler {
 			boolean isShiftPressed = ClientProxy.playerData.game.hasOrKeysPressed(54, 42);
 			boolean isAltPressed = ClientProxy.playerData.game.hasOrKeysPressed(184, 56);
 			boolean isMetaPressed = ClientProxy.playerData.game.hasOrKeysPressed(220, 219);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, Keyboard.getEventKey(), Keyboard.getEventKeyState(), isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
+			boolean isDown = Keyboard.getEventKeyState();
+			int key = Keyboard.getEventKey();
+			if (isDown) { ClientProxy.playerData.game.keyPress.add(key); }
+			else {
+				if (ClientProxy.playerData.game.hasKeyPressed(key)) { ClientProxy.playerData.game.keyPress.remove((Integer)key); }
+			}
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.game.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
+		} else if (ClientProxy.playerData.game.keyPress.size()>0) {
+			ClientProxy.playerData.game.keyPress.clear();
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnKey");
 	}

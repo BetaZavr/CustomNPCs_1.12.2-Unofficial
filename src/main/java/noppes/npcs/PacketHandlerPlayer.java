@@ -76,9 +76,7 @@ public class PacketHandlerPlayer {
 			EnumPlayerPacket type = null;
 			List<EnumPlayerPacket> list = new ArrayList<EnumPlayerPacket>();
 			list.add(EnumPlayerPacket.NpcVisualData);
-			list.add(EnumPlayerPacket.KeyDown);
-			list.add(EnumPlayerPacket.KeyUp);
-			list.add(EnumPlayerPacket.KeysPressed);
+			list.add(EnumPlayerPacket.KeyPressed);
 			list.add(EnumPlayerPacket.IsMoved);
 			list.add(EnumPlayerPacket.LeftClick);
 			list.add(EnumPlayerPacket.MousesPressed);
@@ -107,12 +105,41 @@ public class PacketHandlerPlayer {
 			}
 			MarkData.get((EntityLivingBase) entity);
 		} else if (type == EnumPlayerPacket.KeyPressed) {
+			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
+			int key = buffer.readInt();
+			if (key<0) {
+				for (int k : data.keyPress) { EventHooks.onPlayerKeyPressed(player, k, false, false, false, false, false); }
+				data.keyPress.clear();
+				return;
+			}
+			boolean isDown = buffer.readBoolean();
+			if (isDown) { data.keyPress.add(key); }
+			else {
+				if (data.hasKeyPressed(key)) { data.keyPress.remove((Integer)key); }
+			}
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
-			EventHooks.onPlayerKeyPressed(player, buffer.readInt(), buffer.readBoolean(), buffer.readBoolean(),
-					buffer.readBoolean(), buffer.readBoolean(), type == EnumPlayerPacket.KeyDown);
+			
+		} else if (type == EnumPlayerPacket.MousesPressed) {
+			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
+			int key = buffer.readInt();
+			if (key<0) {
+				for (int k : data.mousePress) { EventHooks.onPlayerMousePressed(player, k, false, false, false, false, false); }
+				data.mousePress.clear();
+				return;
+			}
+			boolean isDown = buffer.readBoolean();
+			if (isDown) { data.mousePress.add(key); }
+			else {
+				if (data.hasMousePress(key)) { data.mousePress.remove((Integer) key); }
+			}
+			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				return;
+			}
+			EventHooks.onPlayerMousePressed(player, key, isDown, buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean());
 		} else if (type == EnumPlayerPacket.LeftClick) {
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
@@ -356,19 +383,6 @@ public class PacketHandlerPlayer {
 				compound.setString("RarityTitle", npcData.stats.getRarityTitle());
 				Server.sendData(player, EnumPacketClient.NPC_VISUAL_DATA, entityID, compound);
 			}
-		} else if (type == EnumPlayerPacket.MousesPressed) {
-			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
-			int key = buffer.readInt();
-			if (key<1) {
-				data.mousePress.clear();
-				return;
-			}
-			if (buffer.readBoolean()){ data.mousePress.add(key); }
-			else {
-				//EventHooks.onPlayerKeyPressed(player, button, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed, isDown);
-				data.mousePress.remove(key);
-			}
-			
 		} else if (type == EnumPlayerPacket.IsMoved) {
 			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
 			data.isMoved = buffer.readBoolean();
