@@ -38,6 +38,9 @@ public class GuiScriptPlayers extends GuiScriptInterface {
 		this.baseFuncNames.put("logout", PlayerEvent.LogoutEvent.class);
 		this.baseFuncNames.put("levelUp", PlayerEvent.LevelUpEvent.class);
 		this.baseFuncNames.put("keyPressed", PlayerEvent.KeyPressedEvent.class);
+		this.baseFuncNames.put("keyDown", PlayerEvent.KeyPressedEvent.class);
+		this.baseFuncNames.put("mousePressed", PlayerEvent.KeyPressedEvent.class);
+		this.baseFuncNames.put("mouseDown", PlayerEvent.KeyPressedEvent.class);
 		this.baseFuncNames.put("chat", PlayerEvent.ChatEvent.class);
 		this.baseFuncNames.put("factionUpdate", PlayerEvent.FactionUpdateEvent.class);
 		this.baseFuncNames.put("itemFished", PlayerEvent.ItemFished.class);
