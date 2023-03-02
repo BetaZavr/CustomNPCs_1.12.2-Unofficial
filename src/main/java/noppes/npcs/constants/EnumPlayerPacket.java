@@ -26,8 +26,6 @@ public enum EnumPlayerPacket
 	CompanionTalentExp, 
 	MarkData, 
 	LeftClick, 
-	KeyDown,  
-	KeyUp, 
 	CloseGui, 
 	CustomGuiClose, 
 	CustomGuiButton, 
@@ -37,7 +35,6 @@ public enum EnumPlayerPacket
 	QuestChooseReward,
 	QuestCompletionReward,
 	NpcVisualData,
-	KeysPressed,
 	MousesPressed,
 	IsMoved,
 	WindowSize,
@@ -48,6 +45,8 @@ public enum EnumPlayerPacket
 	TraderMarketRemove,
 	TakeMoney,
 	ScriptDataGetVar,
-	CurrentLanguage;
+	CurrentLanguage,
+	GetBuildData,
+	KeyPressed;
 	
 }

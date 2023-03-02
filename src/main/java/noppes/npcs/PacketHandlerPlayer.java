@@ -57,10 +57,12 @@ import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ServerNpcRecipeBookHelper;
 
@@ -104,7 +106,7 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			MarkData.get((EntityLivingBase) entity);
-		} else if (type == EnumPlayerPacket.KeyUp || type == EnumPlayerPacket.KeyDown) {
+		} else if (type == EnumPlayerPacket.KeyPressed) {
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
@@ -354,14 +356,19 @@ public class PacketHandlerPlayer {
 				compound.setString("RarityTitle", npcData.stats.getRarityTitle());
 				Server.sendData(player, EnumPacketClient.NPC_VISUAL_DATA, entityID, compound);
 			}
-		} else if (type == EnumPlayerPacket.KeysPressed) {
-			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
-			NBTTagCompound compound = Server.readNBT(buffer);
-			data.keyPress = compound.getTagList("keys", 3);
 		} else if (type == EnumPlayerPacket.MousesPressed) {
 			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
-			NBTTagCompound compound = Server.readNBT(buffer);
-			data.mousePress = compound.getTagList("keys", 3);
+			int key = buffer.readInt();
+			if (key<1) {
+				data.mousePress.clear();
+				return;
+			}
+			if (buffer.readBoolean()){ data.mousePress.add(key); }
+			else {
+				//EventHooks.onPlayerKeyPressed(player, button, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed, isDown);
+				data.mousePress.remove(key);
+			}
+			
 		} else if (type == EnumPlayerPacket.IsMoved) {
 			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
 			data.isMoved = buffer.readBoolean();
@@ -526,7 +533,17 @@ public class PacketHandlerPlayer {
 			// AdditionalMethods.createAndSendVarFuncData(player, Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.CurrentLanguage) {
 			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, Server.readString(buffer), String.class);
-		}
+		} else if (type == EnumPlayerPacket.GetBuildData) {
+			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
+			BuilderData builder = CommonProxy.dataBuilder.get(player.getHeldItemMainhand().getTagCompound().getInteger("ID"));
+			if (builder==null) {
+				player.getHeldItemMainhand().getTagCompound().removeTag("ID");
+				ItemBuilder.cheakStack(player.getHeldItemMainhand());
+				builder = CommonProxy.dataBuilder.get(player.getHeldItemMainhand().getTagCompound().getInteger("ID"));
+				if (builder==null) { return; }
+			}
+			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, builder.getNbt());
+		} 
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
 }

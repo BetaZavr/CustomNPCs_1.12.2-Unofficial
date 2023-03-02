@@ -1,5 +1,9 @@
 package noppes.npcs.controllers.data;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
@@ -10,9 +14,9 @@ import noppes.npcs.util.AdditionalMethods;
 public class PlayerGameData {
 
 	public boolean isMoved = false;
-	public NBTTagList keyPress = new NBTTagList();
+	public List<Integer> keyPress = Lists.<Integer>newArrayList();
+	public List<Integer> mousePress = Lists.<Integer>newArrayList();
 	public long money;
-	public NBTTagList mousePress = new NBTTagList();
 	public boolean update; // ServerTickHandler
 	public double[] windowSize = new double[] { 0, 0 };
 	private String currentLanguage = "en_us";
@@ -29,17 +33,21 @@ public class PlayerGameData {
 	}
 
 	public int[] getKeyPressed() {
-		int[] ids = new int[this.keyPress.tagCount()];
-		for (int k = 0; k < this.keyPress.tagCount(); k++) {
-			ids[k] = this.keyPress.getIntAt(k);
+		int[] ids = new int[this.keyPress.size()];
+		int i = 0;
+		for (int key : this.keyPress) {
+			ids[i] = key;
+			i++;
 		}
 		return ids;
 	}
 
 	public int[] getMousePressed() {
-		int[] ids = new int[this.keyPress.tagCount()];
-		for (int k = 0; k < this.keyPress.tagCount(); k++) {
-			ids[k] = this.keyPress.getIntAt(k);
+		int[] ids = new int[this.mousePress.size()];
+		int i = 0;
+		for (int key : this.mousePress) {
+			ids[i] = key;
+			i++;
 		}
 		return ids;
 	}
@@ -47,8 +55,6 @@ public class PlayerGameData {
 	public NBTTagCompound getNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setBoolean("IsMoved", this.isMoved);
-		compound.setTag("KeyPress", this.keyPress);
-		compound.setTag("MousePress", this.mousePress);
 		NBTTagList list = new NBTTagList();
 		list.appendTag(new NBTTagDouble(this.windowSize[0]));
 		list.appendTag(new NBTTagDouble(this.windowSize[1]));
@@ -56,6 +62,10 @@ public class PlayerGameData {
 		compound.setLong("Money", this.money);
 		compound.setString("CurrentLanguage", this.currentLanguage);
 		compound.setBoolean("IsOP", this.op);
+		
+		compound.setIntArray("KeyPress", this.getKeyPressed());
+		compound.setIntArray("MousePress", this.getMousePressed());
+		
 		return compound;
 	}
 
@@ -72,32 +82,24 @@ public class PlayerGameData {
 	}
 
 	public boolean hasKeyPressed(int key) {
-		for (NBTBase k : this.keyPress) {
-			if (((NBTTagInt) k).getInt() == key) {
-				return true;
-			}
+		for (int k : this.keyPress) {
+			if (k == key) { return true; }
 		}
-		return false;
+		return this.keyPress.contains((Integer) key) ;
 	}
 	
 	public boolean hasOrKeysPressed(int[] keys) {
-		for (NBTBase k : this.keyPress) {
-			for (int i=0; i<keys.length; i++) {
-				if (((NBTTagInt) k).getInt() == keys[i]) {
-					return true;
-				}
-			}
+		for (int key : keys) {
+			if (this.hasKeyPressed(key)) { return true; }
 		}
 		return false;
 	}
 
 	public boolean hasMousePress(int key) {
-		for (NBTBase k : this.mousePress) {
-			if (((NBTTagInt) k).getInt() == key) {
-				return true;
-			}
+		for (int k : this.mousePress) {
+			if (k == key) { return true; }
 		}
-		return false;
+		return this.mousePress.contains((Integer) key) ;
 	}
 
 	public boolean isMoved() {
@@ -107,14 +109,19 @@ public class PlayerGameData {
 	public void readFromNBT(NBTTagCompound compound) {
 		if (compound != null && compound.hasKey("GameData", 10)) {
 			NBTTagCompound gameNBT = compound.getCompoundTag("GameData");
-			this.keyPress = gameNBT.getTagList("KeyPress", 3);
-			this.mousePress = gameNBT.getTagList("MousePress", 3);
 			for (int i = 0; i < 2 && i < gameNBT.getTagList("WindowSize", 6).tagCount(); i++) {
 				this.windowSize[i] = gameNBT.getTagList("WindowSize", 6).getDoubleAt(i);
 			}
 			this.money = gameNBT.getLong("Money");
 			this.currentLanguage = gameNBT.getString("CurrentLanguage");
 			this.op = gameNBT.getBoolean("IsOP");
+			
+			int[] iK = gameNBT.getIntArray("KeyPress");
+			int[] iM = gameNBT.getIntArray("MousePress");
+			this.keyPress.clear();
+			this.mousePress.clear();
+			for (int key : iK) { this.keyPress.add(key); }
+			for (int key : iM) { this.mousePress.add(key); }
 		}
 	}
 
