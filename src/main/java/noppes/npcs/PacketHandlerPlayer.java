@@ -121,6 +121,7 @@ public class PacketHandlerPlayer {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
+			EventHooks.onPlayerKeyPressed(player, key, isDown, buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean());
 			
 		} else if (type == EnumPlayerPacket.MousesPressed) {
 			PlayerGameData data = PlayerData.get((EntityPlayer) player).game;
