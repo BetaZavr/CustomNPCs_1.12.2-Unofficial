@@ -7,8 +7,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
@@ -34,6 +36,7 @@ import noppes.npcs.api.item.ICustomItem;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.containers.ContainerBuilderSettings;
 import noppes.npcs.containers.ContainerCarpentryBench;
 import noppes.npcs.containers.ContainerCustomChest;
 import noppes.npcs.containers.ContainerCustomGui;
@@ -69,13 +72,17 @@ import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
+import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class CommonProxy implements IGuiHandler {
+public class CommonProxy
+implements IGuiHandler {
+	
 	public boolean newVersionAvailable;
 	public int revision;
+	public static Map<Integer, BuilderData> dataBuilder = Maps.<Integer, BuilderData>newTreeMap();
 
 	public CommonProxy() {
 		this.newVersionAvailable = false;
@@ -88,82 +95,35 @@ public class CommonProxy implements IGuiHandler {
 
 	public Container getContainer(EnumGuiType gui, EntityPlayer player, int x, int y, int z, EntityNPCInterface npc) { // Changed
 		switch (gui) {
-		case CustomChest: {
-			return new ContainerCustomChest(player, x);
-		}
-		case MainMenuInv: {
-			return new ContainerNPCInv(npc, player);
-		}
-		case MainMenuInvDrop: {
-			return new ContainerNPCDropSetup(npc, x, player);
-		} // New
-		case PlayerAnvil: {
-			return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z));
-		}
-		case PlayerBankSmall: {
-			return new ContainerNPCBankSmall(player, x, y);
-		}
-		case PlayerBankUnlock: {
-			return new ContainerNPCBankUnlock(player, x, y);
-		}
-		case PlayerBankUprade: {
-			return new ContainerNPCBankUpgrade(player, x, y);
-		}
-		case PlayerBankLarge: {
-			return new ContainerNPCBankLarge(player, x, y);
-		}
-		case PlayerFollowerHire: {
-			return new ContainerNPCFollowerHire(npc, player);
-		}
-		case PlayerFollower: {
-			return new ContainerNPCFollower(npc, player);
-		}
-		case PlayerTrader: {
-			return new ContainerNPCTrader(npc, player);
-		}
-		case SetupItemGiver: {
-			return new ContainerNpcItemGiver(npc, player);
-		}
-		case SetupTrader: { // Change
-			Marcet marcet = MarcetController.getInstance().getMarcet(x);
-			if (marcet == null) {
-				marcet = new Marcet();
+			case CustomChest: { return new ContainerCustomChest(player, x); }
+			case MainMenuInv: { return new ContainerNPCInv(npc, player); }
+			case MainMenuInvDrop: { return new ContainerNPCDropSetup(npc, x, player); } // New
+			case PlayerAnvil: { return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z)); }
+			case PlayerBankSmall: { return new ContainerNPCBankSmall(player, x, y); }
+			case PlayerBankUnlock: { return new ContainerNPCBankUnlock(player, x, y); }
+			case PlayerBankUprade: { return new ContainerNPCBankUpgrade(player, x, y); }
+			case PlayerBankLarge: { return new ContainerNPCBankLarge(player, x, y); }
+			case PlayerFollowerHire: { return new ContainerNPCFollowerHire(npc, player); }
+			case PlayerFollower: { return new ContainerNPCFollower(npc, player); }
+			case PlayerTrader: { return new ContainerNPCTrader(npc, player); }
+			case SetupItemGiver: { return new ContainerNpcItemGiver(npc, player); }
+			case SetupTrader: { // Change
+				Marcet marcet = MarcetController.getInstance().getMarcet(x);
+				if (marcet == null) { marcet = new Marcet(); }
+				return new ContainerNPCTraderSetup(marcet, y, player);
 			}
-			return new ContainerNPCTraderSetup(marcet, y, player);
-		}
-		case SetupFollower: {
-			return new ContainerNPCFollowerSetup(npc, player);
-		}
-		case QuestReward: {
-			return new ContainerNpcQuestReward(player);
-		}
-		case QuestTypeItem: {
-			return new ContainerNpcQuestTypeItem(player, y);
-		} // Change
-		case QuestRewardItem: {
-			return new ContainerNpcQuestRewardItem(player, x);
-		} // New
-		case ManageRecipes: {
-			return new ContainerManageRecipes(player, x);
-		} // Change
-		case ManageBanks: {
-			return new ContainerManageBanks(player);
-		}
-		case MerchantAdd: {
-			return new ContainerMerchantAdd(player, (IMerchant) ServerEventsHandler.Merchant, player.world);
-		}
-		case PlayerMailman: {
-			return new ContainerMail(player, x == 1, y == 1);
-		}
-		case CompanionInv: {
-			return new ContainerNPCCompanion(npc, player);
-		}
-		case CustomGui: {
-			return new ContainerCustomGui(getPlayer(), new InventoryBasic("", false, x));
-		}
-		default: {
-			return null;
-		}
+			case SetupFollower: { return new ContainerNPCFollowerSetup(npc, player); }
+			case QuestReward: { return new ContainerNpcQuestReward(player); }
+			case QuestTypeItem: { return new ContainerNpcQuestTypeItem(player, y); } // Change
+			case QuestRewardItem: { return new ContainerNpcQuestRewardItem(player, x); } // New
+			case ManageRecipes: { return new ContainerManageRecipes(player, x); } // Change
+			case ManageBanks: { return new ContainerManageBanks(player); }
+			case MerchantAdd: { return new ContainerMerchantAdd(player, (IMerchant) ServerEventsHandler.Merchant, player.world); }
+			case PlayerMailman: { return new ContainerMail(player, x == 1, y == 1); }
+			case CompanionInv: { return new ContainerNPCCompanion(npc, player); }
+			case CustomGui: { return new ContainerCustomGui(getPlayer(), new InventoryBasic("", false, x)); }
+			case BuilderSetting: { return new ContainerBuilderSettings(player, x); } // New
+			default: { return null; }
 		}
 	}
 

@@ -96,6 +96,7 @@ import noppes.npcs.client.gui.GuiBlockBuilder;
 import noppes.npcs.client.gui.GuiBlockCopy;
 import noppes.npcs.client.gui.GuiBorderBlock;
 import noppes.npcs.client.gui.GuiBoundarySetting;
+import noppes.npcs.client.gui.GuiBuilderSetting;
 import noppes.npcs.client.gui.GuiHelpBook;
 import noppes.npcs.client.gui.GuiMerchantAdd;
 import noppes.npcs.client.gui.GuiNbtBook;
@@ -165,6 +166,7 @@ import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.containers.ContainerBuilderSettings;
 import noppes.npcs.containers.ContainerCarpentryBench;
 import noppes.npcs.containers.ContainerCustomChest;
 import noppes.npcs.containers.ContainerCustomGui;
@@ -366,31 +368,18 @@ extends CommonProxy {
 
 	private GuiScreen getGui(EntityNPCInterface npc, EnumGuiType gui, Container container, int x, int y, int z) { // Changed
 		switch (gui) {
-			case CustomChest: {
-				return new GuiCustomChest((ContainerCustomChest) container);
-			}
+			case CustomChest: { return new GuiCustomChest((ContainerCustomChest) container); }
 			case MainMenuDisplay: {
 				if (npc != null) {
 					return new GuiNpcDisplay(npc);
 				}
-				getPlayer().sendMessage(new TextComponentString("Unable to find npc"));
+				this.getPlayer().sendMessage(new TextComponentString("Unable to find npc"));
 			}
-			case MainMenuStats: {
-				return new GuiNpcStats(npc);
-			}
-			case MainMenuInv: {
-				return new GuiNPCInv(npc, (ContainerNPCInv) container);
-			}
-			case MainMenuInvDrop: {
-				return new GuiDropEdit(npc, (ContainerNPCDropSetup) container, npc.inventory.drops.get(x),
-						(GuiContainer) Minecraft.getMinecraft().currentScreen);
-			} // New
-			case MainMenuAdvanced: {
-				return new GuiNpcAdvanced(npc);
-			}
-			case QuestReward: {
-				return new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container);
-			}
+			case MainMenuStats: { return new GuiNpcStats(npc); }
+			case MainMenuInv: { return new GuiNPCInv(npc, (ContainerNPCInv) container); }
+			case MainMenuInvDrop: { return new GuiDropEdit(npc, (ContainerNPCDropSetup) container, npc.inventory.drops.get(x), (GuiContainer) Minecraft.getMinecraft().currentScreen); } // New
+			case MainMenuAdvanced: { return new GuiNpcAdvanced(npc); }
+			case QuestReward: { return new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container); }
 			case QuestTypeItem: { // New
 				Quest quest = NoppesUtilServer.getEditingQuest(getPlayer());
 				if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM
@@ -400,158 +389,60 @@ extends CommonProxy {
 				}
 				return null;
 			}
-			case QuestRewardItem: {
-				return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x);
-			} // New
-			case MovingPath: {
-				return new GuiNpcPather(npc);
-			}
-			case ManageFactions: {
-				return new GuiNPCManageFactions(npc);
-			}
-			case ManageLinked: {
-				return new GuiNPCManageLinkedNpc(npc);
-			}
-			case BuilderBlock: {
-				return new GuiBlockBuilder(x, y, z);
-			}
-			case ManageTransport: {
-				return new GuiNPCManageTransporters(npc);
-			}
-			case ManageRecipes: {
-				return new GuiNPCManageRecipes(npc, (ContainerManageRecipes) container);
-			}
-			case ManageDialogs: {
-				return new GuiNPCManageDialogs(npc);
-			}
-			case ManageQuests: {
-				return new GuiNPCManageQuest(npc);
-			}
-			case ManageBanks: {
-				return new GuiNPCManageBanks(npc, (ContainerManageBanks) container);
-			}
-			case MainMenuGlobal: {
-				return new GuiNPCGlobalMainMenu(npc);
-			}
-			case MainMenuAI: {
-				return new GuiNpcAI(npc);
-			}
-			case PlayerAnvil: {
-				return new GuiNpcCarpentryBench((ContainerCarpentryBench) container);
-			}
-			case PlayerFollowerHire: {
-				return new GuiNpcFollowerHire(npc, (ContainerNPCFollowerHire) container);
-			}
-			case PlayerFollower: {
-				return new GuiNpcFollower(npc, (ContainerNPCFollower) container);
-			}
-			case PlayerTrader: {
-				return new GuiNPCTrader(npc, (ContainerNPCTrader) container);
-			}
-			case PlayerBankSmall: {
-				return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container);
-			}
-			case PlayerBankUnlock: {
-				return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container);
-			}
-			case PlayerBankUprade: {
-				return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container);
-			}
-			case PlayerBankLarge: {
-				return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container);
-			}
-			case PlayerTransporter: {
-				return new GuiTransportSelection(npc);
-			}
-			case Script: {
-				return new GuiScript(npc);
-			}
-			case ScriptBlock: {
-				return new GuiScriptBlock(x, y, z);
-			}
-			case ScriptItem: {
-				return new GuiScriptItem(getPlayer());
-			}
-			case ScriptDoor: {
-				return new GuiScriptDoor(x, y, z);
-			}
-			case ScriptPlayers: {
-				return new GuiScriptGlobal();
-			}
-			case SetupFollower: {
-				return new GuiNpcFollowerSetup(npc, (ContainerNPCFollowerSetup) container);
-			}
-			case SetupItemGiver: {
-				return new GuiNpcItemGiver(npc, (ContainerNpcItemGiver) container);
-			}
-			case SetupTrader: {
-				return new GuiNPCManageMarcets(npc, (ContainerNPCTraderSetup) container);
-			}
-			case SetupTransporter: {
-				return new GuiNpcTransporter(npc);
-			}
-			case SetupBank: {
-				return new GuiNpcBankSetup(npc);
-			}
+			case QuestRewardItem: { return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x); } // New
+			case MovingPath: { return new GuiNpcPather(npc); }
+			case ManageFactions: { return new GuiNPCManageFactions(npc); }
+			case ManageLinked: { return new GuiNPCManageLinkedNpc(npc); }
+			case BuilderBlock: { return new GuiBlockBuilder(x, y, z); }
+			case ManageTransport: { return new GuiNPCManageTransporters(npc); }
+			case ManageRecipes: { return new GuiNPCManageRecipes(npc, (ContainerManageRecipes) container); }
+			case ManageDialogs: { return new GuiNPCManageDialogs(npc); }
+			case ManageQuests: { return new GuiNPCManageQuest(npc); }
+			case ManageBanks: { return new GuiNPCManageBanks(npc, (ContainerManageBanks) container); 	}
+			case MainMenuGlobal: { return new GuiNPCGlobalMainMenu(npc); }
+			case MainMenuAI: { return new GuiNpcAI(npc); }
+			case PlayerAnvil: { return new GuiNpcCarpentryBench((ContainerCarpentryBench) container); }
+			case PlayerFollowerHire: { return new GuiNpcFollowerHire(npc, (ContainerNPCFollowerHire) container); }
+			case PlayerFollower: { return new GuiNpcFollower(npc, (ContainerNPCFollower) container); }
+			case PlayerTrader: { return new GuiNPCTrader(npc, (ContainerNPCTrader) container); }
+			case PlayerBankSmall: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
+			case PlayerBankUnlock: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
+			case PlayerBankUprade: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
+			case PlayerBankLarge: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
+			case PlayerTransporter: { return new GuiTransportSelection(npc); }
+			case Script: { return new GuiScript(npc); }
+			case ScriptBlock: { return new GuiScriptBlock(x, y, z); }
+			case ScriptItem: { return new GuiScriptItem(getPlayer()); }
+			case ScriptDoor: { return new GuiScriptDoor(x, y, z); }
+			case ScriptPlayers: { return new GuiScriptGlobal(); }
+			case SetupFollower: { return new GuiNpcFollowerSetup(npc, (ContainerNPCFollowerSetup) container); }
+			case SetupItemGiver: { return new GuiNpcItemGiver(npc, (ContainerNpcItemGiver) container); }
+			case SetupTrader: { return new GuiNPCManageMarcets(npc, (ContainerNPCTraderSetup) container); }
+			case SetupTransporter: { return new GuiNpcTransporter(npc); }
+			case SetupBank: { return new GuiNpcBankSetup(npc); }
 			case NpcRemote: {
-				if (Minecraft.getMinecraft().currentScreen == null) {
-					return new GuiNpcRemoteEditor();
-				}
-			}
-			case PlayerMailman: {
-				return new GuiMailmanWrite((ContainerMail) container, x == 1, y == 1);
-			}
-			case PlayerMailbox: {
-				return new GuiMailbox();
-			}
-			case MerchantAdd: {
-				return new GuiMerchantAdd();
-			}
-			case NpcDimensions: {
-				return new GuiNpcDimension();
-			}
-			case Border: {
-				return new GuiBorderBlock(x, y, z);
-			}
-			case RedstoneBlock: {
-				return new GuiNpcRedstoneBlock(x, y, z);
-			}
-			case MobSpawner: {
-				return new GuiNpcMobSpawner(x, y, z);
-			}
-			case CopyBlock: {
-				return new GuiBlockCopy(x, y, z);
-			}
-			case MobSpawnerMounter: {
-				return new GuiNpcMobSpawnerMounter(x, y, z);
-			}
-			case Waypoint: {
-				return new GuiNpcWaypoint(x, y, z);
-			}
-			case Companion: {
-				return new GuiNpcCompanionStats(npc);
-			}
-			case CompanionTalent: {
-				return new GuiNpcCompanionTalents(npc);
-			}
-			case CompanionInv: {
-				return new GuiNpcCompanionInv(npc, (ContainerNPCCompanion) container);
-			}
-			case NbtBook: {
-				return new GuiNbtBook(x, y, z);
-			}
-			case CustomGui: {
-				return new GuiCustom((ContainerCustomGui) container);
-			}
-			case HelpBook: {
-				return new GuiHelpBook();
-			}
-			case BoundarySetting: {
-				return new GuiBoundarySetting(x, y);
-			}
-			default: {
+				if (Minecraft.getMinecraft().currentScreen == null) { return new GuiNpcRemoteEditor(); }
 				return null;
 			}
+			case PlayerMailman: { return new GuiMailmanWrite((ContainerMail) container, x == 1, y == 1); }
+			case PlayerMailbox: { return new GuiMailbox(); }
+			case MerchantAdd: { return new GuiMerchantAdd(); }
+			case NpcDimensions: { return new GuiNpcDimension(); }
+			case Border: { return new GuiBorderBlock(x, y, z); }
+			case RedstoneBlock: { return new GuiNpcRedstoneBlock(x, y, z); }
+			case MobSpawner: { return new GuiNpcMobSpawner(x, y, z); }
+			case CopyBlock: { return new GuiBlockCopy(x, y, z); 	}
+			case MobSpawnerMounter: { return new GuiNpcMobSpawnerMounter(x, y, z); }
+			case Waypoint: { return new GuiNpcWaypoint(x, y, z); }
+			case Companion: { return new GuiNpcCompanionStats(npc); }
+			case CompanionTalent: { return new GuiNpcCompanionTalents(npc); }
+			case CompanionInv: { return new GuiNpcCompanionInv(npc, (ContainerNPCCompanion) container); }
+			case NbtBook: { return new GuiNbtBook(x, y, z); }
+			case CustomGui: { return new GuiCustom((ContainerCustomGui) container); }
+			case HelpBook: { return new GuiHelpBook(); }
+			case BoundarySetting: { return new GuiBoundarySetting(x, y); }
+			case BuilderSetting: { return new GuiBuilderSetting((ContainerBuilderSettings) container, x); } // New
+			default: { return null; }
 		}
 	}
 
@@ -1073,7 +964,7 @@ extends CommonProxy {
 					type = "iron_boots";
 					break;
 			}
-			armorTexture = new File(texturesDir, textureName+"_layer_1.png");
+			armorTexture = new File(texturesDir, ((CustomArmor) customitem).getCustomName()+"_layer_1.png");
 		}
 		else if (customitem instanceof CustomBow) {
 			texture = null;
@@ -1110,7 +1001,6 @@ extends CommonProxy {
 			File armorDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/models/armor");
 			if (!armorDir.exists()) { armorDir.mkdirs(); }
 			try {
-				armorTexture = new File(armorDir, textureName+"_layer_1.png");
 				IResource baseTexrure0 = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/models/armor/iron_layer_1.png"));
 				if (baseTexrure0!=null) {
 					Files.copy(baseTexrure0.getInputStream(), armorTexture.toPath());
