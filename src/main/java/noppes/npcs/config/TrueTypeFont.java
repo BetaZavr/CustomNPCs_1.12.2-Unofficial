@@ -27,6 +27,7 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.util.LRUHashMap;
 
 public class TrueTypeFont {
+	
 	class Glyph {
 		int color;
 		int height;
@@ -63,7 +64,6 @@ public class TrueTypeFont {
 		int textureId;
 		int x;
 		int y;
-
 		TextureCache() {
 			this.textureId = GlStateManager.generateTexture();
 			this.bufferedImage = new BufferedImage(512, 512, 2);
@@ -77,14 +77,12 @@ public class TrueTypeFont {
 	private Map<Character, Glyph> glyphcache;
 	private int lineHeight;
 	public float scale;
-
-	private int specialChar;
-
 	private LinkedHashMap<String, GlyphCache> textcache;
-
 	private List<TextureCache> textures;
-
 	private List<Font> usedFonts;
+	
+	private int coloricChar;
+	private boolean isCode;
 
 	public TrueTypeFont(Font font, float scale) {
 		this.usedFonts = new ArrayList<Font>();
@@ -94,11 +92,13 @@ public class TrueTypeFont {
 		this.lineHeight = 1;
 		this.globalG = (Graphics2D) new BufferedImage(1, 1, 2).getGraphics();
 		this.scale = 1.0f;
-		this.specialChar = 167;
 		this.font = font;
 		this.scale = scale;
 		this.globalG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		this.lineHeight = this.globalG.getFontMetrics(font).getHeight();
+		
+		this.coloricChar = 167;
+		this.isCode = true;
 	}
 
 	public TrueTypeFont(ResourceLocation resource, int fontSize, float scale) throws IOException, FontFormatException {
@@ -109,7 +109,6 @@ public class TrueTypeFont {
 		this.lineHeight = 1;
 		this.globalG = (Graphics2D) new BufferedImage(1, 1, 2).getGraphics();
 		this.scale = 1.0f;
-		this.specialChar = 167;
 		InputStream stream = Minecraft.getMinecraft().getResourceManager().getResource(resource).getInputStream();
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		Font font = Font.createFont(0, stream);
@@ -118,6 +117,9 @@ public class TrueTypeFont {
 		this.scale = scale;
 		this.globalG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		this.lineHeight = this.globalG.getFontMetrics(font).getHeight();
+		
+		this.coloricChar = 167;
+		this.isCode = true;
 	}
 
 	public void dispose() {
@@ -151,8 +153,7 @@ public class TrueTypeFont {
 				}
 			} else {
 				GlStateManager.bindTexture(gl.texture);
-				this.drawTexturedModalRect(i, 0.0f, gl.x * this.textureScale(), gl.y * this.textureScale(),
-						gl.width * this.textureScale(), gl.height * this.textureScale());
+				this.drawTexturedModalRect(i, 0.0f, gl.x * this.textureScale(), gl.y * this.textureScale(), gl.width * this.textureScale(), gl.height * this.textureScale());
 				i += gl.width * this.textureScale();
 			}
 		}
@@ -173,8 +174,7 @@ public class TrueTypeFont {
 		tessellator.begin(7, DefaultVertexFormats.POSITION_TEX);
 		tessellator.noColor();
 		tessellator.pos(x, (y + height), zLevel).tex((textureX * f), ((textureY + height) * f2)).endVertex();
-		tessellator.pos((x + width), (y + height), zLevel).tex(((textureX + width) * f), ((textureY + height) * f2))
-				.endVertex();
+		tessellator.pos((x + width), (y + height), zLevel).tex(((textureX + width) * f), ((textureY + height) * f2)) .endVertex();
 		tessellator.pos((x + width), y, zLevel).tex(((textureX + width) * f), (textureY * f2)).endVertex();
 		tessellator.pos(x, y, zLevel).tex((textureX * f), (textureY * f2)).endVertex();
 		Tessellator.getInstance().draw();
@@ -222,13 +222,11 @@ public class TrueTypeFont {
 
 	private GlyphCache getOrCreateCache(String text) {
 		GlyphCache cache = this.textcache.get(text);
-		if (cache != null) {
-			return cache;
-		}
+		if (cache != null) { return cache; }
 		cache = new GlyphCache();
 		for (int i = 0; i < text.length(); ++i) {
 			char c = text.charAt(i);
-			if (c == this.specialChar && i + 1 < text.length()) {
+			if (c == this.coloricChar && i + 1 < text.length()) {
 				char next = text.toLowerCase(Locale.ENGLISH).charAt(i + 1);
 				int index = "0123456789abcdefklmnor".indexOf(next);
 				if (index >= 0) {
@@ -266,9 +264,7 @@ public class TrueTypeFont {
 
 	private Glyph getOrCreateGlyph(char c) {
 		Glyph g = this.glyphcache.get(c);
-		if (g != null) {
-			return g;
-		}
+		if (g != null) { return g; }
 		TextureCache cache = this.getCurrentTexture();
 		Font font = this.getFontForChar(c);
 		FontMetrics metrics = this.globalG.getFontMetrics(font);
@@ -306,13 +302,14 @@ public class TrueTypeFont {
 		return (int) Math.max(1, (cache.height * this.scale * this.textureScale()));
 	}
 
-	public void setSpecial(char c) {
-		this.specialChar = c;
+	public void setIsCode(char c, boolean bo) {
+		this.coloricChar = c;
+		this.isCode = bo;
 	}
 
-	private float textureScale() {
-		return 0.5f;
-	}
+	public boolean isCode() { return this.isCode; }
+
+	private float textureScale() { return 0.5f; }
 
 	public int width(String text) {
 		GlyphCache cache = this.getOrCreateCache(text);

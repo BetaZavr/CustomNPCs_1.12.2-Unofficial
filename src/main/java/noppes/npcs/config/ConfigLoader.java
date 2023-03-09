@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import noppes.npcs.LogWriter;
 
@@ -49,9 +52,7 @@ public class ConfigLoader {
 				for (String prop2 : properties.keySet()) {
 					Field field2 = types.get(prop2);
 					Object obj = properties.get(prop2);
-					if (!obj.equals(field2.get(null))) {
-						field2.set(null, obj);
-					}
+					if (!obj.equals(field2.get(null))) { field2.set(null, obj); }
 				}
 				for (String type : types.keySet()) {
 					if (!properties.containsKey(type)) {
@@ -107,19 +108,35 @@ public class ConfigLoader {
 							obj = Double.parseDouble(prop);
 						} else if (class2.isArray()) { // New
 							String text = prop.replace("[", "").replace("]", "");
-							while (text.indexOf(" ") != -1) {
-								text = text.replace(" ", "");
-							}
-							String[] strArr = text.split(",");
-							int[] intArr = new int[strArr.length];
-							for (int i = 0; i < strArr.length; i++) {
-								try {
-									intArr[i] = Integer.parseInt(strArr[i]);
-								} catch (NumberFormatException ex) {
-									intArr[i] = 0;
+							try {
+								while (text.indexOf(" ") != -1) { text = text.replace(" ", ""); }
+								String[] strArr = text.split(",");
+								boolean isDouble = false;
+								for (int i = 0; i < strArr.length; i++) {
+									if (strArr[i].indexOf('.')!=-1) {
+										isDouble = true;
+										break;
+									}
 								}
+								if (isDouble) {
+									double[] intArr = new double[strArr.length];
+									for (int i = 0; i < strArr.length; i++) { intArr[i] = Double.parseDouble(strArr[i]); }
+									obj = intArr; // double
+								}
+								else {
+									int[] intArr = new int[strArr.length];
+									for (int i = 0; i < strArr.length; i++) { intArr[i] = Integer.parseInt(strArr[i]); }
+									obj = intArr; // int
+								}
+							} catch (NumberFormatException ex) {
+								String[] textArr = (prop.replace("{", "").replace("}", "")).split(",");
+								for (int i=0; i<textArr.length; i++) {
+									String str = textArr[i];
+									while(str.charAt(0)==' ') { str = str.substring(1); }
+									textArr[i] = str;
+								}
+								obj = textArr;
 							}
-							obj = intArr;
 						}
 						if (obj == null) {
 							continue;
@@ -139,34 +156,63 @@ public class ConfigLoader {
 			if (!file.exists()) {
 				file.createNewFile();
 			}
-			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			Map<String, String> map = Maps.<String, String>newTreeMap();
 			for (Field field : this.configFields) {
 				ConfigProp prop = field.getAnnotation(ConfigProp.class);
-				if (prop.info().length() != 0) {
-					out.write("#" + prop.info() + System.getProperty("line.separator"));
-				}
-				String name = prop.name().isEmpty() ? field.getName() : prop.name();
-				try {
-					if (field.getType().isArray()) { // New
-						int[] intArr = (int[]) field.get(null);
-						String text = "[";
-						for (int i = 0; i < intArr.length; i++) {
-							text += "" + intArr[i];
-							if (i < intArr.length - 1) {
-								text += ", ";
-							}
+				String key = prop.name().isEmpty() ? field.getName() : prop.name();
+				String value = "";
+				if (prop.info().length() != 0) { value = "#" + prop.info() + System.getProperty("line.separator"); }
+				
+				if (field.getType().isArray()) { // New
+					String text = "[";
+					boolean nextTry = false;
+					try {
+						double[] doubls = (double[]) field.get(null);
+						for (int i = 0; i < doubls.length; i++) {
+							text += "" + doubls[i];
+							if (i < doubls.length - 1) { text += ", "; }
 						}
 						text += "]";
-						out.write(name + "=" + text + System.getProperty("line.separator"));
-					} else {
-						out.write(name + "=" + field.get(null).toString() + System.getProperty("line.separator"));
 					}
-					out.write(System.getProperty("line.separator"));
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e2) {
-					e2.printStackTrace();
+					catch (ClassCastException | IllegalArgumentException | IllegalAccessException e) { nextTry = true; }
+					if (nextTry) {
+						nextTry = false;
+						try {
+							int[] ints = (int[]) field.get(null);
+							for (int i = 0; i < ints.length; i++) {
+								text += "" + ints[i];
+								if (i < ints.length - 1) { text += ", "; }
+							}
+							text += "]";
+						}
+						catch (ClassCastException | IllegalArgumentException | IllegalAccessException e) { nextTry = true; }
+					}
+					if (nextTry) {
+						nextTry = false;
+						try {
+							text = "{";
+							String[] strings = (String[]) field.get(null);
+							for (int i = 0; i < strings.length; i++) {
+								text += "" + strings[i];
+								if (i < strings.length - 1) {
+									text += ", ";
+								}
+							}
+							text += "}";
+						}
+						catch (ClassCastException | IllegalArgumentException | IllegalAccessException e) { e.printStackTrace(); continue; }
+					}
+					value += key + "=" + text + System.getProperty("line.separator");
+				} else {
+					try { value += key + "=" + field.get(null).toString() + System.getProperty("line.separator"); }
+					catch (IllegalArgumentException | IllegalAccessException e) { e.printStackTrace(); }
 				}
+				map.put(key, value);
+			}
+			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			for (String value : map.values()) {
+				out.write(value);
+				out.write(System.getProperty("line.separator"));
 			}
 			out.close();
 		} catch (IOException e3) {

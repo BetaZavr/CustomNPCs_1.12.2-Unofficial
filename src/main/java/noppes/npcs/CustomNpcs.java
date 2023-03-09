@@ -103,14 +103,10 @@ import noppes.npcs.util.ObfuscationHelper;
 @Mod(modid = "customnpcs", name = "CustomNpcs", version = "1.12", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2")
 public class CustomNpcs {
 	
-	public static FMLEventChannel Channel;
-	
-	public static FMLEventChannel ChannelPlayer;
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)")
 	public static String charCurrencies = "20AC";
 	@ConfigProp(info = "Number of chunk loading npcs that can be active at the same time")
 	public static int ChuckLoaders = 20;
-	public static ConfigLoader Config;
 	@ConfigProp(info = "Minimum and maximum melle and range Damage of NPCs for 1 and Maximum level, respectively (rarity Boss)")
 	public static int[] damageBoss = new int[] { 8, 52, 6, 26 };
 	@ConfigProp(info = "Minimum and maximum melle and range Damage of NPCs for 1 and Maximum level, respectively (rarity Elite)")
@@ -119,13 +115,10 @@ public class CustomNpcs {
 	public static int[] damageNormal = new int[] { 4, 22, 2, 11 };
 	@ConfigProp(info = "Default interact line. Leave empty to not have one")
 	public static String DefaultInteractLine = "Hello @p";
-	public static File Dir;
 	@ConfigProp(info = "If you are running sponge and you want to disable the permissions set this to true")
 	public static boolean DisablePermissions = false;
 	@ConfigProp(info = "Disable Chat Bubbles")
 	public static boolean EnableChatBubbles = true;
-	@ConfigProp
-	public static boolean EnableDefaultEyes = true;
 	@ConfigProp(info = "For some it works, for others it doesnt, so Im disabling by default")
 	public static boolean EnableInvisibleNpcs = false;
 	@ConfigProp(info = "Whether scripting is enabled or not")
@@ -134,52 +127,36 @@ public class CustomNpcs {
 	public static boolean EnableUpdateChecker = true;
 	@ConfigProp(info = "Maximum and minimum amount of experience dropped from the NPC for the minimum and maximum level (Elite x1.75; Boss x4.75)")
 	public static int[] experience = new int[] { 2, 3, 100, 115 };
-	@ConfigProp
-	public static boolean FixUpdateFromPre_1_12 = false;
 	@ConfigProp(info = "Font size for custom fonts (doesn't work with minecrafts font)")
 	public static int FontSize = 18;
 	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC")
 	public static String FontType = "Default";
-	public static final Map<Class<?>, String> forgeEventNames = new HashMap<Class<?>, String>();
-	public static boolean FreezeNPCs = false;
 	@ConfigProp(info = "Type 0 = Normal, Type 1 = Solid")
 	public static int HeadWearType = 1;
 	@ConfigProp(info = "Minimum and maximum health of NPCs for 1 and Maximum level, respectively (rarity Boss)")
 	public static int[] healthBoss = new int[] { 250, 20000 };
 	@ConfigProp(info = "Minimum and maximum health of NPCs for 1 and Maximum level, respectively (rarity Elite)")
 	public static int[] healthElite = new int[] { 60, 1200 };
-
 	@ConfigProp(info = "Minimum and maximum health of NPCs for 1 and Maximum level, respectively (rarity Normal)")
 	public static int[] healthNormal = new int[] { 20, 500 };
-	// New
 	@ConfigProp(info = "Mod API only, or all methods. Attention! - loads the system")
 	public static boolean helpAllMetods = false;
 	@ConfigProp(info = "Enables Ice Melting")
 	public static boolean IceMeltsEnabled = true;
-	public static CustomNpcs instance;
-	@ConfigProp
-	public static boolean InventoryGuiEnabled = true;
 	@ConfigProp(info = "Enables leaves decay")
 	public static boolean LeavesDecayEnabled = true;
-	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];
 	@ConfigProp(info = "Maximum NPC level (45 recommended)")
 	public static int maxLv = 45;
 	@ConfigProp(info = "Resizes the model for rarity. (Normal, Elite, Boss)")
 	public static int[] modelRaritySize = new int[] { 5, 6, 7 };
-	public static String MODID = "customnpcs";
 	@ConfigProp(info = "Arguments given to the Nashorn scripting library")
 	public static String NashorArguments = "-strict";
-	public static CommandNoppes NoppesCommand = new CommandNoppes();
 	@ConfigProp(info = "Navigation search range for NPCs. Not recommended to increase if you have a slow pc or on a server")
 	public static int NpcNavRange = 32;
-	@ConfigProp
-	public static boolean NpcSpeachTriggersChatEvent = false;
 	@ConfigProp(info = "Set to true if you want the dialog command option to be able to use op commands like tp etc")
 	public static boolean NpcUseOpCommands = false;
-
 	@ConfigProp(info = "Only ops can create and edit npcs")
 	public static boolean OpsOnly = false;
-	private static String preSound = "";
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
 	@ConfigProp(info = "Whether to recalculate Stats when setting Level and Rarity")
@@ -190,9 +167,6 @@ public class CustomNpcs {
 	public static int[] resistanceElite = new int[] { 105, 110, 130, 150 };
 	@ConfigProp(info = "Parameters for calculating NPC Resistances (0=-100%, 1=0%, 2=100% [melee, arrow, explosion, knockback] rarity Normal)")
 	public static int[] resistanceNormal = new int[] { 100, 100, 100, 110 };
-	@ConfigProp
-	public static boolean SceneButtonsEnabled = true;
-	public static MinecraftServer Server;
 	@ConfigProp(info = "Whether to display Level and Rarity. If 1 then it will be installed on all clients")
 	public static boolean showLR = true;
 	@ConfigProp(info = "Display player balance in inventory")
@@ -214,10 +188,35 @@ public class CustomNpcs {
 	public static boolean VerboseDebug = false;
 	@ConfigProp(info = "Enables Vine Growth")
 	public static boolean VineGrowthEnabled = true;
+	@ConfigProp(info = "Maximum number of blocks to set with a Builder item")
+	public static int maxBuilderBlocks = 10000;
+	@ConfigProp(info = "Color of Script code elements. "+((char) 167)+"[Numbers, Functions, Strings, Comments]")
+	public static String[] charCodeColor = new String[] { "6", "9", "7", "2" };
+	@ConfigProp
+	public static boolean SceneButtonsEnabled = true;
+	@ConfigProp
+	public static boolean NpcSpeachTriggersChatEvent = false;
+	@ConfigProp
+	public static boolean InventoryGuiEnabled = true;
+	@ConfigProp
+	public static boolean FixUpdateFromPre_1_12 = true;
+	@ConfigProp
+	public static boolean EnableDefaultEyes = true;
 
+	public static String MODID = "customnpcs";
+	public static FMLEventChannel Channel;
+	public static FMLEventChannel ChannelPlayer;
+	public static CustomNpcs instance;
+	public static CommandNoppes NoppesCommand = new CommandNoppes();
+	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];
+	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
-	private static char chr = Character.toChars(0x00A7)[0];
-	public static ITextComponent prefix = new TextComponentString(chr+"e["+chr+"2CustomNpcs"+chr+"e]"+chr+"r: ");
+	public static final Map<Class<?>, String> forgeEventNames = new HashMap<Class<?>, String>();
+	public static boolean FreezeNPCs = false;
+	public static File Dir;
+	public static ConfigLoader Config;
+	public static ITextComponent prefix = new TextComponentString(((char) 167)+"e["+((char) 167)+"2CustomNpcs"+((char) 167)+"e]"+((char) 167)+"r: ");
+	private static String preSound = "";
 	
 	static { FluidRegistry.enableUniversalBucket(); }
 
@@ -404,9 +403,8 @@ public class CustomNpcs {
 	public void setAboutToStart(FMLServerAboutToStartEvent event) {
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
-		new RecipeController();
-		RecipeController.instance.load();
 		FactionController.instance.load();
+		new RecipeController();
 		new PlayerDataController();
 		new TransportController();
 		new GlobalDataController();
@@ -447,7 +445,7 @@ public class CustomNpcs {
 		ServerCloneController.Instance = null;
 		ItemScripted.Resources.clear();
 		MarcetController.getInstance().saveMarcets();
-		RecipeController.instance.save();
+		RecipeController.getInstance().save();
 		// End
 		CustomNpcs.Server = null;
 	}

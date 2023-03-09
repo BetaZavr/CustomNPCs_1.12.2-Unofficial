@@ -77,9 +77,6 @@ public class SyncController {
 				break;
 			}
 			case 6: {
-				if (RecipeController.instance == null) {
-					new RecipeController();
-				}
 				CustomNpcs.proxy.updateRecipes(null, false, false, "SyncController.clientSync()");
 				break;
 			}
@@ -87,14 +84,11 @@ public class SyncController {
 				if (!syncEnd) {
 					return;
 				}
-				if (compound.hasKey("ShowLR")) {
-					CustomNpcs.showLR = compound.getBoolean("ShowLR");
-				}
-				if (compound.hasKey("ShowMoney")) {
-					CustomNpcs.showMoney = compound.getBoolean("ShowMoney");
-				}
+				if (compound.hasKey("ShowLR")) { CustomNpcs.showLR = compound.getBoolean("ShowLR"); }
+				if (compound.hasKey("ShowMoney")) { CustomNpcs.showMoney = compound.getBoolean("ShowMoney"); }
 				CustomNpcs.recalculateLR = compound.getBoolean("RecalculateLR");
 				CustomNpcs.charCurrencies = compound.getString("CharCurrencies");
+				CustomNpcs.maxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
 				CustomNpcs.forgeEventNames.clear();
 				for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
 					NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
@@ -146,10 +140,7 @@ public class SyncController {
 				break;
 			}
 			case 6: {
-				if (RecipeController.instance == null) {
-					new RecipeController();
-				}
-				RecipeController.instance.delete(id);
+				RecipeController.getInstance().delete(id);
 				break;
 			}
 		}
@@ -198,17 +189,14 @@ public class SyncController {
 				break;
 			}
 			case 6: {
-				if (RecipeController.instance == null) {
-					new RecipeController();
-				}
 				if (compound.getKeySet().size()==0) {
 					if (CustomNpcs.Server!=null && CustomNpcs.Server.isSinglePlayer()) { return; }
-					RecipeController.instance.globalList.clear();
-					RecipeController.instance.modList.clear();
+					RecipeController.getInstance().globalList.clear();
+					RecipeController.getInstance().modList.clear();
 				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
-					RecipeController.instance.delete(compound.getString("Name"), compound.getString("Group"));
+					RecipeController.getInstance().delete(compound.getString("Name"), compound.getString("Group"));
 				} else {
-					RecipeController.instance.loadNBTRecipe(compound);
+					RecipeController.getInstance().loadNBTRecipe(compound);
 				}
 				break;
 			}
@@ -259,7 +247,7 @@ public class SyncController {
 		}
 		Server.sendData(player, EnumPacketClient.SYNC_END, 5, new NBTTagCompound());
 
-		RecipeController.instance.sendTo(player);
+		RecipeController.getInstance().sendTo(player);
 
 		compound = new NBTTagCompound();
 		if (!CustomNpcs.showLR) {
@@ -270,6 +258,7 @@ public class SyncController {
 		}
 		compound.setBoolean("RecalculateLR", CustomNpcs.recalculateLR);
 		compound.setString("CharCurrencies", CustomNpcs.charCurrencies);
+		compound.setInteger("MaxBuilderBlocks", CustomNpcs.maxBuilderBlocks);
 		list = new NBTTagList();
 		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {
 			NBTTagCompound nbt = new NBTTagCompound();
@@ -309,7 +298,7 @@ public class SyncController {
 	}
 
 	public static void syncScriptRecipes(EntityPlayerMP player) {
-		player.unlockRecipes(RecipeController.instance.getKnownRecipes());
+		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 
 }

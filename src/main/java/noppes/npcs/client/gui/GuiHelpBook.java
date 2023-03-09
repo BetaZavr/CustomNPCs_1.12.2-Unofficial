@@ -1,45 +1,87 @@
 package noppes.npcs.client.gui;
 
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiMenuLeftButton;
 import noppes.npcs.client.gui.util.GuiMenuTopButton;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiTextArea;
+import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.util.InterfaseData;
+import noppes.npcs.client.util.MetodData;
+import noppes.npcs.constants.EnumInterfaceData;
 import noppes.npcs.util.AdditionalMethods;
 
 public class GuiHelpBook
-extends GuiNPCInterface {
+extends GuiNPCInterface
+implements ICustomScrollListener {
 	
 	int activeTopTab = 0;
 	int activeLeftTab = 0;
-	private final Map<Integer, String> map;
+	private static final Map<Integer, String> map = Maps.<Integer, String>newHashMap();
 	private final String[] arr = new String [] { "config", "blocks", "items", "potions", "", "", "", "", "", "",
 			"npc.display", "npc.stats", "npc.ais", "npc.inventory", "npc.advanced", "", "", "", "", "", 
 			"new.items", "new.blocks", "", "", "", "", "", "", "", "", "", 
-			"script.main", "script.old.api", "script.new.api", "", "", "", "", "", "" };
+			"script.main", "", "", "", "", "", "", "", "" };
+	private static final Map<String, EnumInterfaceData> apis = Maps.<String, EnumInterfaceData>newTreeMap();
+	private GuiCustomScroll scroll;
+	private int curentLine = -1;
+	private String curentLang = "";
+	
+	static {
+		GuiHelpBook.apis.put("IBlock", EnumInterfaceData.IBlock);
+		GuiHelpBook.apis.put("IBlockFluidContainer", EnumInterfaceData.IBlockFluidContainer);
+		GuiHelpBook.apis.put("IBlockScripted", EnumInterfaceData.IBlockScripted);
+		GuiHelpBook.apis.put("IBlockScriptedDoor", EnumInterfaceData.IBlockScriptedDoor);
+		GuiHelpBook.apis.put("ICustmBlock", EnumInterfaceData.ICustmBlock);
+		GuiHelpBook.apis.put("ITextPlane", EnumInterfaceData.ITextPlane);
+		GuiHelpBook.apis.put("IContainer", EnumInterfaceData.IContainer);
+		GuiHelpBook.apis.put("IContainerCustomChest", EnumInterfaceData.IContainerCustomChest);
+		GuiHelpBook.apis.put("IDamageSource", EnumInterfaceData.IDamageSource);
+		GuiHelpBook.apis.put("IDimension", EnumInterfaceData.IDimension);
+		GuiHelpBook.apis.put("IEntityDamageSource", EnumInterfaceData.IEntityDamageSource);
+		GuiHelpBook.apis.put("INbt", EnumInterfaceData.INbt);
+		GuiHelpBook.apis.put("IPos", EnumInterfaceData.IPos);
+		GuiHelpBook.apis.put("IPotion", EnumInterfaceData.IPotion);
+		GuiHelpBook.apis.put("IRayTrace", EnumInterfaceData.IRayTrace);
+		GuiHelpBook.apis.put("IScoreboard", EnumInterfaceData.IScoreboard);
+		GuiHelpBook.apis.put("IScoreboardObjective", EnumInterfaceData.IScoreboardObjective);
+		GuiHelpBook.apis.put("IScoreboardScore", EnumInterfaceData.IScoreboardScore);
+		GuiHelpBook.apis.put("IScoreboardTeam", EnumInterfaceData.IScoreboardTeam);
+		GuiHelpBook.apis.put("ITimers", EnumInterfaceData.ITimers);
+		GuiHelpBook.apis.put("IWorld", EnumInterfaceData.IWorld);
+		GuiHelpBook.apis.put("NpcAPI", EnumInterfaceData.NpcAPI);
+	}
 	
 	public GuiHelpBook() {
-		this.setBackground("bgfilled.png");
 		this.xSize = 300;
 		this.ySize = 174;
 		this.closeOnEsc = true;
-		this.map = Maps.<Integer, String>newHashMap();
-		char chr = Character.toChars(0x000A)[0];
-		for (int i=0; i< this.arr.length; i++) {
-			if (this.arr[i].isEmpty()) {
-				this.map.put(i, this.arr[i]);
-				continue;
+		if (GuiHelpBook.map.isEmpty() || !this.curentLang.equals(ClientProxy.playerData.hud.getCurrentLanguage())) {
+			this.curentLang = ClientProxy.playerData.hud.getCurrentLanguage();
+			char chr = Character.toChars(0x000A)[0];
+			GuiHelpBook.map.clear();
+			for (int i=0; i< this.arr.length; i++) {
+				if (this.arr[i].isEmpty()) {
+					GuiHelpBook.map.put(i, this.arr[i]);
+					continue;
+				}
+				String text = new TextComponentTranslation("help.info."+this.arr[i]).getFormattedText();
+				while(text.indexOf("<br>")!=-1) { text = text.replaceAll("<br>", ""+chr); }
+				GuiHelpBook.map.put(i, AdditionalMethods.deleteColor(text));
 			}
-			String text = new TextComponentTranslation("help.info."+this.arr[i]).getFormattedText();
-			while(text.indexOf("<br>")!=-1) { text = text.replaceAll("<br>", ""+chr); }
-			this.map.put(i, AdditionalMethods.deleteColor(text));
 		}
 	}
 	
@@ -47,7 +89,6 @@ extends GuiNPCInterface {
 	public void initGui() {
 		super.initGui();
 		int maxW = 0, w = 0;
-		
 		switch(this.activeTopTab) {
 			case 1: { // npcEdit
 				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.display").getFormattedText());
@@ -72,10 +113,9 @@ extends GuiNPCInterface {
 			case 3: { // scripts
 				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.general").getFormattedText());
 				maxW = w;
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.old.api").getFormattedText());
+				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.api").getFormattedText());
 				if (maxW<w) { maxW = w; }
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.new.api").getFormattedText());
-				if (maxW<w) { maxW = w; }
+				if (this.activeLeftTab==31 && maxW<110) { maxW = 110; }
 				break;
 			}
 			default: { // general
@@ -143,14 +183,29 @@ extends GuiNPCInterface {
 			case 3: { // scripts
 				if (this.activeLeftTab<30 || this.activeLeftTab>39) { this.activeLeftTab = 30; }
 				GuiMenuLeftButton main = new GuiMenuLeftButton(30, this.guiLeft, this.guiTop + 4, "gui.help.general");
-				GuiMenuLeftButton oldapi = new GuiMenuLeftButton(31, this.guiLeft, main.y+main.getHeight(), "gui.help.old.api");
-				GuiMenuLeftButton newapi = new GuiMenuLeftButton(32, this.guiLeft, oldapi.y+oldapi.getHeight(), "gui.help.new.api");
+				GuiMenuLeftButton api = new GuiMenuLeftButton(31, this.guiLeft, main.y+main.getHeight(), "gui.help.api");
+				//scroll
+				if (this.scroll==null) {
+					this.scroll = new GuiCustomScroll(this, 0);
+					this.scroll.setList(Lists.newArrayList(GuiHelpBook.apis.keySet()));
+					this.scroll.hoversTexts = new String[GuiHelpBook.apis.size()][];
+					this.scroll.setSize(100, this.ySize-50);
+					int i = 0;
+					for (EnumInterfaceData enumIT : GuiHelpBook.apis.values()) {
+						List<String> com = enumIT.it.getComment();
+						this.scroll.hoversTexts[i] = com.toArray(new String[com.size()]);
+						i++;
+					}
+				}
+				this.scroll.guiLeft = this.guiLeft - 101;
+				this.scroll.guiTop = this.guiTop + 47;
+				if (this.scroll.selected<0) { this.scroll.selected = 0; }
+				this.addScroll(this.scroll);
+				
 				main.active = main.id==this.activeLeftTab;
-				oldapi.active = oldapi.id==this.activeLeftTab;
-				newapi.active = newapi.id==this.activeLeftTab;
+				api.active = api.id==this.activeLeftTab;
 				this.addLeftButton(main);
-				this.addLeftButton(oldapi);
-				this.addLeftButton(newapi);
+				this.addLeftButton(api);
 				break;
 			}
 			default: { // general
@@ -169,15 +224,95 @@ extends GuiNPCInterface {
 				this.addLeftButton(potions);
 			}
 		}
-		String text = this.map.get(this.activeLeftTab);
-		if (text==null) { text = ""; }
-		GuiTextArea ta = new GuiTextArea(0, this.guiLeft + 4, this.guiTop + 4, this.xSize - 8, this.ySize -8, text );
+		GuiTextArea ta = new GuiTextArea(0, this.guiLeft + 4, this.guiTop + 4, this.xSize - 7, this.ySize -7, "" );
 		ta.enableCodeHighlighting();
-		ta.onlyReading = true;
+		ta.setIsCode(false);
 		this.add(ta);
+		this.resetText();
 	}
 
+	private void resetText() {
+		if (!(this.get(0) instanceof GuiTextArea)) { return; }
+		if (this.activeLeftTab!=31) {
+			String text = GuiHelpBook.map.get(this.activeLeftTab);
+			if (text==null) { text = ""; }
+			((GuiTextArea) this.get(0)).setText(text);
+			return;
+		}
+		if (this.scroll==null || !GuiHelpBook.apis.containsKey(this.scroll.getSelected())) {
+			((GuiTextArea) this.get(0)).setText("");
+			return;
+		}
+		((GuiTextArea) this.get(0)).setText(GuiHelpBook.apis.get(this.scroll.getSelected()).it.getText());
+	}
 
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (this.mc.renderEngine!=null) {
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+			Gui.drawRect(3, 3, this.xSize-2, this.ySize-2, 0xFFC6C6C6);
+			this.drawHorizontalLine(2, this.xSize-2, 0, 0xFF000000);
+			this.drawHorizontalLine(1, 1, 1, 0xFF000000);
+			this.drawHorizontalLine(this.xSize-1, this.xSize-1, 1, 0xFF000000);
+			this.drawVerticalLine(0, 1, this.ySize-1, 0xFF000000);
+			this.drawVerticalLine(this.xSize, 1, this.ySize-1, 0xFF000000);
+			this.drawHorizontalLine(1, 1, this.ySize-1, 0xFF000000);
+			this.drawHorizontalLine(2, this.xSize-2, this.ySize, 0xFF000000);
+			this.drawHorizontalLine(this.xSize-1, this.xSize-1, this.ySize-1, 0xFF000000);
+			this.drawHorizontalLine(2, this.xSize-2, 1, 0xFFFFFFFF);
+			this.drawHorizontalLine(1, this.xSize-2, 2, 0xFFFFFFFF);
+			this.drawVerticalLine(1, 2, this.ySize-1, 0xFFFFFFFF);
+			this.drawVerticalLine(2, 2, this.ySize-1, 0xFFFFFFFF);
+			this.drawHorizontalLine(2, this.xSize-2, this.ySize-1, 0xFF555555);
+			this.drawHorizontalLine(3, this.xSize-1, this.ySize-2, 0xFF555555);
+			this.drawVerticalLine(this.xSize-1, 1, this.ySize-1, 0xFF555555);
+			this.drawVerticalLine(this.xSize-2, 2, this.ySize-1, 0xFF555555);
+			GlStateManager.popMatrix();
+		}
+		if (this.scroll!=null) {
+			this.scroll.visible = this.activeLeftTab==31;
+			if (this.scroll.visible) {
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				GlStateManager.translate(this.guiLeft-105, this.guiTop+43, 0.0f);
+				int x = 105;
+				int y = this.scroll.height+7;
+				Gui.drawRect(3, 3, x, y-2, 0xFFC6C6C6);
+				this.drawHorizontalLine(2, x-1, 0, 0xFF000000);
+				this.drawHorizontalLine(1, 1, 1, 0xFF000000);
+				this.drawVerticalLine(0, 1, y-1, 0xFF000000);
+				this.drawHorizontalLine(1, 1, y-1, 0xFF000000);
+				this.drawHorizontalLine(2, x+1, y, 0xFF000000);
+				this.drawHorizontalLine(2, x-1, 1, 0xFFFFFFFF);
+				this.drawHorizontalLine(1, x-1, 2, 0xFFFFFFFF);
+				this.drawVerticalLine(1, 2, y-1, 0xFFFFFFFF);
+				this.drawVerticalLine(2, 2, y-1, 0xFFFFFFFF);
+				this.drawHorizontalLine(2, x, y-1, 0xFF555555);
+				this.drawHorizontalLine(3, x-1, y-2, 0xFF555555);
+				GlStateManager.popMatrix();
+			}
+		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		this.curentLine = -1;
+		if (this.activeLeftTab==31 && this.scroll!=null && this.get(0) instanceof GuiTextArea) { 
+			GuiTextArea area = (GuiTextArea) this.get(0);
+			if (area != null && area.hovered) {
+				this.curentLine = (mouseY - area.y + 1)/area.container.lineHeight + area.scrolledLine;
+				if (this.curentLine<0) { this.curentLine = -1; }
+			}
+		}
+		if (this.curentLine!=-1) {
+			InterfaseData it = GuiHelpBook.apis.get(this.scroll.getSelected()).it;
+			if (it==null) { return; }
+			MetodData m = it.metods.get(this.curentLine);
+			if (m==null) { return; }
+			this.drawHoveringText(m.getComment(), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+	
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
@@ -189,4 +324,28 @@ extends GuiNPCInterface {
 	@Override
 	public void save() { }
 
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+		this.resetText();
+	}
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+
+	@Override
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
+		super.mouseClicked(mouseX, mouseY, mouseBottom);
+		if (this.activeLeftTab!=31 || this.scroll==null || !(this.get(0) instanceof GuiTextArea)) { return; }
+		GuiTextArea area = (GuiTextArea) this.get(0);
+		if (!area.hovered) { return; }
+		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
+		System.out.println("line: "+this.curentLine+" - "+select[1]);
+		/*
+		if (GuiHelpBook.apis.containsKey(select[1])) {
+			this.scroll.setSelected(this.curentElement);
+			this.resetText();
+			return;
+		}*/
+	}
+	
 }

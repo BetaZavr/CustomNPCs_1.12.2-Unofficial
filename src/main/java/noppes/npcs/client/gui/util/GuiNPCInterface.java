@@ -65,7 +65,6 @@ extends GuiScreen {
 	}
 
 	public GuiNPCInterface(EntityNPCInterface npc) {
-		this.drawDefaultBackground = true;
 		this.buttons = new ConcurrentHashMap<Integer, GuiNpcButton>();
 		this.topbuttons = new ConcurrentHashMap<Integer, GuiMenuTopButton>();
 		this.leftbuttons = new ConcurrentHashMap<Integer, GuiMenuLeftButton>();
@@ -253,12 +252,12 @@ extends GuiScreen {
 			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 			GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
 			this.mc.renderEngine.bindTexture(this.background);
-			if (this.xSize > 256) {
-				this.drawTexturedModalRect(0, 0, 0, 0, 250, this.ySize);
-				this.drawTexturedModalRect(250, 0, 256 - (this.xSize - 250), 0, this.xSize - 250, this.ySize);
-			} else {
-				this.drawTexturedModalRect(0, 0, 0, 0, this.xSize, this.ySize);
+			if (this.xSize>252) {
+				this.drawTexturedModalRect(0, 0, 0, 0, 252, this.ySize);
+				int w = this.xSize-252;
+				this.drawTexturedModalRect(252, 0, 255-w, 0, w, this.ySize);
 			}
+			else { this.drawTexturedModalRect(0, 0, 0, 0, this.xSize,this.ySize); }
 			GlStateManager.popMatrix();
 		}
 		GlStateManager.translate(0, 0, 1.0f);
@@ -502,19 +501,16 @@ extends GuiScreen {
 
 	public void setHoverText(String text) {
 		List<String> list = new ArrayList<String>();
-		text = new TextComponentTranslation(text).getFormattedText();
+		if (text.indexOf("%")==-1) { text = new TextComponentTranslation(text).getFormattedText(); }
+		if (text.indexOf("~~~")!=-1) {
+			while (text.indexOf("~~~")!=-1) { text = text.replace("~~~", "%"); }
+		}
 		while (text.indexOf("<br>") != -1) {
 			list.add(text.substring(0, text.indexOf("<br>")));
 			text = text.substring(text.indexOf("<br>") + 4);
 		}
 		list.add(text);
-		String[] array = new String[list.size()];
-		int i = 0;
-		for (String str : list) {
-			array[i] = str;
-			i++;
-		}
-		this.hoverText = array;
+		this.hoverText = list.toArray(new String[list.size()]);
 	}
 
 	public void setSubGui(SubGuiInterface gui) {

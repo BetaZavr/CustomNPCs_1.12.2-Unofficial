@@ -748,43 +748,27 @@ public class AdditionalMethods {
 		return count;
 	}
 
-	public static String match(String text, int pos, char[] starts, char[] ends) {
+	public static String match(String text, int pos, String startCharts, String endCharts) {
 		int s = 0, e = text.length();
 		for (int i = pos - 1; i >= 0; i--) {
-			if (starts != null) {
-				boolean has = false;
-				for (char c : starts) {
-					if (text.charAt(i) == c) {
-						has = true;
-						break;
-					}
-				}
-				if (has) {
-					e = i;
+			char c = text.charAt(i);
+			if (startCharts != null) {
+				if (startCharts.indexOf(c)!=-1) {
+					s = i;
 					break;
 				}
 				continue;
 			}
-			char ch = text.charAt(i);
-			if (Character.toChars(0x000A)[0]==ch || !Character.isAlphabetic(ch) && !Character.isDigit(ch)) {
-				if ( ch== '.' || ch == '(' || ch == Character.toChars(0x000A)[0]) {
-					s = i + 1;
-				} else {
-					s = i;
-				}
+			if (Character.toChars(0x000A)[0]==c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
+				if ( c== '.' || c == '(' || c == Character.toChars(0x000A)[0]) { s = i + 1; }
+				else { s = i; }
 				break;
 			}
 		}
 		for (int i = pos; i < text.length(); i++) {
-			if (ends != null) {
-				boolean has = false;
-				for (char c : ends) {
-					if (text.charAt(i) == c) {
-						has = true;
-						break;
-					}
-				}
-				if (has) {
+			char c = text.charAt(i);
+			if (endCharts != null) {
+				if (startCharts.indexOf(c)!=-1) {
 					e = i;
 					break;
 				}
@@ -796,9 +780,7 @@ public class AdditionalMethods {
 			}
 		}
 		String key = text.substring(s, e);
-		while (key.indexOf(" ") != -1) {
-			key = key.replace(" ", "");
-		}
+		while (key.indexOf(" ") != -1) { key = key.replace(" ", ""); }
 		return key;
 	}
 
