@@ -55,7 +55,6 @@ import noppes.npcs.util.ObfuscationPart7;
 import noppes.npcs.util.ObfuscationPart8;
 import noppes.npcs.util.ObfuscationPart9;
 import noppes.npcs.util.ScriptData;
-import noppes.npcs.util.ValueUtil;
 
 //Changed
 public class GuiScriptInterface
@@ -71,13 +70,15 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	// New
 	private final Map<String, String[]> map = Maps.newHashMap(); // In Help Scroll
 	private final List<String> newFunc = new ArrayList<String>();
-	private int position;
+	private int startPos;
 	private GuiNpcLabel helper;
 	private GuiCustomScroll scrollHelp;
 	private GuiCustomScroll scrollVariables;
 	private int var = 0;
 	private Map<String, ScriptData> dataVar = Maps.newHashMap();
 	private ScaledResolution scaleW;
+	List<String> regexFunction = Lists.<String>newArrayList("if","else","switch","with","for","while","in","var","const","let","throw","then","function","continue","break","foreach","return","try","catch","finally","do","this","typeof","instanceof","new");
+	private String select, preSelect;
 
 	public GuiScriptInterface() {
 		this.activeTab = 0;
@@ -269,286 +270,256 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	}
 
 	private void cheakPath(GuiTextArea area) {
-		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper) {
-			return;
-		}
+		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper) { return; }
 		CustomNPCsScheduler.runTack(() -> {
 			int pos = area.getCursorPosition();
+			String text = area.getText();
 			this.scrollHelp.visible = false;
-			if (pos <= 0) {
+			/** Create new data */
+			if (text.length()==0) {
+				this.map.put("var", null);
+				this.map.put("function", null);
+				this.scrollHelp.setListNotSorted(Lists.newArrayList("var", "function"));
+				this.scrollHelp.selected = -1;
+				this.scrollHelp.visible = true;
+				this.scrollHelp.hoversTexts = null;
+				resetHelpPos(pos, area);
 				return;
 			}
-			String text = area.getText();
-			/** Has old data */
-			if (this.position > -1 && area.freeze) {
-				if (pos >= this.position) {
-					String select = AdditionalMethods.match(text, pos, null, null);
-					if (select.isEmpty()) {
-						this.map.clear();
-						this.scrollHelp.visible = false;
-						return;
-					}
-					List<String> vars = Lists.newArrayList();
-					List<String> metods = Lists.newArrayList();
-					for (String str : this.map.keySet()) {
-						if (select.isEmpty() || str.toLowerCase().indexOf(select.toLowerCase()) != -1) {
-							if (str.indexOf('(') >= -1) {
-								metods.add(str);
-							} else {
-								vars.add(str);
-							}
-						}
-					}
-					String[][] hts = null;
-					Collections.sort(vars);
-					Collections.sort(metods);
-					for (String key : metods) {
-						vars.add(key);
-					}
-					if (vars.size() > 0) {
-						int i = 0;
-						hts = new String[vars.size()][];
-						for (String str : vars) {
-							hts[i] = this.map.get(str);
-							i++;
-						}
-						this.scrollHelp.setListNotSorted(vars);
-						this.scrollHelp.hoversTexts = hts;
-						this.scrollHelp.selected = -1;
-						this.scrollHelp.visible = true;
-					} else {
-						this.map.clear();
-						this.scrollHelp.visible = false;
-					}
-					return;
-				}
+			/** Try found parametrs */
+			this.startPos = 0; // start pos
+			this.select = "";
+			this.preSelect = "";
+			char tab = 9;
+			char enter = 10;
+			String filter = (""+tab)+" ;"+(""+enter);
+			if (pos!= text.length()) {
+				while (pos>0 && (text.charAt(pos)==' ' || text.charAt(pos)==tab)) { pos--; }
 			}
-
-			/** Create new data */
-			char enter = Character.toChars(0x000A)[0];
-			int p = text.lastIndexOf('.', pos);
-			int s = text.lastIndexOf(' ', pos);
-			Map<String, String[]> tempMap = new HashMap<String, String[]>();
-
-			// point:
-			int t = (p == -1) ? -1
-					: ValueUtil.max(text.lastIndexOf(Character.toChars(0x0009)[0], p), text.lastIndexOf(' ', p),
-							text.lastIndexOf('=', p), text.lastIndexOf(enter, p)) + 1;
-			if (p != -1 && t >= 0 && t < p) {
-				try {
-					Integer.parseInt("" + text.charAt(p - 1));
-					return;
-				} catch (Exception e) {
-				}
-				int left = ValueUtil.max(text.lastIndexOf(Character.toChars(0x0009)[0], p), text.lastIndexOf(' ', p),
-						text.lastIndexOf('=', p), text.lastIndexOf(enter, p)) + 1;
-				String name = (p + 1 == pos) ? "" : text.substring(p + 1, pos);
-				String select = text.substring(left, p);
-				String[] path = select.split(".");
-				if (path.length == 0) {
-					if (select.indexOf(".") != -1) {
-						List<String> l = Lists.newArrayList();
-						int g = 0;
-						while (select.indexOf(".") != -1) {
-							l.add(select.substring(0, select.indexOf(".")));
-							select = select.substring(select.indexOf(".") + 1);
-							g++;
-							if (g > 20) {
+			for (int i = 0; i<filter.length(); i++) {
+				char c = filter.charAt(i);
+				int p = text.lastIndexOf(c, pos);
+				if (p>-1) {
+//System.out.println("i["+i+"] = '"+c+"'; p:"+p);
+					this.select = AdditionalMethods.match(text, p + 1+(pos==(p + 1) ? 1: 0), filter, ".([{"+filter);
+					this.startPos = text.lastIndexOf(this.select, p+1);
+					if (this.startPos>0 && (c==' ' || c==tab)) {
+						int e = -1;
+						p = -1;
+						for (int j = this.startPos-1; j>=0; j--) {
+							c = text.charAt(j);
+//System.out.println("j["+j+"] = '"+c+"'; e:"+e);
+							if (e==-1) {
+								if (c==' ' || c==tab) { e = j; }
+								continue;
+							}
+							if (c!=' ' && c!=tab) {
+								this.preSelect = AdditionalMethods.match(text, j, filter, GuiTextArea.filter);
 								break;
 							}
 						}
-						l.add(select);
-						path = l.toArray(new String[l.size()]);
-					} else {
-						path = new String[] { select };
 					}
-				}
-				if (path.length == 0) {
-					return;
-				}
-				/** language */
-				String language = this.handler.getLanguage();
-				if (language.isEmpty() && this.getScriptIndex() < this.languages.size()) {
-					int i = 0, j = this.getScriptIndex();
-					for (String l : this.languages.keySet()) {
-						if (i == j) {
-							language = l;
-							break;
-						}
-					}
-				}
-				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
-				if (container == null) {
-					return;
-				}
-				if (!text.isEmpty()) {
-					text += "\n";
-				}
-				for (String loc : container.scripts) {
-					String code = ScriptController.Instance.scripts.get(loc);
-					if (code != null && !code.isEmpty()) {
-						text += code + "\n";
-					}
-				}
-				text = text.replace(area.getLineText(), "");
-
-				if (!text.isEmpty()) {
-					String newText = text;
-					newText = newText.replace("\r\n", "\n");
-					newText = text.replace("\r", "\n");
-					container.script = newText;
-				} else {
-					this.setScript();
-				}
-				this.setData(AdditionalMethods.getScriptData(language, container, this.baseFuncNames));
-				Map<String, Class<?>> parametrs = Maps.newHashMap();
-				String fName = this.getFuncName();
-				if (!fName.isEmpty()) {
-					if (this.data.containsKey(fName)) {
-						ScriptData func = this.data.get(fName).get(0);
-						parametrs = func.parameters;
-					}
-				}
-				Map<String, Map<String, String[]>> mdata = AdditionalMethods.getObjectVarAndMetods(path, parametrs);
-				if (mdata.size() > 0) {
-					this.position = p + 1;
-					this.map.clear();
-					List<String> vars = Lists.newArrayList();
-					for (int j = 0; j < 3; j++) {
-						String group = "classes";
-						if (j == 1) {
-							group = "fields";
-						} else if (j == 2) {
-							group = "methods";
-						}
-						if (mdata.containsKey(group)) {
-							List<String> list = Lists.newArrayList(mdata.get(group).keySet());
-							Collections.sort(list);
-							for (String str : list) {
-								if (name.isEmpty() || str.toLowerCase().indexOf(name.toLowerCase()) != -1) {
-									this.map.put(str, mdata.get(group).get(str));
-									vars.add(str);
-								}
-							}
-						}
-					}
-					if (vars.size() == 1 && vars.get(0).equals(name)) {
-						this.map.clear();
-						this.scrollHelp.visible = false;
-						return;
-					}
-					String[][] hts = new String[vars.size()][];
-					int i = 0;
-					for (String str : vars) {
-						if (CustomNpcs.scriptHelperObfuscations) {
-							boolean found = false;
-							for (int j = 0; j < 15; j++) {
-								Map<String, String> m;
-								if (j == 0) {
-									m = ObfuscationPart0.map;
-								} else if (j == 1) {
-									m = ObfuscationPart1.map;
-								} else if (j == 2) {
-									m = ObfuscationPart2.map;
-								} else if (j == 3) {
-									m = ObfuscationPart3.map;
-								} else if (j == 4) {
-									m = ObfuscationPart4.map;
-								} else if (j == 5) {
-									m = ObfuscationPart5.map;
-								} else if (j == 6) {
-									m = ObfuscationPart6.map;
-								} else if (j == 7) {
-									m = ObfuscationPart7.map;
-								} else if (j == 8) {
-									m = ObfuscationPart8.map;
-								} else if (j == 9) {
-									m = ObfuscationPart9.map;
-								} else if (j == 10) {
-									m = ObfuscationPart10.map;
-								} else if (j == 11) {
-									m = ObfuscationPart11.map;
-								} else if (j == 12) {
-									m = ObfuscationPart12.map;
-								} else if (j == 13) {
-									m = ObfuscationPart13.map;
-								} else {
-									m = ObfuscationPart14.map;
-								}
-								if (m.containsValue(str)) {
-									found = true;
-									String[] parent = this.map.get(str);
-									hts[i] = new String[parent.length + 1];
-									for (int g = 0; g < parent.length; g++) {
-										hts[i][g] = parent[g];
-									}
-									hts[i][parent.length] = Character.toChars(0x00A7)[0] + "8Deobfuscation name: "
-											+ Character.toChars(0x00A7)[0] + "r" + m.get(str);
-									break;
-								}
-							}
-							if (!found) {
-								hts[i] = this.map.get(str);
-							}
-						} else {
-							hts[i] = this.map.get(str);
-						}
-						i++;
-					}
-					this.scrollHelp.setListNotSorted(vars);
-					this.scrollHelp.hoversTexts = hts;
-					this.scrollHelp.selected = -1;
-					this.scrollHelp.visible = true;
-					this.resetHelpPos(this.position, area);
-					return;
-				} else {
-					this.map.clear();
-					this.scrollHelp.visible = false;
+					break;
 				}
 			}
-			// constants
-			else {
-				this.position = ValueUtil.max(text.lastIndexOf(' ', pos - 1), text.lastIndexOf(';', pos - 1),
-						text.lastIndexOf(enter, pos - 1)) + 1;
-				String select = AdditionalMethods.match(text, pos, null,
-						new char[] { ';', Character.toChars(0x000A)[0] });
-				String value = select.isEmpty() ? "" : ("var").indexOf(select) == 0 && !select.equals("var") ? "var"
-						: ("function").indexOf(select) == 0 && !select.equals("function") ? "function" : "";
-				if (!value.isEmpty()) {
-					this.map.put("var", null);
-					this.map.put("function", null);
-					this.scrollHelp.setListNotSorted(Lists.newArrayList(new String[] { value }));
+			if (this.startPos==0 && pos>0) { this.select = AdditionalMethods.match(text, 0, GuiTextArea.filter, GuiTextArea.filter); }
+			while (this.select.indexOf(tab)!=-1) { this.select = this.select.replace(""+tab, ""); }
+			while (this.preSelect.indexOf(tab)!=-1) { this.preSelect = this.preSelect.replace(""+tab, ""); }	
+System.out.println("length: "+text.length()+"; pos: "+pos+"; startPos: "+this.startPos+"; select: \""+this.select+"\""+"; preSelect: \""+this.preSelect+"\"");
+			if (this.preSelect.equals("function") || (this.preSelect.isEmpty() && this.select.equals("function"))) {
+				if (this.preSelect.isEmpty() && this.select.equals("function")) { this.select = ""; }
+				this.map.clear();
+				for (String func : this.baseFuncNames.keySet()) {
+					if (!this.select.isEmpty() && func.indexOf(this.select)==-1) { continue; }
+					this.map.put(func + "(event)", new String[0]);
+				}
+				if (this.map.size() > 0) {
+					this.scrollHelp.setListNotSorted(Lists.newArrayList(this.map.keySet()));
 					this.scrollHelp.selected = -1;
 					this.scrollHelp.visible = true;
 					this.scrollHelp.hoversTexts = null;
 					resetHelpPos(pos, area);
-				} else if (s > p) {
-					int l = Math.max(text.lastIndexOf(enter, pos - 1), text.lastIndexOf(';', pos - 1)) + 1;
-					String key = text.substring(l, s);
-					while (key.indexOf(" ") != -1) {
-						key = key.replace(" ", "");
+				}
+				return;
+			}
+			//if (this.select.isEmpty()) { return; }
+			String part = text.substring(this.startPos, pos);
+			if (part.lastIndexOf(" ", pos)!=-1) { part = part.substring(part.lastIndexOf(" ", pos)+1); }
+			if (part.lastIndexOf(""+((char) 9), pos)!=-1) { part = part.substring(part.lastIndexOf(""+((char) 9), pos)+1); }
+			String path = part;
+			if (part.lastIndexOf('.', pos-this.startPos)!=-1) { path = path.substring(0, path.lastIndexOf('.', pos-this.startPos)); }
+System.out.println("part: \""+part+"\"; path: \""+path+"\"");
+			//language
+			String language = this.handler.getLanguage();
+			if (language.isEmpty() && this.getScriptIndex() < this.languages.size()) {
+				int i = 0, j = this.getScriptIndex();
+				for (String l : this.languages.keySet()) {
+					if (i == j) {
+						language = l;
+						break;
 					}
-					if (key.equals("function")) {
-						this.position = text.indexOf("function", text.lastIndexOf(enter, pos - 1)) + 9;
-						this.map.clear();
-						for (String func : this.baseFuncNames.keySet()) {
-							tempMap.put(func + "(event)", new String[0]);
+				}
+			}
+			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+			if (container == null) { return; }
+			if (!text.isEmpty()) { text += "\n"; }
+			for (String loc : container.scripts) {
+				String code = ScriptController.Instance.scripts.get(loc);
+				if (code != null && !code.isEmpty()) {
+					text += code + "\n";
+				}
+			}
+			text = text.replace(area.getLineText(), "");
+			if (!text.isEmpty()) {
+				String newText = text;
+				newText = newText.replace("\r\n", "\n");
+				newText = text.replace("\r", "\n");
+				container.script = newText;
+			} else {
+				this.setScript();
+			}
+			this.setData(AdditionalMethods.getScriptData(language, container, this.baseFuncNames));
+			Map<String, Class<?>> parametrs = Maps.newHashMap();
+			String fName = this.getFuncName();
+			boolean foundFunc = false;
+			
+			/*String constant = text;
+			try {
+				while (constant.indexOf("function")!=-1) {
+					int st = constant.indexOf("{", constant.indexOf("function")), en = -1, ;
+					for (int g = st; g<constant.length(); g++) {
+						
+					}
+					constant = (constant.indexOf("function")!=0 ? constant.substring(0, constant.indexOf("{")) : "");
+				}
+			} catch (Exception e) { }
+			Map<String, Class<?>> maxData = AdditionalMethods.getVariablesInBody(constant, data, null);*/
+			
+			
+			for (String key : this.data.keySet()) {
+//System.out.println("key: "+key+"; type: "+this.data.get(key).size());
+				if (this.data.get(key).size()==1) {
+					ScriptData sd = this.data.get(key).get(0);
+//System.out.println("key: "+key+"; type: "+sd.getType()+" = "+sd.getObject().getClass());
+					if (sd.getType()==12) {
+						if (!fName.isEmpty() && key.equals(fName)) {
+							ScriptData func = this.data.get(fName).get(0);
+							Map<String, Class<?>> prs = func.getVariables(this.data);
+							for (String k : prs.keySet()) { parametrs.put(k, prs.get(k)); }
+							foundFunc = true;
 						}
-						if (tempMap.size() > 0) {
-							ArrayList<String> list = Lists.newArrayList(Lists.newArrayList(tempMap.keySet()));
-							Collections.sort(list);
-							for (String k : list) {
-								this.map.put(k, tempMap.get(k));
+					}
+					if ((!fName.isEmpty() && key.equals(fName)) || (foundFunc && parametrs.containsKey(key))) { continue; }
+					parametrs.put(key, AdditionalMethods.getScriptClass(sd.getObject()));
+				}
+			}
+System.out.println("parametrs: "+parametrs.size());
+			List<String> keys = Lists.<String>newArrayList();
+			while (path.indexOf('.')!=-1) {
+				keys.add(path.substring(0, path.indexOf('.')));
+				path = path.substring(path.indexOf('.')+1);
+			}
+			keys.add(path);
+			Map<String, Map<String, String[]>> mdata = AdditionalMethods.getObjectVarAndMetods(keys.toArray(new String[keys.size()]), parametrs);
+			if (mdata.size() > 0) {
+				part = this.select;
+//System.out.println("part: \""+part+"\"");
+				this.select = AdditionalMethods.match(part, pos-this.startPos, ".", ".([{"+filter);
+				if (this.select.indexOf('.')==0) { this.select = this.select.substring(1); }
+				this.startPos += part.lastIndexOf(this.select, pos-this.startPos);
+//System.out.println("pos: "+this.startPos+"; select: \""+this.select+"\"");
+				this.map.clear();
+				List<String> vars = Lists.newArrayList();
+				for (int j = 0; j < 3; j++) {
+					String group = "classes";
+					if (j == 1) {
+						group = "fields";
+					} else if (j == 2) {
+						group = "methods";
+					}
+					if (mdata.containsKey(group)) {
+						List<String> list = Lists.newArrayList(mdata.get(group).keySet());
+						Collections.sort(list);
+						for (String str : list) {
+							if (this.select.isEmpty() || str.toLowerCase().indexOf(this.select.toLowerCase()) != -1) {
+								this.map.put(str, mdata.get(group).get(str));
+								vars.add(str);
 							}
-							this.scrollHelp.setListNotSorted(list);
-							this.scrollHelp.selected = -1;
-							this.scrollHelp.visible = true;
-							this.scrollHelp.hoversTexts = null;
-							resetHelpPos(pos, area);
 						}
 					}
+				}
+				if (vars.size() == 1 && vars.get(0).equals(this.select)) {
+					this.map.clear();
+					this.scrollHelp.visible = false;
 					return;
 				}
+				String[][] hts = new String[vars.size()][];
+				int i = 0;
+				for (String str : vars) {
+					if (CustomNpcs.scriptHelperObfuscations) {
+						boolean found = false;
+						for (int j = 0; j < 15; j++) {
+							Map<String, String> m;
+							if (j == 0) {
+								m = ObfuscationPart0.map;
+							} else if (j == 1) {
+								m = ObfuscationPart1.map;
+							} else if (j == 2) {
+								m = ObfuscationPart2.map;
+							} else if (j == 3) {
+								m = ObfuscationPart3.map;
+							} else if (j == 4) {
+								m = ObfuscationPart4.map;
+							} else if (j == 5) {
+								m = ObfuscationPart5.map;
+							} else if (j == 6) {
+								m = ObfuscationPart6.map;
+							} else if (j == 7) {
+								m = ObfuscationPart7.map;
+							} else if (j == 8) {
+								m = ObfuscationPart8.map;
+							} else if (j == 9) {
+								m = ObfuscationPart9.map;
+							} else if (j == 10) {
+								m = ObfuscationPart10.map;
+							} else if (j == 11) {
+								m = ObfuscationPart11.map;
+							} else if (j == 12) {
+								m = ObfuscationPart12.map;
+							} else if (j == 13) {
+								m = ObfuscationPart13.map;
+							} else {
+								m = ObfuscationPart14.map;
+							}
+							if (m.containsValue(str)) {
+								found = true;
+								String[] parent = this.map.get(str);
+								hts[i] = new String[parent.length + 1];
+								for (int g = 0; g < parent.length; g++) {
+									hts[i][g] = parent[g];
+								}
+								hts[i][parent.length] = Character.toChars(0x00A7)[0] + "8Deobfuscation name: "
+										+ Character.toChars(0x00A7)[0] + "r" + m.get(str);
+								break;
+							}
+						}
+						if (!found) {
+							hts[i] = this.map.get(str);
+						}
+					} else {
+						hts[i] = this.map.get(str);
+					}
+					i++;
+				}
+				this.scrollHelp.setListNotSorted(vars);
+				this.scrollHelp.hoversTexts = hts;
+				this.scrollHelp.selected = -1;
+				this.scrollHelp.visible = true;
+				this.resetHelpPos(this.startPos, area);
+				return;
+			} else {
+				this.map.clear();
+				this.scrollHelp.visible = false;
 			}
 		}, 50);
 	}
@@ -656,7 +627,6 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (mouseX + this.helper.width < this.scaleW.getScaledWidth_double()) { this.helper.x = mouseX; } else { this.helper.x = mouseX - this.helper.width; }
 		if (this.helper.x<2) { this.helper.x = 2; }
 		if (mouseY + this.helper.height + 10 < this.scaleW.getScaledHeight_double()) { this.helper.y = mouseY + 10; } else { this.helper.y = mouseY - this.helper.height - 6; }
-		
 		this.helper.drawLabel(this, this.fontRenderer, mouseX, mouseY, partialTicks);
 	}
 
@@ -721,7 +691,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (c == '.' && this.scrollHelp != null) {
 			this.scrollHelp.visible = false;
 			this.map.clear();
-			this.position = -1;
+			this.startPos = 0;
 		}
 		GuiTextArea area = (GuiTextArea) this.get(2);
 		if (area == null) {
@@ -733,29 +703,19 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
-		if (!CustomNpcs.useScriptHelper) {
-			return;
-		}
+		if (!CustomNpcs.useScriptHelper || !(this.get(2) instanceof GuiTextArea)) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(2);
-		if (area == null || !area.hovered) {
-			return;
-		}
+		if (!area.hovered) { return; }
 		if (this.scrollHelp != null && this.scrollHelp.visible && !this.scrollHelp.hovered) {
 			this.scrollHelp.visible = false;
 			return;
 		}
-		if (area.getCursorPosition() != -1) {
-			cheakPath(area);
-		}
+		if (area.getCursorPosition() != -1) { cheakPath(area); }
 	}
 
 	private void resetHelpPos(int pos, GuiTextArea area) {
-		if (!CustomNpcs.useScriptHelper) {
-			return;
-		}
-		if (area == null || pos < 0 || this.scrollHelp == null || !this.scrollHelp.visible) {
-			return;
-		}
+		if (!CustomNpcs.useScriptHelper) { return; }
+		if (area == null || pos < 0 || this.scrollHelp == null || !this.scrollHelp.visible) { return; }
 		int[] xy = area.getXYPosition(pos);
 		this.scrollHelp.scrollY = 0;
 		this.scrollHelp.guiLeft = area.x;
@@ -768,12 +728,8 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 				w = t;
 			}
 		}
-		if (w > area.width) {
-			w = area.width;
-		}
-		if (h > 74) {
-			h = 74;
-		}
+		if (w > area.width) { w = area.width; }
+		if (h > 74) { h = 74; }
 		this.scrollHelp.setSize(w, h);
 		ScaledResolution sw = new ScaledResolution(this.mc);
 		if (xy[1] + h > sw.getScaledHeight()) {
@@ -788,72 +744,56 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		if (!CustomNpcs.useScriptHelper) {
-			return;
-		}
+		if (!CustomNpcs.useScriptHelper) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(2);
-		if (area == null) {
-			return;
-		}
-		String text = "", add = "";
-		if (scroll.id == 1) {
+		if (area == null) { return; }
+		String text = area.getText(), add = "";
+//System.out.println("scrollId: "+scroll.id);
+		if (scroll.id == 1) { // variebels
 			String select = "" + AdditionalMethods.deleteColor(scroll.getSelected());
 			scroll.selected = -1;
 			ScriptData d = this.dataVar.get(select);
-			if (d==null) {
-				return;
-			}
-			text = area.getText();
+			if (d==null) { return; }
 			String keys = "";
 			if (d.getType()==12) {
 				for (String k : d.getParametrs()) { keys += k + ", "; }
 				keys = "("+keys.substring(0, keys.length()-2)+")";
 			}
 			add = select + keys;
-			this.position = area.getCursorPosition();
+			this.startPos = area.getCursorPosition();
+			this.preSelect = "";
+			this.select = "";
 		}
-		else if (scroll.id == 0 && !scroll.getSelected().isEmpty()) {
-			int pos = area.getCursorPosition();
-			text = area.getText();
-			if (pos > text.length() - 1) {
-				pos = text.length() - 1;
-			}
-			if (mouseX == 0 && mouseY == 0 && time == 0) {
-				int t = text.indexOf(+Character.toChars(0x0009)[0], pos);
-				if (t == pos) {
-					text = text.substring(0, t) + ((t + 1) < text.length() - 1 ? text.substring(t + 1) : "");
-				}
-			}
-			if (this.position == -1) {
-				this.position = 0;
-			}
-			String select = AdditionalMethods.match(text, this.position, null,
-					new char[] { ';', Character.toChars(0x000A)[0] });
-			if (select.indexOf('.') == 0) {
-				select = select.substring(1);
-			}
-			if (!select.isEmpty()) {
-				text = text.substring(0, this.position) + text.substring(this.position + select.length());
-			}
+		else if (scroll.id==0 && !scroll.getSelected().isEmpty()) { // helper hover
 			add = AdditionalMethods.deleteColor(scroll.getSelected());
 		}
-		if (text!=null && !text.isEmpty() && add!=null && !add.isEmpty() && this.position!=-1) {
-			text = (this.position > 0 ? text.substring(0, this.position) : "") + add
-					+ (this.position < text.length() - 1 ? text.substring(this.position) : "");
-			boolean offset = false;
-			if (text.indexOf(add, this.position) + add.length() == text.length()) { // is end pos
-				offset = true;
-				text += " ";
+		if (text==null || add==null || add.isEmpty() || this.startPos<0 || (text.length()!=0 && this.startPos>=text.length())) { return; }
+//System.out.println("add: \""+add+"\" "+text.length());
+		int newpos = this.startPos + add.length()-1;
+		if (text.length()==0) { text = add+" "; }
+		else {
+			if (this.preSelect.equals("function")) {
+				if (text.indexOf('{')!=-1) {
+					add += " {";
+					this.select = text.substring(this.startPos, text.indexOf('{')+1);
+					newpos += 2;
+				} else {
+					add += " {"+(""+((char) 10))+"  "+(""+((char) 10))+"}";
+					newpos += 5;
+				}
 			}
-			area.setText(text);
-			area.setCursorPosition(this.position + add.length());
-			this.scrollHelp.visible = false;
-			this.map.clear();
-			this.position = -1;
-			if (offset) {
-				this.keyTyped(Character.toChars(0x0000)[0], 205);
+			if (!this.select.isEmpty()) {
+				text = text.substring(0, this.startPos)+(this.startPos+this.select.length()<text.length() ? text.substring(this.startPos+this.select.length()) : "");
 			}
+			text = (this.startPos > 0 ? text.substring(0, this.startPos) : "") + add + (this.startPos < text.length() - 1 ? text.substring(this.startPos) : "");
 		}
+		area.setText(text);
+		area.setCursorPosition(newpos);
+		this.scrollHelp.visible = false;
+		this.map.clear();
+		this.startPos = 0;
+		this.keyTyped(((char) 0), 205); // rigth key
+		cheakPath(area);
 	}
 
 	@Override

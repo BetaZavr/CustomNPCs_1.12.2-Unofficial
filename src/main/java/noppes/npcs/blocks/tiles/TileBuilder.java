@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
@@ -25,15 +27,11 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.schematics.SchematicWrapper;
 
-public class TileBuilder extends TileEntity implements ITickable {
-	public static boolean Compiled = false;
-	public static BlockPos DrawPos = null;
-
-	public static void SetDrawPos(BlockPos pos) {
-		TileBuilder.DrawPos = pos;
-		TileBuilder.Compiled = false;
-	}
-
+public class TileBuilder
+extends TileEntity
+implements ITickable {
+	
+	public static List<BlockPos> DrawPoses = Lists.<BlockPos>newArrayList();
 	public Availability availability;
 	public boolean enabled;
 	public boolean finished;
@@ -43,8 +41,20 @@ public class TileBuilder extends TileEntity implements ITickable {
 	private SchematicWrapper schematic;
 	public boolean started;
 	private int ticks;
-
 	public int yOffest;
+
+	public static void SetDrawPos(BlockPos pos) {
+		if (!TileBuilder.has(pos)) {
+			TileBuilder.DrawPoses.add(pos);
+		}
+	}
+	public static boolean has(BlockPos pos) {
+		if (pos==null) { return false; }
+		for (BlockPos p : TileBuilder.DrawPoses) {
+			if (p!=null && p.equals(pos)) { return true; }
+		}
+		return false;
+	}
 
 	public TileBuilder() {
 		this.schematic = null;

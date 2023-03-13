@@ -44,7 +44,7 @@ extends GuiNpcButton {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + 20);
 		int k = this.getHoverState(this.hover);
-		this.drawTexturedModalRect(this.x, this.y, 0, k * 20, this.getWidth(), 20);
+		this.drawTexturedModalRect(this.x, this.y, 0, k * 20, this.getWidth(), 20+(!this.active && this.hover ? 1 : 0));
 		if (this.active) {
 			this.drawTexturedModalRect(this.x+this.getWidth(), this.y+1, 197, 1+k * 20, 2, 18);
 			this.drawTexturedModalRect(this.x+this.getWidth()+2, this.y+1, 199, 1+k * 20, 1, 17);

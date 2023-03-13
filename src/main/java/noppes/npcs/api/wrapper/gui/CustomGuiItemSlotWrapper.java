@@ -10,7 +10,10 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.containers.ContainerCustomGui;
 
-public class CustomGuiItemSlotWrapper extends CustomGuiComponentWrapper implements IItemSlot {
+public class CustomGuiItemSlotWrapper
+extends CustomGuiComponentWrapper
+implements IItemSlot {
+	
 	// New
 	EntityPlayer player;
 	int slotIndex = 0;

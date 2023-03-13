@@ -2,37 +2,49 @@ package noppes.npcs.client.util;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.constants.EnumInterfaceData;
 
 public class InterfaseData {
 
 	public Class<?> interF;
-	public Map<Integer, MetodData> metods;
+	public Class<?> extend;
+	private Map<String, MetodData> metods;
 	public String comment;
 	
 	public InterfaseData(Class<?> interF, String comment, MetodData ... mds) {
 		this.interF = interF;
 		this.comment = comment;
-		this.metods = Maps.<Integer, MetodData>newTreeMap();
-		int i = 0;
-		for (MetodData md : mds) { this.metods.put(i, md); i++; }
+		this.metods = Maps.<String, MetodData>newTreeMap();
+		for (MetodData md : mds) { this.metods.put(md.name, md); }
 	}
 	
-	public String getText() {
-		String text = "";
-		for (int pos : this.metods.keySet()) {
-			if (text.isEmpty()) { text = this.metods.get(pos).getText(); }
-			else { text += "<br>"+this.metods.get(pos).getText(); }
+	public InterfaseData(Class<?> interF, Class<?> clazz, String comment, MetodData ... mds) {
+		this(interF, comment, mds);
+		this.extend = clazz;
+	}
+	
+	public TreeMap<String, MetodData> getAllMetods(TreeMap<String, MetodData> parent) {
+		if (this.extend!=null) {
+			for (EnumInterfaceData enumIT : EnumInterfaceData.values()) {
+				if (this.extend.getSimpleName().equals(enumIT.name())) {
+					return enumIT.it.getAllMetods(parent);
+				}
+			}
 		}
-		while (text.indexOf("<br>")!=-1) { text = text.replace("<br>", ""+((char) 10)); }
-		while (text.indexOf(((char) 167)+"r")!=-1) { text = text.replace(((char) 167)+"r", ""); }
-		return text;
+		for (MetodData md : this.metods.values()) {
+			String name = md.name;
+			while (parent.containsKey(name)) { name += "_"; }
+			parent.put(name, md);
+		}
+		return parent;
 	}
-	
+
 	public List<String> getComment() {
 		List<String> comment = Lists.<String>newArrayList();
 		String tr = new TextComponentTranslation(this.comment).getFormattedText();

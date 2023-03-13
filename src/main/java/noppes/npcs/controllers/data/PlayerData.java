@@ -43,6 +43,7 @@ implements ICapabilityProvider {
 	public PlayerGameData game;
 	public PlayerItemGiverData itemgiverData;
 	public PlayerMailData mailData;
+	public PlayerOverlayHUD hud;
 	public EntityPlayer player;
 	public int playerLevel;
 	public String playername;
@@ -64,6 +65,7 @@ implements ICapabilityProvider {
 		this.factionData = new PlayerFactionData();
 		this.itemgiverData = new PlayerItemGiverData();
 		this.mailData = new PlayerMailData();
+		this.hud = new PlayerOverlayHUD();
 		this.timers = new DataTimers(this);
 		this.scriptStoreddata = new NBTTagCompound();
 		this.playername = "";
@@ -174,6 +176,7 @@ implements ICapabilityProvider {
 		this.factionData.saveNBTData(compound);
 		this.itemgiverData.saveNBTData(compound);
 		this.mailData.saveNBTData(compound);
+		this.hud.saveNBTData(compound);
 		this.game.saveNBTData(compound); // New
 		this.timers.writeToNBT(compound);
 		compound.setString("PlayerName", this.playername);
@@ -246,6 +249,7 @@ implements ICapabilityProvider {
 		this.factionData.loadNBTData(data);
 		this.itemgiverData.loadNBTData(data);
 		this.mailData.loadNBTData(data);
+		this.hud.loadNBTData(data);
 		this.timers.readFromNBT(data);
 		this.game.readFromNBT(data); // New
 		if (this.player != null) {

@@ -6,7 +6,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiButtonBiDirectional extends GuiNpcButton {
+public class GuiButtonBiDirectional
+extends GuiNpcButton {
+	
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/arrowbuttons.png");
 	public boolean cheakWidth;
 	private int color;

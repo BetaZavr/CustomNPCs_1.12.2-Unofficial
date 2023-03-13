@@ -62,6 +62,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBoundary;
+import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 
@@ -288,6 +289,11 @@ public class ScriptPlayerEventHandler {
 			event.setCanceled(true);
 			return;
 		}
+		if (event.getItemStack().getItem() == CustomItems.npcbuilder) {
+			((ItemBuilder) event.getItemStack().getItem()).leftClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
+			event.setCanceled(true);
+			return;
+		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 2,
 				NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
@@ -314,6 +320,11 @@ public class ScriptPlayerEventHandler {
 		}
 		if (event.getItemStack().getItem() == CustomItems.npcboundary) {
 			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
+			event.setCanceled(true);
+			return;
+		}
+		if (event.getItemStack().getItem() == CustomItems.npcbuilder) {
+			((ItemBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
 			event.setCanceled(true);
 			return;
 		}
@@ -358,6 +369,10 @@ public class ScriptPlayerEventHandler {
 			}
 			if (event.getItemStack().getItem() == CustomItems.npcboundary) {
 				((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
+				return;
+			}
+			if (event.getItemStack().getItem() == CustomItems.npcbuilder) {
+				((ItemBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
 				return;
 			}
 		}

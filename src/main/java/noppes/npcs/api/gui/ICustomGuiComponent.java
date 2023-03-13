@@ -1,6 +1,7 @@
 package noppes.npcs.api.gui;
 
 public interface ICustomGuiComponent {
+	
 	String[] getHoverText();
 
 	int getID();
@@ -18,4 +19,7 @@ public interface ICustomGuiComponent {
 	ICustomGuiComponent setID(int id);
 
 	ICustomGuiComponent setPos(int u, int v);
+	
+	void offSet(int type); // new
+	
 }

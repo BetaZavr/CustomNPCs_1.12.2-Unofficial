@@ -59,6 +59,8 @@ public enum EnumScriptType
 	ITEM_FISHED("itemFished"), // New
 	ITEM_CRAFTED("itemCrafted"), // New
 	KEY_DOWN("keyDown"), // New
+	MOUSE_DOWN("mouseDown"), // New
+	MOUSE_UP("mousePressed"), // New
 	POTION_IS_READY("isReady"), // New
 	POTION_PERFORM("performEffect"), // New
 	POTION_AFFECT("affectEntity"), // New

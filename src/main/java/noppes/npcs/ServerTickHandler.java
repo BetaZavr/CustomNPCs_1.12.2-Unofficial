@@ -1,6 +1,9 @@
 package noppes.npcs;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -37,6 +40,8 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.data.DataScenes;
+import noppes.npcs.items.ItemBuilder;
+import noppes.npcs.util.BuilderData;
 
 public class ServerTickHandler {
 	public int ticks;
@@ -72,6 +77,7 @@ public class ServerTickHandler {
 					data.game.op = opn;
 					data.updateClient = true;
 				}
+				data.hud.update(player);
 			}
 		}
 		if (data.updateClient) {
@@ -99,11 +105,10 @@ public class ServerTickHandler {
 		if (event.phase == TickEvent.Phase.END) {
 			return;
 		}
-		if (this.ticks++ >= 20) {
+		if ((this.ticks++) % 20 == 0) {
 			CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			SchematicController.Instance.updateBuilding();
 			MassBlockController.Update();
-			this.ticks = 0;
 			for (DataScenes.SceneState state : DataScenes.StartedScenes.values()) {
 				if (!state.paused) {
 					DataScenes.SceneState sceneState = state;
@@ -114,6 +119,27 @@ public class ServerTickHandler {
 				entry.update();
 			}
 			DataScenes.ScenesToRun = new ArrayList<DataScenes.SceneContainer>();
+			if (this.ticks>=6000) {
+				this.ticks = 0;
+				List<Integer> del = Lists.<Integer>newArrayList();
+				for (int id :  CommonProxy.dataBuilder.keySet()) {
+					BuilderData bd = CommonProxy.dataBuilder.get(id);
+					if (bd.player==null) { del.add(id); continue; }
+					ItemStack stack = null;
+					if (ItemBuilder.isBulderItem(bd, bd.player.getHeldItemOffhand())) {
+						stack = bd.player.getHeldItemOffhand();
+					} else {
+						for(ItemStack s : bd.player.inventory.mainInventory) {
+							if (ItemBuilder.isBulderItem(bd, s)) {
+								stack = s;
+								break;
+							}
+						}
+					}
+					if (stack==null) { del.add(id); }
+				}
+				for (int id :  del) { CommonProxy.dataBuilder.remove(id); }
+			}
 		}
 		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 	}

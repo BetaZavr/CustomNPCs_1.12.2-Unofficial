@@ -6,6 +6,7 @@ import noppes.npcs.api.ITimers;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
+import noppes.npcs.api.gui.IOverlayHUD;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
 
@@ -131,8 +132,6 @@ extends IEntityLivingBase<T> {
 
 	void setMoney(long value); // New
 
-	double[] getWindowSize(); // New
-
 	int[] getKeyPressed(); // New
 
 	boolean hasKeyPressed(int key); // New
@@ -142,7 +141,7 @@ extends IEntityLivingBase<T> {
 	boolean hasMousePress(int key); // New
 	
 	void completeQuest(int id); // New
-	
-	String getCurrentLanguage(); // new
+
+	IOverlayHUD getIOverlayHUD(); // New
 	
 }

@@ -94,7 +94,7 @@ implements IPermission {
 		BorderController bData = BorderController.getInstance();
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) { id = stack.getTagCompound().getInteger("RegionID"); }
 		// Shift + LMB = New Region
-		if (data.game.hasOrKeysPressed(new int [] { 42, 54 })) {
+		if (data.hud.hasOrKeysPressed(new int [] { 42, 54 })) {
 			Zone3D reg = bData.createNew(player.world.provider.getDimension(), pos);
 			bData.saveRegions();
 			bData.sendToAll(reg.id);
@@ -148,7 +148,7 @@ implements IPermission {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) { id = stack.getTagCompound().getInteger("RegionID"); }
 		Zone3D reg = bData.getRegion(id);
 		// Shift + RMB = Show Region settings
-		if (reg==null || data.game.hasOrKeysPressed(new int [] { 42, 54 })) { // Shift pressed
+		if (reg==null || data.hud.hasOrKeysPressed(new int [] { 42, 54 })) { // Shift pressed
 			if (reg!=null && pos==null) { pos = player.getPosition(); }
 			if (bData.regions.size()>0) {
 				NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, id, reg==null ? -1 : reg.getIdNearestPoint(pos), 0);

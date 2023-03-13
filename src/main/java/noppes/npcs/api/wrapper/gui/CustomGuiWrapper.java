@@ -89,9 +89,7 @@ implements ICustomGui {
 	}
 
 	@Override
-	public IItemSlot addItemSlot(int x, int y) {
-		return this.addItemSlot(x, y, ItemScriptedWrapper.AIR);
-	}
+	public IItemSlot addItemSlot(int x, int y) { return this.addItemSlot(x, y, ItemScriptedWrapper.AIR); }
 
 	@Override
 	public IItemSlot addItemSlot(int x, int y, IItemStack stack) {
@@ -152,10 +150,8 @@ implements ICustomGui {
 	}
 
 	@Override
-	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY) {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height,
-				textureX, textureY);
+	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
+		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX, textureY);
 		this.components.add(component);
 		return (ITexturedRect) this.components.get(this.components.size() - 1);
 	}
@@ -295,10 +291,9 @@ implements ICustomGui {
 		}
 		for (int i = 0; i < this.slots.size(); i++) {
 			CustomGuiItemSlotWrapper slot = (CustomGuiItemSlotWrapper) this.slots.get(i);
-			ObfuscationHelper.setValue(CustomGuiItemSlotWrapper.class, slot, player, 1);
-			ObfuscationHelper.setValue(CustomGuiItemSlotWrapper.class, slot, i, 2);
+			ObfuscationHelper.setValue(CustomGuiItemSlotWrapper.class, slot, player, EntityPlayer.class);
+			ObfuscationHelper.setValue(CustomGuiItemSlotWrapper.class, slot, i, int.class);
 		}
-
 	}
 
 	@Override

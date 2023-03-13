@@ -102,6 +102,7 @@ public class ScriptController {
 		LogWriter.info("Script Engines Available:");
 		for (ScriptEngineFactory fac : this.manager.getEngineFactories()) {
 			try {
+				LogWriter.debug("Found script Library: \""+fac.getLanguageName() + "\"");
 				if (fac.getExtensions().isEmpty()) {
 					continue;
 				}

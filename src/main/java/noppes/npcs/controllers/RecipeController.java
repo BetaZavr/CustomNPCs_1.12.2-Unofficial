@@ -40,16 +40,30 @@ import noppes.npcs.items.crafting.NpcShapelessRecipes;
 
 public class RecipeController implements IRecipeHandler {
 	
-	public static RecipeController instance;
+	private static RecipeController instance;
+	private String filePath;
+	
 	public Map<String, List<INpcRecipe>> globalList; // [GroupName, RecipeList]
 	public Map<String, List<INpcRecipe>> modList; // [GroupName, RecipeList]
 	public static ForgeRegistry<IRecipe> Registry;
 	public static int version = 2;
 
 	public RecipeController() {
+		this.filePath = "";
 		this.globalList = Maps.<String, List<INpcRecipe>>newHashMap();
 		this.modList = Maps.<String, List<INpcRecipe>>newHashMap();
 		RecipeController.instance = this;
+		this.load();
+	}
+	
+	public static RecipeController getInstance() {
+		if (newInstance()) { RecipeController.instance = new RecipeController(); }
+		return RecipeController.instance;
+	}
+
+	private static boolean newInstance() {
+		if (RecipeController.instance == null) { return true; }
+		return CustomNpcs.Dir != null && !RecipeController.instance.filePath.equals(CustomNpcs.Dir.getAbsolutePath());
 	}
 	
 	public NBTTagCompound getNBT() {
@@ -75,23 +89,18 @@ public class RecipeController implements IRecipeHandler {
 	}
 
 	public void load() {
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadRecipes");
-		}
+		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "loadRecipes"); }
 		LogWriter.info("Loading Recipes");
 		this.loadFile();
 		EventHooks.onRecipesLoaded(this);
 		CustomNpcs.proxy.updateRecipes(null, true, false, "RecipeController.load()");
-		LogWriter.info("Done loading Recipes");
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadRecipes");
-		}
+		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "loadRecipes"); }
 	}
 	
 	private void loadFile() {
-		File saveDir = CustomNpcs.getWorldSaveDirectory();
+		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		try {
-			File file = new File(saveDir, "recipes.dat");
+			File file = new File(CustomNpcs.Dir, "recipes.dat");
 			if (file.exists()) {
 				try {
 					NBTTagCompound nbtFile = CompressedStreamTools
@@ -108,7 +117,7 @@ public class RecipeController implements IRecipeHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {
-				File file2 = new File(saveDir, "recipes.dat_old");
+				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
 				if (file2.exists()) {
 					try {
 						NBTTagCompound nbtFile = CompressedStreamTools
@@ -202,23 +211,7 @@ public class RecipeController implements IRecipeHandler {
 	
 	public void save() {
 		try {
-			File saveDir = CustomNpcs.getWorldSaveDirectory();
-			File file = new File(saveDir, "recipes.dat_new");
-			File file2 = new File(saveDir, "recipes.dat_old");
-			File file3 = new File(saveDir, "recipes.dat");
-			NBTTagCompound nbtFile = this.getNBT();
-			CompressedStreamTools.writeCompressed(nbtFile, (OutputStream) new FileOutputStream(file));
-			if (file2.exists()) {
-				file2.delete();
-			}
-			file3.renameTo(file2);
-			if (file3.exists()) {
-				file3.delete();
-			}
-			file.renameTo(file3);
-			if (file.exists()) {
-				file.delete();
-			}
+			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "recipes.dat")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

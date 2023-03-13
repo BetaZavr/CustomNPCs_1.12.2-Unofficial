@@ -32,7 +32,7 @@ implements IGui, IKeyListener, IMouseListener {
 
 	private static TrueTypeFont font = new TrueTypeFont(new Font("Arial Unicode MS", 0, CustomNpcs.FontSize), 1.0f);
 
-	public static String filter = ((char) 9)+((char) 10)+" .+-/*=()[]{}\"\\';"; // Tab, Enter ...
+	public static String filter = (""+(char) 9)+(""+(char) 10)+" .+-/*=()[]{}\"\\';"; // Tab, Enter ...
 	public boolean active;
 	public boolean clicked;
 	public boolean clickScrolling;

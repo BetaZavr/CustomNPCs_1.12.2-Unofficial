@@ -230,7 +230,7 @@ implements IGuiHandler {
 			if (!(rec instanceof INpcRecipe)) {
 				continue;
 			}
-			INpcRecipe r = RecipeController.instance.getRecipe(rec.getRegistryName());
+			INpcRecipe r = RecipeController.getInstance().getRecipe(rec.getRegistryName());
 			if (r == null || !r.isValid()) {
 				del.add(rec.getRegistryName());
 			}
@@ -244,7 +244,7 @@ implements IGuiHandler {
 		
 		// Added New or Reload
 		for (int i = 0; i < 2; i++) {
-			for (List<INpcRecipe> list : (i == 0 ? RecipeController.instance.globalList.values() : RecipeController.instance.modList.values())) {
+			for (List<INpcRecipe> list : (i == 0 ? RecipeController.getInstance().globalList.values() : RecipeController.getInstance().modList.values())) {
 				for (INpcRecipe rec : list) {
 					if (!rec.isValid()) { continue; }
 					IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
@@ -272,7 +272,7 @@ implements IGuiHandler {
 		// Changed in Players
 		for (EntityPlayerMP player : players) {
 			this.updateRecipeBook(player);
-			RecipeController.instance.sendTo(player);
+			RecipeController.getInstance().sendTo(player);
 		}
 	}
 
@@ -280,33 +280,30 @@ implements IGuiHandler {
 		if (!(player instanceof EntityPlayerMP)) { return; }
 		RecipeBook book = ((EntityPlayerMP) player).getRecipeBook();
 		if (book == null) { return; }
+		RecipeController rData = RecipeController.getInstance();
 		BitSet recipes = ObfuscationHelper.getValue(RecipeBook.class, book, 0);
 		BitSet newRecipes = ObfuscationHelper.getValue(RecipeBook.class, book, 1);
 		List<Integer> delIDs = Lists.<Integer>newArrayList();
 		for (int id = recipes.nextSetBit(0); id >= 0; id = recipes.nextSetBit(id + 1)) {
-			if (CraftingManager.REGISTRY.getObjectById(id) == null) {
-				delIDs.add(id);
-			}
+			INpcRecipe recipe = rData.getRecipe(id);
+			if (recipe==null) { delIDs.add(id); }
+			else if (!CraftingManager.REGISTRY.containsKey(((IRecipe) recipe).getRegistryName()) || CraftingManager.REGISTRY.getObjectById(id) == null) { delIDs.add(id); }
 		}
 		if (delIDs.size() > 0) {
-			for (int id : delIDs) {
-				recipes.clear(id);
-			}
+			for (int id : delIDs) { recipes.clear(id); }
 		}
 		delIDs.clear();
 		for (int id = newRecipes.nextSetBit(0); id >= 0; id = newRecipes.nextSetBit(id + 1)) {
-			if (CraftingManager.REGISTRY.getObjectById(id) == null) {
-				delIDs.add(id);
-			}
+			INpcRecipe recipe = rData.getRecipe(id);
+			if (recipe==null) { delIDs.add(id); }
+			else if (!CraftingManager.REGISTRY.containsKey(((IRecipe) recipe).getRegistryName()) || CraftingManager.REGISTRY.getObjectById(id) == null) { delIDs.add(id); }
 		}
 		if (delIDs.size() > 0) {
-			for (int id : delIDs) {
-				newRecipes.clear(id);
-			}
+			for (int id : delIDs) { newRecipes.clear(id); }
 		}
 		ObfuscationHelper.setValue(RecipeBook.class, book, recipes, 0);
 		ObfuscationHelper.setValue(RecipeBook.class, book, newRecipes, 1);
-		player.unlockRecipes(RecipeController.instance.getKnownRecipes());
+		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 
 	public void checkBlockFiles(ICustomItem customblock) {

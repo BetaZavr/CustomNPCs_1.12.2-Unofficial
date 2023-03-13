@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
@@ -402,7 +403,7 @@ public class QuestInterface {
 					this.items.items.set(i, stacks.get(i));
 				}
 			}
-		} else { // Old versions
+		} else if (CustomNpcs.FixUpdateFromPre_1_12) { // Old versions
 			List<QuestObjective> oldTasks = new ArrayList<QuestObjective>();
 			int i = 0;
 			if (compound.getInteger("Type") == 0) { // Item

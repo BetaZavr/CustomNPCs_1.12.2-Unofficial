@@ -36,6 +36,7 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.entity.data.IPixelmonPlayerData;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
+import noppes.npcs.api.gui.IOverlayHUD;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
@@ -244,6 +245,11 @@ implements IPlayer {
 	}
 
 	@Override
+	public IOverlayHUD getIOverlayHUD() {
+		return (IOverlayHUD) this.getData().hud;
+	}
+	
+	@Override
 	public String getDisplayName() {
 		return this.entity.getDisplayNameString();
 	}
@@ -297,7 +303,7 @@ implements IPlayer {
 	// New
 	@Override
 	public int[] getKeyPressed() {
-		return this.getData().game.getKeyPressed();
+		return this.getData().hud.getKeyPressed();
 	}
 
 	@Override
@@ -307,7 +313,7 @@ implements IPlayer {
 
 	@Override
 	public int[] getMousePressed() {
-		return this.getData().game.getMousePressed();
+		return this.getData().hud.getMousePressed();
 	}
 
 	@Override
@@ -376,11 +382,6 @@ implements IPlayer {
 	}
 
 	@Override
-	public double[] getWindowSize() {
-		return this.getData().game.getWindowSize();
-	}
-
-	@Override
 	public boolean giveItem(IItemStack item) {
 		ItemStack mcItem = item.getMCItemStack();
 		if (mcItem.isEmpty()) {
@@ -428,12 +429,12 @@ implements IPlayer {
 
 	@Override
 	public boolean hasKeyPressed(int key) {
-		return this.getData().game.hasKeyPressed(key);
+		return this.getData().hud.hasOrKeysPressed(key);
 	}
 
 	@Override
 	public boolean hasMousePress(int key) {
-		return this.getData().game.hasMousePress(key);
+		return this.getData().hud.hasMousePress(key);
 	}
 
 	@Override
@@ -481,7 +482,7 @@ implements IPlayer {
 
 	@Override
 	public boolean isMoved() {
-		return this.getData().game.isMoved();
+		return this.getData().hud.isMoved();
 	}
 
 	@Override
@@ -709,10 +710,6 @@ implements IPlayer {
 				playerdata.checkQuestCompletion(this.entity, data);
 			}
 		}
-	}
-	
-	public String getCurrentLanguage() { // New
-		return this.getData().game.getCurrentLanguage();
 	}
 
 }

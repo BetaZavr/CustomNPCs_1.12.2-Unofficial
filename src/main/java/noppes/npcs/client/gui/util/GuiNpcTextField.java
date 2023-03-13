@@ -9,19 +9,6 @@ public class GuiNpcTextField
 extends GuiTextField {
 	
 	private static GuiNpcTextField activeTextfield = null;
-
-	public static boolean isActive() {
-		return GuiNpcTextField.activeTextfield != null;
-	}
-
-	public static void unfocus() {
-		GuiNpcTextField prev = GuiNpcTextField.activeTextfield;
-		GuiNpcTextField.activeTextfield = null;
-		if (prev != null) {
-			prev.unFocused();
-		}
-	}
-
 	private int[] allowedSpecialChars;
 	public boolean canEdit;
 	public boolean doubleNumbersOnly;
@@ -62,6 +49,18 @@ extends GuiTextField {
 		this(id, parent, Minecraft.getMinecraft().fontRenderer, x, y, width, height, text);
 	}
 
+	public static boolean isActive() {
+		return GuiNpcTextField.activeTextfield != null;
+	}
+
+	public static void unfocus() {
+		GuiNpcTextField prev = GuiNpcTextField.activeTextfield;
+		GuiNpcTextField.activeTextfield = null;
+		if (prev != null) {
+			prev.unFocused();
+		}
+	}
+	
 	private boolean charAllowed(char c, int i) {
 		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().length() == 0)) {
 			return true;

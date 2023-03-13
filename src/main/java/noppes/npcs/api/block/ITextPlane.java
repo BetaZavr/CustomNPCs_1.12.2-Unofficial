@@ -1,6 +1,7 @@
 package noppes.npcs.api.block;
 
 public interface ITextPlane {
+	
 	float getOffsetX();
 
 	float getOffsetY();
@@ -17,19 +18,20 @@ public interface ITextPlane {
 
 	String getText();
 
-	void setOffsetX(float p0);
+	void setOffsetX(float x);
 
-	void setOffsetY(float p0);
+	void setOffsetY(float y);
 
-	void setOffsetZ(float p0);
+	void setOffsetZ(float z);
 
-	void setRotationX(int p0);
+	void setRotationX(int x);
 
-	void setRotationY(int p0);
+	void setRotationY(int y);
 
-	void setRotationZ(int p0);
+	void setRotationZ(int z);
 
-	void setScale(float p0);
+	void setScale(float scale);
 
-	void setText(String p0);
+	void setText(String text);
+	
 }

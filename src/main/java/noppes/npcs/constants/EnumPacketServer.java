@@ -136,8 +136,10 @@ public enum EnumPacketServer
 	NbtBookSaveBlock(CustomNpcsPermissions.TOOL_NBTBOOK),
 	ScriptPotionGet(false), //New
 	ScriptPotionSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), // New
-	TeleportTo(false),
-	RegionData(false); // New
+	TeleportTo(false), // New
+	RegionData(false), // New
+	BuilderSetting(false), // New
+	OpenBuilder(false); // New
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;

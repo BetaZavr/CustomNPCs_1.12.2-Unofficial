@@ -21,15 +21,22 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.BorderController;
+import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.items.ItemBoundary;
+import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.BuilderData;
 
 @SideOnly(Side.CLIENT)
 public class ClientGuiEventHandler
@@ -40,8 +47,26 @@ extends Gui
 	private Minecraft mc;
 	private BorderController bData;
 	private double dx, dy, dz;
-	private static RayTraceResult result;
+	public static RayTraceResult result;
 
+	/** HUD Bar Interfase Canceled */
+	@SubscribeEvent
+	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
+		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
+	}
+	
+	/** HUD Bar Interfase */
+	@SubscribeEvent
+	public void npcRenderOverlay(RenderGameOverlayEvent event) {
+		if (event.getType() != RenderGameOverlayEvent.ElementType.TEXT || Minecraft.getMinecraft().currentScreen!=null) { return; }
+		PlayerOverlayHUD data = ClientProxy.playerData.hud;
+		//
+		for (IGuiComponent component : data.getGuiComponents().values()) {
+			component.offSet(data.getOffsetType(), data.getWindowSize());
+			component.onRender(this.mc, -1, -1, 0, 0);
+		}
+	}
+	
 	@SubscribeEvent
 	public void onDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
 		Minecraft mc = event.getGui().mc;
@@ -69,7 +94,7 @@ extends Gui
 		}
 	}
 	
-	/** Regions */
+	/** Any Regions */
 	@SubscribeEvent
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
 		if (this.mc==null) { this.mc = Minecraft.getMinecraft(); return; }
@@ -80,6 +105,22 @@ extends Gui
 		this.dx = this.mc.player.lastTickPosX + (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
 		this.dy = this.mc.player.lastTickPosY + (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
 		this.dz = this.mc.player.lastTickPosZ + (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
+		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBuilder) {
+			int id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("ID");
+			if (!CommonProxy.dataBuilder.containsKey(id)) {
+				Client.sendDataDelayCheck(EnumPlayerPacket.GetBuildData, this.mc.player, 1000);
+				return;
+			}
+			BuilderData builder = CommonProxy.dataBuilder.get(id);
+			if (builder.type==4) { this.drawZone(builder, null); return; }
+			Vec3d vec3d = this.mc.player.getPositionEyes(1.0f);
+			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
+			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
+			ClientGuiEventHandler.result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
+			if (ClientGuiEventHandler.result!=null && ClientGuiEventHandler.result.getBlockPos()!=null) {
+				this.drawZone(builder, ClientGuiEventHandler.result.getBlockPos());
+			}
+		}
 		int id = -1;
 		// Show rayTrace point
 		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
@@ -104,14 +145,14 @@ extends Gui
 					}
 				}
 				catch (Exception e) { }
-				BlockPos b = new BlockPos(x, y, z);
+				BlockPos pos = new BlockPos(x, y, z);
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.glLineWidth(3.0F);
 				GlStateManager.disableTexture2D();
 				GlStateManager.depthMask(false);
-				GlStateManager.translate(b.getX()-this.dx+0.5d, b.getY()-this.dy, b.getZ()-this.dz+0.5d);
+				GlStateManager.translate(pos.getX()-this.dx+0.5d, pos.getY()-this.dy, pos.getZ()-this.dz+0.5d);
 				GlStateManager.rotate((System.currentTimeMillis()/7) % 360, 0.0f, 1.0f, 0.0f);
 				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.35d, 0.15d, -0.35d, 0.35d, 0.85d, 0.35d)), 1.0f, 0.50f, 1.0f, 1.0f);
 				GlStateManager.depthMask(true);
@@ -126,7 +167,7 @@ extends Gui
 			this.renderRegion(reg, id);
 		}
 	}
-
+	
 	/** Regions Edit -> Draw */
 	private void renderRegion(Zone3D reg, int editID) {
 		if (reg.size()==0) { return; }
@@ -446,6 +487,111 @@ extends Gui
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
+	}
+
+	private void drawZone(BuilderData builder, BlockPos pos) {
+		if (builder.type<3) {
+			int[] s = new int[] { 0, 0, 0 };
+			int[] e = new int[] { 1, 1, 1 };
+			float r=1.0f, g=0.0f, b=0.0f;
+			if (builder!=null) {
+				int[] m = builder.getDirections(this.mc.player);
+				for (int j=0; j<3; j++) {
+					s[j] = m[j];
+					e[j] = m[j+3];
+				}
+				if (builder.type==1) { r=0.0f; g=1.0f; b=1.0f; }
+				else if (builder.type==2) { r=1.0f; g=0.0f; b=1.0f; }
+			}
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(5.0F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(pos.getX()+s[0]-this.dx, pos.getY()+s[1]-this.dy, pos.getZ()+s[2]-this.dz);
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(0, 0, 0, e[0], e[1], e[2])), r, g, b, 1.0f);
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+	
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(5.0F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(pos.getX()-this.dx+0.5d, pos.getY()-this.dy, pos.getZ()-this.dz+0.5d);
+			//GlStateManager.rotate((System.currentTimeMillis()/15) % 360, 0.0f, 1.0f, 0.0f);
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, 0.0d, -0.5d, 0.5d, 1.0d, 0.5d)), 1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+		}
+		else if (builder.type==4) {
+			if (!builder.schMap.containsKey(0)) { return;}
+			pos = builder.schMap.get(0);
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(5.0F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(pos.getX()-this.dx, pos.getY()-this.dy, pos.getZ()-this.dz);
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(0, 0, 0, 1,1,1)), 1,1,1, 1.0f);
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+			if (builder.schMap.containsKey(1)) {
+				pos = builder.schMap.get(1);
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+				GlStateManager.glLineWidth(3.0F);
+				GlStateManager.disableTexture2D();
+				GlStateManager.depthMask(false);
+				GlStateManager.translate(pos.getX()-this.dx, pos.getY()-this.dy, pos.getZ()-this.dz);
+				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(0, 0, 0, 1,1,1)), 0,1,0, 1.0f);
+				GlStateManager.depthMask(true);
+				GlStateManager.enableTexture2D();
+				GlStateManager.disableBlend();
+				GlStateManager.popMatrix();
+			}
+			if (builder.schMap.containsKey(2)) {
+				pos = builder.schMap.get(2);
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+				GlStateManager.glLineWidth(3.0F);
+				GlStateManager.disableTexture2D();
+				GlStateManager.depthMask(false);
+				GlStateManager.translate(pos.getX()-this.dx, pos.getY()-this.dy, pos.getZ()-this.dz);
+				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(0, 0, 0, 1,1,1)), 0,0,1, 1.0f);
+				GlStateManager.depthMask(true);
+				GlStateManager.enableTexture2D();
+				GlStateManager.disableBlend();
+				GlStateManager.popMatrix();
+			}
+			if (builder.schMap.containsKey(1) && builder.schMap.containsKey(2)) {
+				AxisAlignedBB aabb = new AxisAlignedBB(builder.schMap.get(1), builder.schMap.get(2));
+				pos = new BlockPos(aabb.minX, aabb.minY, aabb.minZ);
+				GlStateManager.pushMatrix();
+				GlStateManager.enableBlend();
+				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+				GlStateManager.glLineWidth(3.0F);
+				GlStateManager.disableTexture2D();
+				GlStateManager.depthMask(false);
+				GlStateManager.translate(pos.getX()-this.dx, pos.getY()-this.dy, pos.getZ()-this.dz);
+				RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(0, 0, 0, aabb.maxX-aabb.minX+1, aabb.maxY-aabb.minY+1, aabb.maxZ-aabb.minZ+1)), 1,0,0, 1.0f);
+				GlStateManager.depthMask(true);
+				GlStateManager.enableTexture2D();
+				GlStateManager.disableBlend();
+				GlStateManager.popMatrix();
+			}
+		}
 	}
 
 }

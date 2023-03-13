@@ -5,38 +5,24 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 
-public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
-	public static CustomGuiComponentWrapper createFromNBT(NBTTagCompound nbt) {
-		switch (nbt.getInteger("type")) {
-		case 0: {
-			return new CustomGuiButtonWrapper().fromNBT(nbt);
-		}
-		case 1: {
-			return new CustomGuiLabelWrapper().fromNBT(nbt);
-		}
-		case 2: {
-			return new CustomGuiTexturedRectWrapper().fromNBT(nbt);
-		}
-		case 3: {
-			return new CustomGuiTextFieldWrapper().fromNBT(nbt);
-		}
-		case 4: {
-			return new CustomGuiScrollWrapper().fromNBT(nbt);
-		}
-		case 5: {
-			return new CustomGuiItemSlotWrapper().fromNBT(nbt);
-		}
-		default: {
-			return null;
-		}
-		}
-	}
+public abstract class CustomGuiComponentWrapper
+implements ICustomGuiComponent {
 
 	String[] hoverText;
-	int id;
-	int posX;
-
-	int posY;
+	int id, posX, posY, offsetType;
+	
+	public static CustomGuiComponentWrapper createFromNBT(NBTTagCompound nbt) {
+		switch (nbt.getInteger("type")) {
+			case 0: { return new CustomGuiButtonWrapper().fromNBT(nbt); }
+			case 1: { return new CustomGuiLabelWrapper().fromNBT(nbt); }
+			case 2: { return new CustomGuiTexturedRectWrapper().fromNBT(nbt); }
+			case 3: { return new CustomGuiTextFieldWrapper().fromNBT(nbt); }
+			case 4: { return new CustomGuiScrollWrapper().fromNBT(nbt); }
+			case 5: { return new CustomGuiItemSlotWrapper().fromNBT(nbt); }
+			case 6: { return new CustomGuiTimerWrapper().fromNBT(nbt); }
+			default: { return null; }
+		}
+	}
 
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		this.setID(nbt.getInteger("id"));
@@ -121,4 +107,11 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 		nbt.setInteger("type", this.getType());
 		return nbt;
 	}
+
+	@Override
+	public void offSet(int type) {
+		if (type<0) { type *= -1; }
+		this.offsetType = type%4;
+	}
+	
 }

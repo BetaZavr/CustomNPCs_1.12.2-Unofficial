@@ -8,7 +8,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 
-public class NpcMiscInventory implements IInventory {
+public class NpcMiscInventory
+implements IInventory {
+	
 	public NonNullList<ItemStack> items;
 	private int size;
 	public int stackLimit;
@@ -169,6 +171,13 @@ public class NpcMiscInventory implements IInventory {
 
 	public void setSize(int i) {
 		this.size = i;
+	}
+
+	public boolean isFull() {
+		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
+			if (this.getStackInSlot(slot).isEmpty()) { return false; }
+		}
+		return true;
 	}
 
 }

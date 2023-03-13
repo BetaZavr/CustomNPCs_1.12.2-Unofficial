@@ -2,6 +2,7 @@ package noppes.npcs.client.gui;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,7 +20,6 @@ import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.util.InterfaseData;
 import noppes.npcs.client.util.MetodData;
 import noppes.npcs.constants.EnumInterfaceData;
 import noppes.npcs.util.AdditionalMethods;
@@ -39,30 +39,10 @@ implements ICustomScrollListener {
 	private GuiCustomScroll scroll;
 	private int curentLine = -1;
 	private String curentLang = "";
+	private Map<Integer, MetodData> data = Maps.<Integer, MetodData>newTreeMap();
 	
 	static {
-		GuiHelpBook.apis.put("IBlock", EnumInterfaceData.IBlock);
-		GuiHelpBook.apis.put("IBlockFluidContainer", EnumInterfaceData.IBlockFluidContainer);
-		GuiHelpBook.apis.put("IBlockScripted", EnumInterfaceData.IBlockScripted);
-		GuiHelpBook.apis.put("IBlockScriptedDoor", EnumInterfaceData.IBlockScriptedDoor);
-		GuiHelpBook.apis.put("ICustmBlock", EnumInterfaceData.ICustmBlock);
-		GuiHelpBook.apis.put("ITextPlane", EnumInterfaceData.ITextPlane);
-		GuiHelpBook.apis.put("IContainer", EnumInterfaceData.IContainer);
-		GuiHelpBook.apis.put("IContainerCustomChest", EnumInterfaceData.IContainerCustomChest);
-		GuiHelpBook.apis.put("IDamageSource", EnumInterfaceData.IDamageSource);
-		GuiHelpBook.apis.put("IDimension", EnumInterfaceData.IDimension);
-		GuiHelpBook.apis.put("IEntityDamageSource", EnumInterfaceData.IEntityDamageSource);
-		GuiHelpBook.apis.put("INbt", EnumInterfaceData.INbt);
-		GuiHelpBook.apis.put("IPos", EnumInterfaceData.IPos);
-		GuiHelpBook.apis.put("IPotion", EnumInterfaceData.IPotion);
-		GuiHelpBook.apis.put("IRayTrace", EnumInterfaceData.IRayTrace);
-		GuiHelpBook.apis.put("IScoreboard", EnumInterfaceData.IScoreboard);
-		GuiHelpBook.apis.put("IScoreboardObjective", EnumInterfaceData.IScoreboardObjective);
-		GuiHelpBook.apis.put("IScoreboardScore", EnumInterfaceData.IScoreboardScore);
-		GuiHelpBook.apis.put("IScoreboardTeam", EnumInterfaceData.IScoreboardTeam);
-		GuiHelpBook.apis.put("ITimers", EnumInterfaceData.ITimers);
-		GuiHelpBook.apis.put("IWorld", EnumInterfaceData.IWorld);
-		GuiHelpBook.apis.put("NpcAPI", EnumInterfaceData.NpcAPI);
+		for (EnumInterfaceData enumIT : EnumInterfaceData.values()) { GuiHelpBook.apis.put(enumIT.name(), enumIT); }
 	}
 	
 	public GuiHelpBook() {
@@ -227,6 +207,7 @@ implements ICustomScrollListener {
 		GuiTextArea ta = new GuiTextArea(0, this.guiLeft + 4, this.guiTop + 4, this.xSize - 7, this.ySize -7, "" );
 		ta.enableCodeHighlighting();
 		ta.setIsCode(false);
+		ta.onlyReading = true;
 		this.add(ta);
 		this.resetText();
 	}
@@ -243,7 +224,16 @@ implements ICustomScrollListener {
 			((GuiTextArea) this.get(0)).setText("");
 			return;
 		}
-		((GuiTextArea) this.get(0)).setText(GuiHelpBook.apis.get(this.scroll.getSelected()).it.getText());
+		TreeMap<String, MetodData> m = GuiHelpBook.apis.get(this.scroll.getSelected()).it.getAllMetods(Maps.<String, MetodData>newTreeMap());
+		this.data.clear();
+		int i = 0;
+		String text = "";
+		for (MetodData md : m.values()) {
+			text += md.getText()+((char) 10);
+			this.data.put(i, md);
+			i++;
+		}
+		((GuiTextArea) this.get(0)).setText(text);
 	}
 
 	@Override
@@ -303,12 +293,8 @@ implements ICustomScrollListener {
 				if (this.curentLine<0) { this.curentLine = -1; }
 			}
 		}
-		if (this.curentLine!=-1) {
-			InterfaseData it = GuiHelpBook.apis.get(this.scroll.getSelected()).it;
-			if (it==null) { return; }
-			MetodData m = it.metods.get(this.curentLine);
-			if (m==null) { return; }
-			this.drawHoveringText(m.getComment(), mouseX, mouseY, this.fontRenderer);
+		if (this.data.containsKey(this.curentLine)) {
+			this.drawHoveringText(this.data.get(this.curentLine).getComment(), mouseX, mouseY, this.fontRenderer);
 			this.hoverText = null;
 		}
 	}
@@ -339,13 +325,11 @@ implements ICustomScrollListener {
 		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (!area.hovered) { return; }
 		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
-		System.out.println("line: "+this.curentLine+" - "+select[1]);
-		/*
-		if (GuiHelpBook.apis.containsKey(select[1])) {
-			this.scroll.setSelected(this.curentElement);
+		if (!this.scroll.getSelected().equals(select[1]) && GuiHelpBook.apis.containsKey(select[1])) {
+			this.scroll.setSelected((String) select[1]);
 			this.resetText();
 			return;
-		}*/
+		}
 	}
 	
 }

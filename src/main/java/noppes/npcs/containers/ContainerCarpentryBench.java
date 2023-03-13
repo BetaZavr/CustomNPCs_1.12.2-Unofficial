@@ -82,7 +82,7 @@ public class ContainerCarpentryBench extends Container {
 		// this.slotChangedCraftingGrid(this.world, this.player, this.craftMatrix,
 		// this.craftResult);
 		if (!this.world.isRemote) {
-			INpcRecipe recipe = RecipeController.instance.findMatchingRecipe(this.craftMatrix);
+			INpcRecipe recipe = RecipeController.getInstance().findMatchingRecipe(this.craftMatrix);
 			ItemStack item = ItemStack.EMPTY;
 			if (recipe != null
 					&& recipe.getAvailability().isAvailable((IPlayer<?>) NpcAPI.Instance().getIEntity(this.player))) {

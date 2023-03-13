@@ -26,18 +26,17 @@ public class CustomGuiTextField extends GuiTextField implements IDataHolder, ICl
 
 	String[] hoverText;
 	public int id;
-
 	GuiCustom parent;
+    private final int[] offsets;
 
 	public CustomGuiTextField(int id, int x, int y, int width, int height) {
 		super(id, Minecraft.getMinecraft().fontRenderer, GuiCustom.guiLeft + x, GuiCustom.guiTop + y, width, height);
 		this.setMaxStringLength(500);
 		this.id = id;
+        this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() {
-		return this.id;
-	}
+	public int getID() { return this.id; }
 
 	public void keyTyped(char typedChar, int keyCode) {
 		this.textboxKeyTyped(typedChar, keyCode);
@@ -49,13 +48,12 @@ public class CustomGuiTextField extends GuiTextField implements IDataHolder, ICl
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0.0f, 0.0f, this.id);
-		boolean hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-				&& mouseY < this.y + this.height;
+		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x;
+		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y;
+		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
+		GlStateManager.translate(x-this.x, y-this.y, this.id);
 		this.drawTextBox();
-		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
-			this.parent.hoverText = this.hoverText;
-		}
+		if (hovered && this.hoverText != null && this.hoverText.length > 0) { this.parent.hoverText = this.hoverText; }
 		GlStateManager.popMatrix();
 	}
 
@@ -77,4 +75,30 @@ public class CustomGuiTextField extends GuiTextField implements IDataHolder, ICl
 		tag.setString("text", this.getText());
 		return tag;
 	}
+	
+	@Override
+	public void offSet(int offsetType, double[] windowSize) {
+		switch(offsetType) {
+			case 1: { // left down
+				this.offsets[0] = 0;
+				this.offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				this.offsets[0] = (int) windowSize[0];
+				this.offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				this.offsets[0] = (int) windowSize[0];
+				this.offsets[1] = (int) windowSize[1];
+				break;
+			}
+			default: { // left up
+				this.offsets[0] = 0;
+				this.offsets[1] = 0;
+			}
+		}
+	}
+	
 }

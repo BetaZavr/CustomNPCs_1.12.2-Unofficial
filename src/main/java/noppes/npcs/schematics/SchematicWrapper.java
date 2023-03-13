@@ -20,6 +20,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
 public class SchematicWrapper {
+	
 	public static int buildSize = 10000;
 	public int buildPos;
 	public boolean firstLayer;

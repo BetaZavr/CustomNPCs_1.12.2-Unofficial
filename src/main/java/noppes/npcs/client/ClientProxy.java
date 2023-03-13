@@ -704,7 +704,7 @@ extends CommonProxy {
 				List<IRecipe> del = Lists.<IRecipe>newArrayList();
 				for (IRecipe rec : list.getRecipes()) {
 					if (!(rec instanceof INpcRecipe)) { continue; }
-					INpcRecipe r = RecipeController.instance.getRecipe(rec.getRegistryName());
+					INpcRecipe r = RecipeController.getInstance().getRecipe(rec.getRegistryName());
 					if (r==null || !r.isValid() || (r.isGlobal() && i==1) || (!r.isGlobal() && i==0)) {
 						del.add(rec);
 					}
@@ -736,7 +736,7 @@ extends CommonProxy {
 
 		/** Adds */
 		for (int i = 0; i < 2; i++) {
-			Map<String, List<INpcRecipe>> map = (i == 0 ? RecipeController.instance.globalList : RecipeController.instance.modList);
+			Map<String, List<INpcRecipe>> map = (i == 0 ? RecipeController.getInstance().globalList : RecipeController.getInstance().modList);
 			for (String group : map.keySet()) {
 				RecipeList parent = null;
 				for (RecipeList list : (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab))) {
@@ -819,7 +819,7 @@ extends CommonProxy {
 		}
 		ObfuscationHelper.setValue(RecipeBook.class, book, recipes, 0);
 		ObfuscationHelper.setValue(RecipeBook.class, book, newRecipes, 1);
-		player.unlockRecipes(RecipeController.instance.getKnownRecipes());
+		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 	
 	@Override
@@ -964,7 +964,9 @@ extends CommonProxy {
 					type = "iron_boots";
 					break;
 			}
-			armorTexture = new File(texturesDir, ((CustomArmor) customitem).getCustomName()+"_layer_1.png");
+			File armorDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/models/armor");
+			if (!armorDir.exists()) { armorDir.mkdirs(); }
+			armorTexture = new File(texturesDir, textureName+"_layer_1.png");
 		}
 		else if (customitem instanceof CustomBow) {
 			texture = null;
@@ -1006,7 +1008,7 @@ extends CommonProxy {
 					Files.copy(baseTexrure0.getInputStream(), armorTexture.toPath());
 					has[0] = true;
 				}
-				armorTexture = new File(armorDir, textureName+"_layer_2.png");
+				armorTexture = new File(armorDir, ((CustomArmor) customitem).getCustomName()+"_layer_2.png");
 				IResource baseTexrure1 = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/models/armor/iron_layer_2.png"));
 				if (baseTexrure1!=null) {
 					Files.copy(baseTexrure1.getInputStream(), armorTexture.toPath());

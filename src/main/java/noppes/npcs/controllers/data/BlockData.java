@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
 public class BlockData {
+	
 	public static BlockData getData(NBTTagCompound compound) {
 		BlockPos pos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"),
 				compound.getInteger("BuildZ"));

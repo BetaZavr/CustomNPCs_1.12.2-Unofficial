@@ -11,12 +11,13 @@ public class ParameterData {
 	public String typename;
 	private String comment;
 	
-	public ParameterData(Class<?> type, String name, String comment) {
+	public ParameterData(Class<?> clazz, String name, String comment) {
 		char chr = Character.toChars(0x00A7)[0];
-		String color = "c";
-		if (type.isInterface()) { color = "9"; }
-		else if (type == boolean.class || type == byte.class || type == short.class || type == int.class || type == float.class || type == double.class || type == long.class || type == String.class) { color = "e"; }
-		this.typename = chr + color + type.getSimpleName() + chr + "f " + name;
+		String type = "c"+ clazz.getSimpleName();
+		if (clazz.isInterface()) { type = "9"+ clazz.getSimpleName(); }
+		else if (clazz == boolean.class || clazz == byte.class || clazz == short.class || clazz == int.class || clazz == float.class || clazz == double.class || clazz == long.class || clazz == String.class) { type = "e"+ clazz.getSimpleName(); }
+		if (clazz.isArray()) { type += "[]";}
+		this.typename = chr + type  + chr + "f " + name;
 		this.comment = comment;
 	}
 	

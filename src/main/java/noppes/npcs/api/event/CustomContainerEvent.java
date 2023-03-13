@@ -25,8 +25,7 @@ public class CustomContainerEvent extends CustomNPCsEvent {
 		public int slot;
 		public IItemStack slotItem;
 
-		public SlotClickedEvent(IPlayer<?> player, IContainer container, int slotId, IItemStack slotItem,
-				IItemStack heldItem) {
+		public SlotClickedEvent(IPlayer<?> player, IContainer container, int slotId, IItemStack slotItem, IItemStack heldItem) {
 			super(player, container);
 			this.slotItem = slotItem;
 			this.heldItem = heldItem;

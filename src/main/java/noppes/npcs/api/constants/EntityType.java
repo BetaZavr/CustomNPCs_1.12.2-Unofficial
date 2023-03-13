@@ -1,6 +1,7 @@
 package noppes.npcs.api.constants;
 
 public class EntityType {
+	
 	public static int ANIMAL = 4;
 	public static int ANY = -1;
 	public static int ARROW = 10;
@@ -14,4 +15,5 @@ public class EntityType {
 	public static int THROWABLE = 11;
 	public static int UNKNOWN = 0;
 	public static int VILLAGER = 9;
+	
 }

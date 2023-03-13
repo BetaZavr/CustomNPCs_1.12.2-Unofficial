@@ -93,8 +93,7 @@ public class Server {
 	public static NBTTagCompound readNBT(ByteBuf buffer) throws IOException {
 		byte[] bytes = new byte[buffer.readInt()];
 		buffer.readBytes(bytes);
-		DataInputStream datainputstream = new DataInputStream(
-				new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes))));
+		DataInputStream datainputstream = new DataInputStream( new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes))));
 		try {
 			return CompressedStreamTools.read((DataInput) datainputstream, NBTSizeTracker.INFINITE);
 		} finally {

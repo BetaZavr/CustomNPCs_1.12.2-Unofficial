@@ -13,6 +13,7 @@ import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 
 public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
+	
 	public static CustomGuiTexturedRect fromComponent(CustomGuiTexturedRectWrapper component) {
 		CustomGuiTexturedRect rect;
 		if (component.getTextureX() >= 0 && component.getTextureY() >= 0) {
@@ -40,15 +41,14 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 	int textureY;
 	int width;
 	int x;
-
 	int y;
+    private final int[] offsets;
 
 	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height) {
 		this(id, texture, x, y, width, height, 0, 0);
 	}
 
-	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY) {
+	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
 		this.scale = 1.0f;
 		this.id = id;
 		this.texture = new ResourceLocation(texture);
@@ -58,29 +58,29 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		this.height = height;
 		this.textureX = textureX;
 		this.textureY = textureY;
+        this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() {
-		return this.id;
-	}
+	public int getID() { return this.id; }
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
-		boolean hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-				&& mouseY < this.y + this.height;
+		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;
+		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
+		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(this.texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(this.x, (this.y + this.height * this.scale), this.id)
+		bufferbuilder.pos(x, (y + this.height * this.scale), this.id)
 				.tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((this.x + this.width * this.scale), (this.y + this.height * this.scale), this.id)
+		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), this.id)
 				.tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f))
 				.endVertex();
-		bufferbuilder.pos((this.x + this.width * this.scale), this.y, this.id)
+		bufferbuilder.pos((x + this.width * this.scale), y, this.id)
 				.tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
-		bufferbuilder.pos(this.x, this.y, this.id)
+		bufferbuilder.pos(x, y, this.id)
 				.tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
 		tessellator.draw();
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
@@ -94,10 +94,35 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 	}
 
 	public ICustomGuiComponent toComponent() {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(this.id, this.texture.toString(),
-				this.x, this.y, this.width, this.height, this.textureX, this.textureY);
+		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(this.id, this.texture.toString(), this.x, this.y, this.width, this.height, this.textureX, this.textureY);
 		component.setHoverText(this.hoverText);
 		component.setScale(this.scale);
 		return component;
 	}
+	
+	@Override
+	public void offSet(int offsetType, double[] windowSize) {
+		switch(offsetType) {
+			case 1: { // left down
+				this.offsets[0] = 0;
+				this.offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				this.offsets[0] = (int) windowSize[0];
+				this.offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				this.offsets[0] = (int) windowSize[0];
+				this.offsets[1] = (int) windowSize[1];
+				break;
+			}
+			default: { // left up
+				this.offsets[0] = 0;
+				this.offsets[1] = 0;
+			}
+		}
+	}
+	
 }

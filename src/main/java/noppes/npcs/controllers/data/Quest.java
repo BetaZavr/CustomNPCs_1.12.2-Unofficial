@@ -345,8 +345,7 @@ implements ICompatibilty, IQuest {
 	@SideOnly(Side.SERVER)
 	@Override
 	public void sendChangeToAll() {
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 2, this.writeToNBT(new NBTTagCompound()),
-				this.category.id);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 2, this.writeToNBT(new NBTTagCompound()), this.category.id);
 	}
 
 	@Override

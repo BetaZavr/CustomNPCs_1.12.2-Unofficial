@@ -3,6 +3,7 @@ package noppes.npcs.client;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
@@ -49,18 +50,18 @@ public class ClientTickHandler {
 		if (key == -1) { return; }
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_cnpcMouseInput");
 		if (Minecraft.getMinecraft().currentScreen==null) {
-			boolean isCtrlPressed = ClientProxy.playerData.game.hasOrKeysPressed(157, 29);
-			boolean isShiftPressed = ClientProxy.playerData.game.hasOrKeysPressed(54, 42);
-			boolean isAltPressed = ClientProxy.playerData.game.hasOrKeysPressed(184, 56);
-			boolean isMetaPressed = ClientProxy.playerData.game.hasOrKeysPressed(220, 219);
+			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
+			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
+			boolean isAltPressed = ClientProxy.playerData.hud.hasOrKeysPressed(184, 56);
+			boolean isMetaPressed = ClientProxy.playerData.hud.hasOrKeysPressed(220, 219);
 			boolean isDown = event.isButtonstate();
-			if (isDown) { ClientProxy.playerData.game.mousePress.add(key); }
+			if (isDown) { ClientProxy.playerData.hud.mousePress.add(key); }
 			else {
-				if (ClientProxy.playerData.game.hasMousePress(key)) { ClientProxy.playerData.game.mousePress.remove((Integer)key); }
+				if (ClientProxy.playerData.hud.hasMousePress(key)) { ClientProxy.playerData.hud.mousePress.remove((Integer)key); }
 			}
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-		} else if (ClientProxy.playerData.game.mousePress.size()>0) {
-			ClientProxy.playerData.game.mousePress.clear();
+		} else if (ClientProxy.playerData.hud.mousePress.size()>0) {
+			ClientProxy.playerData.hud.mousePress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_cnpcMouseInput");
@@ -99,13 +100,13 @@ public class ClientTickHandler {
 			MarcetController.getInstance().updateTime();
 		}
 		if (mc.currentScreen!=null) {
-			if (ClientProxy.playerData.game.keyPress.size()>0) {
+			if (ClientProxy.playerData.hud.keyPress.size()>0) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
-				ClientProxy.playerData.game.keyPress.clear();
+				ClientProxy.playerData.hud.keyPress.clear();
 			}
-			if (ClientProxy.playerData.game.mousePress.size()>0) {
+			if (ClientProxy.playerData.hud.mousePress.size()>0) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
-				ClientProxy.playerData.game.mousePress.clear();
+				ClientProxy.playerData.hud.mousePress.clear();
 			}
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
@@ -137,20 +138,20 @@ public class ClientTickHandler {
 			}
 		}
 		if (mc.currentScreen==null) {
-			boolean isCtrlPressed = ClientProxy.playerData.game.hasOrKeysPressed(157, 29);
-			boolean isShiftPressed = ClientProxy.playerData.game.hasOrKeysPressed(54, 42);
-			boolean isAltPressed = ClientProxy.playerData.game.hasOrKeysPressed(184, 56);
-			boolean isMetaPressed = ClientProxy.playerData.game.hasOrKeysPressed(220, 219);
+			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
+			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
+			boolean isAltPressed = ClientProxy.playerData.hud.hasOrKeysPressed(184, 56);
+			boolean isMetaPressed = ClientProxy.playerData.hud.hasOrKeysPressed(220, 219);
 			boolean isDown = Keyboard.getEventKeyState();
 			int key = Keyboard.getEventKey();
-			if (isDown) { ClientProxy.playerData.game.keyPress.add(key); }
+			if (isDown) { ClientProxy.playerData.hud.keyPress.add(key); }
 			else {
-				if (ClientProxy.playerData.game.hasKeyPressed(key)) { ClientProxy.playerData.game.keyPress.remove((Integer)key); }
+				if (ClientProxy.playerData.hud.hasOrKeysPressed(key)) { ClientProxy.playerData.hud.keyPress.remove((Integer)key); }
 			}
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.game.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
-		} else if (ClientProxy.playerData.game.keyPress.size()>0) {
-			ClientProxy.playerData.game.keyPress.clear();
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
+		} else if (ClientProxy.playerData.hud.keyPress.size()>0) {
+			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnKey");
@@ -158,13 +159,8 @@ public class ClientTickHandler {
 
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
-		//EntityLivingBase entity = event.getEntityLiving();
-		//if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
-		//IPlayer player = (IPlayer) NpcAPI.Instance().getIEntity(((EntityPlayerMP) entity));
-		//player.giveItem(CustomNpcs.MODID+":npcscripted", 0, 1);
-		//System.out.println("CNPCs: "+player);
-		
-		//NpcAPI.Instance().executeCommand(player.getWorld(), "gamemode  "+player.getName()+" 1");
+		EntityLivingBase entity = event.getEntityLiving();
+		if (!(entity instanceof EntityPlayer) || !CustomNpcs.VerboseDebug) { return; }
 	}
 	
 }

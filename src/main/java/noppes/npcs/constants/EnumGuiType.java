@@ -61,6 +61,7 @@ public enum EnumGuiType
 	CustomChest, 
 	CustomGui,
 	HelpBook, // New
-	BoundarySetting; // New
+	BoundarySetting, // New
+	BuilderSetting; // New
 	
 }

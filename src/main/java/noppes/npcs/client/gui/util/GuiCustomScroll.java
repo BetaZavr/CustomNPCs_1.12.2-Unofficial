@@ -157,8 +157,6 @@ extends GuiScreen {
 		if (!this.visible) {
 			return;
 		}
-		this.hovered = mouseX >= this.guiLeft && mouseX <= this.guiLeft + this.width && mouseY >= this.guiTop
-				&& mouseY <= this.guiTop + this.height;
 		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop,
 				this.colorBack, this.colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -189,8 +187,7 @@ extends GuiScreen {
 				this.isScrolling = false;
 			}
 			if (this.isScrolling) {
-				this.scrollY = (int) ((float) mouseY / ((float) this.height - 2.0f)
-						* ((float) this.listHeight - (float) this.scrollHeight)); // Changed
+				this.scrollY = (int) ((float) mouseY / ((float) this.height - 2.0f) * ((float) this.listHeight - (float) this.scrollHeight)); // Changed
 				if (this.scrollY < 0) {
 					this.scrollY = 0;
 				}
@@ -427,6 +424,22 @@ extends GuiScreen {
 			this.selected = -1;
 		}
 		this.selected = this.list.indexOf(name);
+		this.resetRoll();
+	}
+
+	public void resetRoll() {
+		if (this.selected<0) {
+			this.scrollY = 0;
+			return;
+		}
+		int s = this.scrollY;
+		if (this.selected<s) { this.scrollY = this.selected * 14; }
+		else {
+			int e = s + this.height / 14;
+			if (this.selected>e) { this.scrollY = this.selected * 14; }
+		}
+		if (this.scrollY < 0) { this.scrollY = 0; }
+		if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY; }
 	}
 
 	public void setSelectedList(HashSet<String> selectedList) {

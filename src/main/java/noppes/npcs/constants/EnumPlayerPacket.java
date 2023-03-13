@@ -47,6 +47,7 @@ public enum EnumPlayerPacket
 	ScriptDataGetVar,
 	CurrentLanguage,
 	GetBuildData,
-	KeyPressed;
+	KeyPressed,
+	HudTimerEnd;
 	
 }

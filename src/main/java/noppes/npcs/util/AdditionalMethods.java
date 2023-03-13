@@ -333,147 +333,135 @@ public class AdditionalMethods {
 		return list;
 	}
 
-	public static Map<String, Map<String, String[]>> getObjectVarAndMetods(String[] path,
-			Map<String, Class<?>> inFunc) {
+	public static Map<String, Map<String, String[]>> getObjectVarAndMetods(String[] path, Map<String, Class<?>> inFunc) {
 		Object obj = null;
 		for (int i = 0; i < path.length; i++) {
 			String key = path[i];
-			if (key.isEmpty()) {
-				break;
-			}
+			if (key.isEmpty()) { break; }
 			if (i == 0 && inFunc != null) {
 				obj = inFunc.get(key);
 				continue;
 			}
-			if (obj == null) {
-				break;
-			}
+			if (obj == null) { break; }
 			Class<?> clazz = AdditionalMethods.getScriptClass(obj);
 			obj = null;
-			if (key.indexOf('(') != -1) {
-				key = key.substring(0, key.indexOf('('));
-				if (key.equals("getMCEntity")) {
-					if (clazz == PlayerWrapper.class) {
-						obj = EntityPlayerMP.class;
-						continue;
-					} else if (clazz == EntityLivingBaseWrapper.class) {
-						obj = EntityLivingBase.class;
-						continue;
-					} else if (clazz == EntityLivingWrapper.class) {
-						obj = EntityLiving.class;
-						continue;
-					} else if (clazz == EntityWrapper.class) {
-						obj = Entity.class;
-						continue;
-					}
-				}
-				for (Method m : clazz.getMethods()) {
-					if (m.getName().equals(key)) {
-						obj = m.getReturnType();
-						continue;
-					}
-				}
-				if (!CustomNpcs.scriptHelperObfuscations) {
+			String metodName = key.indexOf('(')!=-1 ? key.substring(0, key.indexOf('(')) : "get"+(""+key.charAt(0)).toUpperCase()+key.substring(1);
+			if (metodName.equals("getMCEntity")) {
+				if (clazz == PlayerWrapper.class) {
+					obj = EntityPlayerMP.class;
+					continue;
+				} else if (clazz == EntityLivingBaseWrapper.class) {
+					obj = EntityLivingBase.class;
+					continue;
+				} else if (clazz == EntityLivingWrapper.class) {
+					obj = EntityLiving.class;
+					continue;
+				} else if (clazz == EntityWrapper.class) {
+					obj = Entity.class;
 					continue;
 				}
-
-				Map<String, Method> methodsMap = Maps.newHashMap();
-				for (Method m : clazz.getMethods()) {
-					methodsMap.put(m.getName(), m);
-				}
-
-				for (int j = 0; j < 4; j++) {
-					Map<String, String> m;
-					if (j == 0) {
-						m = ObfuscationPart0.map;
-					} else if (j == 1) {
-						m = ObfuscationPart1.map;
-					} else if (j == 2) {
-						m = ObfuscationPart2.map;
-					} else {
-						m = ObfuscationPart3.map;
-					}
-					if (m.containsValue(key)) {
-						for (String s : m.keySet()) {
-							if (m.get(s).equals(key)) {
-								if (methodsMap.containsKey(s)) {
-									obj = methodsMap.get(s).getReturnType();
-								}
-								break;
-							}
-						}
-					}
-					if (obj != null) {
-						break;
-					}
-				}
-			} else {
-				for (Class<?> c : clazz.getClasses()) {
-					if (c.getSimpleName().equals(key)) {
-						obj = c;
-						continue;
-					}
-				}
-				for (Field f : clazz.getFields()) {
-					if (f.getName().equals(key)) {
-						obj = f.getType();
-						continue;
-					}
-				}
-				if (!CustomNpcs.scriptHelperObfuscations) {
+			}
+			for (Method m : clazz.getMethods()) {
+				if (m.getName().equals(metodName)) {
+					obj = m.getReturnType();
 					continue;
 				}
-
-				Map<String, Field> fieldMap = Maps.newHashMap();
-				Map<String, Class<?>> classMap = Maps.newHashMap();
-				for (Field f : clazz.getFields()) {
-					fieldMap.put(f.getName(), f);
+			}
+			if (!CustomNpcs.scriptHelperObfuscations) { continue; }
+			Map<String, Method> methodsMap = Maps.newHashMap();
+			for (Method m : clazz.getMethods()) {
+				methodsMap.put(m.getName(), m);
+			}
+			for (int j = 0; j < 4; j++) {
+				Map<String, String> m;
+				if (j == 0) {
+					m = ObfuscationPart0.map;
+				} else if (j == 1) {
+					m = ObfuscationPart1.map;
+				} else if (j == 2) {
+					m = ObfuscationPart2.map;
+				} else {
+					m = ObfuscationPart3.map;
 				}
-				for (Class<?> c : clazz.getClasses()) {
-					classMap.put(c.getSimpleName(), c);
-				}
-
-				for (int j = 0; j < 11; j++) {
-					Map<String, String> m;
-					if (j == 0) {
-						m = ObfuscationPart4.map;
-					} else if (j == 1) {
-						m = ObfuscationPart5.map;
-					} else if (j == 2) {
-						m = ObfuscationPart6.map;
-					} else if (j == 3) {
-						m = ObfuscationPart7.map;
-					} else if (j == 4) {
-						m = ObfuscationPart8.map;
-					} else if (j == 5) {
-						m = ObfuscationPart9.map;
-					} else if (j == 6) {
-						m = ObfuscationPart10.map;
-					} else if (j == 7) {
-						m = ObfuscationPart11.map;
-					} else if (j == 8) {
-						m = ObfuscationPart12.map;
-					} else if (j == 9) {
-						m = ObfuscationPart13.map;
-					} else {
-						m = ObfuscationPart14.map;
-					}
-					if (m.containsValue(key)) {
-						for (String s : m.keySet()) {
-							if (m.get(s).equals(key)) {
-								if (classMap.containsKey(s)) {
-									obj = classMap.get(s);
-								}
-								if (fieldMap.containsKey(s)) {
-									obj = fieldMap.get(s).getType();
-								}
-								break;
+				if (m.containsValue(key)) {
+					for (String s : m.keySet()) {
+						if (m.get(s).equals(key)) {
+							if (methodsMap.containsKey(s)) {
+								obj = methodsMap.get(s).getReturnType();
 							}
+							break;
 						}
 					}
-					if (obj != null) {
-						break;
+				}
+				if (obj != null) {
+					break;
+				}
+			}
+			for (Class<?> c : clazz.getClasses()) {
+				if (c.getSimpleName().equals(key)) {
+					obj = c;
+					continue;
+				}
+			}
+			for (Field f : clazz.getFields()) {
+				if (f.getName().equals(key)) {
+					obj = f.getType();
+					continue;
+				}
+			}
+			if (!CustomNpcs.scriptHelperObfuscations) {
+				continue;
+			}
+
+			Map<String, Field> fieldMap = Maps.newHashMap();
+			Map<String, Class<?>> classMap = Maps.newHashMap();
+			for (Field f : clazz.getFields()) {
+				fieldMap.put(f.getName(), f);
+			}
+			for (Class<?> c : clazz.getClasses()) {
+				classMap.put(c.getSimpleName(), c);
+			}
+
+			for (int j = 0; j < 11; j++) {
+				Map<String, String> m;
+				if (j == 0) {
+					m = ObfuscationPart4.map;
+				} else if (j == 1) {
+					m = ObfuscationPart5.map;
+				} else if (j == 2) {
+					m = ObfuscationPart6.map;
+				} else if (j == 3) {
+					m = ObfuscationPart7.map;
+				} else if (j == 4) {
+					m = ObfuscationPart8.map;
+				} else if (j == 5) {
+					m = ObfuscationPart9.map;
+				} else if (j == 6) {
+					m = ObfuscationPart10.map;
+				} else if (j == 7) {
+					m = ObfuscationPart11.map;
+				} else if (j == 8) {
+					m = ObfuscationPart12.map;
+				} else if (j == 9) {
+					m = ObfuscationPart13.map;
+				} else {
+					m = ObfuscationPart14.map;
+				}
+				if (m.containsValue(key)) {
+					for (String s : m.keySet()) {
+						if (m.get(s).equals(key)) {
+							if (classMap.containsKey(s)) {
+								obj = classMap.get(s);
+							}
+							if (fieldMap.containsKey(s)) {
+								obj = fieldMap.get(s).getType();
+							}
+							break;
+						}
 					}
+				}
+				if (obj != null) {
+					break;
 				}
 			}
 		}
@@ -547,11 +535,9 @@ public class AdditionalMethods {
 		return map;
 	}
 
-	private static Class<?> getScriptClass(Object obj) {
+	public static Class<?> getScriptClass(Object obj) {
 		Class<?> clazz = obj instanceof Class ? (Class<?>) obj : obj.getClass();
-		if (AdditionalMethods.map.containsKey(clazz)) {
-			clazz = AdditionalMethods.map.get(clazz);
-		}
+		if (AdditionalMethods.map.containsKey(clazz)) { clazz = AdditionalMethods.map.get(clazz); }
 		return clazz;
 	}
 
@@ -749,39 +735,42 @@ public class AdditionalMethods {
 	}
 
 	public static String match(String text, int pos, String startCharts, String endCharts) {
-		int s = 0, e = text.length();
-		for (int i = pos - 1; i >= 0; i--) {
-			char c = text.charAt(i);
-			if (startCharts != null) {
-				if (startCharts.indexOf(c)!=-1) {
-					s = i;
+		try {
+			int s = 0, e = text.length();
+			for (int i = pos - 1; i >= 0 && i<text.length(); i--) {
+				char c = text.charAt(i);
+				if (startCharts != null) {
+					if (startCharts.indexOf(""+c)!=-1) {
+						s = i;
+						break;
+					}
+					continue;
+				}
+				if (Character.toChars(0x000A)[0]==c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
+					if ( c== '.' || c == '(' || c == Character.toChars(0x000A)[0]) { s = i + 1; }
+					else { s = i; }
 					break;
 				}
-				continue;
 			}
-			if (Character.toChars(0x000A)[0]==c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
-				if ( c== '.' || c == '(' || c == Character.toChars(0x000A)[0]) { s = i + 1; }
-				else { s = i; }
-				break;
-			}
-		}
-		for (int i = pos; i < text.length(); i++) {
-			char c = text.charAt(i);
-			if (endCharts != null) {
-				if (startCharts.indexOf(c)!=-1) {
+			for (int i = pos; i >= 0 && i < text.length(); i++) {
+				char c = text.charAt(i);
+				if (endCharts != null) {
+					if (startCharts.indexOf(""+c)!=-1) {
+						e = i;
+						break;
+					}
+					continue;
+				}
+				if (!Character.isAlphabetic(text.charAt(i)) && !Character.isDigit(text.charAt(i))) {
 					e = i;
 					break;
 				}
-				continue;
 			}
-			if (!Character.isAlphabetic(text.charAt(i)) && !Character.isDigit(text.charAt(i))) {
-				e = i;
-				break;
-			}
-		}
-		String key = text.substring(s, e);
-		while (key.indexOf(" ") != -1) { key = key.replace(" ", ""); }
-		return key;
+			String key = text.substring(s, e);
+			while (key.indexOf(" ") != -1) { key = key.replace(" ", ""); }
+			return key;
+		} catch (Exception e) { }
+		return "";
 	}
 
 	/** Correct deletion of folders */
@@ -1275,6 +1264,183 @@ public class AdditionalMethods {
 			entityIn.motionY = 0.0D;
 			entityIn.onGround = true;
 		}
+	}
+
+	public static String deleteSpase(String str) {
+		if (str==null || str.isEmpty()) { return str; }
+		while (str.indexOf(" ")!=-1) { str = str.replace(" ", ""); }
+		while (str.indexOf(""+((char) 9))!=-1) { str = str.replace(""+((char) 9), ""); }
+		return str;
+	}
+
+	public static Map<String, Class<?>> getVariablesInBody(String body, Map<String, Map<Integer, ScriptData>> data, Map<String, Class<?>> data2) {
+		Map<String, Class<?>> map = Maps.newHashMap();
+		if (body==null || body.isEmpty() || body.indexOf("var")==-1) { return map;}
+		try {
+			while (body.indexOf("var")!=-1) {
+				int e = body.indexOf(";", body.indexOf("var")+3);
+				if (e==-1) { e = body.indexOf(""+((char) 10), body.indexOf("var")+3);}
+				if (e==-1) { break; }
+				String var = AdditionalMethods.deleteSpase(body.substring(body.indexOf("var")+3, e));
+				if (var.indexOf("=")!=-1) {
+					String key = var.substring(0, var.indexOf("="));
+					String part = var.substring(var.indexOf("=")+1);
+					
+					if (part.startsWith("Java.type(")) {
+						try { map.put(key, Class.forName(part.substring(11, part.lastIndexOf(")")-1))); }
+						catch (Exception ec) { }
+						body = body.substring(e+1);
+						continue;
+					}
+					
+					List<String> keys = Lists.<String>newArrayList();
+					while (part.indexOf('.')!=-1) {
+						keys.add(part.substring(0, part.indexOf('.')));
+						part = part.substring(part.indexOf('.')+1);
+					}
+					keys.add(part);
+					boolean start = true;
+					Object obj = null;
+					for (String k : keys) {
+						if (start) {
+							if (map.containsKey(k)) {
+								obj = map.get(k);
+							} else if (data.containsKey(k)) {
+								obj = data.get(k).get(0);
+							}
+							start = false;
+							continue;
+						}
+						if (obj==null) { break; }
+						Class<?> clazz = AdditionalMethods.getScriptClass(obj);
+						obj = null;
+						String metodName = k.indexOf('(')!=-1 ? k.substring(0, k.indexOf('(')) : "get"+(""+k.charAt(0)).toUpperCase()+k.substring(1);
+						if (metodName.equals("getMCEntity")) {
+							if (clazz == PlayerWrapper.class) {
+								obj = EntityPlayerMP.class;
+								continue;
+							} else if (clazz == EntityLivingBaseWrapper.class) {
+								obj = EntityLivingBase.class;
+								continue;
+							} else if (clazz == EntityLivingWrapper.class) {
+								obj = EntityLiving.class;
+								continue;
+							} else if (clazz == EntityWrapper.class) {
+								obj = Entity.class;
+								continue;
+							}
+						}
+						for (Method m : clazz.getMethods()) {
+							if (m.getName().equals(metodName)) {
+								obj = m.getReturnType();
+								continue;
+							}
+						}
+						if (!CustomNpcs.scriptHelperObfuscations) { continue;}
+						Map<String, Method> methodsMap = Maps.newHashMap();
+						for (Method m : clazz.getMethods()) {
+							methodsMap.put(m.getName(), m);
+						}
+						for (int j = 0; j < 4; j++) {
+							Map<String, String> m;
+							if (j == 0) {
+								m = ObfuscationPart0.map;
+							} else if (j == 1) {
+								m = ObfuscationPart1.map;
+							} else if (j == 2) {
+								m = ObfuscationPart2.map;
+							} else {
+								m = ObfuscationPart3.map;
+							}
+							if (m.containsValue(k)) {
+								for (String s : m.keySet()) {
+									if (m.get(s).equals(k)) {
+										if (methodsMap.containsKey(s)) {
+											obj = methodsMap.get(s).getReturnType();
+										}
+										break;
+									}
+								}
+							}
+							if (obj != null) {
+								break;
+							}
+						}
+						for (Class<?> c : clazz.getClasses()) {
+							if (c.getSimpleName().equals(k)) {
+								obj = c;
+								continue;
+							}
+						}
+						for (Field f : clazz.getFields()) {
+							if (f.getName().equals(k)) {
+								obj = f.getType();
+								continue;
+							}
+						}
+						if (!CustomNpcs.scriptHelperObfuscations) {
+							continue;
+						}
+
+						Map<String, Field> fieldMap = Maps.newHashMap();
+						Map<String, Class<?>> classMap = Maps.newHashMap();
+						for (Field f : clazz.getFields()) {
+							fieldMap.put(f.getName(), f);
+						}
+						for (Class<?> c : clazz.getClasses()) {
+							classMap.put(c.getSimpleName(), c);
+						}
+
+						for (int j = 0; j < 11; j++) {
+							Map<String, String> m;
+							if (j == 0) {
+								m = ObfuscationPart4.map;
+							} else if (j == 1) {
+								m = ObfuscationPart5.map;
+							} else if (j == 2) {
+								m = ObfuscationPart6.map;
+							} else if (j == 3) {
+								m = ObfuscationPart7.map;
+							} else if (j == 4) {
+								m = ObfuscationPart8.map;
+							} else if (j == 5) {
+								m = ObfuscationPart9.map;
+							} else if (j == 6) {
+								m = ObfuscationPart10.map;
+							} else if (j == 7) {
+								m = ObfuscationPart11.map;
+							} else if (j == 8) {
+								m = ObfuscationPart12.map;
+							} else if (j == 9) {
+								m = ObfuscationPart13.map;
+							} else {
+								m = ObfuscationPart14.map;
+							}
+							if (m.containsValue(k)) {
+								for (String s : m.keySet()) {
+									if (m.get(s).equals(k)) {
+										if (classMap.containsKey(s)) {
+											obj = classMap.get(s);
+										}
+										if (fieldMap.containsKey(s)) {
+											obj = fieldMap.get(s).getType();
+										}
+										break;
+									}
+								}
+							}
+							if (obj != null) {
+								break;
+							}
+						}
+					}
+					map.put(key, AdditionalMethods.getScriptClass(obj));
+				}
+				body = body.substring(e+1);
+			}
+			
+		} catch (Exception e) { }
+		return map;
 	}
 	
 }

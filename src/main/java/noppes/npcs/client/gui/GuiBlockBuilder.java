@@ -70,7 +70,6 @@ public class GuiBlockBuilder extends GuiNPCInterface
 		}
 		if (guibutton.id == 5) {
 			this.tile.rotation = ((GuiNpcButton) guibutton).getValue();
-			TileBuilder.Compiled = false;
 		}
 		if (guibutton.id == 6) {
 			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
@@ -113,8 +112,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 			int y = this.guiTop + 4;
 			// int size = this.selected.getWidth() * this.selected.getHeight() *
 			// this.selected.getLength();
-			this.addButton(new GuiNpcButtonYesNo(3, this.guiLeft + 200, y,
-					TileBuilder.DrawPos != null && this.tile.getPos().equals(TileBuilder.DrawPos)));
+			this.addButton(new GuiNpcButtonYesNo(3, this.guiLeft + 200, y, TileBuilder.has(this.tile.getPos())));
 			this.addLabel(new GuiNpcLabel(3, "schematic.preview", this.guiLeft + 130, y + 5));
 			int id = 0;
 			String string = new TextComponentTranslation("schematic.width").getFormattedText() + ": "
@@ -272,7 +270,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 					return compound.getShort("Width");
 				}
 			};
-			if (TileBuilder.DrawPos != null && TileBuilder.DrawPos.equals(this.tile.getPos())) {
+			if (TileBuilder.has(this.tile.getPos())) {
 				SchematicWrapper wrapper = new SchematicWrapper(this.selected);
 				wrapper.rotation = this.tile.rotation;
 				this.tile.setDrawSchematic(wrapper);

@@ -226,7 +226,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 
 	@Override
 	public void delete() {
-		RecipeController.instance.delete(this.id);
+		RecipeController.getInstance().delete(this.id);
 	}
 
 	public boolean equals(INpcRecipe recipe) {

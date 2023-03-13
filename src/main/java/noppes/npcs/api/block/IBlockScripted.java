@@ -6,7 +6,7 @@ import noppes.npcs.api.item.IItemStack;
 public interface IBlockScripted
 extends IBlock {
 	
-	String executeCommand(String p0);
+	String executeCommand(String command);
 
 	float getHardness();
 
@@ -48,17 +48,17 @@ extends IBlock {
 
 	ITimers getTimers();
 
-	void setHardness(float p0);
+	void setHardness(float hardness);
 
-	void setIsLadder(boolean p0);
+	void setIsLadder(boolean enabled);
 
-	void setIsPassible(boolean p0);
+	void setIsPassible(boolean passible);
 
-	void setLight(int p0);
+	void setLight(int value);
 
-	void setModel(IItemStack p0);
+	void setModel(IItemStack item);
 
-	void setModel(String p0);
+	void setModel(String name);
 
 	void setRedstonePower(int p0);
 

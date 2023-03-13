@@ -8,13 +8,17 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 public class MetodData {
 
-	public Class<?> returnType;
+	public String returnTypeName;
 	public String name;
 	public List<ParameterData> parameters;
 	public String comment;
 
 	public MetodData(Class<?> ret, String name, String comment, ParameterData ... parameters) {
-		this.returnType = ret;
+		this.returnTypeName = "c" + ret.getSimpleName();
+		if (ret.isInterface()) { this.returnTypeName = "9" + ret.getSimpleName(); }
+		else if (ret == boolean.class || ret == byte.class || ret == short.class || ret == int.class || ret == float.class || ret == double.class || ret == long.class || ret == String.class) { this.returnTypeName = "e" + ret.getSimpleName(); }
+		else if (ret == Void.class) { this.returnTypeName = "8void"; }
+		if (ret.isArray()) { this.returnTypeName += "[]";}
 		this.name = name;
 		this.comment = comment;
 		this.parameters = Lists.<ParameterData>newArrayList();
@@ -31,16 +35,12 @@ public class MetodData {
 			}
 			text += ")";
 		} else { text = "()"; }
-		String ret = "c" + this.returnType.getSimpleName();
-		if (this.returnType.isInterface()) { ret = "9" + this.returnType.getSimpleName(); }
-		else if (this.returnType == boolean.class || this.returnType == byte.class || this.returnType == short.class || this.returnType == int.class || this.returnType == float.class || this.returnType == double.class || this.returnType == long.class || this.returnType == String.class) { ret = "e" + this.returnType.getSimpleName(); }
-		else if (this.returnType == Void.class) { ret = "8void"; }
-		return chr + ret +chr+"f " + this.name + text + chr + "f;";
+		return chr + this.returnTypeName +chr+"f " + this.name + text + chr + "f;";
 	}
 	
 	public List<String> getComment() {
 		List<String> comment = Lists.<String>newArrayList();
-		comment.add(((char) 167)+"bInterfase: "+((char) 167)+"f"+this.name+((char) 167)+"b:");
+		comment.add(((char) 167)+"bMetod: "+((char) 167)+"f"+this.name+((char) 167)+"b:");
 		String tr = new TextComponentTranslation(this.comment).getFormattedText();
 		if (tr.indexOf("<br>")!=-1) {
 			for (String t : tr.split("<br>")) {

@@ -46,6 +46,10 @@ public enum EnumPacketClient
 	SCRIPT_DATA, // New
 	QUEST_CHOOSE_REWARD, // New
 	DETECT_HELD_ITEM, // New
-	BORDER_DATA; // New
+	BORDER_DATA, // New
+	BUILDER_SETTING, // New
+	SAVE_SCHEMATIC, // New
+	GET_SCHEMATIC, // New
+	UPDATE_HUD; // New
 	
 }

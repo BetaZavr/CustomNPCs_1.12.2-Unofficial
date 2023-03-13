@@ -36,8 +36,7 @@ public class Client {
 
 	// New
 	public static boolean sendDataDelayCheck(EnumPlayerPacket type, Object key, int delayMilliSec, Object... obs) {
-		if (Client.delayPackets.containsKey(key)
-				&& Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
+		if (Client.delayPackets.containsKey(key) && Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
 			return false;
 		}
 		Client.delayPackets.put(key, System.currentTimeMillis());

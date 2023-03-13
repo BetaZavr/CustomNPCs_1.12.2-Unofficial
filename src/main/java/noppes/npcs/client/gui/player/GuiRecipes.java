@@ -42,7 +42,7 @@ public class GuiRecipes extends GuiNPCInterface {
 		this.xSize = 256;
 		this.setBackground("recipes.png");
 		this.closeOnEsc = true;
-		for (List<INpcRecipe> list : RecipeController.instance.modList.values()) {
+		for (List<INpcRecipe> list : RecipeController.getInstance().modList.values()) {
 			for (INpcRecipe recipe : list) {
 				this.recipes.add((IRecipe) recipe);
 			}

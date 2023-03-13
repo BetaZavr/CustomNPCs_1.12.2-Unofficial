@@ -89,9 +89,6 @@ public class BorderController {
 			} catch (Exception ex) {
 			}
 		}
-		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.endDebug("Common", null, "loadRegions");
-		}
 	}
 
 	private void loadRegions(File file) throws IOException {

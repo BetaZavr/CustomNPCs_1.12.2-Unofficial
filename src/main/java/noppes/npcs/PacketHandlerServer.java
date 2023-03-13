@@ -82,6 +82,7 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 import noppes.npcs.items.ItemBoundary;
+import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.roles.JobSpawner;
@@ -89,13 +90,14 @@ import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.roles.data.SpawnNPCData;
+import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.IPermission;
 
 public class PacketHandlerServer {
-
-
+	
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
@@ -263,7 +265,7 @@ public class PacketHandlerServer {
 			String name = Server.readString(buffer);
 			NoppesUtilServer.sendRecipeData(player, size, group, name);
 			if (!name.isEmpty()) {
-				RecipeController rData = RecipeController.instance;
+				RecipeController rData = RecipeController.getInstance();
 				INpcRecipe recipe = rData.getRecipe(group, name);
 				if (recipe != null && (size == 3 && !recipe.isGlobal() || size == 4 && recipe.isGlobal())) {
 					recipe = null;
@@ -277,7 +279,7 @@ public class PacketHandlerServer {
 			int size = buffer.readInt();
 			String group = Server.readString(buffer);
 			String name = Server.readString(buffer);
-			INpcRecipe recipe = RecipeController.instance.getRecipe(group, name);
+			INpcRecipe recipe = RecipeController.getInstance().getRecipe(group, name);
 			if (recipe != null && (size == 3 && !recipe.isGlobal() || size == 4 && recipe.isGlobal())) {
 				recipe = null;
 			}
@@ -290,7 +292,7 @@ public class PacketHandlerServer {
 			int size = buffer.readInt();
 			String group = Server.readString(buffer);
 			String name = Server.readString(buffer);
-			if (RecipeController.instance.delete(group, name)) {
+			if (RecipeController.getInstance().delete(group, name)) {
 				NoppesUtilServer.sendRecipeData(player, size, group, name);
 				NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
 			}
@@ -303,7 +305,7 @@ public class PacketHandlerServer {
 			} else {
 				recipe = NpcShapelessRecipes.read(compound);
 			}
-			INpcRecipe r = RecipeController.instance.putRecipe(recipe);
+			INpcRecipe r = RecipeController.getInstance().putRecipe(recipe);
 			NoppesUtilServer.sendRecipeData(player, r.isGlobal() ? 3 : 4, r.getNpcGroup(), r.getName());
 			NoppesUtilServer.setRecipeGui(player, r);
 		} else if (type == EnumPacketServer.NaturalSpawnGetAll) {
@@ -919,11 +921,20 @@ public class PacketHandlerServer {
 			}
 		} else if (type == EnumPacketServer.SchematicsBuild) {
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
-			TileBuilder tile = (TileBuilder) player.world.getTileEntity(pos);
-			SchematicWrapper schem = tile.getSchematic();
-			schem.init(pos.add(1, tile.yOffest, 1), player.world, tile.rotation * 90);
-			SchematicController.Instance.build(tile.getSchematic(), player);
-			player.world.setBlockToAir(pos);
+			TileEntity t = player.world.getTileEntity(pos);
+			if (t instanceof TileBuilder) { // Builder Block
+				TileBuilder tile = (TileBuilder) t;
+				SchematicWrapper schem = tile.getSchematic();
+				schem.init(pos.add(1, tile.yOffest, 1), player.world, tile.rotation * 90);
+				SchematicController.Instance.build(tile.getSchematic(), player);
+				player.world.setBlockToAir(pos);
+			} else { // Builder Item
+				int rotaion = buffer.readInt();
+				NBTTagCompound compound = Server.readNBT(buffer);
+				Schematic schema = new Schematic("");
+				schema.load(compound);
+				SchematicController.buildBlocks(player, pos, rotaion, schema);
+			}
 		} else if (type == EnumPacketServer.SchematicsTileSave) {
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 			TileBuilder tile = (TileBuilder) player.world.getTileEntity(pos);
@@ -974,20 +985,20 @@ public class PacketHandlerServer {
 			int size = buffer.readInt();
 			String group = Server.readString(buffer);
 			if (size==3) {
-				RecipeController.instance.globalList.put(group, Lists.<INpcRecipe>newArrayList());
+				RecipeController.getInstance().globalList.put(group, Lists.<INpcRecipe>newArrayList());
 			} else {
-				RecipeController.instance.modList.put(group, Lists.<INpcRecipe>newArrayList());
+				RecipeController.getInstance().modList.put(group, Lists.<INpcRecipe>newArrayList());
 			}
 			NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", size, size, NonNullList.create(), ItemStack.EMPTY);
 			recipe.global = (size==3);
-			RecipeController.instance.putRecipe(recipe);
+			RecipeController.getInstance().putRecipe(recipe);
 			NoppesUtilServer.sendRecipeData(player, size, group, "default");
 			NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 		} else if (type == EnumPacketServer.RecipesRenameGroup) {
 			int size = buffer.readInt();
 			String old = Server.readString(buffer);
-			RecipeController rData = RecipeController.instance;
+			RecipeController rData = RecipeController.getInstance();
 			String group = Server.readString(buffer);
 			String recipe = Server.readString(buffer);
 			Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
@@ -1020,7 +1031,7 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.RecipeRemoveGroup) {
 			int size = buffer.readInt();
 			String group = Server.readString(buffer);
-			RecipeController rData = RecipeController.instance;
+			RecipeController rData = RecipeController.getInstance();
 			Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
 			if (map.containsKey(group)) {
 				RecipeController.Registry.unfreeze();
@@ -1042,7 +1053,7 @@ public class PacketHandlerServer {
 			int size = buffer.readInt();
 			String old = Server.readString(buffer);
 			String group = Server.readString(buffer);
-			RecipeController rData = RecipeController.instance;
+			RecipeController rData = RecipeController.getInstance();
 			String name = Server.readString(buffer);
 			INpcRecipe recipe = null;
 			Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
@@ -1194,7 +1205,28 @@ public class PacketHandlerServer {
 				}
 			}
 		}
-		
+		else if (type == EnumPacketServer.OpenBuilder) { // New
+			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
+			int id = player.getHeldItemMainhand().getTagCompound().getInteger("ID");
+			NBTTagCompound compound = Server.readNBT(buffer);
+			if (id != compound.getInteger("ID")) {
+				id = compound.getInteger("ID");
+				player.getHeldItemMainhand().getTagCompound().setInteger("ID", id);
+			}
+			if (!CommonProxy.dataBuilder.containsKey(id)) { CommonProxy.dataBuilder.put(id, new BuilderData()); }
+			CommonProxy.dataBuilder.get(id).read(compound);
+			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, CommonProxy.dataBuilder.get(id).getNbt());
+			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BuilderSetting, null, id, 0, 0);
+		} else if (type == EnumPacketServer.BuilderSetting) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			int id = compound.getInteger("ID");
+			if (!CommonProxy.dataBuilder.containsKey(id)) { CommonProxy.dataBuilder.put(id, new BuilderData()); }
+			CommonProxy.dataBuilder.get(id).read(compound);
+			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
+			NBTTagCompound nbtStack = player.getHeldItemMainhand().getTagCompound();
+			if (nbtStack==null) { player.getHeldItemMainhand().setTagCompound(nbtStack = new NBTTagCompound()); }
+			for (String key : compound.getKeySet()) { nbtStack.setTag(key, compound.getTag(key)); }
+		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 	}
 	

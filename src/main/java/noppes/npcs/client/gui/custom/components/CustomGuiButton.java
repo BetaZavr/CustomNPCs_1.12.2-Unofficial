@@ -13,7 +13,10 @@ import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IClickListener;
 
-public class CustomGuiButton extends GuiButton implements IClickListener {
+public class CustomGuiButton
+extends GuiButton
+implements IClickListener {
+	
 	public static CustomGuiButton fromComponent(CustomGuiButtonWrapper component) {
 		CustomGuiButton btn;
 		if (component.getWidth() >= 0 && component.getHeight() >= 0) {
@@ -36,8 +39,8 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 	GuiCustom parent;
 	ResourceLocation texture;
 	public int textureX;
-
 	public int textureY;
+    private final int[] offsets;
 
 	public CustomGuiButton(int buttonId, String buttonText, int x, int y, int width, int height,
 			CustomGuiButtonWrapper component) {
@@ -49,6 +52,7 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 			this.texture = new ResourceLocation(component.getTexture());
 		}
 		this.label = buttonText;
+        this.offsets = new int [] { 0, 0 };
 	}
 
 	public int getID() {
@@ -75,13 +79,16 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0.0f, 0.0f, this.id);
+		
+		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x;
+		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y;
+		this.hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
+		GlStateManager.translate(x-this.x, y-this.y, this.id);
+		
 		FontRenderer fontRenderer = mc.fontRenderer;
 		if (this.texture == null) {
 			mc.getTextureManager().bindTexture(CustomGuiButton.BUTTON_TEXTURES);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-					&& mouseY < this.y + this.height);
 			int i = this.getHoverState(this.hovered);
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
@@ -102,16 +109,13 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 				j = 16777120;
 			}
 			GlStateManager.translate(0.0, 0.0, 0.1);
-			this.drawCenteredString(fontRenderer, this.displayString, this.x + this.width / 2,
-					this.y + (this.height - 8) / 2, j);
+			this.drawCenteredString(fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 			if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
 				this.parent.hoverText = this.hoverText;
 			}
 		} else {
 			mc.getTextureManager().bindTexture(this.texture);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-					&& mouseY < this.y + this.height);
 			int i = this.hoverState(this.hovered);
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
@@ -144,4 +148,30 @@ public class CustomGuiButton extends GuiButton implements IClickListener {
 		component.setHoverText(this.hoverText);
 		return component;
 	}
+	
+	@Override
+	public void offSet(int offsetType, double[] windowSize) {
+		switch(offsetType) {
+			case 1: { // left down
+				this.offsets[0] = 0;
+				this.offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				this.offsets[0] = (int) windowSize[0];
+				this.offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				this.offsets[0] = (int) windowSize[0];
+				this.offsets[1] = (int) windowSize[1];
+				break;
+			}
+			default: { // left up
+				this.offsets[0] = 0;
+				this.offsets[1] = 0;
+			}
+		}
+	}
+	
 }

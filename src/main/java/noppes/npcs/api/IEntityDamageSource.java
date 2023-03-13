@@ -20,8 +20,8 @@ public interface IEntityDamageSource {
 	
 	void setDeadMessage(String message);
 	
-	//IEntityDamageSource setIsThornsDamage();
+	//IEntityDamageSource setIsThornsDamage(); // base in EntityDamageSource
 	
-	boolean getIsThornsDamage();
+	//boolean getIsThornsDamage(); // base in EntityDamageSource
 	
 }

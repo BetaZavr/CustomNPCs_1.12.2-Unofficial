@@ -2,7 +2,9 @@ package noppes.npcs.api.block;
 
 import noppes.npcs.api.ITimers;
 
-public interface IBlockScriptedDoor extends IBlock {
+public interface IBlockScriptedDoor
+extends IBlock {
+	
 	String getBlockModel();
 
 	float getHardness();
@@ -13,11 +15,12 @@ public interface IBlockScriptedDoor extends IBlock {
 
 	ITimers getTimers();
 
-	void setBlockModel(String p0);
+	void setBlockModel(String name);
 
-	void setHardness(float p0);
+	void setHardness(float hardness);
 
-	void setOpen(boolean p0);
+	void setOpen(boolean open);
 
-	void setResistance(float p0);
+	void setResistance(float resistance);
+	
 }

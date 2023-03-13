@@ -133,8 +133,7 @@ extends GuiContainer {
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation(this.title).getFormattedText(),
-				this.width / 2, this.guiTop - 8, 16777215);
+		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation(this.title).getFormattedText(), this.width / 2, this.guiTop - 8, 16777215);
 		for (GuiNpcLabel label : new ArrayList<GuiNpcLabel>(this.labels.values())) {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);
 		}
@@ -366,19 +365,16 @@ extends GuiContainer {
 
 	public void setHoverText(String text) {
 		List<String> list = new ArrayList<String>();
-		text = new TextComponentTranslation(text).getFormattedText();
+		if (text.indexOf("%")==-1) { text = new TextComponentTranslation(text).getFormattedText(); }
+		if (text.indexOf("~~~")!=-1) {
+			while (text.indexOf("~~~")!=-1) { text = text.replace("~~~", "%"); }
+		}
 		while (text.indexOf("<br>") != -1) {
 			list.add(text.substring(0, text.indexOf("<br>")));
 			text = text.substring(text.indexOf("<br>") + 4);
 		}
 		list.add(text);
-		String[] array = new String[list.size()];
-		int i = 0;
-		for (String str : list) {
-			array[i] = str;
-			i++;
-		}
-		this.hoverText = array;
+		this.hoverText = list.toArray(new String[list.size()]);
 	}
 
 	public void setSubGui(SubGuiInterface gui) {

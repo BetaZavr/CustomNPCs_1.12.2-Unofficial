@@ -260,7 +260,7 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 	}
 
 	public void delete() {
-		RecipeController.instance.delete(this.id);
+		RecipeController.getInstance().delete(this.id);
 	}
 
 	public boolean equals(INpcRecipe recipe) {

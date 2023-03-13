@@ -688,7 +688,7 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendRecipeData(EntityPlayerMP player, int size, String group, String recipe) {
-		RecipeController rData = RecipeController.instance;
+		RecipeController rData = RecipeController.getInstance();
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList groups = new NBTTagList();
 		NBTTagList recipes = new NBTTagList();

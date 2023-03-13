@@ -383,12 +383,17 @@ public class EventHooks {
 		return WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 	
-	public static void onPlayerKeyPressed(EntityPlayerMP player, int button, boolean isCtrlPressed,
-			boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed, boolean isDown) {
+	public static void onPlayerKeyPressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed, boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
 		PlayerScriptData handler = PlayerData.get((EntityPlayer) player).scriptData;
-		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed,
-				isShiftPressed, isMetaPressed);
+		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
 		handler.runScript(isDown ? EnumScriptType.KEY_DOWN : EnumScriptType.KEY_UP, event);
+		WrapperNpcAPI.EVENT_BUS.post(event);
+	}
+	
+	public static void onPlayerMousePressed(EntityPlayerMP player, int button, boolean isDown, boolean isCtrlPressed, boolean isShiftPressed, boolean isAltPressed, boolean isMetaPressed) {
+		PlayerScriptData handler = PlayerData.get((EntityPlayer) player).scriptData;
+		Event event = new PlayerEvent.KeyPressedEvent(handler.getPlayer(), button, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed);
+		handler.runScript(isDown ? EnumScriptType.MOUSE_DOWN : EnumScriptType.MOUSE_UP, event);
 		WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 

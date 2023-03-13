@@ -1,5 +1,6 @@
 package noppes.npcs.util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,10 +18,19 @@ import javax.script.ScriptException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.data.IScriptData;
+import noppes.npcs.api.wrapper.EntityLivingBaseWrapper;
+import noppes.npcs.api.wrapper.EntityLivingWrapper;
+import noppes.npcs.api.wrapper.EntityWrapper;
+import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
@@ -29,7 +39,7 @@ public class ScriptData implements IScriptData {
 	public boolean isConstant = false;
 	private String keyName = "null", value = "null", language = "";
 	private Object object = null;
-	public final Map<String, Class<?>> parameters = Maps.newHashMap();
+	private final Map<String, Class<?>> parameters = Maps.newHashMap();
 	private final List<IScriptData> subData = Lists.newArrayList();
 	private int type = 0; // 0-any;1-boolean;2-byte;3-short;4-integer;5-long;6-float;7-double;8-string;9-class;10-class[];11-array;12-function;13-undefined
 
@@ -517,6 +527,17 @@ public class ScriptData implements IScriptData {
 				}
 			}
 		}
+	}
+
+	public Map<String, Class<?>> getVariables(Map<String, Map<Integer, ScriptData>> data) {
+		Map<String, Class<?>> map = Maps.newHashMap();
+		if (this.type!=12) { return map; }
+		for (String key : this.parameters.keySet()) { map.put(key, this.parameters.get(key)); }
+		String body = this.object.toString();
+		body = body.substring(body.indexOf("{")+1, body.indexOf("}"));
+		Map<String, Class<?>> addedMap = AdditionalMethods.getVariablesInBody(body, data, map);
+		for (String key : addedMap.keySet()) { map.put(key, addedMap.get(key)); }
+		return map;
 	}
 
 }

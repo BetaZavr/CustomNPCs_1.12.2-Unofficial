@@ -245,7 +245,7 @@ extends NpcAPI {
 	@Override
 	public IRecipeHandler getRecipes() {
 		this.checkWorld();
-		return (IRecipeHandler) RecipeController.instance;
+		return (IRecipeHandler) RecipeController.getInstance();
 	}
 
 	@Override

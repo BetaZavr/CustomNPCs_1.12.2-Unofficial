@@ -10,7 +10,8 @@ import noppes.npcs.api.IWorld;
 import noppes.npcs.api.entity.data.IData;
 
 public interface IBlock {
-	void blockEvent(int p0, int p1);
+	
+	void blockEvent(int type, int data);
 
 	IContainer getContainer();
 
@@ -44,7 +45,7 @@ public interface IBlock {
 
 	boolean hasTileEntity();
 
-	void interact(int p0);
+	void interact(int side);
 
 	boolean isAir();
 
@@ -54,11 +55,11 @@ public interface IBlock {
 
 	void remove();
 
-	IBlock setBlock(IBlock p0);
+	IBlock setBlock(IBlock block);
 
-	IBlock setBlock(String p0);
+	IBlock setBlock(String name);
 
-	void setMetadata(int p0);
+	void setMetadata(int i);
 
-	void setTileEntityNBT(INbt p0);
+	void setTileEntityNBT(INbt nbt);
 }

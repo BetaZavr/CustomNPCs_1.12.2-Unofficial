@@ -31,6 +31,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -60,11 +61,13 @@ import noppes.npcs.client.gui.util.IGuiError;
 import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.QuestController;
+import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Marcet;
@@ -73,6 +76,9 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
+import noppes.npcs.schematics.Schematic;
+import noppes.npcs.schematics.SchematicWrapper;
+import noppes.npcs.util.BuilderData;
 
 public class PacketHandlerClient
 extends PacketHandlerServer {
@@ -502,8 +508,28 @@ extends PacketHandlerServer {
 			}
 			BorderController.getInstance().loadRegion(Server.readNBT(buffer));
 			
+		} else if (type == EnumPacketClient.BUILDER_SETTING) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			if (!CommonProxy.dataBuilder.containsKey(compound.getInteger("ID"))) { CommonProxy.dataBuilder.put(compound.getInteger("ID"), new BuilderData()); }
+			CommonProxy.dataBuilder.get(compound.getInteger("ID")).read(compound);
+		} else if (type == EnumPacketClient.SAVE_SCHEMATIC) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			String name = compound.getString("Name")+".schematic";
+			Schematic schema = new Schematic(name);
+			schema.load(compound);
+			schema.save(player);
+			SchematicController.Instance.map.put(name.toLowerCase(), new SchematicWrapper(schema));
+		} else if (type == EnumPacketClient.GET_SCHEMATIC) {
+			if (ClientEventHandler.schemaPos == null || ClientEventHandler.schema==null) { return; }
+			int x = ClientEventHandler.schemaPos.getX();
+			int y = ClientEventHandler.schemaPos.getY();
+			int z = ClientEventHandler.schemaPos.getZ();
+			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z, ClientEventHandler.rotaion, ClientEventHandler.schema.getNBT());
+		} else if (type == EnumPacketClient.UPDATE_HUD) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			System.out.println("compound: "+compound);
+			ClientProxy.playerData.hud.loadNBTData(compound);
 		}
-		
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}
 	

@@ -85,6 +85,7 @@ import noppes.npcs.client.renderer.blocks.BlockCopyRenderer;
 import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
 import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
 import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
+import noppes.npcs.constants.EnumBuilder;
 import noppes.npcs.fluids.CustomFluid;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
@@ -686,7 +687,9 @@ public class CustomItems {
 		ModelLoader.setCustomModelResourceLocation(CustomItems.nbt_book, 0, new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomItems.helpbook, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npchelpbook", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomItems.npcboundary, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.npcbuilder, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder", "inventory"));
+		for (int i=0; i<5; i++) {
+			ModelLoader.setCustomModelResourceLocation(CustomItems.npcbuilder, i, new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder_"+EnumBuilder.values()[i].name(), "inventory"));
+		}
 		for (Item item : CustomItems.customitems) { ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory")); }
 		
 		// Render Tiles
