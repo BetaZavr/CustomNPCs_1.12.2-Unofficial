@@ -67,6 +67,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
+import noppes.npcs.items.CustomFishingRod;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
@@ -587,6 +588,66 @@ implements IGuiHandler {
 							}
 							catch (IOException | JsonException e) { }
 						}
+					}
+				}
+				return;
+			}
+			else if (customitem instanceof CustomFishingRod) {
+				File uncast = new File(itemModelsDir, fileName.toLowerCase()+".json");
+				OutputStreamWriter writer = null;
+				System.out.println("uncast: "+uncast.exists());
+				if (!uncast.exists()) {
+					char crEnt = Character.toChars(0x000A)[0];
+					char crTab = Character.toChars(0x0009)[0];
+					String jsonStr ="{" + crEnt +
+							crTab + "\"parent\": \"item/handheld_rod\"," + crEnt +
+							crTab + "\"textures\": {" + crEnt +
+							crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name+"_uncast\"" + crEnt +
+							crTab + "}," + crEnt +
+							crTab + "\"overrides\": [" + crEnt +
+							crTab + crTab + "{" + crEnt +
+							crTab + crTab + crTab + "\"predicate\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"cast\": 1" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"model\": \""+CustomNpcs.MODID+":item/"+fileName+"_cast\"" + crEnt +
+							crTab + crTab + "}" + crEnt +
+							crTab + "]" + crEnt +
+							"}";
+					writer = null;
+					try {
+						writer = new OutputStreamWriter(new FileOutputStream(uncast), Charset.forName("UTF-8"));
+						writer.write(jsonStr);
+					} catch (IOException e) { }
+					finally {
+						try {
+							if (writer != null) {
+								writer.close();
+							}
+						} catch (IOException e) { }
+					}
+				}
+				File cast = new File(itemModelsDir, fileName.toLowerCase()+"_cast.json");
+				System.out.println("cast: "+cast.exists());
+				if (!cast.exists()) {
+					char crEnt = Character.toChars(0x000A)[0];
+					char crTab = Character.toChars(0x0009)[0];
+					String jsonStr ="{" + crEnt +
+							crTab + "\"parent\": \"item/fishing_rod\"," + crEnt +
+							crTab + "\"textures\": {" + crEnt +
+							crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name+"_cast\"" + crEnt +
+							crTab + "}" + crEnt +
+							"}";
+					writer = null;
+					try {
+						writer = new OutputStreamWriter(new FileOutputStream(cast), Charset.forName("UTF-8"));
+						writer.write(jsonStr);
+					} catch (IOException e) { }
+					finally {
+						try {
+							if (writer != null) {
+								writer.close();
+							}
+						} catch (IOException e) { }
 					}
 				}
 				return;

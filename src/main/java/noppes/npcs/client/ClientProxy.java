@@ -204,6 +204,7 @@ import noppes.npcs.entity.EntityNpcSlime;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
+import noppes.npcs.items.CustomFishingRod;
 import noppes.npcs.items.CustomFood;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
@@ -903,6 +904,7 @@ extends CommonProxy {
 		else if (name.equals("shieldexample")) { n = "Shield Example"; }
 		else if (name.equals("bowexample")) { n = "Bow Example"; }
 		else if (name.equals("foodexample")) { n = "Food Example"; }
+		else if (name.equals("fishingrodexample")) { n = "Fishing Rod Example"; }
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("item."+fileName+".name", n);
 		
@@ -940,8 +942,7 @@ extends CommonProxy {
 		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
 		
 		File texture = new File(texturesDir, textureName+".png");
-		File armorTexture = null;
-		File bowTexture = null;
+		File armorTexture = null, bowTexture = null, fishingTexture = null;
 		String type = "iron_ingot";
 		if (customitem instanceof CustomWeapon) {
 			type = "iron_sword";
@@ -977,6 +978,10 @@ extends CommonProxy {
 		}
 		else if (customitem instanceof CustomFood) {
 			type = "coal";
+		}
+		else if (customitem instanceof CustomFishingRod) {
+			texture = null;
+			fishingTexture = new File(texturesDir, textureName+"_uncast.png");
 		}
 		if (texture!=null && !texture.exists()) {
 			boolean has = false;
@@ -1059,6 +1064,30 @@ extends CommonProxy {
 				catch (IOException e) { }
 			}
 			if (has[0] || has[1] || has[2] || has[3]) { LogWriter.debug("Create Default Bow Texture for \""+name+"\" item"); }
+		}
+		if (fishingTexture!=null && !fishingTexture.exists()) {
+			boolean[] has = new boolean[] { false, false };
+			for (int i=0; i<2; i++) {
+				String ntp = textureName.replace("_uncast", "") + (i==0 ? "_uncast" : "_cast");
+				try {
+					fishingTexture = new File(texturesDir, ntp+".png");
+					IResource baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/fishing_rod"+(i==0 ? "_uncast" : "_cast")+".png"));
+					if (baseTexrure!=null) {
+						Files.copy(baseTexrure.getInputStream(), fishingTexture.toPath());
+						has[i] = true;
+					}
+				}
+				catch (IOException e) { }
+				if (has[i]) { continue; }
+				try {
+					BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
+					fishingTexture = new File(texturesDir, ntp+".png");
+					ImageIO.write(bufferedImage, "png", fishingTexture);
+					has[i] = true;
+				}
+				catch (IOException e) { }
+			}
+			if (has[0] || has[1]) { LogWriter.debug("Create Default Fishing Rood Texture for \""+name+"\" item"); }
 		}
 	}
 	

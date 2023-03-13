@@ -89,6 +89,7 @@ import noppes.npcs.constants.EnumBuilder;
 import noppes.npcs.fluids.CustomFluid;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
+import noppes.npcs.items.CustomFishingRod;
 import noppes.npcs.items.CustomFood;
 import noppes.npcs.items.CustomItem;
 import noppes.npcs.items.CustomItemLingeringPotion;
@@ -521,7 +522,7 @@ public class CustomItems {
 			if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); }
 		}
 		catch (IOException | JsonException e) { }
-		boolean hasEI = false, hasEW = false, hasEA = false, hasES = false, hasEB = false, hasET = false, hasEF = false;
+		boolean hasEI = false, hasEW = false, hasEA = false, hasES = false, hasEB = false, hasET = false, hasEF = false, hasFR=false;
 		if (nbtItems.hasKey("Items", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Items", 10).tagCount(); i++) {
 				String name = nbtItems.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -532,12 +533,13 @@ public class CustomItems {
 				else if (name.equals("bowexample")) { hasEB = true; }
 				else if (name.equals("toolexample")) { hasET = true; }
 				else if (name.equals("foodexample")) { hasEF = true; }
-				if (hasEI && hasEW && hasEA && hasES && hasEB && hasET && hasEF) { break; }
+				else if (name.equals("fishingrodexample")) { hasFR = true; }
+				if (hasEI && hasEW && hasEA && hasES && hasEB && hasET && hasEF && hasFR) { break; }
 			}
 		}
-		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || !hasEB || !hasEW || !hasEA || !hasES|| !hasEB || !hasEF) {
+		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || !hasEB || !hasEW || !hasEA || !hasES|| !hasEB || !hasEF || !hasFR) {
 			if (!nbtItems.hasKey("Items", 9)) { nbtItems.setTag("Items", new NBTTagList());}
-			if (!hasEB || !hasEW || !hasEA || !hasES|| !hasEB || !hasEF) {
+			if (!hasEB || !hasEW || !hasEA || !hasES|| !hasEB || !hasEF || !hasFR) {
 				NBTTagCompound nbt = CustomItems.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Items", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -547,7 +549,8 @@ public class CustomItems {
 							(name.equals("shieldexample") && !hasES) ||
 							(name.equals("bowexample") && !hasEB) ||
 							(name.equals("toolexample") && !hasET) ||
-							(name.equals("foodexample") && !hasEF)) {
+							(name.equals("foodexample") && !hasEF) ||
+							(name.equals("fishingrodexample") && !hasFR)) {
 						nbtItems.getTagList("Items", 10).appendTag(nbt.getTagList("Items", 10).getCompoundTagAt(i));
 					}
 				}
@@ -559,7 +562,7 @@ public class CustomItems {
 		boolean resave = false;
 		for (int i=0; i<nbtItems.getTagList("Items", 10).tagCount(); i++) {
 			NBTTagCompound nbtItem = nbtItems.getTagList("Items", 10).getCompoundTagAt(i);
-			if (!nbtItem.hasKey("RegistryName", 8) || !nbtItem.hasKey("ItemType", 1) || nbtItem.getString("RegistryName").isEmpty() || nbtItem.getByte("ItemType")<(byte)0 || nbtItem.getByte("ItemType")>(byte)7) {
+			if (!nbtItem.hasKey("RegistryName", 8) || !nbtItem.hasKey("ItemType", 1) || nbtItem.getString("RegistryName").isEmpty() || nbtItem.getByte("ItemType")<(byte)0 || nbtItem.getByte("ItemType")>(byte)8) {
 				LogWriter.error("Attempt to load item pos: "+i+"; name: \""+nbtItem.getString("RegistryName")+"\" - failed");
 				continue;
 			}
@@ -607,6 +610,9 @@ public class CustomItems {
 					break;
 				case (byte) 7: // Potion
 					continue;
+				case (byte) 8: // Fishing Rod
+					this.registryItem(new CustomFishingRod(nbtItem), names, items, nbtItem);
+					break;
 				default: // Simple
 					this.registryItem(new CustomItem(nbtItem), names, items, nbtItem);
 			}
@@ -877,12 +883,23 @@ public class CustomItems {
 		exampleFood.setBoolean("CreateAllFiles", true);
 		listItems.appendTag(exampleFood);
 		
+		NBTTagCompound exampleFishingRod = new NBTTagCompound();
+		exampleFishingRod.setString("RegistryName", "fishingrodexample");
+		exampleFishingRod.setByte("ItemType", (byte) 8);
+		exampleFishingRod.setInteger("MaxStackSize", 1);
+		exampleWeapon.setTag("RepairItem", (new ItemStack(Items.STICK)).writeToNBT(new NBTTagCompound()));
+		exampleFishingRod.setInteger("MaxStackDamage", 150);
+		exampleFishingRod.setInteger("Enchantability", 5);
+		exampleFishingRod.setBoolean("CreateAllFiles", true);
+		listItems.appendTag(exampleFishingRod);
+		
 		nbtItems.setTag("Items", listItems);
 		
 		NBTTagList listPotion = new NBTTagList();
 		
 		NBTTagCompound examplePotion = new NBTTagCompound();
 		examplePotion.setString("RegistryName", "potionexample");
+		examplePotion.setByte("ItemType", (byte) 7);
 		examplePotion.setBoolean("CreateAllFiles", true);
 		examplePotion.setBoolean("IsBadEffect", false);
 		examplePotion.setBoolean("IsInstant", false);
