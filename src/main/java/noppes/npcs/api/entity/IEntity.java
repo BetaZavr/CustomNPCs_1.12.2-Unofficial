@@ -154,4 +154,5 @@ public interface IEntity<T extends Entity> {
 	void storeAsClone(int p0, String p1);
 
 	boolean typeOf(int p0);
+	
 }

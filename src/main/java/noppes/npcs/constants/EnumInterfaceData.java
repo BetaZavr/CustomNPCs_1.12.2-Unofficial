@@ -146,7 +146,6 @@ public enum EnumInterfaceData {
 		)
 	),
 	
-	
 	ICustmBlock(new InterfaseData(noppes.npcs.api.block.ICustmBlock.class, "interfase.icustmblock",
 			new MetodData(String.class, "getCustomName", "metod.icustmblock.getcustomname"),
 			new MetodData(noppes.npcs.api.INbt.class, "getCustomNbt", "metod.icustmblock.getcustomnbt")
@@ -397,10 +396,16 @@ public enum EnumInterfaceData {
 	IAnimal(new InterfaseData(noppes.npcs.api.entity.IAnimal.class, noppes.npcs.api.entity.IEntityLiving.class, "interfase.ianimal")),
 	IArrow(new InterfaseData(noppes.npcs.api.entity.IArrow.class, noppes.npcs.api.entity.IEntity.class, "interfase.iarrow")),
 	ICustomNpc(new InterfaseData(noppes.npcs.api.entity.ICustomNpc.class, noppes.npcs.api.entity.IEntityLiving.class, "interfase.icustomnpc")),
-	IEntity(new InterfaseData(noppes.npcs.api.entity.IEntity.class, "interfase.ientity")),
+	IEntity(new InterfaseData(noppes.npcs.api.entity.IEntity.class, "interfase.ientity"
+		)
+	),
 	IEntityItem(new InterfaseData(noppes.npcs.api.entity.IEntityItem.class, noppes.npcs.api.entity.IEntity.class, "interfase.ientityitem")),
-	IEntityLiving(new InterfaseData(noppes.npcs.api.entity.IEntityLiving.class, noppes.npcs.api.entity.IEntityLivingBase.class, "interfase.ientityliving")),
-	IEntityLivingBase(new InterfaseData(noppes.npcs.api.entity.IEntityLivingBase.class, noppes.npcs.api.entity.IEntity.class, "interfase.ientitylivingbase")),
+	IEntityLiving(new InterfaseData(noppes.npcs.api.entity.IEntityLiving.class, noppes.npcs.api.entity.IEntityLivingBase.class, "interfase.ientityliving"
+		)
+	),
+	IEntityLivingBase(new InterfaseData(noppes.npcs.api.entity.IEntityLivingBase.class, noppes.npcs.api.entity.IEntity.class, "interfase.ientitylivingbase"
+		)
+	),
 	IMonster(new InterfaseData(noppes.npcs.api.entity.IMonster.class, noppes.npcs.api.entity.IEntityLiving.class, "interfase.imonster")),
 	IPixelmon(new InterfaseData(noppes.npcs.api.entity.IPixelmon.class, noppes.npcs.api.entity.IAnimal.class, "interfase.ipixelmon")),
 	IPlayer(new InterfaseData(noppes.npcs.api.entity.IPlayer.class, noppes.npcs.api.entity.IEntityLivingBase.class, "interfase.iplayer")),

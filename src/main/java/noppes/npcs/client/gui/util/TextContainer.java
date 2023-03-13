@@ -26,7 +26,9 @@ public class TextContainer {
 
 		public String getFormattedString() {
 			StringBuilder builder = new StringBuilder(this.text);
-			if (!this.isCode) { return builder.toString(); }
+			if (!this.isCode) {
+				return builder.toString();
+			}
 			int found = 0;
 			for (MarkUp entry : TextContainer.this.makeup) {
 				if (entry.start >= this.start && entry.start < this.end) {

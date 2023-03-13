@@ -664,7 +664,7 @@ implements IGuiHandler {
 				nbtModel.setString("parent", "minecraft:item/handheld");
 			}
 			else if (customitem instanceof CustomArmor) {
-				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/armor/"+name.toLowerCase()+"_"+((CustomArmor) customitem).getEquipmentSlot().name().toLowerCase());
+				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/armor/"+name.toLowerCase()+"_"+((CustomArmor) customitem).armorType.name().toLowerCase());
 			}
 			else {
 				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/"+name.toLowerCase());

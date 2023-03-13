@@ -33,7 +33,6 @@ implements ICustomScrollListener {
 	private static final Map<Integer, String> map = Maps.<Integer, String>newHashMap();
 	private final String[] arr = new String [] { "config", "blocks", "items", "potions", "", "", "", "", "", "",
 			"npc.display", "npc.stats", "npc.ais", "npc.inventory", "npc.advanced", "", "", "", "", "", 
-			"new.items", "new.blocks", "", "", "", "", "", "", "", "", "", 
 			"script.main", "", "", "", "", "", "", "", "" };
 	private static final Map<String, EnumInterfaceData> apis = Maps.<String, EnumInterfaceData>newTreeMap();
 	private GuiCustomScroll scroll;
@@ -50,17 +49,21 @@ implements ICustomScrollListener {
 		this.ySize = 174;
 		this.closeOnEsc = true;
 		if (GuiHelpBook.map.isEmpty() || !this.curentLang.equals(ClientProxy.playerData.hud.getCurrentLanguage())) {
+			String wip = new TextComponentTranslation("gui.wip").getFormattedText();
 			this.curentLang = ClientProxy.playerData.hud.getCurrentLanguage();
-			char chr = Character.toChars(0x000A)[0];
 			GuiHelpBook.map.clear();
 			for (int i=0; i< this.arr.length; i++) {
 				if (this.arr[i].isEmpty()) {
-					GuiHelpBook.map.put(i, this.arr[i]);
+					GuiHelpBook.map.put(i, wip);
 					continue;
 				}
 				String text = new TextComponentTranslation("help.info."+this.arr[i]).getFormattedText();
-				while(text.indexOf("<br>")!=-1) { text = text.replaceAll("<br>", ""+chr); }
-				GuiHelpBook.map.put(i, AdditionalMethods.deleteColor(text));
+				if (text.isEmpty()) {
+					GuiHelpBook.map.put(i, wip);
+					continue;
+				}
+				while(text.indexOf("<br>")!=-1) { text = text.replaceAll("<br>", ""+((char) 10)); }
+				GuiHelpBook.map.put(i, text);
 			}
 		}
 	}
@@ -83,19 +86,12 @@ implements ICustomScrollListener {
 				if (maxW<w) { maxW = w; }
 				break;
 			}
-			case 2: { // news
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("inv.drops").getFormattedText());
-				maxW = w;
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.blocks").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				break;
-			}
-			case 3: { // scripts
+			case 2: { // scripts
 				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.general").getFormattedText());
 				maxW = w;
 				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.api").getFormattedText());
 				if (maxW<w) { maxW = w; }
-				if (this.activeLeftTab==31 && maxW<110) { maxW = 110; }
+				if (this.activeLeftTab==21 && maxW<110) { maxW = 110; }
 				break;
 			}
 			default: { // general
@@ -119,15 +115,12 @@ implements ICustomScrollListener {
 		
 		GuiMenuTopButton general = new GuiMenuTopButton(0, this.guiLeft + 4, this.guiTop - 17, "gui.help.general");
 		GuiMenuTopButton npcEdit = new GuiMenuTopButton(1, general.x + general.getWidth(), guiTop - 17, "gui.help.npc");
-		GuiMenuTopButton news = new GuiMenuTopButton(2, npcEdit.x + npcEdit.getWidth(), guiTop - 17, "gui.help.new");
-		GuiMenuTopButton scripts = new GuiMenuTopButton(3, news.x + news.getWidth(), guiTop - 17, "gui.help.scripts");
+		GuiMenuTopButton scripts = new GuiMenuTopButton(2, npcEdit.x + npcEdit.getWidth(), guiTop - 17, "gui.help.scripts");
 		general.active = general.id==this.activeTopTab;
 		npcEdit.active = npcEdit.id==this.activeTopTab;
-		news.active = news.id==this.activeTopTab;
 		scripts.active = scripts.id==this.activeTopTab;
 		this.addTopButton(general);
 		this.addTopButton(npcEdit);
-		this.addTopButton(news);
 		this.addTopButton(scripts);
 		
 		switch(this.activeTopTab) {
@@ -150,20 +143,10 @@ implements ICustomScrollListener {
 				this.addLeftButton(advanced);
 				break;
 			}
-			case 2: { // news
+			case 2: { // scripts
 				if (this.activeLeftTab<20 || this.activeLeftTab>29) { this.activeLeftTab = 20; }
-				GuiMenuLeftButton items = new GuiMenuLeftButton(20, this.guiLeft, this.guiTop + 4, "inv.drops");
-				GuiMenuLeftButton blocks = new GuiMenuLeftButton(21, this.guiLeft, items.y+items.getHeight(), "gui.help.blocks");
-				items.active = items.id==this.activeLeftTab;
-				blocks.active = blocks.id==this.activeLeftTab;
-				this.addLeftButton(items);
-				this.addLeftButton(blocks);
-				break;
-			}
-			case 3: { // scripts
-				if (this.activeLeftTab<30 || this.activeLeftTab>39) { this.activeLeftTab = 30; }
-				GuiMenuLeftButton main = new GuiMenuLeftButton(30, this.guiLeft, this.guiTop + 4, "gui.help.general");
-				GuiMenuLeftButton api = new GuiMenuLeftButton(31, this.guiLeft, main.y+main.getHeight(), "gui.help.api");
+				GuiMenuLeftButton main = new GuiMenuLeftButton(20, this.guiLeft, this.guiTop + 4, "gui.help.general");
+				GuiMenuLeftButton api = new GuiMenuLeftButton(21, this.guiLeft, main.y+main.getHeight(), "gui.help.api");
 				//scroll
 				if (this.scroll==null) {
 					this.scroll = new GuiCustomScroll(this, 0);
@@ -214,7 +197,7 @@ implements ICustomScrollListener {
 
 	private void resetText() {
 		if (!(this.get(0) instanceof GuiTextArea)) { return; }
-		if (this.activeLeftTab!=31) {
+		if (this.activeLeftTab!=21) {
 			String text = GuiHelpBook.map.get(this.activeLeftTab);
 			if (text==null) { text = ""; }
 			((GuiTextArea) this.get(0)).setText(text);
@@ -262,7 +245,7 @@ implements ICustomScrollListener {
 			GlStateManager.popMatrix();
 		}
 		if (this.scroll!=null) {
-			this.scroll.visible = this.activeLeftTab==31;
+			this.scroll.visible = this.activeLeftTab==21;
 			if (this.scroll.visible) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -286,7 +269,7 @@ implements ICustomScrollListener {
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.curentLine = -1;
-		if (this.activeLeftTab==31 && this.scroll!=null && this.get(0) instanceof GuiTextArea) { 
+		if (this.activeLeftTab==21 && this.scroll!=null && this.get(0) instanceof GuiTextArea) { 
 			GuiTextArea area = (GuiTextArea) this.get(0);
 			if (area != null && area.hovered) {
 				this.curentLine = (mouseY - area.y + 1)/area.container.lineHeight + area.scrolledLine;
@@ -321,7 +304,7 @@ implements ICustomScrollListener {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
-		if (this.activeLeftTab!=31 || this.scroll==null || !(this.get(0) instanceof GuiTextArea)) { return; }
+		if (this.activeLeftTab!=21 || this.scroll==null || !(this.get(0) instanceof GuiTextArea)) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (!area.hovered) { return; }
 		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
