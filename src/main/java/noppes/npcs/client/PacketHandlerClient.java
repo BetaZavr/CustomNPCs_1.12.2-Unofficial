@@ -49,6 +49,8 @@ import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.GuiAchievement;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerAdd;
 import noppes.npcs.client.gui.GuiNpcRemoteEditor;
+import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
+import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.player.GuiCustomChest;
 import noppes.npcs.client.gui.player.GuiNPCTrader;
 import noppes.npcs.client.gui.player.GuiQuestCompletion;
@@ -197,7 +199,16 @@ extends PacketHandlerServer {
 			int synctype = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
 			SyncController.clientSync(synctype, compound, type == EnumPacketClient.SYNC_END, player);
-			if (synctype == 8) {
+			
+			if (synctype == 3) { // Quest
+				if (Minecraft.getMinecraft().currentScreen instanceof GuiNPCManageQuest) {
+					((GuiNPCManageQuest) Minecraft.getMinecraft().currentScreen).initGui();
+				}
+			} else if (synctype == 5) { // Dialogs
+				if (Minecraft.getMinecraft().currentScreen instanceof GuiNPCManageDialogs) {
+					((GuiNPCManageDialogs) Minecraft.getMinecraft().currentScreen).initGui();
+				}
+			} else if (synctype == 8) {
 				ClientProxy.playerData.setNBT(compound);
 			} else if (synctype == 9) {
 				if (player.getServer() == null) {

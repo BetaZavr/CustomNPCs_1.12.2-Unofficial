@@ -49,6 +49,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.categoryData = new HashMap<String, QuestCategory>();
 		this.questData = new HashMap<String, Quest>();
 		GuiNPCManageQuest.Instance = this;
+		Client.sendData(EnumPacketServer.QuestCategoryGet);
 	}
 
 	public void buttonEvent(GuiButton guibutton) {

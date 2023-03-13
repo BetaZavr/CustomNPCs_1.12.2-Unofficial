@@ -1226,7 +1226,18 @@ public class PacketHandlerServer {
 			NBTTagCompound nbtStack = player.getHeldItemMainhand().getTagCompound();
 			if (nbtStack==null) { player.getHeldItemMainhand().setTagCompound(nbtStack = new NBTTagCompound()); }
 			for (String key : compound.getKeySet()) { nbtStack.setTag(key, compound.getTag(key)); }
+		} else if (type == EnumPacketServer.DialogCategoryGet) {
+			for (DialogCategory category2 : DialogController.instance.categories.values()) {
+				Server.sendData(player, EnumPacketClient.SYNC_ADD, 5, category2.writeNBT(new NBTTagCompound()));
+			}
+			Server.sendData(player, EnumPacketClient.SYNC_END, 5, new NBTTagCompound());
+		} else if (type == EnumPacketServer.QuestCategoryGet) {
+			for (QuestCategory category : QuestController.instance.categories.values()) {
+				Server.sendData(player, EnumPacketClient.SYNC_ADD, 3, category.writeNBT(new NBTTagCompound()));
+			}
+			Server.sendData(player, EnumPacketClient.SYNC_END, 3, new NBTTagCompound());
 		}
+		
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 	}
 	

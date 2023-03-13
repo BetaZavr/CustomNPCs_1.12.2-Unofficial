@@ -49,6 +49,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.categoryData = new HashMap<String, DialogCategory>();
 		this.dialogData = new HashMap<String, Dialog>();
 		GuiNPCManageDialogs.Instance = this;
+		Client.sendData(EnumPacketServer.DialogCategoryGet);
 	}
 
 	public void buttonEvent(GuiButton guibutton) {
@@ -101,7 +102,6 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void initGui() {
 		super.initGui();
-
 		HashMap<String, DialogCategory> categoryData = new HashMap<String, DialogCategory>();
 		HashMap<String, Dialog> dialogData = new HashMap<String, Dialog>();
 		for (DialogCategory category : DialogController.instance.categories.values()) {
@@ -175,9 +175,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void save() {
-		GuiNpcTextField.unfocus();
-	}
+	public void save() { GuiNpcTextField.unfocus(); }
 
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {

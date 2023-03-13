@@ -73,6 +73,7 @@ public class SyncController {
 					DialogController.instance.categories = DialogController.instance.categoriesSync;
 					DialogController.instance.dialogs = dialogs;
 					DialogController.instance.categoriesSync = new HashMap<Integer, DialogCategory>();
+					
 				}
 				break;
 			}
