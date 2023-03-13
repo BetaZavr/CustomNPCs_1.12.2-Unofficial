@@ -428,7 +428,7 @@ extends GuiScreen {
 	}
 
 	public void resetRoll() {
-		if (this.selected<0) {
+		if (this.selected<0 || this.listHeight<this.height) {
 			this.scrollY = 0;
 			return;
 		}
