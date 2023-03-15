@@ -24,7 +24,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
 
-public class ItemSoulstoneFilled extends Item {
+public class ItemSoulstoneFilled
+extends Item {
+	
 	public static Entity Spawn(EntityPlayer player, ItemStack stack, World world, BlockPos pos) {
 		if (world.isRemote) {
 			return null;
@@ -103,4 +105,5 @@ public class ItemSoulstoneFilled extends Item {
 		}
 		return EnumActionResult.SUCCESS;
 	}
+	
 }

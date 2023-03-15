@@ -3,7 +3,10 @@ package noppes.npcs.api.wrapper.gui;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.gui.ITextField;
 
-public class CustomGuiTextFieldWrapper extends CustomGuiComponentWrapper implements ITextField {
+public class CustomGuiTextFieldWrapper
+extends CustomGuiComponentWrapper
+implements ITextField {
+	
 	String defaultText;
 	int height;
 	int width;

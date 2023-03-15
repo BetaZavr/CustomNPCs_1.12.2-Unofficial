@@ -14,7 +14,9 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class JobHealer extends JobInterface {
+public class JobHealer
+extends JobInterface {
+	
 	private List<EntityLivingBase> affected;
 	public HashMap<Integer, Integer> effects;
 	private int healTicks;

@@ -3,7 +3,9 @@ package noppes.npcs.api.wrapper;
 import net.minecraft.world.DimensionType;
 import noppes.npcs.api.IDimension;
 
-public class DimensionWrapper implements IDimension {
+public class DimensionWrapper
+implements IDimension {
+	
 	private int id;
 	private DimensionType type;
 
@@ -26,4 +28,5 @@ public class DimensionWrapper implements IDimension {
 	public String getSuffix() {
 		return this.type.getSuffix();
 	}
+	
 }

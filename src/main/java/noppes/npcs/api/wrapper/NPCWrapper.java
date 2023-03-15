@@ -34,7 +34,10 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
 @SuppressWarnings("rawtypes")
-public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrapper<T> implements ICustomNpc {
+public class NPCWrapper<T extends EntityNPCInterface>
+extends EntityLivingWrapper<T>
+implements ICustomNpc {
+	
 	public NPCWrapper(T npc) {
 		super(npc);
 	}

@@ -11,9 +11,9 @@ import noppes.npcs.api.item.IItemStack;
 
 public interface IEntity<T extends Entity> {
 	
-	void addRider(IEntity<?> p0);
+	void addRider(IEntity<?> entity);
 
-	void addTag(String p0);
+	void addTag(String tag);
 
 	void clearRiders();
 
@@ -23,7 +23,7 @@ public interface IEntity<T extends Entity> {
 
 	void despawn();
 
-	IEntityItem<?> dropItem(IItemStack p0);
+	IEntityItem<?> dropItem(IItemStack item);
 
 	void extinguish();
 
@@ -93,7 +93,7 @@ public interface IEntity<T extends Entity> {
 
 	boolean hasCustomName();
 
-	boolean hasTag(String p0);
+	boolean hasTag(String tag);
 
 	boolean inFire();
 
@@ -111,48 +111,48 @@ public interface IEntity<T extends Entity> {
 
 	void kill();
 
-	void knockback(int p0, float p1);
+	void knockback(int power, float direction);
 
-	void playAnimation(int p0);
+	void playAnimation(int type);
 
-	IRayTrace rayTraceBlock(double p0, boolean p1, boolean p2);
+	IRayTrace rayTraceBlock(double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox);
 
-	IEntity<?>[] rayTraceEntities(double p0, boolean p1, boolean p2);
+	IEntity<?>[] rayTraceEntities(double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox);
 
-	void removeTag(String p0);
+	void removeTag(String tag);
 
-	void setBurning(int p0);
+	void setBurning(int seconds);
 
-	void setEntityNbt(INbt p0);
+	void setEntityNbt(INbt nbt);
 
-	void setMotionX(double p0);
+	void setMotionX(double motion);
 
-	void setMotionY(double p0);
+	void setMotionY(double motion);
 
-	void setMotionZ(double p0);
+	void setMotionZ(double motion);
 
-	void setMount(IEntity<?> p0);
+	void setMount(IEntity<?> entity);
 
-	void setName(String p0);
+	void setName(String name);
 
-	void setPitch(float p0);
+	void setPitch(float pitch);
 
-	void setPos(IPos p0);
+	void setPos(IPos pos);
 
-	void setPosition(double p0, double p1, double p2);
+	void setPosition(double x, double y, double z);
 
-	void setRotation(float p0);
+	void setRotation(float rotation);
 
-	void setX(double p0);
+	void setX(double x);
 
-	void setY(double p0);
+	void setY(double y);
 
-	void setZ(double p0);
+	void setZ(double z);
 
 	void spawn();
 
-	void storeAsClone(int p0, String p1);
+	void storeAsClone(int tab, String name);
 
-	boolean typeOf(int p0);
+	boolean typeOf(int type);
 	
 }

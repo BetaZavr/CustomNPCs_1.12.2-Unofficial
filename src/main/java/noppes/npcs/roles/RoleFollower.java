@@ -18,7 +18,10 @@ import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleFollower extends RoleInterface implements IRoleFollower {
+public class RoleFollower
+extends RoleInterface
+implements IRoleFollower {
+	
 	public int daysHired;
 	public String dialogFarewell;
 	public String dialogHire;

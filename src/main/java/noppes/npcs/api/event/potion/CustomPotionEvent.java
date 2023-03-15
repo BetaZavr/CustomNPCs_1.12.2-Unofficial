@@ -1,15 +1,15 @@
 package noppes.npcs.api.event.potion;
 
-import noppes.npcs.api.IPotion;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.event.CustomNPCsEvent;
 
 public class CustomPotionEvent
 extends CustomNPCsEvent
 {
 	
-	public IPotion potion = null;
+	public ICustomElement potion = null;
 	
-	public CustomPotionEvent(IPotion potion) {
+	public CustomPotionEvent(ICustomElement potion) {
 		super();
 		this.potion = potion;
 	}

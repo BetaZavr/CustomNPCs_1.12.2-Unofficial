@@ -27,7 +27,9 @@ import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IRecipe // Changed
+public class NpcShapedRecipes
+extends ShapedRecipes
+implements INpcRecipe, IRecipe // Changed
 {
 	/** How many horizontal slots this recipe is wide. */
     public int recipeWidth;

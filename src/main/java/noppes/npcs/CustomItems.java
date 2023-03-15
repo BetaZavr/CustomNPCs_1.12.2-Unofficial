@@ -55,8 +55,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.api.IPotion;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.blocks.BlockBuilder;
 import noppes.npcs.blocks.BlockCarpentryBench;
@@ -327,7 +326,7 @@ public class CustomItems {
 				continue;
 			}
 			if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
-				CustomNpcs.proxy.checkBlockFiles((ICustomItem) block);
+				CustomNpcs.proxy.checkBlockFiles((ICustomElement) block);
 				nbtBlock.setBoolean("CreateAllFiles", false);
 				resave = true;
 			}
@@ -387,7 +386,7 @@ public class CustomItems {
 				continue;
 			}
 			if (nbtPotion.hasKey("CreateAllFiles") && nbtPotion.getBoolean("CreateAllFiles")) {
-				CustomNpcs.proxy.checkPotionFiles((IPotion) potion);
+				CustomNpcs.proxy.checkPotionFiles((ICustomElement) potion);
 				nbtPotion.setBoolean("CreateAllFiles", false);
 				resave = true;
 			}
@@ -646,7 +645,7 @@ public class CustomItems {
 			LogWriter.error("Attempt to load a registred item \""+item.getRegistryName()+"\"");
 		}
 		if (nbtItem.hasKey("CreateAllFiles") && nbtItem.getBoolean("CreateAllFiles")) {
-			CustomNpcs.proxy.checkItemFiles((ICustomItem) item);
+			CustomNpcs.proxy.checkItemFiles((ICustomElement) item);
 		}
 		LogWriter.info("Load Custom Item \""+item.getRegistryName()+"\"");
 		items.add(item);

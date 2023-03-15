@@ -223,15 +223,15 @@ public class AdditionalMethods {
 	/** Stripping a string of color */
 	public static String deleteColor(String str) {
 		if (str == null) { return null; }
-		String chr = new String(Character.toChars(0x00A7));
-		while (str.indexOf(chr) != (-1)) {
-			str = str.substring(0, str.indexOf(chr)) + str.substring(str.indexOf(chr) + 2);
-		}
-		while (str.indexOf("§") != (-1)) {
-			str = str.substring(0, str.indexOf("§")) + str.substring(str.indexOf("§") + 2);
-		}
-		while (str.indexOf("&") != (-1)) {
-			str = str.substring(0, str.indexOf("&")) + str.substring(str.indexOf("&") + 2);
+		if (str.isEmpty()) { return str; }
+		for (int i=0; i<3; i++) {
+			String chr = new String(Character.toChars(0x00A7));
+			if (i==1) { chr = "§"; }
+			else if (i==2) { chr = "&"; }
+			while (str.indexOf(chr) != (-1)) {
+				int p = str.indexOf(chr);
+				str = (p>0 ? str.substring(0, p) : "" ) + str.substring(p + (p+2<str.length() ? 2 : 1));
+			}
 		}
 		return str;
 	}
@@ -741,14 +741,14 @@ public class AdditionalMethods {
 				char c = text.charAt(i);
 				if (startCharts != null) {
 					if (startCharts.indexOf(""+c)!=-1) {
-						s = i;
+						s = i+1;
 						break;
 					}
 					continue;
 				}
 				if (Character.toChars(0x000A)[0]==c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
 					if ( c== '.' || c == '(' || c == Character.toChars(0x000A)[0]) { s = i + 1; }
-					else { s = i; }
+					else { s = i+1; }
 					break;
 				}
 			}

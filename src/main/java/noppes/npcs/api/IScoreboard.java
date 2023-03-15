@@ -22,7 +22,7 @@ public interface IScoreboard {
 
 	IScoreboardTeam[] getTeams();
 
-	boolean hasObjective(String p0);
+	boolean hasObjective(String objective);
 
 	boolean hasPlayerObjective(String player, String objective, String datatag);
 
@@ -35,4 +35,5 @@ public interface IScoreboard {
 	void removeTeam(String name);
 
 	void setPlayerScore(String player, String objective, int score, String datatag);
+	
 }

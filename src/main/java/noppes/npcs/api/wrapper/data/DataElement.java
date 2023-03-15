@@ -9,7 +9,8 @@ import java.lang.reflect.Parameter;
 
 import noppes.npcs.api.handler.data.IDataElement;
 
-public class DataElement implements IDataElement {
+public class DataElement
+implements IDataElement {
 
 	private Object data; // parent Object
 	private String name;

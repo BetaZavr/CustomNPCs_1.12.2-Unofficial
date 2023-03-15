@@ -9,7 +9,9 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogCategory;
 
-public class DialogCategory implements IDialogCategory {
+public class DialogCategory
+implements IDialogCategory {
+	
 	public HashMap<Integer, Dialog> dialogs;
 	public int id;
 	public String title;

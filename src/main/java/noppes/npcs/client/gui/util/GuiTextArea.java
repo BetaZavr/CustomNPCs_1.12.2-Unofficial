@@ -377,16 +377,18 @@ implements IGui, IKeyListener, IMouseListener {
 		yMouse -= this.y + 1;
 		List<TextContainer.LineData> list = new ArrayList<TextContainer.LineData>(this.container.lines);
 		int row = 0;
+		String t = "";
 		for (int i = 0; i < list.size(); ++i) {
 			TextContainer.LineData data = list.get(i);
 			if (i >= this.scrolledLine && i < this.scrolledLine + this.container.visibleLines) {
 				int yPos = (i - this.scrolledLine) * this.container.lineHeight;
 				if (yMouse >= yPos && yMouse < yPos + this.container.lineHeight) {
 					int lineWidth = 0;
-					char[] chars = data.text.toCharArray();
+					t = GuiTextArea.font.isCode() ? data.text : AdditionalMethods.deleteColor(data.text);
+					char[] chars = t.toCharArray();
 					boolean found = false;
 					for (int j = 1; j <= chars.length; ++j) {
-						int w = GuiTextArea.font.width(data.text.substring(0, j));
+						int w = GuiTextArea.font.width(t.substring(0, j));
 						if (xMouse < lineWidth + (w - lineWidth) / 2) {
 							p = data.start + j - 1;
 							line = data;
@@ -406,7 +408,7 @@ implements IGui, IKeyListener, IMouseListener {
 			}
 		}
 		if (line == null || p == -1) { return new Object[] { p, "", -1 }; }
-		String select = AdditionalMethods.match(GuiTextArea.font.isCode() ? line.text : AdditionalMethods.deleteColor(line.text), p - line.start, GuiTextArea.filter, GuiTextArea.filter);
+		String select = AdditionalMethods.match(t, p - line.start, GuiTextArea.filter, GuiTextArea.filter);
 		p = line.text.lastIndexOf(select, p);
 		return new Object[] { p, select, row };
 	}
@@ -582,9 +584,10 @@ implements IGui, IKeyListener, IMouseListener {
 	}
 
 	public boolean mouseClicked(int xMouse, int yMouse, int mouseButton) {
-		if (this.freeze || this.onlyReading) {
+		if (this.freeze) {
 			return false;
 		}
+		if (this.onlyReading && !(mouseButton==0 && this.container.linesCount * this.container.lineHeight > this.height && xMouse > this.x + this.width - 8)) { return false; } 
 		this.active = (xMouse >= this.x && xMouse < this.x + this.width && yMouse >= this.y && yMouse < this.y + this.height);
 		if (this.active) {
 			int selectionPos = this.getSelectionPos(xMouse, yMouse);

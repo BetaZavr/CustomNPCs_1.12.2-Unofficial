@@ -16,7 +16,10 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.data.MarkData;
 
 @SuppressWarnings("rawtypes")
-public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityWrapper<T> implements IEntityLivingBase {
+public class EntityLivingBaseWrapper<T extends EntityLivingBase>
+extends EntityWrapper<T>
+implements IEntityLivingBase {
+	
 	public EntityLivingBaseWrapper(T entity) {
 		super(entity);
 	}

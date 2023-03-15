@@ -13,7 +13,9 @@ import noppes.npcs.constants.EnumCreatureRarity;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class DataStats implements INPCStats {
+public class DataStats
+implements INPCStats {
+	
 	public int aggroRange;
 	public boolean burnInSun;
 	public boolean calmdown;

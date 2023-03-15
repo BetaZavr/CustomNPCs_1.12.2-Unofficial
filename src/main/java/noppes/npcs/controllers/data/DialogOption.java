@@ -5,7 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.handler.data.IDialogOption;
 import noppes.npcs.controllers.DialogController;
 
-public class DialogOption implements IDialogOption {
+public class DialogOption
+implements IDialogOption {
 	
 	public String command;
 	public int dialogId;

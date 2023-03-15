@@ -9,7 +9,9 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 
-public class ContainerWrapper implements IContainer {
+public class ContainerWrapper
+implements IContainer {
+	
 	private Container container;
 	private IInventory inventory;
 

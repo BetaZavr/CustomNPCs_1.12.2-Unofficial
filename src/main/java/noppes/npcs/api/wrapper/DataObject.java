@@ -16,7 +16,8 @@ import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.util.AdditionalMethods;
 
-public class DataObject implements IDataObject {
+public class DataObject
+implements IDataObject {
 
 	public List<IDataElement> data = Lists.newArrayList();
 	public Object object = null;

@@ -7,17 +7,19 @@ import noppes.npcs.api.entity.data.IData;
 
 public interface IItemStack {
 	
-	void addEnchantment(String p0, int p1);
+	void addEnchantment(String name, int level);
+	
+	void addEnchantment(int id, int level);
 
-	boolean compare(IItemStack p0, boolean p1);
+	boolean compare(IItemStack item, boolean ignoreNBT);
 
 	IItemStack copy();
 
-	void damageItem(int p0, IEntityLiving<?> p1);
+	void damageItem(int damage, IEntityLiving<?> living);
 
 	double getAttackDamage();
 
-	double getAttribute(String p0);
+	double getAttribute(String name);
 
 	String getDisplayName();
 
@@ -49,11 +51,13 @@ public interface IItemStack {
 
 	int getType();
 
-	boolean hasAttribute(String p0);
+	boolean hasAttribute(String name);
 
 	boolean hasCustomName();
 
-	boolean hasEnchant(String p0);
+	boolean hasEnchant(String name);
+
+	boolean hasEnchant(int id);
 
 	boolean hasNbt();
 
@@ -69,20 +73,23 @@ public interface IItemStack {
 
 	boolean isWearable();
 
-	boolean removeEnchant(String p0);
+	boolean removeEnchant(String name);
+
+	boolean removeEnchant(int id);
 
 	void removeNbt();
 
 	@Deprecated
-	void setAttribute(String p0, double p1);
+	void setAttribute(String name, double value);
 
-	void setAttribute(String p0, double p1, int p2);
+	void setAttribute(String name, double value, int slot);
 
-	void setCustomName(String p0);
+	void setCustomName(String name);
 
-	void setItemDamage(int p0);
+	void setItemDamage(int value);
 
-	void setLore(String[] p0);
+	void setLore(String[] lore);
 
-	void setStackSize(int p0);
+	void setStackSize(int size);
+	
 }

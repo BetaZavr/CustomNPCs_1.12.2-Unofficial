@@ -12,16 +12,16 @@ extends INPCJob {
 
 		int getRotationZ();
 
-		void setRotation(int p0, int p1, int p2);
+		void setRotation(int x, int y, int z);
 	}
 
 	int getAnimationSpeed();
 
 	boolean getIsAnimated();
 
-	IJobPuppetPart getPart(int p0);
+	IJobPuppetPart getPart(int part);
 
-	void setAnimationSpeed(int p0);
+	void setAnimationSpeed(int speed);
 
-	void setIsAnimated(boolean p0);
+	void setIsAnimated(boolean bo);
 }

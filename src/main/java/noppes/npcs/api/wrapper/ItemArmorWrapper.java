@@ -4,7 +4,10 @@ import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.item.IItemArmor;
 
-public class ItemArmorWrapper extends ItemStackWrapper implements IItemArmor {
+public class ItemArmorWrapper
+extends ItemStackWrapper
+implements IItemArmor {
+	
 	protected ItemArmor armor;
 
 	protected ItemArmorWrapper(ItemStack item) {

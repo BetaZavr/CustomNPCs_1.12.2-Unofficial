@@ -33,7 +33,8 @@ import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.LRUHashMap;
 
-public class BlockWrapper implements IBlock {
+public class BlockWrapper
+implements IBlock {
 	
 	private static Map<String, BlockWrapper> blockCache = new LRUHashMap<String, BlockWrapper>(400);
 

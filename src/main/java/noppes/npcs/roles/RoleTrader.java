@@ -13,7 +13,8 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleTrader extends RoleInterface {
+public class RoleTrader
+extends RoleInterface {
 	
 	public int marcet;
 

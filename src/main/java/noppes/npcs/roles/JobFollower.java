@@ -8,7 +8,10 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.role.IJobFollower;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobFollower extends JobInterface implements IJobFollower {
+public class JobFollower
+extends JobInterface
+implements IJobFollower {
+	
 	public EntityNPCInterface following;
 	public String name;
 	private int range;

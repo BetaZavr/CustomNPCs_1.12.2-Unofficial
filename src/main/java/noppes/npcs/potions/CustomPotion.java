@@ -20,8 +20,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.IPotion;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.potion.AffectEntity;
 import noppes.npcs.api.event.potion.EndEffect;
@@ -30,7 +30,7 @@ import noppes.npcs.api.event.potion.PerformEffect;
 
 public class CustomPotion
 extends Potion
-implements IPotion {
+implements ICustomElement {
 
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	protected ResourceLocation resource;
@@ -92,14 +92,6 @@ implements IPotion {
 	}
 
 	@Override
-	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
-
-	@Override
-	public INbt getNbt() {
-		return NpcAPI.Instance().getINbt(this.nbtData);
-	}
-
-	@Override
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entityLivingBaseIn, AbstractAttributeMap attributeMapIn, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entityLivingBaseIn, attributeMapIn, amplifier);
 		EventHooks.onCustomPotionEndEffect(new EndEffect(this, entityLivingBaseIn, amplifier));
@@ -112,4 +104,11 @@ implements IPotion {
 		else { ret.add(new ItemStack(Items.MILK_BUCKET)); }
         return ret;
     }
+	
+	@Override
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
+
+	@Override
+	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
+	
 }

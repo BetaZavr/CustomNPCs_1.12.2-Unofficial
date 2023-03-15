@@ -25,7 +25,9 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.Faction;
 
-public class FactionController implements IFactionHandler {
+public class FactionController
+implements IFactionHandler {
+	
 	public static FactionController instance = new FactionController();
 	public HashMap<Integer, Faction> factions;
 	public HashMap<Integer, Faction> factionsSync;

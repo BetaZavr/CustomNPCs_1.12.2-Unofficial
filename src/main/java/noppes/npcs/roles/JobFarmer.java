@@ -30,7 +30,10 @@ import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobFarmer extends JobInterface implements MassBlockController.IMassBlock, IJobFarmer {
+public class JobFarmer
+extends JobInterface
+implements MassBlockController.IMassBlock, IJobFarmer {
+	
 	private int blockTicks;
 	private BlockPos chest;
 	public int chestMode;

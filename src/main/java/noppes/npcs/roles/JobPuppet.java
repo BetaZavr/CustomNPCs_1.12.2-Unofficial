@@ -7,8 +7,13 @@ import noppes.npcs.api.entity.data.role.IJobPuppet;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class JobPuppet extends JobInterface implements IJobPuppet {
-	public class PartConfig implements IJobPuppetPart {
+public class JobPuppet
+extends JobInterface
+implements IJobPuppet {
+	
+	public class PartConfig
+	implements IJobPuppetPart {
+		
 		public boolean disabled;
 		public float rotationX;
 		public float rotationY;

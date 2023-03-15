@@ -12,7 +12,9 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class Faction implements IFaction {
+public class Faction
+implements IFaction {
+	
 	public static String formatName(String name) {
 		name = name.toLowerCase().trim();
 		return name.substring(0, 1).toUpperCase() + name.substring(1);

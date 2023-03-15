@@ -4,7 +4,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.gui.IButton;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 
-public class CustomGuiButtonWrapper extends CustomGuiComponentWrapper implements IButton {
+public class CustomGuiButtonWrapper
+extends CustomGuiComponentWrapper
+implements IButton {
+	
 	int height;
 	String label;
 	String texture;

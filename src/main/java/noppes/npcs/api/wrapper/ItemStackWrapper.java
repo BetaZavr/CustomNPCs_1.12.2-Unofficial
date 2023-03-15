@@ -21,6 +21,8 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemBook;
+import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
@@ -52,7 +54,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
 
 @SuppressWarnings("rawtypes")
-public class ItemStackWrapper implements IItemStack, ICapabilityProvider, ICapabilitySerializable {
+public class ItemStackWrapper
+implements IItemStack, ICapabilityProvider, ICapabilitySerializable {
+	
 	public static ItemStackWrapper AIR = new ItemStackEmptyWrapper();
 	@CapabilityInject(ItemStackWrapper.class)
 	public static Capability<ItemStackWrapper> ITEMSCRIPTEDDATA_CAPABILITY = null;
@@ -184,12 +188,21 @@ public class ItemStackWrapper implements IItemStack, ICapabilityProvider, ICapab
 	}
 
 	@Override
-	public void addEnchantment(String id, int strenght) {
-		Enchantment ench = Enchantment.getEnchantmentByLocation(id);
+	public void addEnchantment(String name, int level) {
+		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
+		if (ench == null) {
+			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
+		}
+		this.item.addEnchantment(ench, level);
+	}
+	
+	@Override
+	public void addEnchantment(int id, int level) {
+		Enchantment ench = Enchantment.getEnchantmentByID(id);
 		if (ench == null) {
 			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
 		}
-		this.item.addEnchantment(ench, strenght);
+		this.item.addEnchantment(ench, level);
 	}
 
 	@Override
@@ -393,8 +406,28 @@ public class ItemStackWrapper implements IItemStack, ICapabilityProvider, ICapab
 	}
 
 	@Override
-	public boolean hasEnchant(String id) {
-		Enchantment ench = Enchantment.getEnchantmentByLocation(id);
+	public boolean hasEnchant(String name) {
+		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
+		if (ench == null) {
+			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
+		}
+		if (!this.isEnchanted()) {
+			return false;
+		}
+		int enchId = Enchantment.getEnchantmentID(ench);
+		NBTTagList list = this.item.getEnchantmentTagList();
+		for (int i = 0; i < list.tagCount(); ++i) {
+			NBTTagCompound compound = list.getCompoundTagAt(i);
+			if (compound.getShort("id") == enchId) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean hasEnchant(int id) {
+		Enchantment ench = Enchantment.getEnchantmentByID(id);
 		if (ench == null) {
 			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
 		}
@@ -426,7 +459,7 @@ public class ItemStackWrapper implements IItemStack, ICapabilityProvider, ICapab
 
 	@Override
 	public boolean isBook() {
-		return false;
+		return this.item.getItem() instanceof ItemBook || this.item.getItem() instanceof ItemEnchantedBook || this.item.getItem() instanceof ItemWritableBook || this.item.getItem() instanceof ItemWrittenBook;
 	}
 
 	@Override
@@ -450,8 +483,33 @@ public class ItemStackWrapper implements IItemStack, ICapabilityProvider, ICapab
 	}
 
 	@Override
-	public boolean removeEnchant(String id) {
-		Enchantment ench = Enchantment.getEnchantmentByLocation(id);
+	public boolean removeEnchant(String name) {
+		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
+		if (ench == null) {
+			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
+		}
+		if (!this.isEnchanted()) {
+			return false;
+		}
+		int enchId = Enchantment.getEnchantmentID(ench);
+		NBTTagList list = this.item.getEnchantmentTagList();
+		NBTTagList newList = new NBTTagList();
+		for (int i = 0; i < list.tagCount(); ++i) {
+			NBTTagCompound compound = list.getCompoundTagAt(i);
+			if (compound.getShort("id") != enchId) {
+				newList.appendTag(compound);
+			}
+		}
+		if (list.tagCount() == newList.tagCount()) {
+			return false;
+		}
+		this.item.getTagCompound().setTag("ench", newList);
+		return true;
+	}
+
+	@Override
+	public boolean removeEnchant(int id) {
+		Enchantment ench = Enchantment.getEnchantmentByID(id);
 		if (ench == null) {
 			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
 		}
@@ -506,8 +564,7 @@ public class ItemStackWrapper implements IItemStack, ICapabilityProvider, ICapab
 			}
 		}
 		if (value != 0.0) {
-			NBTTagCompound nbttagcompound = SharedMonsterAttributes
-					.writeAttributeModifierToNBT(new AttributeModifier(name, value, 0));
+			NBTTagCompound nbttagcompound = SharedMonsterAttributes.writeAttributeModifierToNBT(new AttributeModifier(name, value, 0));
 			nbttagcompound.setString("AttributeName", name);
 			if (slot >= 0) {
 				nbttagcompound.setString("Slot", EntityEquipmentSlot.values()[slot].getName());

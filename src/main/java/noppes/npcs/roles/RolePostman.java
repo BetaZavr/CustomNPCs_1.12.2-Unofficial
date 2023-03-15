@@ -12,7 +12,9 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RolePostman extends RoleInterface {
+public class RolePostman
+extends RoleInterface {
+	
 	public NpcMiscInventory inventory;
 	private List<EntityPlayer> recentlyChecked;
 	private List<EntityPlayer> toCheck;

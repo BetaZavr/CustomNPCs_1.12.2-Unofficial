@@ -6,11 +6,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 
 public class CustomFishingRod
 extends ItemFishingRod
-implements ICustomItem {
+implements ICustomElement {
 
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	protected int enchantability = 1;
@@ -40,7 +42,7 @@ implements ICustomItem {
 	}
 	
 	@Override
-	public NBTTagCompound getData() { return this.nbtData; }
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }

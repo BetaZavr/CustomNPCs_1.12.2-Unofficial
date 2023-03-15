@@ -19,7 +19,10 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.items.ItemScripted;
 
-public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScripted, IScriptHandler {
+public class ItemScriptedWrapper
+extends ItemStackWrapper
+implements IItemScripted, IScriptHandler {
+	
 	public int durabilityColor;
 	public boolean durabilityShow;
 	public double durabilityValue;

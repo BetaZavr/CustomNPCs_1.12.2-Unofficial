@@ -1,7 +1,9 @@
 package noppes.npcs.api.entity.data.role;
 
 public interface IJobBard {
+	
 	String getSong();
 
-	void setSong(String p0);
+	void setSong(String song);
+	
 }

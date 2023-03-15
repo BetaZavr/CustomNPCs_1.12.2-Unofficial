@@ -7,11 +7,13 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 
 public class CustomLiquid
 extends BlockFluidClassic
-implements ICustomItem {
+implements ICustomElement {
 	
 	public NBTTagCompound nbtData = new NBTTagCompound();
 
@@ -27,8 +29,8 @@ implements ICustomItem {
         return true;
     }
 
-	@Override
-	public NBTTagCompound getData() { return this.nbtData; }
+    @Override
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }

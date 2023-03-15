@@ -1,35 +1,29 @@
 package noppes.npcs.client.util;
 
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.constants.EnumInterfaceData;
 
 public class InterfaseData {
 
-	public Class<?> interF;
-	public Class<?> extend;
-	private Map<String, MetodData> metods;
+	public Class<?> interF, extend;
+	public Class<?>[] wraper;
+	private List<MetodData> metods;
 	public String comment;
 	
-	public InterfaseData(Class<?> interF, String comment, MetodData ... mds) {
+	public InterfaseData(Class<?> interF, Class<?> extend, Class<?>[] wraper, String comment, MetodData ... mds) {
 		this.interF = interF;
 		this.comment = comment;
-		this.metods = Maps.<String, MetodData>newTreeMap();
-		for (MetodData md : mds) { this.metods.put(md.name, md); }
+		this.metods = Lists.<MetodData>newArrayList();
+		for (MetodData md : mds) { this.metods.add(md); }
+		this.extend = extend;
+		this.wraper = wraper;
 	}
 	
-	public InterfaseData(Class<?> interF, Class<?> clazz, String comment, MetodData ... mds) {
-		this(interF, comment, mds);
-		this.extend = clazz;
-	}
-	
-	public TreeMap<String, MetodData> getAllMetods(TreeMap<String, MetodData> parent) {
+	public List<MetodData> getAllMetods(List<MetodData> parent) {
 		if (this.extend!=null) {
 			for (EnumInterfaceData enumIT : EnumInterfaceData.values()) {
 				if (this.extend.getSimpleName().equals(enumIT.name())) {
@@ -37,11 +31,7 @@ public class InterfaseData {
 				}
 			}
 		}
-		for (MetodData md : this.metods.values()) {
-			String name = md.name;
-			while (parent.containsKey(name)) { name += "_"; }
-			parent.put(name, md);
-		}
+		for (MetodData md : this.metods) { parent.add(md); }
 		return parent;
 	}
 
@@ -51,6 +41,13 @@ public class InterfaseData {
 		if (tr.indexOf("<br>")!=-1) {
 			for (String t : tr.split("<br>")) { comment.add(t); }
 		} else { comment.add(tr); }
+		if (this.wraper!=null) {
+			String text = "";
+			for (Class<?> c : this.wraper) {
+				if (!text.isEmpty()) { text += ", "; }
+				text += this.wraper.length>1 ? c.getSimpleName() : c.getName();
+			}
+			comment.add(new TextComponentTranslation("interfase.wraper", (this.wraper.length>1 ? "[" + text + "]" : text)).getFormattedText()); }
 		return comment;
 	}
 	

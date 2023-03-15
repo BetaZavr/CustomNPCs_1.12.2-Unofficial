@@ -11,7 +11,9 @@ import net.minecraftforge.common.ForgeChunkManager;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobChunkLoader extends JobInterface {
+public class JobChunkLoader
+extends JobInterface {
+	
 	private List<ChunkPos> chunks;
 	private long playerLastSeen;
 	private int ticks;

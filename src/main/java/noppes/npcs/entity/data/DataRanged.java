@@ -7,7 +7,9 @@ import noppes.npcs.api.entity.data.INPCRanged;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class DataRanged implements INPCRanged {
+public class DataRanged
+implements INPCRanged {
+	
 	private int accuracy;
 	private boolean aimWhileShooting;
 	private int burstCount;

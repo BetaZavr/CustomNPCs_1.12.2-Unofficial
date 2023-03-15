@@ -21,12 +21,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomWeapon
 extends ItemSword
-implements ICustomItem {
+implements ICustomElement {
 
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	protected Set<Block> effectiveBlocks = Sets.<Block>newHashSet();
@@ -114,7 +116,7 @@ implements ICustomItem {
     public boolean isFull3D() { return this.bFull3D; }
 
 	@Override
-	public NBTTagCompound getData() { return this.nbtData; }
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }

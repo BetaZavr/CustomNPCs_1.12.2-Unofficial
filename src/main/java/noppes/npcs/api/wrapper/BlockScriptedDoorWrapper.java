@@ -10,7 +10,10 @@ import noppes.npcs.api.ITimers;
 import noppes.npcs.api.block.IBlockScriptedDoor;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 
-public class BlockScriptedDoorWrapper extends BlockWrapper implements IBlockScriptedDoor {
+public class BlockScriptedDoorWrapper
+extends BlockWrapper
+implements IBlockScriptedDoor {
+	
 	private TileScriptedDoor tile;
 
 	public BlockScriptedDoorWrapper(World world, Block block, BlockPos pos) {

@@ -30,7 +30,9 @@ import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe, IRecipe // Changed
+public class NpcShapelessRecipes
+extends ShapelessRecipes
+implements INpcRecipe, IRecipe // Changed
 {
 	/** Is the ItemStack that you get when craft the recipe. */
 	public ItemStack recipeOutput;

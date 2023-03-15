@@ -38,7 +38,8 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 
-public class RecipeController implements IRecipeHandler {
+public class RecipeController
+implements IRecipeHandler {
 	
 	private static RecipeController instance;
 	private String filePath;

@@ -18,13 +18,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import noppes.npcs.CustomItems;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
 public class CustomBlock
 extends BlockInterface
-implements IPermission, ICustomItem {
+implements IPermission, ICustomElement {
 
 	public NBTTagCompound nbtData = new NBTTagCompound();
 	public AxisAlignedBB FULL_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
@@ -175,8 +177,9 @@ implements IPermission, ICustomItem {
 	}
 
 	@Override
-	public NBTTagCompound getData() { return this.nbtData; }
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
+	
 }

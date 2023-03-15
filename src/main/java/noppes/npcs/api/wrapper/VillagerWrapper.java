@@ -8,7 +8,10 @@ import noppes.npcs.api.entity.IVillager;
 import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("rawtypes")
-public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapper<T> implements IVillager {
+public class VillagerWrapper<T extends EntityVillager>
+extends EntityLivingWrapper<T>
+implements IVillager {
+	
 	public VillagerWrapper(T entity) {
 		super(entity);
 	}

@@ -3,7 +3,10 @@ package noppes.npcs.api.wrapper.gui;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.gui.ITexturedRect;
 
-public class CustomGuiTexturedRectWrapper extends CustomGuiComponentWrapper implements ITexturedRect {
+public class CustomGuiTexturedRectWrapper
+extends CustomGuiComponentWrapper
+implements ITexturedRect {
+	
 	int height;
 	float scale;
 	String texture;

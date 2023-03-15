@@ -8,7 +8,9 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleBank extends RoleInterface {
+public class RoleBank
+extends RoleInterface {
+	
 	public int bankId;
 
 	public RoleBank(EntityNPCInterface npc) {

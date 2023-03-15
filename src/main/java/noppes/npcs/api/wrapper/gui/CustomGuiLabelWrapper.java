@@ -3,7 +3,10 @@ package noppes.npcs.api.wrapper.gui;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.gui.ILabel;
 
-public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements ILabel {
+public class CustomGuiLabelWrapper
+extends CustomGuiComponentWrapper
+implements ILabel {
+	
 	int color;
 	int height;
 	String label;

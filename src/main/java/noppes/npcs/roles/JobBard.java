@@ -12,7 +12,10 @@ import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class JobBard extends JobInterface implements IJobBard {
+public class JobBard
+extends JobInterface
+implements IJobBard {
+	
 	public boolean hasOffRange;
 	public boolean isStreamer;
 	public int maxRange;

@@ -14,13 +14,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
 public class CustomItem
 extends Item
-implements IPermission, ICustomItem {
+implements IPermission, ICustomElement {
 	
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	
@@ -185,7 +187,7 @@ implements IPermission, ICustomItem {
 	public boolean isAllowed(EnumPacketServer enumPacket) { return true; }
 
 	@Override
-	public NBTTagCompound getData() { return this.nbtData; }
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }

@@ -82,10 +82,9 @@ import noppes.npcs.ModelPartData;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
-import noppes.npcs.api.IPotion;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.INpcRecipe;
-import noppes.npcs.api.item.ICustomItem;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.blocks.CustomLiquid;
@@ -824,7 +823,7 @@ extends CommonProxy {
 	}
 	
 	@Override
-	public void checkBlockFiles(ICustomItem customblock) {
+	public void checkBlockFiles(ICustomElement customblock) {
 		super.checkBlockFiles(customblock);
 		String name = customblock.getCustomName();
 		String fileName = ((Block) customblock).getRegistryName().getResourcePath();
@@ -888,7 +887,7 @@ extends CommonProxy {
 		}
 	}
 	
-	public void checkItemFiles(ICustomItem customitem) {
+	public void checkItemFiles(ICustomElement customitem) {
 		super.checkItemFiles(customitem);
 		String name = customitem.getCustomName();
 		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
@@ -1091,7 +1090,7 @@ extends CommonProxy {
 		}
 	}
 	
-	public void checkPotionFiles(IPotion custompotion) {
+	public void checkPotionFiles(ICustomElement custompotion) {
 		super.checkPotionFiles(custompotion);
 		String name = custompotion.getCustomName();
 		

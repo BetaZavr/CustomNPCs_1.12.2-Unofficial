@@ -5,7 +5,10 @@ import noppes.npcs.api.entity.IPixelmon;
 import noppes.npcs.controllers.PixelmonHelper;
 
 @SuppressWarnings("rawtypes")
-public class PixelmonWrapper<T extends EntityTameable> extends AnimalWrapper<T> implements IPixelmon {
+public class PixelmonWrapper<T extends EntityTameable>
+extends AnimalWrapper<T>
+implements IPixelmon {
+	
 	public PixelmonWrapper(T entity) {
 		super(entity);
 	}

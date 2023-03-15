@@ -46,7 +46,9 @@ import noppes.npcs.roles.companion.CompanionJobInterface;
 import noppes.npcs.roles.companion.CompanionTrader;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class RoleCompanion extends RoleInterface {
+public class RoleCompanion
+extends RoleInterface {
+	
 	public boolean canAge;
 	public int companionID;
 	public int currentExp;

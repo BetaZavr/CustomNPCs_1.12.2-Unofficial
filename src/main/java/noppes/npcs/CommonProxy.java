@@ -30,9 +30,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
-import noppes.npcs.api.IPotion;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
-import noppes.npcs.api.item.ICustomItem;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -307,7 +306,7 @@ implements IGuiHandler {
 		player.unlockRecipes(RecipeController.getInstance().getKnownRecipes());
 	}
 
-	public void checkBlockFiles(ICustomItem customblock) {
+	public void checkBlockFiles(ICustomElement customblock) {
 		String name = customblock.getCustomName();
 		String fileName = ((Block) customblock).getRegistryName().getResourcePath();
 		File blockstatesDir = new File(CustomNpcs.Dir, "assets/customnpcs/blockstates");
@@ -431,7 +430,7 @@ implements IGuiHandler {
 		}
 	}
 
-	public void checkItemFiles(ICustomItem customitem) {
+	public void checkItemFiles(ICustomElement customitem) {
 		String name = customitem.getCustomName();
 		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
 
@@ -677,7 +676,7 @@ implements IGuiHandler {
 		}
 	}
 
-	public void checkPotionFiles(IPotion custompotion) {
+	public void checkPotionFiles(ICustomElement custompotion) {
 		
 	}
 

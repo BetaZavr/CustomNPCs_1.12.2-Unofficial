@@ -18,7 +18,10 @@ import noppes.npcs.controllers.data.PlayerTransportData;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleTransporter extends RoleInterface implements IRoleTransporter {
+public class RoleTransporter
+extends RoleInterface
+implements IRoleTransporter {
+	
 	public String name;
 	private int ticks;
 	public int transportId;

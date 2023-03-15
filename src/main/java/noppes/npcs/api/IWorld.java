@@ -9,54 +9,55 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IWorld {
-	void broadcast(String p0);
+	
+	void broadcast(String message);
 
-	IEntity<?> createEntity(String p0);
+	IEntity<?> createEntity(String id);
 
-	IEntity<?> createEntityFromNBT(INbt p0);
+	IEntity<?> createEntityFromNBT(INbt nbt);
 
-	IItemStack createItem(String p0, int p1, int p2);
+	IItemStack createItem(String name, int damage, int size);
 
-	IItemStack createItemFromNbt(INbt p0);
+	IItemStack createItemFromNbt(INbt nbt);
 
-	void explode(double p0, double p1, double p2, float p3, boolean p4, boolean p5);
+	void explode(double x, double y, double z, float range, boolean fire, boolean grief);
 
-	IEntity<?>[] getAllEntities(int p0);
+	IEntity<?>[] getAllEntities(int type);
 
 	IPlayer<?>[] getAllPlayers();
 
-	String getBiomeName(int p0, int p1);
+	String getBiomeName(int x, int z);
 
-	IBlock getBlock(int p0, int p1, int p2);
-
-	@Deprecated
-	IEntity<?> getClone(int p0, String p1);
+	IBlock getBlock(int x, int y, int z);
 
 	@Deprecated
-	IEntity<?> getClosestEntity(int p0, int p1, int p2, int p3, int p4);
+	IEntity<?> getClone(int tab, String name);
 
-	IEntity<?> getClosestEntity(IPos p0, int p1, int p2);
+	@Deprecated
+	IEntity<?> getClosestEntity(int x, int y, int z, int range, int type);
+
+	IEntity<?> getClosestEntity(IPos pos, int range, int type);
 
 	IDimension getDimension();
 
-	IEntity<?> getEntity(String p0);
+	IEntity<?> getEntity(String uuid);
 
-	float getLightValue(int p0, int p1, int p2);
+	float getLightValue(int x, int y, int z);
 
-	BlockPos getMCBlockPos(int p0, int p1, int p2);
+	BlockPos getMCBlockPos(int x, int y, int z);
 
 	WorldServer getMCWorld();
 
 	String getName();
 
 	@Deprecated
-	IEntity<?>[] getNearbyEntities(int p0, int p1, int p2, int p3, int p4);
+	IEntity<?>[] getNearbyEntities(int x, int y, int z, int range, int type);
 
-	IEntity<?>[] getNearbyEntities(IPos p0, int p1, int p2);
+	IEntity<?>[] getNearbyEntities(IPos pos, int range, int type);
 
-	IPlayer<?> getPlayer(String p0);
+	IPlayer<?> getPlayer(String name);
 
-	int getRedstonePower(int p0, int p1, int p2);
+	int getRedstonePower(int x, int y, int z);
 
 	IScoreboard getScoreboard();
 
@@ -74,24 +75,25 @@ public interface IWorld {
 
 	boolean isRaining();
 
-	void playSoundAt(IPos p0, String p1, float p2, float p3);
+	void playSoundAt(IPos pos, String sound, float volume, float pitch);
 
-	void removeBlock(int p0, int p1, int p2);
+	void removeBlock(int x, int y, int z);
 
-	void setBlock(int p0, int p1, int p2, String p3, int p4);
+	void setBlock(int x, int y, int z, String name, int meta);
 
-	void setRaining(boolean p0);
+	void setRaining(boolean bo);
 
-	void setSpawnPoint(IBlock p0);
+	void setSpawnPoint(IBlock block);
 
-	void setTime(long p0);
+	void setTime(long ticks);
 
 	@Deprecated
-	IEntity<?> spawnClone(double p0, double p1, double p2, int p3, String p4);
+	IEntity<?> spawnClone(double x, double y, double z, int tab, String name);
 
-	void spawnEntity(IEntity<?> p0);
+	void spawnEntity(IEntity<?> entity);
 
-	void spawnParticle(String p0, double p1, double p2, double p3, double p4, double p5, double p6, double p7, int p8);
+	void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count);
 
-	void thunderStrike(double p0, double p1, double p2);
+	void thunderStrike(double x, double y, double z);
+	
 }

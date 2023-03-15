@@ -9,7 +9,9 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
 
-public class QuestCategory implements IQuestCategory {
+public class QuestCategory
+implements IQuestCategory {
+	
 	public int id;
 	public HashMap<Integer, Quest> quests;
 	public String title;

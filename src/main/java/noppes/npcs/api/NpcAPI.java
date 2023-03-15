@@ -54,11 +54,11 @@ public abstract class NpcAPI {
 		return Loader.isModLoaded(CustomNpcs.MODID);
 	}
 
-	public abstract ICustomGui createCustomGui(int p0, int p1, int p2, boolean p3);
+	public abstract ICustomGui createCustomGui(int id, int width, int height, boolean pauseGame);
 
-	public abstract IPlayerMail createMail(String p0, String p1);
+	public abstract IPlayerMail createMail(String sender, String subject);
 
-	public abstract ICustomNpc<?> createNPC(World p0);
+	public abstract ICustomNpc<?> createNPC(World world);
 
 	public abstract EventBus events();
 
@@ -82,15 +82,15 @@ public abstract class NpcAPI {
 	
 	public abstract IEntityDamageSource getIDamageSource(String name, IEntity<?> entity); // New
 
-	public abstract IEntity<?> getIEntity(Entity p0);
+	public abstract IEntity<?> getIEntity(Entity entity);
 
 	public abstract IItemStack getIItemStack(ItemStack stack);
 
 	public abstract INbt getINbt(NBTTagCompound nbt);
 
-	public abstract IPos getIPos(double p0, double p1, double p2);
+	public abstract IPos getIPos(double x, double y, double z);
 
-	public abstract IWorld getIWorld(int id);
+	public abstract IWorld getIWorld(int dimensionId);
 
 	public abstract IWorld getIWorld(WorldServer world);
 
@@ -98,21 +98,22 @@ public abstract class NpcAPI {
 
 	public abstract IQuestHandler getQuests();
 
-	public abstract String getRandomName(int p0, int p1);
+	public abstract String getRandomName(int dictionary, int gender);
 
-	public abstract INbt getRawPlayerData(String p0);
+	public abstract INbt getRawPlayerData(String uuid);
 
 	public abstract IRecipeHandler getRecipes();
 
 	public abstract File getWorldDir();
 
-	public abstract boolean hasPermissionNode(String p0);
+	public abstract boolean hasPermissionNode(String permission);
 
-	public abstract void registerCommand(CommandNoppesBase p0);
+	public abstract void registerCommand(CommandNoppesBase command);
 
-	public abstract void registerPermissionNode(String p0, int p1);
+	public abstract void registerPermissionNode(String permission, int defaultType);
 
-	public abstract ICustomNpc<?> spawnNPC(World p0, int p1, int p2, int p3);
+	public abstract ICustomNpc<?> spawnNPC(World world, int x, int y, int z);
 
-	public abstract INbt stringToNbt(String p0);
+	public abstract INbt stringToNbt(String str);
+	
 }

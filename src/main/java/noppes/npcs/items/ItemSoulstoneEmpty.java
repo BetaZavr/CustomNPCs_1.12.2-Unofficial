@@ -19,7 +19,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
 
-public class ItemSoulstoneEmpty extends Item {
+public class ItemSoulstoneEmpty
+extends Item {
+	
 	public ItemSoulstoneEmpty() {
 		this.setRegistryName(CustomNpcs.MODID, "npcsoulstoneempty");
 		this.setUnlocalizedName("npcsoulstoneempty");
@@ -28,12 +30,8 @@ public class ItemSoulstoneEmpty extends Item {
 	}
 
 	public boolean hasPermission(EntityLivingBase entity, EntityPlayer player) {
-		if (NoppesUtilServer.isOp(player)) {
-			return true;
-		}
-		if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.SOULSTONE_ALL)) {
-			return true;
-		}
+		if (NoppesUtilServer.isOp(player)) { return true; }
+		if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.SOULSTONE_ALL)) { return true; }
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
 			if (npc.advanced.role == 6) {
@@ -54,14 +52,13 @@ public class ItemSoulstoneEmpty extends Item {
 	}
 
 	public boolean store(EntityLivingBase entity, ItemStack stack, EntityPlayer player) {
-		if (!this.hasPermission(entity, player) || entity instanceof EntityPlayer) {
-			return false;
-		}
+		if (!this.hasPermission(entity, player) || entity instanceof EntityPlayer) { return false; }
+		
 		ItemStack stone = new ItemStack(CustomItems.soulstoneFull);
+		
 		NBTTagCompound compound = new NBTTagCompound();
-		if (!entity.writeToNBTAtomically(compound)) {
-			return false;
-		}
+		if (!entity.writeToNBTAtomically(compound)) { return false; }
+		
 		ServerCloneController.Instance.cleanTags(compound);
 		stone.setTagInfo("Entity", compound);
 		String name = EntityList.getEntityString(entity);

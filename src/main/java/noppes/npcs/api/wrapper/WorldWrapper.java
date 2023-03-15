@@ -55,7 +55,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class WorldWrapper implements IWorld {
+public class WorldWrapper
+implements IWorld {
+	
 	public static Map<String, Object> tempData = new HashMap<String, Object>();
 
 	@Deprecated

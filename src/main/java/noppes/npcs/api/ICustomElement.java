@@ -1,9 +1,9 @@
 package noppes.npcs.api;
 
-public interface IPotion {
+public interface ICustomElement {
 	
 	String getCustomName();
 	
-	INbt getNbt();
-	
+	INbt getCustomNbt();
+
 }

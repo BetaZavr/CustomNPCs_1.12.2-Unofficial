@@ -22,7 +22,6 @@ import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.util.MetodData;
 import noppes.npcs.constants.EnumInterfaceData;
-import noppes.npcs.util.AdditionalMethods;
 
 public class GuiHelpBook
 extends GuiNPCInterface
@@ -34,14 +33,13 @@ implements ICustomScrollListener {
 	private final String[] arr = new String [] { "config", "blocks", "items", "potions", "", "", "", "", "", "",
 			"npc.display", "npc.stats", "npc.ais", "npc.inventory", "npc.advanced", "", "", "", "", "", 
 			"script.main", "", "", "", "", "", "", "", "" };
-	private static final Map<String, EnumInterfaceData> apis = Maps.<String, EnumInterfaceData>newTreeMap();
+	private static final List<String> apis = Lists.<String>newArrayList();
 	private GuiCustomScroll scroll;
-	private int curentLine = -1;
 	private String curentLang = "";
-	private Map<Integer, MetodData> data = Maps.<Integer, MetodData>newTreeMap();
+	private Map<String, MetodData> data = Maps.<String, MetodData>newHashMap();
 	
 	static {
-		for (EnumInterfaceData enumIT : EnumInterfaceData.values()) { GuiHelpBook.apis.put(enumIT.name(), enumIT); }
+		for (EnumInterfaceData enumIT : EnumInterfaceData.values()) { GuiHelpBook.apis.add(enumIT.name()); }
 	}
 	
 	public GuiHelpBook() {
@@ -150,12 +148,12 @@ implements ICustomScrollListener {
 				//scroll
 				if (this.scroll==null) {
 					this.scroll = new GuiCustomScroll(this, 0);
-					this.scroll.setList(Lists.newArrayList(GuiHelpBook.apis.keySet()));
+					this.scroll.setList(Lists.newArrayList(GuiHelpBook.apis));
 					this.scroll.hoversTexts = new String[GuiHelpBook.apis.size()][];
 					this.scroll.setSize(100, this.ySize-50);
 					int i = 0;
-					for (EnumInterfaceData enumIT : GuiHelpBook.apis.values()) {
-						List<String> com = enumIT.it.getComment();
+					for (String enumName : GuiHelpBook.apis) {
+						List<String> com = EnumInterfaceData.get(enumName).getComment();
 						this.scroll.hoversTexts[i] = com.toArray(new String[com.size()]);
 						i++;
 					}
@@ -201,22 +199,30 @@ implements ICustomScrollListener {
 			String text = GuiHelpBook.map.get(this.activeLeftTab);
 			if (text==null) { text = ""; }
 			((GuiTextArea) this.get(0)).setText(text);
+			((GuiTextArea) this.get(0)).scrolledLine = 0;
 			return;
 		}
-		if (this.scroll==null || !GuiHelpBook.apis.containsKey(this.scroll.getSelected())) {
+		if (this.scroll==null || !GuiHelpBook.apis.contains(this.scroll.getSelected())) {
 			((GuiTextArea) this.get(0)).setText("");
+			((GuiTextArea) this.get(0)).scrolledLine = 0;
 			return;
 		}
-		TreeMap<String, MetodData> m = GuiHelpBook.apis.get(this.scroll.getSelected()).it.getAllMetods(Maps.<String, MetodData>newTreeMap());
+		List<MetodData> list = EnumInterfaceData.get(this.scroll.getSelected()).getAllMetods(Lists.<MetodData>newArrayList());
 		this.data.clear();
-		int i = 0;
+		TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
+		for (MetodData md : list) {
+			String name = md.name;
+			while (m.containsKey(name)) { name += "_"; }
+			m.put(name, md);
+		}
 		String text = "";
-		for (MetodData md : m.values()) {
-			text += md.getText()+((char) 10);
-			this.data.put(i, md);
-			i++;
+		for (String name : m.keySet()) {
+			String key = m.get(name).getText();
+			text += key+(""+((char) 10));
+			this.data.put(key, m.get(name));
 		}
 		((GuiTextArea) this.get(0)).setText(text);
+		((GuiTextArea) this.get(0)).scrolledLine = 0;
 	}
 
 	@Override
@@ -268,18 +274,26 @@ implements ICustomScrollListener {
 			}
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		this.curentLine = -1;
 		if (this.activeLeftTab==21 && this.scroll!=null && this.get(0) instanceof GuiTextArea) { 
 			GuiTextArea area = (GuiTextArea) this.get(0);
 			if (area != null && area.hovered) {
-				this.curentLine = (mouseY - area.y + 1)/area.container.lineHeight + area.scrolledLine;
-				if (this.curentLine<0) { this.curentLine = -1; }
+				int pos = area.getSelectionPos(mouseX, mouseY);
+				if (pos<0) { return; }
+				String text = area.getText(), ent = (""+((char) 10));
+				int start = 1+(pos==0 ? 0 : text.lastIndexOf(ent, pos));
+				int end = pos==text.length()||text.indexOf(ent, pos)<0 ? text.length() : text.indexOf(ent, pos);
+				if (start<0) { start = 0; }
+				if (end<0) { end = text.length(); }
+				if (start>=end) { return; }
+				String metodText = text.substring(start, end);
+//System.out.println("sel: ["+start+", "+end+", "+text.length()+"]; \""+metodText+"\"");
+				if (this.data.containsKey(metodText)) {
+					this.drawHoveringText(this.data.get(metodText).getComment(), mouseX, mouseY, this.fontRenderer);
+					this.hoverText = null;
+				}
 			}
 		}
-		if (this.data.containsKey(this.curentLine)) {
-			this.drawHoveringText(this.data.get(this.curentLine).getComment(), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		
 	}
 	
 	@Override
@@ -308,7 +322,8 @@ implements ICustomScrollListener {
 		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (!area.hovered) { return; }
 		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
-		if (!this.scroll.getSelected().equals(select[1]) && GuiHelpBook.apis.containsKey(select[1])) {
+//System.out.println("mouseX: "+mouseX+"/"+this.mouseX);
+		if (!this.scroll.getSelected().equals(select[1]) && GuiHelpBook.apis.contains(select[1])) {
 			this.scroll.setSelected((String) select[1]);
 			this.resetText();
 			return;

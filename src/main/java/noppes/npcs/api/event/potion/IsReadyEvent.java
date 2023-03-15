@@ -1,6 +1,6 @@
 package noppes.npcs.api.event.potion;
 
-import noppes.npcs.api.IPotion;
+import noppes.npcs.api.ICustomElement;
 
 public class IsReadyEvent
 extends CustomPotionEvent {
@@ -8,7 +8,7 @@ extends CustomPotionEvent {
 	public boolean ready;
 	public int duration, amplifier;
 	
-	public IsReadyEvent(IPotion potion, boolean isReady, int duration, int amplifier) {
+	public IsReadyEvent(ICustomElement potion, boolean isReady, int duration, int amplifier) {
 		super(potion);
 		this.ready = isReady;
 		this.duration = duration;

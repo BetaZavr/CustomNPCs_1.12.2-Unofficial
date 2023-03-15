@@ -16,14 +16,13 @@ public class ParameterData {
 		String type = "c"+ clazz.getSimpleName();
 		if (clazz.isInterface()) { type = "9"+ clazz.getSimpleName(); }
 		else if (clazz == boolean.class || clazz == byte.class || clazz == short.class || clazz == int.class || clazz == float.class || clazz == double.class || clazz == long.class || clazz == String.class) { type = "e"+ clazz.getSimpleName(); }
-		if (clazz.isArray()) { type += "[]";}
 		this.typename = chr + type  + chr + "f " + name;
 		this.comment = comment;
 	}
 	
 	public List<String> getComment() {
 		List<String> comment = Lists.<String>newArrayList();
-		String tr = new TextComponentTranslation(this.comment).getFormattedText();
+		String tr = this.typename + ((char) 167)+"7 - "+new TextComponentTranslation(this.comment).getFormattedText();
 		if (tr.indexOf("<br>")!=-1) {
 			for (String t : tr.split("<br>")) { comment.add(t); }
 		} else { comment.add(tr); }

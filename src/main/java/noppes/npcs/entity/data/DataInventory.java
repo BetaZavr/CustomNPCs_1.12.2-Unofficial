@@ -52,7 +52,10 @@ import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class DataInventory implements IInventory, INPCInventory {
+public class DataInventory
+implements IInventory,
+INPCInventory {
+	
 	public class AttributeSet implements IAttributeSet {
 
 		public IAttribute attr;

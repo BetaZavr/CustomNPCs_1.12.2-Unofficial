@@ -8,12 +8,14 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.item.ICustomItem;
+import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomFood
 extends ItemFood
-implements ICustomItem {
+implements ICustomElement {
 
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	
@@ -46,7 +48,7 @@ implements ICustomItem {
     }
 
 	@Override
-	public NBTTagCompound getData() { return this.nbtData; }
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }

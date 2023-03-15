@@ -7,7 +7,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.BlockFluidBase;
 import noppes.npcs.api.block.IBlockFluidContainer;
 
-public class BlockFluidContainerWrapper extends BlockWrapper implements IBlockFluidContainer {
+public class BlockFluidContainerWrapper
+extends BlockWrapper
+implements IBlockFluidContainer {
+	
 	private BlockFluidBase block;
 
 	public BlockFluidContainerWrapper(World world, Block block, BlockPos pos) {

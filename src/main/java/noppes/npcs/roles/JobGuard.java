@@ -15,7 +15,9 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.NBTTags;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobGuard extends JobInterface {
+public class JobGuard
+extends JobInterface {
+	
 	public List<String> targets;
 
 	public JobGuard(EntityNPCInterface npc) {

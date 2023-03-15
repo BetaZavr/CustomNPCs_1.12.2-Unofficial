@@ -16,7 +16,10 @@ import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleDialog extends RoleInterface implements IRoleDialog {
+public class RoleDialog
+extends RoleInterface
+implements IRoleDialog {
+	
 	public String dialog;
 	public HashMap<Integer, String> options;
 	public HashMap<Integer, String> optionsTexts;
@@ -31,9 +34,7 @@ public class RoleDialog extends RoleInterface implements IRoleDialog {
 	}
 
 	@Override
-	public String getDialog() {
-		return this.dialog;
-	}
+	public String getDialog() { return this.dialog; }
 
 	@Override
 	public String getOption(int option) {

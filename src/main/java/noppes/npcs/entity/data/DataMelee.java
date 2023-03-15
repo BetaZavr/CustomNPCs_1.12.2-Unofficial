@@ -5,7 +5,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.entity.data.INPCMelee;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class DataMelee implements INPCMelee {
+public class DataMelee
+implements INPCMelee {
+	
 	private int attackRange;
 	private int attackSpeed;
 	private int attackStrength;

@@ -30,7 +30,9 @@ import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.ValueUtil;
 
-public class DataAdvanced implements INPCAdvanced {
+public class DataAdvanced
+implements INPCAdvanced {
+	
 	private String angrySound;
 	public Lines attackLines;
 	public boolean attackOtherFactions;

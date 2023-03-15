@@ -11,7 +11,10 @@ import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.entity.EntityNPCInterface;
 
 @SuppressWarnings("rawtypes")
-public class EntityLivingWrapper<T extends EntityLiving> extends EntityLivingBaseWrapper<T> implements IEntityLiving {
+public class EntityLivingWrapper<T extends EntityLiving>
+extends EntityLivingBaseWrapper<T>
+implements IEntityLiving {
+	
 	public EntityLivingWrapper(T entity) {
 		super(entity);
 	}

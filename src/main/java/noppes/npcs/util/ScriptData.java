@@ -34,7 +34,8 @@ import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
-public class ScriptData implements IScriptData {
+public class ScriptData
+implements IScriptData {
 
 	public boolean isConstant = false;
 	private String keyName = "null", value = "null", language = "";

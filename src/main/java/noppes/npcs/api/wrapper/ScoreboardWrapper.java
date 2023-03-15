@@ -20,7 +20,9 @@ import noppes.npcs.api.IScoreboard;
 import noppes.npcs.api.IScoreboardObjective;
 import noppes.npcs.api.IScoreboardTeam;
 
-public class ScoreboardWrapper implements IScoreboard {
+public class ScoreboardWrapper
+implements IScoreboard {
+	
 	private Scoreboard board;
 	private MinecraftServer server;
 

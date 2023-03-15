@@ -13,7 +13,9 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class NBTWrapper implements INbt {
+public class NBTWrapper
+implements INbt {
+	
 	private NBTTagCompound compound;
 
 	public NBTWrapper(NBTTagCompound compound) {

@@ -5,7 +5,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.api.gui.IScroll;
 
-public class CustomGuiScrollWrapper extends CustomGuiComponentWrapper implements IScroll {
+public class CustomGuiScrollWrapper
+extends CustomGuiComponentWrapper
+implements IScroll {
+	
 	int defaultSelection;
 	int height;
 	String[] list;

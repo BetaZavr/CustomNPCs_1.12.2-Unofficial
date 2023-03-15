@@ -19,7 +19,10 @@ import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobBuilder extends JobInterface implements IJobBuilder {
+public class JobBuilder
+extends JobInterface
+implements IJobBuilder {
+	
 	public TileBuilder build;
 	private BlockData placing;
 	private Stack<BlockData> placingList;
