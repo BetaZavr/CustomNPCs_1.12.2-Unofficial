@@ -534,6 +534,7 @@ gui.day=День
 gui.decrease=Уменьшить
 gui.deleteMessage=Вы точно хотите удалить это?
 gui.detailed=Подробно
+gui.dimensions=Доступные измерения:
 gui.disabled=Отключено
 gui.done=Готово
 gui.edit=Редактировать
@@ -756,6 +757,8 @@ info.item.builder.4.2=§aПКМ§e на блок - сохранить/перес
 info.item.builder.4.3=§6Shift§f+§bЛКМ§e на блок - сброс всех позиций;
 info.item.builder.range.0=§7Рабочая область (длина, глубина, высота): [%s§7, %s§7, %s§7]
 info.item.builder.range.1=§6Рабочая область (длина, ширина, высота): [%s§6, %s§6, %s§6]
+
+info.item.soulstone.0=§eПозволяет запечатать внутрь себя существ
 
 nbt.book.not.correct.nbt=§cНеверный NBT тег. §7Не получилось создать объект из отправленных данных
 
@@ -1462,7 +1465,25 @@ message.boundary.offset.y.false=§8Установелено минимально
 message.boundary.del.vertex.true=§8Удалена вершина из региона - [%s§8, %s§8]
 message.boundary.del.vertex.false=§cНе удалось удалить вершину из региона - [%s§c, %s§c]
 
-#Interface Info
+#Dimensions
+dimensions.nodimensions=В настоящее время нет собственных Измерений
+dimensions.create=Создать новое Измерение
+dimensions.more.dimension.options=Больше настроек Измерения...
+dimensions.enter.name=Имя Измерения
+dimensions.customize.title=Настройки параметров Измерения
+
+message.dimensions.created=§2CustomNPCs§a: Создано новое Измерение "%s§a", используйте ID:%s
+message.dimensions.tp.isdelete=§2CustomNPCs§6: Вы были перенесены из удалённого Измерения
+message.dimensions.del.foder=§2CustomNPCs§a: Директория Измерения ID:%s§a - удалена.
+message.dimensions.err.del=§2CustomNPCs§c: Это измерение будет удалено после перезагрузки сервера!
+message.dimensions.err.notmod=§2CustomNPCs§c: Это измерение не пренадлежит модификации §6CustomNPCs §bUnofficial§c!
+message.dimensions.err.del.foder=§2CustomNPCs§c: Ошибка удаления директории Измерения ID:%s§c. Необходимо удалить вручную.
+
+dimensions.hover.settings=Настройки выбранного измерения<br>§7Доступно только для своих измерений
+dimensions.hover.add=Создать новое измерение
+dimensions.hover.del=Удалить выбранное измерение<br>§7Доступно только для своих измерений<br>§cИзмерение будет удалено только при выключении сервера!
+dimensions.hover.tp=Телепорует вас на спавн измерения
+
 #Interface Info
 interfase.wraper=§8используется классами: %s
 method.deprecated=§4Устарел!§8 Рекомендуется заменить этот метод, так как он может быть удалён при обновлении модификации.

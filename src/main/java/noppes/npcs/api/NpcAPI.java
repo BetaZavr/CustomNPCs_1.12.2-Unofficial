@@ -25,25 +25,19 @@ import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.WrapperNpcAPI;
 
 public abstract class NpcAPI {
 	
-	public static NpcAPI instance;
-
-	static {
-		NpcAPI.instance = null;
-	}
+	private static NpcAPI instance = null;
 
 	public static NpcAPI Instance() {
-		if (NpcAPI.instance != null) {
-			return NpcAPI.instance;
-		}
-		if (!IsAvailable()) {
-			return null;
-		}
+		if (NpcAPI.instance != null) { return NpcAPI.instance; }
+		if (!IsAvailable()) { return null; }
 		try {
-			Class<?> c = Class.forName("noppes.npcs.api.wrapper.WrapperNpcAPI");
-			NpcAPI.instance = (NpcAPI) c.getMethod("Instance", (Class[]) new Class[0]).invoke(null, new Object[0]);
+			NpcAPI.instance =  WrapperNpcAPI.Instance();
+			//Class<?> c = Class.forName("noppes.npcs.api.wrapper.WrapperNpcAPI");
+			//NpcAPI.instance = (NpcAPI) c.getMethod("Instance", (Class[]) new Class[0]).invoke(null, new Object[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

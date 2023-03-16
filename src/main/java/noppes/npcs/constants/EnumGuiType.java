@@ -62,6 +62,7 @@ public enum EnumGuiType
 	CustomGui,
 	HelpBook, // New
 	BoundarySetting, // New
-	BuilderSetting; // New
+	BuilderSetting, // New
+	DimentionSetting; // New
 	
 }

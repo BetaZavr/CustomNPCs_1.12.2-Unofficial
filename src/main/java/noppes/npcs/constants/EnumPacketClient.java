@@ -50,6 +50,7 @@ public enum EnumPacketClient
 	BUILDER_SETTING, // New
 	SAVE_SCHEMATIC, // New
 	GET_SCHEMATIC, // New
-	UPDATE_HUD; // New
+	UPDATE_HUD, // New
+	DIMENSIOS_IDS; // New
 	
 }

@@ -107,6 +107,7 @@ import noppes.npcs.client.gui.GuiNpcRedstoneBlock;
 import noppes.npcs.client.gui.GuiNpcRemoteEditor;
 import noppes.npcs.client.gui.GuiNpcWaypoint;
 import noppes.npcs.client.gui.custom.GuiCustom;
+import noppes.npcs.client.gui.dimentions.GuiCreateDimension;
 import noppes.npcs.client.gui.global.GuiNPCManageBanks;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
 import noppes.npcs.client.gui.global.GuiNPCManageFactions;
@@ -389,7 +390,7 @@ extends CommonProxy {
 				}
 				return null;
 			}
-			case QuestRewardItem: { return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x); } // New
+			case QuestRewardItem: { return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x); }
 			case MovingPath: { return new GuiNpcPather(npc); }
 			case ManageFactions: { return new GuiNPCManageFactions(npc); }
 			case ManageLinked: { return new GuiNPCManageLinkedNpc(npc); }
@@ -431,7 +432,7 @@ extends CommonProxy {
 			case Border: { return new GuiBorderBlock(x, y, z); }
 			case RedstoneBlock: { return new GuiNpcRedstoneBlock(x, y, z); }
 			case MobSpawner: { return new GuiNpcMobSpawner(x, y, z); }
-			case CopyBlock: { return new GuiBlockCopy(x, y, z); 	}
+			case CopyBlock: { return new GuiBlockCopy(x, y, z); }
 			case MobSpawnerMounter: { return new GuiNpcMobSpawnerMounter(x, y, z); }
 			case Waypoint: { return new GuiNpcWaypoint(x, y, z); }
 			case Companion: { return new GuiNpcCompanionStats(npc); }
@@ -441,7 +442,8 @@ extends CommonProxy {
 			case CustomGui: { return new GuiCustom((ContainerCustomGui) container); }
 			case HelpBook: { return new GuiHelpBook(); }
 			case BoundarySetting: { return new GuiBoundarySetting(x, y); }
-			case BuilderSetting: { return new GuiBuilderSetting((ContainerBuilderSettings) container, x); } // New
+			case BuilderSetting: { return new GuiBuilderSetting((ContainerBuilderSettings) container, x); }
+			case DimentionSetting: { return new GuiCreateDimension(x); }
 			default: { return null; }
 		}
 	}
@@ -463,7 +465,7 @@ extends CommonProxy {
 	}
 
 	@Override
-	public void load() {
+	public void preload() {
 		ClientProxy.Font = new FontContainer(CustomNpcs.FontType, CustomNpcs.FontSize);
 		this.createFolders();
 		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
@@ -552,7 +554,7 @@ extends CommonProxy {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void postload() {
+	public void load() {
 		MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
 		if (CustomNpcs.InventoryGuiEnabled) {
 			MinecraftForge.EVENT_BUS.register(new TabRegistry());
@@ -592,6 +594,11 @@ extends CommonProxy {
 		}, new Item[] { CustomItems.scripted_item });
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
+	}
+	
+	@Override
+	public void postload() {
+		
 	}
 
 	@Override

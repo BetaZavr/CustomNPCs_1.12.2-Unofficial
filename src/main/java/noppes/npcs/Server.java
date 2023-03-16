@@ -30,10 +30,13 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class Server {
@@ -54,12 +57,25 @@ public class Server {
 				} else if (ob instanceof MerchantRecipeList) {
 					((MerchantRecipeList) ob).writeToBuf(new PacketBuffer(buffer));
 				} else if (ob instanceof List) {
-					@SuppressWarnings("unchecked")
-					List<String> list = (List<String>) ob;
-					buffer.writeInt(list.size());
-					for (String s : list) {
-						writeString(buffer, s);
-					}
+					try {
+						@SuppressWarnings("unchecked")
+						List<String> list = (List<String>) ob;
+						buffer.writeInt(list.size());
+						for (String s : list) {
+							writeString(buffer, s);
+						}
+					} catch (Exception e) { }
+					try {
+						@SuppressWarnings("unchecked")
+						List<Integer> list = (List<Integer>) ob;
+						int[] a = new int[list.size()];
+						int j = 0;
+						for (int i : list) {
+							a[j] = i;
+							j++;
+						}
+						writeIntArray(buffer, a);
+					} catch (Exception e) { }
 				} else if (ob instanceof UUID) {
 					writeString(buffer, ob.toString());
 				} else if (ob instanceof Enum) {
@@ -80,6 +96,10 @@ public class Server {
 					writeNBT(buffer, (NBTTagCompound) ob);
 				} else if (ob instanceof FMLMessage.EntitySpawnMessage) {
 					EntitySpawnMessageHelper.toBytes((FMLMessage.EntitySpawnMessage) ob, buffer);
+				} else if (ob instanceof Integer[] || ob instanceof int[]) {
+					writeIntArray(buffer, (int[]) ob);
+				} else if (ob instanceof WorldInfo) {
+					writeWorldInfo(buffer, (WorldInfo) ob);
 				}
 			}
 		}
@@ -114,6 +134,16 @@ public class Server {
 
 	public static UUID readUUID(ByteBuf buffer) {
 		return UUID.fromString(readString(buffer));
+	}
+
+	public static int[] readIntArray(ByteBuf buffer) {
+		int[] a = new int[buffer.readInt()];
+		for (int i = 0; i < a.length; i++) { a[i] = buffer.readInt(); }
+		return a;
+	}
+
+	public static CustomWorldInfo readWorldInfo(ByteBuf buffer) {
+		return new CustomWorldInfo(ByteBufUtils.readTag(buffer));
 	}
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
@@ -269,4 +299,16 @@ public class Server {
 		buffer.writeInt(bytes.length);
 		buffer.writeBytes(bytes);
 	}
+
+	public static void writeIntArray(ByteBuf buffer, int[] a) {
+		buffer.writeInt(a.length);
+		for (int i : a) {
+			buffer.writeInt(i);
+		}
+	}
+
+	public static void writeWorldInfo(ByteBuf buffer, WorldInfo wi) {
+		ByteBufUtils.writeTag(buffer, wi.cloneNBTCompound(null));
+	}
+	
 }

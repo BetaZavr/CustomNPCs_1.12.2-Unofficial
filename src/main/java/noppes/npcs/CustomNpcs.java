@@ -31,6 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeModContainer;
@@ -93,6 +94,8 @@ import noppes.npcs.controllers.VisibilityController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.dimensions.CustomWorldProvider;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.util.AdditionalMethods;
@@ -217,12 +220,13 @@ public class CustomNpcs {
 	public static ConfigLoader Config;
 	public static ITextComponent prefix = new TextComponentString(((char) 167)+"e["+((char) 167)+"2CustomNpcs"+((char) 167)+"e]"+((char) 167)+"r: ");
 	private static String preSound = "";
+	public static DimensionType customDimensionType;
 	
 	static { FluidRegistry.enableUniversalBucket(); }
 
-	public static File getWorldSaveDirectory() {
-		return getWorldSaveDirectory(null);
-	}
+	public CustomNpcs() { CustomNpcs.instance = this; }
+	
+	public static File getWorldSaveDirectory() { return getWorldSaveDirectory(null); }
 
 	public static File getWorldSaveDirectory(String s) { // Changed
 		try {
@@ -246,62 +250,10 @@ public class CustomNpcs {
 		}
 	}
 
-	@Mod.EventHandler
-	public static void postload(FMLPostInitializationEvent event) { // New
-		if (CustomNpcs.maxLv < 1) {
-			CustomNpcs.maxLv = 1;
-		} else if (CustomNpcs.maxLv > 999) {
-			CustomNpcs.maxLv = 999;
-		}
-		try {
-			CustomNpcs.charCurrencies = new String(Character.toChars(Integer.parseInt(CustomNpcs.charCurrencies)));
-		} catch (Exception e) {
-			CustomNpcs.charCurrencies = new String(Character.toChars(0x20AC));
-		}
-		CustomNpcs.proxy.postload();
-		LogWriter.info("Mod loaded ^_^ Have a good game!");
-	}
-
-	// New
-	@SideOnly(Side.CLIENT)
-	public static void stopPreviousSound(String newSound) { // GuiDialogInteract --> appendDialog()
-		if (CustomNpcs.preSound != null && !CustomNpcs.preSound.isEmpty()) {
-			Minecraft.getMinecraft().getSoundHandler().stop(CustomNpcs.preSound, SoundCategory.VOICE);
-		}
-		CustomNpcs.preSound = newSound;
-	}
-
-	public CustomNpcs() {
-		CustomNpcs.instance = this;
-	}
-
-	@Mod.EventHandler
-	public void load(FMLInitializationEvent ev) {
-		PixelmonHelper.load();
-		ScriptController controller = new ScriptController();
-		if (CustomNpcs.EnableScripting && controller.languages.size() > 0) {
-			MinecraftForge.EVENT_BUS.register(controller);
-			MinecraftForge.EVENT_BUS.register(new ScriptPlayerEventHandler().registerForgeEvents());
-			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
-		}
-		ForgeModContainer.fullBoundingBoxLadders = true;
-		new CustomNpcsPermissions();
-		CustomNpcs.MARKOV_GENERATOR[0] = new MarkovRoman(3);
-		CustomNpcs.MARKOV_GENERATOR[1] = new MarkovJapanese(4);
-		CustomNpcs.MARKOV_GENERATOR[2] = new MarkovSlavic(3);
-		CustomNpcs.MARKOV_GENERATOR[3] = new MarkovWelsh(3);
-		CustomNpcs.MARKOV_GENERATOR[4] = new MarkovSaami(3);
-		CustomNpcs.MARKOV_GENERATOR[5] = new MarkovOldNorse(4);
-		CustomNpcs.MARKOV_GENERATOR[6] = new MarkovAncientGreek(3);
-		CustomNpcs.MARKOV_GENERATOR[7] = new MarkovAztec(3);
-		CustomNpcs.MARKOV_GENERATOR[8] = new MarkovCustomNPCsClassic(3);
-		CustomNpcs.MARKOV_GENERATOR[9] = new MarkovSpanish(3);
-		CustomNpcs.proxy.postload();
-	}
 
 	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
 	@Mod.EventHandler
-	public void load(FMLPreInitializationEvent ev) {
+	public void preload(FMLPreInitializationEvent ev) {
 		CustomNpcs.Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCs");
 		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
 		(CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs")).mkdir();
@@ -352,8 +304,60 @@ public class CustomNpcs {
 		MinecraftForge.EVENT_BUS.register(CustomNpcs.proxy);
 		NpcAPI.Instance().events().register(new AbilityEventHandler());
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, (ForgeChunkManager.LoadingCallback) new ChunkController());
-		CustomNpcs.proxy.load();
+		
+		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs", "CustomDimensions".hashCode(), CustomWorldProvider.class, false);
+
+		CustomNpcs.proxy.preload();
 		ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE, 1);
+	}
+
+	@Mod.EventHandler
+	public void load(FMLInitializationEvent ev) {
+		PixelmonHelper.load();
+		ScriptController controller = new ScriptController();
+		if (CustomNpcs.EnableScripting && controller.languages.size() > 0) {
+			MinecraftForge.EVENT_BUS.register(controller);
+			MinecraftForge.EVENT_BUS.register(new ScriptPlayerEventHandler().registerForgeEvents());
+			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
+		}
+		ForgeModContainer.fullBoundingBoxLadders = true;
+		new CustomNpcsPermissions();
+		CustomNpcs.MARKOV_GENERATOR[0] = new MarkovRoman(3);
+		CustomNpcs.MARKOV_GENERATOR[1] = new MarkovJapanese(4);
+		CustomNpcs.MARKOV_GENERATOR[2] = new MarkovSlavic(3);
+		CustomNpcs.MARKOV_GENERATOR[3] = new MarkovWelsh(3);
+		CustomNpcs.MARKOV_GENERATOR[4] = new MarkovSaami(3);
+		CustomNpcs.MARKOV_GENERATOR[5] = new MarkovOldNorse(4);
+		CustomNpcs.MARKOV_GENERATOR[6] = new MarkovAncientGreek(3);
+		CustomNpcs.MARKOV_GENERATOR[7] = new MarkovAztec(3);
+		CustomNpcs.MARKOV_GENERATOR[8] = new MarkovCustomNPCsClassic(3);
+		CustomNpcs.MARKOV_GENERATOR[9] = new MarkovSpanish(3);
+		CustomNpcs.proxy.load();
+	}
+	
+	@Mod.EventHandler
+	public static void postload(FMLPostInitializationEvent event) { // New
+		if (CustomNpcs.maxLv < 1) {
+			CustomNpcs.maxLv = 1;
+		} else if (CustomNpcs.maxLv > 999) {
+			CustomNpcs.maxLv = 999;
+		}
+		try {
+			CustomNpcs.charCurrencies = new String(Character.toChars(Integer.parseInt(CustomNpcs.charCurrencies)));
+		} catch (Exception e) {
+			CustomNpcs.charCurrencies = new String(Character.toChars(0x20AC));
+		}
+		CustomNpcs.proxy.postload();
+		LogWriter.info("Mod loaded ^_^ Have a good game!");
+	}
+
+	// New
+	@SideOnly(Side.CLIENT)
+	public static void stopPreviousSound(String newSound) { // GuiDialogInteract --> appendDialog()
+		if (CustomNpcs.preSound != null && !CustomNpcs.preSound.isEmpty()) {
+			Minecraft.getMinecraft().getSoundHandler().stop(CustomNpcs.preSound, SoundCategory.VOICE);
+		}
+		CustomNpcs.preSound = newSound;
 	}
 
 	@Mod.EventHandler
@@ -397,6 +401,7 @@ public class CustomNpcs {
 				return;
 			});
 		}
+		DimensionHandler.getInstance().loadDimensions();
 	}
 
 	@Mod.EventHandler

@@ -540,6 +540,8 @@ extends PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			System.out.println("compound: "+compound);
 			ClientProxy.playerData.hud.loadNBTData(compound);
+		} else if (type == EnumPacketClient.DIMENSIOS_IDS) {
+			ClientHandler.getInstance().sync(Server.readIntArray(buffer));
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}

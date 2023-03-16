@@ -67,11 +67,10 @@ public class CustomNpcsPermissions {
 	public static Permission TOOL_NBTBOOK = new Permission(CustomNpcs.MODID + ".tool.nbtbook");
 	public static Permission TOOL_PATHER = new Permission(CustomNpcs.MODID + ".tool.pather");
 	public static Permission TOOL_SCRIPTER = new Permission(CustomNpcs.MODID + ".tool.scripter");
+	public static Permission TOOL_TELEPORTER = new Permission(CustomNpcs.MODID + ".tool.teleporter");
 
 	public static boolean hasPermission(EntityPlayer player, Permission permission) {
-		if (CustomNpcs.DisablePermissions) {
-			return permission.defaultValue;
-		}
+		if (CustomNpcs.DisablePermissions) { return permission.defaultValue; }
 		return hasPermissionString(player, permission.name);
 	}
 

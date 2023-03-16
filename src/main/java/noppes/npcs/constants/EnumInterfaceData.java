@@ -91,6 +91,7 @@ import noppes.npcs.api.gui.ITexturedRect;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.IDialogHandler;
+import noppes.npcs.api.handler.IDimensionHandler;
 import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
@@ -105,6 +106,7 @@ import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.handler.data.IScriptData;
+import noppes.npcs.api.handler.data.IWorldInfo;
 import noppes.npcs.api.item.IItemArmor;
 import noppes.npcs.api.item.IItemBlock;
 import noppes.npcs.api.item.IItemBook;
@@ -178,6 +180,8 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
+import noppes.npcs.dimensions.CustomWorldInfo;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.data.DataAI;
 import noppes.npcs.entity.data.DataAdvanced;
 import noppes.npcs.entity.data.DataDisplay;
@@ -1718,7 +1722,35 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "str", "parameter.npcapi.nbtstr")
 			)
 		)
+	),
+	IDimensionHandler(new InterfaseData(IDimensionHandler.class, null,
+			new Class<?>[] { DimensionHandler.class },
+			"interfase.idimensionHandler",
+			new MetodData(IWorldInfo.class, "createDimension", "method.idimensionHandler.create"),
+			new MetodData(void.class, "setNbt", "method.idimensionHandler.setnbt",
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			),
+			new MetodData(INbt.class, "getNbt", "method.idimensionHandler.getnbt"),
+			new MetodData(IWorldInfo.class, "getMCWorldInfo", "method.idimensionHandler.getmcworldinfo",
+				new ParameterData(int.class, "dimensionID", "parameter.dimensionId")
+			),
+			new MetodData(int[].class, "getAllIDs", "method.idimensionHandler.getallids"),
+			new MetodData(void.class, "deleteDimension", "method.idimensionHandler.delete",
+				new ParameterData(int.class, "dimensionID", "parameter.dimensionId")
+			)
+		)
+	),
+	IWorldInfo(new InterfaseData(IWorldInfo.class, null,
+			new Class<?>[] { CustomWorldInfo.class },
+			"interfase.iworldinfo",
+			new MetodData(int.class, "getID", "method.iworldinfo.getid"),
+			new MetodData(INbt.class, "getNbt", "method.iworldinfo.getnbt"),
+			new MetodData(void.class, "setNbt", "method.iworldinfo.setnbt",
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			)
+		)
 	);
+	
 	
 	public InterfaseData it;
 	

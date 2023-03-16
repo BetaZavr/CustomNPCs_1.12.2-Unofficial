@@ -56,7 +56,7 @@ public class WrapperNpcAPI
 extends NpcAPI {
 	
 	public static EventBus EVENT_BUS = new EventBus();
-	public static NpcAPI instancee = null;
+	private static NpcAPI instance = null;
 	private static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<Integer, WorldWrapper>(10);
 
 	public static void clearCache() {
@@ -65,9 +65,7 @@ extends NpcAPI {
 	}
 
 	public static NpcAPI Instance() {
-		if (WrapperNpcAPI.instance == null) {
-			WrapperNpcAPI.instance = new WrapperNpcAPI();
-		}
+		if (WrapperNpcAPI.instance == null) { WrapperNpcAPI.instance = new WrapperNpcAPI(); }
 		return WrapperNpcAPI.instance;
 	}
 

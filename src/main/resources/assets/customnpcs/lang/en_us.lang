@@ -532,6 +532,7 @@ gui.day=Day
 gui.decrease=Decrease
 gui.deleteMessage=Are you sure you want to delete this?
 gui.detailed=Detailed
+gui.dimensions=Available dimensions:
 gui.disabled=Disabled
 gui.done=Done
 gui.edit=Edit 
@@ -756,6 +757,8 @@ info.item.builder.4.2=§aRMB§e per block - save/resave area from file;
 info.item.builder.4.3=§6Shift§f+§bLMB§e per block - reset all positions;
 info.item.builder.range.0=§7Workable area (length, depth, height): [%s§7, %s§7, %s§7]
 info.item.builder.range.1=§6Workable area (length, width, height): [%s§6, %s§6, %s§6]
+
+info.item.soulstone.0=§eAllows you to seal creatures inside you
 
 nbt.book.not.correct.nbt=§cInvalid NBT tag. §7Unable to create object from submitted data
 
@@ -1458,6 +1461,25 @@ message.boundary.offset.y.true=§8Set the maximum y-axis value to %s§8 in regio
 message.boundary.offset.y.false=§8Set the minimum y-axis value to %s§8 in the region to %s
 message.boundary.del.vertex.true=§8Removed vertex from region - [%s§8, %s§8]
 message.boundary.del.vertex.false=§c Failed to remove vertex from region - [%s§c, %s§c]
+
+#Dimensions
+dimensions.nodimensions=There are currently no custom dimensions
+dimensions.create=Create New Dimension
+dimensions.more.dimension.options=More Dimension Options...
+dimensions.enter.name=Dimension Name
+dimensions.customize.title=Customize Dimension Settings
+
+message.dimensions.created=§2CustomNPCs§a: Created new dimension "%s§a" using ID:%s
+message.dimensions.tp.isdelete=§2CustomNPCs§6: You have been transported from a remote Dimension
+message.dimensions.del.foder=§2CustomNPCs§a: Dimension Directory ID:%s§a - Removed.
+message.dimensions.err.del=§2CustomNPCs§c: This dimension will be deleted after a server restart!
+message.dimensions.err.notmod=§2CustomNPCs§c: This dimension does not belong to §6CustomNPCs §bUnofficial§c!
+message.dimensions.err.del.foder=§2CustomNPCs§c: Error deleting dimension folder of ID:%s§c. Has to be removed manually.
+
+dimensions.hover.settings=Settings for the selected dimension<br>§7Available only for custom dimensions
+dimensions.hover.add=Create a new dimension
+dimensions.hover.del=Delete Selected Dimension<br>§7Available only for custom dimensions<br>§cdDimension will be deleted only when the server is turned off!
+dimensions.hover.tp=Teleports you to a dimension spawn
 
 #Interface Info
 interfase.wraper=§8used by classes: %s

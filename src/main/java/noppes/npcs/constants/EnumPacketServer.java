@@ -98,15 +98,15 @@ public enum EnumPacketServer
 	DoorGet, 
 	ScriptDataSave(CustomNpcsPermissions.TOOL_SCRIPTER, true), 
 	ScriptDataGet(true), 
-	ScriptBlockDataSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), 
+	ScriptBlockDataSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptBlockDataGet(false), 
-	ScriptDoorDataSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), 
+	ScriptDoorDataSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptDoorDataGet(false), 
-	ScriptPlayerSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), 
+	ScriptPlayerSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptPlayerGet(false), 
-	ScriptItemDataSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), 
+	ScriptItemDataSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptItemDataGet(false), 
-	ScriptForgeSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), 
+	ScriptForgeSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptForgeGet(false), 
 	SpawnerNpcMove(CustomNpcsPermissions.NPC_ADVANCED, true), // New
 	DialogNpcGet, 
@@ -137,11 +137,13 @@ public enum EnumPacketServer
 	NbtBookSaveItem(CustomNpcsPermissions.TOOL_NBTBOOK), 
 	NbtBookSaveBlock(CustomNpcsPermissions.TOOL_NBTBOOK),
 	ScriptPotionGet(false), //New
-	ScriptPotionSave(CustomNpcsPermissions.TOOL_SCRIPTER, false), // New
+	ScriptPotionSave(CustomNpcsPermissions.TOOL_SCRIPTER), // New
 	TeleportTo(false), // New
 	RegionData(false), // New
 	BuilderSetting(false), // New
-	OpenBuilder(false); // New
+	OpenBuilder(false),
+	DimensionDelete(CustomNpcsPermissions.TOOL_TELEPORTER), // New
+	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER); // New
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;
@@ -154,6 +156,7 @@ public enum EnumPacketServer
 	
 	private EnumPacketServer(CustomNpcsPermissions.Permission permission, boolean npc) {
 		this(permission);
+		this.needsNpc = npc;
 	}
 	
 	private EnumPacketServer(boolean need) {

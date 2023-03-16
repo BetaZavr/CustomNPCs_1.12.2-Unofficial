@@ -33,6 +33,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -54,6 +55,7 @@ import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
@@ -484,9 +486,14 @@ public class ServerEventsHandler {
 	@SubscribeEvent
 	public void registryItems(RegistryEvent.Register<IRecipe> event) {
 		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
-		/*List<IRecipe> recipes = Lists.<IRecipe>newArrayList();
-		LogWriter.info("Load ["+recipes.size()+"] Custom Recipes");
-		event.getRegistry().registerAll(recipes.toArray(new IRecipe[recipes.size()]));*/
 	}
-
+	
+	@SubscribeEvent
+	public void worldUnload(WorldEvent.Unload event) {
+		int dimensionID = event.getWorld().provider.getDimension();
+		if (!event.getWorld().isRemote) {
+			DimensionHandler.getInstance().unload(event.getWorld(), dimensionID);
+		}
+	}
+	
 }

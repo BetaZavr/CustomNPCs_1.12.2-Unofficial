@@ -1,6 +1,5 @@
 package noppes.npcs.util;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,19 +17,10 @@ import javax.script.ScriptException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.data.IScriptData;
-import noppes.npcs.api.wrapper.EntityLivingBaseWrapper;
-import noppes.npcs.api.wrapper.EntityLivingWrapper;
-import noppes.npcs.api.wrapper.EntityWrapper;
-import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 

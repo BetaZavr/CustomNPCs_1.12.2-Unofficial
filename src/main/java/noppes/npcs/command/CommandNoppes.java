@@ -33,6 +33,7 @@ public class CommandNoppes extends CommandBase {
 		this.registerCommand(new CmdClone());
 		this.registerCommand(new CmdConfig());
 		this.registerCommand(new CmdMark());
+		this.registerCommand(new CmdDimensions());
 	}
 
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {

@@ -29,6 +29,7 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.AdditionalMethods;
 
 // Changed
 public class GuiNPCManageDialogs
@@ -55,7 +56,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	public void buttonEvent(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		if (button.id == 1) {
-			this.setSubGui(new SubGuiEditText(1, new TextComponentTranslation("gui.new").getFormattedText()));
+			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 		}
 		if (button.id == 2) {
 			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
@@ -67,7 +68,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
 		}
 		if (button.id == 11) {
-			this.setSubGui(new SubGuiEditText(11, new TextComponentTranslation("gui.new").getFormattedText()));
+			this.setSubGui(new SubGuiEditText(11, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 		}
 		if (button.id == 12) {
 			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.dialogData.get(this.selectedDialog).title,

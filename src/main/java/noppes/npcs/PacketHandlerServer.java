@@ -2,7 +2,6 @@ package noppes.npcs;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
@@ -78,6 +75,8 @@ import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.controllers.data.Zone3D;
+import noppes.npcs.dimensions.CustomWorldInfo;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
@@ -787,13 +786,23 @@ public class PacketHandlerServer {
 			NBTTagCompound compound = npc.script.writeToNBT(new NBTTagCompound());
 			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-		} else if (type == EnumPacketServer.DimensionsGet) {
-			HashMap<String, Integer> map = new HashMap<String, Integer>();
-			for (int id : DimensionManager.getStaticDimensionIDs()) {
-				WorldProvider provider = DimensionManager.createProviderFor(id);
-				map.put(provider.getDimensionType().getName(), id);
+		} else if (type == EnumPacketServer.DimensionSettings) {
+			int id = buffer.readInt();
+			CustomWorldInfo wi = Server.readWorldInfo(buffer);
+			if (id==0) {
+				DimensionHandler.getInstance().createDimension(player, wi);
+			} else {
+				CustomWorldInfo cwi = (CustomWorldInfo) DimensionHandler.getInstance().getMCWorldInfo(id);
+				if (cwi!=null) {
+					cwi.load(wi.read());
+				}
 			}
-			NoppesUtilServer.sendScrollData(player, map);
+		} else if (type == EnumPacketServer.DimensionDelete) {
+			int delID = buffer.readInt();
+			DimensionHandler.getInstance().deleteDimension(player, delID);
+			NoppesUtilServer.sendScrollData(player, DimensionHandler.getInstance().getMapDimensionsIDs());
+		} else if (type == EnumPacketServer.DimensionsGet) {
+			NoppesUtilServer.sendScrollData(player, DimensionHandler.getInstance().getMapDimensionsIDs());
 		} else if (type == EnumPacketServer.DimensionTeleport) {
 			int dimension = buffer.readInt();
 			WorldServer world = player.getServer().getWorld(dimension);

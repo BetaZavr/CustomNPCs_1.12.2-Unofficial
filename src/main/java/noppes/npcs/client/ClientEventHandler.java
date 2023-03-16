@@ -38,6 +38,7 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -319,4 +320,9 @@ public class ClientEventHandler {
 		CustomNpcs.debugData.endDebug("Client", event.getEntity(), "ClientEventHandler_postRenderLivingEvent");
 	}
 
+	@SubscribeEvent
+	public void clientDisconnect(ClientDisconnectionFromServerEvent event) {
+		if (!event.getManager().isLocalChannel()) { ClientHandler.getInstance().cleanUp(); }
+	}
+	
 }

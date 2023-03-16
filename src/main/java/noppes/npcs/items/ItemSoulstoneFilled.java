@@ -28,17 +28,11 @@ public class ItemSoulstoneFilled
 extends Item {
 	
 	public static Entity Spawn(EntityPlayer player, ItemStack stack, World world, BlockPos pos) {
-		if (world.isRemote) {
-			return null;
-		}
-		if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("Entity", 10)) {
-			return null;
-		}
+		if (world.isRemote) { return null; }
+		if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("Entity", 10)) { return null; }
 		NBTTagCompound compound = stack.getTagCompound().getCompoundTag("Entity");
 		Entity entity = EntityList.createEntityFromNBT(compound, world);
-		if (entity == null) {
-			return null;
-		}
+		if (entity == null) { return null; }
 		entity.setPosition(pos.getX() + 0.5, (pos.getY() + 1 + 0.2f), pos.getZ() + 0.5);
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;

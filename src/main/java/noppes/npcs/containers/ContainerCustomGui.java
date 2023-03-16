@@ -32,9 +32,7 @@ public class ContainerCustomGui extends Container {
 		// New
 		this.cx = 0;
 		this.cy = 0;
-		if (!player.world.isRemote) {
-			this.container = NpcAPI.Instance().getIContainer(this);
-		}
+		this.container = NpcAPI.Instance().getIContainer(this);
 	}
 
 	void addPlayerInventory(EntityPlayer player, int x, int y) {

@@ -10,7 +10,18 @@ import net.minecraft.server.MinecraftServer;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.controllers.data.MarkData;
 
-public class CmdMark extends CommandNoppesBase {
+public class CmdMark
+extends CommandNoppesBase {
+
+	@Override
+	public String getDescription() {
+		return "Mark operations";
+	}
+
+	public String getName() {
+		return "mark";
+	}
+	
 	@SubCommand(desc = "Clear mark", usage = "<@e>")
 	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<Entity> list = (List<Entity>) getEntityList(server, sender, args[0]);
@@ -22,15 +33,6 @@ public class CmdMark extends CommandNoppesBase {
 			data.marks.clear();
 			data.syncClients();
 		}
-	}
-
-	@Override
-	public String getDescription() {
-		return "Mark operations";
-	}
-
-	public String getName() {
-		return "mark";
 	}
 
 	@SubCommand(desc = "Set mark (warning overrides existing marks)", usage = "<@e> <type> [color]")

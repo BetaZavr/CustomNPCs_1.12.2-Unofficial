@@ -44,7 +44,8 @@ implements IPermission {
 	}
 
 	public boolean isAllowed(EnumPacketServer e) {
-		return e == EnumPacketServer.DimensionsGet || e == EnumPacketServer.DimensionTeleport;
+		return e == EnumPacketServer.DimensionsGet || e == EnumPacketServer.DimensionTeleport
+				|| e == EnumPacketServer.DimensionDelete || e == EnumPacketServer.DimensionSettings;
 	}
 
 	public boolean onEntitySwing(EntityLivingBase par3EntityPlayer, ItemStack stack) {

@@ -270,7 +270,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	}
 
 	private void cheakPath(GuiTextArea area) {
-		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper) { return; }
+		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper || this.subgui!=null) { return; }
 		CustomNPCsScheduler.runTack(() -> {
 			int pos = area.getCursorPosition();
 			String text = area.getText();
@@ -525,7 +525,7 @@ System.out.println("parametrs: "+parametrs.size());
 	}
 
 	private void cheakVariables(int time, String text) {
-		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper) {
+		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper || this.subgui!=null) {
 			return;
 		}
 		CustomNPCsScheduler.runTack(() -> {
@@ -582,6 +582,15 @@ System.out.println("parametrs: "+parametrs.size());
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.activeTab == 0 || this.scrollVariables == null || this.getButton(120) == null) {
+			return;
+		}
+		if (this.subgui!=null) {
+			if (this.helper!=null) { this.helper.enabled = false; }
+			if (this.scrollVariables!=null) {
+				this.scrollHelp.selected = -1;
+				this.scrollHelp.visible = false;
+				this.scrollHelp.hoversTexts = null;
+			}
 			return;
 		}
 		this.getButton(120).layerColor = this.error.isEmpty() ? 0 : 0xA0FF2020;

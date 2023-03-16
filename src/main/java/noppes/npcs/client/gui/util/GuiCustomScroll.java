@@ -148,7 +148,7 @@ extends GuiScreen {
 					i < this.suffixs.size() &&
 					!this.suffixs.get(i).isEmpty() &&
 					this.fontRenderer.getStringWidth(text+this.suffixs.get(i))<this.width-20) {
-				this.fontRenderer.drawString(this.suffixs.get(i), j+this.width-20 - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
+				this.fontRenderer.drawString(this.suffixs.get(i), j+this.width-9 + (this.listHeight>this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
 			}
 		}
 	}

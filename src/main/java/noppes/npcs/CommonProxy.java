@@ -147,7 +147,7 @@ implements IGuiHandler {
 		return false;
 	}
 
-	public void load() {
+	public void preload() {
 		CustomNpcs.Channel.register(new PacketHandlerServer());
 		CustomNpcs.ChannelPlayer.register(new PacketHandlerPlayer());
 	}
@@ -162,6 +162,10 @@ implements IGuiHandler {
 	}
 
 	public void openGui(int i, int j, int k, EnumGuiType gui, EntityPlayer player) {
+	}
+
+	public void load() {
+
 	}
 
 	public void postload() {
