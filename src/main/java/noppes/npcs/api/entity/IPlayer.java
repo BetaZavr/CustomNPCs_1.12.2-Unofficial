@@ -143,5 +143,7 @@ extends IEntityLivingBase<T> {
 	void completeQuest(int id); // New
 
 	IOverlayHUD getIOverlayHUD(); // New
+
+	void trigger(int id, Object ... arguments); // New
 	
 }

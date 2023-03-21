@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.ITimers;
@@ -237,4 +238,10 @@ implements IBlockScripted {
 		this.tile = (TileScripted) tile;
 		super.setTile(tile);
 	}
+	
+	@Override
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(this.tile, id, this.getWorld(), this.getPos(), null, arguments);
+	}
+	
 }

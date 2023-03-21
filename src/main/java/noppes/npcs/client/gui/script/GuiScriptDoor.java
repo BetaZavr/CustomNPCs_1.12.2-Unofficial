@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.script;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.event.BlockEvent;
+import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketServer;
@@ -28,6 +29,8 @@ public class GuiScriptDoor extends GuiScriptInterface {
 		this.baseFuncNames.put("collide", BlockEvent.CollidedEvent.class);
 		this.baseFuncNames.put("timer", BlockEvent.TimerEvent.class);
 		this.baseFuncNames.put("doorToggle", BlockEvent.DoorToggleEvent.class);
+		// CommonEvents
+		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override

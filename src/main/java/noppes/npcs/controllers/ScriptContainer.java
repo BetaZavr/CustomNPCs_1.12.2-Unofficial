@@ -237,11 +237,12 @@ public class ScriptContainer {
 	}
 
 	public void run(String type, Object event) {
-		this.setEngine(this.handler.getLanguage());
+		if (this.engine==null) {
+			this.setEngine(this.handler.getLanguage());
+		}
 		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting) {
 			return;
 		}
-		this.setEngine(this.handler.getLanguage());
 		if (this.engine == null) {
 			return;
 		}

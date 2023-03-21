@@ -13,7 +13,9 @@ import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.api.item.IItemStack;
 
-public interface ICustomNpc<T extends EntityCreature> extends IEntityLiving<T> {
+public interface ICustomNpc<T extends EntityCreature>
+extends IEntityLiving<T> {
+	
 	String executeCommand(String p0);
 
 	INPCAdvanced getAdvanced();
@@ -63,4 +65,6 @@ public interface ICustomNpc<T extends EntityCreature> extends IEntityLiving<T> {
 	IProjectile<?> shootItem(IEntityLivingBase<?> p0, IItemStack p1, int p2);
 
 	void updateClient();
+
+	void trigger(int id, Object ... arguments);
 }

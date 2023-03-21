@@ -16,6 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -49,10 +50,12 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -65,6 +68,7 @@ import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptPlayerEventHandler {
 	public class ForgeEventHandler {
@@ -111,7 +115,24 @@ public class ScriptPlayerEventHandler {
 		PlayerEvent.RangedLaunchedEvent ev = new PlayerEvent.RangedLaunchedEvent(handler.getPlayer());
 		event.setCanceled(EventHooks.onPlayerRanged(handler, ev));
 	}
-
+	
+	@SubscribeEvent
+	public void invoke(BlockEvent.PlaceEvent event) {
+		if (event.getPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
+			return;
+		}
+		PlayerScriptData handler = PlayerData.get(event.getPlayer()).scriptData;
+		@SuppressWarnings("deprecation")
+		IBlock block = BlockWrapper.createNew(event.getWorld(), event.getPos(), event.getPlacedBlock());
+		PlayerEvent.PlaceEvent ev = new PlayerEvent.PlaceEvent(handler.getPlayer(), block);
+		event.setCanceled(EventHooks.onPlayerPlace(handler, ev));
+		if (event.isCanceled()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			event.getPlayer().getHeldItemMainhand().writeToNBT(nbt);
+			Server.sendData((EntityPlayerMP) event.getPlayer(), EnumPacketClient.DETECT_HELD_ITEM, event.getPlayer().inventory.currentItem, nbt);
+		}
+	}
+	
 	@SubscribeEvent
 	public void invoke(BlockEvent.BreakEvent event) {
 		if (event.getPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
@@ -173,6 +194,9 @@ public class ScriptPlayerEventHandler {
 			IEntity<?> target = NpcAPI.Instance().getIEntity(event.getEntityLiving());
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 1, target);
 			event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
+			if (event.isCanceled() || ev.isCanceled()) {
+				ObfuscationHelper.setValue(LivingAttackEvent.class, event, 0.0f, float.class);
+			}
 			if (item.getItem() == CustomItems.scripted_item && !event.isCanceled()) {
 				ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
 				ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), 1, target);

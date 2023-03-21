@@ -22,6 +22,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
+import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.api.handler.data.IScriptData;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -348,7 +349,7 @@ System.out.println("length: "+text.length()+"; pos: "+pos+"; startPos: "+this.st
 			if (part.lastIndexOf(""+((char) 9), pos)!=-1) { part = part.substring(part.lastIndexOf(""+((char) 9), pos)+1); }
 			String path = part;
 			if (part.lastIndexOf('.', pos-this.startPos)!=-1) { path = path.substring(0, path.lastIndexOf('.', pos-this.startPos)); }
-System.out.println("part: \""+part+"\"; path: \""+path+"\"");
+//System.out.println("part: \""+part+"\"; path: \""+path+"\"");
 			//language
 			String language = this.handler.getLanguage();
 			if (language.isEmpty() && this.getScriptIndex() < this.languages.size()) {
@@ -413,7 +414,7 @@ System.out.println("part: \""+part+"\"; path: \""+path+"\"");
 					parametrs.put(key, AdditionalMethods.getScriptClass(sd.getObject()));
 				}
 			}
-System.out.println("parametrs: "+parametrs.size());
+//System.out.println("parametrs: "+parametrs.size());
 			List<String> keys = Lists.<String>newArrayList();
 			while (path.indexOf('.')!=-1) {
 				keys.add(path.substring(0, path.indexOf('.')));

@@ -33,14 +33,9 @@ implements ICustomScrollListener {
 	private final String[] arr = new String [] { "config", "blocks", "items", "potions", "", "", "", "", "", "",
 			"npc.display", "npc.stats", "npc.ais", "npc.inventory", "npc.advanced", "", "", "", "", "", 
 			"script.main", "", "", "", "", "", "", "", "" };
-	private static final List<String> apis = Lists.<String>newArrayList();
 	private GuiCustomScroll scroll;
 	private String curentLang = "";
 	private Map<String, MetodData> data = Maps.<String, MetodData>newHashMap();
-	
-	static {
-		for (EnumInterfaceData enumIT : EnumInterfaceData.values()) { GuiHelpBook.apis.add(enumIT.name()); }
-	}
 	
 	public GuiHelpBook() {
 		this.xSize = 300;
@@ -148,15 +143,20 @@ implements ICustomScrollListener {
 				//scroll
 				if (this.scroll==null) {
 					this.scroll = new GuiCustomScroll(this, 0);
-					this.scroll.setList(Lists.newArrayList(GuiHelpBook.apis));
-					this.scroll.hoversTexts = new String[GuiHelpBook.apis.size()][];
 					this.scroll.setSize(100, this.ySize-50);
+					Map<String, String[]> m = Maps.<String, String[]>newTreeMap();
+					for (EnumInterfaceData enumID : EnumInterfaceData.values()) {
+						List<String> com = enumID.it.getComment();
+						m.put(enumID.name(), com.toArray(new String[com.size()]));
+					}
+					this.scroll.setList(Lists.newArrayList(m.keySet()));
+					this.scroll.hoversTexts = new String[m.size()][];
 					int i = 0;
-					for (String enumName : GuiHelpBook.apis) {
-						List<String> com = EnumInterfaceData.get(enumName).getComment();
-						this.scroll.hoversTexts[i] = com.toArray(new String[com.size()]);
+					for (String[] com : m.values()) {
+						this.scroll.hoversTexts[i] = com;
 						i++;
 					}
+					
 				}
 				this.scroll.guiLeft = this.guiLeft - 101;
 				this.scroll.guiTop = this.guiTop + 47;
@@ -202,7 +202,7 @@ implements ICustomScrollListener {
 			((GuiTextArea) this.get(0)).scrolledLine = 0;
 			return;
 		}
-		if (this.scroll==null || !GuiHelpBook.apis.contains(this.scroll.getSelected())) {
+		if (this.scroll==null || EnumInterfaceData.get(this.scroll.getSelected())==null) {
 			((GuiTextArea) this.get(0)).setText("");
 			((GuiTextArea) this.get(0)).scrolledLine = 0;
 			return;
@@ -323,7 +323,7 @@ implements ICustomScrollListener {
 		if (!area.hovered) { return; }
 		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
 //System.out.println("mouseX: "+mouseX+"/"+this.mouseX);
-		if (!this.scroll.getSelected().equals(select[1]) && GuiHelpBook.apis.contains(select[1])) {
+		if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])==null) {
 			this.scroll.setSelected((String) select[1]);
 			this.resetText();
 			return;

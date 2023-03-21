@@ -80,7 +80,7 @@ public class DataScript implements IScriptHandler {
 	@Override
 	public String noticeString() {
 		BlockPos pos = this.npc.getPosition();
-		return MoreObjects.toStringHelper(this.npc).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
+		return MoreObjects.toStringHelper(this.npc).add("name", this.npc.getName()).add("dimID", this.npc.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
 				.toString();
 	}
 

@@ -64,7 +64,9 @@ public enum EnumScriptType
 	POTION_IS_READY("isReady"), // New
 	POTION_PERFORM("performEffect"), // New
 	POTION_AFFECT("affectEntity"), // New
-	POTION_END("endEffect"); // New
+	PLASED("plased"), // New
+	POTION_END("endEffect"), // New
+	SCRIPT_TRIGGER("trigger"); // New	
 	
 	public String function;
 	

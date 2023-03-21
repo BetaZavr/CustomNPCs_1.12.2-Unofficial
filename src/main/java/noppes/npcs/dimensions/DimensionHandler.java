@@ -123,7 +123,8 @@ implements IDimensionHandler
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		NBTTagList nbtList = new NBTTagList();
-		for (Entry<Integer, CustomWorldInfo> entry : dimensionInfo.entrySet()) {
+		for (Entry<Integer, CustomWorldInfo> entry : this.dimensionInfo.entrySet()) {
+			if (this.toBeDeleted.containsKey(entry.getKey())) { continue; }
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setInteger("dimensionID", entry.getKey());
 			compound.setTag("worldInfo", entry.getValue().cloneNBTCompound(null));
@@ -199,10 +200,19 @@ implements IDimensionHandler
 		if (sender!=null) { entitySender = sender.getCommandSenderEntity(); }
 		this.toBeDeleted.put(dimensionID, entitySender != null ? entitySender.getUniqueID() : null);
 		DimensionManager.unloadWorld(dimensionID);
+		List<WorldServer> list = Lists.newArrayList();
+		for (WorldServer w : CustomNpcs.Server.worlds) {
+			if (w.provider.getDimension()!=dimensionID) { list.add(w); }
+		}
+		if (CustomNpcs.Server.worlds.length!=list.size()) {
+			CustomNpcs.Server.worlds = list.toArray(new WorldServer[list.size()]);
+		}
 	}
 
 	public void unload(World world, int dimensionID) {
-		if (this.dimensionInfo.containsKey(dimensionID)) { DimensionManager.unregisterDimension(dimensionID); }
+		if (this.dimensionInfo.containsKey(dimensionID)) {
+			DimensionManager.unregisterDimension(dimensionID);
+		}
 		if (this.toBeDeleted.containsKey(dimensionID)) {
 			UUID uniqueID = this.toBeDeleted.get(dimensionID);
 			this.toBeDeleted.remove(dimensionID);
@@ -224,17 +234,7 @@ implements IDimensionHandler
 	}
 
 	private void syncWithClients() {
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.DIMENSIOS_IDS, this.getIDs());
-	}
-
-	public int[] getIDs() {
-		int[] a = new int[this.dimensionInfo.size()];
-		int j = 0;
-		for (int i : this.dimensionInfo.keySet()) {
-			a[j] = i;
-			j++;
-		}
-		return a;
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.DIMENSIOS_IDS, this.getAllIDs());
 	}
 
 	@Override
@@ -249,7 +249,8 @@ implements IDimensionHandler
 			WorldProvider provider = DimensionManager.createProviderFor(id);
 			String key = (DimensionManager.getWorld(id)!=null)+"&"+provider.getDimensionType().getName();
 			if (this.dimensionInfo.containsKey(id)) {
-				key = (this.toBeDeleted.containsKey(id) ? "delete" : DimensionManager.getWorld(id)!=null ) + "&" + this.dimensionInfo.get(id).getWorldName();
+				if (this.toBeDeleted.containsKey(id)) { continue; }
+				key = (DimensionManager.getWorld(id)!=null) + "&" + this.dimensionInfo.get(id).getWorldName();
 			}
 			key += "&"+provider.getDimensionType().getSuffix();
 			map.put(key, id);
@@ -276,6 +277,7 @@ implements IDimensionHandler
 		int[] arr = new int[this.dimensionInfo.size()];
 		int j = 0;
 		for (int i : this.dimensionInfo.keySet()) {
+			if (i<100 || this.toBeDeleted.containsKey(i)) { continue; }
 			arr[j] = i;
 			j++;
 		}
@@ -293,5 +295,7 @@ implements IDimensionHandler
 		this.createDimension(null, cwi);
 		return cwi;
 	}
+
+	public boolean isDelete(int id) { return this.toBeDeleted.containsKey(id); }
 	
 }

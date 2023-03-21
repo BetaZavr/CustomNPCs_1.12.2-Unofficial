@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomItems;
 import noppes.npcs.api.event.ItemEvent;
+import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketServer;
@@ -27,6 +28,8 @@ public class GuiScriptItem extends GuiScriptInterface {
 		this.baseFuncNames.put("interact", ItemEvent.InteractEvent.class);
 		this.baseFuncNames.put("attack", ItemEvent.AttackEvent.class);
 		this.baseFuncNames.put("tick", ItemEvent.UpdateEvent.class);
+		// CommonEvents
+		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override

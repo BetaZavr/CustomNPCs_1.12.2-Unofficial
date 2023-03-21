@@ -396,7 +396,7 @@ implements ITickable, IScriptBlockHandler {
 
 	public String noticeString() {
 		BlockPos pos = this.getPos();
-		return MoreObjects.toStringHelper(this).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
+		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
 				.toString();
 	}
 
@@ -413,9 +413,7 @@ implements ITickable, IScriptBlockHandler {
 	}
 
 	public void runScript(EnumScriptType type, Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
+		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
 			if (type != EnumScriptType.INIT) {

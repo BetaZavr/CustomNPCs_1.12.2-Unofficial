@@ -72,4 +72,6 @@ extends IBlock {
 	
 	void setModel(IBlock iblock); // New
 
+	void trigger(int id, Object ... arguments);
+
 }

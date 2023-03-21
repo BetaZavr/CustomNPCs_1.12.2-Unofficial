@@ -97,7 +97,7 @@ public class PlayerScriptData implements IScriptHandler {
 			return "Global script";
 		}
 		BlockPos pos = this.player.getPosition();
-		return MoreObjects.toStringHelper(this.player).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
+		return MoreObjects.toStringHelper(this.player).add("name", this.player.getName()).add("dimID", this.player.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
 				.toString();
 	}
 

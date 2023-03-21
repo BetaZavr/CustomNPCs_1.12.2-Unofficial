@@ -5,6 +5,7 @@ import noppes.npcs.api.event.CustomGuiEvent;
 import noppes.npcs.api.event.DialogEvent;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.RoleEvent;
+import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -66,6 +67,8 @@ public class GuiScript extends GuiScriptInterface {
 		this.baseFuncNames.put("customGuiSlot", CustomGuiEvent.SlotEvent.class);
 		this.baseFuncNames.put("customGuiScroll", CustomGuiEvent.ScrollEvent.class);
 		this.baseFuncNames.put("customGuiSlotClicked", CustomGuiEvent.SlotClickEvent.class);
+		// CommonEvents
+		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override

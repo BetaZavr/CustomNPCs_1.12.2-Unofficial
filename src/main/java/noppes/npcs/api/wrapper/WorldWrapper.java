@@ -35,6 +35,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
+import noppes.npcs.EventHooks;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IDimension;
@@ -235,44 +236,18 @@ implements IWorld {
 
 	@SuppressWarnings("rawtypes")
 	private Class getClassForType(int type) {
-		if (type == -1) {
-			return Entity.class;
-		}
-		if (type == 5) {
-			return EntityLivingBase.class;
-		}
-		if (type == 1) {
-			return EntityPlayer.class;
-		}
-		if (type == 4) {
-			return EntityAnimal.class;
-		}
-		if (type == 3) {
-			return EntityMob.class;
-		}
-		if (type == 2) {
-			return EntityNPCInterface.class;
-		}
-		if (type == 6) {
-			return EntityItem.class;
-		}
-		if (type == 7) {
-			return EntityProjectile.class;
-		}
-		if (type == 11) {
-			return EntityThrowable.class;
-		}
-		if (type == 10) {
-			return EntityArrow.class;
-		}
-		if (type == 3) {
-			return EntityMob.class;
-		}
-		if (type == 8) {
-			return PixelmonHelper.getPixelmonClass();
-		}
-		if (type == 9) {
-			return EntityVillager.class;
+		switch(type) {
+			case 1: return EntityPlayer.class;
+			case 2: return EntityNPCInterface.class;
+			case 3: return EntityMob.class;
+			case 4: return EntityAnimal.class;
+			case 5: return EntityLivingBase.class;
+			case 6: return EntityItem.class;
+			case 7: return EntityProjectile.class;
+			case 8: return PixelmonHelper.getPixelmonClass();
+			case 9: return EntityVillager.class;
+			case 10: return EntityArrow.class;
+			case 11: return EntityThrowable.class;
 		}
 		return Entity.class;
 	}
@@ -507,6 +482,11 @@ implements IWorld {
 	@Override
 	public void thunderStrike(double x, double y, double z) {
 		this.world.addWeatherEffect(new EntityLightningBolt(this.world, x, y, z, false));
+	}
+	
+	@Override
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this, this.getBlock(0, 0, 0).getPos(), null, arguments);
 	}
 
 }

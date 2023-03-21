@@ -215,7 +215,7 @@ public class ServerTickHandler {
 			AnalyticsTracking.sendData(event.player, "join", serverName);
 		}
 		SyncController.syncPlayer(player);
-		Server.sendData(player, EnumPacketClient.DIMENSIOS_IDS, DimensionHandler.getInstance().getIDs());
+		Server.sendData(player, EnumPacketClient.DIMENSIOS_IDS, DimensionHandler.getInstance().getAllIDs());
 		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_playerLogin");
 	}
 }

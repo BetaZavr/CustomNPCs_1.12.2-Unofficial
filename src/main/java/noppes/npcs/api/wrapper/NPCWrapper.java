@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.ITimers;
@@ -289,4 +290,10 @@ implements ICustomNpc {
 	public void updateClient() {
 		this.entity.updateClient();
 	}
+	
+	@Override
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), null, arguments);
+	}
+	
 }

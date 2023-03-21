@@ -95,5 +95,7 @@ public interface IWorld {
 	void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count);
 
 	void thunderStrike(double x, double y, double z);
+
+	void trigger(int id, Object ... arguments);
 	
 }

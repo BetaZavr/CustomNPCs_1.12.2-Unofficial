@@ -1505,6 +1505,7 @@ method.setrotz=Установить вращение по оси Z
 method.executecommand=Выполнить команду Командного блока
 method.getplayername=Возвращает имя игрока
 method.getpos=Возвращает позицию блока<br>§7Позиция содержит только значение по осям XYZ<br>§7Не содержит ID измерения мира
+method.trigger=Активировать скриптовый триггер
 
 parameter.entity=сущность полученная из мира или созданная в нём.
 parameter.entity.name=имя сущности
@@ -1577,6 +1578,8 @@ parameter.rotz=вращение по оси Z
 parameter.range=дистанция в блоках
 parameter.dialog.option.pos=позиция ответа (§60§7 - §65§7)
 parameter.dialog.text=текст диалога
+parameter.trigger.id=ID триггера
+parameter.trigger.arguments=переданные аргументы в триггер
 
 interfase.iblock=Интерфейс для любого блока, установленного в мире
 method.iblock.blockevent=Активирует событие блока

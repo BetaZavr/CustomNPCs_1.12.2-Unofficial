@@ -21,6 +21,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldSettings;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
@@ -711,5 +712,10 @@ implements IPlayer {
 			}
 		}
 	}
-
+	
+	@Override
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(this.getData().scriptData, id, this.getWorld(), this.getPos(), null, arguments);
+	}
+	
 }

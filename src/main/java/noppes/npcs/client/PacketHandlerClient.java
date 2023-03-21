@@ -502,6 +502,10 @@ extends PacketHandlerServer {
 				// ((GuiScriptInterface) gui).setData(Server.readNBT(buffer));
 			}
 		} else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
+			try {
+				player.inventory.setInventorySlotContents(buffer.readInt(), new ItemStack(Server.readNBT(buffer)));
+				return;
+			} catch (Exception e) { }
 			ItemStack held = new ItemStack(Server.readNBT(buffer));
 			player.inventory.setItemStack(held);
 		} else if (type == EnumPacketClient.BORDER_DATA) {

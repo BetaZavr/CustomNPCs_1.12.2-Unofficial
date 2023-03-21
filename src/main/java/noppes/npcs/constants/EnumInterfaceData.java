@@ -335,6 +335,10 @@ public enum EnumInterfaceData {
 				new ParameterData(float.class, "x", "parameter.iblockscripted.scalex"),
 				new ParameterData(float.class, "y", "parameter.iblockscripted.scaley"),
 				new ParameterData(float.class, "z", "parameter.iblockscripted.scalez")
+			),
+			new MetodData(void.class, "trigger", "method.trigger",
+				new ParameterData(int.class, "id", "parameter.trigger.id"),
+				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
 			)
 		)
 	),
@@ -958,6 +962,10 @@ public enum EnumInterfaceData {
 				new ParameterData(double.class, "x", "parameter.posx"),
 				new ParameterData(double.class, "y", "parameter.posy"),
 				new ParameterData(double.class, "z", "parameter.posz")
+			),
+			new MetodData(void.class, "trigger", "method.trigger",
+				new ParameterData(int.class, "id", "parameter.trigger.id"),
+				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
 			)
 		)
 	),
@@ -1195,7 +1203,11 @@ public enum EnumInterfaceData {
 	),
 	ICustomNpc(new InterfaseData(ICustomNpc.class, IEntityLiving.class,
 			new Class<?>[] { NPCWrapper.class },
-			"interfase.icustomnpc"
+			"interfase.icustomnpc",
+			new MetodData(void.class, "trigger", "method.trigger",
+				new ParameterData(int.class, "id", "parameter.trigger.id"),
+				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
+			)
 		)
 	),
 	IEntity(new InterfaseData(IEntity.class, null,
@@ -1365,7 +1377,11 @@ public enum EnumInterfaceData {
 	),
 	IPlayer(new InterfaseData(IPlayer.class, IEntityLivingBase.class,
 			new Class<?>[] { PlayerWrapper.class },
-			"interfase.iplayer"
+			"interfase.iplayer",
+			new MetodData(void.class, "trigger", "method.trigger",
+				new ParameterData(int.class, "id", "parameter.trigger.id"),
+				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
+			)
 		)
 	),
 	IProjectile(new InterfaseData(IProjectile.class, IThrowable.class,
@@ -1725,17 +1741,17 @@ public enum EnumInterfaceData {
 	),
 	IDimensionHandler(new InterfaseData(IDimensionHandler.class, null,
 			new Class<?>[] { DimensionHandler.class },
-			"interfase.idimensionHandler",
-			new MetodData(IWorldInfo.class, "createDimension", "method.idimensionHandler.create"),
-			new MetodData(void.class, "setNbt", "method.idimensionHandler.setnbt",
+			"interfase.idimensionhandler",
+			new MetodData(IWorldInfo.class, "createDimension", "method.idimensionhandler.create"),
+			new MetodData(void.class, "setNbt", "method.idimensionhandler.setnbt",
 				new ParameterData(INbt.class, "nbt", "parameter.nbt")
 			),
-			new MetodData(INbt.class, "getNbt", "method.idimensionHandler.getnbt"),
-			new MetodData(IWorldInfo.class, "getMCWorldInfo", "method.idimensionHandler.getmcworldinfo",
+			new MetodData(INbt.class, "getNbt", "method.idimensionhandler.getnbt"),
+			new MetodData(IWorldInfo.class, "getMCWorldInfo", "method.idimensionhandler.getmcworldinfo",
 				new ParameterData(int.class, "dimensionID", "parameter.dimensionId")
 			),
-			new MetodData(int[].class, "getAllIDs", "method.idimensionHandler.getallids"),
-			new MetodData(void.class, "deleteDimension", "method.idimensionHandler.delete",
+			new MetodData(int[].class, "getAllIDs", "method.idimensionhandler.getallids"),
+			new MetodData(void.class, "deleteDimension", "method.idimensionhandler.delete",
 				new ParameterData(int.class, "dimensionID", "parameter.dimensionId")
 			)
 		)

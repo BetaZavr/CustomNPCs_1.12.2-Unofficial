@@ -101,7 +101,7 @@ implements IPermission {
     }
 	
 	public void leftClick(ItemStack stack, EntityPlayerMP player) {
-		if (true) { return; }
+		//if (true) { return; }
 		PlayerData data = PlayerData.get(player);
 		if (data==null || !stack.hasTagCompound()) { return; }
 		ItemBuilder.cheakStack(stack);
@@ -155,7 +155,7 @@ implements IPermission {
 	}
 	
 	public void rightClick(ItemStack stack, EntityPlayerMP player) {
-		if (true) { return; }
+		//if (true) { return; }
 		PlayerData data = PlayerData.get(player);
 		if (data==null || !stack.hasTagCompound()) { return; }
 		ItemBuilder.cheakStack(stack);

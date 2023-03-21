@@ -159,7 +159,7 @@ implements IScrollData, ICustomScrollListener {
 			s.add(p + (t[0].equals("delete") ? c+"7delete" : t[0].equals("true") ? c+"aloaded" : c+"cunloaded"));
 			this.data.put(str, id);
 		}
-		this.scroll.setList(l);
+		this.scroll.setListNotSorted(l);
 		this.scroll.setSuffixs(s);
 		this.initGui();
 	}

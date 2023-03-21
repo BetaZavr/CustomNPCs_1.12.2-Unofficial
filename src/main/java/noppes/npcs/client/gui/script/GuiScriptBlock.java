@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.event.BlockEvent;
 import noppes.npcs.api.event.CustomGuiEvent;
+import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketServer;
@@ -36,6 +37,8 @@ extends GuiScriptInterface {
 		this.baseFuncNames.put("customGuiSlot", CustomGuiEvent.SlotEvent.class);
 		this.baseFuncNames.put("customGuiScroll", CustomGuiEvent.ScrollEvent.class);
 		this.baseFuncNames.put("customGuiSlotClicked", CustomGuiEvent.SlotClickEvent.class);
+		// CommonEvents
+		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override

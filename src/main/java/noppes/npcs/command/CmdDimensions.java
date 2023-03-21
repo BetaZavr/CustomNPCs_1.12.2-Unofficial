@@ -17,6 +17,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.CommandNoppesBase;
+import noppes.npcs.dimensions.DimensionHandler;
 
 public class CmdDimensions
 extends CommandNoppesBase {
@@ -37,7 +38,7 @@ extends CommandNoppesBase {
 		int id;
 		try {
 			id = Integer.parseInt(args[1]);
-			if (!DimensionManager.isDimensionRegistered(id)) {
+			if (!DimensionManager.isDimensionRegistered(id) || DimensionHandler.getInstance().isDelete(id)) {
 				throw new CommandException("DimensionID: "+id+" - not found");
 			}
 		} catch (NumberFormatException ex) {
@@ -109,11 +110,13 @@ extends CommandNoppesBase {
 	}
 	
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-		System.out.println("CNPCs: "+args.length);
 		List<String> list = Lists.<String>newArrayList();
 		if (args.length==3) {
 			Set<Integer> s = Sets.<Integer>newTreeSet();
-			for (int id : DimensionManager.getIDs()) { s.add(id); }
+			for (int id : DimensionManager.getIDs()) {
+				if (DimensionHandler.getInstance().isDelete(id)) { continue; }
+				s.add(id);
+			}
 			if (!s.contains(-1)) { s.add(-1); }
 			if (!s.contains(1)) { s.add(1); }
 			for (int id : s) { list.add(""+id); }

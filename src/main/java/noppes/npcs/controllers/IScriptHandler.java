@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.constants.EnumScriptType;
 
 public interface IScriptHandler {
+	
 	void clearConsole();
 
 	Map<Long, String> getConsoleText();
@@ -26,4 +27,5 @@ public interface IScriptHandler {
 	void setEnabled(boolean bo);
 
 	void setLanguage(String language);
+	
 }

@@ -1502,6 +1502,8 @@ method.setrotz=Set Z Rotation
 method.executecommand=Execute Command Block Command
 method.getplayername=Returns the player's name
 method.getpos=Returns the position of the block<br>§7Position contains only the XYZ value<br>§7Does not contain the world dimension ID
+method.trigger=Activate script trigger
+
 parameter.entity=an entity obtained from or created in the world.
 parameter.entity.name=entity name
 parameter.entity.regname=registered entity name
@@ -1572,6 +1574,8 @@ parameter.rotz=Z rotation
 parameter.range=range in blocks
 parameter.dialog.option.pos=response position (§60§7 - §65§7)
 parameter.dialog.text=dialogue text
+parameter.trigger.id=trigger ID
+parameter.trigger.arguments=passed arguments to trigger
 
 interphase.iblock=Interface for any block installed in the world
 method.iblock.blockevent=Firing a block event

@@ -35,6 +35,19 @@ extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	public static class PlaceEvent extends PlayerEvent {
+		
+		public IBlock block;
+		public int exp;
+
+		public PlaceEvent(IPlayer<?> player, IBlock block) {
+			super(player);
+			this.block = block;
+		}
+		
+	}
+
+	@Cancelable
 	public static class BreakEvent extends PlayerEvent {
 		public IBlock block;
 		public int exp;

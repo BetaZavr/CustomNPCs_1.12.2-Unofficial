@@ -46,6 +46,8 @@ public class GuiScriptPlayers extends GuiScriptInterface {
 		this.baseFuncNames.put("itemFished", PlayerEvent.ItemFished.class);
 		this.baseFuncNames.put("itemCrafted", PlayerEvent.ItemCrafted.class);
 		this.baseFuncNames.put("itemFished", PlayerEvent.ItemFished.class);
+		// BlockEvent
+		this.baseFuncNames.put("plased", PlayerEvent.PlaceEvent.class);
 		// DialogEvent
 		this.baseFuncNames.put("dialog", DialogEvent.OpenEvent.class);
 		this.baseFuncNames.put("dialogClose", DialogEvent.CloseEvent.class);
@@ -66,6 +68,8 @@ public class GuiScriptPlayers extends GuiScriptInterface {
 		this.baseFuncNames.put("customGuiSlotClicked", CustomGuiEvent.SlotClickEvent.class);
 		// WorldEvent
 		this.baseFuncNames.put("scriptCommand", WorldEvent.ScriptCommandEvent.class);
+		// CommonEvents
+		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override

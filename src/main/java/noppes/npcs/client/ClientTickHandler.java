@@ -5,6 +5,7 @@ import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -160,7 +161,7 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
-		if (!(entity instanceof EntityPlayer) || !CustomNpcs.VerboseDebug) { return; }
+		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
 	}
 	
 }

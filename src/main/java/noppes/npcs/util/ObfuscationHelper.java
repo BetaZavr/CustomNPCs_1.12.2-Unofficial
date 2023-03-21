@@ -196,6 +196,36 @@ public class ObfuscationHelper {
 		}
 		return null;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T, E> T getValue(Class<? super E> clazz, Class<? super E> instance, int index) {
+		Field f = null;
+		try {
+			f = ObfuscationHelper.getField(clazz, index);
+			if (f != null) {
+				f.setAccessible(true);
+				return (T) f.get(instance);
+			}
+		} catch (UnableToAccessFieldException e) {
+			FMLLog.log.error("There was a problem getting field index {} from {}", "Index:" + index,
+					clazz.getSimpleName(), e);
+			throw e;
+		} catch (IllegalArgumentException e) {
+			if (f != null) {
+				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
+			}
+			throw e;
+		} catch (IllegalAccessException e) {
+			if (f != null) {
+				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+			}
+			try {
+				throw e;
+			} catch (IllegalAccessException e1) {
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Get field value by field registration number Field access is irrelevant Use

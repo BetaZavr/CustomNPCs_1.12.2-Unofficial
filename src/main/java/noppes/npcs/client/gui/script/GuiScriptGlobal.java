@@ -91,7 +91,6 @@ extends GuiNPCInterface {
 			if (this.blockEventsList.length() > 0) { this.blockEventsList += ", "; }
 			this.blockEventsList += name;
 		}
-		
 	}
 
 	@Override

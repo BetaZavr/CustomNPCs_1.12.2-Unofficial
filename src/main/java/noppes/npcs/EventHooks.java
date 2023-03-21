@@ -8,14 +8,17 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
+import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
@@ -33,6 +36,7 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.ProjectileEvent;
 import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.api.event.RoleEvent;
+import noppes.npcs.api.event.WorldEvent.ScriptTriggerEvent;
 import noppes.npcs.api.event.potion.AffectEntity;
 import noppes.npcs.api.event.potion.EndEffect;
 import noppes.npcs.api.event.potion.IsReadyEvent;
@@ -50,6 +54,7 @@ import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.IScriptBlockHandler;
+import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Dialog;
@@ -308,6 +313,11 @@ public class EventHooks {
 
 	public static boolean onPlayerAttack(PlayerScriptData handler, PlayerEvent.AttackEvent event) {
 		handler.runScript(EnumScriptType.ATTACK, event);
+		return WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
+
+	public static boolean onPlayerPlace(PlayerScriptData handler, PlayerEvent.PlaceEvent event) {
+		handler.runScript(EnumScriptType.PLASED, event);
 		return WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
@@ -593,8 +603,7 @@ public class EventHooks {
 		if (handler.isClient()) {
 			return false;
 		}
-		BlockEvent.InteractEvent event = new BlockEvent.InteractEvent(handler.getBlock(), player, side, hitX, hitY,
-				hitZ);
+		BlockEvent.InteractEvent event = new BlockEvent.InteractEvent(handler.getBlock(), player, side, hitX, hitY, hitZ);
 		handler.runScript(EnumScriptType.INTERACT, event);
 		return WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
@@ -720,6 +729,41 @@ public class EventHooks {
 		if (!data.isEnabled() || CustomNpcs.proxy.getSide()==Side.CLIENT) { return; }
 		data.runScript(EnumScriptType.POTION_END, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
+
+	
+	public static void onScriptTriggerEvent(int id, IWorld level, IPos pos, IEntity<?> entity, Object[] arguments) {
+		ScriptTriggerEvent event = new ScriptTriggerEvent(id, level, pos, entity, arguments);
+		if (event.entity != null && event.world != null && !(event.entity.getMCEntity() instanceof FakePlayer)) {
+			if (event.entity.getType() == 1) {
+				PlayerScriptData handler = PlayerData.get((EntityPlayer) event.entity.getMCEntity()).scriptData;
+				handler.runScript(EnumScriptType.SCRIPT_TRIGGER, event);
+			}
+			else if (event.entity.getType() == 2) {
+				EntityNPCInterface npc = (EntityNPCInterface) event.entity.getMCEntity();
+				npc.script.runScript(EnumScriptType.SCRIPT_TRIGGER, event);
+			}
+			else {
+				TileEntity tile = event.world.getMCWorld().getTileEntity(event.pos.getMCBlockPos());
+				if (tile instanceof IScriptBlockHandler) {
+					((IScriptBlockHandler)tile).runScript(EnumScriptType.SCRIPT_TRIGGER, event);
+				}
+			}
+		}
+		ForgeScriptData data = ScriptController.Instance.forgeScripts;
+		data.runScript(EnumScriptType.SCRIPT_TRIGGER.function, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event)event);
+	}
+	
+	public static void onScriptTriggerEvent(IScriptHandler handler, int id, IWorld world, IPos pos, IEntity<?> entity, Object[] arguments) {
+		ScriptTriggerEvent event = new ScriptTriggerEvent(id, world, pos, entity, arguments);
+		if (handler instanceof ForgeScriptData) {
+			((ForgeScriptData)handler).runScript(EnumScriptType.SCRIPT_TRIGGER.function, event);
+		}
+		else {
+			handler.runScript(EnumScriptType.SCRIPT_TRIGGER, event);
+		}
+		WrapperNpcAPI.EVENT_BUS.post((Event)event);
 	}
 	
 }

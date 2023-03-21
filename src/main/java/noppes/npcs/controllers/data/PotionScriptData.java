@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
