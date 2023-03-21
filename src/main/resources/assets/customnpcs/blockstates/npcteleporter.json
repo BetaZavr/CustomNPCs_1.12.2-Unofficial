@@ -25,8 +25,7 @@
 					"rotation": [ { "x": -5 } ]
 				},
 				"gui": {
-					"translation": [0, -0.0625, 0],
-					"rotation": [ { "z": -45 }, { "y": 90 } ]
+					"translation": [0, -0.0625, 0]
 				},
 				"ground": {
 					"scale": 0.75,

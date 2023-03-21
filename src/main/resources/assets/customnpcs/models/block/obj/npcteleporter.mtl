@@ -1,0 +1,9 @@
+newmtl body
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd customnpcs:blocks/npcscriptedblock
+
+newmtl feather
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd customnpcs:util/feather

@@ -2111,14 +2111,16 @@ method.irolefollower.setguidisabled=Установить отключено ли
 method.irolefollower.setinfinite=Установить является ли найм бесконечным
 method.irolefollower.setrefusesoulstone=Установить можно ли запечатать наёмника в Камень душ
 
+interfase.idimensionhandler=Интерфейс для класса-базы управляющий своими Измерениями<br>§6Только для §aмега §bBRO
+method.idimensionhandler.create=Создать, зарегистрировать и вернуть новое измерение
+method.idimensionhandler.setnbt=Перезаписать настройки всех своих измерения через набор тегов<br>§6Только для §aмега §bBRO
+method.idimensionhandler.getnbt=Возвращает набор тегов, в который записаны настройки всех измерения
+method.idimensionhandler.getmcworldinfo=Возвращает измерение
+method.idimensionhandler.getallids=Возвращает ID всех ваших измерений
+method.idimensionhandler.delete=Удалить своё измерение
 
-
-
-
-
-
-
-
-
-
+interfase.iworldinfo=Интерфейс для своего Измерения<br>§6Только для §aмега §bBRO
+method.iworldinfo.getid=Возвращает ID измерения
+method.iworldinfo.getnbt==Возвращает набор тегов, в который записаны настройки измерения
+method.iworldinfo.setnbt=Перезаписать настройки своего измерения через набор тегов<br>§6Только для §aмега §bBRO
 

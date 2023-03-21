@@ -2105,3 +2105,16 @@ method.irolefollower.setfollowing=Set Hiring Player
 method.irolefollower.setguidisabled=Set whether the Mercenary Management GUI is disabled after being hired by an Ignor
 method.irolefollower.setinfinite=Set whether hiring is infinite
 method.irolefollower.setrefusesoulstone=Set whether a mercenary can be sealed in a soulstone
+
+interfase.idimensionhandler=An interface for a base class that manages its Dimensions<br>§6Only for §amega §bBRO
+method.idimensionhandler.create=Create, register and return a new dimension
+method.idimensionhandler.setnbt=Overwrite settings of all your dimensions via tag set<br>§6Only for §amega §bBRO
+method.idimensionhandler.getnbt=Returns a set of tags that contains settings for all dimensions
+method.idimensionhandler.getmcworldinfo=Returns the dimension
+method.idimensionhandler.getallids=Returns the IDs of all your dimensions
+method.idimensionhandler.delete=Delete Own Dimension
+
+interfase.iworldinfo=Interface for your Dimension<br>§6Only for §amega §bBRO
+method.iworldinfo.getid=Returns the dimension ID
+method.iworldinfo.getnbt==Returns a set of tags that contains dimension settings
+method.iworldinfo.setnbt=Overwrite your dimension settings via tag set<br>§6Only for §amega §bBRO
