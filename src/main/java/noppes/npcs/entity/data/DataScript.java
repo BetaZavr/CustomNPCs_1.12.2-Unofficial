@@ -18,7 +18,9 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class DataScript implements IScriptHandler {
+public class DataScript
+implements IScriptHandler {
+	
 	private boolean enabled;
 	public long lastInited;
 	private EntityNPCInterface npc;

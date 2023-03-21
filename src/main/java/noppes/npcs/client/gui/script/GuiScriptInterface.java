@@ -22,7 +22,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.api.handler.data.IScriptData;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -326,7 +325,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			if (this.startPos==0 && pos>0) { this.select = AdditionalMethods.match(text, 0, GuiTextArea.filter, GuiTextArea.filter); }
 			while (this.select.indexOf(tab)!=-1) { this.select = this.select.replace(""+tab, ""); }
 			while (this.preSelect.indexOf(tab)!=-1) { this.preSelect = this.preSelect.replace(""+tab, ""); }	
-System.out.println("length: "+text.length()+"; pos: "+pos+"; startPos: "+this.startPos+"; select: \""+this.select+"\""+"; preSelect: \""+this.preSelect+"\"");
+//System.out.println("length: "+text.length()+"; pos: "+pos+"; startPos: "+this.startPos+"; select: \""+this.select+"\""+"; preSelect: \""+this.preSelect+"\"");
 			if (this.preSelect.equals("function") || (this.preSelect.isEmpty() && this.select.equals("function"))) {
 				if (this.preSelect.isEmpty() && this.select.equals("function")) { this.select = ""; }
 				this.map.clear();
