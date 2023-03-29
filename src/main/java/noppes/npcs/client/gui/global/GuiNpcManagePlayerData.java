@@ -47,17 +47,15 @@ implements IScrollData, ICustomScrollListener {
 		if (id == 0) {
 			if (this.selected != null) {
 				if (this.selection == EnumPlayerData.Players) {
-					Client.sendData(EnumPacketServer.PlayerDataRemove, this.selection, this.selectedPlayer,
-							this.selected);
+					Client.sendData(EnumPacketServer.PlayerDataRemove, this.selection, this.selectedPlayer, this.selected);
 				} else {
-					Client.sendData(EnumPacketServer.PlayerDataRemove, this.selection, this.selectedPlayer,
-							this.data.get(this.selected));
+					Client.sendData(EnumPacketServer.PlayerDataRemove, this.selection, this.selectedPlayer, this.data.get(this.selected));
 				}
 				this.data.clear();
 			}
 			this.selected = null;
 		}
-		if (id >= 1 && id <= 6) {
+		else if (id >= 1 && id <= 6) {
 			if (this.selectedPlayer == null && id != 1) {
 				return;
 			}
@@ -68,6 +66,15 @@ implements IScrollData, ICustomScrollListener {
 			Client.sendData(EnumPacketServer.PlayerDataGet, this.selection, this.selectedPlayer);
 			this.selected = null;
 		}
+		else if (id == 7) {
+			this.selection = EnumPlayerData.values()[id - 1];
+			this.initButtons();
+			this.scroll.clear();
+			this.data.clear();
+			Client.sendData(EnumPacketServer.PlayerDataRemove, this.selection, this.selectedPlayer, this.selected);
+			this.selected = null;
+		}
+		
 	}
 
 	@Override
@@ -96,6 +103,7 @@ implements IScrollData, ICustomScrollListener {
 		this.getButton(4).setEnabled(this.selection != EnumPlayerData.Transport);
 		this.getButton(5).setEnabled(this.selection != EnumPlayerData.Bank);
 		this.getButton(6).setEnabled(this.selection != EnumPlayerData.Factions);
+		this.getButton(7).setEnabled(this.selection != EnumPlayerData.Wipe);
 		if (this.selection == EnumPlayerData.Players) {
 			this.getLabel(0).setLabel("All Players");
 		} else {
@@ -119,6 +127,7 @@ implements IScrollData, ICustomScrollListener {
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 200, this.guiTop + 98, 98, 20, "global.transport"));
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 200, this.guiTop + 120, 98, 20, "role.bank"));
 		this.addButton(new GuiNpcButton(6, this.guiLeft + 200, this.guiTop + 142, 98, 20, "menu.factions"));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 200, this.guiTop + 164, 98, 20, "gui.wipe"));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 193, 190, 20,
 				this.search));
 		this.getTextField(0).enabled = (this.selection == EnumPlayerData.Players);

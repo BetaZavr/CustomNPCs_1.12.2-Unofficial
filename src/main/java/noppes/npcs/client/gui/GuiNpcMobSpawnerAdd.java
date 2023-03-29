@@ -18,7 +18,10 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 
-public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCallback, IGuiData {
+public class GuiNpcMobSpawnerAdd
+extends GuiNPCInterface
+implements GuiYesNoCallback, IGuiData {
+	
 	private static boolean serverSide = false;
 	private static int tab = 1;
 	private NBTTagCompound compound;

@@ -7,5 +7,6 @@ public enum EnumPlayerData
 	Dialog, 
 	Transport, 
 	Bank, 
-	Factions;
+	Factions,
+	Wipe;
 }

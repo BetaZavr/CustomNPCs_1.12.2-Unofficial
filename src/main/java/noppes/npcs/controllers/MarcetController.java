@@ -268,6 +268,7 @@ public class MarcetController {
 			if (file.exists()) {
 				file.delete();
 			}
+			//NBTJsonUtil.SaveFile(new File(saveDir, "marcet.json"), this.getNBT());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

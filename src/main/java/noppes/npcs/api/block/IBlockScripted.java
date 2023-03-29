@@ -1,5 +1,6 @@
 package noppes.npcs.api.block;
 
+import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.item.IItemStack;
 
@@ -72,6 +73,12 @@ extends IBlock {
 	
 	void setModel(IBlock iblock); // New
 
-	void trigger(int id, Object ... arguments);
+	void trigger(int id, Object ... arguments); // New
+	
+	ILayerModel[] getLayerModels();
+	
+	ILayerModel createLayerModel();
 
+	void updateModel();
+	
 }

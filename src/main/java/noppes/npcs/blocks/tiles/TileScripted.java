@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -26,6 +27,7 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.TextBlock;
+import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.block.ITextPlane;
 import noppes.npcs.api.wrapper.BlockScriptedWrapper;
@@ -34,6 +36,7 @@ import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.data.DataTimers;
+import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ValueUtil;
 
 public class TileScripted
@@ -76,6 +79,7 @@ implements ITickable, IScriptBlockHandler {
 	private short ticksExisted;
 
 	public DataTimers timers;
+	public ILayerModel[] layers; // New
 
 	public TileScripted() {
 		this.scripts = new ArrayList<ScriptContainer>();
@@ -113,9 +117,11 @@ implements ITickable, IScriptBlockHandler {
 		this.text6 = new TextPlane();
 		// New
 		this.metaModel = 0;
+		this.layers = new ILayerModel[0];
 	}
 	
 	public class TextPlane implements ITextPlane {
+		
 		public float offsetX;
 		public float offsetY;
 		public float offsetZ;
@@ -333,6 +339,11 @@ implements ITickable, IScriptBlockHandler {
 		compound.setTag("Text6", this.text6.getNBT());
 		// New
 		compound.setInteger("ModelMeta", this.metaModel);
+		NBTTagList l = new NBTTagList();
+		for (int i=0; i<this.layers.length; i++) {
+			l.appendTag(this.layers[i].getNbt());
+		}
+		compound.setTag("Layers", l);
 		return compound;
 	}
 
@@ -464,6 +475,10 @@ implements ITickable, IScriptBlockHandler {
 		}
 		// New
 		this.metaModel = compound.getInteger("ModelMeta");
+		this.layers = new ILayerModel[compound.getTagList("Layers", 10).tagCount()];
+		for (int i=0; i<compound.getTagList("Layers", 10).tagCount(); i++) {
+			this.layers[i] = new LayerModel(compound.getTagList("Layers", 10).getCompoundTagAt(i));
+		}
 	}
 
 	public void setEnabled(boolean bo) {
@@ -515,9 +530,7 @@ implements ITickable, IScriptBlockHandler {
 	}
 
 	public void setRedstonePower(int strength) {
-		if (this.powering == strength) {
-			return;
-		}
+		if (this.powering == strength) { return; }
 		int correctInt = ValueUtil.correctInt(strength, 0, 15);
 		this.activePowering = correctInt;
 		this.prevPower = correctInt;
@@ -587,6 +600,14 @@ implements ITickable, IScriptBlockHandler {
 			if (this.metaModel>0) {
 				try {
 					state = this.blockModel.getStateFromMeta(this.metaModel);
+					int i =0;
+					for (IBlockState ibs : this.blockModel.getBlockState().getValidStates()) {
+						if (i==this.metaModel) {
+							state = ibs;
+							break;
+						}
+						i++;
+					}
 					if (state!=null) { this.blockModel = state.getBlock(); }
 				} catch (Exception e) { this.metaModel = 0; }
 			}

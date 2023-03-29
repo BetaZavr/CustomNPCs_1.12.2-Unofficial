@@ -103,7 +103,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		if (this.faction.id == -1) {
 			return;
 		}
-		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, this.faction.name));
+		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, AdditionalMethods.deleteColor(this.faction.name)));
 		this.getTextField(0).setMaxStringLength(20);
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 8, this.guiTop + 9));
 		this.addLabel(new GuiNpcLabel(10, "ID", this.guiLeft + 178, this.guiTop + 4));

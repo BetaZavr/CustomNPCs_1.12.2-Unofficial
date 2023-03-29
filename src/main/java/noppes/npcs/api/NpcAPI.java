@@ -17,6 +17,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.ICloneHandler;
@@ -109,5 +110,7 @@ public abstract class NpcAPI {
 	public abstract ICustomNpc<?> spawnNPC(World world, int x, int y, int z);
 
 	public abstract INbt stringToNbt(String str);
+	
+	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
 	
 }

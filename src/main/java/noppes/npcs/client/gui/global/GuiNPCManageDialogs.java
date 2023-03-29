@@ -55,28 +55,33 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	public void buttonEvent(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		if (button.id == 1) {
-			this.setSubGui(new SubGuiEditText(1, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-		}
-		if (button.id == 2) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this,
-					this.categoryData.get(this.selectedCategory).title,
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
-			this.displayGuiScreen((GuiScreen) guiyesno);
-		}
-		if (button.id == 3) {
-			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
-		}
-		if (button.id == 11) {
-			this.setSubGui(new SubGuiEditText(11, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
-		}
-		if (button.id == 12) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.dialogData.get(this.selectedDialog).title,
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
-			this.displayGuiScreen((GuiScreen) guiyesno);
-		}
-		if (button.id == 13) {
-			this.setSubGui(new GuiDialogEdit(this.dialogData.get(this.selectedDialog)));
+		switch(button.id) {
+			case 1: {
+				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
+			}
+			case 2: {
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.categoryData.get(this.selectedCategory).title, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
+				this.displayGuiScreen((GuiScreen) guiyesno);
+				break;
+			}
+			case 3: {
+				this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
+				break;
+			}
+			case 11: {
+				this.setSubGui(new SubGuiEditText(11, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				break;
+			}
+			case 12: {
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.dialogData.get(this.selectedDialog).title, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
+				this.displayGuiScreen((GuiScreen) guiyesno);
+				break;
+			}
+			case 13: {
+				this.setSubGui(new GuiDialogEdit(this.dialogData.get(this.selectedDialog)));
+				break;
+			}
 		}
 	}
 

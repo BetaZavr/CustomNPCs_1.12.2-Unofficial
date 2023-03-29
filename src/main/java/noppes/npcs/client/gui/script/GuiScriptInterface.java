@@ -93,104 +93,109 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.xSize = (int) (this.width * 0.88);
-		this.ySize = (int) (this.xSize * 0.56);
-		if (this.ySize > this.height * 0.95) {
-			this.ySize = (int) (this.height * 0.95);
-			this.xSize = (int) (this.ySize / 0.56);
-		}
-		this.bgScale = this.xSize / 400.0f;
-		super.initGui();
-		this.guiTop += 10;
-		int yoffset = (int) (this.ySize * 0.02);
-		GuiMenuTopButton top;
-		this.addTopButton(top = new GuiMenuTopButton(0, this.guiLeft + 4, this.guiTop - 17, "gui.settings"));
-		for (int i = 0; i < this.handler.getScripts().size(); ++i) {
-			this.addTopButton(top = new GuiMenuTopButton(i + 1, top, i + 1 + ""));
-		}
-		if (this.handler.getScripts().size() < 16) {
-			this.addTopButton(top = new GuiMenuTopButton(12, top, "+"));
-		}
-		top = this.getTopButton(this.activeTab);
-		if (top == null) {
-			this.activeTab = 0;
-			top = this.getTopButton(0);
-		}
-		top.active = true;
-		if (this.activeTab > 0) {
-			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
-			GuiTextArea ta = new GuiTextArea(2, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
-					this.xSize - 108 - yoffset, (int) ((this.ySize * 0.96) - yoffset * 2),
-					(container == null) ? "" : container.script);
-			ta.enableCodeHighlighting();
-			ta.setListener(this);
-			this.add(ta);
-			int left = this.guiLeft + this.xSize - 105;
-			this.addButton(new GuiNpcButton(102, left, this.guiTop + yoffset, 60, 20, "gui.clear"));
-			this.addButton(new GuiNpcButton(101, left + 61, this.guiTop + yoffset, 60, 20, "gui.paste"));
-			this.addButton(new GuiNpcButton(100, left, this.guiTop + 21 + yoffset, 60, 20, "gui.copy"));
-			this.addButton(new GuiNpcButton(105, left + 61, this.guiTop + 21 + yoffset, 60, 20, "gui.remove"));
-			this.addButton(new GuiNpcButton(107, left, this.guiTop + 42 + yoffset, 80, 20, "script.loadscript"));
-			GuiCustomScroll scroll = new GuiCustomScroll(this, 0).setUnselectable();
-			scroll.setSize(100, (int) ((this.ySize * 0.54) - yoffset * 2));
-			scroll.guiLeft = left;
-			scroll.guiTop = this.guiTop + 88 + yoffset;
-			if (container != null) {
-				scroll.setList(container.scripts);
+		try {
+			this.xSize = (int) (this.width * 0.88);
+			this.ySize = (int) (this.xSize * 0.56);
+			if (this.ySize > this.height * 0.95) {
+				this.ySize = (int) (this.height * 0.95);
+				this.xSize = (int) (this.ySize / 0.56);
 			}
-			this.addScroll(scroll);
-
-			// New
-			if (!CustomNpcs.useScriptHelper) {
-				return;
+			this.bgScale = this.xSize / 400.0f;
+			super.initGui();
+			this.guiTop += 10;
+			int yoffset = (int) (this.ySize * 0.02);
+			GuiMenuTopButton top;
+			this.addTopButton(top = new GuiMenuTopButton(0, this.guiLeft + 4, this.guiTop - 17, "gui.settings"));
+			for (int i = 0; i < this.handler.getScripts().size(); ++i) {
+				this.addTopButton(top = new GuiMenuTopButton(i + 1, top, i + 1 + ""));
 			}
-			this.addButton(new GuiButtonBiDirectional(120, left, this.guiTop + 63 + yoffset, 120, 20,
-					new String[] { "global", "local" }, this.var));
-
-			this.scrollHelp = new GuiCustomScroll(this, 0);
-			this.scrollHelp.visible = false; // this.activeTab>0
-			this.scrollHelp.colorBack = 0xFF808080;
-			this.scrollHelp.setSize(119, this.ySize - 102);
-			this.addScroll(this.scrollHelp);
-
-			this.scrollVariables = new GuiCustomScroll(this, 1);
-			this.scrollVariables.guiLeft = this.guiLeft + this.xSize - 105;
-			this.scrollVariables.guiTop = this.guiTop + 84 + yoffset;
-			this.scrollVariables.setSize(119, ta.height-84);
-			this.scrollVariables.visible = this.activeTab > 0;
-			this.addScroll(this.scrollVariables);
-
-			this.helper = new GuiNpcLabel(0, "Test", 0, 0);
-			this.helper.backColor = 0xFFFFFFE1;
-			this.helper.borderColor = 0xFF646464;
-
-			this.cheakVariables(50, null);
-		} else {
-			GuiTextArea ta2 = new GuiTextArea(2, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset,
-					this.xSize - 160 - yoffset, (int) ((this.ySize * 0.92f) - yoffset * 2), this.getConsoleText());
-			ta2.enabled = false;
-			this.add(ta2);
-			int left2 = this.guiLeft + this.xSize - 150;
-			this.addButton(new GuiNpcButton(100, left2, this.guiTop + 125, 60, 20, "gui.copy"));
-			this.addButton(new GuiNpcButton(102, left2, this.guiTop + 146, 60, 20, "gui.clear"));
-			this.addLabel(new GuiNpcLabel(1, "script.language", left2, this.guiTop + 15));
-			this.addButton(new GuiNpcButton(103, left2 + 60, this.guiTop + 10, 80, 20,
-					this.languages.keySet().toArray(new String[this.languages.keySet().size()]),
-					this.getScriptIndex()));
-			this.getButton(103).enabled = (this.languages.size() > 0);
-			this.addLabel(new GuiNpcLabel(2, "gui.enabled", left2, this.guiTop + 36));
-			this.addButton(new GuiNpcButton(104, left2 + 60, this.guiTop + 31, 50, 20,
-					new String[] { "gui.no", "gui.yes" }, (this.handler.getEnabled() ? 1 : 0)));
-			if (this.player.getServer() != null) {
-				this.addButton(new GuiNpcButton(106, left2, this.guiTop + 55, 150, 20, "script.openfolder"));
+			if (this.handler.getScripts().size() < 16) {
+				this.addTopButton(top = new GuiMenuTopButton(12, top, "+"));
 			}
-			this.addButton(new GuiNpcButton(109, left2, this.guiTop + 78, 80, 20, "gui.website"));
-			this.addButton(new GuiNpcButton(112, left2 + 81, this.guiTop + 78, 80, 20, "gui.forum"));
-			this.addButton(new GuiNpcButton(110, left2, this.guiTop + 99, 80, 20, "script.apidoc"));
-			this.addButton(new GuiNpcButton(111, left2 + 81, this.guiTop + 99, 80, 20, "script.apisrc"));
+			top = this.getTopButton(this.activeTab);
+			if (top == null) {
+				this.activeTab = 0;
+				top = this.getTopButton(0);
+			}
+			top.active = true;
+			if (this.activeTab > 0) {
+				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+				GuiTextArea ta = new GuiTextArea(2, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
+						this.xSize - 108 - yoffset, (int) ((this.ySize * 0.96) - yoffset * 2),
+						(container == null) ? "" : container.script);
+				ta.enableCodeHighlighting();
+				ta.setListener(this);
+				this.add(ta);
+				int left = this.guiLeft + this.xSize - 105;
+				this.addButton(new GuiNpcButton(102, left, this.guiTop + yoffset, 60, 20, "gui.clear"));
+				this.addButton(new GuiNpcButton(101, left + 61, this.guiTop + yoffset, 60, 20, "gui.paste"));
+				this.addButton(new GuiNpcButton(100, left, this.guiTop + 21 + yoffset, 60, 20, "gui.copy"));
+				this.addButton(new GuiNpcButton(105, left + 61, this.guiTop + 21 + yoffset, 60, 20, "gui.remove"));
+				this.addButton(new GuiNpcButton(107, left, this.guiTop + 42 + yoffset, 80, 20, "script.loadscript"));
+				GuiCustomScroll scroll = new GuiCustomScroll(this, 0).setUnselectable();
+				scroll.setSize(100, (int) ((this.ySize * 0.54) - yoffset * 2));
+				scroll.guiLeft = left;
+				scroll.guiTop = this.guiTop + 88 + yoffset;
+				if (container != null) {
+					scroll.setList(container.scripts);
+				}
+				this.addScroll(scroll);
+	
+				// New
+				if (!CustomNpcs.useScriptHelper) {
+					return;
+				}
+				this.addButton(new GuiButtonBiDirectional(120, left, this.guiTop + 63 + yoffset, 120, 20,
+						new String[] { "global", "local" }, this.var));
+	
+				this.scrollHelp = new GuiCustomScroll(this, 0);
+				this.scrollHelp.visible = false; // this.activeTab>0
+				this.scrollHelp.colorBack = 0xFF808080;
+				this.scrollHelp.setSize(119, this.ySize - 102);
+				this.addScroll(this.scrollHelp);
+	
+				this.scrollVariables = new GuiCustomScroll(this, 1);
+				this.scrollVariables.guiLeft = this.guiLeft + this.xSize - 105;
+				this.scrollVariables.guiTop = this.guiTop + 84 + yoffset;
+				this.scrollVariables.setSize(119, ta.height-84);
+				this.scrollVariables.visible = this.activeTab > 0;
+				this.addScroll(this.scrollVariables);
+	
+				this.helper = new GuiNpcLabel(0, "Test", 0, 0);
+				this.helper.backColor = 0xFFFFFFE1;
+				this.helper.borderColor = 0xFF646464;
+	
+				this.cheakVariables(50, null);
+			} else {
+				GuiTextArea ta2 = new GuiTextArea(2, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset,
+						this.xSize - 160 - yoffset, (int) ((this.ySize * 0.92f) - yoffset * 2), this.getConsoleText());
+				ta2.enabled = false;
+				this.add(ta2);
+				int left2 = this.guiLeft + this.xSize - 150;
+				this.addButton(new GuiNpcButton(100, left2, this.guiTop + 125, 60, 20, "gui.copy"));
+				this.addButton(new GuiNpcButton(102, left2, this.guiTop + 146, 60, 20, "gui.clear"));
+				this.addLabel(new GuiNpcLabel(1, "script.language", left2, this.guiTop + 15));
+				this.addButton(new GuiNpcButton(103, left2 + 60, this.guiTop + 10, 80, 20,
+						this.languages.keySet().toArray(new String[this.languages.keySet().size()]),
+						this.getScriptIndex()));
+				this.getButton(103).enabled = (this.languages.size() > 0);
+				this.addLabel(new GuiNpcLabel(2, "gui.enabled", left2, this.guiTop + 36));
+				this.addButton(new GuiNpcButton(104, left2 + 60, this.guiTop + 31, 50, 20,
+						new String[] { "gui.no", "gui.yes" }, (this.handler.getEnabled() ? 1 : 0)));
+				if (this.player.getServer() != null) {
+					this.addButton(new GuiNpcButton(106, left2, this.guiTop + 55, 150, 20, "script.openfolder"));
+				}
+				this.addButton(new GuiNpcButton(109, left2, this.guiTop + 78, 80, 20, "gui.website"));
+				this.addButton(new GuiNpcButton(112, left2 + 81, this.guiTop + 78, 80, 20, "gui.forum"));
+				this.addButton(new GuiNpcButton(110, left2, this.guiTop + 99, 80, 20, "script.apidoc"));
+				this.addButton(new GuiNpcButton(111, left2 + 81, this.guiTop + 99, 80, 20, "script.apisrc"));
+			}
+			this.xSize = 420;
+			this.ySize = 256;
+		} catch (Exception e) {
+			this.displayGuiScreen(null);
+			this.mc.setIngameFocus();
 		}
-		this.xSize = 420;
-		this.ySize = 256;
 	}
 
 	@Override
@@ -753,9 +758,9 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		if (!CustomNpcs.useScriptHelper) { return; }
+		if (!CustomNpcs.useScriptHelper || scroll==null) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(2);
-		if (area == null) { return; }
+		if (area == null || scroll.getSelected()==null) { return; }
 		String text = area.getText(), add = "";
 //System.out.println("scrollId: "+scroll.id);
 		if (scroll.id == 1) { // variebels

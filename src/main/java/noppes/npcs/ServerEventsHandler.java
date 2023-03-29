@@ -56,6 +56,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.dimensions.DimensionHandler;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
@@ -377,10 +378,13 @@ public class ServerEventsHandler {
 					(EntityNPCInterface) event.getTarget());
 		} else if (item.getItem() == CustomItems.cloner && !isRemote && !(event.getTarget() instanceof EntityPlayer)) {
 			NBTTagCompound compound = new NBTTagCompound();
-			if (!event.getTarget().writeToNBTAtomically(compound)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-							"ServerEventsHandler_npcPlayerInteract");
+			if (!((EntityCustomNpc) event.getTarget()).writeToNBTAtomically(compound)) {
+				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
+			}
+			String s = compound.getString("id");
+			if (s.equals("minecraft:" + CustomNpcs.MODID + ".customnpc") || s.equals("minecraft:" + CustomNpcs.MODID + ":customnpc")) {
+				compound.setString("id", CustomNpcs.MODID + ":customnpc");
 			}
 			PlayerData data = PlayerData.get(event.getEntityPlayer());
 			ServerCloneController.Instance.cleanTags(compound);

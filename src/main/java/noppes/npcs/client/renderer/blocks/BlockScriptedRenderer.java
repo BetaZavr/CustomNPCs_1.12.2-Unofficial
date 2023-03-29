@@ -15,8 +15,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import noppes.npcs.CustomItems;
+import noppes.npcs.api.ILayerModel;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.TextBlockClient;
+import noppes.npcs.client.renderer.ModelBuffer;
+import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class BlockScriptedRenderer<T extends TileEntity>
@@ -30,7 +33,7 @@ extends BlockRendererInterface<T> {
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.enableLighting();
-		GlStateManager.color(1.0f, 1.0f, 1.0f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x + 0.5, y + 0.5, z + 0.5);
 		GlStateManager.rotate(text1.rotationY, 0.0f, 1.0f, 0.0f);
@@ -38,6 +41,7 @@ extends BlockRendererInterface<T> {
 		GlStateManager.rotate(text1.rotationZ, 0.0f, 0.0f, 1.0f);
 		GlStateManager.scale(text1.scale, text1.scale, 1.0f);
 		GlStateManager.translate(text1.offsetX, text1.offsetY, text1.offsetZ);
+		RenderHelper.disableStandardItemLighting();
 		float f1 = 0.6666667f;
 		float f2 = 0.0133f * f1;
 		GlStateManager.translate(0.0f, 0.5f, 0.01f);
@@ -51,11 +55,11 @@ extends BlockRendererInterface<T> {
 		}
 		for (int i = 0; i < text1.textBlock.lines.size(); ++i) {
 			String text2 = text1.textBlock.lines.get(i).getFormattedText();
-			fontrenderer.drawString(text2, -fontrenderer.getStringWidth(text2) / 2,
-					(int) ((lineOffset + i) * (fontrenderer.FONT_HEIGHT - 0.3)), 0);
+			fontrenderer.drawString(text2, -fontrenderer.getStringWidth(text2) / 2, (int) ((lineOffset + i) * (fontrenderer.FONT_HEIGHT - 0.3)), 0);
 		}
 		GlStateManager.depthMask(true);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderHelper.enableStandardItemLighting();
 		GlStateManager.popMatrix();
 	}
 
@@ -64,6 +68,7 @@ extends BlockRendererInterface<T> {
 		return held != null && (held.getItem() == CustomItems.wand || held.getItem() == CustomItems.scripter);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void render(TileEntity te, double x, double y, double z, float partialTicks, int blockDamage, float alpha) {
 		TileScripted tile = (TileScripted) te;
 		GlStateManager.pushMatrix();
@@ -73,6 +78,8 @@ extends BlockRendererInterface<T> {
 		if (this.overrideModel()) { // Default model
 			GlStateManager.translate(0.0, 0.5, 0.0);
 			this.renderItem(new ItemStack(CustomItems.scripted));
+			GlStateManager.popMatrix();
+			return;
 		} else {
 			// Custom model
 			GlStateManager.rotate(tile.rotationY, 0.0f, 1.0f, 0.0f);
@@ -113,6 +120,52 @@ extends BlockRendererInterface<T> {
 			}
 		}
 		GlStateManager.popMatrix();
+		if (tile.layers.length>0) {
+			for (ILayerModel il : tile.layers) {
+				LayerModel l = (LayerModel) il;
+				Block block = l.model.isEmpty() ? null : Block.getBlockFromItem(l.model.getItem());
+				if (l.model.isEmpty() && l.objModel.isEmpty()) { continue; }
+				GlStateManager.pushMatrix();
+				GlStateManager.disableBlend();
+				RenderHelper.enableStandardItemLighting();
+				GlStateManager.translate(x + 0.5, y, z + 0.5);
+				GlStateManager.translate(l.offsetAxis[0], l.offsetAxis[1], l.offsetAxis[2]);
+				//System.out.println("isRotate : ["+(l.rotateAxis[0]==(byte) 1)+", "+(l.rotateAxis[1]==(byte) 1)+", "+(l.rotateAxis[2]==(byte) 1)+"]");
+				if (l.isRotate[1]==(byte) 1) { GlStateManager.rotate((System.currentTimeMillis()/l.rotateSpeed) % 360, 0.0f, 1.0f, 0.0f); }
+				else { GlStateManager.rotate(l.rotateAxis[1], 0.0f, 1.0f, 0.0f); }
+				if (l.isRotate[0]==(byte) 1) { GlStateManager.rotate((System.currentTimeMillis()/l.rotateSpeed) % 360, 1.0f, 0.0f, 0.0f); }
+				else { GlStateManager.rotate(l.rotateAxis[0], 1.0f, 0.0f, 0.0f); }
+				if (l.isRotate[2]==(byte) 1) { GlStateManager.rotate((System.currentTimeMillis()/l.rotateSpeed) % 3602, 0.0f, 0.0f, 1.0f); }
+				else { GlStateManager.rotate(l.rotateAxis[2], 0.0f, 0.0f, 1.0f); }
+				GlStateManager.scale(l.scaleAxis[0], l.scaleAxis[1], l.scaleAxis[2]);
+				if (!l.model.isEmpty() && (block==null || block == Blocks.AIR)) {
+					GlStateManager.translate(0.0, 0.5, 0.0);
+					//System.out.println("pos:"+l.pos+" = "+l.model+" / "+l.getNbt());
+					this.renderItem(l.model);
+				}
+				else if (block!=null) {
+					IBlockState state = block.getDefaultState();
+					if (l.model.getItemDamage()>0) {
+						state = block.getStateFromMeta(l.model.getItemDamage());
+						int i =0;
+						for (IBlockState ibs : block.getBlockState().getValidStates()) {
+							if (i==l.model.getItemDamage()) {
+								state = ibs;
+								break;
+							}
+							i++;
+						}
+					}
+					this.renderBlock(tile, block, state);
+				}
+				else if (!l.objModel.isEmpty() && ModelBuffer.hasDisplayList(l.objModel)) {
+					int displayList = ModelBuffer.getDisplayList(l.objModel);
+					//System.out.println("CNPCs: "+l.objModel+"; dList: "+displayList);
+					if (displayList>=0) { GlStateManager.callList(displayList); }
+				}
+				GlStateManager.popMatrix();
+			}
+		}
 		if (!tile.text1.text.isEmpty()) {
 			this.drawText(tile.text1, x, y, z);
 		}

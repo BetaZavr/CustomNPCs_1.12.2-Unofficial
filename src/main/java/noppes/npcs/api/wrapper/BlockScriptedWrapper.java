@@ -12,6 +12,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
@@ -20,6 +21,7 @@ import noppes.npcs.api.block.ITextPlane;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.LayerModel;
 
 public class BlockScriptedWrapper
 extends BlockWrapper
@@ -40,8 +42,7 @@ implements IBlockScripted {
 		FakePlayer player = EntityNPCInterface.CommandPlayer;
 		player.setWorld(this.tile.getWorld());
 		player.setPosition(this.getX(), this.getY(), this.getZ());
-		return NoppesUtilServer.runCommand(this.tile.getWorld(), this.tile.getPos(),
-				"ScriptBlock: " + this.tile.getPos(), command, null, player);
+		return NoppesUtilServer.runCommand(this.tile.getWorld(), this.tile.getPos(), "ScriptBlock: " + this.tile.getPos(), command, null, player);
 	}
 
 	@Override
@@ -71,7 +72,7 @@ implements IBlockScripted {
 
 	@Override
 	public int getRedstonePower() {
-		return this.tile.powering;
+		return this.tile.prevPower;
 	}
 
 	@Override
@@ -177,7 +178,7 @@ implements IBlockScripted {
 
 	@Override
 	public void setModel(String name) {
-		if (name == null) {
+		if (name == null || name.isEmpty()) {
 			this.tile.setItemModel(null, null);
 		} else {
 			ResourceLocation loc = new ResourceLocation(name);
@@ -242,6 +243,32 @@ implements IBlockScripted {
 	@Override
 	public void trigger(int id, Object... arguments) {
 		EventHooks.onScriptTriggerEvent(this.tile, id, this.getWorld(), this.getPos(), null, arguments);
+	}
+
+	@Override
+	public ILayerModel[] getLayerModels() {
+		for (int i=0; i<this.tile.layers.length; i++) {
+			((LayerModel) this.tile.layers[i]).pos = i;
+		}
+		return this.tile.layers;
+	}
+
+	@Override
+	public ILayerModel createLayerModel() {
+		ILayerModel[] ls = new ILayerModel[this.tile.layers.length+1];
+		int i = 0;
+		for (i = 0; i<this.tile.layers.length; i++) {
+			((LayerModel) this.tile.layers[i]).pos = i;
+			ls[i] = this.tile.layers[i];
+		}
+		ls[i] = new LayerModel(i);
+		this.tile.layers = ls;
+		return this.tile.layers[i];
+	}
+
+	@Override
+	public void updateModel() {
+		this.tile.needsClientUpdate = true;
 	}
 	
 }

@@ -57,8 +57,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 	public Quest selectedQuest;
 	private HashMap<Integer, GuiMenuSideButton> sideButtons;
 	TextBlockClient textblock;
-	// New
-	private int yoffset;
+	int yoffset;
 
 	public GuiQuestLog(EntityPlayer player) {
 		this.activeQuests = new HashMap<String, List<Quest>>();
@@ -76,7 +75,6 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		this.ySize = 180;
 		this.drawDefaultBackground = false;
 		// New
-		this.yoffset = 182;
 		this.maxLines = 10;
 	}
 
@@ -123,16 +121,12 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 			return;
 		}
 		// Finish NPC
-		this.yoffset = 222; // end line
+		this.yoffset = this.ySize + 2; // end line
 		if (this.selectedQuest.completion == EnumQuestCompletion.Npc) {
-			this.drawHorizontalLine(this.guiLeft + 142, this.guiLeft + 312, this.yoffset - 2,
-					-16777216 + CustomNpcResourceListener.DefaultTextColor);
+			this.drawHorizontalLine(this.guiLeft + 142, this.guiLeft + 312, this.guiTop+this.yoffset - 2, -16777216 + CustomNpcResourceListener.DefaultTextColor);
 			String complete = this.selectedQuest.getNpcName();
 			if (complete != null && !complete.isEmpty()) {
-				this.mc.fontRenderer.drawString(
-						new TextComponentTranslation("quest.completewith", new Object[] { complete })
-								.getFormattedText(),
-						this.guiLeft + 142, this.yoffset, CustomNpcResourceListener.DefaultTextColor);
+				this.mc.fontRenderer.drawString(new TextComponentTranslation("quest.completewith", new Object[] { complete }).getFormattedText(), this.guiLeft + 142, this.guiTop+this.yoffset, CustomNpcResourceListener.DefaultTextColor);
 			}
 			this.yoffset -= 11;
 		}
@@ -152,12 +146,9 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 				}
 			}
 			for (int i = 0; i < allObj.length; i++) {
-				hyphen = (complite != -1 ? complite == i ? colorG : "" : colorR) + (i + 1) + "("
-						+ new TextComponentTranslation("quest.task.step.2").getFormattedText().toLowerCase() + ")-"
-						+ new String(Character.toChars(0x00A7)) + "r" + allObj[i].getText();
+				hyphen = (complite != -1 ? complite == i ? colorG : "" : colorR) + (i + 1) + "(" + new TextComponentTranslation("quest.task.step.2").getFormattedText().toLowerCase() + ")-" + new String(Character.toChars(0x00A7)) + "r" + allObj[i].getText();
 				// Progress
-				this.mc.fontRenderer.drawString(hyphen, this.guiLeft + 142, this.yoffset,
-						CustomNpcResourceListener.DefaultTextColor);
+				this.mc.fontRenderer.drawString(hyphen, this.guiLeft + 142, this.guiTop+this.yoffset, CustomNpcResourceListener.DefaultTextColor);
 				this.yoffset += 9;
 			}
 		} else {
@@ -174,19 +165,16 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 				}
 				hyphen = color + (i + 1) + "-" + new String(Character.toChars(0x00A7)) + "r" + allObj[i].getText();
 				// Progress
-				this.mc.fontRenderer.drawString(hyphen, this.guiLeft + 142, this.yoffset,
-						CustomNpcResourceListener.DefaultTextColor);
+				this.mc.fontRenderer.drawString(hyphen, this.guiLeft + 142, this.guiTop+this.yoffset, CustomNpcResourceListener.DefaultTextColor);
 				this.yoffset += 9;
 			}
 		}
 		// Main Task
-		this.yoffset -= (allObj.length + 1) * 9 - 7;
-		this.drawHorizontalLine(this.guiLeft + 142, this.guiLeft + 312, this.yoffset,
-				-16777216 + CustomNpcResourceListener.DefaultTextColor);
+		yoffset -= (allObj.length + 1) * 9 - 7;
+		this.drawHorizontalLine(this.guiLeft + 142, this.guiLeft + 312, this.guiTop+this.yoffset, -16777216 + CustomNpcResourceListener.DefaultTextColor);
 		this.yoffset -= 9;
-		this.mc.fontRenderer.drawString(new TextComponentTranslation("quest.objectives").getFormattedText() + ":",
-				this.guiLeft + 142, this.yoffset, CustomNpcResourceListener.DefaultTextColor);
-		this.yoffset -= 40;
+		this.mc.fontRenderer.drawString(new TextComponentTranslation("quest.objectives").getFormattedText() + ":", this.guiLeft + 142, this.guiTop+this.yoffset, CustomNpcResourceListener.DefaultTextColor);
+		this.yoffset -= 12;
 	}
 
 	private void drawQuestText() {
@@ -198,7 +186,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		}
 		// New
 		int mF = this.fontRenderer.FONT_HEIGHT;
-		this.maxLines = (int) Math.floor(((double) this.yoffset - (double) this.guiTop + 20.0d) / (double) mF) - 1;
+		this.maxLines = (int) Math.floor(((double) this.yoffset + 20.0d) / (double) mF) - 1;
 		for (int i = 0; i < this.maxLines; ++i) {
 			int index = i + this.currentPage * this.maxLines;
 			if (index < this.textblock.lines.size()) {
@@ -258,7 +246,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.yoffset = 182;
+		this.yoffset = this.ySize + 2;
 		for (Quest quest : PlayerQuestController.getActiveQuests(this.player)) {
 			String category = quest.category.title;
 			if (!this.activeQuests.containsKey(category)) {
@@ -318,8 +306,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		this.getButton(1).visible = (this.selectedQuest != null && this.currentPage < this.maxPages - 1);
 		this.getButton(2).visible = (this.selectedQuest != null && this.currentPage > 0);
 		// New
-		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 170, 90, 20, "quest.cancel",
-				this.selectedQuest != null && this.selectedQuest.cancelable));
+		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 170, 90, 20, "quest.cancel", this.selectedQuest != null && this.selectedQuest.cancelable));
 	}
 
 	@Override

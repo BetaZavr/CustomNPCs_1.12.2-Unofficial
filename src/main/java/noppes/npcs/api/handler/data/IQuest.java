@@ -4,6 +4,7 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.entity.IPlayer;
 
 public interface IQuest {
+	
 	IQuestObjective addTask();
 
 	IQuestCategory getCategory();

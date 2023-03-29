@@ -25,14 +25,10 @@ public class PlayerQuestData {
 	public boolean checkQuestCompletion(EntityPlayer player, QuestData data) { // Changed
 		QuestInterface inter = data.quest.questInterface;
 		if (inter.isCompleted(player)) {
-			if (data.isCompleted) {
-				return false;
-			}
+			if (data.isCompleted) { return false; }
 			if (!data.quest.complete(player, data)) {
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.completed",
-						data.quest.getTitle(), 2);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.completed", ": ",
-						data.quest.getTitle());
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.completed", data.quest.getTitle(), 2);
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.completed", ": ", data.quest.getTitle());
 			}
 			data.isCompleted = true;
 			EventHooks.onQuestFinished(PlayerData.get(player).scriptData, data.quest);

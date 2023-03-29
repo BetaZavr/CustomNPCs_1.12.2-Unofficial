@@ -1,5 +1,6 @@
 package noppes.npcs.client;
 
+import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
@@ -16,13 +17,22 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,10 +40,12 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -55,6 +67,7 @@ import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
 	
@@ -267,45 +280,43 @@ public class ClientEventHandler {
 	}
 
 	private void renderBlock(IBlockState state) {
-    	BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-    	dispatcher.renderBlockBrightness(state, 1.0f);
+		BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+		dispatcher.renderBlockBrightness(state, 1.0f);
 		/*switch (state.getRenderType())  {
-            case MODEL:
-                IBakedModel ibakedmodel = dispatcher.getModelForState(state);
-                GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-                BlockModelRenderer bmr = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher, BlockModelRenderer.class);
-                BlockColors bc = ObfuscationHelper.getValue(BlockModelRenderer.class, bmr, BlockColors.class);
-                int color = bc.colorMultiplier(state, (IBlockAccess)null, (BlockPos)null, 0);
-                if (EntityRenderer.anaglyphEnable) { color = TextureUtil.anaglyphColor(color); }
-                float r = (float)(color >> 16 & 255) / 255.0F;
-                float g = (float)(color >> 8 & 255) / 255.0F;
-                float b = (float)(color & 255) / 255.0F;
-                for (EnumFacing enumfacing : EnumFacing.values()) { this.renderModelBlockQuads(ibakedmodel.getQuads(state, enumfacing, 0L), r, g, b); }
-                this.renderModelBlockQuads(ibakedmodel.getQuads(state, (EnumFacing)null, 0L), r, g, b);
-                //
-                break;
-            case ENTITYBLOCK_ANIMATED:
-                //this.chestRenderer.renderChestBrightness(state.getBlock(), brightness);
-            case LIQUID: break;
+			case MODEL:
+				IBakedModel ibakedmodel = dispatcher.getModelForState(state);
+				GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
+				BlockModelRenderer bmr = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher, BlockModelRenderer.class);
+				BlockColors bc = ObfuscationHelper.getValue(BlockModelRenderer.class, bmr, BlockColors.class);
+				int color = bc.colorMultiplier(state, (IBlockAccess)null, (BlockPos)null, 0);
+				if (EntityRenderer.anaglyphEnable) { color = TextureUtil.anaglyphColor(color); }
+				float r = (float)(color >> 16 & 255) / 255.0F;
+				float g = (float)(color >> 8 & 255) / 255.0F;
+				float b = (float)(color & 255) / 255.0F;
+				for (EnumFacing enumfacing : EnumFacing.values()) { this.renderModelBlockQuads(ibakedmodel.getQuads(state, enumfacing, 0L), r, g, b); }
+				this.renderModelBlockQuads(ibakedmodel.getQuads(state, (EnumFacing)null, 0L), r, g, b);
+				break;
+			case ENTITYBLOCK_ANIMATED:
+				//this.chestRenderer.renderChestBrightness(state.getBlock(), brightness);
+			case LIQUID: break;
 			default: break;
-	      }*/
+		}*/
 	}
-
-	/*
+	
 	private void renderModelBlockQuads(List<BakedQuad> quads, float r, float g, float b) {
 		Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        for (int j = quads.size(), i = 0; i < j; ++i) {
-            BakedQuad bakedquad = quads.get(i);
-            bufferbuilder.begin(7, DefaultVertexFormats.ITEM);
-            bufferbuilder.addVertexData(bakedquad.getVertexData());
-            if (bakedquad.hasTintIndex()) { bufferbuilder.putColorRGB_F4(r, g, b); }
-            else { bufferbuilder.putColorRGB_F4(1.0f, 1.0f, 1.0f); }
-            Vec3i vec3i = bakedquad.getFace().getDirectionVec();
-            bufferbuilder.putNormal((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ());
-            tessellator.draw();
-        }
-	}*/
+		BufferBuilder bufferbuilder = tessellator.getBuffer();
+		for (int j = quads.size(), i = 0; i < j; ++i) {
+			BakedQuad bakedquad = quads.get(i);
+			bufferbuilder.begin(7, DefaultVertexFormats.ITEM);
+			bufferbuilder.addVertexData(bakedquad.getVertexData());
+			if (bakedquad.hasTintIndex()) { bufferbuilder.putColorRGB_F4(r, g, b); }
+			else { bufferbuilder.putColorRGB_F4(1.0f, 1.0f, 1.0f); }
+			Vec3i vec3i = bakedquad.getFace().getDirectionVec();
+			bufferbuilder.putNormal((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ());
+			tessellator.draw();
+		}
+	}
 
 	@SubscribeEvent
 	public void post(RenderLivingEvent.Post<EntityLivingBase> event) {

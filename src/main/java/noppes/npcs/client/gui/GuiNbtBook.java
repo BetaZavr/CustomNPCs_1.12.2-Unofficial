@@ -141,10 +141,9 @@ implements IGuiData {
 					this.guiLeft + 60, this.guiTop + 6));
 		}
 		if (this.state != null) {
-			this.addLabel(new GuiNpcLabel(11, "x: " + this.x + ", y: " + this.y + ", z: " + this.z, this.guiLeft + 60,
-					this.guiTop + 6));
-			this.addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(this.state.getBlock()),
-					this.guiLeft + 60, this.guiTop + 16));
+			this.addLabel(new GuiNpcLabel(11, "x: " + this.x + ", y: " + this.y + ", z: " + this.z, this.guiLeft + 60, this.guiTop + 6));
+			this.addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(this.state.getBlock()), this.guiLeft + 60, this.guiTop + 16));
+			this.addLabel(new GuiNpcLabel(13, "meta: " + this.state.getBlock().getMetaFromState(this.state), this.guiLeft + 60, this.guiTop + 26));
 		}
 		if (this.entity != null) {
 			this.addLabel(

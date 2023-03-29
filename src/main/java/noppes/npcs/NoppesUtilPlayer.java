@@ -24,7 +24,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.oredict.OreDictionary;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.event.QuestEvent;
+import noppes.npcs.api.event.QuestEvent.QuestTurnedInEvent;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
@@ -397,7 +397,10 @@ public class NoppesUtilPlayer {
 	public static void questCompletion(EntityPlayerMP player, int questId) {
 		NoppesUtilPlayer.questCompletion(player, questId, ItemStack.EMPTY);
 	}
+	
 	public static void questCompletion(EntityPlayerMP player, int questId, ItemStack stack) {
+		
+		
 		PlayerData data = PlayerData.get(player);
 		PlayerQuestData playerdata = data.questData;
 		QuestData activeData = playerdata.activeQuests.get(questId);
@@ -408,8 +411,7 @@ public class NoppesUtilPlayer {
 		if (!quest.questInterface.isCompleted(player) && !activeData.isCompleted) {
 			return;
 		}
-		QuestEvent.QuestTurnedInEvent event = new QuestEvent.QuestTurnedInEvent(data.scriptData.getPlayer(),
-				(IQuest) quest);
+		QuestTurnedInEvent event = new QuestTurnedInEvent(data.scriptData.getPlayer(), (IQuest) quest);
 		event.expReward = quest.rewardExp;
 		List<IItemStack> rewardList = new ArrayList<IItemStack>();
 		for (ItemStack item : quest.rewardItems.items) {

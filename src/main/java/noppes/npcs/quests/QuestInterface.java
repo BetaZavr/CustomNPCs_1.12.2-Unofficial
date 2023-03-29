@@ -28,6 +28,7 @@ import noppes.npcs.util.AdditionalMethods;
 
 // Global Changed
 public class QuestInterface {
+	
 	private int id = 0;
 	public NpcMiscInventory items;
 	public QuestObjective[] tasks;

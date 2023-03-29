@@ -268,9 +268,10 @@ public class PacketHandlerPlayer {
 			}
 			NoppesUtilPlayer.dialogSelected(buffer.readInt(), buffer.readInt(), player, npc);
 		} else if (type == EnumPlayerPacket.CheckQuestCompletion) {
-			//int id = buffer.readInt();
+			int id = buffer.readInt();
 			PlayerQuestData playerdata = PlayerData.get((EntityPlayer) player).questData;
-			for (QuestData data : playerdata.activeQuests.values()) { // Changed
+			for (QuestData data : playerdata.activeQuests.values()) {
+				if (id>0 && data.quest.id!=id) { continue; }
 				playerdata.checkQuestCompletion(player, data);
 			}
 		} else if (type == EnumPlayerPacket.QuestCompletion) {

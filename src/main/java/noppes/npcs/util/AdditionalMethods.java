@@ -224,13 +224,14 @@ public class AdditionalMethods {
 	public static String deleteColor(String str) {
 		if (str == null) { return null; }
 		if (str.isEmpty()) { return str; }
-		for (int i=0; i<3; i++) {
+		for (int i=0; i<4; i++) {
 			String chr = new String(Character.toChars(0x00A7));
-			if (i==1) { chr = "§"; }
+			if (i==1) { chr = ""+((char) 167); }
 			else if (i==2) { chr = "&"; }
+			else if (i==3) { chr = ""+((char) 65535); }
 			while (str.indexOf(chr) != (-1)) {
 				int p = str.indexOf(chr);
-				str = (p>0 ? str.substring(0, p) : "" ) + str.substring(p + (p+2<str.length() ? 2 : 1));
+				str = (p>0 ? str.substring(0, p) : "" ) + (p+2==str.length() ? "" : str.substring(p + 2));
 			}
 		}
 		return str;

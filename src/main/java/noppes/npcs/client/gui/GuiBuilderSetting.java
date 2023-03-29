@@ -396,10 +396,28 @@ implements ICustomScrollListener, ITextfieldListener {
 				return;
 			}
 			this.builder.chances.put(textField.getId(), textField.getInteger());
+			return;
 		}
-		else if (textField.getId()==10) {
-			this.builder.schematicaName = textField.getText();
-			this.initGui();
+		if (this.builder.type==3 || this.builder.type==4) {
+			if (textField.getId()==10) {
+				this.builder.schematicaName = textField.getText();
+				this.initGui();
+			}
+		} else {
+			int pos = textField.getId()-10;
+			int max = 1;
+			for (int i=0; i<3; i++) {
+				if (i==pos) { continue; }
+				max *= this.builder.region[i];
+			}
+			int value = textField.getInteger();
+			System.out.println("value: "+value);
+			if (max * value > CustomNpcs.maxBuilderBlocks) {
+				value = CustomNpcs.maxBuilderBlocks / max;
+			}
+			if (value<=0) { value = 1; }
+			this.builder.region[pos==0 ? 0 : pos==1 ? 2 : 1] = value;
+			System.out.println("pos: "+pos+"; value: "+value+"/"+CustomNpcs.maxBuilderBlocks);
 		}
 	}
 

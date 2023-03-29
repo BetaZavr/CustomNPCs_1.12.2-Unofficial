@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.NoppesUtilPlayer;
@@ -27,6 +28,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.AdditionalMethods;
 
 public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	private Dialog dialog;
@@ -42,6 +44,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	private int selectedY;
 	private ResourceLocation wheel;
 	private ResourceLocation[] wheelparts;
+	private long wait;
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
@@ -58,9 +61,8 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		this.ySize = 238;
 		this.wheel = this.getResource("wheel.png");
 		this.indicator = this.getResource("indicator.png");
-		this.wheelparts = new ResourceLocation[] { this.getResource("wheel1.png"), this.getResource("wheel2.png"),
-				this.getResource("wheel3.png"), this.getResource("wheel4.png"), this.getResource("wheel5.png"),
-				this.getResource("wheel6.png") };
+		this.wheelparts = new ResourceLocation[] { this.getResource("wheel1.png"), this.getResource("wheel2.png"), this.getResource("wheel3.png"), this.getResource("wheel4.png"), this.getResource("wheel5.png"), this.getResource("wheel6.png") };
+		this.wait = this.dialog!=null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
 	}
 
 	public void appendDialog(Dialog dialog) {
@@ -111,12 +113,11 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 	private void closed() {
 		this.grabMouse(false);
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, new Object[0]);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 	}
 
 	private void drawLinedOptions(int j) {
-		this.drawHorizontalLine(this.guiLeft - 60, this.guiLeft + this.xSize + 120,
-				this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
+		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
 		int offset = this.dialogHeight;
 		if (j >= this.guiTop + offset) {
 			int selected = (j - (this.guiTop + offset)) / ClientProxy.Font.height(null);
@@ -137,8 +138,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			if (this.selected == k) {
 				this.drawString(this.fontRenderer, ">", this.guiLeft - 60, y, 14737632);
 			}
-			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc),
-					this.guiLeft - 30, y, option.optionColor);
+			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc), this.guiLeft - 30, y, option.optionColor);
 		}
 	}
 
@@ -168,7 +168,12 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			++count;
 		}
 		if (!this.options.isEmpty()) {
-			if (!this.dialog.showWheel) {
+			if (this.wait>System.currentTimeMillis()) {
+				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
+				int offset = this.dialogHeight;
+				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.wait - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
+			}
+			else if (!this.dialog.showWheel) {
 				this.drawLinedOptions(j);
 			} else {
 				this.drawWheel();
@@ -177,14 +182,11 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		GlStateManager.popMatrix();
 	}
 
-	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
-		ClientProxy.Font.drawString(text, x, y, color);
-	}
+	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) { ClientProxy.Font.drawString(text, x, y, color); }
 
 	private void drawString(String text, int left, int color, int count) {
 		int height = count - this.rowStart;
-		this.drawString(this.fontRenderer, text, this.guiLeft + left,
-				this.guiTop + height * ClientProxy.Font.height(null), color);
+		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height * ClientProxy.Font.height(null), color);
 	}
 
 	private void drawWheel() {
@@ -321,6 +323,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 	@Override
 	public void keyTyped(char c, int i) {
+		if (i!=1 && this.wait>System.currentTimeMillis()) { return; }
 		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
 			--this.selected;
 		}
@@ -340,17 +343,16 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
+		if (this.wait>System.currentTimeMillis()) { return; }
 		if (((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
 			this.handleDialogSelection();
 		}
 	}
 
 	@Override
-	public void save() {
-	}
+	public void save() { }
 
 	@Override
-	public void setClose(int i, NBTTagCompound data) {
-		this.grabMouse(false);
-	}
+	public void setClose(int i, NBTTagCompound data) { this.grabMouse(false); }
+	
 }

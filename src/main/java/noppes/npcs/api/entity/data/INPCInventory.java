@@ -1,6 +1,6 @@
 package noppes.npcs.api.entity.data;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.api.item.IItemStack;
 
 public interface INPCInventory {
@@ -19,13 +19,13 @@ public interface INPCInventory {
 
 	int getExpRNG();
 
-	IItemStack[] getItemsRNG(Entity attacking);
+	IItemStack[] getItemsRNG(EntityLivingBase attacking);
 
 	// void setDropItem(int p0, IItemStack p1, int p2); Changed
 
 	// IItemStack getDropItem(int p0); Changed
 
-	IItemStack[] getItemsRNGL(Entity attacking);
+	IItemStack[] getItemsRNGL(EntityLivingBase attacking);
 
 	IItemStack getLeftHand();
 

@@ -20,6 +20,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IDimension;
 import noppes.npcs.api.IEntityDamageSource;
+import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IRayTrace;
@@ -221,6 +222,7 @@ import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.roles.RolePostman;
 import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.roles.RoleTransporter;
+import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ScriptData;
 
 public enum EnumInterfaceData {
@@ -339,7 +341,10 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "trigger", "method.trigger",
 				new ParameterData(int.class, "id", "parameter.trigger.id"),
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
-			)
+			),
+			new MetodData(ILayerModel[].class, "getLayerModels", "method.iblockscripted.getlayermodels"),
+			new MetodData(ILayerModel.class, "createLayerModel", "method.iblockscripted.createlayermodel"),
+			new MetodData(void.class, "updateModel", "method.iblockscripted.updatemodel")
 		)
 	),
 	IBlockScriptedDoor(new InterfaseData(IBlockScriptedDoor.class, IBlock.class,
@@ -966,10 +971,12 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "trigger", "method.trigger",
 				new ParameterData(int.class, "id", "parameter.trigger.id"),
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
+			),
+			new MetodData(IEntity[].class, "getEntitys", "method.iworld.getentitys",
+				new ParameterData(int.class, "type", "parameter.entitytype" )
 			)
 		)
 	),
-
 	IJobBard(new InterfaseData(IJobBard.class, INPCJob.class,
 			new Class<?>[] { JobBard.class },
 			"interfase.ijobbard",
@@ -1089,6 +1096,11 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "setRefuseSoulstone", "method.irolefollower.setrefusesoulstone",
 				new ParameterData(boolean.class, "refuse", "parameter.boolean")
 			)
+		)
+	),
+	ILayerModel(new InterfaseData(ILayerModel.class, null,
+			new Class<?>[] { LayerModel.class },
+			"interfase.ilayermodel"
 		)
 	),
 	IRoleTrader(new InterfaseData(IRoleTrader.class, INPCRole.class,
@@ -1736,6 +1748,9 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(INbt.class, "stringToNbt", "method.npcapi.stringtonbt",
 				new ParameterData(String.class, "str", "parameter.npcapi.nbtstr")
+			),
+			new MetodData(IPlayer.class, "getIPlayer", "method.npcapi.getiplayer",
+				new ParameterData(String.class, "nameOrUUID", "parameter.playername")
 			)
 		)
 	),

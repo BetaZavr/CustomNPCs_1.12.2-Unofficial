@@ -36,6 +36,8 @@ implements ICompatibilty, IDialog {
 	public String text;
 	public String title;
 	public int version;
+	
+	public int delay;
 
 	public Dialog(DialogCategory category) {
 		this.version = VersionCompatibility.ModRev;
@@ -52,6 +54,7 @@ implements ICompatibilty, IDialog {
 		this.showWheel = false;
 		this.disableEsc = false;
 		this.category = category;
+		this.delay = 0;
 	}
 
 	public Dialog copy(EntityPlayer player) {
@@ -78,6 +81,7 @@ implements ICompatibilty, IDialog {
 			}
 			dialog.options.put(slot, option);
 		}
+		dialog.delay = this.delay;
 		return dialog;
 	}
 
@@ -190,6 +194,9 @@ implements ICompatibilty, IDialog {
 		this.options = newoptions;
 		this.availability.readFromNBT(compound);
 		this.factionOptions.readFromNBT(compound);
+		this.delay = compound.getInteger("ResponseDelay");
+		if (this.delay<0) { this.delay = 0; }
+		else if (this.delay>1200) { this.delay = 1200; } 
 	}
 
 	@Override
@@ -258,6 +265,7 @@ implements ICompatibilty, IDialog {
 		this.availability.writeToNBT(compound);
 		this.factionOptions.writeToNBT(compound);
 		compound.setInteger("ModRev", this.version);
+		compound.setInteger("ResponseDelay", this.delay);
 		return compound;
 	}
 

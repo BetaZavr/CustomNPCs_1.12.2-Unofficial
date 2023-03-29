@@ -20,6 +20,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -458,4 +459,15 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.initGui();
 	}
 
+	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i==200 || i==ClientProxy.frontButton.getKeyCode() || i==208 || i==ClientProxy.backButton.getKeyCode()) { // up or down
+			if (!this.data.containsKey(scroll.selected)) { return; }
+			this.selectDeal = this.scroll.selected;
+			this.container.deal = this.data.get(this.selectDeal);
+			this.initGui();
+		}
+	}
+	
 }

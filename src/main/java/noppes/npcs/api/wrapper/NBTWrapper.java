@@ -199,18 +199,31 @@ implements INbt {
 	@Override
 	public void setList(String key, Object[] value) {
 		NBTTagList list = new NBTTagList();
+		int type = -1;
 		for (Object nbt : value) {
 			if (nbt instanceof INbt) {
+				if (type==-1) { type = 10; }
+				else if (type!=10) { continue; }
 				list.appendTag(((INbt) nbt).getMCNBT());
 			} else if (nbt instanceof String) {
+				if (type==-1) { type = 8; }
+				else if (type!=8) { continue; }
 				list.appendTag(new NBTTagString((String) nbt));
 			} else if (nbt instanceof Double) {
+				if (type==-1) { type = 6; }
+				else if (type!=6) { continue; }
 				list.appendTag(new NBTTagDouble((double) nbt));
 			} else if (nbt instanceof Float) {
+				if (type==-1) { type = 5; }
+				else if (type!=5) { continue; }
 				list.appendTag(new NBTTagFloat((float) nbt));
 			} else if (nbt instanceof Integer) {
+				if (type==-1) { type = 3; }
+				else if (type!=3) { continue; }
 				list.appendTag(new NBTTagInt((int) nbt));
 			} else if (nbt instanceof int[]) {
+				if (type==-1) { type = 11; }
+				else if (type!=11) { continue; }
 				list.appendTag(new NBTTagIntArray((int[]) nbt));
 			}
 		}

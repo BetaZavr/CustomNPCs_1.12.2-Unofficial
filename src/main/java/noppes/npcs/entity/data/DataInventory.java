@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -694,7 +695,7 @@ INPCInventory {
 		}
 
 		@Override
-		public IItemStack createLoot() {
+		public IItemStack createLoot(double addChance) {
 			ItemStack dItem = this.item.getMCItemStack().copy();
 			int lv = this.npcInv.npc.stats.getLevel();
 			// Amount
@@ -725,7 +726,7 @@ INPCInventory {
 			// Enchants
 			if (this.enchants.size() > 0) {
 				for (EnchantSet es : this.enchants) {
-					if (es.chance / 100.0d > Math.random()) {
+					if (es.chance*addChance / 100.0d > Math.random()) {
 						int lvlM = es.getMinLevel();
 						int lvlN = es.getMaxLevel();
 						int lvl = lvlM;
@@ -745,7 +746,7 @@ INPCInventory {
 			// Attributes
 			if (this.attributes.size() > 0) {
 				for (AttributeSet as : this.attributes) {
-					if (as.chance / 100.0d > Math.random()) {
+					if (as.chance*addChance / 100.0d > Math.random()) {
 						double vM = as.getMinValue();
 						double vN = as.getMaxValue();
 						double v = vM;
@@ -768,7 +769,7 @@ INPCInventory {
 					dItem.setTagCompound(tag = new NBTTagCompound());
 				}
 				for (DropNbtSet dns : this.tags) {
-					if (dns.chance / 100.0d > Math.random()) {
+					if (dns.chance*addChance / 100.0d > Math.random()) {
 						tag = dns.getConstructoredTag(tag);
 					}
 				}
@@ -1383,32 +1384,49 @@ INPCInventory {
 	public void closeInventory(EntityPlayer player) {
 	}
 
-	private IItemStack[] createDrops(boolean mode, Entity attacking) {
+	private IItemStack[] createDrops(boolean mode, EntityLivingBase attacking) {
 		List<IItemStack> prelist = new ArrayList<IItemStack>();
-		for (DropSet ds : this.drops.values()) {
-			if (ds.item != null && !ds.item.isEmpty() && mode == ds.lootMode && ds.chance / 100.0d > Math.random()) {
-				if (ds.getQuestID() > 0) {
-					if (attacking instanceof EntityPlayer) {
-						IPlayer<?> player = (IPlayer<?>) NpcAPI.Instance().getIEntity(attacking);
-						for (IQuest q : player.getActiveQuests()) {
-							if (q.getId() == ds.getQuestID()) {
-								boolean needAdd = false;
-								for (IQuestObjective objQ : q.getObjectives(player)) {
-									if (!objQ.isCompleted()) {
-										needAdd = true;
-										break;
-									}
-								}
-								if (needAdd) {
-									prelist.add(ds.createLoot());
-								}
-								break;
-							}
+		double ch = 1.0d;
+		if (attacking!=null) {
+			IAttributeInstance l = attacking.getEntityAttribute(SharedMonsterAttributes.LUCK);
+			if (l!=null) { ch += l.getAttributeValue() / 20.d; }
+			ItemStack held = attacking.getHeldItemMainhand();
+			if (held.isItemEnchanted()) {
+				Enchantment ench = Enchantment.getEnchantmentByLocation("looting");
+				if (ench!=null) {
+					int id = Enchantment.getEnchantmentID(ench);
+					for (int i =0; i<held.getEnchantmentTagList().tagCount(); i++) {
+						NBTTagCompound nbt = held.getEnchantmentTagList().getCompoundTagAt(i);
+						if ((int) nbt.getShort("id")==id) {
+							ch += (double) nbt.getShort("lvl")/100.0d;
 						}
 					}
-				} else {
-					prelist.add(ds.createLoot());
 				}
+			}
+		}
+		for (DropSet ds : this.drops.values()) {
+			if (ds.item == null || ds.item.isEmpty() || mode == ds.lootMode || ds.chance*ch / 100.0d > Math.random()) { continue; }
+			if (ds.getQuestID() > 0) {
+				if (attacking instanceof EntityPlayer) {
+					IPlayer<?> player = (IPlayer<?>) NpcAPI.Instance().getIEntity(attacking);
+					for (IQuest q : player.getActiveQuests()) {
+						if (q.getId() == ds.getQuestID()) {
+							boolean needAdd = false;
+							for (IQuestObjective objQ : q.getObjectives(player)) {
+								if (!objQ.isCompleted()) {
+									needAdd = true;
+									break;
+								}
+							}
+							if (needAdd) {
+								prelist.add(ds.createLoot(ch));
+							}
+							break;
+						}
+					}
+				}
+			} else {
+				prelist.add(ds.createLoot(ch));
 			}
 		}
 		if (this.maxAmount > 0 && prelist.size() > this.maxAmount) {
@@ -1652,11 +1670,11 @@ INPCInventory {
 		return 64;
 	}
 
-	public IItemStack[] getItemsRNG(Entity attacking) {
+	public IItemStack[] getItemsRNG(EntityLivingBase attacking) {
 		return createDrops(false, attacking);
 	}
 
-	public IItemStack[] getItemsRNGL(Entity attacking) {
+	public IItemStack[] getItemsRNGL(EntityLivingBase attacking) {
 		return createDrops(true, attacking);
 	}
 

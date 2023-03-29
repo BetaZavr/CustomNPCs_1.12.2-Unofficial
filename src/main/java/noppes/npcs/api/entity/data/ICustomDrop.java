@@ -3,6 +3,7 @@ package noppes.npcs.api.entity.data;
 import noppes.npcs.api.item.IItemStack;
 
 public interface ICustomDrop {
+	
 	IAttributeSet addAttribute(String attributeName);
 
 	IDropNbtSet addDropNbtSet(int type, double chance, String paht, String[] values);
@@ -11,7 +12,7 @@ public interface ICustomDrop {
 
 	IEnchantSet addEnchant(String enchantName);
 
-	IItemStack createLoot();
+	IItemStack createLoot(double addChance);
 
 	IAttributeSet[] getAttributeSets();
 

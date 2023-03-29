@@ -35,51 +35,66 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 
 	@Override
 	public void buttonEvent(GuiButton guibutton) {
-		int id = guibutton.id;
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		if (id == 3) {
-			this.setSubGui(new SubGuiNpcTextArea(this.dialog.text));
-		}
-		if (id == 4) {
-			this.setSubGui(new SubGuiNpcAvailability(this.dialog.availability));
-		}
-		if (id == 5) {
-			this.setSubGui(new SubGuiNpcFactionOptions(this.dialog.factionOptions));
-		}
-		if (id == 6) {
-			this.setSubGui(new SubGuiNpcDialogOptions(this.dialog));
-		}
-		if (id == 7) {
-			this.setSubGui(new GuiQuestSelection(this.dialog.quest));
-		}
-		if (id == 8) {
-			this.dialog.quest = -1;
-			this.initGui();
-		}
-		if (id == 9) {
-			this.setSubGui(new GuiSoundSelection(this.getTextField(2).getText()));
-		}
-		if (id == 10) {
-			this.setSubGui(new SubGuiNpcCommand(this.dialog.command));
-		}
-		if (id == 11) {
-			this.dialog.hideNPC = (button.getValue() == 1);
-		}
-		if (id == 12) {
-			this.dialog.showWheel = (button.getValue() == 1);
-		}
-		if (id == 15) {
-			this.dialog.disableEsc = (button.getValue() == 1);
-		}
-		if (id == 13) {
-			this.setSubGui(new SubGuiMailmanSendSetup(this.dialog.mail));
-		}
-		if (id == 14) {
-			this.dialog.mail = new PlayerMail();
-			this.initGui();
-		}
-		if (id == 66) {
-			this.close();
+		switch(button.id) {
+			case 3: {
+				this.setSubGui(new SubGuiNpcTextArea(this.dialog.text));
+				break;
+			}
+			case 4: {
+				this.setSubGui(new SubGuiNpcAvailability(this.dialog.availability));
+				break;
+			}
+			case 5: {
+				this.setSubGui(new SubGuiNpcFactionOptions(this.dialog.factionOptions));
+				break;
+			}
+			case 6: {
+				this.setSubGui(new SubGuiNpcDialogOptions(this.dialog));
+				break;
+			}
+			case 7: {
+				this.setSubGui(new GuiQuestSelection(this.dialog.quest));
+				break;
+			}
+			case 8: {
+				this.dialog.quest = -1;
+				this.initGui();
+				break;
+			}
+			case 9: {
+				this.setSubGui(new GuiSoundSelection(this.getTextField(2).getText()));
+				break;
+			}
+			case 10: {
+				this.setSubGui(new SubGuiNpcCommand(this.dialog.command));
+				break;
+			}
+			case 11: {
+				this.dialog.hideNPC = (button.getValue() == 1);
+				break;
+			}
+			case 12: {
+				this.dialog.showWheel = (button.getValue() == 1);
+				break;
+			}
+			case 13: {
+				this.setSubGui(new SubGuiMailmanSendSetup(this.dialog.mail));
+				break;
+			}
+			case 14: {
+				this.dialog.mail = new PlayerMail();
+				this.initGui();
+				break;
+			}
+			case 15: {
+				this.dialog.disableEsc = (button.getValue() == 1);
+				break;
+			}
+			case 66: {
+				this.close();
+				break;
+			}
 		}
 	}
 
@@ -105,8 +120,7 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 			this.getButton(7).setDisplayText(this.dialog.getQuest().getTitle()); // Changed
 		}
 		this.addLabel(new GuiNpcLabel(9, "gui.selectSound", this.guiLeft + 4, this.guiTop + 138));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 148, 264, 20,
-				this.dialog.sound));
+		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 148, 264, 20, this.dialog.sound));
 		this.addButton(
 				new GuiNpcButton(9, this.guiLeft + 270, this.guiTop + 148, 60, 20, "mco.template.button.select"));
 		this.addButton(new GuiNpcButton(13, this.guiLeft + 4, this.guiTop + 172, 164, 20, "mailbox.setup"));
@@ -115,27 +129,25 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 			this.getButton(13).setDisplayText(this.dialog.mail.subject);
 		}
 		int y = this.guiTop + 4;
-		int i = 10;
-		int j = this.guiLeft + 330;
 		y += 22;
-		this.addButton(new GuiNpcButton(i, j, y, 50, 20, "selectServer.edit"));
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 330, y, 50, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(10, "advMode.command", this.guiLeft + 214, y + 5));
-		int id = 11;
-		int x = this.guiLeft + 330;
 		y += 22;
-		this.addButton(new GuiNpcButtonYesNo(id, x, y, this.dialog.hideNPC));
+		this.addButton(new GuiNpcButtonYesNo(11, this.guiLeft + 330, y, this.dialog.hideNPC));
 		this.addLabel(new GuiNpcLabel(11, "dialog.hideNPC", this.guiLeft + 214, y + 5));
-		int id2 = 12;
-		int x2 = this.guiLeft + 330;
 		y += 22;
-		this.addButton(new GuiNpcButtonYesNo(id2, x2, y, this.dialog.showWheel));
+		this.addButton(new GuiNpcButtonYesNo(12, this.guiLeft + 330, y, this.dialog.showWheel));
 		this.addLabel(new GuiNpcLabel(12, "dialog.showWheel", this.guiLeft + 214, y + 5));
-		int id3 = 15;
-		int x3 = this.guiLeft + 330;
 		y += 22;
-		this.addButton(new GuiNpcButtonYesNo(id3, x3, y, this.dialog.disableEsc));
+		this.addButton(new GuiNpcButtonYesNo(15, this.guiLeft + 330, y, this.dialog.disableEsc));
 		this.addLabel(new GuiNpcLabel(15, "dialog.disableEsc", this.guiLeft + 214, y + 5));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 362, this.guiTop + 4, 20, 20, "X"));
+		y += 23;
+		GuiNpcTextField textField = new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 331, y, 48, 18, ""+this.dialog.delay);
+		textField.setNumbersOnly();
+		textField.setMinMaxDefault(0, 1200, this.dialog.delay);
+		this.addTextField(textField);
+		this.addLabel(new GuiNpcLabel(16, "dialog.cooldown.time", this.guiLeft + 214, y + 5));
 	}
 
 	@Override
@@ -183,8 +195,12 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 				dialog.title = sb.append(dialog.title).append("_").toString();
 			}
 		}
-		if (guiNpcTextField.getId() == 2) {
+		else if (guiNpcTextField.getId() == 2) {
 			this.dialog.sound = guiNpcTextField.getText();
 		}
+		else if (guiNpcTextField.getId() == 3) {
+			this.dialog.delay = guiNpcTextField.getInteger();
+		}
 	}
+	
 }

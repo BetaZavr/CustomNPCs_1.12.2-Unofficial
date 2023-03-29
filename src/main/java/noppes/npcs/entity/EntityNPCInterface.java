@@ -1080,8 +1080,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (!this.isRemote()) {
 			this.advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
 			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity);
-			event.droppedItems = this.inventory.getItemsRNG(attackingEntity); // Canged
-			event.lootedItems = this.inventory.getItemsRNGL(attackingEntity); // New
+			event.droppedItems = this.inventory.getItemsRNG((attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null); // Canged
+			event.lootedItems = this.inventory.getItemsRNGL((attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null); // New
 			event.expDropped = this.inventory.getExpRNG();
 			event.line = this.advanced.getKilledLine();
 			EventHooks.onNPCDied(this, event);

@@ -65,6 +65,7 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.MarcetController;
@@ -74,6 +75,7 @@ import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -260,12 +262,10 @@ extends PacketHandlerServer {
 			NoppesUtil.openDialog(dialog, npc, player);
 		} else if (type == EnumPacketClient.QUEST_COMPLETION) {
 			int id = buffer.readInt();
-			IQuest quest = QuestController.instance.get(id);
-			if (!quest.getCompleteText().isEmpty()) {
-				NoppesUtil.openGUI(player, new GuiQuestCompletion(quest));
-			} else {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletion, id);
-			}
+			Quest quest = (Quest) QuestController.instance.get(id);
+			if (!quest.completeText.isEmpty()) { NoppesUtil.openGUI(player, new GuiQuestCompletion(quest)); }
+			else if (quest.rewardType==EnumRewardType.ONE && !quest.rewardItems.isEmpty()) { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, quest.id); }
+			else { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletion, id); }
 		} else if (type == EnumPacketClient.EDIT_NPC) {
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(buffer.readInt());
 			if (entity == null || !(entity instanceof EntityNPCInterface)) {
@@ -542,7 +542,6 @@ extends PacketHandlerServer {
 			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z, ClientEventHandler.rotaion, ClientEventHandler.schema.getNBT());
 		} else if (type == EnumPacketClient.UPDATE_HUD) {
 			NBTTagCompound compound = Server.readNBT(buffer);
-			System.out.println("compound: "+compound);
 			ClientProxy.playerData.hud.loadNBTData(compound);
 		} else if (type == EnumPacketClient.DIMENSIOS_IDS) {
 			ClientHandler.getInstance().sync(Server.readIntArray(buffer));

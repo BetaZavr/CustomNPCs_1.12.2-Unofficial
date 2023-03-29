@@ -97,6 +97,7 @@ implements ICloneHandler {
 
 	public NBTTagCompound getCloneData(ICommandSender player, String name, int tab) {
 		File file = new File(new File(this.getDir(), tab + ""), name + ".json");
+		System.out.println("file: "+file);
 		if (!file.exists()) {
 			if (player != null) {
 				player.sendMessage(new TextComponentString("Could not find clone file"));

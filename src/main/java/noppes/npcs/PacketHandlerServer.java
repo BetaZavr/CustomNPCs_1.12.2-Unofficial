@@ -1,5 +1,6 @@
 package noppes.npcs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,13 +9,14 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -52,12 +54,14 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.LinkedNpcController;
 import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.SpawnController;
+import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Deal;
@@ -113,7 +117,6 @@ public class PacketHandlerServer {
 				ItemStack item = player.inventory.getCurrentItem();
 				EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 				List<EnumPacketServer> notHasPerm = Lists.<EnumPacketServer>newArrayList();
-				notHasPerm.add(EnumPacketServer.GetClone);
 				if (!type.needsNpc || npc!= null) {
 					if (!type.hasPermission() || CustomNpcsPermissions.hasPermission(player, type.permission)) {
 						if (!notHasPerm.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
@@ -149,6 +152,7 @@ public class PacketHandlerServer {
 		return permission != null && permission.isAllowed(type);
 	}
 
+	@SuppressWarnings("unused")
 	private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc)
 			throws Exception {
 		CustomNpcs.debugData.startDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
@@ -507,7 +511,41 @@ public class PacketHandlerServer {
 			}
 			NoppesUtilServer.sendPlayerData(datatype, player, name);
 		} else if (type == EnumPacketServer.PlayerDataRemove) {
-			NoppesUtilServer.removePlayerData(buffer, player);
+			int id = buffer.readInt();
+			if (EnumPlayerData.values().length <= id) {
+				return;
+			}
+			else if (EnumPlayerData.values()[id]==EnumPlayerData.Wipe) {
+				List<String> list = Lists.<String>newArrayList();
+				for (String username : PlayerDataController.instance.nameUUIDs.keySet()) {
+					list.add(username);
+				}
+				for (String username : player.getServer().getPlayerList().getOnlinePlayerNames()) {
+					list.add(username);
+				}
+				for (String name : list) {
+					EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(name);
+					PlayerData playerdata = null;
+					if (pl == null) {
+						playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
+					} else {
+						playerdata = PlayerData.get(pl);
+					}
+					// EnumPlayerData.Players
+					File file = new File(CustomNpcs.getWorldSaveDirectory("playerdata"), playerdata.uuid + ".json");
+					if (file.exists()) { file.delete(); }
+					if (pl != null) {
+						playerdata.setNBT(new NBTTagCompound());
+						SyncController.syncPlayer((EntityPlayerMP) pl);
+					} else {
+						PlayerDataController.instance.nameUUIDs.remove(name);
+					}
+					playerdata.save(true);
+				}
+				NoppesUtilServer.sendPlayerData(EnumPlayerData.Players, player, null);
+				return;
+			}
+			NoppesUtilServer.removePlayerData(id, buffer, player);
 		} else if (type == EnumPacketServer.MainmenuDisplayGet) {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.display.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuDisplaySave) {
@@ -983,12 +1021,12 @@ public class PacketHandlerServer {
 				player.sendMessage(new TextComponentTranslation("nbt.book.not.correct.nbt"));
 				return;
 			}
-			player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, stack);
+			player.inventory.offHandInventory.set(0, stack);
+			player.openContainer.detectAndSendChanges();
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("Item", true);
 			compound.setTag("Data", stackNBT);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-			player.openContainer.detectAndSendChanges();
 		}
 		else if (type == EnumPacketServer.RecipesAddGroup) {
 			int size = buffer.readInt();

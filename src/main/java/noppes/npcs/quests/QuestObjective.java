@@ -479,9 +479,7 @@ implements IQuestObjective {
 			data.updateClient = true;
 		}
 		for (IQuestObjective obj : questData.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-			if (((QuestObjective) obj).getEnumType() != this.type) {
-				continue;
-			}
+			if (((QuestObjective) obj).getEnumType() != this.type) { continue; }
 			data.questData.checkQuestCompletion(this.player, questData);
 		}
 	}

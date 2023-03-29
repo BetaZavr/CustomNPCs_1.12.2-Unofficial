@@ -123,18 +123,19 @@ extends GuiScreen {
 			} else {
 				text = displayString;
 			}
+			int xo = 0;
 			if (this.stacks != null && i < this.stacks.size()) {
 				j = 14;
-				xOffset -= 14;
+				xo = -14;
 			}
 			int c = 16777215;
 			if (this.colors != null && i < this.colors.size()) { c = this.colors.get(i); }
 			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false))
 					|| (!this.multipleSelection && this.selected == i)) {
 				this.drawVerticalLine(j - 2, k - 4, k + 10, -1);
-				this.drawVerticalLine(j + this.width - 18 + xOffset, k - 4, k + 10, -1);
-				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset, k - 3, -1);
-				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset, k + 10, -1);
+				this.drawVerticalLine(j + this.width - 18 + xOffset + xo, k - 4, k + 10, -1);
+				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset + xo, k - 3, -1);
+				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset + xo, k + 10, -1);
 				this.fontRenderer.drawString(text, j, k, c);
 				c = 16777215;
 			} else if (i == this.hover) {

@@ -100,7 +100,7 @@ extends Gui
 		if (this.mc==null) { this.mc = Minecraft.getMinecraft(); return; }
 		if (this.bData==null) { this.bData = BorderController.getInstance(); return; }
 		if (this.mc.player.world==null) { return; }
-		if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
+		//if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
 		// position
 		this.dx = this.mc.player.lastTickPosX + (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
 		this.dy = this.mc.player.lastTickPosY + (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
@@ -161,6 +161,7 @@ extends Gui
 				GlStateManager.popMatrix();
 			}
 		}
+		if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
 		// Show All Regions
 		for (Zone3D reg : this.bData.getRegionsInWorld(this.mc.player.world.provider.getDimension())) {
 			if (reg==null || reg.distanceTo(this.mc.player)>250.0d) { continue; }

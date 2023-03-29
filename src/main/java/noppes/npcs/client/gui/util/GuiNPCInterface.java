@@ -236,6 +236,7 @@ extends GuiScreen {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		//this.close();
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		int x = mouseX;

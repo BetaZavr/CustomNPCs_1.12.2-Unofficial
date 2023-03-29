@@ -19,6 +19,8 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.renderer.RenderNPCInterface;
@@ -85,7 +87,7 @@ public class ClientTickHandler {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && mc.player.openContainer instanceof ContainerPlayer) {
 			if (this.otherContainer) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, new Object[0]);
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 				this.otherContainer = false;
 			}
 		} else {
@@ -162,6 +164,19 @@ public class ClientTickHandler {
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
+		/*IPlayer<?> p = new PlayerWrapper((EntityPlayerMP) entity);
+		p.setGamemode(1);*/
+		/*Map<ResourceLocation, OBJModel> cache = ObfuscationHelper.getValue(OBJLoader.class, OBJLoader.INSTANCE, Map.class);
+		for (ResourceLocation r : cache.keySet()) {
+			((EntityPlayerSP) entity).sendMessage(new TextComponentString(""+r));
+		}*/
+		/*try {
+			NBTTagCompound nbtFile = NBTJsonUtil.LoadFile(new File(CustomNpcs.getWorldSaveDirectory(), "marcet.json"));
+			MarcetController.getInstance().loadMarcets(nbtFile);
+			System.out.println("load: "+nbtFile);
+		} catch (IOException | JsonException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 	}
-	
 }

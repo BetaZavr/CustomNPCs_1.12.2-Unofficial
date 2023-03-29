@@ -44,9 +44,11 @@ extends GuiScriptInterface {
 	@Override
 	public void save() {
 		super.save();
-		BlockPos pos = this.script.getPos();
-		Client.sendData(EnumPacketServer.ScriptBlockDataSave, pos.getX(), pos.getY(), pos.getZ(),
-				this.script.getNBT(new NBTTagCompound()));
+		try {
+			BlockPos pos = this.script.getPos();
+			Client.sendData(EnumPacketServer.ScriptBlockDataSave, pos.getX(), pos.getY(), pos.getZ(), this.script.getNBT(new NBTTagCompound()));
+		}
+		catch (Exception e) { }
 	}
 
 	@Override

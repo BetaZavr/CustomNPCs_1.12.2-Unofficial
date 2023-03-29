@@ -95,7 +95,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 		boolean bo = super.writeToNBTAtomically(compound);
 		if (bo) {
 			String s = this.getEntityString();
-			if (s.equals("minecraft:" + CustomNpcs.MODID + ".customnpc")) {
+			if (s.equals("minecraft:" + CustomNpcs.MODID + ".customnpc") || s.equals("minecraft:" + CustomNpcs.MODID + ":customnpc")) {
 				compound.setString("id", CustomNpcs.MODID + ":customnpc");
 			}
 		}

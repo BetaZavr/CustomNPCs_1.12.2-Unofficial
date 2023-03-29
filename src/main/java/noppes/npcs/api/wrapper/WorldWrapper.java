@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -306,6 +308,18 @@ implements IWorld {
 		} catch (Exception e2) {
 			throw new CustomNPCsException("Given uuid was invalid " + uuid, new Object[0]);
 		}
+	}
+	
+	@Override
+	public IEntity<?>[] getEntitys(int type) {
+		List<IEntity<?>> list = Lists.<IEntity<?>>newArrayList();
+		for (Entity living : this.world.loadedEntityList) {
+			IEntity<?> ie = NpcAPI.Instance().getIEntity(living);
+			System.out.println("living: "+ie.getType()+" / "+type);
+			if (ie.getType() != type) { continue; }
+			list.add(NpcAPI.Instance().getIEntity(living));
+		}
+		return list.toArray(new IEntity[list.size()]);
 	}
 
 	@Override

@@ -24,38 +24,59 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		System.out.println("buttonID: "+button.id);
-		if (button.id == 0) {
-			this.ai.setMovingType(button.getValue());
-			if (this.ai.getMovingType() != 0) {
-				this.ai.animationType = 0;
-				this.ai.setStandingType(0);
-				DataAI ai = this.ai;
-				DataAI ai2 = this.ai;
-				DataAI ai3 = this.ai;
-				float bodyOffsetX = 5.0f;
-				ai3.bodyOffsetZ = bodyOffsetX;
-				ai2.bodyOffsetY = bodyOffsetX;
-				ai.bodyOffsetX = bodyOffsetX;
+		switch(button.id) {
+			case 0: {
+				this.ai.setMovingType(button.getValue());
+				if (this.ai.getMovingType() != 0) {
+					this.ai.animationType = 0;
+					this.ai.setStandingType(0);
+					DataAI ai = this.ai;
+					DataAI ai2 = this.ai;
+					DataAI ai3 = this.ai;
+					float bodyOffsetX = 5.0f;
+					ai3.bodyOffsetZ = bodyOffsetX;
+					ai2.bodyOffsetY = bodyOffsetX;
+					ai.bodyOffsetX = bodyOffsetX;
+				}
+				this.initGui();
+				break;
 			}
-			this.initGui();
-		} else if (button.id == 4 || button.id == 7) {
-			if (button.id == 4) { this.ai.animationType = button.getValue(); }
-			else { this.ai.setAnimation(button.getValue()); } 
-			this.initGui();
-		} else if (button.id == 5) {
-			this.ai.npcInteracting = (button.getValue() == 1);
-		} else if (button.id == 8) {
-			this.ai.movingPattern = button.getValue();
-		} else if (button.id == 2) {
-			this.ai.movingPause = (button.getValue() == 1);
-		} else if (button.id == 13) {
-			this.ai.stopAndInteract = (button.getValue() == 1);
-		} else if (button.id == 15) {
-			this.ai.movementType = button.getValue();
-		} else if (button.id == 66) {
-			this.close();
+			case 2: {
+				this.ai.movingPause = (button.getValue() == 1);
+				break;
+			}
+			case 4: {
+				this.ai.setAnimation(button.getValue());
+				this.initGui();
+				break;
+			}
+			case 5: {
+				this.ai.npcInteracting = (button.getValue() == 1);
+				break;
+			}
+			case 7: {
+				this.ai.setStandingType(button.getValue());
+				this.initGui();
+				break;
+			}
+			case 8: {
+				this.ai.movingPattern = button.getValue();
+				break;
+			}
+			case 13: {
+				this.ai.stopAndInteract = (button.getValue() == 1);
+				break;
+			}
+			case 15: {
+				this.ai.movementType = button.getValue();
+				break;
+			}
+			case 66: {
+				this.close();
+				break;
+			}
 		}
+		System.out.println("buttonID: "+button.id+" / "+this.ai.getMovingType());
 	}
 
 	@Override
@@ -75,8 +96,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.getTextField(4).setMinMaxDefault(0, 1000, 10);
 			this.addLabel(new GuiNpcLabel(4, "gui.range", this.guiLeft + 4, y + 5));
 			y += 22;
-			this.addButton(new GuiNpcButton(5, this.guiLeft + 100, y, 50, 20, new String[] { "gui.no", "gui.yes" },
-					(this.ai.npcInteracting ? 1 : 0)));
+			this.addButton(new GuiNpcButton(5, this.guiLeft + 100, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (this.ai.npcInteracting ? 1 : 0)));
 			this.addLabel(new GuiNpcLabel(5, "movement.wanderinteract", this.guiLeft + 4, y + 5));
 			y += 22;
 			this.addButton(new GuiNpcButton(2, this.guiLeft + 80, y, 80, 20, new String[] { "gui.no", "gui.yes" },
@@ -105,7 +125,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.addLabel(new GuiNpcLabel(3, "movement.animation", this.guiLeft + 4, y + 5));
 			if (this.ai.animationType != 2) {
 				y += 22;
-				this.addButton(new GuiNpcButton(5, this.guiLeft + 80, y, 80, 20,
+				this.addButton(new GuiNpcButton(7, this.guiLeft + 80, y, 80, 20,
 						new String[] { "movement.body", "movement.manual", "movement.stalking", "movement.head" },
 						this.ai.getStandingType()));
 				this.addLabel(new GuiNpcLabel(1, "movement.rotation", this.guiLeft + 4, y + 5));
@@ -130,10 +150,6 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 					new String[] { "stats.normal", "movement.sitting", "movement.lying", "movement.hug",
 							"movement.sneaking", "movement.dancing", "movement.aiming", "movement.crawling" },
 					this.ai.animationType));
-			/*this.addButton(new GuiNpcButton(7, this.guiLeft + 80, y, 100, 20,
-					new String[] { "stats.normal", "movement.sneaking", "movement.aiming", "movement.dancing",
-							"movement.crawling", "movement.hug" },
-					EntityAIAnimation.getWalkingAnimationGuiIndex(this.ai.animationType)));*/
 			this.addLabel(new GuiNpcLabel(12, "movement.animation", this.guiLeft + 4, y + 5));
 		}
 		if (this.ai.getMovingType() == 2) {

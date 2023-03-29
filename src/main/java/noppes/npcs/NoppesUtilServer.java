@@ -321,15 +321,10 @@ public class NoppesUtilServer {
 		world.playSound((EntityPlayer) null, pos, sound, cat, volume, pitch);
 	}
 
-	public static void removePlayerData(ByteBuf buffer, EntityPlayerMP player) throws IOException {
-		int id = buffer.readInt();
-		if (EnumPlayerData.values().length <= id) {
-			return;
-		}
+	public static void removePlayerData(int id, ByteBuf buffer, EntityPlayerMP player) throws IOException {
+		if (EnumPlayerData.values().length <= id) { return; }
 		String name = Server.readString(buffer);
-		if (name == null || name.isEmpty()) {
-			return;
-		}
+		if (name == null || name.isEmpty()) { return; }
 		EnumPlayerData type = EnumPlayerData.values()[id];
 		EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(name);
 		PlayerData playerdata = null;

@@ -2,8 +2,10 @@ package noppes.npcs.api.wrapper;
 
 import java.io.File;
 import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -30,6 +32,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.ICloneHandler;
@@ -296,6 +299,24 @@ extends NpcAPI {
 		} catch (NBTJsonUtil.JsonException e) {
 			throw new CustomNPCsException(e, "Failed converting " + str, new Object[0]);
 		}
+	}
+
+	@Override
+	public IPlayer<?> getIPlayer(String name) {
+		EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(name);
+		if (player==null) {
+			try { player = CustomNpcs.Server.getPlayerList().getPlayerByUUID(UUID.fromString(name)); }
+			catch (Exception e) { }
+		}
+		if (player==null) {
+			for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) {
+				if (p.getName().equalsIgnoreCase(name)) {
+					player = p;
+					break;
+				}
+			}
+		}
+		return player == null ? null : (IPlayer) this.getIEntity(player);
 	}
 
 }

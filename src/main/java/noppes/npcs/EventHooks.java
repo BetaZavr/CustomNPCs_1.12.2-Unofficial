@@ -494,9 +494,7 @@ public class EventHooks {
 	}
 
 	public static void onQuestFinished(PlayerScriptData handler, Quest quest) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		QuestEvent.QuestCompletedEvent event = new QuestEvent.QuestCompletedEvent(handler.getPlayer(), (IQuest) quest);
 		handler.runScript(EnumScriptType.QUEST_COMPLETED, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -628,9 +626,7 @@ public class EventHooks {
 	}
 
 	public static void onScriptBlockRedstonePower(IScriptBlockHandler handler, int prevPower, int power) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		BlockEvent.RedstoneEvent event = new BlockEvent.RedstoneEvent(handler.getBlock(), prevPower, power);
 		handler.runScript(EnumScriptType.REDSTONE, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
