@@ -184,7 +184,6 @@ extends Gui
 		b = (float) (reg.color & 255) / 255.0f;
 		drawRegion(reg, editID, r, g, b);
 		if (reg.id!=editID) { return; }
-
 		for (Point p : reg.points.values()) {
 			if (start || distMin>p.distance(playerPoint)) {
 				start = false;

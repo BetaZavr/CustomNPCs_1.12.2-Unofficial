@@ -20,6 +20,7 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.ChestRenderer;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -229,16 +230,7 @@ public class ClientEventHandler {
 		// Bound
 		if (rotation % 2 == 0) { this.drawSelectionBox(new BlockPos(schem.schema.getWidth(), schem.schema.getHeight(), schem.schema.getLength())); }
 		else { this.drawSelectionBox(new BlockPos(schem.schema.getLength(), schem.schema.getHeight(), schem.schema.getWidth())); }
-		
-		if (ClientEventHandler.displayMap.containsKey(schem.schema)) {
-			GlStateManager.rotate(rotation*-90.0f, 0.0f, 1.0f, 0.0f);
-			switch(rotation) {
-				case 1: { GlStateManager.translate(0, 0, -1*schem.schema.getLength()); break; }
-				case 2: { GlStateManager.translate(-1*schem.schema.getWidth(), 0, -1*schem.schema.getLength()); break; }
-				case 3: { GlStateManager.translate(-1*schem.schema.getWidth(), 0, 0); break;}
-			}
-			GlStateManager.callList(ClientEventHandler.displayMap.get(schem.schema));
-		} else {
+		if (!ClientEventHandler.displayMap.containsKey(schem.schema)) {
 			ClientEventHandler.displayMap.put(schem.schema, GLAllocation.generateDisplayLists(1));
 			GL11.glNewList(ClientEventHandler.displayMap.get(schem.schema), 4864);
 			try {
@@ -274,6 +266,15 @@ public class ClientEventHandler {
 				if (GL11.glGetError() != 0) { ClientEventHandler.displayMap.remove(schem.schema); }
 			}
 		}
+		if (ClientEventHandler.displayMap.containsKey(schem.schema)) {
+			GlStateManager.rotate(rotation*-90.0f, 0.0f, 1.0f, 0.0f);
+			switch(rotation) {
+				case 1: { GlStateManager.translate(0, 0, -1*schem.schema.getLength()); break; }
+				case 2: { GlStateManager.translate(-1*schem.schema.getWidth(), 0, -1*schem.schema.getLength()); break; }
+				case 3: { GlStateManager.translate(-1*schem.schema.getWidth(), 0, 0); break;}
+			}
+			GlStateManager.callList(ClientEventHandler.displayMap.get(schem.schema));
+		}
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.translate(-1.0f, 0.0f, -1.0f);
 		GlStateManager.popMatrix();
@@ -281,8 +282,8 @@ public class ClientEventHandler {
 
 	private void renderBlock(IBlockState state) {
 		BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-		dispatcher.renderBlockBrightness(state, 1.0f);
-		/*switch (state.getRenderType())  {
+		//dispatcher.renderBlockBrightness(state, 0.1f);
+		switch (state.getRenderType())  {
 			case MODEL:
 				IBakedModel ibakedmodel = dispatcher.getModelForState(state);
 				GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
@@ -297,10 +298,11 @@ public class ClientEventHandler {
 				this.renderModelBlockQuads(ibakedmodel.getQuads(state, (EnumFacing)null, 0L), r, g, b);
 				break;
 			case ENTITYBLOCK_ANIMATED:
-				//this.chestRenderer.renderChestBrightness(state.getBlock(), brightness);
+				ChestRenderer chestRenderer = ObfuscationHelper.getValue(BlockRendererDispatcher.class, dispatcher, ChestRenderer.class);
+				chestRenderer.renderChestBrightness(state.getBlock(), 1.0f);
 			case LIQUID: break;
 			default: break;
-		}*/
+		}
 	}
 	
 	private void renderModelBlockQuads(List<BakedQuad> quads, float r, float g, float b) {
@@ -314,6 +316,7 @@ public class ClientEventHandler {
 			else { bufferbuilder.putColorRGB_F4(1.0f, 1.0f, 1.0f); }
 			Vec3i vec3i = bakedquad.getFace().getDirectionVec();
 			bufferbuilder.putNormal((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ());
+			
 			tessellator.draw();
 		}
 	}

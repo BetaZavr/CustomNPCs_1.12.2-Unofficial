@@ -36,7 +36,7 @@ public class Schematic implements ISchematic {
 
 	public short[] blockIdsArray;
 	public byte[] blockMetadataArray;
-	public NBTTagList entityList;
+	public NBTTagList entityList = new NBTTagList();
 	public short height;
 	public short length;
 	public String name;

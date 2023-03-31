@@ -73,8 +73,7 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	public void initGui() {
 		super.initGui();
 		this.addButton(new GuiNpcButton(2, this.guiLeft + this.xSize - 26, this.guiTop + 4, 20, 20, "X"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 160, this.guiTop + 212, 70, 20, "gui.play",
-				this.selectedResource != null));
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 160, this.guiTop + 212, 70, 20, "gui.play", this.selectedResource != null));
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(90, 200);
 		}

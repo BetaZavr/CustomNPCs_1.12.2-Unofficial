@@ -399,9 +399,7 @@ extends GuiScreen {
 	}
 
 	public void setList(List<String> list) {
-		if (this.isSameList(list)) {
-			return;
-		}
+		if (this.isSameList(list)) { return; }
 		this.isSorted = true;
 		this.scrollY = 0;
 		Collections.sort(list, new NaturalOrderComparator());
@@ -434,7 +432,7 @@ extends GuiScreen {
 			return;
 		}
 		int s = this.scrollY;
-		if (this.selected<s) { this.scrollY = this.selected * 14; }
+		if (this.selected * 14 < s) { this.scrollY = this.selected * 14; }
 		else {
 			int e = s + this.height / 14;
 			if (this.selected>e) { this.scrollY = this.selected * 14; }

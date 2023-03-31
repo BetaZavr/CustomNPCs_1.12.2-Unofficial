@@ -294,6 +294,7 @@ public class QuestInterface {
 	public boolean isCompleted(EntityPlayer player) {
 		PlayerData playerdata = PlayerData.get(player);
 		QuestData data = playerdata.questData.activeQuests.get(this.id);
+		if (data==null) { return false; }
 		boolean complete = true;
 		for (QuestObjective to : this.tasks) {
 			switch (to.getEnumType()) {

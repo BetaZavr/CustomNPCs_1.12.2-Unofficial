@@ -269,7 +269,7 @@ implements ICompatibilty, IAvailability {
 		} else { // OLD versions
 			int v = compound.getInteger("AvailabilityDayTime");
 			if (v<0) { v *= -1; }
-			if (v>EnumDayTime.values().length) { v %= EnumDayTime.values().length; }
+			if (v>=EnumDayTime.values().length) { v %= EnumDayTime.values().length; }
 			switch (EnumDayTime.values()[v]) {
 				case Night: {
 					this.daytime[0] = 18;
@@ -294,7 +294,7 @@ implements ICompatibilty, IAvailability {
 				NBTTagCompound nbtDialog = compound.getTagList("AvailabilityDialogs", 10).getCompoundTagAt(d);
 				int v = nbtDialog.getInteger("Availability");
 				if (v<0) { v *= -1; }
-				if (v>EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
+				if (v>=EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
 				this.dialogues.put(nbtDialog.getInteger("ID"), EnumAvailabilityDialog.values()[v]);
 			}
 		} else if (compound.hasKey("AvailabilityDialogId", 3)) { // OLD versions
@@ -303,7 +303,7 @@ implements ICompatibilty, IAvailability {
 				if (compound.getInteger("AvailabilityDialog" + key + "Id") > 0) {
 					int v = compound.getInteger("AvailabilityDialog" + key);
 					if (v<0) { v *= -1; }
-					if (v>EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
+					if (v>=EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
 					this.dialogues.put(compound.getInteger("AvailabilityDialog" + key + "Id"), EnumAvailabilityDialog.values()[v]);
 				}
 			}
@@ -315,7 +315,7 @@ implements ICompatibilty, IAvailability {
 				NBTTagCompound nbtQuest = compound.getTagList("AvailabilityQuests", 10).getCompoundTagAt(q);
 				int v = nbtQuest.getInteger("Availability");
 				if (v<0) { v *= -1; }
-				if (v>EnumAvailabilityQuest.values().length) { v %= EnumAvailabilityQuest.values().length; }
+				if (v>=EnumAvailabilityQuest.values().length) { v %= EnumAvailabilityQuest.values().length; }
 				this.quests.put(nbtQuest.getInteger("ID"), EnumAvailabilityQuest.values()[v]);
 			}
 		} else if (compound.hasKey("AvailabilityQuestId", 3)) { // OLD versions
@@ -324,7 +324,7 @@ implements ICompatibilty, IAvailability {
 				if (compound.getInteger("AvailabilityQuest" + key + "Id") > 0) {
 					int v = compound.getInteger("AvailabilityQuest" + key);
 					if (v<0) { v *= -1; }
-					if (v>EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
+					if (v>=EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
 					this.dialogues.put(compound.getInteger("AvailabilityQuest" + key + "Id"), EnumAvailabilityDialog.values()[v]);
 				}
 			}
@@ -336,10 +336,10 @@ implements ICompatibilty, IAvailability {
 				NBTTagCompound nbtFaction = compound.getTagList("AvailabilityFactions", 10).getCompoundTagAt(f);
 				int v = nbtFaction.getInteger("Stance");
 				if (v<0) { v *= -1; }
-				if (v>EnumAvailabilityFaction.values().length) { v %= EnumAvailabilityFaction.values().length; }
+				if (v>=EnumAvailabilityFaction.values().length) { v %= EnumAvailabilityFaction.values().length; }
 				int g = nbtFaction.getInteger("Availability");
 				if (g<0) { g *= -1; }
-				if (g>EnumAvailabilityFactionType.values().length) { v %= EnumAvailabilityFactionType.values().length; }
+				if (g>=EnumAvailabilityFactionType.values().length) { v %= EnumAvailabilityFactionType.values().length; }
 				this.factions.put(nbtFaction.getInteger("ID"),
 						new AvailabilityFactionData(EnumAvailabilityFactionType.values()[g], EnumAvailabilityFaction.values()[v]));
 			}
@@ -349,10 +349,10 @@ implements ICompatibilty, IAvailability {
 				if (compound.getInteger("AvailabilityFaction" + key + "Id") > 0) {
 					int v = compound.getInteger("AvailabilityFaction" + key + "Stance");
 					if (v<0) { v *= -1; }
-					if (v>EnumAvailabilityFaction.values().length) { v %= EnumAvailabilityFaction.values().length; }
+					if (v>=EnumAvailabilityFaction.values().length) { v %= EnumAvailabilityFaction.values().length; }
 					int g = compound.getInteger("AvailabilityFaction" + key);
 					if (g<0) { g *= -1; }
-					if (g>EnumAvailabilityFactionType.values().length) { v %= EnumAvailabilityFactionType.values().length; }
+					if (g>=EnumAvailabilityFactionType.values().length) { g %= EnumAvailabilityFactionType.values().length; }
 					this.factions.put(compound.getInteger("AvailabilityFaction" + key + "Id"),
 							new AvailabilityFactionData(
 									EnumAvailabilityFactionType.values()[g],
@@ -367,7 +367,7 @@ implements ICompatibilty, IAvailability {
 				NBTTagCompound nbtScoreboard = compound.getTagList("AvailabilityScoreboards", 10).getCompoundTagAt(s);
 				int v = compound.getInteger("Availability");
 				if (v<0) { v *= -1; }
-				if (v>EnumAvailabilityScoreboard.values().length) { v %= EnumAvailabilityScoreboard.values().length; }
+				if (v>=EnumAvailabilityScoreboard.values().length) { v %= EnumAvailabilityScoreboard.values().length; }
 				this.scoreboards.put(nbtScoreboard.getString("Objective"),
 						new AvailabilityScoreboardData(
 								EnumAvailabilityScoreboard.values()[v],
@@ -381,7 +381,7 @@ implements ICompatibilty, IAvailability {
 					String objective = compound.getString("AvailabilityScoreboard" + key + "Objective");
 					int v = compound.getInteger("AvailabilityScoreboardType" + key);
 					if (v<0) { v *= -1; }
-					if (v>EnumAvailabilityScoreboard.values().length) { v %= EnumAvailabilityScoreboard.values().length; }
+					if (v>=EnumAvailabilityScoreboard.values().length) { v %= EnumAvailabilityScoreboard.values().length; }
 					this.scoreboards.put(objective,
 							new AvailabilityScoreboardData(
 									EnumAvailabilityScoreboard.values()[v],

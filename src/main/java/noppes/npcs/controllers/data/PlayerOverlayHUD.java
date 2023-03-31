@@ -242,44 +242,101 @@ implements IOverlayHUD {
 
 	@Override
 	public IGuiTimer addTimer(int id, long start, long end, int x, int y, int width, int height) {
-		CustomGuiTimerWrapper component = new CustomGuiTimerWrapper(id, start, end, x, y, width, height);
-		this.components.add(component);
-		return (IGuiTimer) this.components.get(this.components.size() - 1);
+		ICustomGuiComponent component = this.getComponent(id);
+		if (component instanceof CustomGuiTimerWrapper) {
+			CustomGuiTimerWrapper timer = (CustomGuiTimerWrapper) component;
+			timer.setTime(start, end);
+			timer.setPos(x, y);
+			timer.setSize(width, height);
+			return timer;
+		}
+		if (component!=null) { this.components.remove(component); }
+		CustomGuiTimerWrapper timer = new CustomGuiTimerWrapper(id, start, end, x, y, width, height);
+		this.components.add(timer);
+		return timer;
 	}
 	
 	@Override
 	public IGuiTimer addTimer(int id, long start, long end, int x, int y, int width, int height, int color) {
-		CustomGuiTimerWrapper component = new CustomGuiTimerWrapper(id, start, end, x, y, width, height, color);
-		this.components.add(component);
-		return (IGuiTimer) this.components.get(this.components.size() - 1);
+		ICustomGuiComponent component = this.getComponent(id);
+		if (component instanceof CustomGuiTimerWrapper) {
+			CustomGuiTimerWrapper timer = (CustomGuiTimerWrapper) component;
+			timer.setTime(start, end);
+			timer.setPos(x, y);
+			timer.setSize(width, height);
+			timer.setColor(color);
+			return timer;
+		}
+		if (component!=null) { this.components.remove(component); }
+		CustomGuiTimerWrapper timer = new CustomGuiTimerWrapper(id, start, end, x, y, width, height, color);
+		this.components.add(timer);
+		return timer;
 	}
 	
 	@Override
 	public ILabel addLabel(int id, String label, int x, int y, int width, int height) {
-		CustomGuiLabelWrapper component = new CustomGuiLabelWrapper(id, label, x, y, width, height);
-		this.components.add(component);
-		return (ILabel) this.components.get(this.components.size() - 1);
+		ICustomGuiComponent component = this.getComponent(id);
+		if (component instanceof CustomGuiLabelWrapper) {
+			CustomGuiLabelWrapper lable = (CustomGuiLabelWrapper) component;
+			lable.setText(label);
+			lable.setPos(x, y);
+			lable.setSize(width, height);
+			return lable;
+		}
+		if (component!=null) { this.components.remove(component); }
+		CustomGuiLabelWrapper lable = new CustomGuiLabelWrapper(id, label, x, y, width, height);
+		this.components.add(lable);
+		return lable;
 	}
 
 	@Override
 	public ILabel addLabel(int id, String label, int x, int y, int width, int height, int color) {
-		CustomGuiLabelWrapper component = new CustomGuiLabelWrapper(id, label, x, y, width, height, color);
-		this.components.add(component);
-		return (ILabel) this.components.get(this.components.size() - 1);
+		ICustomGuiComponent component = this.getComponent(id);
+		if (component instanceof CustomGuiLabelWrapper) {
+			CustomGuiLabelWrapper lable = (CustomGuiLabelWrapper) component;
+			lable.setText(label);
+			lable.setPos(x, y);
+			lable.setSize(width, height);
+			lable.setColor(color);
+			return lable;
+		}
+		if (component!=null) { this.components.remove(component); }
+		CustomGuiLabelWrapper lable = new CustomGuiLabelWrapper(id, label, x, y, width, height, color);
+		this.components.add(lable);
+		return lable;
 	}
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height) {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height);
-		this.components.add(component);
-		return (ITexturedRect) this.components.get(this.components.size() - 1);
+		ICustomGuiComponent component = this.getComponent(id);
+		if (component instanceof CustomGuiTexturedRectWrapper) {
+			CustomGuiTexturedRectWrapper txtr = (CustomGuiTexturedRectWrapper) component;
+			txtr.setTexture(texture);
+			txtr.setPos(x, y);
+			txtr.setSize(width, height);
+			return txtr;
+		}
+		if (component!=null) { this.components.remove(component); }
+		CustomGuiTexturedRectWrapper txtr = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height);
+		this.components.add(txtr);
+		return txtr;
 	}
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX, textureY);
-		this.components.add(component);
-		return (ITexturedRect) this.components.get(this.components.size() - 1);
+		ICustomGuiComponent component = this.getComponent(id);
+		if (component instanceof CustomGuiTexturedRectWrapper) {
+			CustomGuiTexturedRectWrapper txtr = (CustomGuiTexturedRectWrapper) component;
+			txtr.setTexture(texture);
+			txtr.setPos(x, y);
+			txtr.setSize(width, height);
+			txtr.setTextureOffset(textureX, textureY);
+			return txtr;
+		}
+		if (component!=null) { this.components.remove(component); }
+		CustomGuiTexturedRectWrapper txtr = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX, textureY);
+		this.components.add(txtr);
+		return txtr;
 	}
 
 	@Override

@@ -1246,6 +1246,8 @@ schematic.instantBuildText=Are you sure you want to build this? You can not undo
 schematic.length=Length
 schematic.preview=Preview
 schematic.width=Width
+schematic.air=Add air block to block list
+schematic.replace=Replace all blocks, or blocks without air
 
 script.apidoc=API Doc
 script.apisrc=API Source

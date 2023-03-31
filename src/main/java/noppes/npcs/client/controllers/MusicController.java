@@ -7,8 +7,6 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
 
 public class MusicController {
 	public static MusicController Instance;
@@ -22,8 +20,7 @@ public class MusicController {
 
 	public boolean isPlaying(String music) {
 		ResourceLocation resource = new ResourceLocation(music);
-		return this.playingResource != null && this.playingResource.equals(resource)
-				&& Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(this.playing);
+		return this.playingResource != null && this.playingResource.equals(resource) && Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(this.playing);
 	}
 
 	public void playMusic(String music, Entity entity) {
@@ -34,8 +31,7 @@ public class MusicController {
 		this.playingResource = new ResourceLocation(music);
 		this.playingEntity = entity;
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		handler.playSound((this.playing = new PositionedSoundRecord(this.playingResource, SoundCategory.MUSIC, 1.0f,
-				1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f)));
+		handler.playSound((this.playing = new PositionedSoundRecord(this.playingResource, SoundCategory.MUSIC, 1.0f, 1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f)));
 	}
 
 	public void playSound(SoundCategory cat, String music, int x, int y, int z, float volumne, float pitch) {
@@ -52,11 +48,7 @@ public class MusicController {
 		this.playingEntity = entity;
 		this.playingResource = new ResourceLocation(music);
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		// OLD: this.playing = new PositionedSoundRecord(this.playingResource,
-		// SoundCategory.RECORDS, 4.0f, 1.0f, false, 0, ISound.AttenuationType.LINEAR,
-		// entity.posX, entity.posY, entity.posZ);
-		this.playing = new PositionedSoundRecord(SoundEvent.REGISTRY.getObject(this.playingResource),
-				SoundCategory.RECORDS, 4.0f, 1.0f, new BlockPos(entity.posX, entity.posY, entity.posZ));
+		this.playing = new PositionedSoundRecord(this.playingResource, SoundCategory.RECORDS, 4.0f, 1.0f, false, 0, ISound.AttenuationType.LINEAR, (float)this.playingEntity.posX+0.5f, (float)this.playingEntity.posY+0.5f, (float)this.playingEntity.posZ+0.5f);
 		handler.playSound(this.playing);
 	}
 

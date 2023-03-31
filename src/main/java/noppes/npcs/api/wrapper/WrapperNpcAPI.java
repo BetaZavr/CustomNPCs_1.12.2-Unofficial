@@ -316,7 +316,7 @@ extends NpcAPI {
 				}
 			}
 		}
-		return player == null ? null : (IPlayer) this.getIEntity(player);
+		return player == null ? null : (IPlayer<?>) this.getIEntity(player);
 	}
 
 }

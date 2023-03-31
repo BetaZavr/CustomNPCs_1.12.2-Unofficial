@@ -1149,6 +1149,8 @@ schematic.instantBuildText=Вы уверены, что хотите постро
 schematic.length=Длина
 schematic.preview=Предосмотр
 schematic.width=Ширина
+schematic.air=Добавить блок воздуха к списку блоков
+schematic.replace=Заменить все блоки, либо блоки не учитывая воздух
 
 script.apidoc=API Докум.
 script.apisrc=API Ресурсы

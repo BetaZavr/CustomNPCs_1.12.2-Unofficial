@@ -160,19 +160,10 @@ implements ICustomScrollListener, ITextfieldListener {
 				textField.setMinMaxDefault(1, 100, this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : 100);
 				this.addTextField(textField);
 			}
-			int max = 0;
 			for (int i=0; i<3; i++) { // Region
 				textField = new GuiNpcTextField(i+10, this, this.guiLeft+120+i*34, this.guiTop+50, 30, 15, ""+this.builder.region[i]);
 				textField.setNumbersOnly();
-				if (max*this.builder.region[i] > CustomNpcs.maxBuilderBlocks) {
-					max = CustomNpcs.maxBuilderBlocks - max*this.builder.region[i];
-				} else {
-					if (i==0) { max = this.builder.region[i]; }
-					else if (i==1) { max *= this.builder.region[i]; }
-					else { max *= this.builder.region[i]; }
-				}
-				if (max<0) { max = 0; }
-				textField.setMinMaxDefault(1, max, this.builder.region[i]);
+				textField.setMinMaxDefault(1, CustomNpcs.maxBuilderBlocks, this.builder.region[i]);
 				this.addTextField(textField);
 			}
 			checkBox = new GuiNpcCheckBox(5, this.guiLeft+172, this.guiTop+130, 70, 15, "tile.air.name");
@@ -307,7 +298,13 @@ implements ICustomScrollListener, ITextfieldListener {
 				return;
 			}
 		}
-		if (this.getLabel(0)!=null && this.getLabel(0).hovered) {
+		if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("scale.width").getFormattedText());
+		} else if (this.getTextField(11)!=null && this.getTextField(11).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("scale.depth").getFormattedText());
+		} else if (this.getTextField(12)!=null && this.getTextField(12).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("schematic.height").getFormattedText());
+		} else if (this.getLabel(0)!=null && this.getLabel(0).hovered) {
 			this.setHoverText("builder.hover.blocks."+type);
 		} else if (this.getLabel(4)!=null && this.getLabel(4).hovered) {
 			this.setHoverText("builder.hover.main.block");
@@ -323,6 +320,10 @@ implements ICustomScrollListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation(type<3 ? "scale.depth" : "schematic.width").getFormattedText()+"<br>"+new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
 		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("schematic.height").getFormattedText()+"<br>"+new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("schematic.air").getFormattedText());
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("schematic.replace").getFormattedText());
 		} else if (this.getButton(61)!=null && this.getButton(61).isMouseOver()) {
 			this.setHoverText("hover.save");
 		}
@@ -411,13 +412,11 @@ implements ICustomScrollListener, ITextfieldListener {
 				max *= this.builder.region[i];
 			}
 			int value = textField.getInteger();
-			System.out.println("value: "+value);
 			if (max * value > CustomNpcs.maxBuilderBlocks) {
 				value = CustomNpcs.maxBuilderBlocks / max;
 			}
 			if (value<=0) { value = 1; }
-			this.builder.region[pos==0 ? 0 : pos==1 ? 2 : 1] = value;
-			System.out.println("pos: "+pos+"; value: "+value+"/"+CustomNpcs.maxBuilderBlocks);
+			this.builder.region[pos] = value;
 		}
 	}
 

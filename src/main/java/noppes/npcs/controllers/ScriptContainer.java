@@ -237,9 +237,7 @@ public class ScriptContainer {
 	}
 
 	public void run(String type, Object event) {
-		if (this.engine==null) {
-			this.setEngine(this.handler.getLanguage());
-		}
+		if (this.engine==null) { this.setEngine(this.handler.getLanguage()); }
 		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting) {
 			return;
 		}
@@ -265,10 +263,8 @@ public class ScriptContainer {
 					Object ob = this.engine.get(type);
 					if (ob != null) {
 						if (ScriptContainer.luaCoerce == null) {
-							ScriptContainer.luaCoerce = Class.forName("org.luaj.vm2.lib.jse.CoerceJavaToLua")
-									.getMethod("coerce", Object.class);
-							ScriptContainer.luaCall = ob.getClass().getMethod("call",
-									Class.forName("org.luaj.vm2.LuaValue"));
+							ScriptContainer.luaCoerce = Class.forName("org.luaj.vm2.lib.jse.CoerceJavaToLua").getMethod("coerce", Object.class);
+							ScriptContainer.luaCall = ob.getClass().getMethod("call", Class.forName("org.luaj.vm2.LuaValue"));
 						}
 						ScriptContainer.luaCall.invoke(ob, ScriptContainer.luaCoerce.invoke(null, event));
 					} else {

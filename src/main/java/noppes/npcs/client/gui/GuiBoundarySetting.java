@@ -82,7 +82,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				selectReg = this.dataRegions.get(reg.id);
 				for (int id : reg.points.keySet()) {
 					this.dataPoints.put(id, "ID: "+id+" ["+reg.points.get(id).x+", "+reg.points.get(id).y+"]");
-					if (this.point==reg.points.get(id) || (this.point.x==reg.points.get(id).x && this.point.y==reg.points.get(id).y)) {
+					if (this.point!=null && (this.point==reg.points.get(id) || (this.point.x==reg.points.get(id).x && this.point.y==reg.points.get(id).y))) {
 						selectP = this.dataPoints.get(id);
 					}
 				}

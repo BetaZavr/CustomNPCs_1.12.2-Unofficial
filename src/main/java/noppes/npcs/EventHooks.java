@@ -130,7 +130,7 @@ public class EventHooks {
 	public static void onForgeEvent(ForgeEvent ev, Event event) {
 		ForgeScriptData data = ScriptController.Instance.forgeScripts;
 		if (!data.isEnabled()) { return; }
-		if (CustomNpcs.forgeEventNames.containsKey(event.getClass())) { return; }
+		if (!CustomNpcs.forgeEventNames.containsKey(event.getClass())) { return; }
 		String eventName = CustomNpcs.forgeEventNames.get(event.getClass());
 		try { // Changed
 			data.runScript(eventName, event);
