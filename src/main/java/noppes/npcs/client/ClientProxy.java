@@ -378,7 +378,7 @@ extends CommonProxy {
 			}
 			case MainMenuStats: { return new GuiNpcStats(npc); }
 			case MainMenuInv: { return new GuiNPCInv(npc, (ContainerNPCInv) container); }
-			case MainMenuInvDrop: { return new GuiDropEdit(npc, (ContainerNPCDropSetup) container, npc.inventory.drops.get(x), (GuiContainer) Minecraft.getMinecraft().currentScreen); } // New
+			case MainMenuInvDrop: { return new GuiDropEdit(npc, (ContainerNPCDropSetup) container, x, (GuiContainer) Minecraft.getMinecraft().currentScreen); } // New
 			case MainMenuAdvanced: { return new GuiNpcAdvanced(npc); }
 			case QuestReward: { return new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container); }
 			case QuestTypeItem: { // New

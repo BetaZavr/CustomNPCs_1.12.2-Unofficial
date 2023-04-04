@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.NpcAPI;
@@ -34,10 +34,10 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCDropSetup;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.entity.data.DataInventory.AttributeSet;
-import noppes.npcs.entity.data.DataInventory.DropNbtSet;
-import noppes.npcs.entity.data.DataInventory.DropSet;
-import noppes.npcs.entity.data.DataInventory.EnchantSet;
+import noppes.npcs.entity.data.AttributeSet;
+import noppes.npcs.entity.data.DropNbtSet;
+import noppes.npcs.entity.data.DropSet;
+import noppes.npcs.entity.data.EnchantSet;
 
 public class GuiDropEdit
 extends GuiContainerNPCInterface2
@@ -47,9 +47,9 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	private AttributeSet attribute;
 	private Map<String, AttributeSet> attributesData;
 	public DropSet drop;
+	public int slot;
 	private EnchantSet enchant;
 	private Map<String, EnchantSet> enchantData;
-	private boolean newDrop;
 	private GuiContainer parent;
 	private int reset;
 	private GuiCustomScroll scrollAttributes;
@@ -58,11 +58,11 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	private DropNbtSet tag;
 	private Map<String, DropNbtSet> tagsData;
 
-	public GuiDropEdit(EntityNPCInterface npc, ContainerNPCDropSetup cont, DropSet drop, GuiContainer gui) {
+	public GuiDropEdit(EntityNPCInterface npc, ContainerNPCDropSetup cont, int slot, GuiContainer gui) {
 		super(npc, cont);
 		this.parent = gui;
-		this.drop = drop;
-		this.newDrop = drop.item.isEmpty();
+		this.slot = slot;
+		this.drop = npc.inventory.drops.get(slot);
 		this.setBackground("npcdrop.png");
 		this.ySize = 200;
 		this.closeOnEsc = true;
@@ -70,12 +70,16 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		this.scrollAttributes = null;
 		this.scrollTags = null;
 		this.reset = 0;
-		this.amount = new int[] { drop.getMinAmount(), drop.getMaxAmount() };
+		if (this.drop==null) {
+			this.drop = new DropSet(npc.inventory);
+		}
+		this.amount = new int[] { this.drop.getMinAmount(), this.drop.getMaxAmount() };
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
+System.out.println("start size: "+this.npc.inventory.drops.size());
 		if (this.parent == null) {
 			this.close();
 			return;
@@ -129,8 +133,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		damage.setEnabled(this.drop.item.getMaxItemDamage() != 0);
 		this.addTextField(damage);
 		// reset
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 171, this.guiTop + 169, 48, 20, "remote.reset",
-				!this.drop.item.isEmpty()));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 171, this.guiTop + 169, 48, 20, "remote.reset", !this.drop.item.isEmpty()));
 		// Enchants:
 		// List
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.enchants", this.guiLeft + 4, this.guiTop + 5));
@@ -297,22 +300,6 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	public void close() {
-		if (this.parent != null) {
-			if (this.drop.item.isEmpty()) {
-				this.npc.inventory.removeDrop(this.drop);
-				Client.sendData(EnumPacketServer.MainmenuInvSave,
-						this.npc.inventory.writeEntityToNBT(new NBTTagCompound()));
-			} else {
-				this.save();
-			}
-			this.displayGuiScreen(this.parent);
-		} else {
-			super.close();
-		}
-	}
-
-	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		if (this.reset > 0) {
@@ -321,8 +308,17 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 				this.initGui();
 			}
 		}
-		if (this.subgui != null) {
-			return;
+		if (this.subgui != null) { return; }
+		if (this.inventorySlots.getSlot(0)!=null && this.getButton(0)!=null) {
+			ItemStack stack = this.inventorySlots.getSlot(0).getStack();
+			GuiNpcButton button = this.getButton(0);
+			if (button.enabled && stack.isEmpty()) {
+				this.drop.item = NpcAPI.Instance().getIItemStack(stack);
+			}
+			else if (!button.enabled && !stack.isEmpty()) {
+				this.drop.item = NpcAPI.Instance().getIItemStack(stack);
+			}
+			
 		}
 		if (!CustomNpcs.showDescriptions) { return; }
 		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
@@ -395,8 +391,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 					}
 				}
 			} else {
-				this.setHoverText(
-						new TextComponentTranslation("drop.hover.any.quest", new Object[0]).getFormattedText());
+				this.setHoverText(new TextComponentTranslation("drop.hover.any.quest", new Object[0]).getFormattedText());
 			}
 		}
 	}
@@ -418,11 +413,24 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		if (this.newDrop && this.drop.getMinAmount() == 1 && this.drop.getMinAmount() == 1) {
-			this.drop.setAmount(this.drop.item.getStackSize(), this.drop.item.getStackSize());
+		if (this.slot==-1) {
+			if (this.drop.item.isEmpty()) { return; }
+			if (this.drop.getMinAmount() == 1 && this.drop.getMinAmount() == 1) {
+				this.drop.setAmount(this.drop.item.getStackSize(), this.drop.item.getStackSize());
+			}
 		}
 		this.drop.item.setStackSize(1);
-		Client.sendData(EnumPacketServer.MainmenuInvSave, this.npc.inventory.writeEntityToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.MainmenuInvDropSave, this.slot, this.drop.getNBT());
+	}
+
+	@Override
+	public void close() {
+		if (this.parent != null) {
+			this.save();
+			this.displayGuiScreen(this.parent);
+		} else {
+			super.close();
+		}
 	}
 
 	@Override
@@ -498,17 +506,11 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			case 1: { // amount min
 				this.amount[0] = guiNpcTextField.getInteger();
 				this.drop.setAmount(this.amount[0], this.amount[1]);
-				if (this.newDrop && this.amount[0] != 1) {
-					this.newDrop = false;
-				}
 				break;
 			}
 			case 2: { // amount max
 				this.amount[1] = guiNpcTextField.getInteger();
 				this.drop.setAmount(this.amount[0], this.amount[1]);
-				if (this.newDrop && this.amount[1] != 1) {
-					this.newDrop = false;
-				}
 				break;
 			}
 			case 3: { // break item

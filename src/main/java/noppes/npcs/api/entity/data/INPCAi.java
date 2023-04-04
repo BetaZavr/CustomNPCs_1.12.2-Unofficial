@@ -1,6 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCAi {
+	
 	int getAnimation();
 
 	boolean getAttackInvisible();
@@ -45,43 +46,44 @@ public interface INPCAi {
 
 	int getWanderingRange();
 
-	void setAnimation(int p0);
+	void setAnimation(int type);
 
-	void setAttackInvisible(boolean p0);
+	void setAttackInvisible(boolean attack);
 
-	void setAttackLOS(boolean p0);
+	void setAttackLOS(boolean enabled);
 
-	void setAvoidsWater(boolean p0);
+	void setAvoidsWater(boolean enabled);
 
-	void setCanSwim(boolean p0);
+	void setCanSwim(boolean canSwim);
 
-	void setDoorInteract(int p0);
+	void setDoorInteract(int type);
 
-	void setInteractWithNPCs(boolean p0);
+	void setInteractWithNPCs(boolean interact);
 
-	void setLeapAtTarget(boolean p0);
+	void setLeapAtTarget(boolean leap);
 
-	void setMovingPathType(int p0, boolean p1);
+	void setMovingPathType(int type, boolean pauses);
 
-	void setMovingType(int p0);
+	void setMovingType(int type);
 
-	void setNavigationType(int p0);
+	void setNavigationType(int type);
 
-	void setRetaliateType(int p0);
+	void setRetaliateType(int type);
 
-	void setReturnsHome(boolean p0);
+	void setReturnsHome(boolean bo);
 
-	void setSheltersFrom(int p0);
+	void setSheltersFrom(int type);
 
-	void setStandingType(int p0);
+	void setStandingType(int type);
 
-	void setStopOnInteract(boolean p0);
+	void setStopOnInteract(boolean stopOnInteract);
 
-	void setTacticalRange(int p0);
+	void setTacticalRange(int range);
 
-	void setTacticalType(int p0);
+	void setTacticalType(int type);
 
-	void setWalkingSpeed(int p0);
+	void setWalkingSpeed(int speed);
 
-	void setWanderingRange(int p0);
-}
+	void setWanderingRange(int range);
+	
+} 

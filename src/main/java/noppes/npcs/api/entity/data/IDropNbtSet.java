@@ -1,12 +1,12 @@
 package noppes.npcs.api.entity.data;
 
-import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.INbt;
 
 public interface IDropNbtSet {
 
 	double getChance();
 
-	NBTTagCompound getConstructoredTag(NBTTagCompound nbt);
+	INbt getConstructoredTag(INbt nbt);
 
 	String getPath();
 
@@ -20,7 +20,7 @@ public interface IDropNbtSet {
 
 	void setChance(double chance);
 
-	void setPath(String paht);
+	void setPath(String path);
 
 	void setType(int type);
 

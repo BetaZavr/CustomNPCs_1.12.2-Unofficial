@@ -2,9 +2,13 @@ package noppes.npcs.controllers.data;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.data.role.IRoleTransporter;
+import noppes.npcs.dimensions.DimensionHandler;
 
-public class TransportLocation implements IRoleTransporter.ITransportLocation {
+public class TransportLocation
+implements IRoleTransporter.ITransportLocation {
+	
 	public TransportCategory category;
 	public int dimension;
 	public int id;
@@ -79,5 +83,14 @@ public class TransportLocation implements IRoleTransporter.ITransportLocation {
 		compound.setInteger("Dimension", this.dimension);
 		compound.setString("Name", this.name);
 		return compound;
+	}
+
+	@Override
+	public void setPos(int dimentionID, int x, int y, int z) {
+		if (!DimensionHandler.getInstance().getMapDimensionsIDs().containsValue(dimentionID)) {
+			throw new CustomNPCsException("Unknown dimention ID: " + dimentionID);
+		}
+		this.dimension = dimentionID;
+		this.pos = new BlockPos(x, y, z);
 	}
 }

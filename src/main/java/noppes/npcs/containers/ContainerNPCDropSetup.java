@@ -10,9 +10,11 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.client.gui.mainmenu.GuiDropEdit;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.entity.data.DataInventory.DropSet;
+import noppes.npcs.entity.data.DropSet;
 
-public class ContainerNPCDropSetup extends Container {
+public class ContainerNPCDropSetup
+extends Container {
+	
 	public DropSet inventoryDS;
 
 	public ContainerNPCDropSetup(EntityNPCInterface npc, int pos, EntityPlayer player) {

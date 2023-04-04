@@ -218,10 +218,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public DataTimers timers;
 	public long totalTicksAlive;
 	public DataTransform transform;
-	public boolean updateAI;
 	public boolean updateClient;
 	private boolean wasKilled;
 	public ICustomNpc<?> wrappedNPC;
+	public boolean updateAI;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -244,7 +244,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.animationStart = 0;
 		this.npcVersion = VersionCompatibility.ModRev;
 		this.updateClient = false;
-		this.updateAI = false;
 		this.bossInfo = new BossInfoServer(this.getDisplayName(), BossInfo.Color.PURPLE, BossInfo.Overlay.PROGRESS);
 		this.startYPos = -1.0;
 		if (!this.isRemote()) {

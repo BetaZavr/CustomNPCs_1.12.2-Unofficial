@@ -41,7 +41,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	
 	private Map<String, Integer> data; // nameKey, id
 	private Faction faction;
-	private GuiCustomScroll scrollFactions;
+	private GuiCustomScroll scrollFactions, scrollHostileFactions;
 	private String selected;
 
 	public GuiNPCManageFactions(EntityNPCInterface npc) {
@@ -100,17 +100,15 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		this.scrollFactions.guiLeft = this.guiLeft + 220;
 		this.scrollFactions.guiTop = this.guiTop + 4;
 		this.addScroll(this.scrollFactions);
-		if (this.faction.id == -1) {
-			return;
-		}
+		if (this.faction.id == -1) { return; }
+		
 		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, AdditionalMethods.deleteColor(this.faction.name)));
 		this.getTextField(0).setMaxStringLength(20);
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 8, this.guiTop + 9));
 		this.addLabel(new GuiNpcLabel(10, "ID", this.guiLeft + 178, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(11, this.faction.id + "", this.guiLeft + 178, this.guiTop + 14));
 		String color;
-		for (color = Integer.toHexString(this.faction.color); color.length() < 6; color = "0" + color) {
-		}
+		for (color = Integer.toHexString(this.faction.color); color.length() < 6; color = "0" + color) { }
 		
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 40, this.guiTop + 26, 60, 20, color));
 		this.addLabel(new GuiNpcLabel(1, "gui.color", this.guiLeft + 8, this.guiTop + 31));
@@ -120,31 +118,34 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 48, 45, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(3, "faction.hidden", this.guiLeft + 8, this.guiTop + 75));
 		
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + 70, 45, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.faction.hideFaction ? 1 : 0)));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + 70, 45, 20, new String[] { "gui.no", "gui.yes" }, (this.faction.hideFaction ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(4, "faction.attacked", this.guiLeft + 8, this.guiTop + 97));
 		
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 170, this.guiTop + 92, 45, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.faction.getsAttacked ? 1 : 0)));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 170, this.guiTop + 92, 45, 20, new String[] { "gui.no", "gui.yes" }, (this.faction.getsAttacked ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(6, "faction.hostiles", this.guiLeft + 8, this.guiTop + 141));
 		
-		ArrayList<String> hostileList = new ArrayList<String>(this.scrollFactions.getList());
-		hostileList.remove(this.faction.name);
+		ArrayList<String> hostileList = Lists.<String>newArrayList();
+		for (String key : this.scrollFactions.getList()) {
+			if (key.equals(this.scrollFactions.getSelected())) { continue; }
+			hostileList.add(key);
+		}
 		HashSet<String> set = new HashSet<String>();
-		for (String s : this.data.keySet()) {
-			if (!s.equals(this.faction.name) && this.faction.attackFactions.contains(this.data.get(s))) {
-				set.add(s);
+		if (this.faction.attackFactions.size()>0) {
+			for (String s : this.data.keySet()) {
+				if (this.faction.attackFactions.contains(this.data.get(s))) {
+					set.add(s);
+				}
 			}
 		}
 		
-		GuiCustomScroll scrollHostileFactions = new GuiCustomScroll(this, 1, true);
-		scrollHostileFactions.setSize(163, 62);
-		scrollHostileFactions.guiLeft = this.guiLeft + 4;
-		scrollHostileFactions.guiTop = this.guiTop + 150;
-		scrollHostileFactions.setList(hostileList);
-		scrollHostileFactions.setSelectedList(set);
-		this.addScroll(scrollHostileFactions);
-		// New
+		if (this.scrollHostileFactions == null) {
+			(this.scrollHostileFactions = new GuiCustomScroll(this, 1, true)).setSize(163, 62);
+		}
+		this.scrollHostileFactions.guiLeft = this.guiLeft + 4;
+		this.scrollHostileFactions.guiTop = this.guiTop + 150;
+		this.scrollHostileFactions.setListNotSorted(hostileList);
+		this.scrollHostileFactions.setSelectedList(set);
+		this.addScroll(this.scrollHostileFactions);
 		this.addLabel(new GuiNpcLabel(7, "faction.ondeath", this.guiLeft + 8, this.guiTop + 119));
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 170, this.guiTop + 114, 45, 20, "faction.points"));
 	}
@@ -183,14 +184,14 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
-		if (guiCustomScroll.id == 0) {
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+		if (scroll.id == 0) {
 			this.save();
 			this.selected = this.scrollFactions.getSelected();
 			Client.sendData(EnumPacketServer.FactionGet, this.data.get(this.selected));
-		} else if (guiCustomScroll.id == 1) {
+		} else if (scroll.id == 1) {
 			HashSet<Integer> set = new HashSet<Integer>();
-			for (String s : guiCustomScroll.getSelectedList()) {
+			for (String s : scroll.getSelectedList()) {
 				if (this.data.containsKey(s)) {
 					set.add(this.data.get(s));
 				}
@@ -206,44 +207,37 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		String name = this.scrollFactions.getSelected();
-		List<String> newList = Lists.<String>newArrayList();
-		Map<String, Integer> newData = Maps.<String, Integer>newHashMap();
-		char chr = Character.toChars(0x00A7)[0];
-		for (String key : data.keySet()) {
-			int id = data.get(key);
-			String newName = AdditionalMethods.deleteColor(key);
-			if (newName.indexOf("ID:"+id+" - ")>=0) {
-				newName = newName.substring(newName.indexOf(" - ")+3);
-			}
-			String str = chr+"7ID:"+id+" - "+chr+"r"+newName;
-			newList.add(str);
-			newData.put(str, id);
-			if (name!=null && name.equals(newName)) { name = str; }
-		}
-		this.data = newData;
-		this.scrollFactions.setList(newList);
+		String select = this.scrollFactions.getSelected();
+		Map<Integer, String> map = Maps.<Integer, String>newTreeMap();
+		for (String key : data.keySet()) { map.put(data.get(key), key); }
 		
-		if (name != null) {
-			this.scrollFactions.setSelected(name);
+		List<String> newList = Lists.<String>newArrayList();
+		this.data.clear();
+		char chr = ((char) 167);
+		for (int id  : map.keySet()) {
+			String key = map.get(id);
+			String name = AdditionalMethods.deleteColor(key);
+			if (name.indexOf("ID:"+id+" ")>=0) { name = name.substring(name.indexOf(" ")+3); }
+			String str = chr+"7ID:"+id+" "+chr+"r"+name;
+			newList.add(str);
+			this.data.put(str, id);
+			if (select!=null && select.equals(name)) { select = str; }
 		}
+		this.scrollFactions.setListNotSorted(newList);
+		if (select!=null && !select.isEmpty()) { this.scrollFactions.setSelected(select); }
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		(this.faction = new Faction()).readNBT(compound);
-		this.setSelected(this.faction.name);
+		this.setSelected("ID:"+this.faction.id+" "+this.faction.name);
 		this.initGui();
 	}
 
 	@Override
 	public void setSelected(String selected) {
 		for (String key : this.scrollFactions.getList()) {
-			String newName = AdditionalMethods.deleteColor(key+"");
-			if (newName.indexOf("ID:")>=0 && newName.indexOf(" - ")>=newName.indexOf("ID:")) {
-				newName = newName.substring(newName.indexOf(" - ")+3);
-			}
-			if (newName.equals(selected)) {
+			if (AdditionalMethods.deleteColor(key+"").equals(selected)) {
 				this.selected = key;
 				this.scrollFactions.setSelected(key);
 				return;
@@ -293,4 +287,5 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		}
 		super.keyTyped(c, i);
 	}
+
 }

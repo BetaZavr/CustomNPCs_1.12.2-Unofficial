@@ -9,7 +9,7 @@ public interface ILayerModel {
 	
 	public NBTTagCompound getNbt();
 	
-	void setNbt(NBTTagCompound nbt);
+	void setNbt(INbt nbt);
 
 	float getOffset(int axis);
 

@@ -4,10 +4,10 @@ import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.api.item.IItemStack;
 
 public interface INPCInventory {
-	// New
+	
 	ICustomDrop addDropItem(IItemStack item, double chance);
 
-	IItemStack getArmor(int p0);
+	IItemStack getArmor(int slot);
 
 	ICustomDrop getDrop(int slot);
 
@@ -41,15 +41,16 @@ public interface INPCInventory {
 
 	boolean removeDrop(int slot);
 
-	void setArmor(int p0, IItemStack p1);
+	void setArmor(int slot, IItemStack item);
 
-	void setExp(int p0, int p1);
+	void setExp(int min, int max);
 
-	void setLeftHand(IItemStack p0);
+	void setLeftHand(IItemStack item);
 
-	void setProjectile(IItemStack p0);
+	void setProjectile(IItemStack item);
 
-	void setRightHand(IItemStack p0);
+	void setRightHand(IItemStack item);
 
 	void setXPLootMode(boolean mode);
+	
 }

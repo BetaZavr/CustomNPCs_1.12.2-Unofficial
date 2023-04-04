@@ -9,14 +9,12 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -37,6 +35,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.blocks.tiles.TileCopy;
@@ -84,6 +83,7 @@ import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
+import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
@@ -557,11 +557,34 @@ public class PacketHandlerServer {
 			npc.stats.readToNBT(Server.readNBT(buffer));
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.MainmenuInvGet) {
+System.out.println("start size: "+npc.inventory.drops.size());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuInvSave) {
 			npc.inventory.readEntityFromNBT(Server.readNBT(buffer));
 			npc.updateAI = true;
 			npc.updateClient = true;
+Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
+		} else if (type == EnumPacketServer.MainmenuInvDropSave) {
+System.out.println("start size: "+npc.inventory.drops.size());
+			int slot = buffer.readInt();
+System.out.println("slot: "+slot);
+			NBTTagCompound compound = Server.readNBT(buffer);
+System.out.println("compound: "+compound);
+			IItemStack stack = NpcAPI.Instance().getIItemStack(new ItemStack(compound.getCompoundTag("Item")));
+System.out.println("stack: "+stack);
+			if (slot == -1) { // add new
+				if (stack.isEmpty()) { return; }
+				DropSet drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d);
+				drop.load(compound);
+System.out.println("add slot: "+slot+"; size: "+npc.inventory.drops.size());
+			}
+			else if (stack.isEmpty()) { // remove
+System.out.println("remove slot: "+slot+" == "+npc.inventory.removeDrop(slot)+"; size: "+npc.inventory.drops.size());
+				npc.inventory.removeDrop(slot);
+			}
+			npc.updateAI = true;
+			npc.updateClient = true;
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuAIGet) {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.ais.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuAISave) {

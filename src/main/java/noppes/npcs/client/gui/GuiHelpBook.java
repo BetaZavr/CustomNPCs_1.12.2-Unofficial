@@ -322,7 +322,7 @@ implements ICustomScrollListener {
 		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (!area.hovered) { return; }
 		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
-//System.out.println("mouseX: "+mouseX+"/"+this.mouseX);
+		if (select==null || select[1]==null) { return; }
 		if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])==null) {
 			this.scroll.setSelected((String) select[1]);
 			this.resetText();

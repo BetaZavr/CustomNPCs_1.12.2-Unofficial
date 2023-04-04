@@ -14,7 +14,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -31,7 +30,7 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCInv;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
-import noppes.npcs.entity.data.DataInventory.DropSet;
+import noppes.npcs.entity.data.DropSet;
 
 public class GuiNPCInv extends GuiContainerNPCInterface2
 		implements ICustomScrollListener, /* ISliderListener, */ IGuiData // Changed and New
@@ -42,7 +41,6 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 	private DataInventory inventory;
 	// New
 	private GuiCustomScroll scrollDrops;
-	private DropSet selectedDrop;
 	private ResourceLocation slot;
 
 	public GuiNPCInv(EntityNPCInterface npc, ContainerNPCInv container) {
@@ -53,37 +51,31 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 		this.container = container;
 		this.ySize = 200;
 		this.slot = this.getResource("slot.png");
-		Client.sendData(EnumPacketServer.MainmenuInvGet, new Object[0]);
+		Client.sendData(EnumPacketServer.MainmenuInvGet);
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) { // Changed
-		// New
+	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		switch (guibutton.id) {
+		switch (button.id) {
 		case 10: { // lootMode
 			this.inventory.lootMode = (button.getValue() == 1);
 			break;
 		}
 		case 13: { // edit
-			if (this.selectedDrop != null) {
-				NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.inventory.getDropSlot(this.selectedDrop), 0,
-						0);
-			}
+			if (this.scrollDrops.selected == -1) { return; }
+			NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.scrollDrops.selected, 0, 0);
 			break;
 		}
 		case 14: { // remove
-			this.inventory.removeDrop(this.selectedDrop);
-			this.initGui();
+			if (this.scrollDrops.selected == -1) { return; }
+			NBTTagCompound compound = new NBTTagCompound();
+			compound.setTag("Item", ItemStack.EMPTY.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.MainmenuInvDropSave, this.scrollDrops.selected, compound);
 			break;
 		}
 		case 15: { // add Drop
-			DropSet ds = (DropSet) this.inventory.addDropItem(NpcAPI.Instance().getIItemStack(ItemStack.EMPTY), 100.0d);
-			if (ds != null) {
-				this.selectedDrop = ds;
-				NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.inventory.getDropSlot(this.selectedDrop), 0,
-						0);
-			}
+			NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, -1, 0, 0);
 			break;
 		}
 		case 16: { // max Amount Srop
@@ -116,8 +108,8 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 		// New
 		if (!CustomNpcs.showDescriptions) { return; }
 		String dropName = "";
-		if (this.selectedDrop != null) {
-			dropName = this.selectedDrop.getItem().getDisplayName();
+		if (this.scrollDrops!=null && this.scrollDrops.selected>=0 && this.dropsData.get(this.scrollDrops.getSelected())!=null) {
+			dropName = this.npc.inventory.drops.get(this.scrollDrops.selected).getItem().getDisplayName();
 		}
 		if (isMouseHover(i, j, this.guiLeft + 90, this.guiTop + 90, 76, 16)) {
 			this.setHoverText(new TextComponentTranslation("inv.hover.auto.xp").getFormattedText());
@@ -169,12 +161,9 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 		this.addScroll(this.scrollDrops);
 
 		this.addLabel(new GuiNpcLabel(12, "inv.drops", this.guiLeft + 356, this.guiTop + 4));
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 356, this.guiTop + 18, 58, 20, "selectServer.edit",
-				this.selectedDrop != null));
-		this.addButton(new GuiNpcButton(14, this.guiLeft + 356, this.guiTop + 41, 58, 20, "gui.remove",
-				this.selectedDrop != null));
-		this.addButton(new GuiNpcButton(15, this.guiLeft + 356, this.guiTop + 64, 58, 20, "gui.add",
-				this.dropsData.size() < 32));
+		this.addButton(new GuiNpcButton(13, this.guiLeft + 356, this.guiTop + 18, 58, 20, "selectServer.edit", this.scrollDrops.selected>=0));
+		this.addButton(new GuiNpcButton(14, this.guiLeft + 356, this.guiTop + 41, 58, 20, "gui.remove", this.scrollDrops.selected>=0));
+		this.addButton(new GuiNpcButton(15, this.guiLeft + 356, this.guiTop + 64, 58, 20, "gui.add", this.dropsData.size() < 32));
 
 		String[] maxCount = new String[this.dropsData.size()];
 		if (this.dropsData.size() > 0) {
@@ -200,7 +189,7 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 
 	@Override
 	public void save() {
-		// this.inventory.dropchance = this.chances; Chanced
+		System.out.println("start size: "+this.npc.inventory.drops.size());
 		this.inventory.setExp(this.getTextField(0).getInteger(), this.getTextField(1).getInteger());
 		Client.sendData(EnumPacketServer.MainmenuInvSave, this.inventory.writeEntityToNBT(new NBTTagCompound()));
 	}
@@ -211,7 +200,7 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 			return;
 		}
 		if (scroll.id == 11) {
-			this.selectedDrop = this.dropsData.get(this.scrollDrops.getSelected());
+			//this.dropsData.get(this.scrollDrops.getSelected());
 		}
 		this.initGui();
 	}
@@ -235,9 +224,8 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 		if (scroll.id == 11) {
-			if (this.selectedDrop != null) {
-				NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.inventory.getDropSlot(this.selectedDrop), 0,
-						0);
+			if (this.dropsData.get(this.scrollDrops.getSelected()) != null) {
+				NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInvDrop, this.scrollDrops.selected, 0, 0);
 			}
 		}
 	}
@@ -254,12 +242,10 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 			this.scrollDrops.setList(Lists.newArrayList(this.dropsData.keySet()));
 		}
 		if (this.getButton(13) != null) {
-			this.getButton(13).enabled = this.scrollDrops != null && this.scrollDrops.getList().size() > 0
-					&& this.selectedDrop != null;
+			this.getButton(13).enabled = this.scrollDrops != null && this.scrollDrops.getList().size() > 0 && this.scrollDrops.selected>=0;
 		}
 		if (this.getButton(14) != null) {
-			this.getButton(14).enabled = this.scrollDrops != null && this.scrollDrops.getList().size() > 0
-					&& this.selectedDrop != null;
+			this.getButton(14).enabled = this.scrollDrops != null && this.scrollDrops.getList().size() > 0 && this.scrollDrops.selected>=0;
 		}
 		if (this.getButton(15) != null) {
 			boolean b = true;

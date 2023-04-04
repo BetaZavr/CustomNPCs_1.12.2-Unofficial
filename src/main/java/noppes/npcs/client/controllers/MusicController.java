@@ -24,9 +24,7 @@ public class MusicController {
 	}
 
 	public void playMusic(String music, Entity entity) {
-		if (this.isPlaying(music)) {
-			return;
-		}
+		if (this.isPlaying(music)) { return; }
 		this.stopMusic();
 		this.playingResource = new ResourceLocation(music);
 		this.playingEntity = entity;
@@ -35,21 +33,20 @@ public class MusicController {
 	}
 
 	public void playSound(SoundCategory cat, String music, int x, int y, int z, float volumne, float pitch) {
-		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(music), cat, volumne, pitch, false,
-				0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);
+		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(music), cat, volumne, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);
 		Minecraft.getMinecraft().getSoundHandler().playSound(rec);
 	}
 
 	public void playStreaming(String music, Entity entity) {
-		if (this.isPlaying(music)) {
-			return;
+		try {
+			if (music==null || music.isEmpty() || this.playingResource==null || this.isPlaying(music)) { return; }
+			this.stopMusic();
+			this.playingEntity = entity;
+			this.playingResource = new ResourceLocation(music);
+			this.playing = new PositionedSoundRecord(this.playingResource, SoundCategory.RECORDS, 4.0f, 1.0f, false, 0, ISound.AttenuationType.LINEAR, (float)this.playingEntity.posX+0.5f, (float)this.playingEntity.posY+0.5f, (float)this.playingEntity.posZ+0.5f);
+			Minecraft.getMinecraft().getSoundHandler().playSound(this.playing);
 		}
-		this.stopMusic();
-		this.playingEntity = entity;
-		this.playingResource = new ResourceLocation(music);
-		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		this.playing = new PositionedSoundRecord(this.playingResource, SoundCategory.RECORDS, 4.0f, 1.0f, false, 0, ISound.AttenuationType.LINEAR, (float)this.playingEntity.posX+0.5f, (float)this.playingEntity.posY+0.5f, (float)this.playingEntity.posZ+0.5f);
-		handler.playSound(this.playing);
+		catch (Exception e) { }
 	}
 
 	public void stopMusic() {

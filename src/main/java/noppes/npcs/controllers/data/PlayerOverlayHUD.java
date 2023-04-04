@@ -366,9 +366,9 @@ implements IOverlayHUD {
 	@Override
 	public List<IItemSlot> getSlots() { return this.slots; }
 	
-	public void update(EntityPlayer player) {
+	public void updateHud(EntityPlayerMP player) {
 		this.player = player;
-		if (this.update && this.player instanceof EntityPlayerMP) {
+		if (this.update) {
 			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.UPDATE_HUD, this.saveNBTData(new NBTTagCompound()));
 			this.update = false;
 		}

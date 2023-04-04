@@ -1,15 +1,16 @@
 package noppes.npcs.api.entity.data;
 
 public interface IData {
+	
 	void clear();
 
-	Object get(String p0);
+	Object get(String key);
 
 	String[] getKeys();
 
-	boolean has(String p0);
+	boolean has(String key);
 
-	void put(String p0, Object p1);
+	void put(String key, Object value);
 
-	void remove(String p0);
+	void remove(String key);
 }

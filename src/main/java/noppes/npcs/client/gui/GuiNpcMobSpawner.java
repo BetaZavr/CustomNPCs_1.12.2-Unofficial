@@ -59,73 +59,88 @@ implements IGuiData, ICustomScrollListener {
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
-			this.close();
-		}
-		if (id == 1) {
-			if (GuiNpcMobSpawner.showingClones == 2) { // Server
-				String sel = this.scroll.getSelected();
-				if (sel == null) {
+		switch(guibutton.id) {
+			case 0: {
+				this.close();
+				break;
+			}
+			case 1: {
+				if (GuiNpcMobSpawner.showingClones == 2) { // Server
+					String sel = this.scroll.getSelected();
+					if (sel == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.SpawnMob, true, this.posX, this.posY, this.posZ, sel, this.activeTab);
+					this.close();
+				} else {
+					NBTTagCompound compound = this.getCompound();
+					if (compound == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.SpawnMob, false, this.posX, this.posY, this.posZ, compound);
+					this.close();
+				}
+				break;
+			}
+			case 2: {
+				if (GuiNpcMobSpawner.showingClones == 2) {
+					String sel = this.scroll.getSelected();
+					if (sel == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.MobSpawner, true, this.posX, this.posY, this.posZ, sel,
+							this.activeTab);
+					this.close();
+				} else {
+					NBTTagCompound compound = this.getCompound();
+					if (compound == null) {
+						return;
+					}
+					Client.sendData(EnumPacketServer.MobSpawner, false, this.posX, this.posY, this.posZ, compound);
+					this.close();
+				}
+				break;
+			}
+			case 3: {
+				this.selectNpc = null;
+				GuiNpcMobSpawner.showingClones = 0;
+				this.initGui();
+				break;
+			}
+			case 4: {
+				this.selectNpc = null;
+				GuiNpcMobSpawner.showingClones = 1;
+				this.initGui();
+				break;
+			}
+			case 5: {
+				this.selectNpc = null;
+				GuiNpcMobSpawner.showingClones = 2;
+				this.initGui();
+				break;
+			}
+			case 6: {
+				String name = this.scroll.getSelected();
+				if (name==null || name.isEmpty()) { return; }
+				this.scroll.selected = -1;
+				this.selectNpc = null;
+				if (GuiNpcMobSpawner.showingClones == 2) {
+					Client.sendData(EnumPacketServer.CloneRemove, this.activeTab, name);
 					return;
 				}
-				Client.sendData(EnumPacketServer.SpawnMob, true, this.posX, this.posY, this.posZ, sel, this.activeTab);
-				this.close();
-			} else {
-				NBTTagCompound compound = this.getCompound();
-				if (compound == null) {
-					return;
+				ClientCloneController.Instance.removeClone(name, this.activeTab);
+				this.initGui();
+				break;
+			}
+			default: {
+				if (guibutton.id > 20) {
+					this.activeTab = guibutton.id - 20;
+					this.initGui();
 				}
-				Client.sendData(EnumPacketServer.SpawnMob, false, this.posX, this.posY, this.posZ, compound);
-				this.close();
+				break;
 			}
 		}
-		if (id == 2) {
-			if (GuiNpcMobSpawner.showingClones == 2) {
-				String sel = this.scroll.getSelected();
-				if (sel == null) {
-					return;
-				}
-				Client.sendData(EnumPacketServer.MobSpawner, true, this.posX, this.posY, this.posZ, sel,
-						this.activeTab);
-				this.close();
-			} else {
-				NBTTagCompound compound = this.getCompound();
-				if (compound == null) {
-					return;
-				}
-				Client.sendData(EnumPacketServer.MobSpawner, false, this.posX, this.posY, this.posZ, compound);
-				this.close();
-			}
-		}
-		if (id == 3) {
-			this.selectNpc = null;
-			GuiNpcMobSpawner.showingClones = 0;
-			this.initGui();
-		}
-		if (id == 4) {
-			this.selectNpc = null;
-			GuiNpcMobSpawner.showingClones = 1;
-			this.initGui();
-		}
-		if (id == 5) {
-			this.selectNpc = null;
-			GuiNpcMobSpawner.showingClones = 2;
-			this.initGui();
-		}
-		if (id == 6 && this.scroll.getSelected() != null) {
-			if (GuiNpcMobSpawner.showingClones == 2) {
-				Client.sendData(EnumPacketServer.CloneRemove, this.activeTab, this.scroll.getSelected());
-				return;
-			}
-			ClientCloneController.Instance.removeClone(this.scroll.getSelected(), this.activeTab);
-			this.scroll.selected = -1;
-			this.initGui();
-		}
-		if (id > 20) {
-			this.activeTab = id - 20;
-			this.initGui();
-		}
+		
 	}
 
 	private NBTTagCompound getCompound() { // Cleint Clones or Vanila Mobs

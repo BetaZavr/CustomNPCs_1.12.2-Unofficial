@@ -15,6 +15,7 @@ public enum EnumPacketServer
 	MobSpawner(CustomNpcsPermissions.SPAWNER_CREATE), 
 	MainmenuAISave(CustomNpcsPermissions.NPC_ADVANCED, true), 
 	MainmenuAIGet(true), 
+	MainmenuInvDropSave(CustomNpcsPermissions.NPC_INVENTORY, true), 
 	MainmenuInvSave(CustomNpcsPermissions.NPC_INVENTORY, true), 
 	MainmenuInvGet(true), 
 	MainmenuStatsSave(CustomNpcsPermissions.NPC_STATS, true), 

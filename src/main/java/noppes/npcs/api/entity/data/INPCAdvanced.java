@@ -1,13 +1,15 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCAdvanced {
-	String getLine(int p0, int p1);
+	
+	String getLine(int type, int slot);
 
-	int getLineCount(int p0);
+	int getLineCount(int type);
 
-	String getSound(int p0);
+	String getSound(int type);
 
-	void setLine(int p0, int p1, String p2, String p3);
+	void setLine(int type, int slot, String text, String sound);
 
-	void setSound(int p0, String p1);
+	void setSound(int type, String sound);
+	
 }

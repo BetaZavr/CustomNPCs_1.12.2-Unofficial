@@ -16,9 +16,12 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.entity.data.DataInventory.EnchantSet;
+import noppes.npcs.entity.data.EnchantSet;
 
-public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldListener {
+public class SubGuiDropEnchant
+extends SubGuiInterface
+implements ITextfieldListener {
+	
 	public EnchantSet enchant;
 	public String[] enchIds;
 	public int[] levels;

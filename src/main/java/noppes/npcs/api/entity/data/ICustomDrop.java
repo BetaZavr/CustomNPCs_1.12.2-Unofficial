@@ -58,6 +58,6 @@ public interface ICustomDrop {
 
 	void setQuestID(int id);
 
-	void setTiedToLevel(boolean lootMode);
+	void setTiedToLevel(boolean tiedToLevel);
 
 }

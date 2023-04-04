@@ -9,9 +9,12 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.entity.data.DataInventory.AttributeSet;
+import noppes.npcs.entity.data.AttributeSet;
 
-public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldListener {
+public class SubGuiDropAttribute
+extends SubGuiInterface
+implements ITextfieldListener {
+	
 	public AttributeSet attribute;
 	private double[] values;
 

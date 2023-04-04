@@ -3,6 +3,7 @@ package noppes.npcs.api.entity.data;
 import net.minecraft.enchantment.Enchantment;
 
 public interface IEnchantSet {
+	
 	double getChance();
 
 	String getEnchant();

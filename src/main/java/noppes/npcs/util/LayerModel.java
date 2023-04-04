@@ -5,8 +5,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.ILayerModel;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.NBTWrapper;
 
 public class LayerModel
 implements ILayerModel {
@@ -21,7 +23,7 @@ implements ILayerModel {
 	public int pos = 0;
 	public int rotateSpeed = 1;
 	
-	public LayerModel(NBTTagCompound nbtLayer) { this.setNbt(nbtLayer); }
+	public LayerModel(NBTTagCompound nbtLayer) { this.setNbt(new NBTWrapper(nbtLayer)); }
 
 	public LayerModel(int i) {
 		this.pos = i;
@@ -58,7 +60,8 @@ implements ILayerModel {
 	}
 
 	@Override
-	public void setNbt(NBTTagCompound nbtLayer) {
+	public void setNbt(INbt nbt) {
+		NBTTagCompound nbtLayer = nbt.getMCNBT();
 		if (nbtLayer.hasKey("Model", 10)) {
 			this.model = new ItemStack(nbtLayer.getCompoundTag("Model"));
 		}

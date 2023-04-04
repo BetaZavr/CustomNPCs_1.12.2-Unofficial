@@ -3,6 +3,7 @@ package noppes.npcs.api.entity.data;
 import noppes.npcs.api.entity.IPlayer;
 
 public interface INPCDisplay {
+	
 	int getBossbar();
 
 	int getBossColor();
@@ -37,40 +38,40 @@ public interface INPCDisplay {
 
 	int getVisible();
 
-	boolean isVisibleTo(IPlayer<?> p0);
+	boolean isVisibleTo(IPlayer<?> player);
 
-	void setBossbar(int p0);
+	void setBossbar(int type);
 
-	void setBossColor(int p0);
+	void setBossColor(int color);
 
-	void setCapeTexture(String p0);
+	void setCapeTexture(String texture);
 
-	void setHasHitbox(boolean p0);
+	void setHasHitbox(boolean bo);
 
-	void setHasLivingAnimation(boolean p0);
+	void setHasLivingAnimation(boolean enabled);
 
-	void setModel(String p0);
+	void setModel(String model);
 
-	void setModelScale(int p0, float p1, float p2, float p3);
+	void setModelScale(int part, float x, float y, float z);
 
-	void setName(String p0);
+	void setName(String name);
 
-	void setOverlayTexture(String p0);
+	void setOverlayTexture(String texture);
 
-	void setShowName(int p0);
+	void setShowName(int type);
 
-	void setSize(int p0);
+	void setSize(int size);
 
-	void setSkinPlayer(String p0);
+	void setSkinPlayer(String name);
 
-	void setSkinTexture(String p0);
+	void setSkinTexture(String texture);
 
-	void setSkinUrl(String p0);
+	void setSkinUrl(String url);
 
-	void setTint(int p0);
+	void setTint(int color);
 
-	void setTitle(String p0);
+	void setTitle(String title);
 
-	void setVisible(int p0);
+	void setVisible(int type);
 
 }

@@ -4,11 +4,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.lwjgl.input.Keyboard;
-
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,6 +25,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.IPermission;
 
 public class ItemNpcCloner
@@ -43,15 +43,16 @@ implements IPermission {
 	public boolean isAllowed(EnumPacketServer e) {
 		return e == EnumPacketServer.CloneList || e == EnumPacketServer.SpawnMob || e == EnumPacketServer.MobSpawner
 				|| e == EnumPacketServer.ClonePreSave || e == EnumPacketServer.CloneRemove
-				|| e == EnumPacketServer.CloneSave;
+				|| e == EnumPacketServer.CloneSave || e == EnumPacketServer.GetClone;
 	}
 
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (!world.isRemote) {
+		if (!world.isRemote && player instanceof EntityPlayerMP) {
 			boolean summon = false;
-			boolean isShiftPressed = Keyboard.isKeyDown(54) || Keyboard.isKeyDown(42);
+			PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+			if (data==null) { return EnumActionResult.SUCCESS; }
 			ItemStack stackCloner = player.getHeldItemMainhand();
-			if (!isShiftPressed && stackCloner!=null && stackCloner.getItem()==this) {
+			if (!data.hud.hasOrKeysPressed(42, 54) && stackCloner!=null && stackCloner.getItem()==this) {
 				NBTTagCompound nbt = stackCloner.getTagCompound();
 				if (nbt!=null && nbt.hasKey("Settings", 10)) {
 					NBTTagCompound nbtData = nbt.getCompoundTag("Settings");

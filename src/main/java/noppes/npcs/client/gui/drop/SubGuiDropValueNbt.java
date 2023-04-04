@@ -15,9 +15,12 @@ import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.entity.data.DataInventory.DropNbtSet;
+import noppes.npcs.entity.data.DropNbtSet;
 
-public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldListener, ITextChangeListener {
+public class SubGuiDropValueNbt
+extends SubGuiInterface
+implements ITextfieldListener, ITextChangeListener {
+	
 	public DropNbtSet tag;
 	private String[] tagIds;
 	private String[] tagListIds;

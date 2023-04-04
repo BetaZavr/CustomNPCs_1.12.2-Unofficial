@@ -19,8 +19,6 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.renderer.RenderNPCInterface;
