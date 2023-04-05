@@ -11,6 +11,6 @@ public interface IGuiComponent {
 
 	ICustomGuiComponent toComponent();
 
-	void offSet(int offsetType, double[] windowSize); // new
+	void offSet(int offsetType, double[] windowSize);
 	
 }

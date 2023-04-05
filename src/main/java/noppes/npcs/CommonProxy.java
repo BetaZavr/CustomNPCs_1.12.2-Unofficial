@@ -32,6 +32,8 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.blocks.CustomBlockSlab;
+import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -363,9 +365,71 @@ implements IGuiHandler {
 					crTab + crTab + "}" + crEnt +
 					crTab + "}" + crEnt +
 					"}";
+			} else if (customblock instanceof CustomBlockStairs) {
+				jsonState = "{" + crEnt +
+					crTab + "\"_comment\": \"Custom Block Stairs created by default\"," + crEnt +
+					crTab + "\"variants\": {" + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\" }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }" + crEnt +
+					crTab + "}" + crEnt + "}";
+			} else if (customblock instanceof CustomBlockSlab) {
+				if (customblock instanceof CustomBlockSlab.CustomBlockSlabSingle) {
+					jsonState = "{" + 
+						crTab + "\"_comment\": \"Custom Block Slab created by default\"," + crEnt +
+						crTab + "\"variants\": {" + crEnt +
+						crTab + crTab + "\"half=bottom,type=normal\": { \"model\": \"customnpcs:bottom_"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"half=top,type=normal\": { \"model\": \"customnpcs:upper_"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"inventory\": { \"model\": \"customnpcs:bottom_"+fileName.toLowerCase()+"\" }" + crEnt +
+						crTab + "}" + crEnt + "}";
+				} else {
+					jsonState = "{" + 
+						crTab + "\"_comment\": \"Custom Block Double Slab created by default\"," + crEnt +
+						crTab + "\"variants\": {" + crEnt +
+						crTab + crTab + "\"type=normal\":  { \"model\": \"customnpcs:custom_blockexample\" }," + crEnt +
+						crTab + crTab + "\"inventory\":  { \"model\": \"customnpcs:custom_blockexample\" }" + crEnt +
+						crTab + "}" + crEnt + "}";
+				}
 			} else {
 				nbtState.setTag("variants", new NBTTagCompound());
-				nbtState.setString("_comment", "Custom block created by default");
+				nbtState.setString("_comment", "Custom Block created by default");
 				nbtState.getCompoundTag("variants").setTag("normal", new NBTTagCompound());
 				nbtState.getCompoundTag("variants").getCompoundTag("normal").setString("model", CustomNpcs.MODID+":"+fileName.toLowerCase());
 			}
@@ -393,15 +457,44 @@ implements IGuiHandler {
 		}
 		
 		File blockModel = new File(blockModelsDir, fileName.toLowerCase()+".json");
+		if (customblock instanceof CustomBlockSlab.CustomBlockSlabSingle) {
+			blockModel = new File(blockModelsDir, "bottom_"+fileName.toLowerCase()+".json");
+		}
 		if (!blockModel.exists()) {
 			NBTTagCompound nbtModel = new NBTTagCompound();
-			nbtModel.setTag("textures", new NBTTagCompound());
-			nbtModel.getCompoundTag("textures").setString("all", CustomNpcs.MODID+":blocks/"+name.toLowerCase());
-			nbtModel.setString("_comment", "Custom block created by default");
-			nbtModel.setString("parent", "block/cube_all");
+			if (customblock instanceof CustomBlockStairs) {
+				nbtModel.setString("_comment", "Custom Block Stairs created by default");
+				nbtModel.setString("parent", "block/inner_stairs");
+				nbtModel.setTag("textures", new NBTTagCompound());
+				nbtModel.getCompoundTag("textures").setString("side", CustomNpcs.MODID+":blocks/blockexample");
+				nbtModel.getCompoundTag("textures").setString("top", CustomNpcs.MODID+":blocks/blockexample");
+				nbtModel.getCompoundTag("textures").setString("bottom", CustomNpcs.MODID+":blocks/blockexample");
+				try { NBTJsonUtil.SaveFile(new File(blockModelsDir, fileName.toLowerCase()+"_inner.json"), nbtModel.copy()); } catch (IOException | JsonException e) { }
+				nbtModel.setString("parent", "block/outer_stairs");
+				try { NBTJsonUtil.SaveFile(new File(blockModelsDir, fileName.toLowerCase()+"_outer.json"), nbtModel.copy()); } catch (IOException | JsonException e) { }
+				nbtModel.setString("parent", "block/stairs");
+			} else if (customblock instanceof CustomBlockSlab) {
+				if (customblock instanceof CustomBlockSlab.CustomBlockSlabSingle) {
+					nbtModel.setString("_comment", "Custom Block Slab created by default");
+					nbtModel.setString("parent", "block/upper_slab");
+					nbtModel.setTag("textures", new NBTTagCompound());
+					nbtModel.getCompoundTag("textures").setString("side", CustomNpcs.MODID+":blocks/blockexample");
+					nbtModel.getCompoundTag("textures").setString("top", CustomNpcs.MODID+":blocks/blockexample");
+					nbtModel.getCompoundTag("textures").setString("bottom", CustomNpcs.MODID+":blocks/blockexample");
+					try { NBTJsonUtil.SaveFile(new File(blockModelsDir, "upper_"+fileName.toLowerCase()+".json"), nbtModel.copy()); } catch (IOException | JsonException e) { }
+					nbtModel.setString("parent", "block/half_slab");
+				}
+			} else {
+				nbtModel.setTag("textures", new NBTTagCompound());
+				nbtModel.getCompoundTag("textures").setString("all", CustomNpcs.MODID+":blocks/"+name.toLowerCase());
+				nbtModel.setString("_comment", "Custom Block created by default");
+				nbtModel.setString("parent", "block/cube_all");
+			}
 			try {
-				NBTJsonUtil.SaveFile(blockModel, nbtModel);
-				LogWriter.debug("Create Default Block Model for \""+name+"\" block");
+				if (nbtModel.getKeySet().size()>0) {
+					NBTJsonUtil.SaveFile(blockModel, nbtModel);
+					LogWriter.debug("Create Default Block Model for \""+fileName.toLowerCase()+"\" block");
+				}
 			}
 			catch (IOException | JsonException e) { }
 		}
@@ -409,6 +502,7 @@ implements IGuiHandler {
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
 		if (!itemModel.exists()) {
 			String jsonStr = "{" + crEnt +
+					crTab + "\"_comment\", \"Custom Item Block created by default\"" + crEnt +
 					crTab + "\"parent\": \"" + CustomNpcs.MODID + ":block/" + fileName.toLowerCase() + "\"," + crEnt +
 					crTab + "\"display\": {" + crEnt +
 					crTab + crTab + "\"thirdperson\": {" + crEnt +
@@ -598,7 +692,6 @@ implements IGuiHandler {
 			else if (customitem instanceof CustomFishingRod) {
 				File uncast = new File(itemModelsDir, fileName.toLowerCase()+".json");
 				OutputStreamWriter writer = null;
-				System.out.println("uncast: "+uncast.exists());
 				if (!uncast.exists()) {
 					char crEnt = Character.toChars(0x000A)[0];
 					char crTab = Character.toChars(0x0009)[0];
@@ -630,7 +723,6 @@ implements IGuiHandler {
 					}
 				}
 				File cast = new File(itemModelsDir, fileName.toLowerCase()+"_cast.json");
-				System.out.println("cast: "+cast.exists());
 				if (!cast.exists()) {
 					char crEnt = Character.toChars(0x000A)[0];
 					char crTab = Character.toChars(0x0009)[0];

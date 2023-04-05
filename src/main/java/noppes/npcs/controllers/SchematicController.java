@@ -245,7 +245,6 @@ public class SchematicController {
 
 	public static byte rotate(IBlockState state, int rot) {
 		Block block = state.getBlock();
-		String name = block.getRegistryName().toString();
 		int meta = block.getMetaFromState(state)%4;
 		int amn = (int) Math.floor(block.getMetaFromState(state)/4.0d);
 		if (block instanceof BlockStairs) {
@@ -273,15 +272,19 @@ public class SchematicController {
 			}
 		}
 		else if (block instanceof BlockRail) {
+			meta = block.getMetaFromState(state);
 			while (rot!=0) {
 				if (meta==0) { meta=1; }
 				else if (meta==1) { meta=0; }
-				else if (name.indexOf('_')!=(-1)) {
-					if ( meta == 8) {meta = 9; }
-					else if ( meta == 9) {meta = 8; }
+				else if (meta >= 6) {
+					meta ++;
+					if ( meta > 9) { meta = 6; }
 				}
 				else {
-					if (meta<9) { meta = 1+meta; } else {meta = 6; }
+					if (meta==2) { meta = 5; }
+					else if (meta==3) { meta = 4; }
+					else if (meta==4) { meta = 2; }
+					else if (meta==5) { meta = 3; }
 				}
 				rot--;
 			}

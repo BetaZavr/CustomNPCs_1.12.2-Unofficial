@@ -1,7 +1,5 @@
 package noppes.npcs.api.gui;
 
-import java.util.List;
-
 import noppes.npcs.api.item.IItemStack;
 
 public interface IOverlayHUD {
@@ -12,21 +10,21 @@ public interface IOverlayHUD {
 
 	void setShowElementType(String name, boolean bo);
 
-	IItemSlot addItemSlot(int x, int y);
+	IItemSlot addItemSlot(int orientationType, int x, int y);
 
-	IItemSlot addItemSlot(int x, int y, IItemStack stack);
+	IItemSlot addItemSlot(int orientationType, int x, int y, IItemStack stack);
 
-	ILabel addLabel(int id, String label, int x, int y, int width, int height);
+	ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height);
 
-	ILabel addLabel(int id, String label, int x, int y, int width, int height, int color);
+	ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height, int color);
 
-	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height);
+	ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height);
 
-	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY);
+	ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height, int textureX, int textureY);
 
-	IGuiTimer addTimer(int id, long start, long end, int x, int y, int width, int height);
+	IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height);
 
-	IGuiTimer addTimer(int id, long start, long end, int x, int y, int width, int height, int color);
+	IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height, int color);
 
 	int[] getKeyPressed();
 
@@ -42,17 +40,21 @@ public interface IOverlayHUD {
 
 	String getCurrentLanguage();
 
-	ICustomGuiComponent getComponent(int componentID);
+	ICustomGuiComponent getComponent(int orientationType, int componentID);
 
-	List<ICustomGuiComponent> getComponents();
-
-	List<IItemSlot> getSlots();
-
-	void removeComponent(int componentID);
+	ICustomGuiComponent[] getComponents(int orientationType);
 	
-	int getOffsetType();
+	ICustomGuiComponent[] getComponents();
+
+	IItemSlot[] getSlots(int orientationType);
 	
-	void setOffsetType(int type);
+	IItemSlot[] getSlots();
+
+	boolean removeComponent(int orientationType, int componentID);
+	
+	boolean removeSlot(int orientationType, int slotID);
+	
+	void clear();
 	
 	void update();
 	

@@ -66,6 +66,8 @@ import noppes.npcs.blocks.BlockScripted;
 import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.blocks.BlockWaypoint;
 import noppes.npcs.blocks.CustomBlock;
+import noppes.npcs.blocks.CustomBlockSlab;
+import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.blocks.tiles.TileBorder;
@@ -191,20 +193,20 @@ public class CustomItems {
 			if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); }
 		}
 		catch (IOException | JsonException e) { }
-		boolean hasEL = false;
+		boolean hEL = false;
 		if (nbtBlocks.hasKey("Blocks", 9)) {
 			for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 				String name = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
-				if (name.equals("liquidexample")) { hasEL = true;  break; }
+				if (name.equals("liquidexample")) { hEL = true;  break; }
 			}
 		}
-		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hasEL) {
+		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEL) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
-			if (!hasEL) {
+			if (!hEL) {
 				NBTTagCompound nbt = CustomItems.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
-					if (name.equals("liquidexample") && !hasEL) {
+					if (name.equals("liquidexample") && !hEL) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
 				}
@@ -277,22 +279,27 @@ public class CustomItems {
 			if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); }
 		}
 		catch (IOException | JsonException e) { }
-		boolean hasEB = false, hasEL = false;
+		boolean hEB = false, hEL = false, hES = false, hEP = false;
 		if (nbtBlocks.hasKey("Blocks", 9)) {
 			for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 				String name = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
-				if (name.equals("blockexample")) { hasEB = true; }
-				if (name.equals("liquidexample")) { hasEL = true; }
-				if (hasEB && hasEL) { break; }
+				if (name.equals("blockexample")) { hEB = true; }
+				if (name.equals("liquidexample")) { hEL = true; }
+				if (name.equals("stairsexample")) { hES = true; }
+				if (name.equals("slabexample")) { hEP = true; }
+				if (hEB && hEL && hES && hEP) { break; }
 			}
 		}
-		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hasEB || !hasEL) {
+		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEB || !hEL || !hES || !hEP) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
-			if (!hasEB || !hasEL) {
+			if (!hEB || !hEL || !hES || !hEP) {
 				NBTTagCompound nbt = CustomItems.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
-					if ((name.equals("blockexample") && !hasEB) || (name.equals("liquidexample") && !hasEL)) {
+					if ((name.equals("blockexample") && !hEB)
+						|| (name.equals("liquidexample") && !hEL)
+						|| (name.equals("stairsexample") && !hES)
+						|| (name.equals("slabexample") && !hEP)) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
 				}
@@ -304,19 +311,25 @@ public class CustomItems {
 		boolean resave = false;
 		for (int i=0; i<nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 			NBTTagCompound nbtBlock = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i);
-			if (!nbtBlock.hasKey("RegistryName", 8) || !nbtBlock.hasKey("BlockType", 1) || nbtBlock.getString("RegistryName").isEmpty() || nbtBlock.getByte("BlockType")<(byte)0 || nbtBlock.getByte("BlockType")>(byte)2) {
+			if (!nbtBlock.hasKey("RegistryName", 8) || !nbtBlock.hasKey("BlockType", 1) || nbtBlock.getString("RegistryName").isEmpty() || nbtBlock.getByte("BlockType")<(byte)0 || nbtBlock.getByte("BlockType")>(byte)4) {
 				LogWriter.error("Attempt to load block pos: "+i+"; name: \""+nbtBlock.getString("RegistryName")+"\" - failed");
 				continue;
 			}
 			if (!resave && nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) { resave = true; }
-			String name = "custom_"+nbtBlock.getString("RegistryName").toLowerCase();
-			Block block = null;
+			Block block = null, addblock = null;
 			switch(nbtBlock.getByte("BlockType")) {
 				case (byte) 1: // Liquid
 					Fluid fluid = FluidRegistry.getFluid("custom_fluid_"+nbtBlock.getString("RegistryName"));
 					if (fluid!=null) {
 						block = new CustomLiquid(fluid, CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
 					}
+					break;
+				case (byte) 3: // Stairs
+					block = new CustomBlockStairs(nbtBlock);
+					break;
+				case (byte) 4: // Slab
+					block = new CustomBlockSlab.CustomBlockSlabSingle(nbtBlock);
+					addblock = new CustomBlockSlab.CustomBlockSlabDouble(nbtBlock);
 					break;
 				default: // Simple
 					block = new CustomBlock(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
@@ -327,13 +340,27 @@ public class CustomItems {
 			}
 			if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkBlockFiles((ICustomElement) block);
-				nbtBlock.setBoolean("CreateAllFiles", false);
+				if (addblock==null) { nbtBlock.setBoolean("CreateAllFiles", false); }
 				resave = true;
 			}
-			LogWriter.info("Load Custom Block \""+CustomNpcs.MODID+":"+name+"\"");
+			LogWriter.info("Load Custom Block \""+block.getRegistryName()+"\"");
 			blocks.add(block);
 			CustomItems.customblocks.add(block);
 			names.add(block.getRegistryName().toString());
+			if (addblock!=null) {
+				if (names.contains(addblock.getRegistryName().toString()) || Block.getBlockFromName(addblock.getRegistryName().toString())!=null) {
+					LogWriter.error("Attempt to load a registred block \""+addblock.getRegistryName()+"\"");
+					continue;
+				}
+				if (nbtBlock.hasKey("CreateAllFiles") && nbtBlock.getBoolean("CreateAllFiles")) {
+					CustomNpcs.proxy.checkBlockFiles((ICustomElement) addblock);
+					nbtBlock.setBoolean("CreateAllFiles", false);
+				}
+				LogWriter.info("Load Custom Block \""+addblock.getRegistryName()+"\"");
+				blocks.add(addblock);
+				CustomItems.customblocks.add(addblock);
+				names.add(addblock.getRegistryName().toString());
+			}
 		}
 		if (resave) {
 			try { NBTJsonUtil.SaveFile(blocksFile, nbtBlocks); }
@@ -521,35 +548,35 @@ public class CustomItems {
 			if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); }
 		}
 		catch (IOException | JsonException e) { }
-		boolean hasEI = false, hasEW = false, hasEA = false, hasES = false, hasEB = false, hasET = false, hasEF = false, hasFR=false;
+		boolean hEI = false, hEW = false, hEA = false, hES = false, hEB = false, hET = false, hEF = false, hFR=false;
 		if (nbtItems.hasKey("Items", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Items", 10).tagCount(); i++) {
 				String name = nbtItems.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
-				if (name.equals("itemexample")) { hasEI = true; }
-				else if (name.equals("weaponexample")) { hasEW = true; }
-				else if (name.equals("armorexample")) { hasEA = true; }
-				else if (name.equals("shieldexample")) { hasES = true; }
-				else if (name.equals("bowexample")) { hasEB = true; }
-				else if (name.equals("toolexample")) { hasET = true; }
-				else if (name.equals("foodexample")) { hasEF = true; }
-				else if (name.equals("fishingrodexample")) { hasFR = true; }
-				if (hasEI && hasEW && hasEA && hasES && hasEB && hasET && hasEF && hasFR) { break; }
+				if (name.equals("itemexample")) { hEI = true; }
+				else if (name.equals("weaponexample")) { hEW = true; }
+				else if (name.equals("armorexample")) { hEA = true; }
+				else if (name.equals("shieldexample")) { hES = true; }
+				else if (name.equals("bowexample")) { hEB = true; }
+				else if (name.equals("toolexample")) { hET = true; }
+				else if (name.equals("foodexample")) { hEF = true; }
+				else if (name.equals("fishingrodexample")) { hFR = true; }
+				if (hEI && hEW && hEA && hES && hEB && hET && hEF && hFR) { break; }
 			}
 		}
-		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || !hasEB || !hasEW || !hasEA || !hasES|| !hasEB || !hasEF || !hasFR) {
+		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || !hEB || !hEW || !hEA || !hES|| !hEB || !hEF || !hFR) {
 			if (!nbtItems.hasKey("Items", 9)) { nbtItems.setTag("Items", new NBTTagList());}
-			if (!hasEB || !hasEW || !hasEA || !hasES|| !hasEB || !hasEF || !hasFR) {
+			if (!hEB || !hEW || !hEA || !hES|| !hEB || !hEF || !hFR) {
 				NBTTagCompound nbt = CustomItems.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Items", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
-					if ((name.equals("itemexample") && !hasEI) ||
-							(name.equals("weaponexample") && !hasEW) ||
-							(name.equals("armorexample") && !hasEA) ||
-							(name.equals("shieldexample") && !hasES) ||
-							(name.equals("bowexample") && !hasEB) ||
-							(name.equals("toolexample") && !hasET) ||
-							(name.equals("foodexample") && !hasEF) ||
-							(name.equals("fishingrodexample") && !hasFR)) {
+					if ((name.equals("itemexample") && !hEI) ||
+							(name.equals("weaponexample") && !hEW) ||
+							(name.equals("armorexample") && !hEA) ||
+							(name.equals("shieldexample") && !hES) ||
+							(name.equals("bowexample") && !hEB) ||
+							(name.equals("toolexample") && !hET) ||
+							(name.equals("foodexample") && !hEF) ||
+							(name.equals("fishingrodexample") && !hFR)) {
 						nbtItems.getTagList("Items", 10).appendTag(nbt.getTagList("Items", 10).getCompoundTagAt(i));
 					}
 				}
@@ -714,7 +741,6 @@ public class CustomItems {
 	}
 
 	private static NBTTagCompound getExampleBlocks() {
-
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
 		NBTTagList listBlocks = new NBTTagList();
 		
@@ -765,6 +791,19 @@ public class CustomItems {
 		exampleChest.setByte("BlockType", (byte) 2);
 		exampleChest.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(exampleChest);*/
+		
+		NBTTagCompound exampleStairs = new NBTTagCompound();
+		exampleStairs.setString("RegistryName", "stairsexample");
+		exampleStairs.setByte("BlockType", (byte) 3);
+		exampleStairs.setBoolean("CreateAllFiles", true);
+		listBlocks.appendTag(exampleStairs);
+		
+		NBTTagCompound exampleSlab = new NBTTagCompound();
+		exampleSlab.setString("RegistryName", "slabexample");
+		exampleSlab.setByte("BlockType", (byte) 4);
+		exampleSlab.setString("Material", "STONE");
+		exampleSlab.setBoolean("CreateAllFiles", true);
+		listBlocks.appendTag(exampleSlab);
 		
 		nbtBlocks.setTag("Blocks", listBlocks);
 		return nbtBlocks;

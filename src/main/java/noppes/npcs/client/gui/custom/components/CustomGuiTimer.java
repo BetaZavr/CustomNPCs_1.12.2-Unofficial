@@ -64,11 +64,11 @@ implements IGuiComponent {
 		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) this.offsets[0], (float) this.offsets[0], (float) this.id);
+		GlStateManager.translate(x, y, this.id);
 		GlStateManager.scale(this.scale, this.scale, 0.0f);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        this.drawString(this.fontRenderer, this.getText(), x, y, this.textColor);
+        this.drawString(this.fontRenderer, this.getText(), 0, 0, this.textColor);
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
 			this.parent.hoverText = this.hoverText;
 		}

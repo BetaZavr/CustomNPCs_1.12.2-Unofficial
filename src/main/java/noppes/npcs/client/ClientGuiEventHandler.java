@@ -3,17 +3,22 @@ package noppes.npcs.client;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +33,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.BorderController;
@@ -44,7 +50,9 @@ extends Gui
 {
 	
 	protected ResourceLocation coinNpc = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
+	protected ResourceLocation resSlot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private Minecraft mc;
+	private ScaledResolution sw;
 	private BorderController bData;
 	private double dx, dy, dz;
 	public static RayTraceResult result;
@@ -58,13 +66,64 @@ extends Gui
 	/** HUD Bar Interfase */
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent event) {
-		if (event.getType() != RenderGameOverlayEvent.ElementType.TEXT || Minecraft.getMinecraft().currentScreen!=null) { return; }
+		if (event.getType() != RenderGameOverlayEvent.ElementType.TEXT || this.mc==null || this.sw==null || this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat)) { return; }
 		PlayerOverlayHUD data = ClientProxy.playerData.hud;
-		//
-		for (IGuiComponent component : data.getGuiComponents().values()) {
-			component.offSet(data.getOffsetType(), data.getWindowSize());
-			component.onRender(this.mc, -1, -1, 0, 0);
+		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = data.getGuiComponents();
+		for (int type : mapC.keySet()) {
+			for (IGuiComponent component : mapC.get(type).values()) {
+				component.offSet(type, data.getWindowSize());
+				component.onRender(this.mc, -1, -1, 0, 0);
+			}
 		}
+		TreeMap<Integer, TreeMap<Integer, IItemSlot>> mapS = data.getGuiSlots();
+		for (int type : mapS.keySet()) {
+			int[] os = this.getOffset(type);
+			for (int id : mapS.get(type).keySet()) {
+				IItemSlot slot = mapS.get(type).get(id);
+				GlStateManager.pushMatrix();
+				int x = os[0] == 0 ? slot.getPosX() : os[0] - slot.getPosX() - 18;
+				int y = os[1] == 0 ? slot.getPosY() : os[1] - slot.getPosY() - 18;
+				GlStateManager.translate(x, y, id);
+				this.mc.renderEngine.bindTexture(this.resSlot);
+				this.drawTexturedModalRect(0, 0, 0, 0, 18, 18);
+				if (!slot.getStack().isEmpty()) {
+					ItemStack stack = slot.getStack().getMCItemStack();
+					GlStateManager.translate(1, 1, 0);
+					RenderHelper.enableStandardItemLighting();
+					this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
+					GlStateManager.translate(0.0f, 0.0f, 200.0f);
+					this.drawString(this.mc.fontRenderer, "" + stack.getCount(), (int) (12 - (stack.getCount() > 9 ? 9 : 0)), 9, 0xFFFFFFFF);
+					RenderHelper.disableStandardItemLighting();
+				}
+				GlStateManager.popMatrix();
+			}
+		}
+	}
+	
+	private int[] getOffset(int type) {
+		int[] offsets = new int [] {0, 0};
+		switch(type) {
+			case 1: { // left down
+				offsets[0] = 0;
+				offsets[1] = (int) this.sw.getScaledHeight_double();
+				break;
+			}
+			case 2: { // right up
+				offsets[0] = (int) this.sw.getScaledWidth_double();
+				offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				offsets[0] = (int) this.sw.getScaledWidth_double();
+				offsets[1] = (int) this.sw.getScaledHeight_double();
+				break;
+			}
+			default: { // left up
+				offsets[0] = 0;
+				offsets[1] = 0;
+			}
+		}
+		return offsets;
 	}
 	
 	@SubscribeEvent
@@ -98,6 +157,7 @@ extends Gui
 	@SubscribeEvent
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
 		if (this.mc==null) { this.mc = Minecraft.getMinecraft(); return; }
+		if (this.sw==null) { this.sw = new ScaledResolution(this.mc); return; }
 		if (this.bData==null) { this.bData = BorderController.getInstance(); return; }
 		if (this.mc.player.world==null) { return; }
 		//if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }

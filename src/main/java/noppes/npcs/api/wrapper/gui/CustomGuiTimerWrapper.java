@@ -18,12 +18,13 @@ implements IGuiTimer {
 	public CustomGuiTimerWrapper() {
 		this.color = 16777215;
 		this.scale = 1.0f;
+		this.start = 0;
 		this.now = 0;
+		this.end = 0;
 	}
 
 	public CustomGuiTimerWrapper(int id, long start, long end, int x, int y, int width, int height) {
-		this.color = 16777215;
-		this.scale = 1.0f;
+		this();
 		this.setID(id);
 		this.setPos(x, y);
 		this.setSize(width, height);

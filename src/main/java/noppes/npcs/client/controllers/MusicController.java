@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 
 public class MusicController {
+	
 	public static MusicController Instance;
 	public PositionedSoundRecord playing;
 	public Entity playingEntity;
@@ -51,9 +52,7 @@ public class MusicController {
 
 	public void stopMusic() {
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		if (this.playing != null) {
-			handler.stopSound(this.playing);
-		}
+		if (this.playing != null) { handler.stopSound(this.playing); }
 		handler.stop("", SoundCategory.MUSIC);
 		handler.stop("", SoundCategory.AMBIENT);
 		handler.stop("", SoundCategory.RECORDS);

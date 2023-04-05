@@ -176,9 +176,9 @@ implements ITextfieldListener, IGuiData {
 			this.setHoverText(new TextComponentTranslation("ai.hover.jump").getFormattedText());
 		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.attack.type").getFormattedText());
-		} else if (this.getButton(23)!=null && this.getButton(23).isMouseOver()) {
+		}/* else if (this.getButton(23)!=null && this.getButton(23).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.stealth").getFormattedText());
-		}
+		}*/
 	}
 	
 }

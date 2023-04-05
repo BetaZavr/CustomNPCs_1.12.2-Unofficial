@@ -38,36 +38,27 @@ implements IPermission, ICustomElement {
 		this.nbtData = nbtBlock;
 		this.setName("custom_"+nbtBlock.getString("RegistryName"));
 		
-        this.enableStats = true;
-        this.blockSoundType = SoundType.STONE;
-        this.blockParticleGravity = 1.0F;
-        this.lightOpacity = this.fullBlock ? 255 : 0;
-        this.translucent = !this.blockMaterial.blocksLight();
+		this.enableStats = true;
+		this.blockSoundType = SoundType.STONE;
+		this.blockParticleGravity = 1.0F;
+		this.lightOpacity = this.fullBlock ? 255 : 0;
+		this.translucent = !this.blockMaterial.blocksLight();
 		
-        if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
+		if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
 		if (nbtBlock.hasKey("Resistance", 5)) { this.setResistance(nbtBlock.getFloat("Resistance")); }
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
-		
-		this.setSoundType(nbtBlock.getString("SoundType"));
+		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
 		this.setAABB(nbtBlock.getTagList("AABB", 6));
-		this.setRenderType(nbtBlock.getString("BlockRenderType"));
-		
+		this.renderType = CustomBlock.getNbtRenderType(nbtBlock.getString("BlockRenderType"));
 		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
 	}
 
-	private void setRenderType(String string) {
+	public static EnumBlockRenderType getNbtRenderType(String string) {
 		switch(string.toLowerCase()) {
-			case "invisible":
-				this.renderType = EnumBlockRenderType.INVISIBLE;
-				break;
-			case "liquid":
-				this.renderType = EnumBlockRenderType.LIQUID;
-				break;
-			case "entityblock_animated":
-				this.renderType = EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
-				break;
-			default:
-				this.renderType = EnumBlockRenderType.MODEL;
+			case "invisible": return EnumBlockRenderType.INVISIBLE;
+			case "liquid": return EnumBlockRenderType.LIQUID;
+			case "entityblock_animated": return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+			default: return EnumBlockRenderType.MODEL;
 		}
 	}
 
@@ -81,46 +72,21 @@ implements IPermission, ICustomElement {
 		this.FULL_BLOCK_AABB = new AxisAlignedBB(v[0], v[1], v[2], v[3], v[4], v[5]);
 	}
 
-	private void setSoundType(String soundName) {
-		SoundType type;
+	public static SoundType getNbtSoundType(String soundName) {
 		switch(soundName.toLowerCase()) {
-			case "wood":
-				type = SoundType.WOOD;
-				break;
-			case "ground":
-				type = SoundType.GROUND;
-				break;
-			case "plant":
-				type = SoundType.PLANT;
-				break;
-			case "metal":
-				type = SoundType.METAL;
-				break;
-			case "glass":
-				type = SoundType.GLASS;
-				break;
-			case "cloth":
-				type = SoundType.CLOTH;
-				break;
-			case "sand":
-				type = SoundType.SAND;
-				break;
-			case "snow":
-				type = SoundType.SNOW;
-				break;
-			case "ladder":
-				type = SoundType.LADDER;
-				break;
-			case "anvil":
-				type = SoundType.ANVIL;
-				break;
-			case "slime":
-				type = SoundType.SLIME;
-				break;
-			default:
-				type = SoundType.STONE;
+			case "wood": return SoundType.WOOD;
+			case "ground": return SoundType.GROUND;
+			case "plant": return SoundType.PLANT;
+			case "metal": return SoundType.METAL;
+			case "glass": return SoundType.GLASS;
+			case "cloth": return SoundType.CLOTH;
+			case "sand": return SoundType.SAND;
+			case "snow": return SoundType.SNOW;
+			case "ladder": return SoundType.LADDER;
+			case "anvil": return SoundType.ANVIL;
+			case "slime": return SoundType.SLIME;
+			default: return SoundType.STONE;
 		}
-		this.setSoundType(type);
 	}
 
 	public boolean hasTileEntity() {

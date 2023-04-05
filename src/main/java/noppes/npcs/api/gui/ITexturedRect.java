@@ -1,6 +1,8 @@
 package noppes.npcs.api.gui;
 
-public interface ITexturedRect extends ICustomGuiComponent {
+public interface ITexturedRect
+extends ICustomGuiComponent {
+	
 	int getHeight();
 
 	float getScale();
@@ -20,4 +22,5 @@ public interface ITexturedRect extends ICustomGuiComponent {
 	ITexturedRect setTexture(String p0);
 
 	ITexturedRect setTextureOffset(int p0, int p1);
+	
 }

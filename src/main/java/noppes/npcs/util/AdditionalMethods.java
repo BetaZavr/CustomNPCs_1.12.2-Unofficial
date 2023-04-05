@@ -229,10 +229,12 @@ public class AdditionalMethods {
 			if (i==1) { chr = ""+((char) 167); }
 			else if (i==2) { chr = "&"; }
 			else if (i==3) { chr = ""+((char) 65535); }
-			while (str.indexOf(chr) != (-1)) {
-				int p = str.indexOf(chr);
-				str = (p>0 ? str.substring(0, p) : "" ) + (p+2==str.length() ? "" : str.substring(p + 2));
-			}
+			try {
+				while (str.indexOf(chr) != (-1)) {
+					int p = str.indexOf(chr);
+					str = (p>0 ? str.substring(0, p) : "" ) + (p+2==str.length() ? "" : str.substring(p + 2));
+				}
+			} catch (Exception e) { }
 		}
 		return str;
 	}

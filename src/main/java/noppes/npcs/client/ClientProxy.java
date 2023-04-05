@@ -87,6 +87,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.controllers.PresetController;
@@ -834,13 +835,18 @@ extends CommonProxy {
 		super.checkBlockFiles(customblock);
 		String name = customblock.getCustomName();
 		String fileName = ((Block) customblock).getRegistryName().getResourcePath();
-
-		String n = name.equals("blockexample") ? "Example Custom Block" : name.equals("liquidexample") ? "Example Custom Fluid" : name;
+		String n =	name.equals("blockexample") ? "Example Custom Block" :
+					name.equals("liquidexample") ? "Example Custom Fluid" :
+					name.equals("stairsexample") ? "Example Custom Stairs" :
+					name.equals("slabexample") ? "Example Custom Slab" :
+					name;
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("tile."+fileName+".name", n);
 		if (customblock instanceof CustomLiquid) {
 			this.setLocalization("fluid."+fileName, n);
 		}
+		
+		if (name.equals("stairsexample") || name.equals("slabexample") || customblock instanceof CustomBlockSlab.CustomBlockSlabDouble) { return; }
 		
 		File texturesDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/"+(customblock instanceof CustomLiquid ? "fluids" : "blocks")); 
 		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
@@ -900,17 +906,17 @@ extends CommonProxy {
 		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
 		
 		String n = name;
-		if (name.equals("itemexample")) { n = "Simple Item Example"; }
-		else if (name.equals("weaponexample")) { n = "Weapon Example"; }
-		else if (name.equals("toolexample")) { n = "Tool Example"; }
+		if (name.equals("itemexample")) { n = "Example simple Custom Item"; }
+		else if (name.equals("weaponexample")) { n = "Example Custom Weapon"; }
+		else if (name.equals("toolexample")) { n = "Example Custom Tool"; }
 		else if (name.equals("armorexample")) {
 			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
-			n = "Armor Example "+(""+slot.charAt(0)).toUpperCase()+slot.toLowerCase().substring(1);
+			n = "Example Custom Armor "+(""+slot.charAt(0)).toUpperCase()+slot.toLowerCase().substring(1);
 		}
-		else if (name.equals("shieldexample")) { n = "Shield Example"; }
-		else if (name.equals("bowexample")) { n = "Bow Example"; }
-		else if (name.equals("foodexample")) { n = "Food Example"; }
-		else if (name.equals("fishingrodexample")) { n = "Fishing Rod Example"; }
+		else if (name.equals("shieldexample")) { n = "Example Custom Shield"; }
+		else if (name.equals("bowexample")) { n = "Example Custom Bow"; }
+		else if (name.equals("foodexample")) { n = "Example Custom Food"; }
+		else if (name.equals("fishingrodexample")) { n = "Example Custom Fishing Rod"; }
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("item."+fileName+".name", n);
 		
@@ -1093,7 +1099,7 @@ extends CommonProxy {
 				}
 				catch (IOException e) { }
 			}
-			if (has[0] || has[1]) { LogWriter.debug("Create Default Fishing Rood Texture for \""+name+"\" item"); }
+			if (has[0] || has[1]) { LogWriter.debug("Create Default Fishing Rod Texture for \""+name+"\" item"); }
 		}
 	}
 	
@@ -1102,13 +1108,13 @@ extends CommonProxy {
 		String name = custompotion.getCustomName();
 		
 		String n = name;
-		if (name.equals("potionexample")) {n = "Potion Example"; }
+		if (name.equals("potionexample")) {n = "Example Custom Potion"; }
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("effect."+name, n);
 		this.setLocalization("potion.effect."+name, n);
-		this.setLocalization("splash_potion.effect."+name, "Splash "+n);
-		this.setLocalization("lingering_potion.effect."+name, "Lingering "+n);
-		this.setLocalization("tipped_arrow.effect."+name, "Arrow "+n);
+		this.setLocalization("splash_potion.effect."+name, name.equals("potionexample") ? "Example Custom Splash Potion" : n+" Splash");
+		this.setLocalization("lingering_potion.effect."+name, name.equals("potionexample") ? "Example Custom Lingering Potion" : n+" Lingering");
+		this.setLocalization("tipped_arrow.effect."+name, name.equals("potionexample") ? "Example Custom Arrow Potion" : n+" Arrow");
 		
 		String textureName = name.toLowerCase();
 		File texturesDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/potions");
@@ -1198,7 +1204,7 @@ extends CommonProxy {
 					jsonStr = "";
 					while((line = reader.readLine()) != null) { jsonStr += line + chr; }
 					reader.close();
-					if (jsonStr.indexOf(key+"="+name)==-1) {
+					if (jsonStr.indexOf(key+"=")==-1) {
 						jsonStr += key+"="+name + chr;
 						writer = Files.newBufferedWriter(lang.toPath());
 					}
