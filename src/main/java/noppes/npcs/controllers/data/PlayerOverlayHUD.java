@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
@@ -50,7 +49,7 @@ implements IOverlayHUD {
 	private TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots;
 	
 	private boolean update;
-	private EntityPlayer player;
+	private EntityPlayerMP player;
 	
 	public PlayerOverlayHUD() {
 		this.isMoved = false;

@@ -755,11 +755,11 @@ hover.teleport=Teleport to the specified position
 
 inv.auto=Auto Pickup
 inv.dropChance=Drop chance
-inv.drops=Items
+inv.drops=NPC Items:
 inv.hover.add.drop=Add a new item to drop
 inv.hover.auto.xp=Method of issuing an experience for kill NPC
 inv.hover.del.drop=Remove drop %s
-inv.hover.drops.amount=Limiting the number of items<br>§7Since you can customize up to 32 items for drop, their full drop is like heavenly manna<br>§7Here you can limit the maximum number of items per drop<br>§7Items are randomly knocked out of the resulting pile for a drop<br>§7Limitation separately affects the given to player heap and the heap drop to the ground! 
+inv.hover.drops.amount=Limiting the number of items<br>§7Since you can customize up to %s§7 items for drop, their full drop is like heavenly manna<br>§7Here you can limit the maximum number of items per drop<br>§7Items are randomly knocked out of the resulting pile for a drop<br>§7Limitation separately affects the given to player heap and the heap drop to the ground! 
 inv.hover.drops.info=List of configured items to drop when NPC dies<br>§7The name indicates the name of the item, its quantity and the chance of a drop
 inv.hover.edit.drop=Customize or edit drop %s
 inv.inventory=Inventory
@@ -767,6 +767,8 @@ inv.maxExp=Max Exp
 inv.minExp=Min Exp
 inv.npcInventory=NPC Inventory
 inventory.hover.currency=Your money:
+inv.use.drops.0=Use from NPC<br>§7Can only customize §618§7 items
+inv.use.drops.1=Use from Base<br>§7Has max drop settings and §6unlimited#7 items
 
 item.craft.not.availability=§cYou have not met all the conditions to create this item!
 item.nbt_book.name=NBT Tags Book

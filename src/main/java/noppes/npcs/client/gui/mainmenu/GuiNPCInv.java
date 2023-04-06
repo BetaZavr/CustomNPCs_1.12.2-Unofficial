@@ -40,7 +40,7 @@ implements ICustomScrollListener, IGuiData
 	private ContainerNPCInv container;
 	private Map<String, DropSet> dropsData = new HashMap<String, DropSet>();
 	private DataInventory inventory;
-	// New
+	
 	private GuiCustomScroll scrollDrops;
 	private ResourceLocation slot;
 

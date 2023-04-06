@@ -195,6 +195,8 @@ public class CustomNpcs {
 	public static int maxBuilderBlocks = 10000;
 	@ConfigProp(info = "Color of Script code elements. "+((char) 167)+"[Numbers, Functions, Strings, Comments]")
 	public static String[] charCodeColor = new String[] { "6", "9", "7", "2" };
+	@ConfigProp(info = "Maximum number of items in one Drop group")
+	public static int maxItemInDropsNPC = 32;
 	@ConfigProp
 	public static boolean SceneButtonsEnabled = true;
 	@ConfigProp

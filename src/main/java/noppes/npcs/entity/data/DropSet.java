@@ -37,6 +37,8 @@ public class DropSet implements IInventory, ICustomDrop {
 	public List<DropNbtSet> tags;
 	public IItemStack item;
 	public int questId;
+	public int pos;
+	public int npcLevel;
 	public int[] amount;
 	public float damage;
 	public double chance;
@@ -63,6 +65,8 @@ public class DropSet implements IInventory, ICustomDrop {
 		sln.put("head", 5);
 		this.attributeSlotsName = sln;
 		this.questId = 0;
+		this.npcLevel = ni==null ? 1 : ni.npc.stats.getLevel();
+		this.pos = 0;
 	}
 
 	public IAttributeSet addAttribute(IAttributeSet attribute) {
@@ -134,11 +138,10 @@ public class DropSet implements IInventory, ICustomDrop {
 	@Override
 	public IItemStack createLoot(double addChance) {
 		ItemStack dItem = this.item.getMCItemStack().copy();
-		int lv = this.npcInv.npc.stats.getLevel();
 		// Amount
 		int a = this.amount[0];
 		if (this.amount[0] != this.amount[1]) {
-			if (this.tiedToLevel) { a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * (double) lv / (double) CustomNpcs.maxLv); }
+			if (this.tiedToLevel) { a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * (double) this.npcLevel / (double) CustomNpcs.maxLv); }
 			else { a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * Math.random()); }
 		}
 		dItem.setCount(a);
@@ -146,7 +149,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		if (dItem.getMaxDamage() > 0 && (this.damage < 1.0f)) {
 			int d = 0, max = dItem.getMaxDamage();
 			if (this.tiedToLevel) {
-				d = (int) Math .round((1.0f - this.damage) * (float) max * (float) lv / (float) CustomNpcs.maxLv);
+				d = (int) Math .round((1.0f - this.damage) * (float) max * (float) this.npcLevel / (float) CustomNpcs.maxLv);
 			} else {
 				d = (int) Math.round((1.0f - this.damage) * (float) max * Math.random());
 			}
@@ -162,7 +165,7 @@ public class DropSet implements IInventory, ICustomDrop {
 					int lvl = lvlM;
 					if (lvlM != lvlN) {
 						if (this.tiedToLevel) {
-							lvl = (int) Math.round((double) lvlM + (double) (lvlN - lvlM) * (double) lv / (double) CustomNpcs.maxLv);
+							lvl = (int) Math.round((double) lvlM + (double) (lvlN - lvlM) * (double) this.npcLevel / (double) CustomNpcs.maxLv);
 						} else {
 							lvl = (int) Math.round((double) lvlM + (double) (lvlN - lvlM) * Math.random());
 						}
@@ -182,7 +185,7 @@ public class DropSet implements IInventory, ICustomDrop {
 					double v = vM;
 					if (vM != vN) {
 						if (this.tiedToLevel) {
-							v = Math.round((vM + (vN - vM) * (double) lv / (double) CustomNpcs.maxLv) * 10000.0d)
+							v = Math.round((vM + (vN - vM) * (double) this.npcLevel / (double) CustomNpcs.maxLv) * 10000.0d)
 									/ 10000.0d;
 						} else {
 							v = Math.round((vM + (vN - vM) * Math.random()) * 10000.0d) / 10000.0d;
@@ -303,8 +306,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		if (this.item.isEmpty()) {
 			return "type.empty";
 		}
-		int pos = this.npcInv.getDropSlot(this);
-		keyName = c+"7"+(pos >= 0 ? (pos + 1) + ":" : "");
+		keyName = c+"7"+this.pos + ":";
 		double ch = Math.round(this.chance*10.0d) / 10.d;
 		String chance = String.valueOf(ch).replace(".", ",");
 		if (ch == (int) ch) { chance = String.valueOf((int) ch); }
@@ -382,6 +384,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			tgsl.appendTag(ts.getNBT());
 		}
 		nbtDS.setTag("TagSettings", tgsl);
+		nbtDS.setInteger("Slot", this.pos);
 		return nbtDS;
 	}
 
@@ -464,6 +467,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			tgsl.add(ts);
 		}
 		this.tags = tgsl;
+		this.pos = nbtDS.getInteger("Slot");
 	}
 
 	@Override
@@ -476,7 +480,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public void remove() {
-		this.npcInv.removeDrop((ICustomDrop) this);
+		if (this.npcInv!=null) { this.npcInv.removeDrop((ICustomDrop) this); }
 	}
 
 	@Override
