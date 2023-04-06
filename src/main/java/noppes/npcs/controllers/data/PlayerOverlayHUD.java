@@ -31,6 +31,7 @@ import noppes.npcs.client.gui.custom.components.CustomGuiTexturedRect;
 import noppes.npcs.client.gui.custom.components.CustomGuiTimer;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class PlayerOverlayHUD
 implements IOverlayHUD {
@@ -207,6 +208,7 @@ implements IOverlayHUD {
 		
 		this.guiComponents.clear();
 		this.guiSlots.clear();
+		this.update = false;
 	}
 	
 	public NBTTagCompound saveNBTData(NBTTagCompound compound) {
@@ -568,7 +570,16 @@ implements IOverlayHUD {
 	}
 
 	@Override
-	public void update() { this.update = true; }
+	public void update() {
+		if (this.player!=null) {
+			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.UPDATE_HUD, this.saveNBTData(new NBTTagCompound()));
+			this.update = false;
+		} else {
+			CustomNPCsScheduler.runTack(() -> {
+				this.update = true;
+			}, 500);
+		}
+	}
 
 	@Override
 	public IItemSlot addItemSlot(int orientationType, int x, int y) { return this.addItemSlot(orientationType, x, y, ItemScriptedWrapper.AIR); }

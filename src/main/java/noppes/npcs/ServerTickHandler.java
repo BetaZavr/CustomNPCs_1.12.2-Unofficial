@@ -68,14 +68,12 @@ public class ServerTickHandler {
 			VisibilityController.onUpdate((EntityPlayerMP) player); // any 5 sec.
 		}
 		if (player.getEntityWorld().getWorldTime() % 20L == resTime % 20L) {
-			if (player instanceof EntityPlayerMP) {
-				data.hud.updateHud((EntityPlayerMP) player);
-				if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
-					boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
-					if (data.game.op!=opn) {
-						data.game.op = opn;
-						data.updateClient = true;
-					}
+			data.hud.updateHud((EntityPlayerMP) player);
+			if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
+				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+				if (data.game.op!=opn) {
+					data.game.op = opn;
+					data.updateClient = true;
 				}
 			}
 		}
