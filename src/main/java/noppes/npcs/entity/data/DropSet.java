@@ -30,17 +30,17 @@ import noppes.npcs.util.ValueUtil;
 
 public class DropSet implements IInventory, ICustomDrop {
 
-	public int[] amount;
-	public List<AttributeSet> attributes;
 	private Map<String, Integer> attributeSlotsName;
-	public double chance;
-	public float damage;
-	public List<EnchantSet> enchants;
-	public IItemStack item;
-	public boolean lootMode;
 	private DataInventory npcInv;
-	public int questId;
+	public List<AttributeSet> attributes;
+	public List<EnchantSet> enchants;
 	public List<DropNbtSet> tags;
+	public IItemStack item;
+	public int questId;
+	public int[] amount;
+	public float damage;
+	public double chance;
+	public boolean lootMode; // dropped or get to player
 	public boolean tiedToLevel;
 
 	public DropSet(DataInventory ni) {
@@ -136,41 +136,33 @@ public class DropSet implements IInventory, ICustomDrop {
 		ItemStack dItem = this.item.getMCItemStack().copy();
 		int lv = this.npcInv.npc.stats.getLevel();
 		// Amount
-		int a = amount[0];
+		int a = this.amount[0];
 		if (this.amount[0] != this.amount[1]) {
-			if (this.tiedToLevel) {
-				a = (int) Math.round((double) amount[0]
-						+ (double) (amount[1] - amount[0]) * (double) lv / (double) CustomNpcs.maxLv);
-			} else {
-				a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * Math.random());
-			}
+			if (this.tiedToLevel) { a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * (double) lv / (double) CustomNpcs.maxLv); }
+			else { a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * Math.random()); }
 		}
 		dItem.setCount(a);
 		// Damage
-		int max = dItem.getMaxDamage();
-		int d = 0;
-		if (max > 0) {
-			if (this.damage < 1.0f) {
-				if (this.tiedToLevel) {
-					d = (int) Math
-							.round((1.0f - this.damage) * (float) max * (float) lv / (float) CustomNpcs.maxLv);
-				} else {
-					d = (int) Math.round((1.0f - this.damage) * (float) max * Math.random());
-				}
+		if (dItem.getMaxDamage() > 0 && (this.damage < 1.0f)) {
+			int d = 0, max = dItem.getMaxDamage();
+			if (this.tiedToLevel) {
+				d = (int) Math .round((1.0f - this.damage) * (float) max * (float) lv / (float) CustomNpcs.maxLv);
+			} else {
+				d = (int) Math.round((1.0f - this.damage) * (float) max * Math.random());
 			}
 			dItem.setItemDamage(d);
 		}
 		// Enchants
 		if (this.enchants.size() > 0) {
 			for (EnchantSet es : this.enchants) {
-				if (es.chance*addChance / 100.0d > Math.random()) {
+				if (es.chance>=1.0d || es.chance*addChance / 100.0d > Math.random()) {
 					int lvlM = es.getMinLevel();
 					int lvlN = es.getMaxLevel();
+					if (lvlM==0 && lvlN==0) { continue; }
 					int lvl = lvlM;
 					if (lvlM != lvlN) {
 						if (this.tiedToLevel) {
-							lvl = (int) Math.round((double) lvlM
-									+ (double) (lvlN - lvlM) * (double) lv / (double) CustomNpcs.maxLv);
+							lvl = (int) Math.round((double) lvlM + (double) (lvlN - lvlM) * (double) lv / (double) CustomNpcs.maxLv);
 						} else {
 							lvl = (int) Math.round((double) lvlM + (double) (lvlN - lvlM) * Math.random());
 						}
@@ -183,9 +175,10 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Attributes
 		if (this.attributes.size() > 0) {
 			for (AttributeSet as : this.attributes) {
-				if (as.chance*addChance / 100.0d > Math.random()) {
+				if (as.chance>=1.0d || as.chance*addChance / 100.0d > Math.random()) {
 					double vM = as.getMinValue();
 					double vN = as.getMaxValue();
+					if (vM==0.0d && vN==0.0d) { continue; }
 					double v = vM;
 					if (vM != vN) {
 						if (this.tiedToLevel) {
@@ -206,7 +199,7 @@ public class DropSet implements IInventory, ICustomDrop {
 				dItem.setTagCompound(tag = new NBTTagCompound());
 			}
 			for (DropNbtSet dns : this.tags) {
-				if (dns.chance*addChance / 100.0d > Math.random()) {
+				if (dns.values.length>0 && (dns.chance>=1.0d || dns.chance*addChance / 100.0d > Math.random())) {
 					tag = dns.getConstructoredTag(new NBTWrapper(tag)).getMCNBT();
 				}
 			}
@@ -303,22 +296,36 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	public String getKey() {
 		String keyName = "";
+		char c = ((char) 167);
 		if (this.item == null) {
 			return "null";
 		}
 		if (this.item.isEmpty()) {
 			return "type.empty";
 		}
-		int pos = npcInv.getDropSlot(this);
-		keyName = (pos >= 0 ? (pos + 1) + " - " : "") + this.item.getDisplayName();
-		keyName += " (" + String.valueOf(Math.round(this.chance*10.0d)/10.d).replace(".", ",") + ")";
+		int pos = this.npcInv.getDropSlot(this);
+		keyName = c+"7"+(pos >= 0 ? (pos + 1) + ":" : "");
+		double ch = Math.round(this.chance*10.0d) / 10.d;
+		String chance = String.valueOf(ch).replace(".", ",");
+		if (ch == (int) ch) { chance = String.valueOf((int) ch); }
+		chance += "%";
+		keyName += c + "e" + chance;
 		if (this.amount[0] == this.amount[1]) {
-			if (this.amount[0] > 1) {
-				keyName += " [" + this.amount[0] + "]";
-			}
+			keyName += c + "7[" + c + "6" + this.amount[0] + c + "7]";
 		} else {
-			keyName += " [" + this.amount[0] + "<->" + this.amount[1] + "]";
+			keyName += c + "7[" + c + "6" + this.amount[0] + c + "7-" + c + "6" + this.amount[1] + c + "7]";
 		}
+		String effs = "";
+		if (!this.enchants.isEmpty()) { effs = c + "7 |" + c + "bE" + c + "7|"; }
+		if (!this.attributes.isEmpty()) {
+			if (effs.isEmpty()) { effs += c + "7 |"; }
+			effs += c + "aA" + c + "7|";
+		}
+		if (!this.tags.isEmpty()) {
+			if (effs.isEmpty()) { effs += c + "7 |"; }
+			effs += c + "cT" + c + "7|";
+		}
+		keyName += effs + " " + c + "r" + this.item.getDisplayName();
 		if (pos < 0) {
 			keyName += new String(Character.toChars(0x00A7)) + "8 ID:"
 					+ this.toString().substring(this.toString().indexOf("@") + 1);

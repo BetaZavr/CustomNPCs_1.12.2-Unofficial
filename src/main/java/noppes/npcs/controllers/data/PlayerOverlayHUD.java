@@ -26,7 +26,6 @@ import noppes.npcs.api.wrapper.gui.CustomGuiItemSlotWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiTimerWrapper;
-import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.components.CustomGuiLabel;
 import noppes.npcs.client.gui.custom.components.CustomGuiTexturedRect;
 import noppes.npcs.client.gui.custom.components.CustomGuiTimer;
@@ -206,40 +205,8 @@ implements IOverlayHUD {
 		}
 		this.offsetType = hudNBT.getInteger("OffsetType");
 		
-		
 		this.guiComponents.clear();
-		GuiCustom gui = new GuiCustom(null);
-		Map<Integer, Integer> ids = Maps.<Integer, Integer>newTreeMap();
-		for (int type : this.components.keySet()) {
-			if (!ids.containsKey(type)) { ids.put(type, 0); }
-			if (!this.guiComponents.containsKey(type)) { this.guiComponents.put(type, Maps.<Integer, IGuiComponent>newTreeMap()); }
-			for (ICustomGuiComponent component : this.components.get(type)) {
-				if (ids.get(type) < component.getID()) { ids.put(type, component.getID()); }
-				if (component instanceof CustomGuiLabelWrapper) {
-					CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
-					lbl.setParent(gui);
-					this.guiComponents.get(type).put(lbl.getID(), lbl);
-				}
-				else if (component instanceof CustomGuiTexturedRectWrapper) {
-					CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
-					rect.setParent(gui);
-					this.guiComponents.get(type).put(rect.getID(), rect);
-				}
-				else if (component instanceof CustomGuiTimerWrapper) {
-					CustomGuiTimer time = CustomGuiTimer.fromComponent((CustomGuiTimerWrapper) component);
-					time.setParent(gui);
-					this.guiComponents.get(type).put(time.getID(), time);
-				}
-			}
-		}
 		this.guiSlots.clear();
-		for (int type : this.slots.keySet()) {
-			if (!this.guiSlots.containsKey(type)) { this.guiSlots.put(type, Maps.<Integer, IItemSlot>newTreeMap()); }
-			int id = ids.containsKey(type) ? ids.get(type)+1 : 1;
-			for (IItemSlot slot : this.slots.get(type)) {
-				this.guiSlots.get(type).put(id++, slot);
-			}
-		}
 	}
 	
 	public NBTTagCompound saveNBTData(NBTTagCompound compound) {
@@ -537,13 +504,53 @@ implements IOverlayHUD {
 		}
 	}
 
-	public TreeMap<Integer, TreeMap<Integer, IGuiComponent>> getGuiComponents() { return this.guiComponents; }
+	public TreeMap<Integer, TreeMap<Integer, IGuiComponent>> getGuiComponents() {
+		if (this.guiComponents.size()!=this.components.size()) {
+			for (int type : this.components.keySet()) {
+				if (!this.guiComponents.containsKey(type)) { this.guiComponents.put(type, Maps.<Integer, IGuiComponent>newTreeMap()); }
+				for (ICustomGuiComponent component : this.components.get(type)) {
+					if (component instanceof CustomGuiLabelWrapper) {
+						CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
+						this.guiComponents.get(type).put(lbl.getID(), lbl);
+					}
+					else if (component instanceof CustomGuiTexturedRectWrapper) {
+						CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
+						this.guiComponents.get(type).put(rect.getID(), rect);
+					}
+					else if (component instanceof CustomGuiTimerWrapper) {
+						CustomGuiTimer time = CustomGuiTimer.fromComponent((CustomGuiTimerWrapper) component);
+						this.guiComponents.get(type).put(time.getID(), time);
+					}
+				}
+			}
+		}
+		return this.guiComponents;
+	}
 	
-	public TreeMap<Integer, TreeMap<Integer, IItemSlot>> getGuiSlots() { return this.guiSlots; }
+	public TreeMap<Integer, TreeMap<Integer, IItemSlot>> getGuiSlots() {
+		if (this.guiSlots.size()!=this.slots.size()) {
+			Map<Integer, Integer> ids = Maps.<Integer, Integer>newTreeMap();
+			for (int type : this.components.keySet()) {
+				if (!ids.containsKey(type)) { ids.put(type, 0); }
+				for (ICustomGuiComponent component : this.components.get(type)) {
+					if (ids.get(type) < component.getID()) { ids.put(type, component.getID()); }
+				}
+			}
+			for (int type : this.slots.keySet()) {
+				if (!this.guiSlots.containsKey(type)) { this.guiSlots.put(type, Maps.<Integer, IItemSlot>newTreeMap()); }
+				int id = ids.containsKey(type) ? ids.get(type)+1 : 1;
+				for (IItemSlot slot : this.slots.get(type)) {
+					this.guiSlots.get(type).put(id++, slot);
+				}
+			}
+		}
+		return this.guiSlots;
+	}
 	
-	public void clearGuiComponents() { this.guiComponents.clear(); }
-	
-	public void clearGuiSlots() { this.guiSlots.clear(); }
+	public void clearGuiComponents() {
+		this.guiComponents.clear();
+		this.guiSlots.clear();
+	}
 	
 	public void clear() {
 		this.components.clear();

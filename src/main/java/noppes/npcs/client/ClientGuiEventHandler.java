@@ -34,6 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.gui.IItemSlot;
+import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.BorderController;
@@ -69,9 +70,11 @@ extends Gui
 		if (event.getType() != RenderGameOverlayEvent.ElementType.TEXT || this.mc==null || this.sw==null || this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat)) { return; }
 		PlayerOverlayHUD data = ClientProxy.playerData.hud;
 		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = data.getGuiComponents();
+		GuiCustom gui = new GuiCustom(null);
 		for (int type : mapC.keySet()) {
 			for (IGuiComponent component : mapC.get(type).values()) {
 				component.offSet(type, data.getWindowSize());
+				component.setParent(gui);
 				component.onRender(this.mc, -1, -1, 0, 0);
 			}
 		}

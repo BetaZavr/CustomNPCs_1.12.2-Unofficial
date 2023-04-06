@@ -32,8 +32,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.entity.data.DropSet;
 
-public class GuiNPCInv extends GuiContainerNPCInterface2
-		implements ICustomScrollListener, /* ISliderListener, */ IGuiData // Changed and New
+public class GuiNPCInv
+extends GuiContainerNPCInterface2
+implements ICustomScrollListener, IGuiData
 {
 	// private HashMap<Integer, Integer> chances; Changed
 	private ContainerNPCInv container;
@@ -189,7 +190,6 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 
 	@Override
 	public void save() {
-		System.out.println("start size: "+this.npc.inventory.drops.size());
 		this.inventory.setExp(this.getTextField(0).getInteger(), this.getTextField(1).getInteger());
 		Client.sendData(EnumPacketServer.MainmenuInvSave, this.inventory.writeEntityToNBT(new NBTTagCompound()));
 	}
@@ -204,22 +204,6 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 		}
 		this.initGui();
 	}
-
-	/*
-	 * Chanced
-	 * 
-	 * @Override public void mouseDragged(GuiNpcSlider guiNpcSlider) {
-	 * guiNpcSlider.displayString = I18n.translateToLocal("inv.dropChance") + ": " +
-	 * (int)(guiNpcSlider.sliderValue * 100.0f) + "%"; }
-	 * 
-	 * @Override public void mousePressed(GuiNpcSlider guiNpcSlider) { }
-	 * 
-	 * @Override public void mouseReleased(GuiNpcSlider guiNpcSlider) {
-	 * this.chances.put(guiNpcSlider.id, (int)(guiNpcSlider.sliderValue * 100.0f));
-	 * }
-	 */
-
-	// New
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {

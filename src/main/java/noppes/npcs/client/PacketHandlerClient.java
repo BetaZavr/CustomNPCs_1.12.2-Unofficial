@@ -298,8 +298,7 @@ extends PacketHandlerServer {
 			NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 		} else if (type == EnumPacketClient.GUI) {
 			EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];
-			CustomNpcs.proxy.openGui(NoppesUtil.getLastNpc(), gui, buffer.readInt(), buffer.readInt(),
-					buffer.readInt());
+			CustomNpcs.proxy.openGui(NoppesUtil.getLastNpc(), gui, buffer.readInt(), buffer.readInt(), buffer.readInt());
 		} else if (type == EnumPacketClient.PARTICLE) {
 			NoppesUtil.spawnParticle(buffer);
 		} else if (type == EnumPacketClient.DELETE_ENTITY) {

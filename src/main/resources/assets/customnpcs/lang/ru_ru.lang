@@ -1355,17 +1355,17 @@ stats.undead=Нежить
 
 tag.type.0=логический
 tag.type.1=Байт
-tag.type.10=Сложный
-tag.type.11=Целочисленный массив
-tag.type.12=Длинный массив
-tag.type.2=короткий
+tag.type.2=Короткий
 tag.type.3=Целое число
-tag.type.4=Длинная
-tag.type.5=Плавать
-tag.type.6=Двойной
+tag.type.4=Длинное число
+tag.type.5=Число с точкой
+tag.type.6=Двойной с точкой
 tag.type.7=Байтовый массив
-tag.type.8=Нить
+tag.type.8=Строка
 tag.type.9=Список
+tag.type.10=Составной
+tag.type.11=Целочисленный массив
+tag.type.12=Массив длиных чисел
 
 task.chose=Выберите Тип задачи:
 

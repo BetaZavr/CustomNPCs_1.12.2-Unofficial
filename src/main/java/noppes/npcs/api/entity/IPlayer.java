@@ -63,13 +63,15 @@ extends IEntityLivingBase<T> {
 
 	boolean hasAchievement(String p0);
 
-	boolean hasActiveQuest(int p0);
+	boolean hasActiveQuest(int id);
+	
+	boolean isComleteQuest(int id);
 
-	boolean hasFinishedQuest(int p0);
+	boolean hasFinishedQuest(int id);
 
 	boolean hasPermission(String p0);
 
-	boolean hasReadDialog(int p0);
+	boolean hasReadDialog(int id); // New
 
 	@Deprecated
 	int inventoryItemCount(IItemStack p0);

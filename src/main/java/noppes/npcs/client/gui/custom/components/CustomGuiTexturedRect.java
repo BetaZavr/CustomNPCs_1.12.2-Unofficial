@@ -90,10 +90,6 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		GlStateManager.popMatrix();
 	}
 
-	public void setParent(GuiCustom parent) {
-		this.parent = parent;
-	}
-
 	public ICustomGuiComponent toComponent() {
 		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(this.id, this.texture.toString(), this.x, this.y, this.width, this.height, this.textureX, this.textureY);
 		component.setHoverText(this.hoverText);
@@ -124,6 +120,11 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 				this.offsets[1] = 0;
 			}
 		}
+	}
+	
+	@Override
+	public void setParent(GuiCustom parent) {
+		this.parent = parent;
 	}
 	
 }

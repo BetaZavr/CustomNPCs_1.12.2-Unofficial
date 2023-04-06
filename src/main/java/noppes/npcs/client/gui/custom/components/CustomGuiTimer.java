@@ -76,10 +76,6 @@ implements IGuiComponent {
 		
 	}
 
-	public void setParent(GuiCustom parent) {
-		this.parent = parent;
-	}
-
 	public void setScale(float scale) {
 		this.scale = scale;
 	}
@@ -113,6 +109,11 @@ implements IGuiComponent {
 				this.offsets[1] = 0;
 			}
 		}
+	}
+	
+	@Override
+	public void setParent(GuiCustom parent) {
+		this.parent = parent;
 	}
 	
 }

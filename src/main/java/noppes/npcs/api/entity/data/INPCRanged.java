@@ -1,6 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCRanged {
+	
 	boolean getAccelerate();
 
 	int getAccuracy();
@@ -45,7 +46,7 @@ public interface INPCRanged {
 
 	int getSize();
 
-	String getSound(int p0);
+	String getSound(int type);
 
 	int getSpeed();
 
@@ -55,49 +56,50 @@ public interface INPCRanged {
 
 	int getStrength();
 
-	void setAccelerate(boolean p0);
+	void setAccelerate(boolean accelerate);
 
-	void setAccuracy(int p0);
+	void setAccuracy(int accuracy);
 
-	void setBurst(int p0);
+	void setBurst(int count);
 
-	void setBurstDelay(int p0);
+	void setBurstDelay(int delay);
 
-	void setDelay(int p0, int p1);
+	void setDelay(int min, int max);
 
-	void setEffect(int p0, int p1, int p2);
+	void setEffect(int type, int strength, int time);
 
-	void setExplodeSize(int p0);
+	void setExplodeSize(int size);
 
-	void setFireType(int p0);
+	void setFireType(int type);
 
-	void setGlows(boolean p0);
+	void setGlows(boolean glows);
 
-	void setHasAimAnimation(boolean p0);
+	void setHasAimAnimation(boolean aim);
 
-	void setHasGravity(boolean p0);
+	void setHasGravity(boolean hasGravity);
 
-	void setKnockback(int p0);
+	void setKnockback(int punch);
 
-	void setMeleeRange(int p0);
+	void setMeleeRange(int range);
 
-	void setParticle(int p0);
+	void setParticle(int type);
 
-	void setRange(int p0);
+	void setRange(int range);
 
-	void setRender3D(boolean p0);
+	void setRender3D(boolean render3d);
 
-	void setShotCount(int p0);
+	void setShotCount(int count);
 
-	void setSize(int p0);
+	void setSize(int size);
 
-	void setSound(int p0, String p1);
+	void setSound(int type, String sound);
 
-	void setSpeed(int p0);
+	void setSpeed(int speed);
 
-	void setSpins(boolean p0);
+	void setSpins(boolean spins);
 
-	void setSticks(boolean p0);
+	void setSticks(boolean sticks);
 
-	void setStrength(int p0);
+	void setStrength(int strength);
+	
 }

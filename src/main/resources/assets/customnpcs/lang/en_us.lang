@@ -1451,9 +1451,6 @@ stats.undead=Undead
 
 tag.type.0=Boolean
 tag.type.1=Byte
-tag.type.10=Compound
-tag.type.11=Integer Array
-tag.type.12=Long Array
 tag.type.2=Short
 tag.type.3=Integer
 tag.type.4=Long
@@ -1462,6 +1459,9 @@ tag.type.6=Double
 tag.type.7=Byte Array
 tag.type.8=String
 tag.type.9=List
+tag.type.10=Compound
+tag.type.11=Integer Array
+tag.type.12=Long Array
 
 task.chose=Select Task Type:
 

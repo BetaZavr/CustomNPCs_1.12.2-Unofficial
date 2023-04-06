@@ -38,17 +38,28 @@ public class AttributeSet implements IAttributeSet {
 	}
 
 	public String getKey() {
-		String vs = " [" + this.values[0] + "]";
-		if (this.values[0] != this.values[1]) {
-			vs = " [" + this.values[0] + "<->" + this.values[1] + "]";
+		String keyName = "";
+		char c = ((char) 167);
+		double ch = Math.round(this.chance*10.0d) / 10.d;
+		String chance = String.valueOf(ch).replace(".", ",");
+		if (ch == (int) ch) { chance = String.valueOf((int) ch); }
+		chance += "%";
+		keyName += c + "e" + chance;
+		double v0 = Math.round(this.values[0]*1000.0d) / 1000.d;
+		String tv0 = String.valueOf(v0).replace(".", ",");
+		if (v0 == (int) v0) { tv0 = String.valueOf((int) v0); }
+		double v1 = Math.round(this.values[1]*1000.0d) / 1000.d;
+		String tv1 = String.valueOf(v1).replace(".", ",");
+		if (v1 == (int) v1) { tv1 = String.valueOf((int) v1); }
+		if (this.values[0] == this.values[1]) {
+			keyName += c + "7[" + c + "6" + tv0 + c + "7] ";
+		} else {
+			keyName += c + "7[" + c + "6" + tv0 + c + "7-" + c + "6" + tv1 + c + "7] ";
 		}
-		String name = new TextComponentTranslation("attribute.name." + this.attr.getName(), new Object[0])
-				.getFormattedText();
-		if (name.equals("attribute.name." + this.attr.getName()) || name.equals("attribute.name.")) {
-			name = this.attr.getName();
-		}
-		String keyName = name + vs + " (" + this.getChance() + ")";
-		keyName += " #" + this.toString().substring(this.toString().indexOf("@") + 1);
+		String name = new TextComponentTranslation("attribute.name." + this.attr.getName(), new Object[0]).getFormattedText();
+		if (name.equals("attribute.name." + this.attr.getName()) || name.equals("attribute.name.")) { name = this.attr.getName(); }
+		keyName += c + "r" + name;
+		keyName += c + "8 #" + this.toString().substring(this.toString().indexOf("@") + 1);
 		return keyName;
 	}
 

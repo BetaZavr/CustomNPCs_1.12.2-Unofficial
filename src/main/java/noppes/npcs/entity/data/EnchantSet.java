@@ -33,13 +33,21 @@ public class EnchantSet implements IEnchantSet {
 	}
 
 	public String getKey() {
-		String lvl = " [" + this.lvls[0] + "]";
-		if (this.lvls[0] != this.lvls[1]) {
-			lvl = " [" + this.lvls[0] + "<->" + this.lvls[1] + "]";
+		String keyName = "";
+		char c = ((char) 167);
+		double ch = Math.round(this.chance*10.0d) / 10.d;
+		String chance = String.valueOf(ch).replace(".", ",");
+		if (ch == (int) ch) { chance = String.valueOf((int) ch); }
+		chance += "%";
+		keyName += c + "e" + chance;
+		if (this.lvls[0] == this.lvls[1]) {
+			keyName += c + "7[" + c + "6" + this.lvls[0] + c + "7] ";
+		} else {
+			keyName += c + "7[" + c + "6" + this.lvls[0] + c + "7-" + c + "6" + this.lvls[1] + c + "7] ";
 		}
-		String keyName = new TextComponentTranslation(this.ench.getName(), new Object[0]).getFormattedText() + lvl
-				+ " (" + this.getChance() + ")";
-		keyName += " #" + this.toString().substring(this.toString().indexOf("@") + 1);
+		keyName += c + "7ID:" + Enchantment.getEnchantmentID(this.ench)+" ";
+		keyName += c + "r" + new TextComponentTranslation(this.ench.getName()).getFormattedText();
+		keyName += c + "8 #" + this.toString().substring(this.toString().indexOf("@") + 1);
 		return keyName;
 	}
 

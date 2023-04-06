@@ -42,27 +42,27 @@ import noppes.npcs.entity.data.EnchantSet;
 public class GuiDropEdit
 extends GuiContainerNPCInterface2
 implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
-	
-	private int[] amount;
-	private AttributeSet attribute;
-	private Map<String, AttributeSet> attributesData;
-	public DropSet drop;
-	public int slot;
-	private EnchantSet enchant;
-	private Map<String, EnchantSet> enchantData;
+
 	private GuiContainer parent;
+	public DropSet drop;
+	private Map<String, AttributeSet> attributesData;
+	private Map<String, EnchantSet> enchantData;
+	private Map<String, DropNbtSet> tagsData;
+	private AttributeSet attribute;
+	private EnchantSet enchant;
+	private DropNbtSet tag;
+	public int slot;
 	private int reset;
+	private int[] amount;
 	private GuiCustomScroll scrollAttributes;
 	private GuiCustomScroll scrollEnchants;
 	private GuiCustomScroll scrollTags;
-	private DropNbtSet tag;
-	private Map<String, DropNbtSet> tagsData;
 
 	public GuiDropEdit(EntityNPCInterface npc, ContainerNPCDropSetup cont, int slot, GuiContainer gui) {
 		super(npc, cont);
 		this.parent = gui;
 		this.slot = slot;
-		this.drop = npc.inventory.drops.get(slot);
+		this.drop = cont.inventoryDS;
 		this.setBackground("npcdrop.png");
 		this.ySize = 200;
 		this.closeOnEsc = true;
@@ -70,16 +70,12 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		this.scrollAttributes = null;
 		this.scrollTags = null;
 		this.reset = 0;
-		if (this.drop==null) {
-			this.drop = new DropSet(npc.inventory);
-		}
 		this.amount = new int[] { this.drop.getMinAmount(), this.drop.getMaxAmount() };
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-System.out.println("start size: "+this.npc.inventory.drops.size());
 		if (this.parent == null) {
 			this.close();
 			return;
@@ -497,28 +493,28 @@ System.out.println("start size: "+this.npc.inventory.drops.size());
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField guiNpcTextField) {
-		switch (guiNpcTextField.getId()) {
+	public void unFocused(GuiNpcTextField textField) {
+		switch (textField.getId()) {
 			case 0: { // common chance
-				this.drop.setChance(guiNpcTextField.getDouble());
+				this.drop.setChance(textField.getDouble());
 				break;
 			}
 			case 1: { // amount min
-				this.amount[0] = guiNpcTextField.getInteger();
+				this.amount[0] = textField.getInteger();
 				this.drop.setAmount(this.amount[0], this.amount[1]);
 				break;
 			}
 			case 2: { // amount max
-				this.amount[1] = guiNpcTextField.getInteger();
+				this.amount[1] = textField.getInteger();
 				this.drop.setAmount(this.amount[0], this.amount[1]);
 				break;
 			}
 			case 3: { // break item
-				this.drop.setDamage((float) guiNpcTextField.getDouble());
+				this.drop.setDamage((float) textField.getDouble());
 				break;
 			}
 			case 4: { // quest set
-				int qid = guiNpcTextField.getInteger();
+				int qid = textField.getInteger();
 				if (qid == 0) {
 					this.drop.questId = 0;
 				} else {

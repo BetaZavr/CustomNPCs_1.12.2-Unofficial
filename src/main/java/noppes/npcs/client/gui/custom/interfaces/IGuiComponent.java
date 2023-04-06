@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.custom.interfaces;
 
 import net.minecraft.client.Minecraft;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.client.gui.custom.GuiCustom;
 
 public interface IGuiComponent {
 	
@@ -12,5 +13,7 @@ public interface IGuiComponent {
 	ICustomGuiComponent toComponent();
 
 	void offSet(int offsetType, double[] windowSize);
+
+	void setParent(GuiCustom gui);
 	
 }

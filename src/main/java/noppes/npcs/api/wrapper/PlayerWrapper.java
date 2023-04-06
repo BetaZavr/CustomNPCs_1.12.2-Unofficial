@@ -717,5 +717,17 @@ implements IPlayer {
 	public void trigger(int id, Object... arguments) {
 		EventHooks.onScriptTriggerEvent(this.getData().scriptData, id, this.getWorld(), this.getPos(), null, arguments);
 	}
+
+	@Override
+	public boolean isComleteQuest(int id) {
+		PlayerQuestData data = this.getData().questData;
+		if (data.finishedQuests.containsKey(id)) { return true; }
+		if (!data.activeQuests.containsKey(id)) { return false; }
+		QuestData qData = data.activeQuests.get(id);
+		if (qData.isCompleted) { return true; }
+		Quest quest = (Quest) NpcAPI.Instance().getQuests().get(id);
+		if (quest==null) { return false; }
+		return quest.questInterface.isCompleted(this.getMCEntity());
+	}
 	
 }

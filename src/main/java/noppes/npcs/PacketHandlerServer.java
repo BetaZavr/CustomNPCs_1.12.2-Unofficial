@@ -557,30 +557,27 @@ public class PacketHandlerServer {
 			npc.stats.readToNBT(Server.readNBT(buffer));
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.MainmenuInvGet) {
-System.out.println("start size: "+npc.inventory.drops.size());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuInvSave) {
 			npc.inventory.readEntityFromNBT(Server.readNBT(buffer));
 			npc.updateAI = true;
 			npc.updateClient = true;
-Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuInvDropSave) {
-System.out.println("start size: "+npc.inventory.drops.size());
 			int slot = buffer.readInt();
-System.out.println("slot: "+slot);
 			NBTTagCompound compound = Server.readNBT(buffer);
-System.out.println("compound: "+compound);
 			IItemStack stack = NpcAPI.Instance().getIItemStack(new ItemStack(compound.getCompoundTag("Item")));
-System.out.println("stack: "+stack);
+			System.out.println("slot: "+slot);
+			System.out.println("slot: "+stack);
 			if (slot == -1) { // add new
 				if (stack.isEmpty()) { return; }
 				DropSet drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d);
 				drop.load(compound);
-System.out.println("add slot: "+slot+"; size: "+npc.inventory.drops.size());
 			}
 			else if (stack.isEmpty()) { // remove
-System.out.println("remove slot: "+slot+" == "+npc.inventory.removeDrop(slot)+"; size: "+npc.inventory.drops.size());
 				npc.inventory.removeDrop(slot);
+			} else if (npc.inventory.drops.containsKey(slot)) { // resave
+				npc.inventory.drops.get(slot).load(compound);
 			}
 			npc.updateAI = true;
 			npc.updateClient = true;

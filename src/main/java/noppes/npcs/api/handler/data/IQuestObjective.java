@@ -3,6 +3,7 @@ package noppes.npcs.api.handler.data;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IQuestObjective {
+	
 	int getAreaRange();
 
 	IItemStack getItem();

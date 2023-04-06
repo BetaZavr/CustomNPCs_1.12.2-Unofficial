@@ -7,7 +7,6 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.client.gui.mainmenu.GuiDropEdit;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DropSet;
@@ -22,10 +21,7 @@ extends Container {
 		if (npc.inventory.drops.containsKey(pos)) {
 			this.inventoryDS = npc.inventory.drops.get(pos);
 		}
-		if (this.inventoryDS == null) {
-			this.inventoryDS = (DropSet) npc.inventory.addDropItem(NpcAPI.Instance().getIItemStack(ItemStack.EMPTY),
-					100.0d);
-		}
+		if (this.inventoryDS == null) { this.inventoryDS = new DropSet(npc.inventory); }
 		this.addSlotToContainer(new Slot(this.inventoryDS, 0, 202, 135));
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int l2 = 0; l2 < 9; ++l2) {

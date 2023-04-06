@@ -1,7 +1,5 @@
 package noppes.npcs.client.gui.custom.components;
 
-import java.util.List;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiLabel;
@@ -10,7 +8,6 @@ import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomGuiLabel
 extends GuiLabel
@@ -55,34 +52,20 @@ implements IGuiComponent {
 	}
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(this.scale, this.scale, 0.0f);
 		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;
 		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
-		if (this.visible) {
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(this.scale, this.scale, 0.0f);
-			GlStateManager.translate(x-this.x, y-this.y, this.id);
-			//System.out.println("this.id: "+this.id);
-			List<String> ls = ObfuscationHelper.getValue(GuiLabel.class, this, List.class);
-			boolean c = ObfuscationHelper.getValue(GuiLabel.class, this, 6);
-			int tc = ObfuscationHelper.getValue(GuiLabel.class, this, 9);
-			int b = ObfuscationHelper.getValue(GuiLabel.class, this, 14);
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            this.drawLabelBackground(mc, mouseX, mouseY);
-            int i = this.height / 2 + b / 2;
-            int j = i - ls.size() * 10 / 2;
-            for (int k = 0; k < ls.size(); ++k) {
-                if (c) { this.drawCenteredString(mc.fontRenderer, ls.get(k), this.width / 2, j + k * 10, tc); }
-                else { this.drawString(mc.fontRenderer, ls.get(k), this.x, j + k * 10, tc); }
-            }
-        }
+		GlStateManager.translate(x-this.x, y-this.y, this.id);
+		this.drawLabel(mc, mouseX, mouseY);
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
 			this.parent.hoverText = this.hoverText;
 		}
 		GlStateManager.popMatrix();
 	}
-
+	
+	@Override
 	public void setParent(GuiCustom parent) {
 		this.parent = parent;
 	}

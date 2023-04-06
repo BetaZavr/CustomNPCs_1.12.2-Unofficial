@@ -1107,6 +1107,7 @@ public enum EnumInterfaceData {
 			)
 		)
 	),
+	
 	// need tr
 	ILayerModel(new InterfaseData(ILayerModel.class, null,
 			new Class<?>[] { LayerModel.class },
@@ -1676,26 +1677,96 @@ public enum EnumInterfaceData {
 	),
 	INPCMelee(new InterfaseData(INPCMelee.class, null,
 			new Class<?>[] { DataMelee.class },
-			"interfase.inpcmelee"
+			"interfase.inpcmelee",
+			new MetodData(int.class, "getDelay", "method.inpcmelee.getdelay"),
+			new MetodData(int.class, "getEffectStrength", "method.inpcmelee.geteffectstrength"),
+			new MetodData(int.class, "getEffectTime", "method.inpcmelee.geteffecttime"),
+			new MetodData(int.class, "getKnockback", "method.inpcmelee.getknockback"),
+			new MetodData(int.class, "getRange", "method.inpcmelee.getrange"),
+			new MetodData(int.class, "getStrength", "method.inpcmelee.getstrength"),
+			new MetodData(void.class, "setDelay", "method.inpcmelee.setdelay",
+				new ParameterData(int.class, "speed", "parameter.speed")
+			),
+			new MetodData(void.class, "setEffect", "method.inpcmelee.seteffect",
+				new ParameterData(int.class, "type", "parameter.effect.type"),
+				new ParameterData(int.class, "strength", "parameter.effect.strength"),
+				new ParameterData(int.class, "time", "parameter.effect.time")
+			),
+			new MetodData(void.class, "setKnockback", "method.inpcmelee.setknockback",
+				new ParameterData(int.class, "knockback", "parameter.ientity.power")
+			),
+			new MetodData(void.class, "setRange", "method.inpcmelee.setrange",
+				new ParameterData(int.class, "range", "parameter.range")
+			),
+			new MetodData(void.class, "setStrength", "method.inpcmelee.setstrength",
+				new ParameterData(int.class, "strength", "enchantment.damage")
+			)
 		)
-	/*
-	int getDelay();
-	int getEffectStrength();
-	int getEffectTime();
-	int getEffectType();
-	int getKnockback();
-	int getRange();
-	int getStrength();
-	void setDelay(int speed);
-	void setEffect(int type, int strength, int time);
-	void setKnockback(int knockback);
-	void setRange(int range);
-	void setStrength(int strength);
-	*/
 	),
 	INPCRanged(new InterfaseData(INPCRanged.class, null,
 			new Class<?>[] { DataRanged.class },
-			"interfase.inpcranged"
+			"interfase.inpcranged",
+			new MetodData(boolean.class, "getAccelerate", "method.inpcranged.getaccelerate"),
+			new MetodData(int.class, "getAccuracy", "method.inpcranged.getaccuracy"),
+			new MetodData(int.class, "getBurst", "method.inpcranged.getburst"),
+			new MetodData(int.class, "getBurstDelay", "method.inpcranged.getburstdelay"),
+			new MetodData(int.class, "getDelayMax", "method.inpcranged.getmelaymax"),
+			new MetodData(int.class, "getDelayMin", "method.inpcranged.getmelaymin"),
+			new MetodData(int.class, "getDelayRNG", "method.inpcranged.getdelayrng"),
+			new MetodData(int.class, "getEffectStrength", "method.inpcranged.geteffectstrength"),
+			new MetodData(int.class, "getEffectTime", "method.inpcranged.geteffecttime"),
+			new MetodData(int.class, "getEffectType", "method.inpcranged.geteffecttype"),
+			new MetodData(int.class, "getExplodeSize", "method.inpcranged.getexplodesize"),
+			new MetodData(int.class, "getFireType", "method.inpcranged.getfiretype"),
+			new MetodData(boolean.class, "getGlows", "method.inpcranged.getglows"),
+			new MetodData(boolean.class, "getHasAimAnimation", "method.inpcranged.gethasaimanimation"),
+			new MetodData(boolean.class, "getHasGravity", "method.inpcranged.gethasgravity"),
+			new MetodData(int.class, "getKnockback", "method.inpcranged.getknockback"),
+			new MetodData(int.class, "getMeleeRange", "method.inpcranged.getmeleerange"),
+			new MetodData(int.class, "getParticle", "method.inpcranged.getparticle"),
+			new MetodData(int.class, "getRange", "method.inpcranged.getrange"),
+			new MetodData(boolean.class, "getRender3D", "method.inpcranged.getrender3d"),
+			new MetodData(int.class, "getShotCount", "method.inpcranged.getshotcount"),
+			new MetodData(int.class, "getSize", "method.inpcranged.getsize"),
+			new MetodData(String.class, "getSound", "method.inpcranged.getsound",
+				new ParameterData(int.class, "type", "parameter.sound.type")
+			),
+			new MetodData(int.class, "getSpeed", "method.inpcranged.getspeed"),
+			new MetodData(boolean.class, "getSpins", "method.inpcranged.getspins"),
+			new MetodData(boolean.class, "getSticks", "method.inpcranged.getsticks"),
+			new MetodData(int.class, "getStrength", "method.inpcranged.getstrength"),
+			new MetodData(void.class, "setAccelerate", "method.inpcranged.setaccelerate",
+				new ParameterData(boolean.class, "accelerate", "parameter.boolean")
+			),
+			new MetodData(void.class, "setAccuracy", "method.inpcranged.setaccuracy",
+				new ParameterData(int.class, "accuracy", "parameter.inpcranged.accuracy")
+			),
+			new MetodData(void.class, "setBurst", "method.inpcranged.setburst",
+				new ParameterData(int.class, "count", "parameter.range")
+			)
+			
+			/*
+	void (int count);
+	void setBurstDelay(int delay);
+	void setDelay(int min, int max);
+	void setEffect(int type, int strength, int time);
+	void setExplodeSize(int size);
+	void setFireType(int type);
+	void setGlows(boolean glows);
+	void setHasAimAnimation(boolean aim);
+	void setHasGravity(boolean hasGravity);
+	void setKnockback(int punch);
+	void setMeleeRange(int range);
+	void setParticle(int type);
+	void setRange(int range);
+	void setRender3D(boolean render3d);
+	void setShotCount(int count);
+	void setSize(int size);
+	void setSound(int type, String sound);
+	void setSpeed(int speed);
+	void setSpins(boolean spins);
+	void setSticks(boolean sticks);
+	void setStrength(int strength);*/
 		)
 	),
 	INPCRole(new InterfaseData(INPCRole.class, null,
