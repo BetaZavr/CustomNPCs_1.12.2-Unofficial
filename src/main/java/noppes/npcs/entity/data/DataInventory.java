@@ -102,13 +102,19 @@ INPCInventory {
 		if (attacking!=null) {
 			IAttributeInstance l = attacking.getEntityAttribute(SharedMonsterAttributes.LUCK);
 			if (l!=null && l.getAttributeValue()!=0) {
-				ch += l.getAttributeValue() / 20.d;
+				double v = l.getAttributeValue();
+				if (v<0) {
+					v *= -1;
+					ch -= v * v * -0.005555d + v * 0.255555d; // 1lv = 25%$ 10lv = 200%
+				} else {
+					ch += v * v * -0.005555d + v * 0.255555d; // 1lv = 25%$ 10lv = 200%
+				}
 			}
 			ItemStack held = attacking.getHeldItemMainhand();
 			if (held.isItemEnchanted()) {
-				int lv = EnchantmentHelper.getLootingModifier(attacking);
-				if (lv>0) {
-					ch += (double) lv / 100.0d;
+				double lv = (double) EnchantmentHelper.getLootingModifier(attacking);
+				if (lv>0.0d) {
+					ch += lv * lv * 0.000555d + lv * 0.019444d; // 1lv = +2%$ 10lv = +25%
 				}
 			}
 		}
