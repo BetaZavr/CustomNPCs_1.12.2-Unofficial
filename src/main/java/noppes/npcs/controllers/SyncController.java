@@ -90,6 +90,7 @@ public class SyncController {
 				CustomNpcs.recalculateLR = compound.getBoolean("RecalculateLR");
 				CustomNpcs.charCurrencies = compound.getString("CharCurrencies");
 				CustomNpcs.maxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
+				CustomNpcs.maxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
 				CustomNpcs.forgeEventNames.clear();
 				for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
 					NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
@@ -260,6 +261,8 @@ public class SyncController {
 		compound.setBoolean("RecalculateLR", CustomNpcs.recalculateLR);
 		compound.setString("CharCurrencies", CustomNpcs.charCurrencies);
 		compound.setInteger("MaxBuilderBlocks", CustomNpcs.maxBuilderBlocks);
+		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.maxItemInDropsNPC);
+		
 		list = new NBTTagList();
 		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {
 			NBTTagCompound nbt = new NBTTagCompound();

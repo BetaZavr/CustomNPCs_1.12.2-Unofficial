@@ -8,37 +8,39 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.Server;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.handler.data.IQuest;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.controllers.data.DropsTemplate;
+import noppes.npcs.entity.data.AttributeSet;
 import noppes.npcs.entity.data.DropSet;
+import noppes.npcs.entity.data.EnchantSet;
 
 public class DropController {
 	
 	private static DropController instance;
 	private String filePath;
-	private Random rnd;
-	public final Map<String, Map<Integer, Map<Integer, DropSet>>> groups;
+	public final Map<String, DropsTemplate> templates;
 
 	public DropController() {
 		this.filePath = "";
-		this.groups = Maps.<String, Map<Integer, Map<Integer, DropSet>>>newTreeMap();
-		this.rnd = new Random();
+		this.templates = Maps.<String, DropsTemplate>newTreeMap();
 		DropController.instance = this;
 		this.load();
 	}
@@ -73,7 +75,7 @@ public class DropController {
 					e.printStackTrace();
 				}
 			} else {
-				this.groups.clear();
+				this.templates.clear();
 				this.loadDefaultDrops();
 			}
 		} catch (Exception e) {
@@ -96,43 +98,73 @@ public class DropController {
 	}
 	
 	public void loadNBTData(NBTTagCompound nbtFile) {
-		this.groups.clear();
-		if (nbtFile.hasKey("Groups", 9)) {
-			for (int i = 0; i < nbtFile.getTagList("Groups", 10).tagCount(); i++) {
-				NBTTagCompound nbtG = nbtFile.getTagList("Groups", 10).getCompoundTagAt(i);
-				if (!nbtG.hasKey("GroupID", 3)) { continue; }
-				String group = nbtG.getString("GroupID");
-				if (!this.groups.containsKey(group)) {
-					this.groups.put(group, Maps.<Integer, Map<Integer, DropSet>>newTreeMap());
-				}
-				Set<String> keys = nbtG.getKeySet();
-				for (String groupId : keys) {
-					if (groupId.indexOf("Drops_")!=0) { continue; }
-					int id = -1;
-					try { id = Integer.parseInt(groupId.replace("Drops_", "")); }
-					catch (NumberFormatException ex) { }
-					if (id<0) { continue; }
-					for (int j = 0; j < nbtG.getTagList(groupId, 10).tagCount(); j++) {
-						NBTTagCompound nbtDS = nbtG.getTagList(groupId, 10).getCompoundTagAt(j);
-						DropSet ds = new DropSet(null);
-						ds.load(nbtDS);
-						if (!this.groups.get(group).containsKey(id)) { this.groups.get(group).put(id, Maps.<Integer, DropSet>newTreeMap()); }
-						this.groups.get(group).get(id).put(ds.pos, ds);
-					}
-				}
-				
+		this.templates.clear();
+		if (nbtFile.hasKey("Templates", 9)) {
+			for (int i = 0; i < nbtFile.getTagList("Templates", 10).tagCount(); i++) {
+				NBTTagCompound nbtTemplate = nbtFile.getTagList("Templates", 10).getCompoundTagAt(i);
+				if (!nbtTemplate.hasKey("Name", 8)) { continue; }
+				this.templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
 			}
 		}
-		if (this.groups.isEmpty()) {this.loadDefaultDrops(); }
+		if (this.templates.isEmpty()) {this.loadDefaultDrops(); }
 	}
 	
 	private void loadDefaultDrops() {
+		NpcAPI api = NpcAPI.Instance();
+		DropsTemplate temp = new DropsTemplate();
+		temp.groups.put(0, Maps.<Integer, DropSet>newTreeMap());
+		DropSet ds0 = new DropSet(null);
+		ds0.amount[0] = 5;
+		ds0.amount[1] = 8;
+		ds0.chance = 72.5d;
+		ds0.item = api.getIItemStack(new ItemStack(Items.COAL));
+		ds0.pos = 0;
+		temp.groups.get(0).put(0, ds0);
+		DropSet ds1 = new DropSet(null);
+		ds1.amount[0] = 2;
+		ds1.amount[1] = 5;
+		ds1.chance = 8.0d;
+		ds1.item = api.getIItemStack(new ItemStack(Items.IRON_INGOT));
+		ds1.pos = 1;
+		temp.groups.get(0).put(1, ds1);
+		DropSet ds2 = new DropSet(null);
+		ds2.amount[0] = 1;
+		ds2.amount[1] = 3;
+		ds2.chance = 4.3333d;
+		ds2.item = api.getIItemStack(new ItemStack(Items.GOLD_INGOT));
+		ds2.pos = 2;
+		temp.groups.get(0).put(2, ds2);
+		DropSet ds3 = new DropSet(null);
+		ds3.amount[0] = 1;
+		ds3.amount[1] = 2;
+		ds3.chance = 0.575d;
+		ds3.item = api.getIItemStack(new ItemStack(Items.DIAMOND));
+		ds3.pos = 3;
+		temp.groups.get(0).put(3, ds3);
+
+		temp.groups.put(1, Maps.<Integer, DropSet>newTreeMap());
+		DropSet df0 = new DropSet(null);
+		df0.amount[0] = 1;
+		df0.amount[1] = 1;
+		df0.chance = 2.5d;
+		df0.item = api.getIItemStack(new ItemStack(Items.IRON_AXE));
+		df0.pos = 0;
+		EnchantSet ench0 = (EnchantSet) df0.addEnchant(Enchantment.getEnchantmentByLocation("unbreaking"));
+		ench0.setChance(50.0d);
+		ench0.setLevels(1, 5);
+		AttributeSet attr = (AttributeSet) df0.addAttribute(SharedMonsterAttributes.ATTACK_DAMAGE.getName());
+		attr.setChance(25.0d);
+		attr.setValues(1.0d,  3.0d);
+		attr.setSlot(0);
+		df0.addDropNbtSet(8, 12.5d, "display.Name", new String [] { "Sword", "Axe" });
+		temp.groups.get(1).put(0, df0);
+		this.templates.put("default", temp);
 		this.save();
 	}
 	
 	public void save() {
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "recipes.dat")));
+			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "drops.dat")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -140,59 +172,34 @@ public class DropController {
 	
 	public NBTTagCompound getNBT() {
 		NBTTagCompound nbtFile = new NBTTagCompound();
-		NBTTagList groups = new NBTTagList();
-		for (String group : this.groups.keySet()) {
-			NBTTagCompound nbtG = new NBTTagCompound();
-			nbtG.setString("GroupID", group);
-			for (int id : this.groups.get(group).keySet()) {
-				NBTTagList list = new NBTTagList();
-				for (DropSet ds : this.groups.get(group).get(id).values()) {
-					list.appendTag(ds.getNBT());
-				}
-				nbtG.setTag("Drops_"+id, list);
-			}
-			groups.appendTag(nbtG);
+		NBTTagList templates = new NBTTagList();
+		for (String template : this.templates.keySet()) {
+			NBTTagCompound nbtTemplate = new NBTTagCompound();
+			nbtTemplate.setString("Name", template);
+			nbtTemplate.setTag("Groups", this.templates.get(template).getNBT());
+			templates.appendTag(nbtTemplate);
 		}
-		nbtFile.setTag("Groups", groups);
+		nbtFile.setTag("Templates", templates);
 		return nbtFile;
 	}
 
 	public List<IItemStack> createDrops(String saveDropsName, double ch, boolean isLooted, EntityLivingBase attacking) {
 		List<IItemStack> list = Lists.<IItemStack>newArrayList();
-		if (saveDropsName==null || saveDropsName.isEmpty() || !this.groups.containsKey(saveDropsName)) { return list;}
-		Map<Integer, Map<Integer, DropSet>> drop = this.groups.get(saveDropsName);
-		for (int groupId : drop.keySet()) {
-			float r = this.rnd.nextFloat();
-			List<IItemStack> prelist = Lists.<IItemStack>newArrayList();
-			for (DropSet ds : drop.get(groupId).values()) {
-				double c = ds.chance * ch / 100.0d;
-				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c<1.0d && c > r)) { continue; }
-				boolean needAdd = true;
-				if (ds.getQuestID() > 0) {
-					if (attacking instanceof EntityPlayer) {
-						IPlayer<?> player = (IPlayer<?>) NpcAPI.Instance().getIEntity(attacking);
-						for (IQuest q : player.getActiveQuests()) {
-							if (q.getId() == ds.getQuestID()) {
-								for (IQuestObjective objQ : q.getObjectives(player)) {
-									if (!objQ.isCompleted()) {
-										needAdd = false;
-										break;
-									}
-								}
-								break;
-							}
-						}
-					}
-				}
-				if (needAdd && !(ds.amount[0]==0 && ds.amount[1]==0)) { prelist.add(ds.createLoot(ch)); }
-			}
-			if (prelist.isEmpty()) { continue; }
-			int p = this.rnd.nextInt(list.size());
-			if (p==list.size()) { p = list.size() - 1; }
-			if (p<0) { continue; }
-			list.add(prelist.get(p));
+		if (saveDropsName==null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) { return list;}
+		DropsTemplate template = this.templates.get(saveDropsName);
+		if (template == null) { return list; }
+		return template.createDrops(ch, isLooted, attacking);
+	}
+
+	public void setdTo(EntityPlayerMP player) {
+		Server.sendData(player, EnumPacketClient.DROP_GROUP_DATA, new NBTTagCompound());
+		for (String template : this.templates.keySet()) {
+			NBTTagCompound nbtTemplate = new NBTTagCompound();
+			nbtTemplate.setString("Name", template);
+			nbtTemplate.setTag("Groups", this.templates.get(template).getNBT());
+			Server.sendData(player, EnumPacketClient.DROP_GROUP_DATA, nbtTemplate);
 		}
-		return list;
+		Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 	}
 	
 }

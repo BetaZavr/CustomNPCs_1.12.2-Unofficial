@@ -136,8 +136,11 @@ extends Gui
 		String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.money, true, true, false) + CustomNpcs.charCurrencies;
 		GlStateManager.pushMatrix();
 		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-		int x = ((GuiInventory) mc.currentScreen).getGuiLeft()+122;
-		int y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
+		int x=0, y=0;
+		try {
+			x = ((GuiInventory) mc.currentScreen).getGuiLeft()+122;
+			y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
+		} catch (Exception e) { return; }
 		GlStateManager.translate(x, y, 0.0f);
 		mc.renderEngine.bindTexture(this.coinNpc);
 		float s = 16.0f / 250.f;

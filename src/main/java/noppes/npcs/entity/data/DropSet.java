@@ -11,7 +11,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.ITextComponent;
 import noppes.npcs.CustomNpcs;
@@ -158,7 +157,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Enchants
 		if (this.enchants.size() > 0) {
 			for (EnchantSet es : this.enchants) {
-				if (es.chance>=1.0d || es.chance*addChance / 100.0d > Math.random()) {
+				if (es.chance>=1.0d || es.chance*addChance / 100.0d < Math.random()) {
 					int lvlM = es.getMinLevel();
 					int lvlN = es.getMaxLevel();
 					if (lvlM==0 && lvlN==0) { continue; }
@@ -178,7 +177,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Attributes
 		if (this.attributes.size() > 0) {
 			for (AttributeSet as : this.attributes) {
-				if (as.chance>=1.0d || as.chance*addChance / 100.0d > Math.random()) {
+				if (as.chance>=1.0d || as.chance*addChance / 100.0d < Math.random()) {
 					double vM = as.getMinValue();
 					double vN = as.getMaxValue();
 					if (vM==0.0d && vN==0.0d) { continue; }
@@ -202,7 +201,7 @@ public class DropSet implements IInventory, ICustomDrop {
 				dItem.setTagCompound(tag = new NBTTagCompound());
 			}
 			for (DropNbtSet dns : this.tags) {
-				if (dns.values.length>0 && (dns.chance>=1.0d || dns.chance*addChance / 100.0d > Math.random())) {
+				if (dns.values.length>0 && (dns.chance>=1.0d || dns.chance*addChance / 100.0d < Math.random())) {
 					tag = dns.getConstructoredTag(new NBTWrapper(tag)).getMCNBT();
 				}
 			}
@@ -364,11 +363,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		nbtDS.setBoolean("LootMode", this.lootMode);
 		nbtDS.setBoolean("TiedToLevel", this.tiedToLevel);
 		nbtDS.setInteger("QuestId", this.questId);
-		NBTTagList cnts = new NBTTagList();
-		for (int i : this.amount) {
-			cnts.appendTag(new NBTTagInt(i));
-		}
-		nbtDS.setTag("Amount", cnts);
+		nbtDS.setIntArray("Amount", this.amount);
 		NBTTagList ench = new NBTTagList();
 		for (EnchantSet es : this.enchants) {
 			ench.appendTag(es.getNBT());
@@ -441,11 +436,19 @@ public class DropSet implements IInventory, ICustomDrop {
 		this.lootMode = nbtDS.getBoolean("LootMode");
 		this.tiedToLevel = nbtDS.getBoolean("TiedToLevel");
 		this.questId = nbtDS.getInteger("QuestId");
-		int[] cnts = new int[2];
-		for (int i = 0; i < 2; i++) {
-			cnts[i] = nbtDS.getTagList("Amount", 3).getIntAt(i);
+		int[] cnts = nbtDS.getIntArray("Amount");
+		if (nbtDS.hasKey("Amount", 9)) {
+			cnts = new int[2];
+			for (int i = 0; i < 2; i++) {
+				cnts[i] = nbtDS.getTagList("Amount", 3).getIntAt(i);
+			}
 		}
-		this.amount = cnts;
+		if (cnts.length!=2) {
+			int m = 1, n = 1;
+			if (cnts.length>=1) { m = cnts[0]; }
+			if (cnts.length>=2) { n = cnts[1]; }
+			cnts = new int[] { m, n };
+		}
 		List<EnchantSet> ench = new ArrayList<EnchantSet>();
 		for (NBTBase ne : nbtDS.getTagList("EnchantSettings", 10)) {
 			EnchantSet es = new EnchantSet(this);
@@ -468,6 +471,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		this.tags = tgsl;
 		this.pos = nbtDS.getInteger("Slot");
+		this.setAmount(cnts[0], cnts[1]);
 	}
 
 	@Override
@@ -598,17 +602,12 @@ public class DropSet implements IInventory, ICustomDrop {
 			newMin = max;
 			newMax = min;
 		}
-		if (newMin < 1) {
-			newMin = 1;
-		} else if (newMin > this.item.getMaxStackSize()) {
-			newMin = this.item.getMaxStackSize();
-		}
-		if (newMax < newMin) {
-			newMax = newMin;
-		} else if (newMax > this.item.getMaxStackSize()) {
-			newMax = this.item.getMaxStackSize();
-		}
-		this.amount = new int[] { newMin, newMax };
+		if (newMin < 1) { newMin = 1; }
+		if (newMin > this.item.getMaxStackSize()) { newMin = this.item.getMaxStackSize(); }
+		if (newMax < newMin) { newMax = newMin; }
+		if (newMax > this.item.getMaxStackSize()) { newMax = this.item.getMaxStackSize(); }
+		this.amount[0] = newMin;
+		this.amount[1] = newMax;
 	}
 
 	@Override

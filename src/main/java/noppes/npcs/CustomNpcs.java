@@ -77,6 +77,7 @@ import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.controllers.DialogController;
+import noppes.npcs.controllers.DropController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.GlobalDataController;
 import noppes.npcs.controllers.LinkedNpcController;
@@ -339,11 +340,11 @@ public class CustomNpcs {
 	
 	@Mod.EventHandler
 	public static void postload(FMLPostInitializationEvent event) { // New
-		if (CustomNpcs.maxLv < 1) {
-			CustomNpcs.maxLv = 1;
-		} else if (CustomNpcs.maxLv > 999) {
-			CustomNpcs.maxLv = 999;
-		}
+		if (CustomNpcs.maxLv < 1) { CustomNpcs.maxLv = 1; }
+		else if (CustomNpcs.maxLv > 999) { CustomNpcs.maxLv = 999; }
+		if (CustomNpcs.maxBuilderBlocks < 20) { CustomNpcs.maxBuilderBlocks = 20; }
+		else if (CustomNpcs.maxBuilderBlocks > 25000) { CustomNpcs.maxBuilderBlocks = 25000; }
+		if (CustomNpcs.maxItemInDropsNPC < 5) { CustomNpcs.maxItemInDropsNPC = 5; }
 		try {
 			CustomNpcs.charCurrencies = new String(Character.toChars(Integer.parseInt(CustomNpcs.charCurrencies)));
 		} catch (Exception e) {
@@ -411,6 +412,7 @@ public class CustomNpcs {
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
 		FactionController.instance.load();
+		new DropController();
 		new RecipeController();
 		new PlayerDataController();
 		new TransportController();
@@ -453,6 +455,7 @@ public class CustomNpcs {
 		ItemScripted.Resources.clear();
 		MarcetController.getInstance().saveMarcets();
 		RecipeController.getInstance().save();
+		DropController.getInstance().save();
 		// End
 		CustomNpcs.Server = null;
 	}

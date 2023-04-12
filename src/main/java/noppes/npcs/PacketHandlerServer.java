@@ -50,6 +50,7 @@ import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
+import noppes.npcs.controllers.DropController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.LinkedNpcController;
 import noppes.npcs.controllers.MarcetController;
@@ -66,6 +67,7 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
+import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.Marcet;
@@ -117,7 +119,7 @@ public class PacketHandlerServer {
 				ItemStack item = player.inventory.getCurrentItem();
 				EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 				List<EnumPacketServer> notHasPerm = Lists.<EnumPacketServer>newArrayList();
-				if (!type.needsNpc || npc!= null) {
+				if (!type.needsNpc || npc!=null) {
 					if (!type.hasPermission() || CustomNpcsPermissions.hasPermission(player, type.permission)) {
 						if (!notHasPerm.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
 							this.warn(player, "tried to use custom npcs without a tool in hand, possibly a hacker");
@@ -125,6 +127,8 @@ public class PacketHandlerServer {
 							this.handlePacket(type, buffer, player, npc);
 						}
 					}
+				} else {
+					LogWriter.error("Error with EnumPacketServer." + type+". Not found Editing Npc");
 				}
 			} catch (Exception e) {
 				LogWriter.error("Error with EnumPacketServer." + type, e);
@@ -222,8 +226,9 @@ public class PacketHandlerServer {
 			}
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, (EntityNPCInterface) entity);
 		} else if (type == EnumPacketServer.RemoteDelete) {
-			Entity entity = player.world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityLivingBase)) {
+			int id = buffer.readInt();
+			Entity entity = player.world.getEntityByID(id);
+			if (!(entity instanceof EntityLivingBase)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
@@ -558,26 +563,46 @@ public class PacketHandlerServer {
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.MainmenuInvGet) {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
+			DropController.getInstance().setdTo(player);
 		} else if (type == EnumPacketServer.MainmenuInvSave) {
 			npc.inventory.readEntityFromNBT(Server.readNBT(buffer));
 			npc.updateAI = true;
 			npc.updateClient = true;
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.inventory.writeEntityToNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.MainmenuInvDropSave) {
+			int dropType = buffer.readInt();
+			int groupId = buffer.readInt();
 			int slot = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
 			IItemStack stack = NpcAPI.Instance().getIItemStack(new ItemStack(compound.getCompoundTag("Item")));
-			System.out.println("slot: "+slot);
-			System.out.println("slot: "+stack);
-			if (slot == -1) { // add new
-				if (stack.isEmpty()) { return; }
-				DropSet drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d);
-				drop.load(compound);
+			DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
+			if (stack.isEmpty()) { // delete
+				if (dropType==1) {
+					if (template!=null) {
+						if (slot<0) { template.removeGroup(groupId); }
+						else { template.removeDrop(groupId, slot); }
+					}
+				}
+				else { npc.inventory.removeDrop(slot); }
+			} else if (slot == -1) { // add new
+				DropSet drop = null;
+				if (dropType==1) {
+					if (template!=null) {
+						template.addDropItem(groupId, stack, 1.0d);
+					}
+				}
+				else { drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d); }
+				if (drop!=null) { drop.load(compound); }
 			}
-			else if (stack.isEmpty()) { // remove
-				npc.inventory.removeDrop(slot);
-			} else if (npc.inventory.drops.containsKey(slot)) { // resave
-				npc.inventory.drops.get(slot).load(compound);
+			else { // resave
+				if (dropType==1) {
+					if (template!=null && template.groups.containsKey(groupId) && template.groups.get(groupId).containsKey(slot)) {
+						template.groups.get(groupId).get(slot).load(compound);
+					}
+				}
+				else if (npc.inventory.drops.containsKey(slot)) { // resave
+					npc.inventory.drops.get(slot).load(compound);
+				}
 			}
 			npc.updateAI = true;
 			npc.updateClient = true;

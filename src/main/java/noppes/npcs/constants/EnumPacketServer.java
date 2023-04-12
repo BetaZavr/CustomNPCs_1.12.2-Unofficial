@@ -8,7 +8,7 @@ public enum EnumPacketServer
 	Delete(CustomNpcsPermissions.NPC_DELETE, true), 
 	RemoteMainMenu(CustomNpcsPermissions.NPC_GUI), 
 	NpcMenuClose(CustomNpcsPermissions.NPC_GUI, true), 
-	RemoteDelete(CustomNpcsPermissions.NPC_DELETE, true), 
+	RemoteDelete(CustomNpcsPermissions.NPC_DELETE), 
 	RemoteFreeze(CustomNpcsPermissions.NPC_FREEZE), 
 	RemoteReset(CustomNpcsPermissions.NPC_RESET), 
 	SpawnMob(CustomNpcsPermissions.SPAWNER_MOB), 

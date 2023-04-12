@@ -26,6 +26,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.ForgeHooks;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
@@ -52,10 +53,11 @@ INPCInventory {
 	public boolean lootMode;
 	private int maxExp;
 	private int minExp;
-	private int maxAmount;
+	public int dropType; // 0-npc drops, 1-template drops, 2-both
 	EntityNPCInterface npc;
 	public Map<Integer, IItemStack> weapons;
 	public String saveDropsName;
+	public int limitation;
 
 	public DataInventory(EntityNPCInterface npc) {
 		this.weapons = Maps.<Integer, IItemStack>newHashMap();
@@ -65,20 +67,21 @@ INPCInventory {
 		this.maxExp = 0;
 		this.npc = npc;
 		this.lootMode = true;
-		this.maxAmount = 0;
 		this.saveDropsName = "";
+		this.dropType = 0;
+		this.limitation=0;
 	}
 	
 	@Override
 	public ICustomDrop addDropItem(IItemStack item, double chance) {
-		if (this.drops.size() >= 18) {
-			throw new CustomNPCsException("Bad maximum size: " + this.drops.size() + " (18 slots maximum)");
+		if (this.drops.size() >= CustomNpcs.maxItemInDropsNPC) {
+			throw new CustomNPCsException("Bad maximum size: " + this.drops.size() + " ("+CustomNpcs.maxItemInDropsNPC+" slots maximum)");
 		}
 		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
 		DropSet ds = new DropSet(this);
 		ds.item = item;
 		ds.chance = chance;
-		ds.pos = this.drops.size();
+		ds.pos = 0+this.drops.size();
 		this.drops.put(ds.pos, ds);
 		return (ICustomDrop) ds;
 	}
@@ -89,8 +92,6 @@ INPCInventory {
 		this.weapons.clear();
 		this.minExp = 0;
 		this.maxExp = 0;
-		this.maxAmount = 0;
-		this.saveDropsName = "";
 	}
 
 	public void closeInventory(EntityPlayer player) {
@@ -118,14 +119,15 @@ INPCInventory {
 				}
 			}
 		}
-		if (!this.saveDropsName.isEmpty()) {
+		if (this.dropType==1 && !this.saveDropsName.isEmpty()) {
 			DropController dData = DropController.getInstance();
 			prelist = dData.createDrops(this.saveDropsName, ch, isLooted, attacking);
 		}
-		if (prelist.isEmpty()) {
+		if (prelist.isEmpty() || this.dropType==2) {
 			for (DropSet ds : this.drops.values()) {
 				double c = ds.chance * ch / 100.0d;
-				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c<1.0d && c > Math.random())) { continue; }
+				double r = Math.random();
+				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c<1.0d && c < r)) { continue; }
 				boolean needAdd = true;
 				if (ds.getQuestID() > 0) {
 					if (attacking instanceof EntityPlayer) {
@@ -146,18 +148,12 @@ INPCInventory {
 				if (needAdd && !(ds.amount[0]==0 && ds.amount[1]==0)) { prelist.add(ds.createLoot(ch)); }
 			}
 		}
-		if (this.maxAmount > 0 && prelist.size() > this.maxAmount) {
-			List<IItemStack> list = new ArrayList<IItemStack>();
-			int max = this.maxAmount;
-			for (int i = 0; i < max; i++) {
-				int index = (int) Math.round((double) prelist.size() * Math.random());
-				if (index == prelist.size()) {
-					index--;
-				}
-				list.add(prelist.get(index).copy());
+		if (this.limitation>0 && this.limitation>prelist.size()) {
+			while (prelist.size()>this.limitation) {
+				int index = (int) (Math.random() * prelist.size());
+				if (index==prelist.size()) { index = prelist.size()-1; }
 				prelist.remove(index);
 			}
-			return list.toArray(new IItemStack[list.size()]);
 		}
 		return prelist.toArray(new IItemStack[prelist.size()]);
 	}
@@ -340,10 +336,6 @@ INPCInventory {
 		return this.weapons.get(2);
 	}
 
-	public int getMaxAmount() {
-		return this.npc.inventory.maxAmount;
-	}
-
 	public String getName() {
 		return "NPC Inventory";
 	}
@@ -434,8 +426,11 @@ INPCInventory {
 		this.drops.clear();
 		this.drops.putAll(drs);
 		this.lootMode = compound.getBoolean("LootMode");
-		this.maxAmount = compound.getInteger("MaxAmount");
 		this.saveDropsName = compound.getString("SaveDropsName");
+		this.dropType = compound.getInteger("DropType");
+		this.limitation = compound.getInteger("Limitation");
+		if (this.dropType<0) { this.dropType *= -1; }
+		if (this.dropType>2) { this.dropType %= 3; }
 	}
 
 	public boolean removeDrop(ICustomDrop drop) {
@@ -543,14 +538,6 @@ INPCInventory {
 		this.npc.updateClient = true;
 	}
 
-	public void setMaxAmount(int amount) {
-		int newAmount = amount;
-		if (amount < 0 || amount >= this.drops.size()) {
-			newAmount = 0;
-		}
-		this.npc.inventory.maxAmount = newAmount;
-	}
-
 	public void setProjectile(IItemStack item) {
 		this.weapons.put(1, item);
 		this.npc.updateAI = true;
@@ -573,12 +560,14 @@ INPCInventory {
 		NBTTagList dropList = new NBTTagList();
 		for (int slot : this.drops.keySet()) {
 			if (this.drops.get(slot)==null) { continue; }
+			if (this.drops.get(slot).pos!=slot) { this.drops.get(slot).pos = slot; }
 			dropList.appendTag(this.drops.get(slot).getNBT());
 		}
 		compound.setTag("NpcInv", dropList);
 		compound.setBoolean("LootMode", this.lootMode);
-		compound.setInteger("MaxAmount", this.maxAmount);
 		compound.setString("SaveDropsName", this.saveDropsName);
+		compound.setInteger("DropType", this.dropType);
+		compound.setInteger("Limitation", this.limitation);
 		return compound;
 	}
 

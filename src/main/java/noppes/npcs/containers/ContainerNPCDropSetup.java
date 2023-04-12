@@ -8,6 +8,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.client.gui.mainmenu.GuiDropEdit;
+import noppes.npcs.controllers.DropController;
+import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DropSet;
 
@@ -16,10 +18,17 @@ extends Container {
 	
 	public DropSet inventoryDS;
 
-	public ContainerNPCDropSetup(EntityNPCInterface npc, int pos, EntityPlayer player) {
+	public ContainerNPCDropSetup(EntityNPCInterface npc, EntityPlayer player, int dropType, int groupId, int pos) {
 		this.inventoryDS = null;
-		if (npc.inventory.drops.containsKey(pos)) {
-			this.inventoryDS = npc.inventory.drops.get(pos);
+		if (dropType==1) {
+			DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
+			if (template!=null && template.groups.containsKey(groupId) && template.groups.get(groupId).containsKey(pos)) {
+				this.inventoryDS = template.groups.get(groupId).get(pos);
+			}
+		} else {
+			if (npc.inventory.drops.containsKey(pos)) {
+				this.inventoryDS = npc.inventory.drops.get(pos);
+			}
 		}
 		if (this.inventoryDS == null) { this.inventoryDS = new DropSet(npc.inventory); }
 		this.addSlotToContainer(new Slot(this.inventoryDS, 0, 202, 135));

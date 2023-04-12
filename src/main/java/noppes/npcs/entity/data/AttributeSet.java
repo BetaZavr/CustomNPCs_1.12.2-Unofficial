@@ -16,7 +16,7 @@ public class AttributeSet implements IAttributeSet {
 	public IAttribute attr;
 	public double chance;
 	public DropSet parent;
-	public int slot;
+	public int slot; // -1:ALL, 0:MAINHAND, 1:OFFHAND, 2:FEET, 3:LEGS, 4:CHEST, 5:HEAD
 	public double[] values;
 
 	public AttributeSet(DropSet p) {

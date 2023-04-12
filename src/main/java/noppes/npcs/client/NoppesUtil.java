@@ -105,8 +105,8 @@ public class NoppesUtil {
 		requestOpenGUI(gui, 0, 0, 0);
 	}
 
-	public static void requestOpenGUI(EnumGuiType gui, int i, int j, int k) {
-		Client.sendData(EnumPacketServer.Gui, gui.ordinal(), i, j, k);
+	public static void requestOpenGUI(EnumGuiType gui, int x, int y, int z) {
+		Client.sendData(EnumPacketServer.Gui, gui.ordinal(), x, y, z);
 	}
 
 	public static void setLastNpc(EntityNPCInterface npc) {

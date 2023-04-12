@@ -51,6 +51,7 @@ public enum EnumPacketClient
 	SAVE_SCHEMATIC, // New
 	GET_SCHEMATIC, // New
 	UPDATE_HUD, // New
-	DIMENSIOS_IDS; // New
+	DIMENSIOS_IDS, // New
+	DROP_GROUP_DATA; // New
 	
 }

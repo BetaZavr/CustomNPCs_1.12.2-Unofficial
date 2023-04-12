@@ -24,6 +24,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -32,6 +33,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
@@ -75,8 +77,6 @@ import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.NBTJsonUtil;
-import noppes.npcs.util.NBTJsonUtil.JsonException;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class CommonProxy
@@ -99,7 +99,7 @@ implements IGuiHandler {
 		switch (gui) {
 			case CustomChest: { return new ContainerCustomChest(player, x); }
 			case MainMenuInv: { return new ContainerNPCInv(npc, player); }
-			case MainMenuInvDrop: { return new ContainerNPCDropSetup(npc, x, player); } // New
+			case MainMenuInvDrop: { return new ContainerNPCDropSetup(npc, player, x, y, z); } // New
 			case PlayerAnvil: { return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z)); }
 			case PlayerBankSmall: { return new ContainerNPCBankSmall(player, x, y); }
 			case PlayerBankUnlock: { return new ContainerNPCBankUnlock(player, x, y); }
@@ -322,12 +322,11 @@ implements IGuiHandler {
 		File itemModelsDir = new File(CustomNpcs.Dir, "assets/customnpcs/models/item");
 		if (!blockModelsDir.exists()) { blockModelsDir.mkdirs(); }
 		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
-		char crEnt = Character.toChars(0x000A)[0];
-		char crTab = Character.toChars(0x0009)[0];
+		String crEnt = ""+((char) 10);
+		String crTab = ""+((char) 9);
 		
 		File blockstate = new File(blockstatesDir, fileName.toLowerCase()+".json");
 		if (!blockstate.exists()) {
-			NBTTagCompound nbtState = new NBTTagCompound();
 			String jsonState = "";
 			if (customblock instanceof CustomLiquid) {
 				jsonState = "{" + crEnt +
@@ -365,7 +364,8 @@ implements IGuiHandler {
 					crTab + crTab + "}" + crEnt +
 					crTab + "}" + crEnt +
 					"}";
-			} else if (customblock instanceof CustomBlockStairs) {
+			}
+			else if (customblock instanceof CustomBlockStairs) {
 				jsonState = "{" + crEnt +
 					crTab + "\"_comment\": \"Custom Block Stairs created by default\"," + crEnt +
 					crTab + "\"variants\": {" + crEnt +
@@ -410,9 +410,10 @@ implements IGuiHandler {
 					crTab + crTab + "\"facing=south,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
 					crTab + crTab + "\"facing=north,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }" + crEnt +
 					crTab + "}" + crEnt + "}";
-			} else if (customblock instanceof CustomBlockSlab) {
+			}
+			else if (customblock instanceof CustomBlockSlab) {
 				if (customblock instanceof CustomBlockSlab.CustomBlockSlabSingle) {
-					jsonState = "{" + 
+					jsonState = "{" + crEnt +
 						crTab + "\"_comment\": \"Custom Block Slab created by default\"," + crEnt +
 						crTab + "\"variants\": {" + crEnt +
 						crTab + crTab + "\"half=bottom,type=normal\": { \"model\": \"customnpcs:bottom_"+fileName.toLowerCase()+"\" }," + crEnt +
@@ -420,39 +421,44 @@ implements IGuiHandler {
 						crTab + crTab + "\"inventory\": { \"model\": \"customnpcs:bottom_"+fileName.toLowerCase()+"\" }" + crEnt +
 						crTab + "}" + crEnt + "}";
 				} else {
-					jsonState = "{" + 
+					jsonState = "{" + crEnt +
 						crTab + "\"_comment\": \"Custom Block Double Slab created by default\"," + crEnt +
 						crTab + "\"variants\": {" + crEnt +
 						crTab + crTab + "\"type=normal\":  { \"model\": \"customnpcs:custom_blockexample\" }," + crEnt +
 						crTab + crTab + "\"inventory\":  { \"model\": \"customnpcs:custom_blockexample\" }" + crEnt +
 						crTab + "}" + crEnt + "}";
 				}
-			} else {
-				nbtState.setTag("variants", new NBTTagCompound());
-				nbtState.setString("_comment", "Custom Block created by default");
-				nbtState.getCompoundTag("variants").setTag("normal", new NBTTagCompound());
-				nbtState.getCompoundTag("variants").getCompoundTag("normal").setString("model", CustomNpcs.MODID+":"+fileName.toLowerCase());
 			}
-			if (!jsonState.isEmpty()) {
-				OutputStreamWriter writer = null;
-				try {
-					writer = new OutputStreamWriter(new FileOutputStream(blockstate), Charset.forName("UTF-8"));
-					writer.write(jsonState);
-				} catch (IOException e) { }
-				finally {
-					try {
-						if (writer != null) {
-							writer.close();
-							LogWriter.debug("Create Default Blockstate for \""+name+"\" block");
-						}
-					} catch (IOException e) { }
+			else if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
+				NBTTagCompound data = ((CustomBlock) customblock).nbtData.getCompoundTag("Property");
+				if (data.getByte("Type")==(byte) 4) {
+					jsonState = "{" + crEnt +
+							crTab + "\"_comment\": \"Custom Fasing Block created by default\"," + crEnt +
+							crTab + "\"variants\": {" + crEnt +
+							crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt +
+							crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt;
+					for (EnumFacing ef : EnumFacing.VALUES) {
+						if (ef==EnumFacing.DOWN || ef==EnumFacing.UP) { continue; }
+						jsonState += crTab + crTab + "\"" + data.getString("Name") + "=" + ef.getName2() + "\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\"";
+						if (ef==EnumFacing.SOUTH) { jsonState += ",\"y\": 180"; }
+						else if (ef==EnumFacing.WEST) { jsonState += ",\"y\": 270"; }
+						else if (ef==EnumFacing.EAST) { jsonState += ",\"y\": 90"; }
+						jsonState += " }," + crEnt;
+					}
+					jsonState = jsonState.substring(0, jsonState.length()-2) + crEnt + crTab + "}" + crEnt + "}";
+					
 				}
-			} else {
-				try {
-					NBTJsonUtil.SaveFile(blockstate, nbtState);
-					LogWriter.debug("Create Default Blockstate for \""+name+"\" block");
-				}
-				catch (IOException | JsonException e) { }
+			}
+			if (jsonState.isEmpty()) {
+				jsonState = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Block created by default\"," + crEnt +
+						crTab + "\"variants\": {" + crEnt +
+						crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt + 
+						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }" + crEnt + 
+						crTab + "}" + crEnt + "}";
+			}
+			if (this.saveFile(blockstate, jsonState)) {
+				LogWriter.debug("Create Default Blockstate for \""+fileName.toLowerCase()+"\" block");
 			}
 		}
 		
@@ -461,48 +467,82 @@ implements IGuiHandler {
 			blockModel = new File(blockModelsDir, "bottom_"+fileName.toLowerCase()+".json");
 		}
 		if (!blockModel.exists()) {
-			NBTTagCompound nbtModel = new NBTTagCompound();
+			String jsonModel = "";
 			if (customblock instanceof CustomBlockStairs) {
-				nbtModel.setString("_comment", "Custom Block Stairs created by default");
-				nbtModel.setString("parent", "block/inner_stairs");
-				nbtModel.setTag("textures", new NBTTagCompound());
-				nbtModel.getCompoundTag("textures").setString("side", CustomNpcs.MODID+":blocks/blockexample");
-				nbtModel.getCompoundTag("textures").setString("top", CustomNpcs.MODID+":blocks/blockexample");
-				nbtModel.getCompoundTag("textures").setString("bottom", CustomNpcs.MODID+":blocks/blockexample");
-				try { NBTJsonUtil.SaveFile(new File(blockModelsDir, fileName.toLowerCase()+"_inner.json"), nbtModel.copy()); } catch (IOException | JsonException e) { }
-				nbtModel.setString("parent", "block/outer_stairs");
-				try { NBTJsonUtil.SaveFile(new File(blockModelsDir, fileName.toLowerCase()+"_outer.json"), nbtModel.copy()); } catch (IOException | JsonException e) { }
-				nbtModel.setString("parent", "block/stairs");
-			} else if (customblock instanceof CustomBlockSlab) {
-				if (customblock instanceof CustomBlockSlab.CustomBlockSlabSingle) {
-					nbtModel.setString("_comment", "Custom Block Slab created by default");
-					nbtModel.setString("parent", "block/upper_slab");
-					nbtModel.setTag("textures", new NBTTagCompound());
-					nbtModel.getCompoundTag("textures").setString("side", CustomNpcs.MODID+":blocks/blockexample");
-					nbtModel.getCompoundTag("textures").setString("top", CustomNpcs.MODID+":blocks/blockexample");
-					nbtModel.getCompoundTag("textures").setString("bottom", CustomNpcs.MODID+":blocks/blockexample");
-					try { NBTJsonUtil.SaveFile(new File(blockModelsDir, "upper_"+fileName.toLowerCase()+".json"), nbtModel.copy()); } catch (IOException | JsonException e) { }
-					nbtModel.setString("parent", "block/half_slab");
+				jsonModel = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Stairs Block created by default\"," + crEnt +
+						crTab + "\"parent\": \"block/stairs\"," + crEnt +
+						crTab + "\"textures\": {" + crEnt +
+						crTab + crTab + "\"top\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_top\"," + crEnt + 
+						crTab + crTab + "\"bottom\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_bottom\"," + crEnt + 
+						crTab + crTab + "\"side\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_side\"" + crEnt + 
+						crTab + "}" + crEnt + "}";
+				if (this.saveFile(blockModel, jsonModel)) {
+					LogWriter.debug("Create Default Stairs Block Model for \""+fileName.toLowerCase()+"\" block");
 				}
-			} else {
-				nbtModel.setTag("textures", new NBTTagCompound());
-				nbtModel.getCompoundTag("textures").setString("all", CustomNpcs.MODID+":blocks/"+name.toLowerCase());
-				nbtModel.setString("_comment", "Custom Block created by default");
-				nbtModel.setString("parent", "block/cube_all");
+				jsonModel = jsonModel.replace("block/stairs", "block/inner_stairs");
+				if (this.saveFile(new File(blockModelsDir, fileName.toLowerCase()+"_inner.json"), jsonModel)) {
+					LogWriter.debug("Create Default Inner Stairs Block Model for \""+fileName.toLowerCase()+"\" block");
+				}
+				jsonModel = jsonModel.replace("block/inner_stairs", "block/outer_stairs");
+				if (this.saveFile(new File(blockModelsDir, fileName.toLowerCase()+"_outer.json"), jsonModel)) {
+					LogWriter.debug("Create Default Outer Stairs Block Model for \""+fileName.toLowerCase()+"\" block");
+				}
 			}
-			try {
-				if (nbtModel.getKeySet().size()>0) {
-					NBTJsonUtil.SaveFile(blockModel, nbtModel);
+			else if (customblock instanceof CustomBlockSlab) {
+				if (customblock instanceof CustomBlockSlab.CustomBlockSlabSingle) {
+					jsonModel = "{" + crEnt +
+							crTab + "\"_comment\": \"Custom Slab Block created by default\"," + crEnt +
+							crTab + "\"parent\": \"block/half_slab\"," + crEnt +
+							crTab + "\"textures\": {" + crEnt +
+							crTab + crTab + "\"top\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_top\"," + crEnt + 
+							crTab + crTab + "\"bottom\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_bottom\"," + crEnt + 
+							crTab + crTab + "\"side\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_side\"" + crEnt + 
+							crTab + "}" + crEnt + "}";
+					this.saveFile(blockModel, jsonModel);
+					jsonModel = jsonModel.replace("block/half_slab", "block/upper_slab");
+					if (this.saveFile(new File(blockModelsDir, "upper_"+fileName.toLowerCase()+".json"), jsonModel)) {
+						LogWriter.debug("Create Default Slab Block Model for \""+fileName.toLowerCase()+"\" block");
+					}
+				}
+			}
+			else {
+				if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
+					if (((CustomBlock) customblock).INT!=null) {
+						
+					}
+					else if (((CustomBlock) customblock).FACING!=null) {
+						jsonModel = "{" + crEnt +
+								crTab + "\"_comment\": \"Custom Fasing Block created by default\"," + crEnt +
+								crTab + "\"parent\": \"block/orientable\"," + crEnt +
+								crTab + "\"textures\": {" + crEnt +
+								crTab + crTab + "\"top\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_top\"," + crEnt + 
+								crTab + crTab + "\"front\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_front\"," + crEnt + 
+								crTab + crTab + "\"side\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_side\"" + crEnt + 
+								crTab + "}" + crEnt + "}";
+						if (this.saveFile(blockModel, jsonModel)) {
+							LogWriter.debug("Create Default Fasing Block Model for \""+fileName.toLowerCase()+"\" block");
+						}
+					}
+				}
+			}
+			if (jsonModel.isEmpty()) {
+				jsonModel = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Block Model created by default\"," + crEnt +
+						crTab + "\"parent\": \"block/cube_all\"," + crEnt +
+						crTab + "\"textures\": {" + crEnt +
+						crTab + crTab + "\"all\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"\"" + crEnt + 
+						crTab + "}" + crEnt + "}";
+				if (this.saveFile(blockModel, jsonModel)) {
 					LogWriter.debug("Create Default Block Model for \""+fileName.toLowerCase()+"\" block");
 				}
 			}
-			catch (IOException | JsonException e) { }
 		}
 		
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
 		if (!itemModel.exists()) {
 			String jsonStr = "{" + crEnt +
-					crTab + "\"_comment\", \"Custom Item Block created by default\"" + crEnt +
+					crTab + "\"_comment\": \"Custom Item Block created by default\"," + crEnt +
 					crTab + "\"parent\": \"" + CustomNpcs.MODID + ":block/" + fileName.toLowerCase() + "\"," + crEnt +
 					crTab + "\"display\": {" + crEnt +
 					crTab + crTab + "\"thirdperson\": {" + crEnt +
@@ -512,18 +552,9 @@ implements IGuiHandler {
 					crTab + crTab + "}" + crEnt +
 					crTab + "}" + crEnt +
 					"}";
-			OutputStreamWriter writer = null;
-			try {
-				writer = new OutputStreamWriter(new FileOutputStream(itemModel), Charset.forName("UTF-8"));
-				writer.write(jsonStr);
-			} catch (IOException e) { }
-			finally {
-				try {
-					if (writer != null) {
-						writer.close();
-						LogWriter.debug("Create Default Item Model for \""+name+"\" block");
-					}
-				} catch (IOException e) { }
+
+			if (this.saveFile(itemModel, jsonStr)) {
+				LogWriter.debug("Create Default Block Item Model for \""+name+"\" block");
 			}
 		}
 	}
@@ -535,13 +566,15 @@ implements IGuiHandler {
 		File itemModelsDir = new File(CustomNpcs.Dir, "assets/customnpcs/models/item");
 		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
+
+		String crEnt = ""+((char) 10);
+		String crTab = ""+((char) 9);
+		String jsonModel = "";
 		if (!itemModel.exists()) {
 			if (customitem instanceof CustomShield || customitem instanceof CustomBow) {
 				boolean isBow = (customitem instanceof CustomBow);
-				char crEnt = Character.toChars(0x000A)[0];
-				char crTab = Character.toChars(0x0009)[0];
-				String jsonStr = "{" + crEnt +
-						crTab + "\"_comment\": \"Custom item created by default\"," + crEnt +
+				jsonModel = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom "+(isBow ? "Bow" : "Shield")+" Item Model created by default\"," + crEnt +
 						crTab + "\"parent\": \"item/generated\"," + crEnt + 
 						crTab + "\"textures\": {" + crEnt +
 						crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+(isBow ? "weapons/"+name +"_standby": name)+"\"" + crEnt +
@@ -610,23 +643,14 @@ implements IGuiHandler {
 						: ""+crEnt) +
 						crTab + "]" + crEnt +
 						"}";
-				OutputStreamWriter writer = null;
-				try {
-					writer = new OutputStreamWriter(new FileOutputStream(itemModel), Charset.forName("UTF-8"));
-					writer.write(jsonStr);
-				} catch (IOException e) { }
-				finally {
-					try {
-						if (writer != null) {
-							writer.close();
-							LogWriter.debug("Create Default Item Model for \""+name+"\" item");
-						}
-					} catch (IOException e) { }
+				if (this.saveFile(itemModel, jsonModel)) {
+					LogWriter.debug("Create Default "+(isBow ? "Bow" : "Shield")+" Item Model for \""+name+"\" item");
 				}
 				if (customitem instanceof CustomShield) {
 					File blockingModel = new File(itemModelsDir, fileName.toLowerCase()+"_blocking.json");
 					if (!blockingModel.exists()) {
-						jsonStr = "{" + crEnt +
+						jsonModel = "{" + crEnt +
+								crTab + "\"_comment\": \"Custom Shield Blocking Item Model created by default\"," + crEnt +
 								crTab + "\"parent\": \"item/generated\"," + crEnt +
 								crTab + "\"textures\": {" + crEnt +
 								crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name+"\"" + crEnt +
@@ -657,17 +681,8 @@ implements IGuiHandler {
 								crTab + crTab + "}" + crEnt +
 								crTab + "}" + crEnt +
 								"}";
-						writer = null;
-						try {
-							writer = new OutputStreamWriter(new FileOutputStream(blockingModel), Charset.forName("UTF-8"));
-							writer.write(jsonStr);
-						} catch (IOException e) { }
-						finally {
-							try {
-								if (writer != null) {
-									writer.close();
-								}
-							} catch (IOException e) { }
+						if (this.saveFile(blockingModel, jsonModel)) {
+							LogWriter.debug("Create Default Shield Blocking Item Model for \""+name+"\" item");
 						}
 					}
 				}
@@ -675,27 +690,24 @@ implements IGuiHandler {
 					for (int i=0; i<3; i++) {
 						File pulling = new File(itemModelsDir, fileName.toLowerCase()+"_pulling_"+i+".json");
 						if (!pulling.exists()) {
-							NBTTagCompound nbtModel = new NBTTagCompound();
-							nbtModel.setTag("textures", new NBTTagCompound());
-							nbtModel.setString("_comment", "Custom item created by default");
-							nbtModel.setString("parent", CustomNpcs.MODID+":item/"+fileName);
-							nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/weapons/"+name.toLowerCase()+"_pulling_"+i);
-							try {
-								NBTJsonUtil.SaveFile(pulling, nbtModel);
+							jsonModel = "{" + crEnt +
+									crTab + "\"_comment\": \"Custom Bow Pulling "+i+" Item Model created by default\"," + crEnt +
+									crTab + "\"parent\": \""+CustomNpcs.MODID+":item/"+fileName+"\"," + crEnt +
+									crTab + "\"textures\": {" + crEnt +
+									crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/weapons/"+name.toLowerCase()+"_pulling_"+i+"\"" + crEnt +
+									crTab + "}" + crEnt + "}";
+							if (this.saveFile(pulling, jsonModel)) {
+								LogWriter.debug("Create Default Bow Pulling "+i+" Item Model for \""+name+"\" item");
 							}
-							catch (IOException | JsonException e) { }
 						}
 					}
 				}
-				return;
 			}
 			else if (customitem instanceof CustomFishingRod) {
 				File uncast = new File(itemModelsDir, fileName.toLowerCase()+".json");
-				OutputStreamWriter writer = null;
 				if (!uncast.exists()) {
-					char crEnt = Character.toChars(0x000A)[0];
-					char crTab = Character.toChars(0x0009)[0];
-					String jsonStr ="{" + crEnt +
+					jsonModel ="{" + crEnt +
+							crTab + "\"_comment\": \"Custom Fishing Rod Uncast Item Model created by default\"," + crEnt +
 							crTab + "\"parent\": \"item/handheld_rod\"," + crEnt +
 							crTab + "\"textures\": {" + crEnt +
 							crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name+"_uncast\"" + crEnt +
@@ -709,67 +721,63 @@ implements IGuiHandler {
 							crTab + crTab + "}" + crEnt +
 							crTab + "]" + crEnt +
 							"}";
-					writer = null;
-					try {
-						writer = new OutputStreamWriter(new FileOutputStream(uncast), Charset.forName("UTF-8"));
-						writer.write(jsonStr);
-					} catch (IOException e) { }
-					finally {
-						try {
-							if (writer != null) {
-								writer.close();
-							}
-						} catch (IOException e) { }
+					if (this.saveFile(itemModel, jsonModel)) {
+						LogWriter.debug("Create Default Fishing Rod Uncast Item Model for \""+name+"\" item");
 					}
 				}
 				File cast = new File(itemModelsDir, fileName.toLowerCase()+"_cast.json");
 				if (!cast.exists()) {
-					char crEnt = Character.toChars(0x000A)[0];
-					char crTab = Character.toChars(0x0009)[0];
-					String jsonStr ="{" + crEnt +
+					jsonModel ="{" + crEnt +
+							crTab + "\"_comment\": \"Custom Fishing Rod Cast Item Model created by default\"," + crEnt +
 							crTab + "\"parent\": \"item/fishing_rod\"," + crEnt +
 							crTab + "\"textures\": {" + crEnt +
 							crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name+"_cast\"" + crEnt +
 							crTab + "}" + crEnt +
 							"}";
-					writer = null;
-					try {
-						writer = new OutputStreamWriter(new FileOutputStream(cast), Charset.forName("UTF-8"));
-						writer.write(jsonStr);
-					} catch (IOException e) { }
-					finally {
-						try {
-							if (writer != null) {
-								writer.close();
-							}
-						} catch (IOException e) { }
+					if (this.saveFile(new File(itemModelsDir, fileName.toLowerCase()+"_cast.json"), jsonModel)) {
+						LogWriter.debug("Create Default Fishing Rod Cast Item Model for \""+name+"\" item");
 					}
 				}
-				return;
 			}
-			NBTTagCompound nbtModel = new NBTTagCompound();
-			nbtModel.setTag("textures", new NBTTagCompound());
-			nbtModel.setString("_comment", "Custom item created by default");
-			nbtModel.setString("parent", "minecraft:item/generated");
-			if (customitem instanceof CustomWeapon) {
-				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/weapons/"+name.toLowerCase());
+			if (jsonModel.isEmpty()) {
+				jsonModel ="{" + crEnt +
+						crTab + "\"_comment\": \"Custom Item Model created by default\"," + crEnt +
+						crTab + "\"parent\": \"minecraft:item/generated\"," + crEnt +
+						crTab + "\"textures\": {" + crEnt;
+				if (customitem instanceof CustomWeapon) {
+					jsonModel += crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/weapons/"+name.toLowerCase()+"\"" + crEnt;
+				}
+				else if (customitem instanceof CustomTool) {
+					jsonModel += crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name.toLowerCase()+"\"" + crEnt;
+					jsonModel = jsonModel.replace("item/generated", "item/handheld");
+				}
+				else if (customitem instanceof CustomArmor) {
+					jsonModel += crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/armor/"+name.toLowerCase()+"_"+((CustomArmor) customitem).armorType.name().toLowerCase()+"\"" + crEnt;
+				}
+				else {
+					jsonModel += crTab + crTab + "\"layer0\": \""+CustomNpcs.MODID+":items/"+name.toLowerCase()+"\"" + crEnt;
+				}
+				jsonModel += crTab + "}" + crEnt + "}";
+				if (this.saveFile(itemModel, jsonModel)) {
+					LogWriter.debug("Create Default Item Model for \""+name+"\" item");
+				} else {
+					LogWriter.debug("Error Create Default Item Model for \""+name+"\" item");
+				}
 			}
-			else if (customitem instanceof CustomTool) {
-				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/"+name.toLowerCase());
-				nbtModel.setString("parent", "minecraft:item/handheld");
-			}
-			else if (customitem instanceof CustomArmor) {
-				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/armor/"+name.toLowerCase()+"_"+((CustomArmor) customitem).armorType.name().toLowerCase());
-			}
-			else {
-				nbtModel.getCompoundTag("textures").setString("layer0", CustomNpcs.MODID+":items/"+name.toLowerCase());
-			}
-			try {
-				NBTJsonUtil.SaveFile(itemModel, nbtModel);
-				LogWriter.debug("Create Default Item Model for \""+name+"\" item");
-			}
-			catch (IOException | JsonException e) {  }
 		}
+	}
+
+	private boolean saveFile(File file, String text) {
+		if (file==null || text==null || text.isEmpty()) { return false; }
+		OutputStreamWriter writer = null;
+		try {
+			writer = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8"));
+			writer.write(text);
+		} catch (IOException e) { return false; }
+		finally {
+			try { if (writer != null) { writer.close(); } } catch (IOException e) { }
+		}
+		return true;
 	}
 
 	public void checkPotionFiles(ICustomElement custompotion) {

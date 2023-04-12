@@ -68,11 +68,13 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
+import noppes.npcs.controllers.DropController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.Dialog;
+import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.Quest;
@@ -544,6 +546,14 @@ extends PacketHandlerServer {
 			ClientProxy.playerData.hud.loadNBTData(compound);
 		} else if (type == EnumPacketClient.DIMENSIOS_IDS) {
 			ClientHandler.getInstance().sync(Server.readIntArray(buffer));
+		} else if (type == EnumPacketClient.DROP_GROUP_DATA) {
+			NBTTagCompound nbtTemplate = Server.readNBT(buffer);
+			if (nbtTemplate.getKeySet().size()==0) {
+				DropController.getInstance().templates.clear();
+				return;
+			}
+			if (!nbtTemplate.hasKey("Name", 8)) { return; }
+			DropController.getInstance().templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}

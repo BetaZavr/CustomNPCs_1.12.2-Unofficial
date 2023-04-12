@@ -33,6 +33,7 @@ import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class GuiNpcRemoteEditor
 extends GuiNPCInterface
@@ -127,7 +128,10 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			Client.sendData(EnumPacketServer.RemoteDelete, this.dataIDs.get(this.scroll.getSelected()), GuiNpcRemoteEditor.all);
 			this.selectEntity = null;
 		}
-		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		CustomNPCsScheduler.runTack(() -> {
+			NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		}, 250);
+		
 	}
 
 	@Override
@@ -215,9 +219,11 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			list.add(key);
 			this.dataIDs.put(key, nbt.getInteger("Id"));
 		}
+		System.out.println("CNPCs: ");
 		this.list = list;
 		this.scroll.setListNotSorted(this.getSearchList());
 		this.scroll.hoversTexts = hs;
+		this.resetEntity();
 	}
 	
 	@Override

@@ -51,17 +51,19 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 	private AttributeSet attribute;
 	private EnchantSet enchant;
 	private DropNbtSet tag;
-	public int slot;
+	public int dropType, groupId, slot;
 	private int reset;
 	private int[] amount;
 	private GuiCustomScroll scrollAttributes;
 	private GuiCustomScroll scrollEnchants;
 	private GuiCustomScroll scrollTags;
 
-	public GuiDropEdit(EntityNPCInterface npc, ContainerNPCDropSetup cont, int slot, GuiContainer gui) {
+	public GuiDropEdit(EntityNPCInterface npc, ContainerNPCDropSetup cont, GuiContainer gui, int dropType, int groupId, int pos) {
 		super(npc, cont);
 		this.parent = gui;
-		this.slot = slot;
+		this.dropType = dropType;
+		this.groupId = groupId;
+		this.slot = pos;
 		this.drop = cont.inventoryDS;
 		this.setBackground("npcdrop.png");
 		this.ySize = 200;
@@ -416,7 +418,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			}
 		}
 		this.drop.item.setStackSize(1);
-		Client.sendData(EnumPacketServer.MainmenuInvDropSave, this.slot, this.drop.getNBT());
+		Client.sendData(EnumPacketServer.MainmenuInvDropSave, this.dropType, this.groupId, this.slot, this.drop.getNBT());
 	}
 
 	@Override

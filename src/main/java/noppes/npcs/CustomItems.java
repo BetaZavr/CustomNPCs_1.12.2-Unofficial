@@ -189,10 +189,8 @@ public class CustomItems {
 	private static void registerFluid() {
 		File blocksFile = new File(CustomNpcs.Dir, "custom_blocks.js");
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
-		try {
-			if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); }
-		}
-		catch (IOException | JsonException e) { }
+		try { if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); } }
+		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_blocks.js: ", e); }
 		boolean hEL = false;
 		if (nbtBlocks.hasKey("Blocks", 9)) {
 			for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
@@ -275,22 +273,21 @@ public class CustomItems {
 		/** Custom Blocks */
 		File blocksFile = new File(CustomNpcs.Dir, "custom_blocks.js");
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
-		try {
-			if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); }
-		}
-		catch (IOException | JsonException e) { }
-		boolean hEB = false, hEL = false, hES = false, hEP = false;
+		try { if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); } }
+		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_blocks.js: ", e); }
+		boolean hEB = false, hEL = false, hES = false, hEP = false, hEFB = false;
 		if (nbtBlocks.hasKey("Blocks", 9)) {
 			for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 				String name = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
 				if (name.equals("blockexample")) { hEB = true; }
 				if (name.equals("liquidexample")) { hEL = true; }
+				if (name.equals("fasingblockexample")) { hEFB = true; }
 				if (name.equals("stairsexample")) { hES = true; }
 				if (name.equals("slabexample")) { hEP = true; }
 				if (hEB && hEL && hES && hEP) { break; }
 			}
 		}
-		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEB || !hEL || !hES || !hEP) {
+		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEB || !hEL || !hES || !hEP || !hEFB) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
 			if (!hEB || !hEL || !hES || !hEP) {
 				NBTTagCompound nbt = CustomItems.getExampleBlocks();
@@ -299,7 +296,8 @@ public class CustomItems {
 					if ((name.equals("blockexample") && !hEB)
 						|| (name.equals("liquidexample") && !hEL)
 						|| (name.equals("stairsexample") && !hES)
-						|| (name.equals("slabexample") && !hEP)) {
+						|| (name.equals("slabexample") && !hEP)
+						|| (name.equals("fasingblockexample") && !hEFB)) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
 				}
@@ -374,10 +372,8 @@ public class CustomItems {
 		/** Custom Items */
 		File itemsFile = new File(CustomNpcs.Dir, "custom_items.js");
 		NBTTagCompound nbtItems = new NBTTagCompound();
-		try {
-			if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); }
-		}
-		catch (IOException | JsonException e) { }
+		try { if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); } }
+		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_items.js: ", e); }
 		boolean hasEP = false;
 		if (nbtItems.hasKey("Potions", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Potions", 10).tagCount(); i++) {
@@ -544,10 +540,8 @@ public class CustomItems {
 		/** Custom Items */
 		File itemsFile = new File(CustomNpcs.Dir, "custom_items.js");
 		NBTTagCompound nbtItems = new NBTTagCompound();
-		try {
-			if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); }
-		}
-		catch (IOException | JsonException e) { }
+		try { if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); } }
+		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_items.js: ", e); }
 		boolean hEI = false, hEW = false, hEA = false, hES = false, hEB = false, hET = false, hEF = false, hFR=false;
 		if (nbtItems.hasKey("Items", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Items", 10).tagCount(); i++) {
@@ -765,12 +759,19 @@ public class CustomItems {
 		exampleBlock.setBoolean("IsPassable", false);
 		exampleBlock.setBoolean("IsOpaqueCube", false);
 		exampleBlock.setBoolean("IsFullCube", false);
+		exampleBlock.setBoolean("CreateAllFiles", true);
+		listBlocks.appendTag(exampleBlock);
+		
+		NBTTagCompound exampleFasingBlock = new NBTTagCompound();
+		exampleFasingBlock.setString("RegistryName", "fasingblockexample");
+		exampleFasingBlock.setByte("BlockType", (byte) 0);
+		exampleFasingBlock.setString("BlockRenderType", "MODEL");
 		NBTTagCompound nbtProperty = new NBTTagCompound();
 		nbtProperty.setByte("Type", (byte) 4);
 		nbtProperty.setString("Name", "facing");
-		exampleBlock.setTag("Property", nbtProperty);
-		exampleBlock.setBoolean("CreateAllFiles", true);
-		listBlocks.appendTag(exampleBlock);
+		exampleFasingBlock.setTag("Property", nbtProperty);
+		exampleFasingBlock.setBoolean("CreateAllFiles", true);
+		listBlocks.appendTag(exampleFasingBlock);
 
 		NBTTagCompound exampleLliquid = new NBTTagCompound();
 		exampleLliquid.setString("RegistryName", "liquidexample");

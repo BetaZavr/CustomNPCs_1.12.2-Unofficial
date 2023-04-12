@@ -200,6 +200,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
+System.out.println("buttonID: "+guibutton.id);
 		if (guibutton.id >= 0 && guibutton.id < 12) {
 			this.setScript();
 			this.activeTab = guibutton.id;
@@ -260,7 +261,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			if (container == null) {
 				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
 			}
-			this.setSubGui(new GuiScriptList(this.languages.get(this.handler.getLanguage()), container));
+			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.deleteColor(this.handler.getLanguage())), container));
 		}
 		if (guibutton.id == 108) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
