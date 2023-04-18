@@ -11,6 +11,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.IDamageSource;
+import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
@@ -287,6 +288,26 @@ extends CustomNPCsEvent {
 
 	public PlayerEvent(IPlayer<?> player) {
 		this.player = player;
+	}
+
+	public static class PlayerSound extends PlayerEvent {
+		
+		public String name;
+		public String resource;
+		public String category;
+		public IPos pos;
+		public float volume;
+		public float pitch;
+		
+		public PlayerSound(IPlayer<?> player, String resource, String name, String category, float x, float y, float z, float volume, float pitch) {
+			super(player);
+			this.name = name;
+			this.resource = resource;
+			this.category = category;
+			this.pos = NpcAPI.Instance().getIPos(x, y, z);
+			this.volume = volume;
+			this.pitch = pitch;
+		}
 	}
 
 }

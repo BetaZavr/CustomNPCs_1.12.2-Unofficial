@@ -65,7 +65,7 @@ implements IJobBard {
 			}
 		} else if (MusicController.Instance.playingEntity != this.npc) {
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();
-			if (this.npc.getDistance(player) < MusicController.Instance.playingEntity.getDistance(player)) {
+			if (MusicController.Instance.playingEntity==null || this.npc.getDistance(player) < MusicController.Instance.playingEntity.getDistance(player)) {
 				MusicController.Instance.playingEntity = this.npc;
 			}
 		} else if (this.hasOffRange) {

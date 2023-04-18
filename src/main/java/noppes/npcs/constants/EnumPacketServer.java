@@ -144,7 +144,9 @@ public enum EnumPacketServer
 	BuilderSetting(false), // New
 	OpenBuilder(false),
 	DimensionDelete(CustomNpcsPermissions.TOOL_TELEPORTER), // New
-	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER); // New
+	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER), // New
+	StopSound(false), // New
+	PlaySound(false); // New
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;
@@ -191,5 +193,7 @@ public enum EnumPacketServer
 		EnumPacketServer.FactionGet.exempt();
 		EnumPacketServer.SceneStart.exempt();
 		EnumPacketServer.SceneReset.exempt();
+		EnumPacketServer.StopSound.exempt();
+		EnumPacketServer.PlaySound.exempt();
 	}
 }

@@ -56,9 +56,7 @@ extends GuiTextField {
 	public static void unfocus() {
 		GuiNpcTextField prev = GuiNpcTextField.activeTextfield;
 		GuiNpcTextField.activeTextfield = null;
-		if (prev != null) {
-			prev.unFocused();
-		}
+		if (prev != null) { prev.unFocused(); }
 	}
 	
 	private boolean charAllowed(char c, int i) {
@@ -186,9 +184,7 @@ extends GuiTextField {
 		if (this.listener != null) {
 			this.listener.unFocused(this);
 		}
-		if (this == GuiNpcTextField.activeTextfield) {
-			GuiNpcTextField.activeTextfield = null;
-		}
+		if (this == GuiNpcTextField.activeTextfield) { GuiNpcTextField.activeTextfield = null; }
 	}
 
 	public boolean isMouseOver() {

@@ -101,9 +101,12 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 	@Override
 	public void initGui() {
 		super.initGui();
+		if (this.dialog==null) {
+			this.close();
+			return;
+		}
 		this.addLabel(new GuiNpcLabel(1, "gui.title", this.guiLeft + 4, this.guiTop + 8));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 46, this.guiTop + 3, 220, 20,
-				this.dialog.title));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 46, this.guiTop + 3, 220, 20, this.dialog.title));
 		this.addLabel(new GuiNpcLabel(0, "ID", this.guiLeft + 268, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(2, this.dialog.id + "", this.guiLeft + 268, this.guiTop + 14));
 		this.addLabel(new GuiNpcLabel(3, "dialog.dialogtext", this.guiLeft + 4, this.guiTop + 30));

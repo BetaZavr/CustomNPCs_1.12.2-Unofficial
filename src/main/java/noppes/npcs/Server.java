@@ -26,6 +26,7 @@ import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.MerchantRecipeList;
@@ -86,6 +87,8 @@ public class Server {
 					buffer.writeBoolean((boolean) ob);
 				} else if (ob instanceof String) {
 					writeString(buffer, (String) ob);
+				} else if (ob instanceof ResourceLocation) {
+					writeString(buffer, ((ResourceLocation) ob).toString());
 				} else if (ob instanceof Float) {
 					buffer.writeFloat((float) ob);
 				} else if (ob instanceof Long) {

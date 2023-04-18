@@ -34,6 +34,8 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
@@ -1328,8 +1330,13 @@ public class PacketHandlerServer {
 				Server.sendData(player, EnumPacketClient.SYNC_ADD, 3, category.writeNBT(new NBTTagCompound()));
 			}
 			Server.sendData(player, EnumPacketClient.SYNC_END, 3, new NBTTagCompound());
+		} else if (type == EnumPacketServer.PlaySound) {
+			if (player==null) { return; }
+			EventHooks.onPlayerPlaySound(PlayerData.get(player).scriptData, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(player), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat()));
+		} else if (type == EnumPacketServer.StopSound) {
+			if (player==null) { return; }
+			EventHooks.onPlayerStopSound(PlayerData.get(player).scriptData, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(player), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat()));
 		}
-		
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 	}
 	

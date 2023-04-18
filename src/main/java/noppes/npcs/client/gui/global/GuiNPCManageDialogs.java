@@ -61,11 +61,13 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				break;
 			}
 			case 2: {
+				if (!this.categoryData.containsKey(this.selectedCategory)) { return; }
 				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.categoryData.get(this.selectedCategory).title, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
 				this.displayGuiScreen((GuiScreen) guiyesno);
 				break;
 			}
 			case 3: {
+				if (!this.dialogData.containsKey(this.selectedDialog)) { return; }
 				this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
 				break;
 			}
@@ -74,11 +76,13 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				break;
 			}
 			case 12: {
+				if (!this.dialogData.containsKey(this.selectedDialog)) { return; }
 				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.dialogData.get(this.selectedDialog).title, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
 				this.displayGuiScreen((GuiScreen) guiyesno);
 				break;
 			}
 			case 13: {
+				if (!this.dialogData.containsKey(this.selectedDialog)) { return; }
 				this.setSubGui(new GuiDialogEdit(this.dialogData.get(this.selectedDialog)));
 				break;
 			}

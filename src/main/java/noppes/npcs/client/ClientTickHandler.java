@@ -1,8 +1,17 @@
 package noppes.npcs.client;
 
+import java.util.List;
+import java.util.Map;
+
 import org.lwjgl.input.Keyboard;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.audio.SoundManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -26,14 +35,17 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientTickHandler {
 	
 	private boolean otherContainer;
 	private World prevWorld;
+	private Map<String, ISound> nowPlayingSounds;
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
+		this.nowPlayingSounds = Maps.<String, ISound>newHashMap();
 	}
 
 	@SubscribeEvent
@@ -70,9 +82,7 @@ public class ClientTickHandler {
 
 	@SubscribeEvent
 	public void npcOnLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-		if (event.getHand() != EnumHand.MAIN_HAND) {
-			return;
-		}
+		if (event.getHand() != EnumHand.MAIN_HAND) { return; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick, new Object[0]);
 	}
 
@@ -97,6 +107,25 @@ public class ClientTickHandler {
 			this.prevWorld = mc.world;
 			MusicController.Instance.stopMusic();
 		}
+		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(), SoundManager.class);
+		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		for (String uuid : playingSounds.keySet()) { // is played
+			if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
+				ISound sound = playingSounds.get(uuid);
+				this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
+				Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+			}
+		}
+		List<String> del = Lists.newArrayList();
+		for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
+			if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
+				ISound sound = this.nowPlayingSounds.get(uuid);
+				Client.sendData(EnumPacketServer.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+				del.add(uuid);
+			}
+		}
+		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
+		
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
 		}
@@ -177,4 +206,5 @@ public class ClientTickHandler {
 			e.printStackTrace();
 		}*/
 	}
+
 }

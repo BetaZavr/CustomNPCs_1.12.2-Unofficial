@@ -33,6 +33,7 @@ import noppes.npcs.api.event.HandlerEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.event.PlayerEvent.PlayerSound;
 import noppes.npcs.api.event.ProjectileEvent;
 import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.api.event.RoleEvent;
@@ -539,9 +540,7 @@ public class EventHooks {
 	}
 
 	public static void onScriptBlockCollide(IScriptBlockHandler handler, Entity entityIn) {
-		if (handler.isClient()) {
-			return;
-		}
+		if (handler.isClient()) { return; }
 		BlockEvent.CollidedEvent event = new BlockEvent.CollidedEvent(handler.getBlock(), entityIn);
 		handler.runScript(EnumScriptType.COLLIDE, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -760,6 +759,16 @@ public class EventHooks {
 			handler.runScript(EnumScriptType.SCRIPT_TRIGGER, event);
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event)event);
+	}
+
+	public static void onPlayerPlaySound(PlayerScriptData handler, PlayerSound event) {
+		handler.runScript(EnumScriptType.SOUND_PLAY, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
+
+	public static void onPlayerStopSound(PlayerScriptData handler, PlayerSound event) {
+		handler.runScript(EnumScriptType.SOUND_STOP, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 	
 }

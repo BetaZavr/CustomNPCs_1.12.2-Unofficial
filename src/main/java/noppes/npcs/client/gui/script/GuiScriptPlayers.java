@@ -70,6 +70,9 @@ public class GuiScriptPlayers extends GuiScriptInterface {
 		this.baseFuncNames.put("scriptCommand", WorldEvent.ScriptCommandEvent.class);
 		// CommonEvents
 		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
+		// SoundEvents
+		this.baseFuncNames.put("soundPlayed", PlayerEvent.PlayerSound.class);
+		this.baseFuncNames.put("soundStoped", PlayerEvent.PlayerSound.class);
 	}
 
 	@Override

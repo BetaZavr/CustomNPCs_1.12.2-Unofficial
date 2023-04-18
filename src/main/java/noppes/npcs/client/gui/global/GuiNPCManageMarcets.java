@@ -390,9 +390,9 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void unFocused(GuiNpcTextField guiNpcTextField) {
-		String text = guiNpcTextField.getText();
-		switch (guiNpcTextField.getId()) {
+	public void unFocused(GuiNpcTextField textField) {
+		String text = textField.getText();
+		switch (textField.getId()) {
 			case 0: { // Name
 				if (text.equals(this.container.marcet.name)) { return; }
 				this.container.marcet.name = text;
@@ -400,12 +400,12 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 				break;
 			}
 			case 1: {
-				this.container.deal.money = guiNpcTextField.getInteger();
+				this.container.deal.money = textField.getInteger();
 				this.initGui();
 				break;
 			}
 			case 2: {
-				int time = guiNpcTextField.getInteger();
+				int time = textField.getInteger();
 				if (time < 5) {
 					time = 0;
 				} else if (time > 360) {
@@ -416,12 +416,17 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 				break;
 			}
 			case 3: {
-				this.container.deal.count[0] = guiNpcTextField.getInteger();
+				this.container.deal.count[0] = textField.getInteger();
 				this.initGui();
 				break;
 			}
 			case 4: {
-				this.container.deal.count[1] = guiNpcTextField.getInteger();
+				this.container.deal.count[1] = textField.getInteger();
+				this.initGui();
+				break;
+			}
+			case 5: {
+				this.container.deal.chance = (float) textField.getDouble() / 100.0f;
 				this.initGui();
 				break;
 			}

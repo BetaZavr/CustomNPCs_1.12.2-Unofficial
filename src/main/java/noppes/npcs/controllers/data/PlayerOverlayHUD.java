@@ -11,6 +11,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextComponentString;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.gui.IGuiTimer;
@@ -113,6 +115,10 @@ implements IOverlayHUD {
 	}
 	
 	public void loadNBTData(NBTTagCompound compound) {
+		if (this.player!=null) { this.player.sendMessage(new TextComponentString("Server try load HUD Components Data: "+compound.hasKey("HUDData", 10))); }
+		else if (CustomNpcs.proxy.getPlayer()!=null) {
+			CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("Client try load HUD Components Data: "+compound.hasKey("HUDData", 10)));
+		}
 		if (compound == null || !compound.hasKey("HUDData", 10)) { return; }
 		NBTTagCompound hudNBT = compound.getCompoundTag("HUDData");
 		this.showElementTypes = hudNBT.getByteArray("ShowElementTypes");
@@ -208,6 +214,10 @@ implements IOverlayHUD {
 		this.guiComponents.clear();
 		this.guiSlots.clear();
 		this.update = false;
+		if (this.player!=null) { this.player.sendMessage(new TextComponentString("Server end load HUD Components: ["+this.components.size()+", "+this.slots.size()+"]")); }
+		else if (CustomNpcs.proxy.getPlayer()!=null) {
+			CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("Client end load HUD Components: ["+this.components.size()+", "+this.slots.size()+"]"));
+		}
 	}
 	
 	public NBTTagCompound saveNBTData(NBTTagCompound compound) {
@@ -507,6 +517,9 @@ implements IOverlayHUD {
 
 	public TreeMap<Integer, TreeMap<Integer, IGuiComponent>> getGuiComponents() {
 		if (this.guiComponents.size()!=this.components.size()) {
+			if (CustomNpcs.proxy.getPlayer()!=null) {
+				CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("Client Try create HUD Components: ["+this.components.size()+"]"));
+			}
 			for (int type : this.components.keySet()) {
 				if (!this.guiComponents.containsKey(type)) { this.guiComponents.put(type, Maps.<Integer, IGuiComponent>newTreeMap()); }
 				for (ICustomGuiComponent component : this.components.get(type)) {
@@ -516,6 +529,7 @@ implements IOverlayHUD {
 					}
 					else if (component instanceof CustomGuiTexturedRectWrapper) {
 						CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
+						rect.id += -200;
 						this.guiComponents.get(type).put(rect.getID(), rect);
 					}
 					else if (component instanceof CustomGuiTimerWrapper) {
@@ -524,12 +538,18 @@ implements IOverlayHUD {
 					}
 				}
 			}
+			if (CustomNpcs.proxy.getPlayer()!=null) {
+				CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("Client Total create HUD Components: ["+this.guiComponents.size()+"/"+this.components.size()+"]"));
+			}
 		}
 		return this.guiComponents;
 	}
 	
 	public TreeMap<Integer, TreeMap<Integer, IItemSlot>> getGuiSlots() {
 		if (this.guiSlots.size()!=this.slots.size()) {
+			if (CustomNpcs.proxy.getPlayer()!=null) {
+				CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("Client Try create HUD Slots: ["+this.slots.size()+"]"));
+			}
 			Map<Integer, Integer> ids = Maps.<Integer, Integer>newTreeMap();
 			for (int type : this.components.keySet()) {
 				if (!ids.containsKey(type)) { ids.put(type, 0); }
@@ -543,6 +563,9 @@ implements IOverlayHUD {
 				for (IItemSlot slot : this.slots.get(type)) {
 					this.guiSlots.get(type).put(id++, slot);
 				}
+			}
+			if (CustomNpcs.proxy.getPlayer()!=null) {
+				CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("Client Total create HUD Slots: ["+this.guiSlots.size()+"/"+this.slots.size()+"]"));
 			}
 		}
 		return this.guiSlots;
@@ -571,6 +594,7 @@ implements IOverlayHUD {
 	@Override
 	public void update() {
 		if (this.player!=null) {
+			this.player.sendMessage(new TextComponentString("Server send HUD Components: ["+this.components.size()+", "+this.slots.size()+"]"));
 			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.UPDATE_HUD, this.saveNBTData(new NBTTagCompound()));
 			this.update = false;
 		} else {

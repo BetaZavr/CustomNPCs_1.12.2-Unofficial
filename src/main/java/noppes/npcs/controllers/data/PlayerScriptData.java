@@ -110,11 +110,8 @@ public class PlayerScriptData implements IScriptHandler {
 
 	@Override
 	public void runScript(EnumScriptType type, Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		if (ScriptController.Instance.lastLoaded > this.lastInited
-				|| ScriptController.Instance.lastPlayerUpdate > this.lastPlayerUpdate) {
+		if (!this.isEnabled()) { return; }
+		if (ScriptController.Instance.lastLoaded > this.lastInited || ScriptController.Instance.lastPlayerUpdate > this.lastPlayerUpdate) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
 			PlayerScriptData.errored.clear();
 			if (this.player != null) {
