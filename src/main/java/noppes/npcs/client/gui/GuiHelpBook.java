@@ -286,7 +286,6 @@ implements ICustomScrollListener {
 				if (end<0) { end = text.length(); }
 				if (start>=end) { return; }
 				String metodText = text.substring(start, end);
-//System.out.println("sel: ["+start+", "+end+", "+text.length()+"]; \""+metodText+"\"");
 				if (this.data.containsKey(metodText)) {
 					this.drawHoveringText(this.data.get(metodText).getComment(), mouseX, mouseY, this.fontRenderer);
 					this.hoverText = null;

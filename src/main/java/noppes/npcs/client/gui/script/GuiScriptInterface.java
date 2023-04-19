@@ -200,7 +200,6 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-System.out.println("buttonID: "+guibutton.id);
 		if (guibutton.id >= 0 && guibutton.id < 12) {
 			this.setScript();
 			this.activeTab = guibutton.id;
@@ -306,7 +305,6 @@ System.out.println("buttonID: "+guibutton.id);
 				char c = filter.charAt(i);
 				int p = text.lastIndexOf(c, pos);
 				if (p>-1) {
-//System.out.println("i["+i+"] = '"+c+"'; p:"+p);
 					this.select = AdditionalMethods.match(text, p + 1+(pos==(p + 1) ? 1: 0), filter, ".([{"+filter);
 					this.startPos = text.lastIndexOf(this.select, p+1);
 					if (this.startPos>0 && (c==' ' || c==tab)) {
@@ -314,7 +312,6 @@ System.out.println("buttonID: "+guibutton.id);
 						p = -1;
 						for (int j = this.startPos-1; j>=0; j--) {
 							c = text.charAt(j);
-//System.out.println("j["+j+"] = '"+c+"'; e:"+e);
 							if (e==-1) {
 								if (c==' ' || c==tab) { e = j; }
 								continue;
@@ -330,8 +327,7 @@ System.out.println("buttonID: "+guibutton.id);
 			}
 			if (this.startPos==0 && pos>0) { this.select = AdditionalMethods.match(text, 0, GuiTextArea.filter, GuiTextArea.filter); }
 			while (this.select.indexOf(tab)!=-1) { this.select = this.select.replace(""+tab, ""); }
-			while (this.preSelect.indexOf(tab)!=-1) { this.preSelect = this.preSelect.replace(""+tab, ""); }	
-//System.out.println("length: "+text.length()+"; pos: "+pos+"; startPos: "+this.startPos+"; select: \""+this.select+"\""+"; preSelect: \""+this.preSelect+"\"");
+			while (this.preSelect.indexOf(tab)!=-1) { this.preSelect = this.preSelect.replace(""+tab, ""); }
 			if (this.preSelect.equals("function") || (this.preSelect.isEmpty() && this.select.equals("function"))) {
 				if (this.preSelect.isEmpty() && this.select.equals("function")) { this.select = ""; }
 				this.map.clear();
@@ -354,7 +350,6 @@ System.out.println("buttonID: "+guibutton.id);
 			if (part.lastIndexOf(""+((char) 9), pos)!=-1) { part = part.substring(part.lastIndexOf(""+((char) 9), pos)+1); }
 			String path = part;
 			if (part.lastIndexOf('.', pos-this.startPos)!=-1) { path = path.substring(0, path.lastIndexOf('.', pos-this.startPos)); }
-//System.out.println("part: \""+part+"\"; path: \""+path+"\"");
 			//language
 			String language = this.handler.getLanguage();
 			if (language.isEmpty() && this.getScriptIndex() < this.languages.size()) {
@@ -389,24 +384,9 @@ System.out.println("buttonID: "+guibutton.id);
 			String fName = this.getFuncName();
 			boolean foundFunc = false;
 			
-			/*String constant = text;
-			try {
-				while (constant.indexOf("function")!=-1) {
-					int st = constant.indexOf("{", constant.indexOf("function")), en = -1, ;
-					for (int g = st; g<constant.length(); g++) {
-						
-					}
-					constant = (constant.indexOf("function")!=0 ? constant.substring(0, constant.indexOf("{")) : "");
-				}
-			} catch (Exception e) { }
-			Map<String, Class<?>> maxData = AdditionalMethods.getVariablesInBody(constant, data, null);*/
-			
-			
 			for (String key : this.data.keySet()) {
-//System.out.println("key: "+key+"; type: "+this.data.get(key).size());
 				if (this.data.get(key).size()==1) {
 					ScriptData sd = this.data.get(key).get(0);
-//System.out.println("key: "+key+"; type: "+sd.getType()+" = "+sd.getObject().getClass());
 					if (sd.getType()==12) {
 						if (!fName.isEmpty() && key.equals(fName)) {
 							ScriptData func = this.data.get(fName).get(0);
@@ -419,7 +399,6 @@ System.out.println("buttonID: "+guibutton.id);
 					parametrs.put(key, AdditionalMethods.getScriptClass(sd.getObject()));
 				}
 			}
-//System.out.println("parametrs: "+parametrs.size());
 			List<String> keys = Lists.<String>newArrayList();
 			while (path.indexOf('.')!=-1) {
 				keys.add(path.substring(0, path.indexOf('.')));
@@ -429,11 +408,9 @@ System.out.println("buttonID: "+guibutton.id);
 			Map<String, Map<String, String[]>> mdata = AdditionalMethods.getObjectVarAndMetods(keys.toArray(new String[keys.size()]), parametrs);
 			if (mdata.size() > 0) {
 				part = this.select;
-//System.out.println("part: \""+part+"\"");
 				this.select = AdditionalMethods.match(part, pos-this.startPos, ".", ".([{"+filter);
 				if (this.select.indexOf('.')==0) { this.select = this.select.substring(1); }
 				this.startPos += part.lastIndexOf(this.select, pos-this.startPos);
-//System.out.println("pos: "+this.startPos+"; select: \""+this.select+"\"");
 				this.map.clear();
 				List<String> vars = Lists.newArrayList();
 				for (int j = 0; j < 3; j++) {
@@ -763,7 +740,6 @@ System.out.println("buttonID: "+guibutton.id);
 		GuiTextArea area = (GuiTextArea) this.get(2);
 		if (area == null || scroll.getSelected()==null) { return; }
 		String text = area.getText(), add = "";
-//System.out.println("scrollId: "+scroll.id);
 		if (scroll.id == 1) { // variebels
 			String select = "" + AdditionalMethods.deleteColor(scroll.getSelected());
 			scroll.selected = -1;
@@ -783,7 +759,6 @@ System.out.println("buttonID: "+guibutton.id);
 			add = AdditionalMethods.deleteColor(scroll.getSelected());
 		}
 		if (text==null || add==null || add.isEmpty() || this.startPos<0 || (text.length()!=0 && this.startPos>=text.length())) { return; }
-//System.out.println("add: \""+add+"\" "+text.length());
 		int newpos = this.startPos + add.length()-1;
 		if (text.length()==0) { text = add+" "; }
 		else {

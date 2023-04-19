@@ -214,7 +214,6 @@ public class SchematicController {
 
 	@SuppressWarnings("deprecation")
 	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotaion, Schematic schema) { // Schematica Build
-//System.out.println("name: "+schema.getName()+"; pos: "+pos+"; rotaion: "+rotaion+"; schema: "+schema);
 		if (pos==null || schema==null) { return; }
 		SchematicBlockData[][][] blocks = new SchematicBlockData[schema.height][schema.width][schema.length];
 		SchematicBlockData[][][] tempB = new SchematicBlockData[schema.height][schema.width][schema.length];

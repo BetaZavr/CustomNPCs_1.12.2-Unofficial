@@ -113,11 +113,12 @@ public class PacketHandlerServer {
 			return;
 		}
 		ByteBuf buffer = event.getPacket().payload();
+		List<EnumPacketServer> notDebugShow = Lists.newArrayList(EnumPacketServer.StopSound, EnumPacketServer.PlaySound);
 		player.getServer().addScheduledTask(() -> {
 			EnumPacketServer type = null;
 			try {
 				type = EnumPacketServer.values()[buffer.readInt()];
-				LogWriter.debug("Received: " + type);
+				if (!notDebugShow.contains(type)) { LogWriter.debug("Received: " + type); }
 				ItemStack item = player.inventory.getCurrentItem();
 				EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 				List<EnumPacketServer> notHasPerm = Lists.<EnumPacketServer>newArrayList();

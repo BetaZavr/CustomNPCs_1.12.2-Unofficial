@@ -48,6 +48,7 @@ public enum EnumPlayerPacket
 	CurrentLanguage,
 	GetBuildData,
 	KeyPressed,
-	HudTimerEnd;
+	HudTimerEnd,
+	TrackQuest;
 	
 }

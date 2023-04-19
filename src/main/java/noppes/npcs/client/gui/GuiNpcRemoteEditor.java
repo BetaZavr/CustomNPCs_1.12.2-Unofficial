@@ -219,7 +219,6 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			list.add(key);
 			this.dataIDs.put(key, nbt.getInteger("Id"));
 		}
-		System.out.println("CNPCs: ");
 		this.list = list;
 		this.scroll.setListNotSorted(this.getSearchList());
 		this.scroll.hoversTexts = hs;

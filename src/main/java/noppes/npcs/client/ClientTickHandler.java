@@ -17,8 +17,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -190,21 +193,9 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
-		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
-		/*IPlayer<?> p = new PlayerWrapper((EntityPlayerMP) entity);
-		p.setGamemode(1);*/
+		if (entity instanceof EntityPlayerMP || !CustomNpcs.VerboseDebug) { return; }
 		/*Map<ResourceLocation, OBJModel> cache = ObfuscationHelper.getValue(OBJLoader.class, OBJLoader.INSTANCE, Map.class);
-		for (ResourceLocation r : cache.keySet()) {
-			((EntityPlayerSP) entity).sendMessage(new TextComponentString(""+r));
-		}*/
-		/*try {
-			NBTTagCompound nbtFile = NBTJsonUtil.LoadFile(new File(CustomNpcs.getWorldSaveDirectory(), "marcet.json"));
-			MarcetController.getInstance().loadMarcets(nbtFile);
-			System.out.println("load: "+nbtFile);
-		} catch (IOException | JsonException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		System.out.println("cache: "+cache);*/
 	}
 
 }

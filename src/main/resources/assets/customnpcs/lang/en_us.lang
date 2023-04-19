@@ -708,6 +708,7 @@ gui.showmore=Show More
 gui.small=Small
 gui.start=Start
 gui.started=Started
+gui.stop=
 gui.sunlight=Sunlight
 gui.tab=Tab
 gui.take=Take
@@ -1061,6 +1062,7 @@ puppet.walking=While walking
 
 quest.areakill=AreaKill
 quest.cancel=Cancel Quest
+quest.track=Track Quest
 quest.cancel.info=§cAttention!§r The quest cannot always be restarted
 quest.cancelable.false=Not Cancelable
 quest.cancelable.true=Cancelable

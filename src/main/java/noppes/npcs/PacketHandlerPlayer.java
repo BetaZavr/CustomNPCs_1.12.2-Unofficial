@@ -98,6 +98,7 @@ public class PacketHandlerPlayer {
 	@SuppressWarnings("unchecked")
 	private void player(ByteBuf buffer, EntityPlayerMP player, EnumPlayerPacket type) throws Exception {
 		CustomNpcs.debugData.startDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+		PlayerData data = PlayerData.get(player);
 		if (type == EnumPlayerPacket.MarkData) {
 			Entity entity = player.getServer().getEntityFromUuid(Server.readUUID(buffer));
 			if (entity == null || !(entity instanceof EntityLivingBase)) {
@@ -106,17 +107,17 @@ public class PacketHandlerPlayer {
 			}
 			MarkData.get((EntityLivingBase) entity);
 		} else if (type == EnumPlayerPacket.KeyPressed) {
-			PlayerOverlayHUD data = PlayerData.get((EntityPlayer) player).hud;
+			PlayerOverlayHUD hud = data.hud;
 			int key = buffer.readInt();
 			if (key<0) {
-				for (int k : data.keyPress) { EventHooks.onPlayerKeyPressed(player, k, false, false, false, false, false); }
-				data.keyPress.clear();
+				for (int k : hud.keyPress) { EventHooks.onPlayerKeyPressed(player, k, false, false, false, false, false); }
+				hud.keyPress.clear();
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
-			if (isDown) { data.keyPress.add(key); }
+			if (isDown) { hud.keyPress.add(key); }
 			else {
-				if (data.hasOrKeysPressed(key)) { data.keyPress.remove((Integer)key); }
+				if (hud.hasOrKeysPressed(key)) { hud.keyPress.remove((Integer)key); }
 			}
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
@@ -125,17 +126,17 @@ public class PacketHandlerPlayer {
 			EventHooks.onPlayerKeyPressed(player, key, isDown, buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean());
 			
 		} else if (type == EnumPlayerPacket.MousesPressed) {
-			PlayerOverlayHUD data = PlayerData.get((EntityPlayer) player).hud;
+			PlayerOverlayHUD hud = data.hud;
 			int key = buffer.readInt();
 			if (key<0) {
-				for (int k : data.mousePress) { EventHooks.onPlayerMousePressed(player, k, false, false, false, false, false); }
-				data.mousePress.clear();
+				for (int k : hud.mousePress) { EventHooks.onPlayerMousePressed(player, k, false, false, false, false, false); }
+				hud.mousePress.clear();
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
-			if (isDown) { data.mousePress.add(key); }
+			if (isDown) { hud.mousePress.add(key); }
 			else {
-				if (data.hasMousePress(key)) { data.mousePress.remove((Integer) key); }
+				if (hud.hasMousePress(key)) { hud.mousePress.remove((Integer) key); }
 			}
 			if (!CustomNpcs.EnableScripting || ScriptController.Instance.languages.isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
@@ -256,9 +257,8 @@ public class PacketHandlerPlayer {
 			}
 			int slot = buffer.readInt();
 			int bankId = buffer.readInt();
-			BankData data = PlayerDataController.instance.getBankData((EntityPlayer) player, bankId)
-					.getBankOrDefault(bankId);
-			data.openBankGui((EntityPlayer) player, npc, bankId, slot);
+			BankData bd = PlayerDataController.instance.getBankData((EntityPlayer) player, bankId).getBankOrDefault(bankId);
+			bd.openBankGui((EntityPlayer) player, npc, bankId, slot);
 		} else if (type == EnumPlayerPacket.Dialog) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
 			LogWriter.debug("Dialog npc: " + npc);
@@ -270,9 +270,9 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.CheckQuestCompletion) {
 			int id = buffer.readInt();
 			PlayerQuestData playerdata = PlayerData.get((EntityPlayer) player).questData;
-			for (QuestData data : playerdata.activeQuests.values()) {
-				if (id>0 && data.quest.id!=id) { continue; }
-				playerdata.checkQuestCompletion(player, data);
+			for (QuestData qd : playerdata.activeQuests.values()) {
+				if (id>0 && qd.quest.id!=id) { continue; }
+				playerdata.checkQuestCompletion(player, qd);
 			}
 		} else if (type == EnumPlayerPacket.QuestCompletion) {
 			NoppesUtilPlayer.questCompletion(player, buffer.readInt());
@@ -389,9 +389,9 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.IsMoved) {
 			PlayerData.get((EntityPlayer) player).hud.isMoved = buffer.readBoolean();
 		} else if (type == EnumPlayerPacket.WindowSize) {
-			PlayerOverlayHUD data = PlayerData.get((EntityPlayer) player).hud;
+			PlayerOverlayHUD hud = data.hud;
 			NBTTagCompound compound = Server.readNBT(buffer);
-			data.setWindowSize(compound.getTagList("WindowSize", 6));
+			hud.setWindowSize(compound.getTagList("WindowSize", 6));
 		} else if (type == EnumPlayerPacket.GetGhostRecipe) {
 			player.markPlayerActive();
 			if (player.isSpectator() || player.openContainer.windowId != buffer.readInt()
@@ -419,7 +419,6 @@ public class PacketHandlerPlayer {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
-			PlayerData data = PlayerData.get(player);
 			boolean canGiveItem = d.availability.isAvailable(player);
 			if (!player.capabilities.isCreativeMode) {
 				// Has Money
@@ -508,7 +507,6 @@ public class PacketHandlerPlayer {
 				// Add Money
 				int money = (int) Math.floor((double) d.money / 4.0d);
 				if (money>0) {
-					PlayerData data = PlayerData.get(player);
 					if (data != null) {
 						data.game.addMoney(money);
 					}
@@ -535,7 +533,6 @@ public class PacketHandlerPlayer {
 			String sender = Server.readString(buffer);
 			String subject = Server.readString(buffer);
 			long time = buffer.readLong();
-			PlayerData data = PlayerData.get(player);
 			for (PlayerMail mail : data.mailData.playermail) {
 				if (mail.sender.equals(sender) && mail.subject.equals(subject) && mail.time == time && mail.money > 0) {
 					data.game.addMoney(mail.money);
@@ -559,6 +556,8 @@ public class PacketHandlerPlayer {
 			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, builder.getNbt());
 		} else if (type == EnumPlayerPacket.HudTimerEnd) {
 			EventHooks.onPlayerTimer(PlayerData.get(player), buffer.readInt());
+		} else if (type == EnumPlayerPacket.TrackQuest) {
+			data.hud.questID = buffer.readInt();
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

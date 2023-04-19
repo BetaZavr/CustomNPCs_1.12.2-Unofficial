@@ -66,6 +66,7 @@ import noppes.npcs.blocks.BlockScripted;
 import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.blocks.BlockWaypoint;
 import noppes.npcs.blocks.CustomBlock;
+import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
@@ -275,7 +276,10 @@ public class CustomItems {
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
 		try { if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); } }
 		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_blocks.js: ", e); }
-		boolean hEB = false, hEL = false, hES = false, hEP = false, hEFB = false;
+		
+		boolean hEB = false, hEL = false, hES = false, hEP = false, hEFB = false, hEEP = false;
+		boolean resave = false;
+		
 		if (nbtBlocks.hasKey("Blocks", 9)) {
 			for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 				String name = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -284,12 +288,13 @@ public class CustomItems {
 				if (name.equals("fasingblockexample")) { hEFB = true; }
 				if (name.equals("stairsexample")) { hES = true; }
 				if (name.equals("slabexample")) { hEP = true; }
-				if (hEB && hEL && hES && hEP) { break; }
+				if (name.equals("portalexample")) { hEEP = true; }
+				if (hEB && hEL && hES && hEP && hEFB && hEEP) { break; }
 			}
 		}
-		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEB || !hEL || !hES || !hEP || !hEFB) {
+		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEB || !hEL || !hES || !hEP || !hEFB || !hEEP) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
-			if (!hEB || !hEL || !hES || !hEP) {
+			if (!hEB || !hEL || !hES || !hEP || !hEFB || !hEEP) {
 				NBTTagCompound nbt = CustomItems.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -297,19 +302,18 @@ public class CustomItems {
 						|| (name.equals("liquidexample") && !hEL)
 						|| (name.equals("stairsexample") && !hES)
 						|| (name.equals("slabexample") && !hEP)
-						|| (name.equals("fasingblockexample") && !hEFB)) {
+						|| (name.equals("fasingblockexample") && !hEFB)
+						|| (name.equals("portalexample") && !hEEP)) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
 				}
 			}
-			try { NBTJsonUtil.SaveFile(blocksFile, nbtBlocks); }
-			catch (IOException | JsonException e) { }
+			resave = true;
 		}
 		
-		boolean resave = false;
 		for (int i=0; i<nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 			NBTTagCompound nbtBlock = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i);
-			if (!nbtBlock.hasKey("RegistryName", 8) || !nbtBlock.hasKey("BlockType", 1) || nbtBlock.getString("RegistryName").isEmpty() || nbtBlock.getByte("BlockType")<(byte)0 || nbtBlock.getByte("BlockType")>(byte)4) {
+			if (!nbtBlock.hasKey("RegistryName", 8) || !nbtBlock.hasKey("BlockType", 1) || nbtBlock.getString("RegistryName").isEmpty() || nbtBlock.getByte("BlockType")<(byte)0 || nbtBlock.getByte("BlockType")>(byte)5) {
 				LogWriter.error("Attempt to load block pos: "+i+"; name: \""+nbtBlock.getString("RegistryName")+"\" - failed");
 				continue;
 			}
@@ -328,6 +332,9 @@ public class CustomItems {
 				case (byte) 4: // Slab
 					block = new CustomBlockSlab.CustomBlockSlabSingle(nbtBlock);
 					addblock = new CustomBlockSlab.CustomBlockSlabDouble(nbtBlock);
+					break;
+				case (byte) 5: // Stairs
+					block = new CustomBlockPortal(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
 					break;
 				default: // Simple
 					block = new CustomBlock(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
@@ -542,7 +549,9 @@ public class CustomItems {
 		NBTTagCompound nbtItems = new NBTTagCompound();
 		try { if (itemsFile.exists()) { nbtItems = NBTJsonUtil.LoadFile(itemsFile); } }
 		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_items.js: ", e); }
+		
 		boolean hEI = false, hEW = false, hEA = false, hES = false, hEB = false, hET = false, hEF = false, hFR=false;
+		boolean resave = false;
 		if (nbtItems.hasKey("Items", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Items", 10).tagCount(); i++) {
 				String name = nbtItems.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -575,11 +584,9 @@ public class CustomItems {
 					}
 				}
 			}
-			try { NBTJsonUtil.SaveFile(itemsFile, nbtItems); }
-			catch (IOException | JsonException e) { }
+			resave = true;
 		}
 		
-		boolean resave = false;
 		for (int i=0; i<nbtItems.getTagList("Items", 10).tagCount(); i++) {
 			NBTTagCompound nbtItem = nbtItems.getTagList("Items", 10).getCompoundTagAt(i);
 			if (!nbtItem.hasKey("RegistryName", 8) || !nbtItem.hasKey("ItemType", 1) || nbtItem.getString("RegistryName").isEmpty() || nbtItem.getByte("ItemType")<(byte)0 || nbtItem.getByte("ItemType")>(byte)8) {
@@ -658,7 +665,6 @@ public class CustomItems {
 				return item;
 			}
 		});
-		
 	}
 
 	private void registryItem(Item item, List<String> names, List<Item> items, NBTTagCompound nbtItem) {
@@ -805,6 +811,16 @@ public class CustomItems {
 		exampleSlab.setString("Material", "STONE");
 		exampleSlab.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(exampleSlab);
+
+		NBTTagCompound examplePortal = new NBTTagCompound();
+		examplePortal.setString("RegistryName", "portalexample");
+		examplePortal.setByte("BlockType", (byte) 5);
+		examplePortal.setString("Material", "PORTAL");
+		examplePortal.setString("Particle", "CRIT");
+		examplePortal.setInteger("DimentionID", 100);
+		examplePortal.setBoolean("CreateAllFiles", true);
+		listBlocks.appendTag(examplePortal);
+		
 		
 		nbtBlocks.setTag("Blocks", listBlocks);
 		return nbtBlocks;

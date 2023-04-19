@@ -130,7 +130,6 @@ extends BlockRendererInterface<T> {
 				RenderHelper.enableStandardItemLighting();
 				GlStateManager.translate(x + 0.5, y, z + 0.5);
 				GlStateManager.translate(l.offsetAxis[0], l.offsetAxis[1], l.offsetAxis[2]);
-				//System.out.println("isRotate : ["+(l.rotateAxis[0]==(byte) 1)+", "+(l.rotateAxis[1]==(byte) 1)+", "+(l.rotateAxis[2]==(byte) 1)+"]");
 				if (l.isRotate[1]==(byte) 1) { GlStateManager.rotate((System.currentTimeMillis()/l.rotateSpeed) % 360, 0.0f, 1.0f, 0.0f); }
 				else { GlStateManager.rotate(l.rotateAxis[1], 0.0f, 1.0f, 0.0f); }
 				if (l.isRotate[0]==(byte) 1) { GlStateManager.rotate((System.currentTimeMillis()/l.rotateSpeed) % 360, 1.0f, 0.0f, 0.0f); }
@@ -140,7 +139,6 @@ extends BlockRendererInterface<T> {
 				GlStateManager.scale(l.scaleAxis[0], l.scaleAxis[1], l.scaleAxis[2]);
 				if (!l.model.isEmpty() && (block==null || block == Blocks.AIR)) {
 					GlStateManager.translate(0.0, 0.5, 0.0);
-					//System.out.println("pos:"+l.pos+" = "+l.model+" / "+l.getNbt());
 					this.renderItem(l.model);
 				}
 				else if (block!=null) {
@@ -158,9 +156,8 @@ extends BlockRendererInterface<T> {
 					}
 					this.renderBlock(tile, block, state);
 				}
-				else if (!l.objModel.isEmpty() && ModelBuffer.hasDisplayList(l.objModel)) {
-					int displayList = ModelBuffer.getDisplayList(l.objModel);
-					//System.out.println("CNPCs: "+l.objModel+"; dList: "+displayList);
+				else if (!l.objModel.isEmpty() && ModelBuffer.getDisplayList(l.objModel, null, null, null)>=0) {
+					int displayList = ModelBuffer.getDisplayList(l.objModel, null, null, null);
 					if (displayList>=0) { GlStateManager.callList(displayList); }
 				}
 				GlStateManager.popMatrix();

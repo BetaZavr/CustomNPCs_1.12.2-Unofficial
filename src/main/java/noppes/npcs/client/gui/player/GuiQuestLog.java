@@ -21,6 +21,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.client.Client;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.TextBlockClient;
@@ -79,22 +81,101 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 	}
 
 	@Override
+	public void initGui() {
+		super.initGui();
+		this.yoffset = this.ySize + 2;
+		for (Quest quest : PlayerQuestController.getActiveQuests(this.player)) {
+			String category = quest.category.title;
+			if (!this.activeQuests.containsKey(category)) {
+				this.activeQuests.put(category, new ArrayList<Quest>());
+			}
+			this.activeQuests.get(category).add(quest);
+		}
+		this.sideButtons.clear();
+		this.guiTop += 10;
+		TabRegistry.updateTabValues(this.guiLeft, this.guiTop, InventoryTabQuests.class);
+		TabRegistry.addTabsToList(this.buttonList);
+		this.noQuests = false;
+		if (this.activeQuests.isEmpty()) {
+			this.noQuests = true;
+			return;
+		}
+		// category Buttons
+		List<String> categories = new ArrayList<String>();
+		categories.addAll(this.activeQuests.keySet());
+		Collections.sort(categories, new NaturalOrderComparator());
+		int i = 0;
+		for (String cat : categories) {
+			if (this.selectedCategory.isEmpty()) {
+				this.selectedCategory = cat;
+			}
+			this.sideButtons.put(i, new GuiMenuSideButton(i, this.guiLeft - 69, this.guiTop + 2 + i * 21, 70, 22, cat));
+			++i;
+		}
+		this.sideButtons.get(categories.indexOf(this.selectedCategory)).active = true;
+		// scroll all quests
+		if (this.scroll == null) {
+			this.scroll = new GuiCustomScroll(this, 0);
+		}
+		HashMap<String, Quest> categoryQuests = new HashMap<String, Quest>();
+		for (Quest q : this.activeQuests.get(this.selectedCategory)) {
+			categoryQuests.put(q.getTitle(), q);
+		}
+		this.categoryQuests = categoryQuests;
+		this.scroll.setList(new ArrayList<String>(categoryQuests.keySet()));
+		this.scroll.setSize(134, 153);
+		this.scroll.guiLeft = this.guiLeft + 5;
+		this.scroll.guiTop = this.guiTop + 15;
+		this.addScroll(this.scroll);
+		// New
+		if (this.selectedQuest != null) {
+			if (this.selectedQuest.completion == EnumQuestCompletion.Npc) {
+				this.yoffset -= 11;
+			}
+			IQuestObjective[] allObj = this.selectedQuest.questInterface.getObjectives(this.player);
+			this.yoffset -= 9 * allObj.length;
+			this.yoffset -= 16;
+		} else {
+			this.scroll.selected = -1;
+		}
+		this.addButton(new GuiButtonNextPage(1, this.guiLeft + 286, this.guiTop + this.yoffset, true)); // Changed
+		this.addButton(new GuiButtonNextPage(2, this.guiLeft + 144, this.guiTop + this.yoffset, false)); // Changed
+		this.getButton(1).visible = (this.selectedQuest != null && this.currentPage < this.maxPages - 1);
+		this.getButton(2).visible = (this.selectedQuest != null && this.currentPage > 0);
+		// New
+		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 170, 90, 20, "quest.cancel", this.selectedQuest != null && this.selectedQuest.cancelable));
+		this.addButton(new GuiNpcButton(31, this.guiLeft + 95, this.guiTop + 170, 90, 20, "quest.cancel", this.selectedQuest != null ? this.selectedQuest.id!=ClientProxy.playerData.hud.questID : true));
+	}
+
+	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		if (guibutton.id != 30 && !(guibutton instanceof GuiButtonNextPage)) {
 			return;
 		}
-		if (guibutton.id == 1) {
-			++this.currentPage;
-			this.initGui();
-		} else if (guibutton.id == 2) {
-			--this.currentPage;
-			this.initGui();
-		} else if (guibutton.id == 30 && this.selectedQuest != null) { // New
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("drop.quest",
-					new Object[] { new TextComponentTranslation(this.selectedQuest.getTitle()).getFormattedText() })
-							.getFormattedText(),
-					new TextComponentTranslation("quest.cancel.info", new Object[0]).getFormattedText(), 30);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+		switch(guibutton.id) {
+			case 1: {
+				++this.currentPage;
+				this.initGui();
+				break;
+			}
+			case 2: {
+				--this.currentPage;
+				this.initGui();
+				break;
+			}
+			case 30: {
+				if (this.selectedQuest == null) { return; }
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("drop.quest", new Object[] { new TextComponentTranslation(this.selectedQuest.getTitle()).getFormattedText() }).getFormattedText(), new TextComponentTranslation("quest.cancel.info", new Object[0]).getFormattedText(), 30);
+				this.displayGuiScreen((GuiScreen) guiyesno);
+				break;
+			}
+			case 31: {
+				if (this.selectedQuest == null) { return; }
+				ClientProxy.playerData.hud.questID = this.selectedQuest.id;
+				((GuiNpcButton) guibutton).enabled = false;
+				Client.sendDataDelayCheck(EnumPlayerPacket.TrackQuest, this, 0, ClientProxy.playerData.hud.questID);
+				break;
+			}
 		}
 	}
 
@@ -241,72 +322,6 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 				&& isMouseHover(i, j, this.guiLeft + 5, this.guiTop + 170, 90, 20)) {
 			this.setHoverText(new TextComponentTranslation("drop.quest", new Object[] { title }).getFormattedText());
 		}
-	}
-
-	@Override
-	public void initGui() {
-		super.initGui();
-		this.yoffset = this.ySize + 2;
-		for (Quest quest : PlayerQuestController.getActiveQuests(this.player)) {
-			String category = quest.category.title;
-			if (!this.activeQuests.containsKey(category)) {
-				this.activeQuests.put(category, new ArrayList<Quest>());
-			}
-			this.activeQuests.get(category).add(quest);
-		}
-		this.sideButtons.clear();
-		this.guiTop += 10;
-		TabRegistry.updateTabValues(this.guiLeft, this.guiTop, InventoryTabQuests.class);
-		TabRegistry.addTabsToList(this.buttonList);
-		this.noQuests = false;
-		if (this.activeQuests.isEmpty()) {
-			this.noQuests = true;
-			return;
-		}
-		// category Buttons
-		List<String> categories = new ArrayList<String>();
-		categories.addAll(this.activeQuests.keySet());
-		Collections.sort(categories, new NaturalOrderComparator());
-		int i = 0;
-		for (String cat : categories) {
-			if (this.selectedCategory.isEmpty()) {
-				this.selectedCategory = cat;
-			}
-			this.sideButtons.put(i, new GuiMenuSideButton(i, this.guiLeft - 69, this.guiTop + 2 + i * 21, 70, 22, cat));
-			++i;
-		}
-		this.sideButtons.get(categories.indexOf(this.selectedCategory)).active = true;
-		// scroll all quests
-		if (this.scroll == null) {
-			this.scroll = new GuiCustomScroll(this, 0);
-		}
-		HashMap<String, Quest> categoryQuests = new HashMap<String, Quest>();
-		for (Quest q : this.activeQuests.get(this.selectedCategory)) {
-			categoryQuests.put(q.getTitle(), q);
-		}
-		this.categoryQuests = categoryQuests;
-		this.scroll.setList(new ArrayList<String>(categoryQuests.keySet()));
-		this.scroll.setSize(134, 153);
-		this.scroll.guiLeft = this.guiLeft + 5;
-		this.scroll.guiTop = this.guiTop + 15;
-		this.addScroll(this.scroll);
-		// New
-		if (this.selectedQuest != null) {
-			if (this.selectedQuest.completion == EnumQuestCompletion.Npc) {
-				this.yoffset -= 11;
-			}
-			IQuestObjective[] allObj = this.selectedQuest.questInterface.getObjectives(this.player);
-			this.yoffset -= 9 * allObj.length;
-			this.yoffset -= 16;
-		} else {
-			this.scroll.selected = -1;
-		}
-		this.addButton(new GuiButtonNextPage(1, this.guiLeft + 286, this.guiTop + this.yoffset, true)); // Changed
-		this.addButton(new GuiButtonNextPage(2, this.guiLeft + 144, this.guiTop + this.yoffset, false)); // Changed
-		this.getButton(1).visible = (this.selectedQuest != null && this.currentPage < this.maxPages - 1);
-		this.getButton(2).visible = (this.selectedQuest != null && this.currentPage > 0);
-		// New
-		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 170, 90, 20, "quest.cancel", this.selectedQuest != null && this.selectedQuest.cancelable));
 	}
 
 	@Override

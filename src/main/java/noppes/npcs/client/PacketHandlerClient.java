@@ -276,7 +276,7 @@ extends PacketHandlerServer {
 				NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 			}
 		} else if (type == EnumPacketClient.PLAY_MUSIC) {
-			MusicController.Instance.playMusic(Server.readString(buffer), player);
+			MusicController.Instance.playMusic(Server.readString(buffer), SoundCategory.PLAYERS, player);
 		} else if (type == EnumPacketClient.PLAY_SOUND) {
 			MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(),
 					buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());

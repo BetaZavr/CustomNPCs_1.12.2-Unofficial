@@ -2,7 +2,10 @@ package noppes.npcs.client;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.Lists;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
@@ -21,11 +24,12 @@ public class Client {
 	public static Map<Object, Long> delayPackets = new HashMap<Object, Long>(); // New
 
 	public static void sendData(EnumPacketServer type, Object... obs) {
+		List<EnumPacketServer> notDebugShow = Lists.newArrayList(EnumPacketServer.StopSound, EnumPacketServer.PlaySound);
 		CustomNPCsScheduler.runTack(() -> {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (!(!Server.fillBuffer(buffer, type, obs))) {
-					LogWriter.debug("Send: " + type);
+					if (!notDebugShow.contains(type)) { LogWriter.debug("Send: " + type); }
 					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, "CustomNPCs"));
 				}
 			} catch (IOException e) {

@@ -76,7 +76,6 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 				break;
 			}
 		}
-		System.out.println("buttonID: "+button.id+" / "+this.ai.getMovingType());
 	}
 
 	@Override

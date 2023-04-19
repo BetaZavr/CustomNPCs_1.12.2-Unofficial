@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundCategory;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.client.controllers.MusicController;
@@ -61,7 +62,7 @@ implements IJobBard {
 			if (this.isStreamer) {
 				MusicController.Instance.playStreaming(this.song, this.npc);
 			} else {
-				MusicController.Instance.playMusic(this.song, this.npc);
+				MusicController.Instance.playMusic(this.song, SoundCategory.MUSIC, this.npc);
 			}
 		} else if (MusicController.Instance.playingEntity != this.npc) {
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();

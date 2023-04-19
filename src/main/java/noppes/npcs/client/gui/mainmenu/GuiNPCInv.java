@@ -188,7 +188,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		System.out.println("buttonID: "+button.id);
 		switch (button.id) {
 			case 0: { // lootMode
 				this.inventory.dropType = button.getValue();
@@ -329,7 +328,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText && ((SubGuiEditText) subgui).cancelled) { return; }
-		System.out.println("subguiID: "+subgui.id);
 		DropController dData = DropController.getInstance();
 		String name = ((SubGuiEditText) subgui).text[0];
 		if (subgui.id == 1) {

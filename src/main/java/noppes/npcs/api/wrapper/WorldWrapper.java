@@ -315,7 +315,6 @@ implements IWorld {
 		List<IEntity<?>> list = Lists.<IEntity<?>>newArrayList();
 		for (Entity living : this.world.loadedEntityList) {
 			IEntity<?> ie = NpcAPI.Instance().getIEntity(living);
-			System.out.println("living: "+ie.getType()+" / "+type);
 			if (ie.getType() != type) { continue; }
 			list.add(NpcAPI.Instance().getIEntity(living));
 		}

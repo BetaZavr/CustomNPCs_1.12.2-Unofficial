@@ -27,6 +27,7 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	private GuiCustomScroll scrollQuests;
 	private String selectedDomain;
 	public ResourceLocation selectedResource;
+	private String oldPlay = "";
 
 	public GuiSoundSelection(String sound) {
 		this.domains = new HashMap<String, List<String>>();
@@ -57,16 +58,18 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
+		if (guibutton.id == 1 && MusicController.Instance.isPlaying(this.oldPlay)) {
+			Minecraft.getMinecraft().getSoundHandler().stop(this.oldPlay, SoundCategory.NEUTRAL);
+			this.oldPlay = "";
+			return;
+		}
 		super.actionPerformed(guibutton);
 		if (guibutton.id == 1) {
-			MusicController.Instance.stopMusic();
 			BlockPos pos = this.player.getPosition();
-			MusicController.Instance.playSound(SoundCategory.NEUTRAL, this.selectedResource.toString(), pos.getX(),
-					pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			MusicController.Instance.playSound(SoundCategory.NEUTRAL, this.selectedResource.toString(), pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			this.oldPlay = this.selectedResource.toString();
 		}
-		if (guibutton.id == 2) {
-			this.close();
-		}
+		if (guibutton.id == 2) { this.close(); }
 	}
 
 	@Override
@@ -118,4 +121,13 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 		}
 		this.close();
 	}
+	
+	public void updateScreen() {
+		if (this.selectedResource!=null && this.getButton(1)!=null) {
+			boolean pl = MusicController.Instance.isPlaying(this.oldPlay);
+			this.getButton(1).setDisplayText(pl ? "gui.stop" : "gui.play");
+			if (!pl) { this.oldPlay = ""; }
+		}
+	}
+	
 }

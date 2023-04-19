@@ -612,6 +612,7 @@ gui.showmore=Дополнительно
 gui.small=Маленький
 gui.start=Нач.
 gui.started=Запустить
+gui.stop=Остановить
 gui.sunlight=Днем
 gui.tab=Вкладка
 gui.take=Забрать
@@ -963,6 +964,7 @@ puppet.walking=Когда ходит.
 
 quest.areakill=Зона убийства
 quest.cancel=Отменить Квест
+quest.track=Отслеживать Квест
 quest.cancel.info=§cВнимание!§r Квест не всегда можно начать заново.
 quest.cancelable.false=Не отменить
 quest.cancelable.true=Отменяемый

@@ -34,11 +34,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.gui.IItemSlot;
+import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.data.PlayerOverlayHUD;
+import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
@@ -49,6 +51,8 @@ import noppes.npcs.util.BuilderData;
 public class ClientGuiEventHandler
 extends Gui
 {
+
+	public static ResourceLocation white = new ResourceLocation(CustomNpcs.MODID, "textures/util/white.png");
 	
 	protected ResourceLocation coinNpc = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
 	protected ResourceLocation resSlot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
@@ -68,6 +72,29 @@ extends Gui
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent event) {
 		if (event.getType() != RenderGameOverlayEvent.ElementType.TEXT || this.mc==null || this.sw==null || this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat)) { return; }
+
+		/*GlStateManager.pushMatrix();
+		GlStateManager.enableDepth();
+		GlStateManager.enableBlend();
+		GlStateManager.translate(this.sw.getScaledWidth_double()/2.0d, this.sw.getScaledHeight_double()/2.0d, 0.0f);
+		//int list = ModelBuffer.getDisplayList("customnpcs:models/block/obj/test.obj", null, null);
+		
+		int list = ModelBuffer.getDisplayList("customnpcs:models/block/obj/test.obj", new float[] {-0.5f, 0.0f, -0.5f}, null, null);
+		//int list = ModelBuffer.getDisplayList("customnpcs:models/block/obj/npcmobcloner.obj", null, null, null);
+		String text = "LIST: "+list;
+		this.drawString(this.mc.fontRenderer, text, this.mc.fontRenderer.getStringWidth(text)/-2, -50, 0xFFFFFF);
+		Minecraft.getMinecraft().renderEngine.bindTexture(ClientGuiEventHandler.white);
+		//Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(CustomNpcs.MODID, "textures/items/npcchip.png"));
+		
+		GlStateManager.translate(0.0f, -50.0f, 0.0f);
+		GlStateManager.scale(50.0f, 50.0f, 50.0f);
+		GlStateManager.rotate((this.mc.world.getTotalWorldTime())%360, 0.0f, 1.0f, 0.0f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.callList(list);
+		GlStateManager.disableDepth();
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();*/
+		
 		PlayerOverlayHUD data = ClientProxy.playerData.hud;
 		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = data.getGuiComponents();
 		GuiCustom gui = new GuiCustom(null);
@@ -101,6 +128,19 @@ extends Gui
 				GlStateManager.popMatrix();
 			}
 		}
+		
+		if (!ClientProxy.playerData.questData.activeQuests.containsKey(data.questID) || (data.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
+			for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
+				if (id!=data.questID && id>0) {
+					data.questID = id;
+					break;
+				}
+			}
+		}
+		QuestData qData = ClientProxy.playerData.questData.activeQuests.get(data.questID);
+		if (qData==null) { return; }
+		IQuestObjective[] os = qData.quest.questInterface.getObjectives(this.mc.player);
+		
 	}
 	
 	private int[] getOffset(int type) {
