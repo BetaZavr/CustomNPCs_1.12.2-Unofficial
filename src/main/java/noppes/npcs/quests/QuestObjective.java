@@ -8,12 +8,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IDialog;
@@ -43,6 +46,9 @@ implements IQuestObjective {
 	private int range = 10;
 	public int slotID = 0;
 	private EnumQuestTask type = EnumQuestTask.ITEM;
+	public BlockPos pos = new BlockPos(0, 0, 0);
+	public int dimensionID = 0, rangeCompass = 5;
+	public String entityName = "";
 
 	public QuestObjective(int parentID, EntityPlayer player) {
 		this.parentID = parentID;
@@ -66,6 +72,10 @@ implements IQuestObjective {
 		newObj.leaveItem = this.leaveItem;
 		newObj.ignoreDamage = this.ignoreDamage;
 		newObj.ignoreNBT = this.ignoreNBT;
+		newObj.pos = this.pos;
+		newObj.dimensionID = this.dimensionID;
+		newObj.rangeCompass = this.rangeCompass;
+		newObj.entityName = this.entityName;
 		return newObj;
 	}
 
@@ -112,7 +122,13 @@ implements IQuestObjective {
 	public NBTTagCompound getNBT() {
 		NBTTagCompound nbtTask = new NBTTagCompound();
 		nbtTask.setInteger("Type", this.type.ordinal());
-
+		NBTTagCompound nbtCompass = new NBTTagCompound();
+		nbtCompass.setIntArray("Pos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ()});
+		nbtCompass.setInteger("DimensionID", this.dimensionID);
+		nbtCompass.setInteger("Range", this.rangeCompass);
+		nbtCompass.setString("EntityName", this.entityName);
+		nbtTask.setTag("CompassData", nbtCompass);
+		
 		if (this.maxProgress > 0) {
 			nbtTask.setInteger("Progress", this.maxProgress);
 		}
@@ -195,8 +211,7 @@ implements IQuestObjective {
 	public String getText() {
 		String done = "";
 		if (this.type == EnumQuestTask.ITEM) { // Collect Item
-			done = new TextComponentTranslation("quest.task.item." + (!this.isCompleted() ? "1" : "0"))
-					.getFormattedText();
+			done = new TextComponentTranslation("quest.task.item." + (!this.isCompleted() ? "1" : "0")).getFormattedText();
 			return this.item.getDisplayName() + ": " + this.getProgress() + "/" + this.getMaxProgress() + done
 					+ (this.leaveItem ? new TextComponentTranslation("quest.take.log").getFormattedText() : "");
 		}
@@ -247,8 +262,7 @@ implements IQuestObjective {
 	@Override
 	public boolean isCompleted() {
 		if (this.type == EnumQuestTask.ITEM) {
-			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT,
-					this.maxProgress);
+			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT, this.maxProgress);
 		}
 		PlayerData data = PlayerData.get(this.player);
 		QuestData questData = data.questData.activeQuests.get(this.parentID);
@@ -281,7 +295,14 @@ implements IQuestObjective {
 
 	public void load(NBTTagCompound nbtTask) {
 		this.type = EnumQuestTask.values()[nbtTask.getInteger("Type")];
-
+		if (nbtTask.hasKey("CompassData", 10)) {
+			NBTTagCompound nbtCompass = nbtTask.getCompoundTag("CompassData");
+			int[] bp = nbtCompass.getIntArray("Pos");
+			this.pos = new BlockPos(bp[0], bp[1], bp[2]);
+			this.dimensionID = nbtCompass.getInteger("DimensionID");
+			this.rangeCompass = nbtCompass.getInteger("Range");
+			this.entityName = nbtCompass.getString("EntityName");
+		}
 		if (nbtTask.hasKey("Progress", 3)) {
 			this.setMaxProgress(nbtTask.getInteger("Progress"));
 		}
@@ -486,7 +507,7 @@ implements IQuestObjective {
 
 	@Override
 	public void setTargetID(int id) {
-		if (id < 1) {
+		if (id < 0) {
 			throw new CustomNPCsException("Task ID must be greater than 0");
 		}
 		this.id = id;
@@ -511,5 +532,42 @@ implements IQuestObjective {
 		}
 		this.type = EnumQuestTask.values()[type];
 	}
+
+	@Override
+	public IPos getCompassPos() { return NpcAPI.Instance().getIPos(this.pos.getX(), this.pos.getY(), this.pos.getZ()); }
+
+	@Override
+	public void setCompassPos(IPos pos) { this.pos = pos.getMCBlockPos(); }
+
+	@Override
+	public void setCompassPos(int x, int y, int z) { this.pos = new BlockPos(x, y, z); }
+
+	@Override
+	public int getCompassDimension() { return this.dimensionID; }
+
+	@Override
+	public void setCompassDimension(int dimensionID) {
+		if (DimensionManager.isDimensionRegistered(dimensionID)) {
+			throw new CustomNPCsException("Dimension ID:"+dimensionID+" not found");
+		}
+		this.dimensionID = dimensionID;
+	}
+
+	@Override
+	public int getCompassRange() { return this.rangeCompass; }
+
+	@Override
+	public void setCompassRange(int range) {
+		if (range < 0 || range > 64) {
+			throw new CustomNPCsException("Compass Range must be between 3 and 64");
+		}
+		this.rangeCompass = range;
+	}
+
+	@Override
+	public String getOrientationEntityName() { return this.entityName; }
+	
+	@Override
+	public void setOrientationEntityName(String name) { this.entityName = name; }
 
 }

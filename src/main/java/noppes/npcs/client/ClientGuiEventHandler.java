@@ -3,9 +3,13 @@ package noppes.npcs.client;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -14,16 +18,22 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -37,13 +47,18 @@ import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
+import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.BorderController;
+import noppes.npcs.controllers.DialogController;
+import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
+import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
 
@@ -52,14 +67,16 @@ public class ClientGuiEventHandler
 extends Gui
 {
 
-	public static ResourceLocation white = new ResourceLocation(CustomNpcs.MODID, "textures/util/white.png");
-	
 	protected ResourceLocation coinNpc = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
 	protected ResourceLocation resSlot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
+	private static String compasRes = CustomNpcs.MODID+":models/util/compass.obj";
+	
 	private Minecraft mc;
 	private ScaledResolution sw;
 	private BorderController bData;
 	private double dx, dy, dz;
+	private int qt=0;
+
 	public static RayTraceResult result;
 
 	/** HUD Bar Interfase Canceled */
@@ -70,42 +87,22 @@ extends Gui
 	
 	/** HUD Bar Interfase */
 	@SubscribeEvent
-	public void npcRenderOverlay(RenderGameOverlayEvent event) {
-		if (event.getType() != RenderGameOverlayEvent.ElementType.TEXT || this.mc==null || this.sw==null || this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat)) { return; }
-
-		/*GlStateManager.pushMatrix();
-		GlStateManager.enableDepth();
-		GlStateManager.enableBlend();
-		GlStateManager.translate(this.sw.getScaledWidth_double()/2.0d, this.sw.getScaledHeight_double()/2.0d, 0.0f);
-		//int list = ModelBuffer.getDisplayList("customnpcs:models/block/obj/test.obj", null, null);
+	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
+		this.mc = Minecraft.getMinecraft();
+		this.sw = new ScaledResolution(this.mc);
+		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat)) { return; }
 		
-		int list = ModelBuffer.getDisplayList("customnpcs:models/block/obj/test.obj", new float[] {-0.5f, 0.0f, -0.5f}, null, null);
-		//int list = ModelBuffer.getDisplayList("customnpcs:models/block/obj/npcmobcloner.obj", null, null, null);
-		String text = "LIST: "+list;
-		this.drawString(this.mc.fontRenderer, text, this.mc.fontRenderer.getStringWidth(text)/-2, -50, 0xFFFFFF);
-		Minecraft.getMinecraft().renderEngine.bindTexture(ClientGuiEventHandler.white);
-		//Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(CustomNpcs.MODID, "textures/items/npcchip.png"));
-		
-		GlStateManager.translate(0.0f, -50.0f, 0.0f);
-		GlStateManager.scale(50.0f, 50.0f, 50.0f);
-		GlStateManager.rotate((this.mc.world.getTotalWorldTime())%360, 0.0f, 1.0f, 0.0f);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		GlStateManager.callList(list);
-		GlStateManager.disableDepth();
-		GlStateManager.disableBlend();
-		GlStateManager.popMatrix();*/
-		
-		PlayerOverlayHUD data = ClientProxy.playerData.hud;
-		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = data.getGuiComponents();
+		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
+		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = hud.getGuiComponents();
 		GuiCustom gui = new GuiCustom(null);
 		for (int type : mapC.keySet()) {
 			for (IGuiComponent component : mapC.get(type).values()) {
-				component.offSet(type, data.getWindowSize());
+				component.offSet(type, hud.getWindowSize());
 				component.setParent(gui);
 				component.onRender(this.mc, -1, -1, 0, 0);
 			}
 		}
-		TreeMap<Integer, TreeMap<Integer, IItemSlot>> mapS = data.getGuiSlots();
+		TreeMap<Integer, TreeMap<Integer, IItemSlot>> mapS = hud.getGuiSlots();
 		for (int type : mapS.keySet()) {
 			int[] os = this.getOffset(type);
 			for (int id : mapS.get(type).keySet()) {
@@ -129,20 +126,233 @@ extends Gui
 			}
 		}
 		
-		if (!ClientProxy.playerData.questData.activeQuests.containsKey(data.questID) || (data.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
-			for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
-				if (id!=data.questID && id>0) {
-					data.questID = id;
-					break;
+		String name = "", title = "";
+		BlockPos p = null;
+		int type = 0, range = 5;
+		if (hud.compassData.show) {
+			p = hud.compassData.pos;
+			name = hud.compassData.name;
+			title = hud.compassData.title;
+			if (this.mc.world.provider.getDimension()!=hud.compassData.getDimensionID()) { type = -1; }
+			else { type = hud.compassData.getType(); }
+			range = hud.compassData.getRange();
+		} else {
+			if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || (hud.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
+				for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
+					if (id!=hud.questID && id>0) {
+						hud.questID = id;
+						break;
+					}
+				}
+			}
+			QuestData qData = ClientProxy.playerData.questData.activeQuests.get(hud.questID);
+			if (qData==null) { return; }
+			double minD = Double.MAX_VALUE;
+			QuestObjective select = null;
+			for (IQuestObjective io : qData.quest.questInterface.getObjectives(this.mc.player)) {
+				QuestObjective o = (QuestObjective) io;
+				if (o.isCompleted()) { continue; }
+				if (qData.quest.step!=1) {
+					if (o.rangeCompass==0 && select==null) {
+						select = o;
+					} else if (o.rangeCompass!=0) {
+						double d = AdditionalMethods.distanceTo(o.pos.getX()+0.5d, o.pos.getY(), o.pos.getZ()+0.5d, this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ);
+						if (d <= minD) {
+							minD = d;
+							select = o;
+						}
+					}
+					continue;
+				}
+				select = o;
+				break;
+			}
+			if (select!=null) {
+				name = qData.quest.getTitle();
+				if (this.mc.world.provider.getDimension()!=select.getType()) { type = -1; }
+				else { type = select.getType(); }
+				if (select.rangeCompass>0) {
+					String n = "";
+					range = select.rangeCompass;
+					EnumQuestTask t = EnumQuestTask.values()[select.getType()];
+					p = select.pos;
+					if (t == EnumQuestTask.ITEM) {
+						title = new TextComponentTranslation("gui.get").getFormattedText()+": "+select.getItem().getDisplayName() + ": " + select.getProgress() + "/" + select.getMaxProgress();
+					}
+					else if (t == EnumQuestTask.CRAFT) {
+						title = new TextComponentTranslation("gui.get").getFormattedText()+": "+select.getItem().getDisplayName() + ": " + select.getProgress() + "/" + select.getMaxProgress();
+					}
+					else if (t == EnumQuestTask.DIALOG) {
+						title = new TextComponentTranslation("gui.read").getFormattedText()+": ";
+						Dialog dialog = DialogController.instance.dialogs.get(select.getTargetID());
+						if (dialog != null) { title += new TextComponentTranslation(dialog.title).getFormattedText(); }
+						else { title = "Dialog"; }
+						n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
+						if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
+						else { n = n.substring(0, n.length()-2); }
+					}
+					else if (t == EnumQuestTask.LOCATION) {
+						title = new TextComponentTranslation("gui.found").getFormattedText()+": "+select.getTargetName();
+					}
+					else if (EnumQuestTask.values()[select.getType()] == EnumQuestTask.MANUAL) {
+						title = new TextComponentTranslation("gui.do").getFormattedText()+": "+select.getTargetName();
+						n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
+						if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
+						else { n = n.substring(0, n.length()-2); }
+					}
+					if (t == EnumQuestTask.KILL || t == EnumQuestTask.AREAKILL) {
+						String entityName = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
+						if (entityName.equals("entity."+select.getTargetName()+".name")) { entityName = select.getTargetName(); 	}
+						else { entityName = entityName.substring(0, entityName.length()-2); }
+						n = entityName;
+						title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+entityName+ ": " + select.getProgress() + "/" + select.getMaxProgress();
+					}
+					if (n.isEmpty()) {
+						EntityLivingBase e = null;
+						AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p).grow(range, 1.5d, range);
+						List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+						if (n.equals("Player")) {
+							EntityPlayer pl = this.mc.world.getClosestPlayerToEntity(this.mc.player, 32.0d);
+							if (pl!=null && pl.getActivePotionEffect(Potion.getPotionFromResourceLocation("minecraft:invisibility"))==null) {
+								e = pl;
+								range = 1;
+							}
+						}
+						if (e==null) {
+							double d = range * range * range;
+							EntityLivingBase et = null;
+							for (EntityLivingBase el : ents) {
+								if (!el.getName().equals(n)) { continue; }
+								double r = p.distanceSq((Vec3i) el.getPosition());
+								if (et == null) { d = r; et = el; }
+								else {
+									if (r >= d) { continue; }
+									d = r;
+									et = el;
+								}
+							}
+							if (et==null) {
+								bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p).grow(range, range, range);
+								ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+								d = range * range * range;
+								for (EntityLivingBase el : ents) {
+									if (!el.getName().equals(n)) { continue; }
+									double r = p.distanceSq((Vec3i) el.getPosition());
+									if (et == null) { d = r; et = el; }
+									else {
+										if (r >= d) { continue; }
+										d = r;
+										et = el;
+									}
+								}
+							}
+							e = et;
+						}
+						if (e!=null) {
+							p = e.getPosition();
+							if (t!=EnumQuestTask.KILL && t!=EnumQuestTask.AREAKILL) { range = 1; }
+						}
+					}
 				}
 			}
 		}
-		QuestData qData = ClientProxy.playerData.questData.activeQuests.get(data.questID);
-		if (qData==null) { return; }
-		IQuestObjective[] os = qData.quest.questInterface.getObjectives(this.mc.player);
+		double[] angles = null;
+		angles = AdditionalMethods.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p.getX()-0.5d, p.getY()+0.5d, p.getZ()+0.5d);
+		
+		float scale = -30.0f;
+		float incline = -45.0f;
+		double[] uvPos = new double[] { this.sw.getScaledWidth_double()*0.15d, this.sw.getScaledHeight_double()*0.765d };
+		uvPos = new double[] { this.sw.getScaledWidth_double()/2.0d, this.sw.getScaledHeight_double()/2.0d-30.0d };
+//if (this.mc.world.getTotalWorldTime()%200==0) { System.out.println("type "+type); }
+		GlStateManager.pushMatrix();
+		
+		// Named
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(uvPos[0], uvPos[1]+33.0f, 0.0d);
+		this.drawCenteredString(this.mc.fontRenderer, name, 0, 0, 0xFFFFFFFF);
+		this.drawCenteredString(this.mc.fontRenderer, title, 0, 12, 0xFFFFFFFF);
+		GlStateManager.popMatrix();
+
+		GlStateManager.enableDepth();
+		this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		GlStateManager.translate(uvPos[0], uvPos[1], 0.0d);
+		GlStateManager.scale(scale, scale, scale);
+		GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
+		GlStateManager.enableDepth();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.enableLighting();
+		RenderHelper.enableStandardItemLighting();
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+		
+		// Body
+		GlStateManager.pushMatrix();
+		//System.out.println("CNPCs: "+ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("body"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("body"), null));
+		GlStateManager.popMatrix();
+		
+		// Dial
+		GlStateManager.pushMatrix();
+		GlStateManager.rotate(this.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("dial"), null));
+		GlStateManager.popMatrix();
+		
+		// Arrow_0
+		GlStateManager.pushMatrix();
+		if (angles!=null && (range==1 || angles[3]>range)) {
+			float yaw = this.mc.player.rotationYaw % 360.0f;
+			if (yaw<0) { yaw += 360.0f; }
+			GlStateManager.rotate(180.0f + yaw - (float) angles[0], 0.0f, 1.0f, 0.0f);
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_0"), null));
+		} else {
+			
+		}
+		GlStateManager.popMatrix();
+
+		// Arrow_1 upper
+		double yP = 0.0d;
+		if (p!=null) {
+			yP = 0.25d * (this.mc.player.posY - (double) p.getY()) / (double) range;
+			GlStateManager.pushMatrix();
+			if (yP >= -0.25d && yP <= 0.25d) { GlStateManager.translate(0.0d, yP, 0.0d); }
+			else {
+				if (yP > 0.25d) { GlStateManager.translate(0.0d, 0.275d, 0.0d); }
+				else if (yP < -0.25d) { GlStateManager.translate(0.0d, -0.275d, 0.0d); }
+				double t = System.currentTimeMillis()%1000.0d;
+				double f0 = t<500.0d ? -0.025d + 0.05d * (t % 500.0d)/500.0d : 0.025d - 0.05d * (t % 500.0d)/500.0d; 
+				GlStateManager.translate(0.0d, f0, 0.0d);
+			}
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_1"), null));
+			GlStateManager.popMatrix();
+		}
+		
+		// Arrow_2
+		if (p!=null) {
+			GlStateManager.pushMatrix();
+			if (yP > 0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_21"), null)); }
+			else if (yP < -0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_22"), null)); }
+			else { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_20"), null)); }
+			GlStateManager.popMatrix();
+		}
+		
+		if (type>=-1 && type<EnumQuestTask.values().length) {
+			Map<String, String> m = Maps.<String, String>newHashMap();
+			m.put("customnpcs:util/task_0", "customnpcs:util/task_"+type);
+			GlStateManager.pushMatrix();
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("fase"), m));
+			GlStateManager.popMatrix();
+		}
+
+		GlStateManager.disableRescaleNormal();
+		GlStateManager.disableLighting();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.enableBlend();
+		GlStateManager.disableDepth();
+		
+		GlStateManager.popMatrix();
 		
 	}
-	
+
 	private int[] getOffset(int type) {
 		int[] offsets = new int [] {0, 0};
 		switch(type) {
@@ -206,11 +416,13 @@ extends Gui
 		if (this.sw==null) { this.sw = new ScaledResolution(this.mc); return; }
 		if (this.bData==null) { this.bData = BorderController.getInstance(); return; }
 		if (this.mc.player.world==null) { return; }
+
 		//if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
 		// position
 		this.dx = this.mc.player.lastTickPosX + (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
 		this.dy = this.mc.player.lastTickPosY + (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
 		this.dz = this.mc.player.lastTickPosZ + (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
+		
 		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBuilder) {
 			int id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("ID");
 			if (!CommonProxy.dataBuilder.containsKey(id)) {

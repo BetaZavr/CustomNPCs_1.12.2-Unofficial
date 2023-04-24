@@ -156,8 +156,8 @@ extends BlockRendererInterface<T> {
 					}
 					this.renderBlock(tile, block, state);
 				}
-				else if (!l.objModel.isEmpty() && ModelBuffer.getDisplayList(l.objModel, null, null, null)>=0) {
-					int displayList = ModelBuffer.getDisplayList(l.objModel, null, null, null);
+				else if (!l.objModel.isEmpty() && ModelBuffer.getDisplayList(l.objModel, null, null)>=0) {
+					int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
 					if (displayList>=0) { GlStateManager.callList(displayList); }
 				}
 				GlStateManager.popMatrix();

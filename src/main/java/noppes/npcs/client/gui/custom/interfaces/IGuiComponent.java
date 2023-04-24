@@ -16,4 +16,8 @@ public interface IGuiComponent {
 
 	void setParent(GuiCustom gui);
 	
+	int[] getPosXY();
+	
+	void setPosXY(int newX, int newY);
+	
 }

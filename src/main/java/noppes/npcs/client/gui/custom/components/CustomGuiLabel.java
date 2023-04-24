@@ -28,7 +28,7 @@ implements IGuiComponent {
 	String[] hoverText;
 	GuiCustom parent;
 	float scale;
-    private final int[] offsets;
+	private final int[] offsets;
 
 	public CustomGuiLabel(String label, int id, int x, int y, int width, int height) {
 		this(label, id, x, y, width, height, 16777215);
@@ -104,6 +104,15 @@ implements IGuiComponent {
 				this.offsets[1] = 0;
 			}
 		}
+	}
+
+	@Override
+	public int[] getPosXY() { return new int[] { this.x, this.y }; }
+
+	@Override
+	public void setPosXY(int newX, int newY) { 
+		this.x = newX;
+		this.y = newY;
 	}
 	
 }

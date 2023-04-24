@@ -1,0 +1,17 @@
+newmtl red
+Kd 0.800000 0.000000 0.000000
+d 1.000000
+
+newmtl white
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+
+newmtl material
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd customnpcs:util/npcchip
+
+newmtl fase
+Kd 1.000000 1.000000 1.000000
+d 1.000000
+map_Kd customnpcs:blocks/npcscriptedblock2

@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
@@ -15,37 +16,45 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
+import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
+import noppes.npcs.LogWriter;
 import noppes.npcs.client.renderer.data.ParameterizedModel;
 
 public class ModelBuffer {
 
-	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList();
-	private static List<String> NOT_FOUND = Lists.<String>newArrayList();
-		
-	public static int getDisplayList(String objModel, float[] baseAxisOffsets, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
-		ParameterizedModel model = new ParameterizedModel(-1, new ResourceLocation(objModel), baseAxisOffsets, visibleMeshes, replacesMaterialTextures);
+	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList(); // список параметризированных отрисованных моделей
+	private static List<String> NOT_FOUND = Lists.<String>newArrayList(); // список отсутствующих моделей, чтобы не фризить клиент
+	
+	/** Собственно попытка получить ID листа:
+     * @param objModel - ресурс на расположение OBJ модели
+     * @param visibleMeshes - список имён мешей/сеток, которые нужно отобразить из модели
+     * @param replacesMaterialTextures - карта замены текстур. Ключ-ресурс на текстуру из материала, Значение-новый ресурс текстура
+     * @return ID листа для рисовки
+     */
+	public static int getDisplayList(String objModel, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
+		if (ModelBuffer.NOT_FOUND.contains(objModel)) { return -1; }
+		ParameterizedModel model = new ParameterizedModel(-1, new ResourceLocation(objModel), visibleMeshes, replacesMaterialTextures);
 		for (ParameterizedModel pm : ModelBuffer.MODELS) {
 			if (pm.equals(model)) {
 				model = pm;
 				break;
 			}
 		}
-		if (model.listId==0) { model.listId = -1; }
-		if (model.listId<0 && !ModelBuffer.NOT_FOUND.contains(objModel)) {
+		if (model.listId<0) {
 			try {
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file);
 				if (model.iModel==null) {
+					LogWriter.error("Error: OBJ model\""+objModel+"\" file not found");
 					ModelBuffer.NOT_FOUND.add(objModel);
 					return -1;
 				}
+				model.iModel.process(ImmutableMap.of("flip-v", "true"));
 				model.listId = GLAllocation.generateDisplayLists(1);
-				GlStateManager.enableDepth();
 				GlStateManager.glNewList(model.listId, GL11.GL_COMPILE);
 				Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
 					ResourceLocation loc;
@@ -56,10 +65,7 @@ public class ModelBuffer {
 				};
 				if (model.visibleMeshes==null || model.visibleMeshes.size()==0) { model.visibleMeshes = Lists.<String>newArrayList(model.iModel.getMatLib().getGroups().keySet()); }
 				@SuppressWarnings("deprecation")
-				IBakedModel bakedmodel = model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
-				if (model.baseOffset[0]!=0.0f || model.baseOffset[1]!=0.0f || model.baseOffset[2]!=0.0f) {
-					GlStateManager.translate(model.baseOffset[0], model.baseOffset[1], model.baseOffset[2]);
-				}
+				OBJBakedModel bakedmodel = (OBJBakedModel) model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder worldrenderer = tessellator.getBuffer();
 				worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
@@ -70,7 +76,10 @@ public class ModelBuffer {
 				GlStateManager.glEndList();
 				ModelBuffer.MODELS.add(model);
 			}
-			catch (Exception e) { }
+			catch (Exception e) {
+				ModelBuffer.NOT_FOUND.add(objModel);
+				LogWriter.error("Error create OBJ render list: "+e);
+			}
 		}
 		return model.listId;
 	}

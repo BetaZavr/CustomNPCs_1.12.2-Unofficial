@@ -15,17 +15,12 @@ public class ParameterizedModel {
 	public ResourceLocation file;
 	public List<String> visibleMeshes;
 	public Map<String, String> materialTextures;
-	public float[] baseOffset;
 	public OBJModel iModel;
 	
-	public ParameterizedModel(int list, ResourceLocation file, float[] baseAxisOffsets, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
+	public ParameterizedModel(int list, ResourceLocation file, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		this.listId = list;
 		this.file = file;
 		this.iModel = null;
-		this.baseOffset = new float[] { 0.0f, 0.0f, 0.0f };
-		if (baseAxisOffsets!=null && baseAxisOffsets.length>=3) {
-			for (int i=0; i<3; i++) { this.baseOffset[i] = baseAxisOffsets[i]; }
-		}
 		this.visibleMeshes = Lists.<String>newArrayList();
 		this.materialTextures = Maps.<String, String>newHashMap();
 		if (visibleMeshes!=null && visibleMeshes.size()>0) { this.visibleMeshes = visibleMeshes; }
@@ -37,9 +32,6 @@ public class ParameterizedModel {
 		ParameterizedModel objPM = (ParameterizedModel) obj;
 		if (this == objPM) { return true; }
 		if (!this.file.equals(objPM.file)) { return false; }
-		for (int i=0; i<3; i++) {
-			if (this.baseOffset[i]!=objPM.baseOffset[i]) { return false; }
-		}
 		if (this.visibleMeshes.size()==0 && this.materialTextures.size()==0 && objPM.visibleMeshes.size()==0 && objPM.materialTextures.size()==0) { return true; }
 		if (this.visibleMeshes.size()!=objPM.visibleMeshes.size()) {
 			if (objPM.visibleMeshes.size()>0) { return false; }

@@ -115,5 +115,14 @@ implements IGuiComponent {
 	public void setParent(GuiCustom parent) {
 		this.parent = parent;
 	}
+
+	@Override
+	public int[] getPosXY() { return new int[] { this.x, this.y }; }
+
+	@Override
+	public void setPosXY(int newX, int newY) { 
+		this.x = newX;
+		this.y = newY;
+	}
 	
 }

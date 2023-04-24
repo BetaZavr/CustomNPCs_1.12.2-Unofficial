@@ -126,15 +126,13 @@ public class GuiQuestEdit extends SubGuiInterface
 		}
 		case 16: { // up
 			this.quest.questInterface.upPos(this.tasksData.get(this.scrollTasks.getSelected()));
-			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-					this.quest.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, this.quest.writeToNBT(new NBTTagCompound()));
 			this.initGui();
 			break;
 		}
 		case 17: { // down
 			this.quest.questInterface.downPos(this.tasksData.get(this.scrollTasks.getSelected()));
-			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-					this.quest.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, this.quest.writeToNBT(new NBTTagCompound()));
 			this.initGui();
 			break;
 		}
@@ -149,8 +147,7 @@ public class GuiQuestEdit extends SubGuiInterface
 		case 20: { // remove task
 			if (this.quest.questInterface.removeTask(this.tasksData.get(this.task))) {
 				this.task = "";
-				Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-						this.quest.writeToNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, this.quest.writeToNBT(new NBTTagCompound()));
 				this.initGui();
 			}
 			break;
@@ -244,10 +241,7 @@ public class GuiQuestEdit extends SubGuiInterface
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null) {
-			return;
-		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (this.subgui!=null || !CustomNpcs.showDescriptions) { return; }
 		if (isMouseHover(i, j, this.guiLeft + 47, this.guiTop + 7, 123, 16)) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.name").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 122, this.guiTop + 32, 46, 16)) {
@@ -304,57 +298,6 @@ public class GuiQuestEdit extends SubGuiInterface
 	@Override
 	public void initGui() {
 		super.initGui();
-
-		/*
-		 * Changed this.addLabel(new GuiNpcLabel(1, "gui.title", this.guiLeft + 4,
-		 * this.guiTop + 8)); this.addTextField(new GuiNpcTextField(1, this,
-		 * this.fontRenderer, this.guiLeft + 46, this.guiTop + 3, 220, 20,
-		 * this.quest.title)); this.addLabel(new GuiNpcLabel(0, "ID", this.guiLeft +
-		 * 268, this.guiTop + 4)); this.addLabel(new GuiNpcLabel(2, this.quest.id + "",
-		 * this.guiLeft + 268, this.guiTop + 14)); this.addLabel(new GuiNpcLabel(3,
-		 * "quest.completedtext", this.guiLeft + 4, this.guiTop + 30));
-		 * this.addButton(new GuiNpcButton(3, this.guiLeft + 120, this.guiTop + 25, 50,
-		 * 20, "selectServer.edit")); this.addLabel(new GuiNpcLabel(4,
-		 * "quest.questlogtext", this.guiLeft + 4, this.guiTop + 51));
-		 * this.addButton(new GuiNpcButton(4, this.guiLeft + 120, this.guiTop + 46, 50,
-		 * 20, "selectServer.edit")); this.addLabel(new GuiNpcLabel(5, "quest.reward",
-		 * this.guiLeft + 4, this.guiTop + 72)); this.addButton(new GuiNpcButton(5,
-		 * this.guiLeft + 120, this.guiTop + 67, 50, 20, "selectServer.edit"));
-		 * this.addLabel(new GuiNpcLabel(6, "gui.type", this.guiLeft + 4, this.guiTop +
-		 * 93)); this.addButton(new GuiButtonBiDirectional(6, this.guiLeft + 70,
-		 * this.guiTop + 88, 90, 20, new String[] { "quest.item", "quest.dialog",
-		 * "quest.kill", "quest.location", "quest.areakill", "quest.manual" },
-		 * this.quest.type)); this.addButton(new GuiNpcButton(7, this.guiLeft + 162,
-		 * this.guiTop + 88, 50, 20, "selectServer.edit")); this.addLabel(new
-		 * GuiNpcLabel(8, "quest.repeatable", this.guiLeft + 4, this.guiTop + 114));
-		 * this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 70, this.guiTop +
-		 * 109, 140, 20, new String[] { "gui.no", "gui.yes", "quest.mcdaily",
-		 * "quest.mcweekly", "quest.rldaily", "quest.rlweekly" },
-		 * this.quest.repeat.ordinal())); this.addButton(new GuiNpcButton(9,
-		 * this.guiLeft + 4, this.guiTop + 131, 90, 20, new String[] { "quest.npc",
-		 * "quest.instant" }, this.quest.completion.ordinal())); if
-		 * (this.quest.completerNpc.isEmpty()) { this.quest.completerNpc =
-		 * this.npc.display.getName(); } this.addTextField(new GuiNpcTextField(2, this,
-		 * this.fontRenderer, this.guiLeft + 96, this.guiTop + 131, 114, 20,
-		 * this.quest.completerNpc)); this.getTextField(2).enabled =
-		 * (this.quest.completion == EnumQuestCompletion.Npc); this.addLabel(new
-		 * GuiNpcLabel(10, "faction.options", this.guiLeft + 214, this.guiTop + 30));
-		 * this.addButton(new GuiNpcButton(10, this.guiLeft + 330, this.guiTop + 25, 50,
-		 * 20, "selectServer.edit")); this.addLabel(new GuiNpcLabel(15,
-		 * "advMode.command", this.guiLeft + 214, this.guiTop + 52)); this.addButton(new
-		 * GuiNpcButton(15, this.guiLeft + 330, this.guiTop + 47, 50, 20,
-		 * "selectServer.edit")); this.addButton(new GuiNpcButton(13, this.guiLeft + 4,
-		 * this.guiTop + 153, 164, 20, "mailbox.setup")); this.addButton(new
-		 * GuiNpcButton(14, this.guiLeft + 170, this.guiTop + 153, 20, 20, "X")); if
-		 * (!this.quest.mail.subject.isEmpty()) {
-		 * this.getButton(13).setDisplayText(this.quest.mail.subject); }
-		 * this.addButton(new GuiNpcButton(11, this.guiLeft + 4, this.guiTop + 175, 164,
-		 * 20, "quest.next")); this.addButton(new GuiNpcButton(12, this.guiLeft + 170,
-		 * this.guiTop + 175, 20, 20, "X")); if (!this.quest.nextQuestTitle.isEmpty()) {
-		 * this.getButton(11).setDisplayText(this.quest.nextQuestTitle); }
-		 * this.addButton(new GuiNpcButton(66, this.guiLeft + 362, this.guiTop + 4, 20,
-		 * 20, "X"));
-		 */
 		// New
 		this.quest = NoppesUtilServer.getEditingQuest(this.player);
 		this.quest.questInterface.fix();
@@ -387,8 +330,7 @@ public class GuiQuestEdit extends SubGuiInterface
 		HashMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
 		for (int id : dialogs.keySet()) {
 			if (dialogs.get(id).quest == this.quest.id) {
-				this.isGet = new String[] { "0", "" + id,
-						chr + "8" + dialogs.get(id).category.title + "/" + chr + "r" + dialogs.get(id).title };
+				this.isGet = new String[] { "0", "" + id, chr + "8" + dialogs.get(id).category.title + "/" + chr + "r" + dialogs.get(id).title };
 				break;
 			}
 		}
@@ -496,8 +438,7 @@ public class GuiQuestEdit extends SubGuiInterface
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-				this.quest.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, this.quest.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -547,8 +488,7 @@ public class GuiQuestEdit extends SubGuiInterface
 		if (compound != null && compound.hasKey("MinimumID", 3) && this.quest.id != compound.getInteger("MinimumID")) {
 			Client.sendData(EnumPacketServer.QuestRemove, this.quest.id);
 			this.quest.id = compound.getInteger("MinimumID");
-			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-					this.quest.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, this.quest.writeToNBT(new NBTTagCompound()));
 			this.initGui();
 		}
 	}

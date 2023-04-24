@@ -169,9 +169,9 @@ public class NoppesUtilPlayer {
 	}
 
 	// New
-	public static boolean compareItems(EntityPlayer player, ItemStack item, boolean ignoreDamage, boolean ignoreNBT,
-			int amount) {
+	public static boolean compareItems(EntityPlayer player, ItemStack item, boolean ignoreDamage, boolean ignoreNBT, int amount) {
 		int size = 0;
+		if (player==null) { return false; }
 		for (int i = 0; i < player.inventory.getSizeInventory(); ++i) {
 			ItemStack is = player.inventory.getStackInSlot(i);
 			if (!NoppesUtilServer.IsItemStackNull(is) && compareItems(item, is, ignoreDamage, ignoreNBT)) {

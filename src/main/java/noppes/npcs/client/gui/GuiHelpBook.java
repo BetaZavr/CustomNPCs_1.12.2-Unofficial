@@ -320,13 +320,15 @@ implements ICustomScrollListener {
 		if (this.activeLeftTab!=21 || this.scroll==null || !(this.get(0) instanceof GuiTextArea)) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (!area.hovered) { return; }
-		Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
-		if (select==null || select[1]==null) { return; }
-		if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])==null) {
-			this.scroll.setSelected((String) select[1]);
-			this.resetText();
-			return;
+		try {
+			Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
+			if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])==null) {
+				this.scroll.setSelected((String) select[1]);
+				this.resetText();
+				return;
+			}
 		}
+		catch (Exception e) { }
 	}
 	
 }

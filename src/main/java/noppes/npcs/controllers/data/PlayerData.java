@@ -81,7 +81,7 @@ implements ICapabilityProvider {
 	}
 
 	public static PlayerData get(EntityPlayer player) {
-		if (player.world.isRemote) {
+		if (player==null || player.world.isRemote) {
 			return CustomNpcs.proxy.getPlayerData(player);
 		}
 		PlayerData data = (PlayerData) player.getCapability(PlayerData.PLAYERDATA_CAPABILITY, null);

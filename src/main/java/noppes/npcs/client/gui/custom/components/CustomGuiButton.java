@@ -173,5 +173,14 @@ implements IClickListener {
 			}
 		}
 	}
+
+	@Override
+	public int[] getPosXY() { return new int[] { this.x, this.y }; }
+
+	@Override
+	public void setPosXY(int newX, int newY) { 
+		this.x = newX;
+		this.y = newY;
+	}
 	
 }

@@ -69,7 +69,7 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0, 0, this.id);
-		GlStateManager.color(1.0f, 1.0f, 1.0f);
+		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 		mc.getTextureManager().bindTexture(this.texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -120,6 +120,15 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 	@Override
 	public void setParent(GuiCustom parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public int[] getPosXY() { return new int[] { this.x, this.y }; }
+
+	@Override
+	public void setPosXY(int newX, int newY) { 
+		this.x = newX;
+		this.y = newY;
 	}
 	
 }

@@ -1,0 +1,120 @@
+package noppes.npcs.controllers.data;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.DimensionManager;
+import noppes.npcs.api.IPos;
+import noppes.npcs.api.gui.ICompassData;
+import noppes.npcs.api.wrapper.BlockPosWrapper;
+import noppes.npcs.constants.EnumQuestTask;
+
+public class PlayerCompassHUDData
+implements ICompassData {
+	
+	public String name, title;
+	public BlockPos pos;
+	public boolean show;
+	private int dimensionId, range, type;
+	
+	public PlayerCompassHUDData(int type, String name, String title, BlockPos pos, int dimensionId, int range) {
+		this();
+		if (name!=null) { this.name = name; }
+		if (title!=null) { this.title = title; }
+		if (pos!=null) { this.pos = pos; }
+		this.setDimensionID(dimensionId);
+		this.setRange(range);
+		this.setType(type);
+	}
+	
+	public PlayerCompassHUDData() {
+		this.name = "";
+		this.title = "";
+		this.pos = new BlockPos(0, 0, 0);
+		this.dimensionId = 0;
+		this.range = 5;
+		this.type = 0;
+		this.show = false;
+	}
+
+	public NBTTagCompound getNbt() {
+		NBTTagCompound nbtCompass = new NBTTagCompound();
+		nbtCompass.setString("Name", this.name);
+		nbtCompass.setString("Title", this.title);
+		nbtCompass.setIntArray("BlockPos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ() });
+		nbtCompass.setInteger("DimensionID", this.dimensionId);
+		nbtCompass.setInteger("Range", this.range);
+		nbtCompass.setInteger("Type", this.type);
+		nbtCompass.setBoolean("IsShow", this.show);
+		return nbtCompass;
+	}
+
+	public void load(NBTTagCompound nbtCompass) {
+		this.name = nbtCompass.getString("Name");
+		this.title = nbtCompass.getString("Title");
+		int[] p = nbtCompass.getIntArray("BlockPos");
+		if (p!=null && p.length>=3) { this.pos = new BlockPos(p[0], p[1], p[2]); }
+		this.setDimensionID(nbtCompass.getInteger("DimensionID"));
+		this.setRange(nbtCompass.getInteger("Range"));
+		this.setType(nbtCompass.getInteger("Type"));
+		this.show = nbtCompass.getBoolean("IsShow");
+	}
+
+	@Override
+	public int getType() { return this.type; }
+	
+	@Override
+	public void setType(int type) {
+		if (type<0) { type *= -1; }
+		if (type > EnumQuestTask.values().length-1) { type %= EnumQuestTask.values().length-1; }
+		this.type = type;
+	}
+
+	@Override
+	public int getRange() { return this.range; }
+	
+	@Override
+	public void setRange(int range) {
+		if (range<0) { range *= -1; }
+		if (range>64) { range = 64; }
+		this.range = range;
+	}
+
+	@Override
+	public int getDimensionID() { return this.dimensionId; }
+
+	@Override
+	public void setDimensionID(int dimID) {
+		if (DimensionManager.isDimensionRegistered(dimID)) { dimID = 0; }
+		this.dimensionId = dimID;
+	}
+
+	@Override
+	public IPos getPos() { return new BlockPosWrapper(this.pos); }
+
+	@Override
+	public void setPos(IPos pos) { if (pos!=null) { this.pos = pos.getMCBlockPos(); } }
+
+	@Override
+	public void setPos(int x, int y, int z) {
+		this.pos = new BlockPos(x, y, z);
+	}
+
+	@Override
+	public String getName() { return this.name; }
+
+	@Override
+	public void setName(String name) { if (name!=null) { this.name = name; } }
+
+	@Override
+	public String getTitle() { return this.title; }
+
+	@Override
+	public void setTitle(String title) { if (title!=null) { this.title = title; } }
+
+	@Override
+	public boolean isShow() { return this.show; }
+	
+	@Override
+	public void setShow(boolean show) { this.show = show; }
+	
+}

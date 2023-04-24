@@ -880,6 +880,11 @@ extends CommonProxy {
 					}
 				}
 				else if (customblock instanceof CustomLiquid) {
+					texture = new File(texturesDir, fileName.toLowerCase()+"_still.png.mcmeta");
+					if (!texture.exists()) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_still.png.mcmeta"));
+						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
+					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_flow.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png"));
@@ -896,11 +901,6 @@ extends CommonProxy {
 						if (baseTexrure!=null) {ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_flow.png.mcmeta");
-					if (!texture.exists()) {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png.mcmeta"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
-					}
-					texture = new File(texturesDir, fileName.toLowerCase()+"_still.png.mcmeta");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png.mcmeta"));
 						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }

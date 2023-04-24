@@ -36,11 +36,13 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 		if (this.selectedDialog != null) {
 			this.selectedCategory = this.selectedDialog.category;
 		}
+		System.out.println("dialog: "+dialog+" = "+this.selectedDialog);
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		int id = guibutton.id;
+		System.out.println("buttonID: "+guibutton.id);
 		if (id == 2) {
 			if (this.selectedDialog != null) {
 				this.scrollDoubleClicked(null, null);
@@ -53,6 +55,7 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 	@Override
 	public void initGui() {
 		super.initGui();
+		System.out.println("parent: "+this.parent);
 		if (this.parent instanceof GuiSelectionListener) {
 			this.listener = (GuiSelectionListener) this.parent;
 		}
@@ -91,10 +94,12 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 		this.scrollDialogs.guiLeft = this.guiLeft + 175;
 		this.scrollDialogs.guiTop = this.guiTop + 14;
 		this.addScroll(this.scrollDialogs);
+		System.out.println("end");
 	}
 
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
+		System.out.println("scrollClicked");
 		if (guiCustomScroll.id == 0) {
 			this.selectedCategory = this.categoryData.get(this.scrollCategories.getSelected());
 			this.selectedDialog = null;
@@ -108,6 +113,7 @@ public class GuiDialogSelection extends SubGuiInterface implements ICustomScroll
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+		System.out.println("scrollDoubleClicked");
 		if (this.selectedDialog == null) {
 			return;
 		}

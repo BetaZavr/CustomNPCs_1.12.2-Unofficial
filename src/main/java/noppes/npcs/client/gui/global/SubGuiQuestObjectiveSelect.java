@@ -113,7 +113,7 @@ public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
 		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 20, 76, 16)) {
 			this.setHoverText(new TextComponentTranslation("drop.hover.task.0", new Object[0]).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 87, this.guiTop + 20, 76, 16)) {

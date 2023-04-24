@@ -385,7 +385,6 @@ public class QuestInterface {
 
 	public void readEntityFromNBT(NBTTagCompound compound) {
 		this.id = compound.getInteger("Id");
-
 		if (compound.hasKey("Tasks", 9)) { // New
 			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
 			List<ItemStack> stacks = new ArrayList<ItemStack>();

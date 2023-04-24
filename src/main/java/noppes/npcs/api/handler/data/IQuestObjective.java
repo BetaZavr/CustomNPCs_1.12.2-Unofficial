@@ -1,5 +1,6 @@
 package noppes.npcs.api.handler.data;
 
+import noppes.npcs.api.IPos;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IQuestObjective {
@@ -49,4 +50,22 @@ public interface IQuestObjective {
 
 	void setType(int type);
 
+	IPos getCompassPos();
+
+	void setCompassPos(IPos pos);
+
+	void setCompassPos(int x, int y, int z);
+	
+	int getCompassDimension();
+	
+	void setCompassDimension(int dimensionID);
+	
+	int getCompassRange();
+	
+	void setCompassRange(int range);
+
+	String getOrientationEntityName();
+
+	void setOrientationEntityName(String name);
+	
 }

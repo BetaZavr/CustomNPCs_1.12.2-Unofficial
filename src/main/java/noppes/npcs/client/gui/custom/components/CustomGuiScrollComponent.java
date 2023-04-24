@@ -122,4 +122,14 @@ implements IDataHolder, IClickListener {
 			}
 		}
 	}
+
+	@Override
+	public int[] getPosXY() { return new int[] { this.guiLeft, this.guiTop }; }
+
+	@Override
+	public void setPosXY(int newX, int newY) { 
+		this.guiLeft = newX;
+		this.guiTop = newY;
+	}
+	
 }

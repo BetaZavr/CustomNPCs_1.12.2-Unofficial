@@ -12,7 +12,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.Server;
+import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.IPos;
+import noppes.npcs.api.gui.ICompassData;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.gui.IGuiTimer;
 import noppes.npcs.api.gui.IItemSlot;
@@ -31,6 +35,7 @@ import noppes.npcs.client.gui.custom.components.CustomGuiTexturedRect;
 import noppes.npcs.client.gui.custom.components.CustomGuiTimer;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class PlayerOverlayHUD
@@ -52,6 +57,7 @@ implements IOverlayHUD {
 	
 	private boolean update;
 	private EntityPlayerMP player;
+	public PlayerCompassHUDData compassData;
 	
 	public PlayerOverlayHUD() {
 		this.isMoved = false;
@@ -69,6 +75,7 @@ implements IOverlayHUD {
 		this.player = null;
 		this.offsetType = 0;
 		this.questID = 0;
+		this.compassData = new PlayerCompassHUDData();
 	}
 	
 	public NBTTagCompound getNBT() {
@@ -84,6 +91,7 @@ implements IOverlayHUD {
 		hudNBT.setIntArray("MousePress", this.getMousePressed());
 		hudNBT.setInteger("QuestID", this.questID);
 		hudNBT.setString("CurrentLanguage", this.currentLanguage);
+		hudNBT.setTag("CompassData", this.compassData.getNbt());
 		
 		list = new NBTTagList();
 		for (int type : this.components.keySet()) {
@@ -132,6 +140,8 @@ implements IOverlayHUD {
 		for (int key : iM) { this.mousePress.add(key); }
 
 		this.questID = hudNBT.getInteger("QuestID");
+		
+		this.compassData.load(hudNBT.getCompoundTag("CompassData"));
 		
 		NBTTagList list = hudNBT.getTagList("AllComponents", 10);
 		if (list.tagCount()==0) {
@@ -321,6 +331,9 @@ implements IOverlayHUD {
 
 	@Override
 	public IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height) {
+		if (width == 0 || height == 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiTimerWrapper) {
 			CustomGuiTimerWrapper timer = (CustomGuiTimerWrapper) component;
@@ -338,6 +351,9 @@ implements IOverlayHUD {
 	
 	@Override
 	public IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height, int color) {
+		if (width == 0 || height == 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiTimerWrapper) {
 			CustomGuiTimerWrapper timer = (CustomGuiTimerWrapper) component;
@@ -356,6 +372,9 @@ implements IOverlayHUD {
 	
 	@Override
 	public ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height) {
+		if (width == 0 || height == 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiLabelWrapper) {
 			CustomGuiLabelWrapper lable = (CustomGuiLabelWrapper) component;
@@ -373,6 +392,9 @@ implements IOverlayHUD {
 
 	@Override
 	public ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height, int color) {
+		if (width == 0 || height == 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiLabelWrapper) {
 			CustomGuiLabelWrapper lable = (CustomGuiLabelWrapper) component;
@@ -391,6 +413,9 @@ implements IOverlayHUD {
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height) {
+		if (width == 0 || height == 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiTexturedRectWrapper) {
 			CustomGuiTexturedRectWrapper txtr = (CustomGuiTexturedRectWrapper) component;
@@ -408,6 +433,9 @@ implements IOverlayHUD {
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height, int textureX, int textureY) {
+		if (width == 0 || height == 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
 		if (component instanceof CustomGuiTexturedRectWrapper) {
 			CustomGuiTexturedRectWrapper txtr = (CustomGuiTexturedRectWrapper) component;
@@ -532,6 +560,17 @@ implements IOverlayHUD {
 				}
 			}
 		}
+		for (int type : this.guiComponents.keySet()) {
+			if (!this.components.containsKey(type)) { continue; }
+			for (int i : this.guiComponents.get(type).keySet()) {
+				IGuiComponent gc = this.guiComponents.get(type).get(i);
+				int id = (gc instanceof CustomGuiTexturedRect ? 200: 0) + i;
+				ICustomGuiComponent bc = this.getComponent(type, id);
+				if (gc==null || bc==null) { continue; }
+				int[] xy = gc.getPosXY();
+				if (xy[0]!=bc.getPosX() || xy[1]!=bc.getPosY()) { gc.setPosXY(bc.getPosX(), bc.getPosY()); }
+			}
+		}
 		return this.guiComponents;
 	}
 	
@@ -578,13 +617,10 @@ implements IOverlayHUD {
 	@Override
 	public void update() {
 		if (this.player!=null) {
-			this.player.sendMessage(new TextComponentString("Server send HUD Components: ["+this.components.size()+", "+this.slots.size()+"]"));
 			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.UPDATE_HUD, this.saveNBTData(new NBTTagCompound()));
 			this.update = false;
 		} else {
-			CustomNPCsScheduler.runTack(() -> {
-				this.update = true;
-			}, 500);
+			CustomNPCsScheduler.runTack(() -> { this.update = true; }, 500);
 		}
 	}
 
@@ -598,5 +634,8 @@ implements IOverlayHUD {
 		this.slots.get(orientationType).add(slot);
 		return slot;
 	}
+
+	@Override
+	public ICompassData getCompasData() { return this.compassData; }
 	
 }
