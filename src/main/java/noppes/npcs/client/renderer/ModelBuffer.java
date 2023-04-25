@@ -16,7 +16,10 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -45,6 +48,7 @@ public class ModelBuffer {
 				break;
 			}
 		}
+		if (model.listId==75) { model.listId = -1; }
 		if (model.listId<0) {
 			try {
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file);
@@ -60,6 +64,13 @@ public class ModelBuffer {
 					ResourceLocation loc;
 					if (replacesMaterialTextures!=null && replacesMaterialTextures.containsKey(location.toString())) { loc = new ResourceLocation(replacesMaterialTextures.get(location.toString())); }
 					else { loc = location; }
+					ITextureObject res = Minecraft.getMinecraft().renderEngine.getTexture(loc);
+					if (res==null) {
+						ITextureObject txtr = new SimpleTexture(loc);
+						Minecraft.getMinecraft().renderEngine.loadTexture(loc, txtr);
+						res = Minecraft.getMinecraft().renderEngine.getTexture(loc);
+					}
+					System.out.println("location: "+location+"; loc: "+loc+"; res == "+res);
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
 			        return sprite;
 				};

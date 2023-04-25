@@ -86,6 +86,7 @@ extends Gui
 	}
 	
 	/** HUD Bar Interfase */
+	@SuppressWarnings("unused")
 	@SubscribeEvent
 	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
 		this.mc = Minecraft.getMinecraft();
@@ -262,9 +263,18 @@ extends Gui
 		float scale = -30.0f;
 		float incline = -45.0f;
 		double[] uvPos = new double[] { this.sw.getScaledWidth_double()*0.15d, this.sw.getScaledHeight_double()*0.765d };
-		uvPos = new double[] { this.sw.getScaledWidth_double()/2.0d, this.sw.getScaledHeight_double()/2.0d-30.0d };
+		uvPos = new double[] { this.sw.getScaledWidth_double()/2.0d, this.sw.getScaledHeight_double()/2.0d };
 //if (this.mc.world.getTotalWorldTime()%200==0) { System.out.println("type "+type); }
 		GlStateManager.pushMatrix();
+		
+		if (this.qt<40) {
+			
+			this.qt++;
+		}
+		else if (this.qt>0 && p==null) {
+			
+			this.qt--;
+		}
 		
 		// Named
 		GlStateManager.pushMatrix();
