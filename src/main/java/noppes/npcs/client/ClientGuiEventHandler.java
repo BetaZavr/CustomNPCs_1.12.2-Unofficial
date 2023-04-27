@@ -69,7 +69,7 @@ extends Gui
 
 	protected ResourceLocation coinNpc = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
 	protected ResourceLocation resSlot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
-	private static String compasRes = CustomNpcs.MODID+":models/util/compass.obj";
+	private static ResourceLocation compasRes = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
 	
 	private Minecraft mc;
 	private ScaledResolution sw;
@@ -170,8 +170,8 @@ extends Gui
 			}
 			if (select!=null) {
 				name = qData.quest.getTitle();
+				type = select.getType();
 				if (this.mc.world.provider.getDimension()!=select.getType()) { type = -1; }
-				else { type = select.getType(); }
 				if (select.rangeCompass>0) {
 					String n = "";
 					range = select.rangeCompass;
@@ -295,9 +295,10 @@ extends Gui
 		RenderHelper.enableStandardItemLighting();
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
 		
+		//ClientGuiEventHandler.compasRes = new ResourceLocation(CustomNpcs.MODID+":models/util/compass2.obj");
+		
 		// Body
 		GlStateManager.pushMatrix();
-		//System.out.println("CNPCs: "+ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("body"), null));
 		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("body"), null));
 		GlStateManager.popMatrix();
 		
@@ -322,7 +323,7 @@ extends Gui
 		// Arrow_1 upper
 		double yP = 0.0d;
 		if (p!=null) {
-			yP = 0.25d * (this.mc.player.posY - (double) p.getY()) / (double) range;
+			yP = -0.25d * (this.mc.player.posY - (double) p.getY()) / (double) range;
 			GlStateManager.pushMatrix();
 			if (yP >= -0.25d && yP <= 0.25d) { GlStateManager.translate(0.0d, yP, 0.0d); }
 			else {

@@ -124,7 +124,7 @@ extends BlockRendererInterface<T> {
 			for (ILayerModel il : tile.layers) {
 				LayerModel l = (LayerModel) il;
 				Block block = l.model.isEmpty() ? null : Block.getBlockFromItem(l.model.getItem());
-				if (l.model.isEmpty() && l.objModel.isEmpty()) { continue; }
+				if (l.model.isEmpty() && l.objModel==null) { continue; }
 				GlStateManager.pushMatrix();
 				GlStateManager.disableBlend();
 				RenderHelper.enableStandardItemLighting();
@@ -156,9 +156,12 @@ extends BlockRendererInterface<T> {
 					}
 					this.renderBlock(tile, block, state);
 				}
-				else if (!l.objModel.isEmpty() && ModelBuffer.getDisplayList(l.objModel, null, null)>=0) {
+				else if (l.objModel!=null) {
 					int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
-					if (displayList>=0) { GlStateManager.callList(displayList); }
+					if (displayList>=0) {
+						Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+						GlStateManager.callList(displayList);
+					}
 				}
 				GlStateManager.popMatrix();
 			}

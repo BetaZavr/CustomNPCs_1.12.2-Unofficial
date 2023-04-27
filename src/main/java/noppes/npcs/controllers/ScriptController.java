@@ -244,8 +244,8 @@ public class ScriptController {
 			else {
 				NBTTagCompound nbtC = new NBTTagCompound();
 				nbtC.setInteger("value", 0);
-				nbtC.setString("sData", "API.getIWorld(0).getStoreddata()");
-				nbtC.setString("tData", "API.getIWorld(0).getTempdata()");
+				nbtC.setString("sData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getStoreddata()");
+				nbtC.setString("tData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getTempdata()");
 				nbtC.setString("System", "Java.type(\"java.lang.System\")");
 				nbtC.setString("JLists", "Java.type(\"com.google.common.collect.Lists\")");
 				nbtC.setString("JList", "Java.type(\"java.util.ArrayList\")");

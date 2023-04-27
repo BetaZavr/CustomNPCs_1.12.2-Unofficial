@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
@@ -14,7 +15,7 @@ public class LayerModel
 implements ILayerModel {
 
 	public ItemStack model = ItemStack.EMPTY;
-	public String objModel = "";
+	public ResourceLocation objModel = null;
 
 	public float[] offsetAxis = new float[] { 0.0f, 0.0f, 0.0f };
 	public float[] scaleAxis = new float[] { 1.0f, 1.0f, 1.0f };
@@ -35,8 +36,8 @@ implements ILayerModel {
 		if (!this.model.isEmpty()) {
 			nbtLayer.setTag("Model", this.model.writeToNBT(new NBTTagCompound()));
 		}
-		if (!this.objModel.isEmpty()) {
-			nbtLayer.setString("OBJModel", this.objModel);
+		if (this.objModel!=null) {
+			nbtLayer.setString("OBJModel", this.objModel.toString());
 		}
 		NBTTagList ra = new NBTTagList();
 		for (float f : this.rotateAxis) {
@@ -66,7 +67,7 @@ implements ILayerModel {
 			this.model = new ItemStack(nbtLayer.getCompoundTag("Model"));
 		}
 		if (nbtLayer.hasKey("OBJModel", 8)) {
-			this.objModel = nbtLayer.getString("OBJModel");
+			this.objModel = new ResourceLocation(nbtLayer.getString("OBJModel"));
 		}
 		if (nbtLayer.getTagList("RotateAxis", 5).tagCount()==3) {
 			for (int i=0; i<nbtLayer.getTagList("RotateAxis", 5).tagCount(); i++) {
@@ -97,10 +98,10 @@ implements ILayerModel {
 	public void setModel(IItemStack stack) { this.model = stack.getMCItemStack(); }
 
 	@Override
-	public String getOBJModel() { return this.objModel; }
+	public String getOBJModel() { return this.objModel.toString(); }
 	
 	@Override
-	public void setOBJModel(String path) { this.objModel = path; }
+	public void setOBJModel(String path) { this.objModel = new ResourceLocation(path); }
 	
 	@Override
 	public float getOffset(int axis) {

@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -31,7 +30,7 @@ import noppes.npcs.client.renderer.data.ParameterizedModel;
 public class ModelBuffer {
 
 	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList(); // список параметризированных отрисованных моделей
-	private static List<String> NOT_FOUND = Lists.<String>newArrayList(); // список отсутствующих моделей, чтобы не фризить клиент
+	public static List<ResourceLocation> NOT_FOUND = Lists.<ResourceLocation>newArrayList(); // список отсутствующих моделей, чтобы не фризить клиент
 	
 	/** Собственно попытка получить ID листа:
      * @param objModel - ресурс на расположение OBJ модели
@@ -39,16 +38,16 @@ public class ModelBuffer {
      * @param replacesMaterialTextures - карта замены текстур. Ключ-ресурс на текстуру из материала, Значение-новый ресурс текстура
      * @return ID листа для рисовки
      */
-	public static int getDisplayList(String objModel, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
+	public static int getDisplayList(ResourceLocation objModel, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		if (ModelBuffer.NOT_FOUND.contains(objModel)) { return -1; }
-		ParameterizedModel model = new ParameterizedModel(-1, new ResourceLocation(objModel), visibleMeshes, replacesMaterialTextures);
+		ParameterizedModel model = new ParameterizedModel(-1, objModel, visibleMeshes, replacesMaterialTextures);
 		for (ParameterizedModel pm : ModelBuffer.MODELS) {
 			if (pm.equals(model)) {
 				model = pm;
 				break;
 			}
 		}
-		if (model.listId==75) { model.listId = -1; }
+		if (model.listId==104) { model.listId = -1; }
 		if (model.listId<0) {
 			try {
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file);
@@ -68,10 +67,11 @@ public class ModelBuffer {
 					if (res==null) {
 						ITextureObject txtr = new SimpleTexture(loc);
 						Minecraft.getMinecraft().renderEngine.loadTexture(loc, txtr);
-						res = Minecraft.getMinecraft().renderEngine.getTexture(loc);
 					}
-					System.out.println("location: "+location+"; loc: "+loc+"; res == "+res);
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
+					if (!location.toString().equals("minecraft:missingno") && !location.toString().equals("minecraft:builtin/white") && sprite==Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
+						LogWriter.debug("Not found texture sprite: "+loc);
+					}
 			        return sprite;
 				};
 				if (model.visibleMeshes==null || model.visibleMeshes.size()==0) { model.visibleMeshes = Lists.<String>newArrayList(model.iModel.getMatLib().getGroups().keySet()); }

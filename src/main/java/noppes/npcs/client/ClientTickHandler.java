@@ -1,5 +1,7 @@
 package noppes.npcs.client;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -194,8 +200,9 @@ public class ClientTickHandler {
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (entity instanceof EntityPlayerMP || !CustomNpcs.VerboseDebug) { return; }
-		/*Map<ResourceLocation, OBJModel> cache = ObfuscationHelper.getValue(OBJLoader.class, OBJLoader.INSTANCE, Map.class);
-		System.out.println("cache: "+cache);*/
+		Minecraft mc = Minecraft.getMinecraft();
+		
+		
 	}
 
 }
