@@ -24,7 +24,7 @@ public class ParameterizedModel {
 		this.visibleMeshes = Lists.<String>newArrayList();
 		this.materialTextures = Maps.<String, String>newHashMap();
 		if (visibleMeshes!=null && visibleMeshes.size()>0) { this.visibleMeshes = visibleMeshes; }
-		if (materialTextures!=null && materialTextures.size()>0) { this.materialTextures = replacesMaterialTextures; }
+		if (replacesMaterialTextures!=null && replacesMaterialTextures.size()>0) { this.materialTextures = replacesMaterialTextures; }
 	}
 	
 	public boolean equals(Object obj) {

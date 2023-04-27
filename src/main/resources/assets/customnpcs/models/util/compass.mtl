@@ -11,7 +11,7 @@ Kd 1.000000 1.000000 1.000000
 d 1.000000
 map_Kd customnpcs:util/compass
 
-newmtl fase
+newmtl type
 Kd 1.000000 1.000000 1.000000
 d 1.000000
 map_Kd customnpcs:util/task_0

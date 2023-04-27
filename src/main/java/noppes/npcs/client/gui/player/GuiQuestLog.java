@@ -26,6 +26,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.TextBlockClient;
+import noppes.npcs.client.gui.GuiCompassSetings;
 import noppes.npcs.client.gui.util.GuiButtonNextPage;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiMenuSideButton;
@@ -123,7 +124,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		}
 		this.categoryQuests = categoryQuests;
 		this.scroll.setList(new ArrayList<String>(categoryQuests.keySet()));
-		this.scroll.setSize(134, 153);
+		this.scroll.setSize(134, 141);
 		this.scroll.guiLeft = this.guiLeft + 5;
 		this.scroll.guiTop = this.guiTop + 15;
 		this.addScroll(this.scroll);
@@ -143,22 +144,22 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		this.getButton(1).visible = (this.selectedQuest != null && this.currentPage < this.maxPages - 1);
 		this.getButton(2).visible = (this.selectedQuest != null && this.currentPage > 0);
 		// New
-		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 170, 90, 20, "quest.cancel", this.selectedQuest != null && this.selectedQuest.cancelable));
-		this.addButton(new GuiNpcButton(31, this.guiLeft + 95, this.guiTop + 170, 90, 20, "quest.cancel", this.selectedQuest != null ? this.selectedQuest.id!=ClientProxy.playerData.hud.questID : true));
+		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 158, 73, 15, "quest.cancel", this.selectedQuest != null && this.selectedQuest.cancelable));
+		this.addButton(new GuiNpcButton(31, this.guiLeft + 5, this.guiTop + 175, 90, 15, "quest.track", this.selectedQuest != null && this.selectedQuest.id!=ClientProxy.playerData.hud.questID));
+		this.addButton(new GuiNpcButton(32, this.guiLeft + 79, this.guiTop + 158, 60, 15, "gui.settings"));
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id != 30 && !(guibutton instanceof GuiButtonNextPage)) {
-			return;
-		}
 		switch(guibutton.id) {
 			case 1: {
+				if (!(guibutton instanceof GuiButtonNextPage)) { return; }
 				++this.currentPage;
 				this.initGui();
 				break;
 			}
 			case 2: {
+				if (!(guibutton instanceof GuiButtonNextPage)) { return; }
 				--this.currentPage;
 				this.initGui();
 				break;
@@ -174,6 +175,10 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 				ClientProxy.playerData.hud.questID = this.selectedQuest.id;
 				((GuiNpcButton) guibutton).enabled = false;
 				Client.sendDataDelayCheck(EnumPlayerPacket.TrackQuest, this, 0, ClientProxy.playerData.hud.questID);
+				break;
+			}
+			case 32: {
+				this.displayGuiScreen(new GuiCompassSetings(this));
 				break;
 			}
 		}
@@ -279,7 +284,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (this.scroll != null) {
 			this.scroll.visible = !this.noQuests;
 		}
@@ -288,39 +293,37 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		this.mc.renderEngine.bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 252, 195);
 		this.drawTexturedModalRect(this.guiLeft + 252, this.guiTop, 188, 0, 67, 195);
-		super.drawScreen(i, j, f);
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.noQuests) {
-			this.mc.fontRenderer.drawString(new TextComponentTranslation("quest.noquests").getFormattedText(),
-					this.guiLeft + 84, this.guiTop + 80, CustomNpcResourceListener.DefaultTextColor);
-			return;
+			this.mc.fontRenderer.drawString(new TextComponentTranslation("quest.noquests").getFormattedText(), this.guiLeft + 84, this.guiTop + 80, CustomNpcResourceListener.DefaultTextColor);
+		} else {
+			for (GuiMenuSideButton button : this.sideButtons.values().toArray(new GuiMenuSideButton[this.sideButtons.size()])) {
+				button.drawButton(this.mc, mouseX, mouseY, partialTicks);
+			}
+			this.mc.fontRenderer.drawString(this.selectedCategory, this.guiLeft + 5, this.guiTop + 5, CustomNpcResourceListener.DefaultTextColor);
+			if (this.selectedQuest == null) { return; }
+			this.drawProgress();
+			this.drawQuestText();
+			// category Buttons
+			GlStateManager.pushMatrix();
+			GlStateManager.translate((this.guiLeft + 148), this.guiTop, 0.0f);
+			GlStateManager.scale(1.25f, 1.25f, 1.25f);
+			String title = new TextComponentTranslation("quest.name").getFormattedText() + ": "
+					+ new TextComponentTranslation(this.selectedQuest.getName()).getFormattedText();
+			this.fontRenderer.drawString(title, (130 - this.fontRenderer.getStringWidth(title)) / 2, 4,
+					CustomNpcResourceListener.DefaultTextColor);
+			GlStateManager.popMatrix();
+			this.drawHorizontalLine(this.guiLeft + 142, this.guiLeft + 312, this.guiTop + 17, -16777216 + CustomNpcResourceListener.DefaultTextColor);
 		}
-		for (GuiMenuSideButton button : this.sideButtons.values()
-				.toArray(new GuiMenuSideButton[this.sideButtons.size()])) {
-			button.drawButton(this.mc, i, j, f);
-		}
-		this.mc.fontRenderer.drawString(this.selectedCategory, this.guiLeft + 5, this.guiTop + 5,
-				CustomNpcResourceListener.DefaultTextColor);
-		if (this.selectedQuest == null) {
-			return;
-		}
-		this.drawProgress();
-		this.drawQuestText();
-		// category Buttons
-		GlStateManager.pushMatrix();
-		GlStateManager.translate((this.guiLeft + 148), this.guiTop, 0.0f);
-		GlStateManager.scale(1.25f, 1.25f, 1.25f);
-		String title = new TextComponentTranslation("quest.name").getFormattedText() + ": "
-				+ new TextComponentTranslation(this.selectedQuest.getName()).getFormattedText();
-		this.fontRenderer.drawString(title, (130 - this.fontRenderer.getStringWidth(title)) / 2, 4,
-				CustomNpcResourceListener.DefaultTextColor);
-		GlStateManager.popMatrix();
-		this.drawHorizontalLine(this.guiLeft + 142, this.guiLeft + 312, this.guiTop + 17,
-				-16777216 + CustomNpcResourceListener.DefaultTextColor);
 		// hovers
-		if (!CustomNpcs.showDescriptions) { return; }
-		if (this.getButton(3) != null && this.getButton(3).enabled
-				&& isMouseHover(i, j, this.guiLeft + 5, this.guiTop + 170, 90, 20)) {
-			this.setHoverText(new TextComponentTranslation("drop.quest", new Object[] { title }).getFormattedText());
+		if (CustomNpcs.showDescriptions) {
+			if (this.getButton(30)!=null && this.getButton(30).enabled && this.getButton(30).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("drop.quest", new Object[] { this.title }).getFormattedText());
+			} else if (this.getButton(31)!=null && this.getButton(31).enabled && this.getButton(31).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("quest.hover.compass.track").getFormattedText());
+			} else if (this.getButton(32)!=null && this.getButton(32).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("quest.hover.compass.settings").getFormattedText());
+			}
 		}
 	}
 

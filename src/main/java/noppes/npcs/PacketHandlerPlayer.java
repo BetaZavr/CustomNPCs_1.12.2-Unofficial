@@ -558,6 +558,8 @@ public class PacketHandlerPlayer {
 			EventHooks.onPlayerTimer(PlayerData.get(player), buffer.readInt());
 		} else if (type == EnumPlayerPacket.TrackQuest) {
 			data.hud.questID = buffer.readInt();
+		} else if (type == EnumPlayerPacket.SaveCompassData) {
+			data.hud.compassData.load(Server.readNBT(buffer));
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

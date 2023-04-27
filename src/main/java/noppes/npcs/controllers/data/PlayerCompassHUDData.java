@@ -1,6 +1,8 @@
 package noppes.npcs.controllers.data;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.api.IPos;
@@ -15,6 +17,9 @@ implements ICompassData {
 	public BlockPos pos;
 	public boolean show;
 	private int dimensionId, range, type;
+	public final double[] screenPos;
+	public float scale, incline, rot;
+	public boolean showQuestName, showTaskProgress;
 	
 	public PlayerCompassHUDData(int type, String name, String title, BlockPos pos, int dimensionId, int range) {
 		this();
@@ -34,6 +39,12 @@ implements ICompassData {
 		this.range = 5;
 		this.type = 0;
 		this.show = false;
+		this.screenPos = new double[] { 0.15d, 0.765d };
+		this.scale = 1.0f;
+		this.rot = 0.0f;
+		this.incline = 0.0f;
+		this.showQuestName = true;
+		this.showTaskProgress = true;
 	}
 
 	public NBTTagCompound getNbt() {
@@ -45,6 +56,16 @@ implements ICompassData {
 		nbtCompass.setInteger("Range", this.range);
 		nbtCompass.setInteger("Type", this.type);
 		nbtCompass.setBoolean("IsShow", this.show);
+		nbtCompass.setFloat("Scale", this.scale);
+		nbtCompass.setFloat("Rotation", this.rot);
+		nbtCompass.setFloat("Incline", this.incline);
+		nbtCompass.setByteArray("Showed", new byte[] { (byte) (this.showQuestName ? 1 : 0), (byte) (this.showTaskProgress ? 1 : 0) }); 
+		
+		NBTTagList scP = new NBTTagList();
+		scP.appendTag(new NBTTagDouble(this.screenPos[0]));
+		scP.appendTag(new NBTTagDouble(this.screenPos[1]));
+		nbtCompass.setTag("ScreenPos", scP);
+		
 		return nbtCompass;
 	}
 
@@ -57,6 +78,15 @@ implements ICompassData {
 		this.setRange(nbtCompass.getInteger("Range"));
 		this.setType(nbtCompass.getInteger("Type"));
 		this.show = nbtCompass.getBoolean("IsShow");
+		this.scale = nbtCompass.getFloat("Scale");
+		this.rot = nbtCompass.getFloat("Rotation");
+		this.incline = nbtCompass.getFloat("Incline");
+		this.screenPos[0] = nbtCompass.getTagList("ScreenPos", 6).getDoubleAt(0);
+		this.screenPos[1] = nbtCompass.getTagList("ScreenPos", 6).getDoubleAt(1);
+		if (nbtCompass.hasKey("Showed", 7)) {
+			this.showQuestName = nbtCompass.getByteArray("Showed")[0] == (byte) 1;
+			this.showTaskProgress = nbtCompass.getByteArray("Showed")[1] == (byte) 1;
+		}
 	}
 
 	@Override

@@ -1011,6 +1011,7 @@ model.rarm=R. Arm
 model.rleg=R. Leg
 model.save=Model Save
 model.scale=Scale
+model.incline=Incline
 
 movement.aiming=Aiming
 movement.animation=Animation
@@ -1084,6 +1085,10 @@ quest.exp=Exp
 quest.found=Found
 quest.has.false=§cNot configured
 quest.has.true=§2Configured
+quest.screen.pos=Screen position:
+quest.screen.show.quest=Show Quest Name
+quest.screen.show.task=Show Task
+
 quest.hover.edit.dialog.add=Select Dialog<br>§7Choose from already created ones!
 quest.hover.edit.dialog.del=Reset dialog from setting
 quest.hover.edit.dialog.del=Reset dialog from setting
@@ -1138,6 +1143,8 @@ quest.hover.forget.dialogues=IDs of dialogues that the player will forget what t
 quest.hover.forget.quests=IDs of quests that the player will forget what he was doing if the quest is canceled<br>§7Specify separated by commas without spaces
 quest.hover.compass=<br>§7Required for the Quest Compass. When the player completes this task, the compass will point to that position<br>§7The distance from the specified position where the compass enters search mode<br>§7To disable compass orientation set distance to §60
 quest.hover.compass.set=Set the position of this task for the Quest Compass<br>§7Your position
+quest.hover.compass.track=Quest compass will track the selected quest<br>§7Only works if the compass is configured in the quest objectives
+quest.hover.compass.settings=Set the Quest compass
 quest.instant=Instant Complete
 quest.item=Item
 quest.itemamount=Amount

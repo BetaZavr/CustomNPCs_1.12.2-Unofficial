@@ -7,7 +7,6 @@ import java.util.function.Function;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
@@ -47,7 +46,7 @@ public class ModelBuffer {
 				break;
 			}
 		}
-		if (model.listId==104) { model.listId = -1; }
+		if (model.listId==98) { model.listId = -1; }
 		if (model.listId<0) {
 			try {
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file);
@@ -56,17 +55,24 @@ public class ModelBuffer {
 					ModelBuffer.NOT_FOUND.add(objModel);
 					return -1;
 				}
-				model.iModel.process(ImmutableMap.of("flip-v", "true"));
+				//model.iModel.process(ImmutableMap.of("flip-v", "true"));
 				model.listId = GLAllocation.generateDisplayLists(1);
 				GlStateManager.glNewList(model.listId, GL11.GL_COMPILE);
 				Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
 					ResourceLocation loc;
-					if (replacesMaterialTextures!=null && replacesMaterialTextures.containsKey(location.toString())) { loc = new ResourceLocation(replacesMaterialTextures.get(location.toString())); }
+					if (replacesMaterialTextures!=null && replacesMaterialTextures.containsKey(location.toString())) {
+						loc = new ResourceLocation(replacesMaterialTextures.get(location.toString()));
+						LogWriter.debug("Replase texture: "+location+" -> "+loc);
+					}
 					else { loc = location; }
 					ITextureObject res = Minecraft.getMinecraft().renderEngine.getTexture(loc);
 					if (res==null) {
-						ITextureObject txtr = new SimpleTexture(loc);
-						Minecraft.getMinecraft().renderEngine.loadTexture(loc, txtr);
+						try {
+							ITextureObject txtr = new SimpleTexture(loc);
+							Minecraft.getMinecraft().renderEngine.loadTexture(loc, txtr);
+						} catch (Exception e) {
+							LogWriter.error("Error: load texture"+loc, e);
+						}
 					}
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
 					if (!location.toString().equals("minecraft:missingno") && !location.toString().equals("minecraft:builtin/white") && sprite==Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {

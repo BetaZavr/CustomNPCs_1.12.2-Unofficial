@@ -913,6 +913,7 @@ model.rarm=Пр. Рука
 model.rleg=Пр. Нога
 model.save=Сохранить Модель
 model.scale=Масштаб
+model.incline=Наклон
 
 movement.aiming=Прицеливается
 movement.animation=Анимация
@@ -986,6 +987,10 @@ quest.exp=Опыт
 quest.found=Найдено
 quest.has.false=§cНе настроено
 quest.has.true=§2Настроено
+quest.screen.pos=Положение на экране:
+quest.screen.show.quest=Показывать имя Квеста
+quest.screen.show.task=Показывать Задачу
+
 quest.hover.edit.dialog.add=Выбрать диалог<br>§7Выбор из уже созданных!
 quest.hover.edit.dialog.del=Сбросить диалог из настройки
 quest.hover.edit.dialog.del=Сбросить диалог из настройки
@@ -1040,6 +1045,8 @@ quest.hover.forget.dialogues=ID диалогов, которые игрок за
 quest.hover.forget.quests=ID квестов, которые игрок забудет что выполнял, если отменить квест<br>§7Указать через запятую без пробелов
 quest.hover.compass=<br>§7Требуется для Квестового компаса. Когда игрок будет выполнять эту задачу, компас будет указывать на эту позицию<br>§7Дистанция от указанной позиции, где компас переходит в режим поиска<br>§7Чтобы отключить ориентацию компаса установите дистанцию на §60
 quest.hover.compass.set=Установить позицию этой задачи для Квестового компаса<br>§7Ваша позиция
+quest.hover.compass.track=Квестовый компас будет отслеживать выбранный квест<br>§7Работает только если компас настроен в задачах квеста
+quest.hover.compass.settings=Настроить Квестовый компас
 quest.instant=Мгновенное завершение
 quest.item=Задание на вещь
 quest.itemamount=Количество

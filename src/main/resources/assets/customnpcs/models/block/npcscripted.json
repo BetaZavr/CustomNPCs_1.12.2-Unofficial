@@ -3,14 +3,14 @@
     "textures": {
         "all": "customnpcs:blocks/npcscriptedblock",
         "custom_0": "customnpcs:util/compass",
-        "custom_1": "customnpcs:util/task_-1",
-        "custom_2": "customnpcs:util/task_0",
-        "custom_3": "customnpcs:util/task_1",
-        "custom_4": "customnpcs:util/task_2",
-        "custom_5": "customnpcs:util/task_3",
-        "custom_6": "customnpcs:util/task_4",
-        "custom_7": "customnpcs:util/task_5",
-        "custom_8": "customnpcs:util/task_6"
+        "custom_1": "customnpcs:util/task_0",
+        "custom_2": "customnpcs:util/task_1",
+        "custom_3": "customnpcs:util/task_2",
+        "custom_4": "customnpcs:util/task_3",
+        "custom_5": "customnpcs:util/task_4",
+        "custom_6": "customnpcs:util/task_5",
+        "custom_7": "customnpcs:util/task_6",
+        "custom_8": "customnpcs:util/task_7"
     }
 }
 

@@ -49,6 +49,7 @@ public enum EnumPlayerPacket
 	GetBuildData,
 	KeyPressed,
 	HudTimerEnd,
-	TrackQuest;
+	TrackQuest,
+	SaveCompassData;
 	
 }
