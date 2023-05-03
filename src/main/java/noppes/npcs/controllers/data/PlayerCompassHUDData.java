@@ -13,12 +13,12 @@ import noppes.npcs.constants.EnumQuestTask;
 public class PlayerCompassHUDData
 implements ICompassData {
 	
-	public String name, title;
+	public String npc, name, title;
 	public BlockPos pos;
 	public boolean show;
 	private int dimensionId, range, type;
-	public final double[] screenPos;
-	public float scale, incline, rot;
+	public final double[] screenPos = new double[] { 0.15d, 0.765d };
+	public float scale = 1.0f, incline = 0.0f, rot = 0.0f;
 	public boolean showQuestName, showTaskProgress;
 	
 	public PlayerCompassHUDData(int type, String name, String title, BlockPos pos, int dimensionId, int range) {
@@ -34,12 +34,14 @@ implements ICompassData {
 	public PlayerCompassHUDData() {
 		this.name = "";
 		this.title = "";
+		this.npc = "";
 		this.pos = new BlockPos(0, 0, 0);
 		this.dimensionId = 0;
 		this.range = 5;
 		this.type = 0;
 		this.show = false;
-		this.screenPos = new double[] { 0.15d, 0.765d };
+		this.screenPos[0] = 0.15d;
+		this.screenPos[1] = 0.765d;
 		this.scale = 1.0f;
 		this.rot = 0.0f;
 		this.incline = 0.0f;
@@ -51,6 +53,7 @@ implements ICompassData {
 		NBTTagCompound nbtCompass = new NBTTagCompound();
 		nbtCompass.setString("Name", this.name);
 		nbtCompass.setString("Title", this.title);
+		nbtCompass.setString("NPCName", this.npc);
 		nbtCompass.setIntArray("BlockPos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ() });
 		nbtCompass.setInteger("DimensionID", this.dimensionId);
 		nbtCompass.setInteger("Range", this.range);
@@ -72,6 +75,7 @@ implements ICompassData {
 	public void load(NBTTagCompound nbtCompass) {
 		this.name = nbtCompass.getString("Name");
 		this.title = nbtCompass.getString("Title");
+		this.npc = nbtCompass.getString("NPCName");
 		int[] p = nbtCompass.getIntArray("BlockPos");
 		if (p!=null && p.length>=3) { this.pos = new BlockPos(p[0], p[1], p[2]); }
 		this.setDimensionID(nbtCompass.getInteger("DimensionID"));
@@ -135,6 +139,12 @@ implements ICompassData {
 	@Override
 	public void setName(String name) { if (name!=null) { this.name = name; } }
 
+	@Override
+	public String getNPCName() { return this.npc; }
+
+	@Override
+	public void setNPCName(String npcName) { if (npcName!=null) { this.name = npcName; } }
+	
 	@Override
 	public String getTitle() { return this.title; }
 

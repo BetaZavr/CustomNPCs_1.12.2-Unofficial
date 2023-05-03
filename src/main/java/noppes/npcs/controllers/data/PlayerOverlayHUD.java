@@ -11,11 +11,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
-import noppes.npcs.api.IPos;
 import noppes.npcs.api.gui.ICompassData;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.gui.IGuiTimer;
@@ -35,7 +32,6 @@ import noppes.npcs.client.gui.custom.components.CustomGuiTexturedRect;
 import noppes.npcs.client.gui.custom.components.CustomGuiTimer;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class PlayerOverlayHUD

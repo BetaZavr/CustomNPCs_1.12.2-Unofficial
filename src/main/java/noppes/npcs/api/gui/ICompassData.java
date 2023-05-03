@@ -34,4 +34,8 @@ public interface ICompassData {
 
 	boolean isShow();
 
+	String getNPCName();
+
+	void setNPCName(String npcName);
+
 }

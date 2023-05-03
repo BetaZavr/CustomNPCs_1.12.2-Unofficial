@@ -7,7 +7,9 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class SubGuiEditText extends SubGuiInterface {
+public class SubGuiEditText
+extends SubGuiInterface {
+	
 	public boolean cancelled;
 	public String[] hovers = new String[1]; // New
 	public String[] text = new String[1]; // New

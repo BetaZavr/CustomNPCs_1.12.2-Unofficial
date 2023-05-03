@@ -9,11 +9,13 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
+import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcSlider;
@@ -80,6 +82,8 @@ implements ISliderListener, ITextfieldListener {
 
 		this.addButton(new GuiNpcCheckBox(1, this.guiLeft + 128, this.guiTop + 162, 128, 12, "quest.screen.show.task"));
 		((GuiNpcCheckBox) this.getButton(1)).setSelected(this.compassData.showTaskProgress);
+		
+		this.addButton(new GuiNpcButton(66, this.guiLeft + 192, this.guiTop + 192, 60, 20, "gui.back"));
 	}
 	
 	@Override
@@ -95,6 +99,10 @@ implements ISliderListener, ITextfieldListener {
 				this.compassData.showTaskProgress = ((GuiNpcCheckBox) guibutton).isSelected();
 				break;
 			}
+			case 66: {
+				this.close();
+				break;
+			}
 		}
 	}
 	
@@ -108,7 +116,6 @@ implements ISliderListener, ITextfieldListener {
 		Gui.drawRect(0, 0, 121, 81, 0xFFF0F0F0);
 		Gui.drawRect(34, 66, 86, 82, 0xFF808080);
 		Gui.drawRect(35, 67, 85, 81, 0xFFA0A0A0);
-
 		GlStateManager.translate(this.compassData.screenPos[0]*120.0d, this.compassData.screenPos[1]*80.0d, 0.0d);
 		Gui.drawRect(-3, -1, 4, 3, 0xFF0000FF);
 		Gui.drawRect(-3, 3, 4, 5, 0xFFFF00FF);
@@ -150,6 +157,9 @@ implements ISliderListener, ITextfieldListener {
 		GlStateManager.popMatrix();
 		
 		if (!CustomNpcs.showDescriptions) { return; }
+		if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
 	}
 	
 	@Override

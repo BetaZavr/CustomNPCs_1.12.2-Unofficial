@@ -208,6 +208,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (!this.selectedQuest.isEmpty() && scroll.id == 1) {
 			this.setSubGui(new GuiQuestEdit(this.questData.get(this.selectedQuest)));
 		}
+		if (!this.selectedCategory.isEmpty() && scroll.id == 0) {
+			this.setSubGui(new SubGuiEditText(3, this.categoryData.get(this.selectedCategory).title));
+		}
 	}
 
 	@Override
@@ -215,7 +218,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (subgui instanceof SubGuiEditText && ((SubGuiEditText) subgui).cancelled) {
 			return;
 		}
-		if (subgui.id == 1) {
+		if (subgui.id == 1) { // new
 			QuestCategory category = new QuestCategory();
 			category.title = ((SubGuiEditText) subgui).text[0];
 			this.selectedCategory = category.title;
@@ -228,15 +231,11 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 			this.initGui();
 		}
-		if (subgui.id == 3) {
-			if (((SubGuiEditText) subgui).text[0].isEmpty()) {
-				return;
-			}
+		if (subgui.id == 3) { // rename
+			if (((SubGuiEditText) subgui).text[0].isEmpty()) { return; }
 			QuestCategory category = this.categoryData.get(this.selectedCategory);
 			category.title = ((SubGuiEditText) subgui).text[0];
-			while (QuestController.instance.containsCategoryName(category)) {
-				category.title += "_";
-			}
+			while (QuestController.instance.containsCategoryName(category)) { category.title += "_"; }
 			this.selectedCategory = category.title;
 			Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 			this.initGui();

@@ -129,8 +129,10 @@ extends Gui
 		}
 		
 		String name = "", title = "";
+		if (name.isEmpty()) { return; }
 		double[] p = null;
 		int type = 0, range = 5;
+		String n = "";
 		if (hud.compassData.show) {
 			p = new double[] { hud.compassData.pos.getX()-0.5d, hud.compassData.pos.getY()+0.5d, hud.compassData.pos.getZ()+0.5d };
 			name = hud.compassData.name;
@@ -138,6 +140,11 @@ extends Gui
 			type = hud.compassData.getType();
 			if (this.mc.world.provider.getDimension()!=hud.compassData.getDimensionID()) { type = 7; }
 			range = hud.compassData.getRange();
+			if (hud.compassData.getNPCName().isEmpty()) {
+				n = new TextComponentTranslation("entity."+hud.compassData.getNPCName()+".name").getFormattedText();
+				if (n.equals("entity."+hud.compassData.getNPCName()+".name")) { n = hud.compassData.getNPCName(); 	}
+				else { n = n.substring(0, n.length()-2); }
+			}
 		} else {
 			if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || (hud.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
 				for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
@@ -172,9 +179,14 @@ extends Gui
 			if (select!=null) {
 				name = qData.quest.getTitle();
 				type = select.getType();
+				if (select.getOrientationEntityName().isEmpty()) {
+					n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
+					if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
+					else { n = n.substring(0, n.length()-2); }
+				}
 				if (this.mc.world.provider.getDimension()!=select.dimensionID) { type = 7; }
+				if (type!=EnumQuestTask.KILL.ordinal() && type!=EnumQuestTask.AREAKILL.ordinal()) { range = 1; }
 				if (select.rangeCompass>0) {
-					String n = "";
 					range = select.rangeCompass;
 					EnumQuestTask t = EnumQuestTask.values()[select.getType()];
 					p = new double[] { select.pos.getX()-0.5d, select.pos.getY()+0.5d, select.pos.getZ()+0.5d };
@@ -189,22 +201,12 @@ extends Gui
 						Dialog dialog = DialogController.instance.dialogs.get(select.getTargetID());
 						if (dialog != null) { title += new TextComponentTranslation(dialog.title).getFormattedText(); }
 						else { title = "Dialog"; }
-						if (select.getOrientationEntityName().isEmpty()) {
-							n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
-							if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
-							else { n = n.substring(0, n.length()-2); }
-						}
 					}
 					else if (t == EnumQuestTask.LOCATION) {
 						title = new TextComponentTranslation("gui.found").getFormattedText()+": "+select.getTargetName();
 					}
 					else if (EnumQuestTask.values()[select.getType()] == EnumQuestTask.MANUAL) {
 						title = new TextComponentTranslation("gui.do").getFormattedText()+": "+select.getTargetName();
-						if (select.getOrientationEntityName().isEmpty()) {
-							n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
-							if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
-							else { n = n.substring(0, n.length()-2); }
-						}
 					}
 					if (t == EnumQuestTask.KILL || t == EnumQuestTask.AREAKILL) {
 						String entityName = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
@@ -213,58 +215,58 @@ extends Gui
 						n = entityName;
 						title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+entityName+ ": " + select.getProgress() + "/" + select.getMaxProgress();
 					}
-					if (!n.isEmpty()) {
-						EntityLivingBase e = null;
-						AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(select.pos).grow(range, 1.5d, range);
-						List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
-						if (n.equals("Player")) {
-							EntityPlayer pl = this.mc.world.getClosestPlayerToEntity(this.mc.player, 32.0d);
-							if (pl!=null && pl.getActivePotionEffect(Potion.getPotionFromResourceLocation("minecraft:invisibility"))==null) {
-								e = pl;
-								range = 1;
-							}
-						}
-						if (e==null) {
-							double d = range * range * range;
-							EntityLivingBase et = null;
-							Vec3i v = new Vec3i(p[0], p[1], p[2]);
-							for (EntityLivingBase el : ents) {
-								if (!el.getName().equals(n)) { continue; }
-								double r = v.distanceSq((Vec3i) el.getPosition());
-								if (et == null) { d = r; et = el; }
-								else {
-									if (r >= d) { continue; }
-									d = r;
-									et = el;
-								}
-							}
-							if (et==null) {
-								bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(select.pos).grow(range, range, range);
-								ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
-								d = range * range * range;
-								for (EntityLivingBase el : ents) {
-									if (!el.getName().equals(n)) { continue; }
-									double r = v.distanceSq((Vec3i) el.getPosition());
-									if (et == null) { d = r; et = el; }
-									else {
-										if (r >= d) { continue; }
-										d = r;
-										et = el;
-									}
-								}
-							}
-							e = et;
-						}
-						if (e!=null) {
-							p[0] = e.posX;
-							p[1] = e.posY;
-							p[2] = e.posZ;
-							if (t!=EnumQuestTask.KILL && t!=EnumQuestTask.AREAKILL) { range = 1; }
-						}
-					}
 				}
 			}
 		}
+		if (!n.isEmpty() && p!=null) {
+			EntityLivingBase e = null;
+			AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, 1.5d, range);
+			List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+			if (n.equals("Player")) {
+				EntityPlayer pl = this.mc.world.getClosestPlayerToEntity(this.mc.player, 32.0d);
+				if (pl!=null && pl.getActivePotionEffect(Potion.getPotionFromResourceLocation("minecraft:invisibility"))==null) {
+					e = pl;
+					range = 1;
+				}
+			}
+			if (e==null) {
+				double d = range * range * range;
+				EntityLivingBase et = null;
+				Vec3i v = new Vec3i(p[0], p[1], p[2]);
+				for (EntityLivingBase el : ents) {
+					if (!el.getName().equals(n)) { continue; }
+					double r = v.distanceSq((Vec3i) el.getPosition());
+					if (et == null) { d = r; et = el; }
+					else {
+						if (r >= d) { continue; }
+						d = r;
+						et = el;
+					}
+				}
+				if (et==null) {
+					bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, range, range);
+					ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+					d = range * range * range;
+					for (EntityLivingBase el : ents) {
+						if (!el.getName().equals(n)) { continue; }
+						double r = v.distanceSq((Vec3i) el.getPosition());
+						if (et == null) { d = r; et = el; }
+						else {
+							if (r >= d) { continue; }
+							d = r;
+							et = el;
+						}
+					}
+				}
+				e = et;
+			}
+			if (e!=null) {
+				p[0] = e.posX;
+				p[1] = e.posY;
+				p[2] = e.posZ;
+			}
+		}
+		
 		double[] angles = null;
 		angles = AdditionalMethods.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 		
@@ -331,7 +333,10 @@ extends Gui
 			GlStateManager.rotate(180.0f + yaw - (float) angles[0], 0.0f, 1.0f, 0.0f);
 			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_0"), null));
 		} else {
-			
+			double t = System.currentTimeMillis()%4000.0d;
+			double f0 = t<2000.0d ? -0.00033d * t + 1.0d : 0.00033 * t - 0.30033d; 
+			GlStateManager.scale(f0, f0, f0);
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_3"), null));
 		}
 		GlStateManager.popMatrix();
 

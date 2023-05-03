@@ -246,7 +246,7 @@ extends GuiRecipeBook {
 	}
 
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		if (!this.isVisible()) {
+		if (!this.isVisible() || this.searchBar==null) {
 			return;
 		}
 		RenderHelper.enableGUIStandardItemLighting();

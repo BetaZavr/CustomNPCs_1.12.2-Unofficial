@@ -170,9 +170,7 @@ implements IQuestHandler {
 
 	public void removeCategory(int category) {
 		QuestCategory cat = this.categories.get(category);
-		if (cat == null) {
-			return;
-		}
+		if (cat == null) { return; }
 		File dir = new File(this.getDir(), cat.title);
 		// if (!dir.delete()) { return; } Changed
 		// New
@@ -198,21 +196,14 @@ implements IQuestHandler {
 
 	public void saveCategory(QuestCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
+		System.out.println("selectedCategory: "+category.title);
 		if (this.categories.containsKey(category.id)) {
 			QuestCategory currentCategory = this.categories.get(category.id);
-			if (!currentCategory.title.equals(category.title)) {
-				while (this.containsCategoryName(category)) {
-					category.title += "_";
-				}
-				File newdir = new File(this.getDir(), category.title);
-				File olddir = new File(this.getDir(), currentCategory.title);
-				if (newdir.exists()) {
-					return;
-				}
-				if (!olddir.renameTo(newdir)) {
-					return;
-				}
-			}
+			File newdir = new File(this.getDir(), category.title);
+			File olddir = new File(this.getDir(), currentCategory.title);
+			while (this.containsCategoryName(category)) { category.title += "_"; }
+			if (newdir.exists()) { return; }
+			if (!olddir.renameTo(newdir)) { return; }
 			category.quests = currentCategory.quests;
 		} else {
 			if (category.id < 0) {
@@ -223,18 +214,14 @@ implements IQuestHandler {
 				category.title += "_";
 			}
 			File dir = new File(this.getDir(), category.title);
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
+			if (!dir.exists()) { dir.mkdirs(); }
 		}
 		this.categories.put(category.id, category);
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 3, category.writeNBT(new NBTTagCompound()));
 	}
 
 	public void saveQuest(QuestCategory category, Quest quest) {
-		if (category == null) {
-			return;
-		}
+		if (category == null) { return; }
 		while (this.containsQuestName(quest.category, quest)) {
 			quest.setName(quest.getName() + "_"); // Changed
 		}

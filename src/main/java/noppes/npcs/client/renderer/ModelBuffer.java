@@ -59,6 +59,9 @@ public class ModelBuffer {
 				model.listId = GLAllocation.generateDisplayLists(1);
 				GlStateManager.glNewList(model.listId, GL11.GL_COMPILE);
 				Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
+					if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
+						return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
+					}
 					ResourceLocation loc;
 					if (replacesMaterialTextures!=null && replacesMaterialTextures.containsKey(location.toString())) {
 						loc = new ResourceLocation(replacesMaterialTextures.get(location.toString()));
@@ -75,7 +78,7 @@ public class ModelBuffer {
 						}
 					}
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
-					if (!location.toString().equals("minecraft:missingno") && !location.toString().equals("minecraft:builtin/white") && sprite==Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
+					if (sprite==Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
 						LogWriter.debug("Not found texture sprite: "+loc);
 					}
 			        return sprite;

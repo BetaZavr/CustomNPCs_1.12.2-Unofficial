@@ -378,7 +378,7 @@ public class ServerEventsHandler {
 					(EntityNPCInterface) event.getTarget());
 		} else if (item.getItem() == CustomItems.cloner && !isRemote && !(event.getTarget() instanceof EntityPlayer)) {
 			NBTTagCompound compound = new NBTTagCompound();
-			if (!((EntityCustomNpc) event.getTarget()).writeToNBTAtomically(compound)) {
+			if (!(event.getTarget() instanceof EntityCustomNpc) || !((EntityCustomNpc) event.getTarget()).writeToNBTAtomically(compound)) {
 				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
@@ -395,8 +395,7 @@ public class ServerEventsHandler {
 			event.setCanceled(true);
 		} else if (item.getItem() == CustomItems.scripter && !isRemote && npcInteracted) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-							"ServerEventsHandler_npcPlayerInteract");
+				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
 			NoppesUtilServer.setEditingNpc(event.getEntityPlayer(), (EntityNPCInterface) event.getTarget());
