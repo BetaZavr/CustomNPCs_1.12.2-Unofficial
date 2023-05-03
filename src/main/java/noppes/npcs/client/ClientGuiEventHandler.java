@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -48,6 +49,8 @@ import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.gui.GuiCompassSetings;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
+import noppes.npcs.client.gui.player.GuiQuestLog;
+import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestTask;
@@ -68,16 +71,17 @@ public class ClientGuiEventHandler
 extends Gui
 {
 
-	protected ResourceLocation coinNpc = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
-	protected ResourceLocation resSlot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
-	public static ResourceLocation compasRes = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
+	private static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
+	private static final ResourceLocation RESOURCE_SLOT = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
+	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
 	
 	private Minecraft mc;
 	private ScaledResolution sw;
 	private BorderController bData;
 	private double dx, dy, dz;
 	private int qt=0;
-
+	
 	public static RayTraceResult result;
 
 	/** HUD Bar Interfase Canceled */
@@ -113,7 +117,7 @@ extends Gui
 				int x = os[0] == 0 ? slot.getPosX() : os[0] - slot.getPosX() - 18;
 				int y = os[1] == 0 ? slot.getPosY() : os[1] - slot.getPosY() - 18;
 				GlStateManager.translate(x, y, id);
-				this.mc.renderEngine.bindTexture(this.resSlot);
+				this.mc.renderEngine.bindTexture(ClientGuiEventHandler.RESOURCE_SLOT);
 				this.drawTexturedModalRect(0, 0, 0, 0, 18, 18);
 				if (!slot.getStack().isEmpty()) {
 					ItemStack stack = slot.getStack().getMCItemStack();
@@ -129,7 +133,6 @@ extends Gui
 		}
 		
 		String name = "", title = "";
-		if (name.isEmpty()) { return; }
 		double[] p = null;
 		int type = 0, range = 5;
 		String n = "";
@@ -268,6 +271,7 @@ extends Gui
 		}
 		
 		double[] angles = null;
+		if (p==null || p.length!=3) { return; }
 		angles = AdditionalMethods.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 		
 		float scale = -30.0f * hud.compassData.scale;
@@ -316,13 +320,13 @@ extends Gui
 		
 		// Body
 		GlStateManager.pushMatrix();
-		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("body"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("body"), null));
 		GlStateManager.popMatrix();
 		
 		// Dial
 		GlStateManager.pushMatrix();
 		GlStateManager.rotate(-1.0f * this.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
-		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("dial"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("dial"), null));
 		GlStateManager.popMatrix();
 		
 		// Arrow_0
@@ -331,12 +335,12 @@ extends Gui
 			float yaw = this.mc.player.rotationYaw % 360.0f;
 			if (yaw<0) { yaw += 360.0f; }
 			GlStateManager.rotate(180.0f + yaw - (float) angles[0], 0.0f, 1.0f, 0.0f);
-			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_0"), null));
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_0"), null));
 		} else {
 			double t = System.currentTimeMillis()%4000.0d;
 			double f0 = t<2000.0d ? -0.00033d * t + 1.0d : 0.00033 * t - 0.30033d; 
 			GlStateManager.scale(f0, f0, f0);
-			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_3"), null));
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_3"), null));
 		}
 		GlStateManager.popMatrix();
 
@@ -353,16 +357,16 @@ extends Gui
 				double f0 = t<500.0d ? -0.025d + 0.05d * (t % 500.0d)/500.0d : 0.025d - 0.05d * (t % 500.0d)/500.0d; 
 				GlStateManager.translate(0.0d, f0, 0.0d);
 			}
-			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_1"), null));
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_1"), null));
 			GlStateManager.popMatrix();
 		}
 		
 		// Arrow_2
 		if (p!=null) {
 			GlStateManager.pushMatrix();
-			if (yP > 0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_21"), null)); }
-			else if (yP < -0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_22"), null)); }
-			else { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_20"), null)); }
+			if (yP > 0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_21"), null)); }
+			else if (yP < -0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_22"), null)); }
+			else { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_20"), null)); }
 			GlStateManager.popMatrix();
 		}
 		
@@ -371,7 +375,7 @@ extends Gui
 			//type = 0;
 			m.put("customnpcs:util/task_0", "customnpcs:util/task_"+type);
 			GlStateManager.pushMatrix();
-			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("fase"), m));
+			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("fase"), m));
 			GlStateManager.popMatrix();
 		}
 
@@ -414,30 +418,103 @@ extends Gui
 	@SubscribeEvent
 	public void onDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
 		Minecraft mc = event.getGui().mc;
-		if (!(event.getGui() instanceof GuiInventory) || !CustomNpcs.showMoney) { return; }
-		String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.money, true, true, false) + CustomNpcs.charCurrencies;
-		GlStateManager.pushMatrix();
-		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-		int x=0, y=0;
-		try {
-			x = ((GuiInventory) mc.currentScreen).getGuiLeft()+122;
-			y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
-		} catch (Exception e) { return; }
-		GlStateManager.translate(x, y, 0.0f);
-		mc.renderEngine.bindTexture(this.coinNpc);
-		float s = 16.0f / 250.f;
-		GlStateManager.scale(s, s, s);
-		this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-		GlStateManager.popMatrix();
-		GlStateManager.pushMatrix();
-		mc.fontRenderer.drawString(text, x+15, y+8 / 2, 0x404040, false);
-		GlStateManager.popMatrix();
-		int xm = event.getMouseX(), ym = event.getMouseY();
-		if (xm>x&& ym>y && xm<x+50  && ym<y+12) {
-			List<String> hoverText = new ArrayList<String>();
-			hoverText.add(new TextComponentTranslation("inventory.hover.currency").getFormattedText());
-			hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.money);
-			event.getGui().drawHoveringText(hoverText, xm, ym);
+		if (event.getGui() instanceof GuiInventory && CustomNpcs.showMoney) {
+			String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.money, true, true, false) + CustomNpcs.charCurrencies;
+			GlStateManager.pushMatrix();
+			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
+			int x=0, y=0;
+			try {
+				x = ((GuiInventory) mc.currentScreen).getGuiLeft()+122;
+				y = ((GuiInventory) mc.currentScreen).getGuiTop() + 61;
+			}
+			catch (Exception e) { return; }
+			GlStateManager.translate(x, y, 0.0f);
+			mc.renderEngine.bindTexture(ClientGuiEventHandler.COIN_NPC);
+			float s = 16.0f / 250.f;
+			GlStateManager.scale(s, s, s);
+			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.popMatrix();
+			
+			GlStateManager.pushMatrix();
+			mc.fontRenderer.drawString(text, x+15, y+8 / 2, 0x404040, false);
+			GlStateManager.popMatrix();
+			int xm = event.getMouseX(), ym = event.getMouseY();
+			if (xm>x&& ym>y && xm<x+50  && ym<y+12) {
+				List<String> hoverText = new ArrayList<String>();
+				hoverText.add(new TextComponentTranslation("inventory.hover.currency").getFormattedText());
+				hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.money);
+				event.getGui().drawHoveringText(hoverText, xm, ym);
+			}
+		}
+		else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.showMoney) {
+			int x=0, y=0;
+			try {
+				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
+				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
+			}
+			catch (Exception e) { return; }
+			
+			RenderHelper.enableGUIStandardItemLighting();
+			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
+			
+			GlStateManager.pushMatrix();
+			this.mc.getTextureManager().bindTexture(CREATIVE_TABS);
+			GlStateManager.translate(x, y+28, 0.0f);
+			GlStateManager.rotate(-90.0f, 0.0f, 0.0f, 1.0f);
+			int mx = event.getMouseX() - x;
+			int my = event.getMouseY() -y;
+			if (mx>0 && mx<=32 && my>0 && my<=28) { this.drawTexturedModalRect(0, 2, 28, 32, 28, 32); }
+			else { this.drawTexturedModalRect(0, 0, 28, 0, 28, 30); }
+			GlStateManager.translate(-28.0f, 0.0f, 0.0f);
+			my -= 28;
+			if (mx>0 && mx<=32 && my>0 && my<=28) { this.drawTexturedModalRect(0, 2, 28, 32, 28, 32); }
+			else { this.drawTexturedModalRect(0, 0, 28, 0, 28, 30); }
+			GlStateManager.popMatrix();
+			
+			GlStateManager.pushMatrix();
+			RenderHelper.enableGUIStandardItemLighting();
+			String i = String.valueOf(31L - (System.currentTimeMillis() / 100L) % 32L);
+			if (i.length()<2) { i = "0"+i; }
+			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/compass_"+i+".png"));
+			GlStateManager.translate(x+10, y+6, 0.0f);
+			float s = 16.0f / 256.0f;
+			GlStateManager.scale(s, s, s);
+			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.translate(0.0f, 28.0f / s, 0.0f);
+			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/book_normal.png"));
+			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.popMatrix();
+			
+		}
+	}
+
+	@SubscribeEvent
+	public void onInitGuiEvent(GuiScreenEvent.InitGuiEvent.Post event) {
+		if (event.getGui() instanceof GuiContainerCreative) {
+			int x=0, y=0;
+			try {
+				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
+				y = ((GuiContainerCreative) event.getGui()).getGuiTop() + 4;
+			}
+			catch (Exception e) { return; }
+			event.getButtonList().add(new GuiNpcButton(150, x, y, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
+			event.getButtonList().add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
+		}
+	}
+	
+	@SubscribeEvent
+	public void onButtonEvent(GuiScreenEvent.ActionPerformedEvent.Post event) {
+		if (event.getGui() instanceof GuiContainerCreative) {
+			switch(event.getButton().id) {
+				case 150: {
+					this.mc.displayGuiScreen(new GuiCompassSetings(event.getGui()));
+					break;
+				}
+				case 151: {
+					this.mc.displayGuiScreen(new GuiQuestLog(this.mc.player));
+					break;
+				}
+			}
 		}
 	}
 	

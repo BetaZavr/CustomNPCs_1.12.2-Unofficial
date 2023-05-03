@@ -151,9 +151,9 @@ implements ISliderListener, ITextfieldListener {
 		
 		// Body
 		GlStateManager.pushMatrix();
-		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("body", "dial", "arrow_1", "arrow_20", "fase"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("body", "dial", "arrow_1", "arrow_20", "fase"), null));
 		GlStateManager.rotate((System.currentTimeMillis()%3500L) / (3500.0f / 360.0f), 0.0f, 1.0f, 0.0f);
-		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.compasRes, Lists.<String>newArrayList("arrow_0"), null));
+		GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_0"), null));
 		GlStateManager.popMatrix();
 		
 		if (!CustomNpcs.showDescriptions) { return; }

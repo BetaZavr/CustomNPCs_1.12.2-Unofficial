@@ -160,20 +160,25 @@ implements ITextfieldListener {
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
-		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.max", ""+this.getTextField(0).max).getFormattedText());
-		} else if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.posx").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "X").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getTextField(11)!=null && this.getTextField(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.posy").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "Y").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getTextField(12)!=null && this.getTextField(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.posz").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "Z").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getTextField(13)!=null && this.getTextField(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.dimensionId").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.dim").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getTextField(14)!=null && this.getTextField(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.range").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.range").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getTextField(15)!=null && this.getTextField(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("parameter.entity.name").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
+		}
+		else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.max", ""+this.getTextField(0).max).getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.leave").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
@@ -182,10 +187,6 @@ implements ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.ign.nbt").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").getFormattedText());
-		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
 		}
 	}
 

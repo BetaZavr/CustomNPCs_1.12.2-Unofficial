@@ -70,13 +70,12 @@ public class ServerEventsHandler {
 		PlayerData pdata = PlayerData.get(player);
 		PlayerQuestData playerdata = pdata.questData;
 		for (QuestData data : playerdata.activeQuests.values()) {
-			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) {
-				continue;
-			}
+			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) { continue; }
+			boolean bo = data.quest.step==1;
 			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-				if (obj.getType() != EnumQuestTask.CRAFT.ordinal()) {
-					continue;
-				}
+				if (data.quest.step==1 && !bo) { break; }
+				bo = obj.isCompleted();
+				if (((QuestObjective) obj).getEnumType() != EnumQuestTask.CRAFT) { continue; }
 				int size = 0;
 				if (!NoppesUtilServer.IsItemStackNull(event.crafting) && NoppesUtilPlayer.compareItems(
 						obj.getItem().getMCItemStack(), event.crafting, obj.isIgnoreDamage(), obj.isItemIgnoreNBT())) {
@@ -149,22 +148,18 @@ public class ServerEventsHandler {
 		PlayerData pdata = PlayerData.get(player);
 		PlayerQuestData playerdata = pdata.questData;
 		String entityName = EntityList.getEntityString(entity);
-		if (entity instanceof EntityPlayer) {
-			entityName = "Player";
-		}
+		if (entity instanceof EntityPlayer) { entityName = "Player"; }
 		for (QuestData data : playerdata.activeQuests.values()) { // Changed
-			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) {
-				continue;
-			}
+			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) { continue; }
+			boolean bo = data.quest.step==1;
 			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-				if (((QuestObjective) obj).getEnumType() != EnumQuestTask.KILL
-						&& ((QuestObjective) obj).getEnumType() != EnumQuestTask.AREAKILL) {
-					continue;
-				}
+				if (data.quest.step==1 && !bo) { break; }
+				bo = obj.isCompleted();
+				if (((QuestObjective) obj).getEnumType() != EnumQuestTask.KILL && ((QuestObjective) obj).getEnumType() != EnumQuestTask.AREAKILL) { continue; }
 				String name = entityName;
 				if (obj.getTargetName().equals(entity.getName())) {
 					name = entity.getName();
-				} else {
+				} else if (!obj.getTargetName().equals(name)) {
 					continue;
 				}
 
