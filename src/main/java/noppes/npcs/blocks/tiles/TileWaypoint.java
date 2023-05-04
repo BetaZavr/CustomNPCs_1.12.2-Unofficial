@@ -22,6 +22,7 @@ import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
 
 public class TileWaypoint extends TileNpcEntity implements ITickable {
+	
 	public String name;
 	public int range;
 	private List<EntityPlayer> recentlyChecked;

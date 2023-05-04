@@ -53,6 +53,7 @@ import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
@@ -60,6 +61,7 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.controllers.data.Zone3D;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.quests.QuestObjective;
@@ -217,6 +219,33 @@ extends Gui
 						else { entityName = entityName.substring(0, entityName.length()-2); }
 						n = entityName;
 						title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+entityName+ ": " + select.getProgress() + "/" + select.getMaxProgress();
+					}
+				}
+			} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && !qData.quest.completerNpc.isEmpty()){
+				p = new double[] { qData.quest.completerPos[0]-0.5d, qData.quest.completerPos[1]+0.5d, qData.quest.completerPos[2]+0.5d };
+				type = EnumQuestTask.DIALOG.ordinal();
+				if (this.mc.world.provider.getDimension()!=qData.quest.completerPos[3]) { type = 7; }
+				else {
+					AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(64.0d, 128.0d, 64.0d);
+					List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
+					double d = 65535.0d;
+					Vec3i v = new Vec3i(p[0], p[1], p[2]);
+					EntityLivingBase et = null;
+					for (EntityLivingBase el : ents) {
+						if (!el.getName().equals(qData.quest.completerNpc)) { continue; }
+						double r = v.distanceSq((Vec3i) el.getPosition());
+						if (et == null) { d = r; et = el; }
+						else {
+							if (r >= d) { continue; }
+							d = r;
+							et = el;
+						}
+					}
+					if (et!=null) {
+						p[0] = et.posX;
+						p[1] = et.posY;
+						p[2] = et.posZ;
+						range = 1;
 					}
 				}
 			}

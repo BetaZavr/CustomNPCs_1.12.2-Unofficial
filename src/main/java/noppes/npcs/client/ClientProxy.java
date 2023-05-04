@@ -88,6 +88,7 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.blocks.CustomBlock;
+import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
@@ -840,6 +841,7 @@ extends CommonProxy {
 					name.equals("stairsexample") ? "Example Custom Stairs" :
 					name.equals("slabexample") ? "Example Custom Slab" :
 					name.equals("fasingblockexample") ? "Example Custom Fasing Block" :
+					name.equals("portalexample") ? "Example Custom Portal Block" :
 					name;
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("tile."+fileName+".name", n);
@@ -849,7 +851,7 @@ extends CommonProxy {
 		
 		if (customblock instanceof CustomBlockSlab.CustomBlockSlabDouble) { return; }
 		
-		File texturesDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/"+(customblock instanceof CustomLiquid ? "fluids" : "blocks")); 
+		File texturesDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/"+(customblock instanceof CustomLiquid ? "fluids" : customblock instanceof CustomBlockPortal ? "environment" : "blocks")); 
 		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
 		File texture = new File(texturesDir, name.toLowerCase()+".png");
 		IResource baseTexrure;
@@ -905,10 +907,8 @@ extends CommonProxy {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png.mcmeta"));
 						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
 					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \""+name+"\" fluid");
-						return;
-					}
+					LogWriter.debug("Create Default Texture for \""+name+"\" fluid");
+					return;
 				}
 				else if (customblock instanceof CustomBlockSlab) {
 					texture = new File(texturesDir, fileName.toLowerCase()+"_top.png");
@@ -926,10 +926,8 @@ extends CommonProxy {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_side.png"));
 						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
 					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \""+name+"\" block slab");
-						return;
-					}
+					LogWriter.debug("Create Default Texture for \""+name+"\" block slab");
+					return;
 				}
 				else if (customblock instanceof CustomBlockStairs) {
 					texture = new File(texturesDir, fileName.toLowerCase()+"_top.png");
@@ -947,10 +945,22 @@ extends CommonProxy {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block_data.png"));
 						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
 					}
-					if (has) {
-						LogWriter.debug("Create Default Texture for \""+name+"\" block stairs");
-						return;
+					LogWriter.debug("Create Default Texture for \""+name+"\" block stairs");
+					return;
+				}
+				else if (customblock instanceof CustomBlockPortal) {
+					texture = new File(texturesDir, fileName.toLowerCase()+"_portal.png");
+					if (!texture.exists()) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/entity/end_portal.png"));
+						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
 					}
+					texture = new File(texturesDir, fileName.toLowerCase()+"_sky.png");
+					if (!texture.exists()) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/environment/end_sky.png"));
+						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
+					}
+					LogWriter.debug("Create Default Texture for \""+name+"\" block portal");
+					return;
 				}
 				if (!has) {
 					baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));

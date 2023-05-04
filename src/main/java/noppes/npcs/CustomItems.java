@@ -70,6 +70,7 @@ import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
+import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
 import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.blocks.tiles.TileBorder;
 import noppes.npcs.blocks.tiles.TileBuilder;
@@ -86,6 +87,7 @@ import noppes.npcs.client.renderer.blocks.BlockCarpentryBenchRenderer;
 import noppes.npcs.client.renderer.blocks.BlockCopyRenderer;
 import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
 import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
+import noppes.npcs.client.renderer.blocks.BlockPortalRenderer;
 import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
 import noppes.npcs.constants.EnumBuilder;
 import noppes.npcs.fluids.CustomFluid;
@@ -246,7 +248,8 @@ public class CustomItems {
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation("minecraft", "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation("minecraft", "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
-
+		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation("minecraft", "CustomTileEntityPortal"));
+		
 		CustomItems.redstoneBlock = new BlockNpcRedstone();
 		CustomItems.mailbox = new BlockMailbox();
 		CustomItems.waypoint = new BlockWaypoint();
@@ -732,6 +735,7 @@ public class CustomItems {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileScripted.class, new BlockScriptedRenderer<TileScripted>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<TileDoor>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<TileCopy>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<CustomTileEntityPortal>());
 		
 		// OLD JSON Models
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomItems.carpentyBench), 0, TileBlockAnvil.class);
@@ -816,8 +820,12 @@ public class CustomItems {
 		examplePortal.setString("RegistryName", "portalexample");
 		examplePortal.setByte("BlockType", (byte) 5);
 		examplePortal.setString("Material", "PORTAL");
-		examplePortal.setString("Particle", "CRIT");
+		NBTTagCompound nbtRender = new NBTTagCompound();
+		nbtRender.setFloat("SecondSpeed", 800.0f);
+		nbtRender.setString("SpawnParticle", "CRIT");
+		examplePortal.setTag("RenderData", nbtRender);
 		examplePortal.setInteger("DimentionID", 100);
+		examplePortal.setInteger("HomeDimentionID", 0);
 		examplePortal.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(examplePortal);
 		

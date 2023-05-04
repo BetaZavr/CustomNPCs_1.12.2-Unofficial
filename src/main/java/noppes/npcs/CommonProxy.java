@@ -34,6 +34,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.blocks.CustomBlock;
+import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
@@ -527,11 +528,13 @@ implements IGuiHandler {
 				}
 			}
 			if (jsonModel.isEmpty()) {
+				String texture = CustomNpcs.MODID+":blocks/"+name.toLowerCase();
+				if (customblock instanceof CustomBlockPortal) { texture = CustomNpcs.MODID+":environment/custom_"+name.toLowerCase()+"_portal"; }
 				jsonModel = "{" + crEnt +
 						crTab + "\"_comment\": \"Custom Block Model created by default\"," + crEnt +
 						crTab + "\"parent\": \"block/cube_all\"," + crEnt +
 						crTab + "\"textures\": {" + crEnt +
-						crTab + crTab + "\"all\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"\"" + crEnt + 
+						crTab + crTab + "\"all\": \""+texture+"\"" + crEnt + 
 						crTab + "}" + crEnt + "}";
 				if (this.saveFile(blockModel, jsonModel)) {
 					LogWriter.debug("Create Default Block Model for \""+fileName.toLowerCase()+"\" block");

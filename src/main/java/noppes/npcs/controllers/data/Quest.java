@@ -62,6 +62,7 @@ implements ICompatibilty, IQuest {
 	public int step;
 	private String title; // Changed
 	public int version;
+	public int[] completerPos; // [ x, y, z, dimID ]
 
 	public Quest(QuestCategory category) {
 		this.version = VersionCompatibility.ModRev;
@@ -90,6 +91,7 @@ implements ICompatibilty, IQuest {
 		this.step = 0;
 		this.forgetDialogues = new int[0];
 		this.forgetQuests = new int[0];
+		this.completerPos = new int[] { 0, 0, 0, 0 };
 	}
 
 	@Override

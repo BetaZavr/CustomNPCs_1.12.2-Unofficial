@@ -23,7 +23,9 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
@@ -554,6 +556,10 @@ extends PacketHandlerServer {
 			}
 			if (!nbtTemplate.hasKey("Name", 8)) { return; }
 			DropController.getInstance().templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
+		} else if (type == EnumPacketClient.SET_TILE_DATA) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			TileEntity tile = player.world.getTileEntity(new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
+			if (tile!=null) { tile.readFromNBT(compound); }
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}

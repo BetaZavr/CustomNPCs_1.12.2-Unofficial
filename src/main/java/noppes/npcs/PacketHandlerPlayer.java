@@ -18,6 +18,8 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -560,6 +562,13 @@ public class PacketHandlerPlayer {
 			data.hud.questID = buffer.readInt();
 		} else if (type == EnumPlayerPacket.SaveCompassData) {
 			data.hud.compassData.load(Server.readNBT(buffer));
+		} else if (type == EnumPlayerPacket.GetTileData) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			TileEntity tile = player.world.getTileEntity(new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
+			if (tile!=null) {
+				tile.writeToNBT(compound);
+				Server.sendData(player, EnumPacketClient.SET_TILE_DATA, compound);
+			}
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
