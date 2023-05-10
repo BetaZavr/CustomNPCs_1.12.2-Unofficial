@@ -93,6 +93,7 @@ import noppes.npcs.api.gui.IScroll;
 import noppes.npcs.api.gui.ITextField;
 import noppes.npcs.api.gui.ITexturedButton;
 import noppes.npcs.api.gui.ITexturedRect;
+import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.IDialogHandler;
@@ -101,6 +102,7 @@ import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.handler.data.IAvailability;
+import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogCategory;
@@ -170,6 +172,7 @@ import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.util.InterfaseData;
 import noppes.npcs.client.util.MetodData;
 import noppes.npcs.client.util.ParameterData;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.QuestController;
@@ -186,6 +189,7 @@ import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.controllers.data.TransportLocation;
+import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.data.AttributeSet;
@@ -2147,6 +2151,16 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "clear", "method.ihud.clear")
 		)
 	),
+	IBorder(new InterfaseData(IBorder.class, null,
+			new Class<?>[] { Zone3D.class },
+			"interfase.iborder"
+		)
+	),
+	IBorderHandler(new InterfaseData(IBorderHandler.class, null,
+			new Class<?>[] { BorderController.class },
+			"interfase.iborderhandler"
+		)
+	),
 	IScroll(new InterfaseData(IScroll.class, ICustomGuiComponent.class,
 			new Class<?>[] { CustomGuiScrollWrapper.class },
 			"interfase.iscroll"
@@ -2452,7 +2466,8 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(IPlayer.class, "getIPlayer", "method.npcapi.getiplayer",
 				new ParameterData(String.class, "nameOrUUID", "parameter.playername")
-			)
+			),
+			new MetodData(IBorderHandler.class, "getBorders", "method.npcapi.getborders")
 		)
 	),
 	IDimensionHandler(new InterfaseData(IDimensionHandler.class, null,

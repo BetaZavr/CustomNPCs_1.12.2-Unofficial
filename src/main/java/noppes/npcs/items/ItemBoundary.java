@@ -51,7 +51,7 @@ implements IPermission {
 		list.add(new TextComponentTranslation("info.item.boundary", new TextComponentTranslation("tile.npcborder.name").getFormattedText()).getFormattedText());
 		Zone3D reg = null;
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) {
-			reg = BorderController.getInstance().getRegion(stack.getTagCompound().getInteger("RegionID"));
+			reg = (Zone3D) BorderController.getInstance().getRegion(stack.getTagCompound().getInteger("RegionID"));
 		}
 		if (reg==null) {
 			list.add(new TextComponentTranslation("info.item.boundary.2").getFormattedText());
@@ -61,7 +61,7 @@ implements IPermission {
 		for (int i=0; i<4; i++) {
 			list.add(new TextComponentTranslation("info.item.boundary."+i).getFormattedText());
 		}
-		list.add(new TextComponentTranslation("info.item.boundary.4", ""+reg.id, reg.name).getFormattedText());
+		list.add(new TextComponentTranslation("info.item.boundary.4", ""+reg.getId(), reg.name).getFormattedText());
 	}
 
 	public void leftClick(ItemStack stack, EntityPlayerMP player) {
@@ -97,15 +97,15 @@ implements IPermission {
 		if (data.hud.hasOrKeysPressed(new int [] { 42, 54 })) {
 			Zone3D reg = bData.createNew(player.world.provider.getDimension(), pos);
 			bData.saveRegions();
-			bData.sendToAll(reg.id);
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, reg.id, 0, 0);
+			bData.sendToAll(reg.getId());
+			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, reg.getId(), 0, 0);
 			NBTTagCompound compound = stack.getTagCompound();
 			if (compound==null) { stack.setTagCompound(compound = new NBTTagCompound()); }
-			compound.setInteger("RegionID", reg.id);
+			compound.setInteger("RegionID", reg.getId());
 			return;
 		}
 		// LMB = remove point
-		Zone3D reg = bData.getRegion(id);
+		Zone3D reg = (Zone3D) bData.getRegion(id);
 		if (reg==null) { return; }
 		Point p = reg.points.get(reg.getIdNearestPoint(player.getPosition()));
 		if (p==null || !reg.contains(p.x, p.y)) { return; }
@@ -146,7 +146,7 @@ implements IPermission {
 			pos = new BlockPos(x, y, z);
 		}
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("RegionID", 3)) { id = stack.getTagCompound().getInteger("RegionID"); }
-		Zone3D reg = bData.getRegion(id);
+		Zone3D reg = (Zone3D) bData.getRegion(id);
 		// Shift + RMB = Show Region settings
 		if (reg==null || data.hud.hasOrKeysPressed(new int [] { 42, 54 })) { // Shift pressed
 			if (reg!=null && pos==null) { pos = player.getPosition(); }
@@ -172,7 +172,7 @@ implements IPermission {
 			if (add) {
 				reg.fix();
 				bData.saveRegions();
-				bData.sendToAll(reg.id);
+				bData.sendToAll(reg.getId());
 			}
 		}
 	}

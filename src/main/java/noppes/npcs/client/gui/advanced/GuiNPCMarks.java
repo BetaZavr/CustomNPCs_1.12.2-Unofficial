@@ -20,6 +20,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Availability;
@@ -94,8 +95,8 @@ implements ISubGuiListener, ICustomScrollListener {
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 140, this.guiTop + 58, 120, 20, "availability.options"));
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 5, this.guiTop + this.ySize - 9, 64, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 71, this.guiTop + this.ySize - 9, 64, 20, "gui.remove"));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 140, this.guiTop + 80, 120, 20,
-				new String[] { "movement.rotation", "ai.standing" }, this.selectedMark.rotate ? 0 : 1));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 140, this.guiTop + 80, 120, 20, new String[] { "movement.rotation", "ai.standing" }, this.selectedMark.rotate ? 0 : 1));
+		this.addButton(new GuiNpcButton(6, this.guiLeft + 140, this.guiTop + 102, 120, 20, new String[] { "3D", "2D" }, this.selectedMark.is3d ? 0 : 1));
 
 		this.getButton(3).enabled = this.selectedMark.type > 0;
 		this.getButton(4).enabled = this.scroll.selected >= 0;
@@ -104,40 +105,30 @@ implements ISubGuiListener, ICustomScrollListener {
 		MarkData.Mark mark = (Mark) this.dataDisplay.addMark(this.selectedMark.type);
 		mark.setColor(this.selectedMark.color);
 		mark.setRotate(this.selectedMark.rotate);
+		mark.set3D(this.selectedMark.is3d);
 		mark.availability = new Availability();
 		this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("advanced.marks").getFormattedText()+":", this.guiLeft + 5, this.guiTop + 4));
 	}
 
 	@Override
 	public void buttonEvent(GuiButton guibutton) {
+		if (this.selectedMark == null) { return; }
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
 			case 0: {
-				if (this.selectedMark == null) {
-					return;
-				}
 				this.selectedMark.type = ((GuiNpcButton) button).getValue();
 				this.initGui();
 				break;
 			}
 			case 1: {
-				if (this.selectedMark == null) {
-					return;
-				}
 				this.setSubGui(new SubGuiColorSelector(this.selectedMark.color));
 				break;
 			}
 			case 2: {
-				if (this.selectedMark == null) {
-					return;
-				}
 				this.setSubGui(new SubGuiNpcAvailability(this.selectedMark.availability));
 				break;
 			}
 			case 3: {
-				if (this.selectedMark == null) {
-					return;
-				}
 				Mark newark = (Mark) this.data.addMark(this.selectedMark.type);
 				newark.color = this.selectedMark.color;
 				newark.rotate = this.selectedMark.rotate;
@@ -147,9 +138,7 @@ implements ISubGuiListener, ICustomScrollListener {
 				break;
 			}
 			case 4: {
-				if (this.selectedMark == null || this.scroll.selected < 0) {
-					return;
-				}
+				if (this.scroll.selected < 0) { return; }
 				this.data.marks.remove(this.selectedMark);
 				this.scroll.selected = -1;
 				this.selMark = "";
@@ -158,10 +147,13 @@ implements ISubGuiListener, ICustomScrollListener {
 				break;
 			}
 			case 5: {
-				if (this.selectedMark == null) {
-					return;
-				}
 				this.selectedMark.rotate = ((GuiNpcButton) button).getValue() == 0;
+				this.initGui();
+				break;
+			}
+			case 6: {
+				this.selectedMark.is3d = ((GuiNpcButton) button).getValue() == 0;
+				MarkRenderer.needReload = true;
 				this.initGui();
 				break;
 			}
@@ -179,18 +171,20 @@ implements ISubGuiListener, ICustomScrollListener {
 		super.drawScreen(i, j, f);
 		// New
 		if (!CustomNpcs.showDescriptions) { return; }
-		if (isMouseHover(i, j, this.guiLeft + 140, this.guiTop + 14, 120, 20)) {
+		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mark.hover.type").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 140, this.guiTop + 36, 120, 20)) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("color.hover").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 140, this.guiTop + 58, 120, 20)) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 5, this.guiTop + this.ySize - 9, 64, 20)) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mark.hover.add").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 71, this.guiTop + this.ySize - 9, 64, 20)) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mark.hover.del").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 140, this.guiTop + 80, 120, 20)) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mark.hover.rotate").getFormattedText());
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mark.hover.is3d").getFormattedText());
 		}
 	}
 

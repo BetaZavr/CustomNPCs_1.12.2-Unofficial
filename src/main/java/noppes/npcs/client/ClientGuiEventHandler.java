@@ -581,7 +581,7 @@ extends Gui
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 			ClientGuiEventHandler.result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			Zone3D reg = BorderController.getInstance().getRegion(id);
+			Zone3D reg = (Zone3D) BorderController.getInstance().getRegion(id);
 			if (reg == null && ClientGuiEventHandler.result!=null && ClientGuiEventHandler.result.getBlockPos()!=null) {
 				int x = ClientGuiEventHandler.result.getBlockPos().getX();
 				int y = ClientGuiEventHandler.result.getBlockPos().getY();
@@ -635,7 +635,7 @@ extends Gui
 		g = (float) (reg.color >> 8 & 255) / 255.0f;
 		b = (float) (reg.color & 255) / 255.0f;
 		drawRegion(reg, editID, r, g, b);
-		if (reg.id!=editID) { return; }
+		if (reg.getId()!=editID) { return; }
 		for (Point p : reg.points.values()) {
 			if (start || distMin>p.distance(playerPoint)) {
 				start = false;
@@ -718,7 +718,7 @@ extends Gui
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 			
-			if (reg.id == editID) {
+			if (reg.getId() == editID) {
 				// Lines
 				buffer = tessellator.getBuffer();
 				GlStateManager.pushMatrix();

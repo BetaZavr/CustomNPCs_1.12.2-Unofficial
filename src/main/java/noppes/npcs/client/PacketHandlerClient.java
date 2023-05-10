@@ -63,6 +63,7 @@ import noppes.npcs.client.gui.util.IGuiClose;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.IGuiError;
 import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
@@ -249,6 +250,7 @@ extends PacketHandlerServer {
 			}
 			MarkData data = MarkData.get((EntityLivingBase) entity);
 			data.setNBT(Server.readNBT(buffer));
+			MarkRenderer.needReload = true;
 		} else if (type == EnumPacketClient.DIALOG) {
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(buffer.readInt());
 			if (entity == null || !(entity instanceof EntityNPCInterface)) {

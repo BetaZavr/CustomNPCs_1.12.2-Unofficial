@@ -20,6 +20,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
+import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.IFactionHandler;
@@ -112,5 +113,6 @@ public abstract class NpcAPI {
 	public abstract INbt stringToNbt(String str);
 	
 	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
-	
+
+	public abstract IBorderHandler getBorders(); // New
 }

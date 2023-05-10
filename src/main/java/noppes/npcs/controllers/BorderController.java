@@ -18,11 +18,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.IPos;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.handler.IBorderHandler;
+import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class BorderController {
+public class BorderController
+implements IBorderHandler {
 	
 	private static BorderController instance;
 	public HashMap<Integer, Zone3D> regions;
@@ -46,7 +52,8 @@ public class BorderController {
 		return file != null && !BorderController.instance.filePath.equals(file.getAbsolutePath());
 	}
 
-	public Zone3D getRegion(int regionId) {
+	@Override
+	public IBorder getRegion(int regionId) {
 		return this.regions.get(regionId);
 	}
 
@@ -62,6 +69,9 @@ public class BorderController {
 		return nbttagcompound;
 	}
 
+	@Override
+	public INbt getNbt() { return NpcAPI.Instance().getINbt(this.getNBT()); }
+	
 	public int getUnusedId() {
 		int id;
 		for (id = 0; this.regions.containsKey(id); ++id) { }
@@ -113,10 +123,11 @@ public class BorderController {
 		}
 		Zone3D region = new Zone3D();
 		region.readFromNBT(nbtRegion);
-		this.regions.put(region.id, region);
-		return this.regions.get(region.id);
+		this.regions.put(region.getId(), region);
+		return this.regions.get(region.getId());
 	}
-	
+
+	@Override
 	public boolean removeRegion(int region) {
 		if (region < 0 || this.regions.size() == 0) { return false; }
 		this.regions.remove(region);
@@ -144,6 +155,20 @@ public class BorderController {
 		}
 	}
 
+	@Override
+	public IBorder[] getRegions(int dimensionID) {
+		List<IBorder> regs = Lists.<IBorder>newArrayList();
+		for (Zone3D reg : this.regions.values()) {
+			if (reg.dimensionID==dimensionID) { regs.add(reg); }
+		}
+		return regs.toArray(new IBorder[regs.size()]);
+	}
+	
+	@Override
+	public IBorder[] getAllRegions() {
+		return this.regions.values().toArray(new IBorder[this.regions.size()]);
+	}
+	
 	public List<Zone3D> getRegionsInWorld(int dimensionID) {
 		List<Zone3D> regs = Lists.<Zone3D>newArrayList();
 		for (Zone3D reg : this.regions.values()) {
@@ -155,7 +180,7 @@ public class BorderController {
 	public void sendTo(EntityPlayerMP player) {
 		Server.sendData(player, EnumPacketClient.BORDER_DATA, -1, new NBTTagCompound());
 		for (int id : this.regions.keySet()) {
-			if (id<0 || this.regions.get(id).id<0) { continue; }
+			if (id<0 || this.regions.get(id).getId()<0) { continue; }
 			NBTTagCompound nbtRegion = new NBTTagCompound();
 			this.regions.get(id).writeToNBT(nbtRegion);
 			Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, id, nbtRegion);
@@ -163,21 +188,37 @@ public class BorderController {
 		Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
 	}
 
+	@Override
 	public void sendToAll(int id) {
-		if (id<0 || !this.regions.containsKey(id)) { return; }
 		if (CustomNpcs.Server==null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length==0) { return; }
-		NBTTagCompound nbtRegion = new NBTTagCompound();
-		this.regions.get(id).writeToNBT(nbtRegion);
-		for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
-			Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, id, nbtRegion);
-			Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
+		if (id<0) {
+			for (int i : this.regions.keySet()) {
+				NBTTagCompound nbtRegion = new NBTTagCompound();
+				this.regions.get(i).writeToNBT(nbtRegion);
+				for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+					Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, i, nbtRegion);
+					Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
+				}
+			}
+		} else if (this.regions.containsKey(id)) {
+			NBTTagCompound nbtRegion = new NBTTagCompound();
+			this.regions.get(id).writeToNBT(nbtRegion);
+			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+				Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, id, nbtRegion);
+				Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
+			}
 		}
 	}
 
+	@Override
+	public IBorder createNew(int imensionID, IPos pos) {
+		return this.createNew(imensionID, pos.getMCBlockPos());
+	}
+	
 	public Zone3D createNew(int imensionID, BlockPos pos) {
 		if (this.regions==null) { this.regions = Maps.<Integer, Zone3D>newHashMap(); }
 		Zone3D reg = new Zone3D(this.getUnusedId(), imensionID, pos.getX(), pos.getY(), pos.getZ());
-		this.regions.put(reg.id, reg);
+		this.regions.put(reg.getId(), reg);
 		return reg;
 	}
 

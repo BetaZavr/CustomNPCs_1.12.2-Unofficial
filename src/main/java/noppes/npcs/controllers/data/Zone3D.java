@@ -22,12 +22,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.IPos;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.util.AdditionalMethods;
 
 public class Zone3D
-implements Predicate<Entity> {
+implements IBorder, Predicate<Entity> {
 
-	public int id = -1;
+	private int id = -1;
 	public String name = "Default Region";
 	public TreeMap<Integer, Point> points = Maps.<Integer, Point>newTreeMap();
 	public int[] y = new int[] {0, 255};
@@ -65,14 +70,18 @@ implements Predicate<Entity> {
 	 * @param index
 	 * @param position
 	 */
-	public void setPoint(int index, BlockPos position) { this.setPoint(index, position.getX(), position.getY(), position.getZ()); }
+	public Point setPoint(int index, BlockPos position) { return this.setPoint(index, position.getX(), position.getY(), position.getZ()); }
 
+	@Override
+	public Point setPoint(int index,IPos position) { return this.setPoint(index, position.getMCBlockPos()); }
+	
 	/**
 	 * Sets a point instead of an existing one
 	 * @param index
 	 * @param y
 	 * @param point
 	 */
+	@Override
 	public Point setPoint(int index, Point point, int y) {
 		if (!this.points.containsKey(index) && index!=this.points.size()) { return null; }
 		this.points.put(index, point);
@@ -88,6 +97,7 @@ implements Predicate<Entity> {
 	 * @param index
 	 * @param point
 	 */
+	@Override
 	public Point setPoint(int index, Point point) {
 		if (!this.points.containsKey(index) && index!=this.points.size()) { return null; }
 		this.points.put(index, point);
@@ -101,6 +111,7 @@ implements Predicate<Entity> {
 	 * @param y
 	 * @param z
 	 */
+	@Override
 	public Point setPoint(int index, int x, int y, int z) {
 		Point point = new Point();
 		point.x = x;
@@ -112,12 +123,16 @@ implements Predicate<Entity> {
 	 * Adds a new point to the end
 	 * @param position
 	 */
-	public void addPoint(BlockPos position) { this.addPoint(position.getX(), position.getY(), position.getZ()); }
-	
+	public Point addPoint(BlockPos position) { return this.addPoint(position.getX(), position.getY(), position.getZ()); }
+
+	@Override
+	public Point addPoint(IPos position) { return this.addPoint(position.getMCBlockPos()); }
+
 	/**
 	 * Adds a new point to the end
 	 * @param point
 	 */
+	@Override
 	public Point addPoint(Point point, int y) {
 		for (Point p : this.points.values()) { if (p.x==point.x && p.y==point.y) { return null; } }
 		this.points.put(this.points.size(), point);
@@ -133,6 +148,7 @@ implements Predicate<Entity> {
 	 * @param y
 	 * @param z
 	 */
+	@Override
 	public Point addPoint(int x, int y, int z) {
 		Point point = new Point();
 		point.x = x;
@@ -145,6 +161,9 @@ implements Predicate<Entity> {
 	 * @param position
 	 */
 	public boolean insertPoint(BlockPos position, BlockPos entityPos) { return this.insertPoint(position.getX(), position.getY(), position.getZ(), entityPos); }
+
+	@Override
+	public boolean insertPoint(IPos position, IPos entityPos) { return this.insertPoint(position.getMCBlockPos(), entityPos.getMCBlockPos()); }
 	
 	/**
 	 * Adds a new point between two existing ones (through the smallest lengths)
@@ -169,6 +188,9 @@ implements Predicate<Entity> {
 		return true;
 	}
 	
+	@Override
+	public boolean insertPoint(Point point, int y, IPos entityPos) { return this.insertPoint(point, y, entityPos.getMCBlockPos()); }
+	
 	/**
 	 * Adds a new point between two existing ones (through the smallest lengths)
 	 * @param x
@@ -182,16 +204,23 @@ implements Predicate<Entity> {
 		return this.insertPoint(p, y, entityPos);
 	}
 	
+	@Override
+	public void insertPoint(int x, int y, int z, IPos entityPos) { this.insertPoint(x, y, z, entityPos.getMCBlockPos()); }
+	
 	/**
 	 * Offsets the entire zone by the specified value
 	 * @param position
 	 */
 	public void offset(BlockPos position) { this.offset(position.getX(), position.getY(), position.getZ()); }
+
+	@Override
+	public void offset(IPos position) { this.offset(position.getMCBlockPos()); }
 	
 	/**
 	 * Offsets the entire zone by the specified value
 	 * @param point
 	 */
+	@Override
 	public void offset(Point point) { this.offset(point.x, 0, point.y); }
 	
 	/**(this.y[1]+this.y[0])/2
@@ -200,6 +229,7 @@ implements Predicate<Entity> {
 	 * @param y
 	 * @param z
 	 */
+	@Override
 	public void offset(int x, int y, int z) {
 		this.y[0] += y;
 		this.y[1] += y;
@@ -218,6 +248,10 @@ implements Predicate<Entity> {
 	 */
 	public void centerOffsetTo(BlockPos position, int typePos) { this.centerOffsetTo(position.getX(), position.getY(), position.getZ(), typePos); }
 	
+	@Override
+	public void centerOffsetToIPos(IPos position, int typePos) {
+		this.centerOffsetTo(position.getMCBlockPos(), typePos);
+	}
 	/**
 	 * Offsets the position of the zone
 	 * @param point
@@ -225,6 +259,7 @@ implements Predicate<Entity> {
 	 * @param typePos = 1 - relative to the center of the described contour;
 	 * @param typePos = 2 - relative to the center of mass
 	 */
+	@Override
 	public void centerOffsetTo(Point point, int typePos) { this.centerOffsetTo(point.x, (int) ((this.y[0]+this.y[1])/2), point.y, typePos); }
 	
 	/**
@@ -236,6 +271,7 @@ implements Predicate<Entity> {
 	 * @param typePos = 1 - relative to the center of the described contour;
 	 * @param typePos = 2 - relative to the center of mass
 	 */
+	@Override
 	public void centerOffsetTo(int x, int y, int z, int typePos) {
 		BlockPos ctr = null;
 		int ry = (this.y[1]-this.y[0])/2;
@@ -267,6 +303,7 @@ implements Predicate<Entity> {
 	 * @param typePos = 1 - relative to the center of the described contour;
 	 * @param typePos = 2 - relative to the center of mass
 	 */
+	@Override
 	public void scaling(double radius, int typePos) {
 		if (this.points.size()<=1) { return; }
 		BlockPos ctr = null;
@@ -290,6 +327,7 @@ implements Predicate<Entity> {
 	 * @param typePos = 1 - relative to the center of the described contour;
 	 * @param typePos = 2 - relative to the center of mass
 	 */
+	@Override
 	public void scaling(float scale, int typePos) {
 		if (this.points.size()<=1) { return; }
 		BlockPos ctr = null;
@@ -306,28 +344,32 @@ implements Predicate<Entity> {
 			if (this.y[1] < (int) newPoint[2]) { this.y[1] = (int) newPoint[1]; }
 		}
 	}
-	
+
+	@Override
 	public int getMinX() {
 		if (this.points.size()==0) { return 0; }
 		int value = this.points.get(0).x;
 		for (Point v : this.points.values()) { if (value > v.x) { value = v.x; } }
 		return value;
 	}
-	
+
+	@Override
 	public int getMaxX() {
 		if (this.points.size()==0) { return 0; }
 		int value = this.points.get(0).x;
 		for (Point v : this.points.values()) { if (value < v.x) { value = v.x; } }
 		return value;
 	}
-	
+
+	@Override
 	public int getMinZ() {
 		if (this.points.size()==0) { return 0; }
 		int value = this.points.get(0).y;
 		for (Point v : this.points.values()) { if (value > v.y) { value = v.y; } }
 		return value;
 	}
-	
+
+	@Override
 	public int getMaxZ() {
 		if (this.points.size()==0) { return 0; }
 		int value = this.points.get(0).y;
@@ -355,10 +397,12 @@ implements Predicate<Entity> {
 	/**
 	 * @return center of the described zone contour
 	 */
+	@Override
 	public BlockPos getCenter() {
 		return new BlockPos((this.getMinX()+this.getMaxX())/2.0d, (this.y[0]+this.y[1])/2.0d, (this.getMinZ()+this.getMaxZ())/2.0d);
 	}
-	
+
+	@Override
 	public double[] getExactCenter() {
 		double x = 0.0d, z = 0.0d;
 		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
@@ -382,9 +426,16 @@ implements Predicate<Entity> {
 		return new BlockPos(x/(double)this.points.size(), y, z/(double)this.points.size());
 	}
 	
+	@Override
+	public IPos getIPosCenterMass() {
+		BlockPos pos = this.getCenterMass();
+		return NpcAPI.Instance().getIPos(pos.getX(), pos.getY(), pos.getZ());
+	}
+	
 	/**
 	 * @return number of vertices of a zone
 	 */
+	@Override
 	public int size() { return this.points.size(); }
 
 	/**
@@ -399,13 +450,15 @@ implements Predicate<Entity> {
 		if (z<0) { z *= -1; }
 		return x+"x"+y+"x"+z;
 	}
-	
+
+	@Override
 	public void clear() {
 		this.points = Maps.<Integer, Point>newTreeMap();
 		this.y[0] = 255;
 		this.y[1] = 0;
 	}
-	
+
+	@Override
 	public boolean contains(double x, double y, double z, double height) {
 		int dx = (int) (x*10.0d);
 		int dz = (int) (z*10.0d);
@@ -429,6 +482,7 @@ implements Predicate<Entity> {
 	 * @param x
 	 * @param z
 	 */
+	@Override
 	public boolean removePoint(int x, int z) {
 		if (this.points==null || this.points.size()==0) { return false; }
 		for (int key : this.points.keySet()) {
@@ -445,6 +499,7 @@ implements Predicate<Entity> {
 	 * Remove point from polygon
 	 * @param point
 	 */
+	@Override
 	public boolean removePoint(Point point) {
 		if (point==null || this.points==null || this.points.size()<=3) { return false; }
 		return removePoint(point.x, point.y);
@@ -461,6 +516,11 @@ implements Predicate<Entity> {
 			if (p0.x!=p1.x || p0.y!=p1.y) { return false; }
 		}
 		return true;
+	}
+
+	@Override
+	public int getClosestPoint(Point point, IPos pos) {
+		return this.getClosestPoint(point, pos.getMCBlockPos());
 	}
 	
 	public int getClosestPoint(Point point, BlockPos entityPos) {
@@ -490,6 +550,11 @@ implements Predicate<Entity> {
 		if (dm0+dm1+dm2+dm3>d0+d1+d2+d3) { pos = this.points.size()-1; }
 		return pos;
 	}
+
+	@Override
+	public Point[] getClosestPoints(Point point, IPos pos) {
+		return this.getClosestPoints(point, pos.getMCBlockPos());
+	}
 	
 	public Point[] getClosestPoints(Point point, BlockPos entityPos) {
 		Point[] ps = new Point[2];
@@ -502,12 +567,19 @@ implements Predicate<Entity> {
 		return ps;
 	}
 
+	@Override
 	public double distanceTo(double px, double py) {
 		BlockPos pos = this.getCenter();
 		return AdditionalMethods.distanceTo(pos.getX()+0.5d, 0.0d, pos.getZ()+0.5d, px, 0.0d, py);
 	}
 
+	@Override
+	public double distanceTo(IEntity<?> entity) {
+		return this.distanceTo(entity.getMCEntity());
+	}
+	
 	public double distanceTo(Entity entity) {
+		if (entity==null) { return -1; }
 		BlockPos c = this.getCenter();
 		return AdditionalMethods.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX()+0.5d, c.getY()+0.5d, c.getZ()+0.5d);
 	}
@@ -516,6 +588,13 @@ implements Predicate<Entity> {
 	public int getWidthZ() { return this.getMaxZ() - this.getMinZ(); }
 	public int getHeight() { return this.y[1] - this.y[0]; }
 
+	@Override
+	public INbt getNbt() {
+		NBTTagCompound nbtRegion = new NBTTagCompound();
+		this.readFromNBT(nbtRegion);
+		return NpcAPI.Instance().getINbt(nbtRegion);
+	}
+	
 	public void readFromNBT(NBTTagCompound nbtRegion) {
 		this.id = nbtRegion.getInteger("ID");
 		this.name = nbtRegion.getString("Name");
@@ -540,6 +619,9 @@ implements Predicate<Entity> {
 		this.fix();
 	}
 	
+	@Override
+	public void setNbt(INbt nbt) { this.writeToNBT(nbt.getMCNBT()); }
+	
 	public void writeToNBT(NBTTagCompound nbtRegion) {
 		nbtRegion.setInteger("ID", this.id);
 		nbtRegion.setString("Name", this.name);
@@ -558,6 +640,11 @@ implements Predicate<Entity> {
 		int[] pos = new int[] { this.homePos.getX(), this.homePos.getY(), this.homePos.getZ() };
 		nbtRegion.setIntArray("HomePos", pos);
 		nbtRegion.setBoolean("IsKeepOut", this.keepOut);
+	}
+
+	@Override
+	public Point[] getPoints() {
+		return this.points.values().toArray(new Point[this.points.size()]);
 	}
 	
 	public List<Point> getPointList() {
@@ -671,6 +758,7 @@ implements Predicate<Entity> {
 		return p;
 	}
 
+	@Override
 	public BlockPos getHomePos() {
 		if (this.homePos==null  || this.keepOut!=this.contains(this.homePos.getX()+0.5d, this.homePos.getY()+0.5d, this.homePos.getZ()+0.5d, 0.0d)) {
 			this.homePos = this.getCenter();
@@ -691,7 +779,8 @@ implements Predicate<Entity> {
 		}
 		return this.homePos;
 	}
-	
+
+	@Override
 	public void setHomePos(int x, int y, int z) {
 		if (this.homePos==null  || this.keepOut!=this.contains(x+0.5d, y, z+0.5d, 0.0d)) { return; }
 		this.homePos = new BlockPos(x, y, z);
@@ -714,11 +803,38 @@ implements Predicate<Entity> {
 		return this.contains(entity.posX, entity.posY, entity.posZ, entity.height);
 	}
 	
-
+	@Override
 	public boolean contains(int x, int z) {
 		for (Point p : this.points.values()) { if (p.x==x && p.y==z) { return true; } }
 		return false;
 	}
+	
+	@Override
+	public int getId() { return this.id; }
+
+	@Override
+	public String getName() { return this.name; }
+	
+	@Override
+	public void setName(String name) {
+		if (name==null || name.isEmpty()) { name = "Default Region"; }
+		this.name = name;
+	}
+	
+	@Override
+	public int getDimensionId() { return this.dimensionID; }
+	
+	@Override
+	public void setDimensionId(int dimID) {
+		
+		this.dimensionID = dimID;
+	}
+	
+	@Override
+	public int getColor() { return this.color; }
+	
+	@Override
+	public void setColor(int color) { this.color = color; }
 	
 	private class AntiLagTime {
 		

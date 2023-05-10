@@ -35,6 +35,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
+import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.IFactionHandler;
@@ -43,6 +44,7 @@ import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.containers.ContainerNpcInterface;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.QuestController;
@@ -318,5 +320,8 @@ extends NpcAPI {
 		}
 		return player == null ? null : (IPlayer<?>) this.getIEntity(player);
 	}
+
+	@Override
+	public IBorderHandler getBorders() { return BorderController.getInstance(); }
 
 }

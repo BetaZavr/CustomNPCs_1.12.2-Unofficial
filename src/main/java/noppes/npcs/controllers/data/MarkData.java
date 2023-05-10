@@ -27,7 +27,7 @@ implements ICapabilityProvider {
 		
 		public Availability availability;
 		public int color;
-		public boolean rotate;
+		public boolean rotate, is3d;
 		public int type;
 
 		public Mark() {
@@ -35,6 +35,7 @@ implements ICapabilityProvider {
 			this.availability = new Availability();
 			this.color = 16772433;
 			this.rotate = false;
+			this.is3d = false;
 		}
 
 		@Override
@@ -77,6 +78,10 @@ implements ICapabilityProvider {
 		public void update() {
 			MarkData.this.syncClients();
 		}
+
+		public boolean is3D() { return this.is3d; }
+
+		public void set3D(boolean is3d) { this.is3d = is3d; }
 
 	}
 
@@ -143,6 +148,7 @@ implements ICapabilityProvider {
 			c.setInteger("color", m.color);
 			c.setTag("availability", m.availability.writeToNBT(new NBTTagCompound()));
 			c.setBoolean("rotate", m.rotate);
+			c.setBoolean("is3d", m.is3d);
 			list.appendTag(c);
 		}
 		compound.setTag("marks", list);
@@ -172,6 +178,7 @@ implements ICapabilityProvider {
 			m.color = c.getInteger("color");
 			m.availability.readFromNBT(c.getCompoundTag("availability"));
 			m.rotate = c.getBoolean("rotate");
+			m.is3d = c.getBoolean("is3d");
 			marks.add(m);
 		}
 		this.marks = marks;

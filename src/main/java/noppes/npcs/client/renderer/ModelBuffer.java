@@ -15,8 +15,6 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +44,6 @@ public class ModelBuffer {
 				break;
 			}
 		}
-		if (model.listId==98) { model.listId = -1; }
 		if (model.listId<0) {
 			try {
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file);
@@ -62,20 +59,10 @@ public class ModelBuffer {
 					if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
 						return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
 					}
-					ResourceLocation loc;
+					ResourceLocation loc = location;
 					if (replacesMaterialTextures!=null && replacesMaterialTextures.containsKey(location.toString())) {
 						loc = new ResourceLocation(replacesMaterialTextures.get(location.toString()));
 						LogWriter.debug("Replase texture: "+location+" -> "+loc);
-					}
-					else { loc = location; }
-					ITextureObject res = Minecraft.getMinecraft().renderEngine.getTexture(loc);
-					if (res==null) {
-						try {
-							ITextureObject txtr = new SimpleTexture(loc);
-							Minecraft.getMinecraft().renderEngine.loadTexture(loc, txtr);
-						} catch (Exception e) {
-							LogWriter.error("Error: load texture"+loc, e);
-						}
 					}
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
 					if (sprite==Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
@@ -89,9 +76,7 @@ public class ModelBuffer {
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder worldrenderer = tessellator.getBuffer();
 				worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-				for (BakedQuad bakedquad : bakedmodel.getQuads(null, null, 0)) {
-					worldrenderer.addVertexData(bakedquad.getVertexData());
-				}
+				for (BakedQuad bakedquad : bakedmodel.getQuads(null, null, 0)) { worldrenderer.addVertexData(bakedquad.getVertexData()); }
 				tessellator.draw();
 				GlStateManager.glEndList();
 				ModelBuffer.MODELS.add(model);

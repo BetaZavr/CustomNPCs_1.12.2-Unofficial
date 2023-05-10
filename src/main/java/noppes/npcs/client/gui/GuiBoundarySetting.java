@@ -53,7 +53,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		this.dataRegions = Maps.<Integer, String>newTreeMap();
 		this.dataPoints = Maps.<Integer, String>newTreeMap();
 		this.regID = idReg;
-		this.region = BorderController.getInstance().getRegion(this.regID);
+		this.region = (Zone3D) BorderController.getInstance().getRegion(this.regID);
 		if (this.region!=null && this.region.points.containsKey(idPoint)) {
 			this.point = this.region.points.get(idPoint);
 		}
@@ -67,7 +67,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		String selectReg = "", selectP = "";
 		int side = 186, r0 = this.guiLeft+118, r1 = this.guiLeft+side+119, h0 = this.guiTop+109;
 		BorderController bData = BorderController.getInstance();
-		if (this.region!=null && !bData.regions.containsKey(this.region.id)) {
+		if (this.region!=null && !bData.regions.containsKey(this.region.getId())) {
 			this.region = null;
 			this.point = null;
 		}
@@ -76,10 +76,10 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			if (this.region.points.size()>0) { this.point = this.region.points.get(0); }
 		}
 		for (Zone3D reg : bData.regions.values()) {
-			this.dataRegions.put(reg.id, reg.toString());
-			if (this.regID==reg.id) {
+			this.dataRegions.put(reg.getId(), reg.toString());
+			if (this.regID==reg.getId()) {
 				this.region = reg;
-				selectReg = this.dataRegions.get(reg.id);
+				selectReg = this.dataRegions.get(reg.getId());
 				for (int id : reg.points.keySet()) {
 					this.dataPoints.put(id, "ID: "+id+" ["+reg.points.get(id).x+", "+reg.points.get(id).y+"]");
 					if (this.point!=null && (this.point==reg.points.get(id) || (this.point.x==reg.points.get(id).x && this.point.y==reg.points.get(id).y))) {
@@ -503,7 +503,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			}
 			case 2: { // del
 				if (this.region==null) { return; }
-				Client.sendData(EnumPacketServer.RegionData, 1, this.region.id);
+				Client.sendData(EnumPacketServer.RegionData, 1, this.region.getId());
 				this.region = null;
 				this.point = null;
 				break;
@@ -643,9 +643,9 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				if (!this.dataRegions.containsValue(scroll.getSelected())) { return; }
 				BorderController bData = BorderController.getInstance();
 				for (int id : this.dataRegions.keySet()) {
-					if (this.region!=null && this.region.id==id) { continue; }
+					if (this.region!=null && this.region.getId()==id) { continue; }
 					if (this.dataRegions.get(id).equals(scroll.getSelected()) && bData.regions.containsKey(id)) {
-						this.region = bData.getRegion(id);
+						this.region = (Zone3D) bData.getRegion(id);
 						this.point = null;
 						if (this.region.points.size()>0) { this.point = this.region.points.get(0); }
 						Client.sendData(EnumPacketServer.RegionData, 0, id);
@@ -676,14 +676,14 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				if (this.region==null) { return; }
 				BlockPos pos = this.region.getCenter();
 				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ() });
-				Client.sendData(EnumPacketServer.RegionData, 0, this.region.id);
+				Client.sendData(EnumPacketServer.RegionData, 0, this.region.getId());
 				this.close();
 				break;
 			}
 			case 1: { // Point List
 				if (this.region==null || this.point==null) { return; }
 				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, this.point.x, (this.region.y[1]-this.region.y[0])/2, this.point.y });
-				Client.sendData(EnumPacketServer.RegionData, 0, this.region.id);
+				Client.sendData(EnumPacketServer.RegionData, 0, this.region.getId());
 				this.close();
 				break;
 			}
