@@ -248,7 +248,7 @@ public class CustomItems {
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation("minecraft", "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation("minecraft", "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
-		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation("minecraft", "CustomTileEntityPortal"));
+		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
 		
 		CustomItems.redstoneBlock = new BlockNpcRedstone();
 		CustomItems.mailbox = new BlockMailbox();
@@ -706,7 +706,12 @@ public class CustomItems {
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.builder), 0, new ModelResourceLocation(CustomItems.builder.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.copy), 0, new ModelResourceLocation(CustomItems.copy.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.carpentyBench), 0, new ModelResourceLocation(CustomItems.carpentyBench.getRegistryName(), "inventory"));
-		for (Block block : CustomItems.customblocks) { ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory")); }
+		for (Block block : CustomItems.customblocks) {
+			if (block instanceof CustomBlockPortal) {
+				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build());
+			}
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
+		}
 		
 		// Items
 		ModelLoader.setCustomModelResourceLocation(CustomItems.wand, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcwand", "inventory"));
@@ -823,12 +828,12 @@ public class CustomItems {
 		NBTTagCompound nbtRender = new NBTTagCompound();
 		nbtRender.setFloat("SecondSpeed", 800.0f);
 		nbtRender.setString("SpawnParticle", "CRIT");
+		nbtRender.setFloat("Transparency", 0.5f);
 		examplePortal.setTag("RenderData", nbtRender);
 		examplePortal.setInteger("DimentionID", 100);
 		examplePortal.setInteger("HomeDimentionID", 0);
 		examplePortal.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(examplePortal);
-		
 		
 		nbtBlocks.setTag("Blocks", listBlocks);
 		return nbtBlocks;

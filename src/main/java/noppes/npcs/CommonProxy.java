@@ -430,6 +430,17 @@ implements IGuiHandler {
 						crTab + "}" + crEnt + "}";
 				}
 			}
+			else if (customblock instanceof CustomBlockPortal) {
+				jsonState = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Block Portal created by default\"," + crEnt +
+						crTab + "\"variants\": {" + crEnt +
+						crTab + crTab + "\"type=0\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"type=1\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"type=2\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }" + crEnt +
+						crTab + "}" + crEnt + "}";
+			}
 			else if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
 				NBTTagCompound data = ((CustomBlock) customblock).nbtData.getCompoundTag("Property");
 				if (data.getByte("Type")==(byte) 4) {
@@ -787,8 +798,8 @@ implements IGuiHandler {
 		
 	}
 
-	public Side getSide() {
-		return Side.SERVER;
-	}
+	public boolean isLoadTexture(ResourceLocation resource) { return true; }
+
+	public Side getSide() { return Side.SERVER; }
 	
 }

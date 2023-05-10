@@ -23,27 +23,19 @@ implements ICompatibilty, IDialog {
 	
 	public Availability availability;
 	public DialogCategory category;
-	public String command;
-	public boolean disableEsc;
-	public FactionOptions factionOptions;
-	public boolean hideNPC;
-	public int id;
 	public PlayerMail mail;
+	public FactionOptions factionOptions;
 	public HashMap<Integer, DialogOption> options;
-	public int quest;
-	public boolean showWheel;
-	public String sound;
-	public String text;
-	public String title;
-	public int version;
-	
-	public int delay;
+	public boolean disableEsc, hideNPC, showWheel;
+	public int id, quest, version, delay;
+	public String command, sound, text, title, texture;
 
 	public Dialog(DialogCategory category) {
 		this.version = VersionCompatibility.ModRev;
 		this.id = -1;
 		this.title = "";
 		this.text = "";
+		this.texture = "";
 		this.quest = -1;
 		this.options = new HashMap<Integer, DialogOption>();
 		this.availability = new Availability();
@@ -64,6 +56,7 @@ implements ICompatibilty, IDialog {
 		dialog.title = this.title;
 		dialog.quest = this.quest;
 		dialog.sound = this.sound;
+		dialog.texture = this.texture;
 		dialog.mail = this.mail;
 		dialog.command = this.command;
 		dialog.hideNPC = this.hideNPC;
@@ -176,6 +169,7 @@ implements ICompatibilty, IDialog {
 		this.text = compound.getString("DialogText");
 		this.quest = compound.getInteger("DialogQuest");
 		this.sound = compound.getString("DialogSound");
+		this.texture = compound.getString("DialogTexture");
 		this.command = compound.getString("DialogCommand");
 		this.mail.readNBT(compound.getCompoundTag("DialogMail"));
 		this.hideNPC = compound.getBoolean("DialogHideNPC");
@@ -253,6 +247,9 @@ implements ICompatibilty, IDialog {
 		compound.setBoolean("DialogDisableEsc", this.disableEsc);
 		if (this.sound != null && !this.sound.isEmpty()) {
 			compound.setString("DialogSound", this.sound);
+		}
+		if (this.texture != null && !this.texture.isEmpty()) {
+			compound.setString("DialogTexture", this.texture);
 		}
 		NBTTagList options = new NBTTagList();
 		for (int opslot : this.options.keySet()) {

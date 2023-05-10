@@ -44,7 +44,7 @@ extends SubGuiInterface
 implements ICustomScrollListener {
 	
 	private GuiCustomScroll scroll;
-	private ResourceLocation resource;
+	public ResourceLocation resource;
 	private Map<String, TreeMap<ResourceLocation, Long>> data; // (Directory, Files)
 	private ResourceLocation selectDir;
 	private String suffix = "";
@@ -85,6 +85,10 @@ implements ICustomScrollListener {
 						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/overlays");
 						break;
 					}
+					case 3: {
+						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/gui");
+						break;
+					}
 					default: {
 						this.selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale");
 					}
@@ -116,7 +120,7 @@ implements ICustomScrollListener {
 		if (guibutton.id == 2 && this.resource!=null) {
 			res = this.resource.toString();
 		}
-		if (this.npc!=null) {
+		if (this.npc!=null && this.type>=0 && this.type<=2) {
 			switch(this.type) {
 				case 1: {
 					this.npc.display.setCapeTexture(res);
@@ -137,7 +141,7 @@ implements ICustomScrollListener {
 
 	@Override
 	public void save() {
-		if (this.npc!=null) { this.npc.display.setShowName(this.showName); }
+		if (this.npc!=null && this.type>=0 && this.type<=2) { this.npc.display.setShowName(this.showName); }
 	}
 
 	@Override
@@ -172,7 +176,7 @@ implements ICustomScrollListener {
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
-		if (this.npc!=null) {
+		if (this.npc!=null && this.type>=0 && this.type<=2) {
 			if (this.type==0) { this.npc.textureLocation = this.resource; }
 			int rot = 0;
 			float s = 1.25f;
@@ -281,19 +285,20 @@ implements ICustomScrollListener {
 						this.selectDir.getResourcePath()+"/"+scroll.getSelected());
 				this.initGui();
 			} else {
-				this.resource = new ResourceLocation(this.selectDir.getResourceDomain(),
-						this.selectDir.getResourcePath()+"/"+scroll.getSelected());
-				switch(this.type) {
-					case 1: {
-						this.npc.display.setCapeTexture(this.resource.toString());
-						break;
-					}
-					case 2: {
-						this.npc.display.setOverlayTexture(this.resource.toString());
-						break;
-					}
-					default: {
-						this.npc.display.setSkinTexture(this.resource.toString());
+				this.resource = new ResourceLocation(this.selectDir.getResourceDomain(), this.selectDir.getResourcePath()+"/"+scroll.getSelected());
+				if (this.npc!=null && this.type>=0 && this.type<=2) {
+					switch(this.type) {
+						case 1: {
+							this.npc.display.setCapeTexture(this.resource.toString());
+							break;
+						}
+						case 2: {
+							this.npc.display.setOverlayTexture(this.resource.toString());
+							break;
+						}
+						default: {
+							this.npc.display.setSkinTexture(this.resource.toString());
+						}
 					}
 				}
 			}
@@ -312,17 +317,19 @@ implements ICustomScrollListener {
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 		if (this.resource!=null) {
-			switch(this.type) {
-				case 1: {
-					this.npc.display.setCapeTexture(this.resource.toString());
-					break;
-				}
-				case 2: {
-					this.npc.display.setOverlayTexture(this.resource.toString());
-					break;
-				}
-				default: {
-					this.npc.display.setSkinTexture(this.resource.toString());
+			if (this.npc!=null && this.type>=0 && this.type<=2) {
+				switch(this.type) {
+					case 1: {
+						this.npc.display.setCapeTexture(this.resource.toString());
+						break;
+					}
+					case 2: {
+						this.npc.display.setOverlayTexture(this.resource.toString());
+						break;
+					}
+					default: {
+						this.npc.display.setSkinTexture(this.resource.toString());
+					}
 				}
 			}
 			this.close();

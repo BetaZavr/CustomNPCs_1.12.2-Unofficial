@@ -147,8 +147,8 @@ extends Gui
 			range = hud.compassData.getRange();
 			if (hud.compassData.getNPCName().isEmpty()) {
 				n = new TextComponentTranslation("entity."+hud.compassData.getNPCName()+".name").getFormattedText();
+				n = n.substring(0, n.length()-2);
 				if (n.equals("entity."+hud.compassData.getNPCName()+".name")) { n = hud.compassData.getNPCName(); 	}
-				else { n = n.substring(0, n.length()-2); }
 			}
 		} else {
 			if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || (hud.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
@@ -184,10 +184,10 @@ extends Gui
 			if (select!=null) {
 				name = qData.quest.getTitle();
 				type = select.getType();
-				if (select.getOrientationEntityName().isEmpty()) {
+				if (!select.getOrientationEntityName().isEmpty()) {
 					n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
+					n = n.substring(0, n.length()-2);
 					if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
-					else { n = n.substring(0, n.length()-2); }
 				}
 				if (this.mc.world.provider.getDimension()!=select.dimensionID) { type = 7; }
 				if (type!=EnumQuestTask.KILL.ordinal() && type!=EnumQuestTask.AREAKILL.ordinal()) { range = 1; }
@@ -214,11 +214,10 @@ extends Gui
 						title = new TextComponentTranslation("gui.do").getFormattedText()+": "+select.getTargetName();
 					}
 					if (t == EnumQuestTask.KILL || t == EnumQuestTask.AREAKILL) {
-						String entityName = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
-						if (entityName.equals("entity."+select.getTargetName()+".name")) { entityName = select.getTargetName(); 	}
-						else { entityName = entityName.substring(0, entityName.length()-2); }
-						n = entityName;
-						title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+entityName+ ": " + select.getProgress() + "/" + select.getMaxProgress();
+						n = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
+						n = n.substring(0, n.length()-2);
+						if (n.equals("entity."+select.getTargetName()+".name")) { n = select.getTargetName(); 	}
+						title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+n+ ": " + select.getProgress() + "/" + select.getMaxProgress();
 					}
 				}
 			} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && !qData.quest.completerNpc.isEmpty()){
@@ -291,6 +290,7 @@ extends Gui
 					}
 				}
 				e = et;
+				range = 1;
 			}
 			if (e!=null) {
 				p[0] = e.posX;
@@ -299,14 +299,10 @@ extends Gui
 			}
 		}
 		
-		double[] angles = null;
 		if (p==null || p.length!=3) { return; }
-		angles = AdditionalMethods.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
-		
+		double[] angles = AdditionalMethods.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 		float scale = -30.0f * hud.compassData.scale;
 		float incline = -45.0f + hud.compassData.incline;
-		
-		//System.out.println("screenPos: ["+hud.compassData.screenPos[0]+", "+hud.compassData.screenPos[1]+"]");
 		double[] uvPos = new double[] { this.sw.getScaledWidth_double() * hud.compassData.screenPos[0], this.sw.getScaledHeight_double() * hud.compassData.screenPos[1] };
 
 		GlStateManager.pushMatrix();

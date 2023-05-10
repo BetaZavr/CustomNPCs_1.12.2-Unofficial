@@ -13,10 +13,10 @@ import noppes.npcs.client.model.Model2DRenderer;
 import noppes.npcs.controllers.data.MarkData;
 
 public class MarkRenderer {
+	
 	public static int displayList = -1;
 	public static ResourceLocation markCross = new ResourceLocation(CustomNpcs.MODID, "textures/marks/cross.png");
-	public static ResourceLocation markExclamation = new ResourceLocation(CustomNpcs.MODID,
-			"textures/marks/exclamation.png");
+	public static ResourceLocation markExclamation = new ResourceLocation(CustomNpcs.MODID,"textures/marks/exclamation.png");
 	public static ResourceLocation markPointer = new ResourceLocation(CustomNpcs.MODID, "textures/marks/pointer.png");
 	public static ResourceLocation markQuestion = new ResourceLocation(CustomNpcs.MODID, "textures/marks/question.png");
 	public static ResourceLocation markSkull = new ResourceLocation(CustomNpcs.MODID, "textures/marks/skull.png");
@@ -52,8 +52,7 @@ public class MarkRenderer {
 		} else {
 			GL11.glNewList(MarkRenderer.displayList = GLAllocation.generateDisplayLists(1), 4864);
 			GlStateManager.translate(-0.5, 0.0, 0.0);
-			Model2DRenderer.renderItemIn2D(Tessellator.getInstance().getBuffer(), 0.0f, 0.0f, 1.0f, 1.0f, 32, 32,
-					0.0625f);
+			Model2DRenderer.renderItemIn2D(Tessellator.getInstance().getBuffer(), 0.0f, 0.0f, 1.0f, 1.0f, 32, 32, 0.0625f);
 			GL11.glEndList();
 		}
 		GlStateManager.popMatrix();

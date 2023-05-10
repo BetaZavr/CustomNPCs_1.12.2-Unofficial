@@ -48,17 +48,12 @@ extends CommandNoppesBase {
 		WorldServer world = sender.getServer().getWorld(id);
 		BlockPos coords = world.getSpawnCoordinate();
 		double x = 0, y = 70, z = 0;
-		if (coords == null) {
-			coords = world.getSpawnPoint();
-			if (!world.isAirBlock(coords)) {
-				coords = world.getTopSolidOrLiquidBlock(coords);
-			} else {
-				while (world.isAirBlock(coords) && coords.getY() > 0) {
-					coords = coords.down();
-				}
-				if (coords.getY() == 0) {
-					coords = world.getTopSolidOrLiquidBlock(coords);
-				}
+		if (coords == null) { coords = world.getSpawnPoint(); }
+		if (coords != null) {
+			if (!world.isAirBlock(coords)) { coords = world.getTopSolidOrLiquidBlock(coords); }
+			else if (!world.isAirBlock(coords.up())) {
+				while (world.isAirBlock(coords) && coords.getY() > 0) { coords = coords.down(); }
+				if (coords.getY() == 0) { coords = world.getTopSolidOrLiquidBlock(coords); }
 			}
 			x = coords.getX();
 			y = coords.getY();

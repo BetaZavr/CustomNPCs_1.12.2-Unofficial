@@ -1104,7 +1104,7 @@ extends CommonProxy {
 				if (!texture.exists()) {
 					try {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/fishing_rod"+(i==0 ? "_uncast" : "_cast")+".png"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath());; has[i] = true; }
+						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); has[i] = true; }
 					}
 					catch (IOException e) { }
 				} else { continue; }
@@ -1332,10 +1332,13 @@ extends CommonProxy {
 			}
 		}
 	}
+
+	@Override
+	public Side getSide() { return Side.CLIENT; }
 	
 	@Override
-	public Side getSide() {
-		return Side.CLIENT;
+	public boolean isLoadTexture(ResourceLocation resource) {
+		return Minecraft.getMinecraft().getTextureManager().getTexture(resource)!=null;
 	}
 	
 }

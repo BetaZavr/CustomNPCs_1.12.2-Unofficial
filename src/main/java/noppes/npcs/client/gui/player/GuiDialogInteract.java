@@ -1,13 +1,22 @@
 package noppes.npcs.client.gui.player;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.Maps;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +39,10 @@ import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
+public class GuiDialogInteract
+extends GuiNPCInterface
+implements IGuiClose {
+	
 	private Dialog dialog;
 	private int dialogHeight;
 	private ResourceLocation indicator;
@@ -45,6 +57,9 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	private ResourceLocation wheel;
 	private ResourceLocation[] wheelparts;
 	private long wait;
+	private ScaledResolution sw;
+	private Map<Integer, ResourceLocation> textures = Maps.<Integer, ResourceLocation>newHashMap();
+	private Map<Integer, Integer[]> texturesSize = Maps.<Integer, Integer[]>newHashMap();
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
@@ -73,11 +88,38 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		if (dialog.sound != null && !dialog.sound.isEmpty()) {
 			MusicController.Instance.stopMusic();
 			BlockPos pos = this.npc.getPosition();
-			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(),
-					1.0f, 1.0f);
+			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
 		}
-		this.lines
-				.add(new TextBlockClient(this.npc, dialog.text, 280, 14737632, new Object[] { this.player, this.npc }));
+		String dText = dialog.text;
+		int h = 0;
+		ResourceLocation txtr = null;
+		Integer[] txtrSize = null;
+		if (!dialog.texture.isEmpty()) {
+			txtr = new ResourceLocation(dialog.texture);
+			this.mc.getTextureManager().bindTexture(txtr);
+			try {
+				IResource res = this.mc.getResourceManager().getResource(new ResourceLocation(dialog.texture));
+				BufferedImage buffer = ImageIO.read(res.getInputStream());
+				txtrSize = new Integer[] { buffer.getWidth(), buffer.getHeight() };
+				h = buffer.getHeight() / ClientProxy.Font.height(null) / 2;
+			}
+			catch (IOException e) {}
+		}
+		for (int i=0; i<h; i++) { dText += ""+((char) 10); }
+		this.lines.add(new TextBlockClient(this.npc, dText, 280, 14737632, new Object[] { this.player, this.npc }));
+		if (h>0 && txtr!=null && txtrSize!=null) {
+			int c = 0, s = 0;
+			for (TextBlockClient t : this.lines) {
+				c += t.lines.size();
+				if (s==this.lines.size()-1) {
+					c -= h;
+					this.textures.put(c, txtr);
+					this.texturesSize.put(c, txtrSize);
+					break;
+				}
+				s++;
+			}
+		}
 		for (int slot : dialog.options.keySet()) {
 			DialogOption option = dialog.options.get(slot);
 			if (option != null) {
@@ -136,7 +178,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			DialogOption option = this.dialog.options.get(id);
 			int y = this.guiTop + offset + k * ClientProxy.Font.height(null);
 			if (this.selected == k) {
-				this.drawString(this.fontRenderer, ">", this.guiLeft - 60, y, 14737632);
+				this.drawString(this.fontRenderer, ">", this.guiLeft - 38, y, 14737632);
 			}
 			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc), this.guiLeft - 30, y, option.optionColor);
 		}
@@ -167,6 +209,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			}
 			++count;
 		}
+		int maxRows = this.dialogHeight / ClientProxy.Font.height(null);
 		if (!this.options.isEmpty()) {
 			if (this.wait>System.currentTimeMillis()) {
 				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
@@ -179,14 +222,43 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				this.drawWheel();
 			}
 		}
+		if (this.rowTotal > maxRows) {
+			int x = (int) this.sw.getScaledWidth_double() - 10;
+			int y = this.guiTop + 9;
+			int sHeight = (int) ((float) maxRows / (float) this.rowTotal * (float) this.dialogHeight);
+			y += this.rowStart * ClientProxy.Font.height(null) / 2;
+			this.drawGradientRect(x, y, x+7, y+sHeight, 0xFFFFFFFF, 0xFFFFFFFF);
+		}
 		GlStateManager.popMatrix();
+		int drag = Mouse.getDWheel() / 120;
+		if (drag!=0) {
+			this.rowStart -= drag;
+			if (this.rowStart>this.rowTotal-2) { this.rowStart = this.rowTotal-2; }
+			if (this.rowStart<0) { this.rowStart = 0; }
+			if (this.rowTotal - this.rowStart < maxRows) { this.rowStart = this.rowTotal - maxRows; }
+		}
 	}
 
 	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) { ClientProxy.Font.drawString(text, x, y, color); }
 
 	private void drawString(String text, int left, int color, int count) {
-		int height = count - this.rowStart;
-		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height * ClientProxy.Font.height(null), color);
+		int height = (count - this.rowStart) * ClientProxy.Font.height(null);
+		int line = this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3;
+		if (height+12 > line) { return; }
+		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height, color);
+		//System.out.println("text: "+(this.guiLeft + left)+", "+(this.guiTop + height)+"; \""+text+"\"");
+		if (this.textures.containsKey(count) && this.texturesSize.containsKey(count)) {
+			Integer[] size = this.texturesSize.get(count);
+			if (height+size[1]/2 > line) { return; }
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.enableBlend();
+			this.mc.renderEngine.bindTexture(this.textures.get(count));
+			GlStateManager.translate(this.guiLeft + left, this.guiTop + height, 0.0f);
+			GlStateManager.scale(0.5f, 0.5f, 0.5f);
+			this.drawTexturedModalRect(0, 0, 0, 0, size[0], size[1]);
+			GlStateManager.popMatrix();
+		}
 	}
 
 	private void drawWheel() {
@@ -259,8 +331,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			}
 		}
 		this.mc.renderEngine.bindTexture(this.indicator);
-		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 0, 0, 8,
-				8);
+		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 0, 0, 8, 8);
 	}
 
 	public int getSelected() {
@@ -306,8 +377,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			}
 			return;
 		}
-		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor,
-				new Object[] { this.player, this.npc }));
+		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, new Object[] { this.player, this.npc }));
 		this.calculateRowHeight();
 		NoppesUtil.clickSound();
 	}
@@ -315,6 +385,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	@Override
 	public void initGui() {
 		super.initGui();
+		this.sw = new ScaledResolution(this.mc);
 		this.isGrabbed = false;
 		this.grabMouse(this.dialog.showWheel);
 		this.guiTop = this.height - this.ySize;

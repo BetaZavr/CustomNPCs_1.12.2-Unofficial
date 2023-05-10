@@ -81,7 +81,6 @@ implements ITextfieldListener {
 		this.getTextField(14).setMinMaxDefault(0, 64, this.task.rangeCompass);
 		this.addButton(new GuiNpcButton(10, this.guiLeft+109, this.guiTop + this.ySize, 60, 20, "gui.set"));
 		this.addButton(new GuiNpcButton(11, this.guiLeft+87, this.guiTop + this.ySize, 20, 20, "TP"));
-
 		this.addLabel(new GuiNpcLabel(16, "N:", this.guiLeft + 98, this.guiTop + 96));
 		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, this.guiLeft + 106, this.guiTop + 95, 62, 13, this.task.entityName));
 	}

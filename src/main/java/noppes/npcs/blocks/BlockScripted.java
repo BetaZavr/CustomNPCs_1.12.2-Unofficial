@@ -33,8 +33,7 @@ public class BlockScripted
 extends BlockInterface
 implements IPermission {
 	
-	public static AxisAlignedBB AABB = new AxisAlignedBB(0.0010000000474974513, 0.0010000000474974513,
-			0.0010000000474974513, 0.9980000257492065, 0.9980000257492065, 0.9980000257492065);
+	public static AxisAlignedBB AABB = new AxisAlignedBB(0.002, 0.002, 0.002, 0.998, 0.998, 0.998);
 	public static AxisAlignedBB AABB_EMPTY = new AxisAlignedBB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
 	public BlockScripted() {

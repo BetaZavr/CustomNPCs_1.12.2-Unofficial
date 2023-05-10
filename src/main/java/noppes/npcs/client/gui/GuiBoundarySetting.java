@@ -629,9 +629,11 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	
 	@Override
 	public void save() {
-		NBTTagCompound regionNbt = new NBTTagCompound();
-		this.region.writeToNBT(regionNbt);
-		Client.sendData(EnumPacketServer.RegionData, 2, regionNbt);
+		if (this.region!=null) {
+			NBTTagCompound regionNbt = new NBTTagCompound();
+			this.region.writeToNBT(regionNbt);
+			Client.sendData(EnumPacketServer.RegionData, 2, regionNbt);
+		}
 	}
 
 	@Override
