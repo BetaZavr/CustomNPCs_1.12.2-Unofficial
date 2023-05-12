@@ -12,6 +12,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.entity.data.role.IRoleTransporter;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerTransportData;
@@ -30,6 +31,7 @@ implements IRoleTransporter {
 		super(npc);
 		this.transportId = -1;
 		this.ticks = 10;
+		this.type = EnumNpcRole.TRANSPORTER;
 	}
 
 	@Override
@@ -81,15 +83,6 @@ implements IRoleTransporter {
 		}
 	}
 
-	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		this.transportId = nbttagcompound.getInteger("TransporterId");
-		TransportLocation loc = this.getLocation();
-		if (loc != null) {
-			this.name = loc.name;
-		}
-	}
-
 	public void setTransport(TransportLocation location) {
 		this.transportId = location.id;
 		this.name = location.name;
@@ -122,9 +115,21 @@ implements IRoleTransporter {
 		player.sendMessage(new TextComponentTranslation("transporter.unlock", new Object[] { loc.name }));
 	}
 
+
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("TransporterId", this.transportId);
-		return nbttagcompound;
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.transportId = compound.getInteger("TransporterId");
+		TransportLocation loc = this.getLocation();
+		if (loc != null) {
+			this.name = loc.name;
+		}
+	}
+	
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("TransporterId", this.transportId);
+		return compound;
 	}
 }

@@ -17,11 +17,8 @@ extends INPCJob {
 
 	int getAnimationSpeed();
 
-	boolean getIsAnimated();
-
 	IJobPuppetPart getPart(int part);
 
 	void setAnimationSpeed(int speed);
-
-	void setIsAnimated(boolean bo);
+	
 }

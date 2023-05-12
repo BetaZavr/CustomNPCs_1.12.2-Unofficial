@@ -193,7 +193,7 @@ public class NoppesUtilServer {
 
 	private static ArrayList<String> getScrollData(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc) {
 		if (gui == EnumGuiType.PlayerTransporter) {
-			RoleTransporter role = (RoleTransporter) npc.roleInterface;
+			RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 			ArrayList<String> list = new ArrayList<String>();
 			TransportLocation location = role.getLocation();
 			String name = role.getLocation().name;
@@ -572,8 +572,8 @@ public class NoppesUtilServer {
 	
 	public static void moveNpcSpawn(EntityPlayerMP player, int slot, boolean isUp, boolean isDead) {
 		EntityNPCInterface npc = getEditingNpc(player);
-		if (npc == null || npc.advanced.job!=6) { return; }
-		JobSpawner job = (JobSpawner) npc.jobInterface;
+		if (npc == null || !(npc.advanced.jobInterface instanceof JobSpawner)) { return; }
+		JobSpawner job = (JobSpawner) npc.advanced.jobInterface;
 		if ((isUp && slot<=0) || (!isUp && slot>=(job.size(isDead)-1))) { return; }
 		SpawnNPCData[] newIDs = new SpawnNPCData[job.size(isDead)];
 		for (int s = 0; s<job.size(isDead); s++) {
@@ -583,10 +583,8 @@ public class NoppesUtilServer {
 		}
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setBoolean("JobData", true);
-		npc.jobInterface.writeToNBT(compound);
-		if (npc.advanced.job == 6) {
-			((JobSpawner) npc.jobInterface).cleanCompound(compound);
-		}
+		npc.advanced.jobInterface.writeToNBT(compound);
+		job.cleanCompound(compound);
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}
 
@@ -706,13 +704,9 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendRoleData(EntityPlayer player, EntityNPCInterface npc) {
-		if (npc.advanced.role == 0) {
-			return;
-		}
 		NBTTagCompound comp = new NBTTagCompound();
-		npc.roleInterface.writeToNBT(comp);
+		npc.advanced.roleInterface.writeToNBT(comp);
 		comp.setInteger("EntityId", npc.getEntityId());
-		comp.setInteger("Role", npc.advanced.role);
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.ROLE, comp);
 	}
 

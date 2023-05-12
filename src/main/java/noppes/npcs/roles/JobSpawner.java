@@ -25,6 +25,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.data.role.IJobSpawner;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.SpawnNPCData;
@@ -72,98 +73,7 @@ implements IJobSpawner {
 		
 		this.exact = false;
 		this.resetUpdate = true;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.id = compound.getString("SpawnerId");
-		this.dataEntitys = new SpawnNPCData[2][];
-		this.offset = new int[2][];
-		if (compound.hasKey("SpawnerDoesntDie", 1)) { // OLD
-			this.cooldownSet = 3000L;
-			this.exact = false;
-			this.resetUpdate = true;
-			
-			int[] offset = new int[] { compound.getInteger("SpawnerXOffset"), compound.getInteger("SpawnerYOffset"), compound.getInteger("SpawnerZOffset") };
-			List<SpawnNPCData> sDs = Lists.newArrayList();
-			for(int i=1; i<7; i++) {
-				if (!compound.hasKey("SpawnerNBT"+i, 10)) { continue; }
-				SpawnNPCData sd = new SpawnNPCData();
-				sd.compound = compound.getCompoundTag("SpawnerNBT"+i);
-				sDs.add(sd);
-			}
-			int i = 0;
-			if (compound.getBoolean("SpawnerDoesntDie")) { // dosent Dead
-				this.spawnType[0] = 0;
-				this.spawnType[1] = compound.getInteger("SpawnerType");
-				this.offset[0] = new int[] { 0, 0, 0 };
-				this.offset[1] = offset;
-				this.desTargetLost[0] = true;
-				this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLost");
-				this.dataEntitys[0] = new SpawnNPCData[0];
-				this.dataEntitys[1] = new SpawnNPCData[sDs.size()];
-				for (SpawnNPCData sd : sDs) {
-					this.dataEntitys[1][i] = sd;
-					i++;
-				}
-			}
-			else { // Alive
-				this.spawnType[0] = compound.getInteger("SpawnerType");
-				this.spawnType[1] = 0;
-				this.offset[0] = offset;
-				this.offset[1] = new int[] { 0, 0, 0 };
-				this.desTargetLost[0] = compound.getBoolean("DespawnOnTargetLost");
-				this.desTargetLost[1] = true;
-				this.dataEntitys[0] = new SpawnNPCData[sDs.size()];
-				this.dataEntitys[1] = new SpawnNPCData[0];
-				for (SpawnNPCData sd : sDs) {
-					this.dataEntitys[0][i] = sd;
-					i++;
-				}
-			}
-			return;
-		}
-		// New
-		this.spawnType[0] = compound.getInteger("SpawnerWhenAlive");
-		this.spawnType[1] = compound.getInteger("SpawnerWhenDead");
-		this.cooldownSet = compound.getLong("SpawnerCooldownSetting");
-		this.offset[0] = compound.getIntArray("OffsetWhenAlive");
-		this.offset[1] = compound.getIntArray("OffsetWhenDead");
-		this.desTargetLost[0] = compound.getBoolean("DespawnOnTargetLostWhenAlive");
-		this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLostWhenDead");
-		this.exact = compound.getBoolean("IsExactOffsetSpawn");
-		this.resetUpdate = compound.getBoolean("DespawnInReset");
-		
-		for (int i=0; i<2; i++) {
-			NBTTagList nbt = compound.getTagList("DataEntitysWhen"+(i==0 ? "Alive" : "Dead"), 10);
-			this.dataEntitys[i] = new SpawnNPCData[nbt.tagCount()];
-			for (int slot =0 ; slot<nbt.tagCount(); slot++) {
-				this.dataEntitys[i][slot] = new SpawnNPCData(nbt.getCompoundTagAt(slot));
-			}
-		}
-	}
-
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setString("SpawnerId", this.id);
-
-		compound.setInteger("SpawnerWhenAlive", this.spawnType[0]);
-		compound.setInteger("SpawnerWhenDead", this.spawnType[1]);
-		compound.setLong("SpawnerCooldownSetting", this.cooldownSet);
-		compound.setIntArray("OffsetWhenAlive", this.offset[0]);
-		compound.setIntArray("OffsetWhenDead", this.offset[1]);
-		compound.setBoolean("DespawnOnTargetLostWhenAlive", this.desTargetLost[0]);
-		compound.setBoolean("DespawnOnTargetLostWhenDead", this.desTargetLost[1]);
-		compound.setBoolean("IsExactOffsetSpawn", this.exact);
-		compound.setBoolean("DespawnInReset", this.resetUpdate);
-
-		for (int i=0; i<2; i++) {
-			NBTTagList list = new NBTTagList();
-			for (SpawnNPCData sd : this.dataEntitys[i]) { list.appendTag(sd.writeToNBT()); }
-			compound.setTag("DataEntitysWhen"+(i==0 ? "Alive" : "Dead"), list);
-		}
-		
-		return compound;
+		this.type = EnumNpcJob.SPAWNER;
 	}
 
 	@Override
@@ -573,5 +483,99 @@ implements IJobSpawner {
 		if (ticks>300000L) { ticks = 300000L; }
 		this.cooldownSet = ticks;
 	}
-	
+
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.id = compound.getString("SpawnerId");
+		this.dataEntitys = new SpawnNPCData[2][];
+		this.offset = new int[2][];
+		if (compound.hasKey("SpawnerDoesntDie", 1)) { // OLD
+			this.cooldownSet = 3000L;
+			this.exact = false;
+			this.resetUpdate = true;
+			
+			int[] offset = new int[] { compound.getInteger("SpawnerXOffset"), compound.getInteger("SpawnerYOffset"), compound.getInteger("SpawnerZOffset") };
+			List<SpawnNPCData> sDs = Lists.newArrayList();
+			for(int i=1; i<7; i++) {
+				if (!compound.hasKey("SpawnerNBT"+i, 10)) { continue; }
+				SpawnNPCData sd = new SpawnNPCData();
+				sd.compound = compound.getCompoundTag("SpawnerNBT"+i);
+				sDs.add(sd);
+			}
+			int i = 0;
+			if (compound.getBoolean("SpawnerDoesntDie")) { // dosent Dead
+				this.spawnType[0] = 0;
+				this.spawnType[1] = compound.getInteger("SpawnerType");
+				this.offset[0] = new int[] { 0, 0, 0 };
+				this.offset[1] = offset;
+				this.desTargetLost[0] = true;
+				this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLost");
+				this.dataEntitys[0] = new SpawnNPCData[0];
+				this.dataEntitys[1] = new SpawnNPCData[sDs.size()];
+				for (SpawnNPCData sd : sDs) {
+					this.dataEntitys[1][i] = sd;
+					i++;
+				}
+			}
+			else { // Alive
+				this.spawnType[0] = compound.getInteger("SpawnerType");
+				this.spawnType[1] = 0;
+				this.offset[0] = offset;
+				this.offset[1] = new int[] { 0, 0, 0 };
+				this.desTargetLost[0] = compound.getBoolean("DespawnOnTargetLost");
+				this.desTargetLost[1] = true;
+				this.dataEntitys[0] = new SpawnNPCData[sDs.size()];
+				this.dataEntitys[1] = new SpawnNPCData[0];
+				for (SpawnNPCData sd : sDs) {
+					this.dataEntitys[0][i] = sd;
+					i++;
+				}
+			}
+			return;
+		}
+		// New
+		this.spawnType[0] = compound.getInteger("SpawnerWhenAlive");
+		this.spawnType[1] = compound.getInteger("SpawnerWhenDead");
+		this.cooldownSet = compound.getLong("SpawnerCooldownSetting");
+		this.offset[0] = compound.getIntArray("OffsetWhenAlive");
+		this.offset[1] = compound.getIntArray("OffsetWhenDead");
+		this.desTargetLost[0] = compound.getBoolean("DespawnOnTargetLostWhenAlive");
+		this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLostWhenDead");
+		this.exact = compound.getBoolean("IsExactOffsetSpawn");
+		this.resetUpdate = compound.getBoolean("DespawnInReset");
+		
+		for (int i=0; i<2; i++) {
+			NBTTagList nbt = compound.getTagList("DataEntitysWhen"+(i==0 ? "Alive" : "Dead"), 10);
+			this.dataEntitys[i] = new SpawnNPCData[nbt.tagCount()];
+			for (int slot =0 ; slot<nbt.tagCount(); slot++) {
+				this.dataEntitys[i][slot] = new SpawnNPCData(nbt.getCompoundTagAt(slot));
+			}
+		}
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setString("SpawnerId", this.id);
+
+		compound.setInteger("SpawnerWhenAlive", this.spawnType[0]);
+		compound.setInteger("SpawnerWhenDead", this.spawnType[1]);
+		compound.setLong("SpawnerCooldownSetting", this.cooldownSet);
+		compound.setIntArray("OffsetWhenAlive", this.offset[0]);
+		compound.setIntArray("OffsetWhenDead", this.offset[1]);
+		compound.setBoolean("DespawnOnTargetLostWhenAlive", this.desTargetLost[0]);
+		compound.setBoolean("DespawnOnTargetLostWhenDead", this.desTargetLost[1]);
+		compound.setBoolean("IsExactOffsetSpawn", this.exact);
+		compound.setBoolean("DespawnInReset", this.resetUpdate);
+
+		for (int i=0; i<2; i++) {
+			NBTTagList list = new NBTTagList();
+			for (SpawnNPCData sd : this.dataEntitys[i]) { list.appendTag(sd.writeToNBT()); }
+			compound.setTag("DataEntitysWhen"+(i==0 ? "Alive" : "Dead"), list);
+		}
+		
+		return compound;
+	}
 }

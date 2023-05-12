@@ -12,7 +12,7 @@ public class ContainerNpcItemGiver extends Container {
 	private JobItemGiver role;
 
 	public ContainerNpcItemGiver(EntityNPCInterface npc, EntityPlayer player) {
-		this.role = (JobItemGiver) npc.jobInterface;
+		this.role = (JobItemGiver) npc.advanced.jobInterface;
 		for (int j1 = 0; j1 < 9; ++j1) {
 			this.addSlotToContainer(new Slot((IInventory) this.role.inventory, j1, 6 + j1 * 18, 90));
 		}

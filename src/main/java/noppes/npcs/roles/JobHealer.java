@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import noppes.npcs.NBTTags;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
@@ -22,16 +23,17 @@ extends JobInterface {
 	private int healTicks;
 	public int range;
 	public int speed;
-	public byte type;
+	public byte healerType;
 
 	public JobHealer(EntityNPCInterface npc) {
 		super(npc);
 		this.healTicks = 0;
 		this.range = 8;
-		this.type = 2;
+		this.healerType = (byte) 2;
 		this.speed = 20;
 		this.effects = new HashMap<Integer, Integer>();
 		this.affected = new ArrayList<EntityLivingBase>();
+		this.type = EnumNpcJob.HEALER;
 	}
 
 	@Override
@@ -62,8 +64,8 @@ extends JobInterface {
 			} else {
 				isEnemy = (entity instanceof EntityMob);
 			}
-			if (entity != this.npc && (this.type != 0 || !isEnemy)) {
-				if (this.type == 1 && !isEnemy) {
+			if (entity != this.npc && (this.healerType != (byte) 0 || !isEnemy)) {
+				if (this.healerType == (byte) 1 && !isEnemy) {
 					continue;
 				}
 				for (Integer potionEffect : this.effects.keySet()) {
@@ -78,19 +80,21 @@ extends JobInterface {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		this.range = nbttagcompound.getInteger("HealerRange");
-		this.type = nbttagcompound.getByte("HealerType");
-		this.effects = NBTTags.getIntegerIntegerMap(nbttagcompound.getTagList("BeaconEffects", 10));
-		this.speed = ValueUtil.correctInt(nbttagcompound.getInteger("HealerSpeed"), 10, Integer.MAX_VALUE);
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.range = compound.getInteger("HealerRange");
+		this.healerType = compound.getByte("HealerType");
+		this.effects = NBTTags.getIntegerIntegerMap(compound.getTagList("BeaconEffects", 10));
+		this.speed = ValueUtil.correctInt(compound.getInteger("HealerSpeed"), 10, Integer.MAX_VALUE);
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("HealerRange", this.range);
-		nbttagcompound.setByte("HealerType", this.type);
-		nbttagcompound.setTag("BeaconEffects", NBTTags.nbtIntegerIntegerMap(this.effects));
-		nbttagcompound.setInteger("HealerSpeed", this.speed);
-		return nbttagcompound;
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("HealerRange", this.range);
+		compound.setByte("HealerType", this.healerType);
+		compound.setTag("BeaconEffects", NBTTags.nbtIntegerIntegerMap(this.effects));
+		compound.setInteger("HealerSpeed", this.speed);
+		return compound;
 	}
 }

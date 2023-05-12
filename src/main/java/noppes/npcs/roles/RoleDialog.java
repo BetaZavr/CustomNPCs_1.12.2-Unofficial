@@ -9,6 +9,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.data.role.IRoleDialog;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Dialog;
@@ -31,6 +32,7 @@ implements IRoleDialog {
 		this.questId = -1;
 		this.options = new HashMap<Integer, String>();
 		this.optionsTexts = new HashMap<Integer, String>();
+		this.type = EnumNpcRole.DIALOG;
 	}
 
 	@Override
@@ -76,14 +78,6 @@ implements IRoleDialog {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.questId = compound.getInteger("RoleQuestId");
-		this.dialog = compound.getString("RoleDialog");
-		this.options = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptions", 10));
-		this.optionsTexts = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptionTexts", 10));
-	}
-
-	@Override
 	public void setDialog(String text) {
 		this.dialog = text;
 	}
@@ -104,8 +98,19 @@ implements IRoleDialog {
 		this.optionsTexts.put(option, text);
 	}
 
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.questId = compound.getInteger("RoleQuestId");
+		this.dialog = compound.getString("RoleDialog");
+		this.options = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptions", 10));
+		this.optionsTexts = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptionTexts", 10));
+	}
+	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
 		compound.setInteger("RoleQuestId", this.questId);
 		compound.setString("RoleDialog", this.dialog);
 		compound.setTag("RoleOptions", NBTTags.nbtIntegerStringMap(this.options));

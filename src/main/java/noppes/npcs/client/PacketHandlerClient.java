@@ -299,8 +299,8 @@ extends PacketHandlerServer {
 				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 				return;
 			}
-			((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Role"));
-			((EntityNPCInterface) entity).roleInterface.readFromNBT(compound);
+			((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Type"));
+			((EntityNPCInterface) entity).advanced.roleInterface.readFromNBT(compound);
 			NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 		} else if (type == EnumPacketClient.GUI) {
 			EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];

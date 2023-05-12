@@ -19,7 +19,10 @@ import noppes.npcs.containers.ContainerNPCFollower;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
-public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData {
+public class GuiNpcFollower
+extends GuiContainerNPCInterface
+implements IGuiData {
+	
 	private EntityNPCInterface npc;
 	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/follower.png");
 	private RoleFollower role;
@@ -27,7 +30,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 	public GuiNpcFollower(EntityNPCInterface npc, ContainerNPCFollower container) {
 		super(npc, container);
 		this.npc = npc;
-		this.role = (RoleFollower) npc.roleInterface;
+		this.role = (RoleFollower) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.RoleGet, new Object[0]);
 	}
@@ -122,7 +125,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.npc.roleInterface.readFromNBT(compound);
+		this.npc.advanced.roleInterface.readFromNBT(compound);
 		this.initGui();
 	}
 }

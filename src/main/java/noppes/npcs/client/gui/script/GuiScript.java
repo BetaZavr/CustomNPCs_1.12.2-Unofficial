@@ -40,20 +40,20 @@ public class GuiScript extends GuiScriptInterface {
 		this.baseFuncNames.put("collide", NpcEvent.CollideEvent.class);
 		this.baseFuncNames.put("timer", NpcEvent.TimerEvent.class);
 		// RoleEvent
-		if (npc.roleInterface != null) {
-			if (npc.roleInterface instanceof RoleBank) {
+		if (npc.advanced.roleInterface != null) {
+			if (npc.advanced.roleInterface instanceof RoleBank) {
 				this.baseFuncNames.put("role", RoleEvent.BankUnlockedEvent.class);
 			}
-			if (npc.roleInterface instanceof RoleFollower) {
+			if (npc.advanced.roleInterface instanceof RoleFollower) {
 				this.baseFuncNames.put("role", RoleEvent.FollowerHireEvent.class);
 			}
-			if (npc.roleInterface instanceof RoleTrader) {
+			if (npc.advanced.roleInterface instanceof RoleTrader) {
 				this.baseFuncNames.put("role", RoleEvent.TraderEvent.class);
 			}
-			if (npc.roleInterface instanceof RoleTransporter) {
+			if (npc.advanced.roleInterface instanceof RoleTransporter) {
 				this.baseFuncNames.put("role", RoleEvent.TransporterUnlockedEvent.class);
 			}
-			if (npc.roleInterface instanceof RolePostman) {
+			if (npc.advanced.roleInterface instanceof RolePostman) {
 				this.baseFuncNames.put("role", RoleEvent.MailmanEvent.class);
 			}
 		}

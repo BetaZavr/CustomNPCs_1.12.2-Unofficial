@@ -22,14 +22,17 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListener, ISliderListener {
+public class GuiNpcCompanion
+extends GuiNPCInterface2
+implements ITextfieldListener, ISliderListener {
+	
 	private RoleCompanion role;
 	private List<GuiNpcCompanionTalents.GuiTalent> talents;
 
 	public GuiNpcCompanion(EntityNPCInterface npc) {
 		super(npc);
 		this.talents = new ArrayList<GuiNpcCompanionTalents.GuiTalent>();
-		this.role = (RoleCompanion) npc.roleInterface;
+		this.role = (RoleCompanion) npc.advanced.roleInterface;
 	}
 
 	@Override

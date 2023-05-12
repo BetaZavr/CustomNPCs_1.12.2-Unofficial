@@ -28,7 +28,7 @@ implements ISubGuiListener {
 	public GuiRoleDialog(EntityNPCInterface npc) {
 		super(npc);
 		this.slot = 0;
-		this.role = (RoleDialog) npc.roleInterface;
+		this.role = (RoleDialog) npc.advanced.roleInterface;
 	}
 
 	@Override

@@ -12,12 +12,14 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobFarmer;
 
-public class GuiJobFarmer extends GuiNPCInterface2 {
+public class GuiJobFarmer
+extends GuiNPCInterface2 {
+	
 	private JobFarmer job;
 
 	public GuiJobFarmer(EntityNPCInterface npc) {
 		super(npc);
-		this.job = (JobFarmer) npc.jobInterface;
+		this.job = (JobFarmer) npc.advanced.jobInterface;
 	}
 
 	@Override

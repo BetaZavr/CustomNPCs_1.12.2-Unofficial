@@ -15,7 +15,7 @@ public class ContainerNPCCompanion extends ContainerNpcInterface {
 
 	public ContainerNPCCompanion(EntityNPCInterface npc, EntityPlayer player) {
 		super(player);
-		this.role = (RoleCompanion) npc.roleInterface;
+		this.role = (RoleCompanion) npc.advanced.roleInterface;
 		for (int k = 0; k < 3; ++k) {
 			for (int j1 = 0; j1 < 9; ++j1) {
 				this.addSlotToContainer(

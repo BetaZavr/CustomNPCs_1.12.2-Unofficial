@@ -9,6 +9,7 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -21,6 +22,7 @@ extends RoleInterface {
 	public RoleTrader(EntityNPCInterface npc) {
 		super(npc);
 		this.marcet = -1;
+		this.type = EnumNpcRole.TRADER;
 	}
 
 	@Deprecated
@@ -32,15 +34,6 @@ extends RoleInterface {
 		return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 	}
 
-	/*
-	 * public NBTTagCompound writeNBT(NBTTagCompound nbttagcompound) {
-	 * nbttagcompound.setTag("TraderCurrency", this.inventoryCurrency.getToNBT());
-	 * nbttagcompound.setTag("TraderSold", this.inventorySold.getToNBT());
-	 * nbttagcompound.setBoolean("TraderIgnoreDamage", this.ignoreDamage);
-	 * nbttagcompound.setBoolean("TraderIgnoreNBT", this.ignoreNBT); return
-	 * nbttagcompound; }
-	 */
-
 	@Deprecated
 	public IItemStack getCurrency2(int slot) {
 		if (MarcetController.getInstance().marcets.containsKey(this.marcet)) {
@@ -49,15 +42,6 @@ extends RoleInterface {
 		}
 		return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 	}
-
-	/*
-	 * public void readNBT(NBTTagCompound nbttagcompound) {
-	 * this.inventoryCurrency.setFromNBT(nbttagcompound.getCompoundTag(
-	 * "TraderCurrency"));
-	 * this.inventorySold.setFromNBT(nbttagcompound.getCompoundTag("TraderSold"));
-	 * this.ignoreDamage = nbttagcompound.getBoolean("TraderIgnoreDamage");
-	 * this.ignoreNBT = nbttagcompound.getBoolean("TraderIgnoreNBT"); }
-	 */
 
 	@Deprecated
 	public String getMarket() {
@@ -96,19 +80,6 @@ extends RoleInterface {
 			m.addListener(player, true);
 		}
 		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerTrader, this.npc);
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		if (nbttagcompound.hasKey("MarketID", 3)) {
-			this.marcet = nbttagcompound.getInteger("MarketID");
-		} else { // Old
-			this.marcet = MarcetController.getInstance().loadOld(nbttagcompound);
-		}
-		/*
-		 * this.marketName = nbttagcompound.getString("TraderMarket");
-		 * this.readNBT(nbttagcompound);
-		 */
 	}
 
 	@Deprecated
@@ -162,33 +133,17 @@ extends RoleInterface {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("MarketID", this.marcet);
-		return nbttagcompound;
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		if (compound.hasKey("MarketID", 3)) { this.marcet = compound.getInteger("MarketID"); }
+		else { this.marcet = MarcetController.getInstance().loadOld(compound); } // Old
 	}
-
-	/*
-	 * Changed public static void save(RoleTrader r, String name) { if
-	 * (name.isEmpty()) { return; } File file = getFile(name + "_new"); File file2 =
-	 * getFile(name); try { NBTJsonUtil.SaveFile(file, r.writeNBT(new
-	 * NBTTagCompound())); if (file2.exists()) { file2.delete(); }
-	 * file.renameTo(file2); } catch (Exception ex) {} }
-	 * 
-	 * public static void load(RoleTrader role, String name) { if (name.isEmpty() ||
-	 * role.npc.world.isRemote) { return; } File file = getFile(name); if
-	 * (!file.exists()) { return; } try { role.readNBT(NBTJsonUtil.LoadFile(file));
-	 * } catch (Exception ex) {} }
-	 * 
-	 * private static File getFile(String name) { File dir = new
-	 * File(CustomNpcs.getWorldSaveDirectory(), "marcets"); if (!dir.exists()) {
-	 * dir.mkdir(); } return new File(dir, name.toLowerCase() + ".json"); }
-	 * 
-	 * public static void setMarket(EntityNPCInterface npc, String marcetName) { if
-	 * (marcetName.isEmpty()) { return; } Marcet m =
-	 * MarcetController.getInstance().get(marcetName); if (m!=null) { if (m!=null) {
-	 * this.marcet = m.id; } } if (!getFile(marcetName).exists()) {
-	 * save((RoleTrader)npc.roleInterface, marcetName); }
-	 * load((RoleTrader)npc.roleInterface, marcetName); }
-	 */
+	
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("MarketID", this.marcet);
+		return compound;
+	}
 
 }

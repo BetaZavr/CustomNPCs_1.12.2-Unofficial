@@ -28,7 +28,7 @@ implements ITextfieldListener, GuiSelectionListener {
 	public GuiNpcConversation(EntityNPCInterface npc) {
 		super(npc);
 		this.slot = -1;
-		this.job = (JobConversation) npc.jobInterface;
+		this.job = (JobConversation) npc.advanced.jobInterface;
 	}
 
 	@Override

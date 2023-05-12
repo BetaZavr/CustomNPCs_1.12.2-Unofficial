@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -14,7 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.math.MathHelper;
 import noppes.npcs.ModelData;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.client.model.animation.AniBow;
@@ -25,9 +23,9 @@ import noppes.npcs.client.model.animation.AniNo;
 import noppes.npcs.client.model.animation.AniPoint;
 import noppes.npcs.client.model.animation.AniWaving;
 import noppes.npcs.client.model.animation.AniYes;
+import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
-import noppes.npcs.roles.JobPuppet;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ModelBipedAlt
@@ -103,24 +101,16 @@ extends ModelBiped {
 
 	public void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
 			Entity entity) {
-		EntityCustomNpc player = (EntityCustomNpc) entity;
-		ModelData playerdata = player.modelData;
+		EntityCustomNpc npc = (EntityCustomNpc) entity;
+		ModelData playerdata = npc.modelData;
 		for (EnumParts part : this.map.keySet()) {
 			ModelPartConfig config = playerdata.getPartConfig(part);
-			for (ModelScaleRenderer model : this.map.get(part)) {
-				model.config = config;
-			}
+			for (ModelScaleRenderer model : this.map.get(part)) { model.config = config; }
 		}
-		if (!this.isRiding) {
-			this.isRiding = (player.currentAnimation == 1);
-		}
-		if (this.isSneak && (player.currentAnimation == 7 || player.isPlayerSleeping())) {
-			this.isSneak = false;
-		}
-		if (player.currentAnimation == 6) {
-			this.rightArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
-		}
-		this.isSneak = player.isSneaking();
+		if (!this.isRiding) { this.isRiding = (npc.currentAnimation == 1); }
+		if (this.isSneak && (npc.currentAnimation == 7 || npc.isPlayerSleeping())) { this.isSneak = false; }
+		if (npc.currentAnimation == 6) { this.rightArmPose = ModelBiped.ArmPose.BOW_AND_ARROW; }
+		this.isSneak = npc.isSneaking();
 		ModelRenderer bipedBody = this.bipedBody;
 		ModelRenderer bipedBody2 = this.bipedBody;
 		ModelRenderer bipedBody3 = this.bipedBody;
@@ -173,96 +163,95 @@ extends ModelBiped {
 		this.bipedRightArm.rotationPointY = 2.0f;
 		this.bipedRightArm.rotationPointZ = 0.0f;
 		super.setRotationAngles(par1, par2, par3, par4, par5, par6, entity);
-		if (player.isPlayerSleeping()) {
+		if (npc.isPlayerSleeping()) {
 			if (this.bipedHead.rotateAngleX < 0.0f) {
 				this.bipedHead.rotateAngleX = 0.0f;
 				this.bipedHeadwear.rotateAngleX = 0.0f;
 			}
-		} else if (player.currentAnimation == 9) {
+		} else if (npc.currentAnimation == 9) {
 			ModelRenderer bipedHeadwear6 = this.bipedHeadwear;
 			ModelRenderer bipedHead6 = this.bipedHead;
 			float n6 = 0.7f;
 			bipedHead6.rotateAngleX = n6;
 			bipedHeadwear6.rotateAngleX = n6;
-		} else if (player.currentAnimation == 3) {
+		} else if (npc.currentAnimation == 3) {
 			AniHug.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 7) {
+		} else if (npc.currentAnimation == 7) {
 			AniCrawling.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 10) {
+		} else if (npc.currentAnimation == 10) {
 			AniWaving.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 5) {
+		} else if (npc.currentAnimation == 5) {
 			AniDancing.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 11) {
+		} else if (npc.currentAnimation == 11) {
 			AniBow.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 13) {
+		} else if (npc.currentAnimation == 13) {
 			AniYes.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 12) {
+		} else if (npc.currentAnimation == 12) {
 			AniNo.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
-		} else if (player.currentAnimation == 8) {
+		} else if (npc.currentAnimation == 8) {
 			AniPoint.setRotationAngles(par1, par2, par3, par4, par5, par6, entity, this);
 		} else if (this.isSneak) {
 			this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleY;
 		}
-		if (player.advanced.job == 9) {
-			JobPuppet job = (JobPuppet) player.jobInterface;
-			if (job.isActive()) {
-				float pi = 3.1415927f;
-				float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-				if (!job.head.disabled) {
-					ModelRenderer bipedHeadwear7 = this.bipedHeadwear;
-					ModelRenderer bipedHead7 = this.bipedHead;
-					float n7 = job.getRotationX(job.head, job.head2, partialTicks) * pi;
-					bipedHead7.rotateAngleX = n7;
-					bipedHeadwear7.rotateAngleX = n7;
-					ModelRenderer bipedHeadwear8 = this.bipedHeadwear;
-					ModelRenderer bipedHead8 = this.bipedHead;
-					float n8 = job.getRotationY(job.head, job.head2, partialTicks) * pi;
-					bipedHead8.rotateAngleY = n8;
-					bipedHeadwear8.rotateAngleY = n8;
-					ModelRenderer bipedHeadwear9 = this.bipedHeadwear;
-					ModelRenderer bipedHead9 = this.bipedHead;
-					float n9 = job.getRotationZ(job.head, job.head2, partialTicks) * pi;
-					bipedHead9.rotateAngleZ = n9;
-					bipedHeadwear9.rotateAngleZ = n9;
-				}
-				if (!job.body.disabled) {
-					this.bipedBody.rotateAngleX = job.getRotationX(job.body, job.body2, partialTicks) * pi;
-					this.bipedBody.rotateAngleY = job.getRotationY(job.body, job.body2, partialTicks) * pi;
-					this.bipedBody.rotateAngleZ = job.getRotationZ(job.body, job.body2, partialTicks) * pi;
-				}
-				if (!job.larm.disabled) {
-					this.bipedLeftArm.rotateAngleX = job.getRotationX(job.larm, job.larm2, partialTicks) * pi;
-					this.bipedLeftArm.rotateAngleY = job.getRotationY(job.larm, job.larm2, partialTicks) * pi;
-					this.bipedLeftArm.rotateAngleZ = job.getRotationZ(job.larm, job.larm2, partialTicks) * pi;
-					if (player.display.getHasLivingAnimation()) {
-						ModelRenderer bipedLeftArm = this.bipedLeftArm;
-						bipedLeftArm.rotateAngleZ -= MathHelper.cos(par3 * 0.09f) * 0.05f + 0.05f;
-						ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
-						bipedLeftArm2.rotateAngleX -= MathHelper.sin(par3 * 0.067f) * 0.05f;
-					}
-				}
-				if (!job.rarm.disabled) {
-					this.bipedRightArm.rotateAngleX = job.getRotationX(job.rarm, job.rarm2, partialTicks) * pi;
-					this.bipedRightArm.rotateAngleY = job.getRotationY(job.rarm, job.rarm2, partialTicks) * pi;
-					this.bipedRightArm.rotateAngleZ = job.getRotationZ(job.rarm, job.rarm2, partialTicks) * pi;
-					if (player.display.getHasLivingAnimation()) {
-						ModelRenderer bipedRightArm = this.bipedRightArm;
-						bipedRightArm.rotateAngleZ += MathHelper.cos(par3 * 0.09f) * 0.05f + 0.05f;
-						ModelRenderer bipedRightArm2 = this.bipedRightArm;
-						bipedRightArm2.rotateAngleX += MathHelper.sin(par3 * 0.067f) * 0.05f;
-					}
-				}
-				if (!job.rleg.disabled) {
-					this.bipedRightLeg.rotateAngleX = job.getRotationX(job.rleg, job.rleg2, partialTicks) * pi;
-					this.bipedRightLeg.rotateAngleY = job.getRotationY(job.rleg, job.rleg2, partialTicks) * pi;
-					this.bipedRightLeg.rotateAngleZ = job.getRotationZ(job.rleg, job.rleg2, partialTicks) * pi;
-				}
-				if (!job.lleg.disabled) {
-					this.bipedLeftLeg.rotateAngleX = job.getRotationX(job.lleg, job.lleg2, partialTicks) * pi;
-					this.bipedLeftLeg.rotateAngleY = job.getRotationY(job.lleg, job.lleg2, partialTicks) * pi;
-					this.bipedLeftLeg.rotateAngleZ = job.getRotationZ(job.lleg, job.lleg2, partialTicks) * pi;
+		
+		if (npc.animation.getActive()!=null) {
+			AnimationConfig anim = npc.animation.getActive();
+			/*float pi = (float) Math.PI;
+			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+			if (!npc.animation.head.disabled) {
+				ModelRenderer bipedHeadwear7 = this.bipedHeadwear;
+				ModelRenderer bipedHead7 = this.bipedHead;
+				float n7 = npc.animation.getRotation(npc.animation.head, npc.animation.head2, 0, partialTicks) * pi;
+				bipedHead7.rotateAngleX = n7;
+				bipedHeadwear7.rotateAngleX = n7;
+				ModelRenderer bipedHeadwear8 = this.bipedHeadwear;
+				ModelRenderer bipedHead8 = this.bipedHead;
+				float n8 = npc.animation.getRotation(npc.animation.head, npc.animation.head2, 1, partialTicks) * pi;
+				bipedHead8.rotateAngleY = n8;
+				bipedHeadwear8.rotateAngleY = n8;
+				ModelRenderer bipedHeadwear9 = this.bipedHeadwear;
+				ModelRenderer bipedHead9 = this.bipedHead;
+				float n9 = npc.animation.getRotation(npc.animation.head, npc.animation.head2, 2, partialTicks) * pi;
+				bipedHead9.rotateAngleZ = n9;
+				bipedHeadwear9.rotateAngleZ = n9;
+			}
+			if (!npc.animation.body.disabled) {
+				this.bipedBody.rotateAngleX = npc.animation.getRotation(npc.animation.body, npc.animation.body2, 0, partialTicks) * pi;
+				this.bipedBody.rotateAngleY = npc.animation.getRotation(npc.animation.body, npc.animation.body2, 1, partialTicks) * pi;
+				this.bipedBody.rotateAngleZ = npc.animation.getRotation(npc.animation.body, npc.animation.body2, 2, partialTicks) * pi;
+			}
+			if (!npc.animation.larm.disabled) {
+				this.bipedLeftArm.rotateAngleX = npc.animation.getRotation(npc.animation.larm, npc.animation.larm2, 0, partialTicks) * pi;
+				this.bipedLeftArm.rotateAngleY = npc.animation.getRotation(npc.animation.larm, npc.animation.larm2, 1, partialTicks) * pi;
+				this.bipedLeftArm.rotateAngleZ = npc.animation.getRotation(npc.animation.larm, npc.animation.larm2, 2, partialTicks) * pi;
+				if (npc.display.getHasLivingAnimation()) {
+					ModelRenderer bipedLeftArm = this.bipedLeftArm;
+					bipedLeftArm.rotateAngleZ -= MathHelper.cos(par3 * 0.09f) * 0.05f + 0.05f;
+					ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
+					bipedLeftArm2.rotateAngleX -= MathHelper.sin(par3 * 0.067f) * 0.05f;
 				}
 			}
+			if (!npc.animation.rarm.disabled) {
+				this.bipedRightArm.rotateAngleX = npc.animation.getRotation(npc.animation.rarm, npc.animation.rarm2, 0, partialTicks) * pi;
+				this.bipedRightArm.rotateAngleY = npc.animation.getRotation(npc.animation.rarm, npc.animation.rarm2, 1, partialTicks) * pi;
+				this.bipedRightArm.rotateAngleZ = npc.animation.getRotation(npc.animation.rarm, npc.animation.rarm2, 2, partialTicks) * pi;
+				if (npc.display.getHasLivingAnimation()) {
+					ModelRenderer bipedRightArm = this.bipedRightArm;
+					bipedRightArm.rotateAngleZ += MathHelper.cos(par3 * 0.09f) * 0.05f + 0.05f;
+					ModelRenderer bipedRightArm2 = this.bipedRightArm;
+					bipedRightArm2.rotateAngleX += MathHelper.sin(par3 * 0.067f) * 0.05f;
+				}
+			}
+			if (!npc.animation.rleg.disabled) {
+				this.bipedRightLeg.rotateAngleX = npc.animation.getRotation(npc.animation.rleg, npc.animation.rleg2, 0, partialTicks) * pi;
+				this.bipedRightLeg.rotateAngleY = npc.animation.getRotation(npc.animation.rleg, npc.animation.rleg2, 1, partialTicks) * pi;
+				this.bipedRightLeg.rotateAngleZ = npc.animation.getRotation(npc.animation.rleg, npc.animation.rleg2, 2, partialTicks) * pi;
+			}
+			if (!npc.animation.lleg.disabled) {
+				this.bipedLeftLeg.rotateAngleX = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 0, partialTicks) * pi;
+				this.bipedLeftLeg.rotateAngleY = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 1, partialTicks) * pi;
+				this.bipedLeftLeg.rotateAngleZ = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 2, partialTicks) * pi;
+			}*/
 		}
 	}
 	

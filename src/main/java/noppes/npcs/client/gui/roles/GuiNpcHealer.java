@@ -20,7 +20,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobHealer;
 
-public class GuiNpcHealer extends GuiNPCInterface2 {
+public class GuiNpcHealer
+extends GuiNPCInterface2 {
+	
 	private HashMap<String, String> displays;
 	private JobHealer job;
 	private int potency;
@@ -31,7 +33,7 @@ public class GuiNpcHealer extends GuiNPCInterface2 {
 	public GuiNpcHealer(EntityNPCInterface npc) {
 		super(npc);
 		this.potency = 0;
-		this.job = (JobHealer) npc.jobInterface;
+		this.job = (JobHealer) npc.advanced.jobInterface;
 		this.potions = new HashMap<String, Integer>();
 		this.displays = new HashMap<String, String>();
 		for (Potion p : Potion.REGISTRY) {
@@ -43,7 +45,7 @@ public class GuiNpcHealer extends GuiNPCInterface2 {
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		if (button.id == 3) {
-			this.job.type = (byte) button.getValue();
+			this.job.healerType = (byte) button.getValue();
 		}
 		if (button.id == 11 && this.scroll1.hasSelected()) {
 			this.job.effects.put(this.potions.get(this.scroll1.getSelected()), this.getTextField(2).getInteger());
@@ -93,8 +95,7 @@ public class GuiNpcHealer extends GuiNPCInterface2 {
 		this.getTextField(4).numbersOnly = true;
 		this.getTextField(4).setMinMaxDefault(10, Integer.MAX_VALUE, 20);
 		this.addLabel(new GuiNpcLabel(3, "beacon.affect", this.guiLeft + 10, this.guiTop + 31));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 56, this.guiTop + 26, 80, 20,
-				new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, this.job.type));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 56, this.guiTop + 26, 80, 20, new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, this.job.healerType));
 		this.addLabel(new GuiNpcLabel(2, "beacon.potency", this.guiLeft + 140, this.guiTop + 31));
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 220, this.guiTop + 26, 40, 20,
 				this.potency + ""));

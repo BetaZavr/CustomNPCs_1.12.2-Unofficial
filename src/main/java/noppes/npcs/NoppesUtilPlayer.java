@@ -28,6 +28,7 @@ import noppes.npcs.api.event.QuestEvent.QuestTurnedInEvent;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCBankInterface;
@@ -58,7 +59,7 @@ public class NoppesUtilPlayer {
 	private static Map<Object, Long> delaySendMap = new HashMap<Object, Long>();
 
 	public static void bankUnlock(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.role != 3) {
+		if (npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
 			return;
 		}
 		Container con = player.openContainer;
@@ -94,7 +95,7 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void bankUpgrade(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.role != 3) {
+		if (npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
 			return;
 		}
 		Container con = player.openContainer;
@@ -127,10 +128,10 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void changeFollowerState(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.role != 2) {
+		if (!(npc.advanced.roleInterface instanceof RoleFollower)) {
 			return;
 		}
-		RoleFollower role = (RoleFollower) npc.roleInterface;
+		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 		EntityPlayer owner = role.owner;
 		if (owner == null || !owner.getName().equals(player.getName())) {
 			return;
@@ -253,8 +254,8 @@ public class NoppesUtilPlayer {
 		if (data.dialogId != diaId) {
 			return;
 		}
-		if (data.dialogId < 0 && npc.advanced.role == 7) {
-			String text = ((RoleDialog) npc.roleInterface).optionsTexts.get(optionId);
+		if (data.dialogId < 0 && npc.advanced.roleInterface instanceof RoleDialog) {
+			String text = ((RoleDialog) npc.advanced.roleInterface).optionsTexts.get(optionId);
 			if (text != null && !text.isEmpty()) {
 				Dialog d = new Dialog(null);
 				d.text = text;
@@ -279,11 +280,11 @@ public class NoppesUtilPlayer {
 		}
 		if (option.optionType == 3) {
 			closeDialog(player, npc, true);
-			if (npc.roleInterface != null) {
-				if (npc.advanced.role == 6) {
-					((RoleCompanion) npc.roleInterface).interact(player, true);
+			if (npc.advanced.roleInterface != null) {
+				if (npc.advanced.roleInterface instanceof RoleCompanion) {
+					((RoleCompanion) npc.advanced.roleInterface).interact(player, true);
 				} else {
-					npc.roleInterface.interact(player);
+					npc.advanced.roleInterface.interact(player);
 				}
 			}
 		} else if (option.optionType == 1) {
@@ -298,15 +299,13 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void extendFollower(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.role != 2) {
-			return;
-		}
+		if (!(npc.advanced.roleInterface instanceof RoleFollower)) { return; }
 		Container con = player.openContainer;
 		if (con == null || !(con instanceof ContainerNPCFollower)) {
 			return;
 		}
 		ContainerNPCFollower container = (ContainerNPCFollower) con;
-		RoleFollower role = (RoleFollower) npc.roleInterface;
+		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 		followerBuy(role, (IInventory) container.currencyMatrix, player, npc);
 	}
 
@@ -378,15 +377,13 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void hireFollower(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.role != 2) {
-			return;
-		}
+		if (!(npc.advanced.roleInterface instanceof RoleFollower)) { return; }
 		Container con = player.openContainer;
 		if (con == null || !(con instanceof ContainerNPCFollowerHire)) {
 			return;
 		}
 		ContainerNPCFollowerHire container = (ContainerNPCFollowerHire) con;
-		RoleFollower role = (RoleFollower) npc.roleInterface;
+		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 		followerBuy(role, (IInventory) container.currencyMatrix, player, npc);
 	}
 	

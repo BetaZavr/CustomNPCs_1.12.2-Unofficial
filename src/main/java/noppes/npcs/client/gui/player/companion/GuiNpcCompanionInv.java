@@ -12,7 +12,9 @@ import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
+public class GuiNpcCompanionInv
+extends GuiContainerNPCInterface {
+	
 	private EntityNPCInterface npc;
 	private ResourceLocation resource;
 	private RoleCompanion role;
@@ -23,7 +25,7 @@ public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
 		this.resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/companioninv.png");
 		this.slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 		this.npc = npc;
-		this.role = (RoleCompanion) npc.roleInterface;
+		this.role = (RoleCompanion) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
 		this.xSize = 171;
 		this.ySize = 166;

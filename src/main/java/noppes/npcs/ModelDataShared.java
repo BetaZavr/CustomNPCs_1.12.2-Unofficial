@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.constants.EnumParts;
 
 public class ModelDataShared {
+	
 	protected ModelPartConfig arm1;
 	protected ModelPartConfig arm2;
 	protected ModelPartConfig body;
@@ -195,9 +196,7 @@ public class ModelDataShared {
 
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		if (this.entityClass != null) {
-			compound.setString("EntityClass", this.entityClass.getCanonicalName());
-		}
+		if (this.entityClass != null) { compound.setString("EntityClass", this.entityClass.getCanonicalName()); }
 		compound.setTag("ArmsConfig", this.arm1.writeToNBT());
 		compound.setTag("BodyConfig", this.body.writeToNBT());
 		compound.setTag("LegsConfig", this.leg1.writeToNBT());

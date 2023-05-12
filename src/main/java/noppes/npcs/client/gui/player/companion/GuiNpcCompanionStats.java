@@ -22,7 +22,10 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanionStats extends GuiNPCInterface implements IGuiData {
+public class GuiNpcCompanionStats
+extends GuiNPCInterface
+implements IGuiData {
+	
 	public static void addTopMenu(RoleCompanion role, GuiScreen screen, int active) {
 		if (screen instanceof GuiNPCInterface) {
 			GuiNPCInterface gui = (GuiNPCInterface) screen;
@@ -65,7 +68,7 @@ public class GuiNpcCompanionStats extends GuiNPCInterface implements IGuiData {
 	public GuiNpcCompanionStats(EntityNPCInterface npc) {
 		super(npc);
 		this.isEating = false;
-		this.role = (RoleCompanion) npc.roleInterface;
+		this.role = (RoleCompanion) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
 		this.setBackground("companion.png");
 		this.xSize = 171;

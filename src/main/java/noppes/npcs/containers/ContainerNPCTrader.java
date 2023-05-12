@@ -20,7 +20,7 @@ public class ContainerNPCTrader extends ContainerNpcInterface {
 	public ContainerNPCTrader(EntityNPCInterface npc, EntityPlayer player) {
 		super(player);
 		// this.npc = npc;
-		this.role = (RoleTrader) npc.roleInterface;
+		this.role = (RoleTrader) npc.advanced.roleInterface;
 		this.marcet = MarcetController.getInstance().marcets.get(this.role.marcet);
 		this.deal = this.marcet.data.get(0);
 

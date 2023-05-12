@@ -12,7 +12,7 @@ public class ContainerNPCFollowerSetup extends Container {
 	private RoleFollower role;
 
 	public ContainerNPCFollowerSetup(EntityNPCInterface npc, EntityPlayer player) {
-		this.role = (RoleFollower) npc.roleInterface;
+		this.role = (RoleFollower) npc.advanced.roleInterface;
 		for (int i1 = 0; i1 < 3; ++i1) {
 			this.addSlotToContainer(new Slot((IInventory) this.role.inventory, i1, 44, 39 + i1 * 25));
 		}

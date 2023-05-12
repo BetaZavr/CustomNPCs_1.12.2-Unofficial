@@ -123,6 +123,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.client.EntityUtil;
+import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
@@ -136,6 +138,7 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.data.DataAI;
 import noppes.npcs.entity.data.DataAbilities;
 import noppes.npcs.entity.data.DataAdvanced;
+import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.entity.data.DataDisplay;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.entity.data.DataScript;
@@ -144,10 +147,8 @@ import noppes.npcs.entity.data.DataTimers;
 import noppes.npcs.items.ItemSoulstoneFilled;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobFollower;
-import noppes.npcs.roles.JobInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
-import noppes.npcs.roles.RoleInterface;
 import noppes.npcs.util.GameProfileAlt;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -170,32 +171,28 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
 	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
 	public DataAbilities abilities;
-	public DataAdvanced advanced;
-	private EntityAIBase aiAttackTarget;
-	private EntityAIRangedAttack aiRange;
+	public DataDisplay display;
+	public DataStats stats;
 	public DataAI ais;
+	public DataInventory inventory;
+	public DataAdvanced advanced;
+	public DataScript script;
 	public EntityAIAnimation animateAi;
 	public int animationStart;
 	private BlockPos backPos;
+	private EntityAIBase aiAttackTarget;
+	private EntityAIRangedAttack aiRange;
 	public float baseHeight;
 	public BossInfoServer bossInfo;
 	public CombatHandler combatHandler;
 	public int currentAnimation;
 	public int[] dialogs; // Changed
-	public DataDisplay display;
 	public Faction faction;
-	public double field_20061_w;
-	public double field_20062_v;
-	public double field_20063_u;
-	public double field_20064_t;
-	public double field_20065_s;
-	public double field_20066_r;
+	public double field_20061_w, field_20062_v, field_20063_u, field_20064_t, field_20065_s, field_20066_r;
 	public boolean hasDied;
 	public List<EntityLivingBase> interactingEntities;
-	public DataInventory inventory;
 	// New
 	private boolean isRunHome;
-	public JobInterface jobInterface;
 	public long killedtime;
 	public int lastInteract;
 	public LinkedNpcController.LinkedData linkedData;
@@ -204,13 +201,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public EntityAILook lookAi;
 	public IChatMessages messages;
 	public int npcVersion;
-	public RoleInterface roleInterface;
 	public float scaleX;
 	public float scaleY;
 	public float scaleZ;
-	public DataScript script;
 	private double startYPos;
-	public DataStats stats;
 	private int taskCount;
 	public ResourceLocation textureCloakLocation;
 	public ResourceLocation textureGlowLocation;
@@ -222,6 +216,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	private boolean wasKilled;
 	public ICustomNpc<?> wrappedNPC;
 	public boolean updateAI;
+	public DataAnimation animation;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -311,8 +306,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	protected float applyArmorCalculations(DamageSource source, float damage) {
-		if (this.advanced.role == 6) {
-			damage = ((RoleCompanion) this.roleInterface).applyArmorCalculations(source, damage);
+		if (this.advanced.roleInterface instanceof RoleCompanion) {
+			damage = ((RoleCompanion) this.advanced.roleInterface).applyArmorCalculations(source, damage);
 		}
 		return damage;
 	}
@@ -328,6 +323,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.transform = new DataTransform(this);
 		this.script = new DataScript(this);
 		this.timers = new DataTimers(this);
+		this.animation = new DataAnimation(this);
 		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
 		this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
 		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(this.stats.maxHealth);
@@ -364,8 +360,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				this.motionX *= 0.6;
 				this.motionZ *= 0.6;
 			}
-			if (this.advanced.role == 6) {
-				((RoleCompanion) this.roleInterface).attackedEntity(par1Entity);
+			if (this.advanced.roleInterface instanceof RoleCompanion) {
+				((RoleCompanion) this.advanced.roleInterface).attackedEntity(par1Entity);
 			}
 		}
 		if (this.stats.melee.getEffectType() != 0) {
@@ -618,12 +614,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void delete() {
-		if (this.advanced.role != 0 && this.roleInterface != null) {
-			this.roleInterface.delete();
-		}
-		if (this.advanced.job != 0 && this.jobInterface != null) {
-			this.jobInterface.delete();
-		}
+		this.advanced.roleInterface.delete();
+		this.advanced.jobInterface.delete();
 		super.setDead();
 	}
 
@@ -667,18 +659,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public int followRange() {
-		if (this.advanced.scenes.getOwner() != null) {
-			return 4;
-		}
-		if (this.advanced.role == 2 && this.roleInterface.isFollowing()) {
-			return 6;
-		}
-		if (this.advanced.role == 6 && this.roleInterface.isFollowing()) {
-			return 4;
-		}
-		if (this.advanced.job == 5 && this.jobInterface.isFollowing()) {
-			return 4;
-		}
+		if (this.advanced.scenes.getOwner() != null) { return 4; }
+		if (this.advanced.roleInterface.getEnumType() == EnumNpcRole.FOLLOWER && this.advanced.roleInterface.isFollowing()) { return 6; }
+		if (this.advanced.roleInterface.getEnumType() == EnumNpcRole.COMPANION && this.advanced.roleInterface.isFollowing()) { return 4; }
+		if (this.advanced.jobInterface.getEnumType() == EnumNpcJob.FOLLOWER && this.advanced.jobInterface.isFollowing()) { return 4; }
 		return 15;
 	}
 
@@ -782,27 +766,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public ItemStack getHeldItemMainhand() {
 		IItemStack item = null;
-		if (this.isAttacking()) {
-			item = this.inventory.getRightHand();
-		} else if (this.advanced.role == 6) {
-			item = ((RoleCompanion) this.roleInterface).getHeldItem();
-		} else if (this.jobInterface != null && this.jobInterface.overrideMainHand) {
-			item = this.jobInterface.getMainhand();
-		} else {
-			item = this.inventory.getRightHand();
-		}
+		if (this.isAttacking()) { item = this.inventory.getRightHand(); }
+		else if (this.advanced.roleInterface instanceof RoleCompanion) { item = ((RoleCompanion) this.advanced.roleInterface).getHeldItem(); }
+		else if (this.advanced.jobInterface.overrideMainHand) { item = this.advanced.jobInterface.getMainhand(); }
+		else { item = this.inventory.getRightHand(); }
 		return ItemStackWrapper.MCItem(item);
 	}
 
 	public ItemStack getHeldItemOffhand() {
 		IItemStack item = null;
-		if (this.isAttacking()) {
-			item = this.inventory.getLeftHand();
-		} else if (this.jobInterface != null && this.jobInterface.overrideOffHand) {
-			item = this.jobInterface.getOffhand();
-		} else {
-			item = this.inventory.getLeftHand();
-		}
+		if (this.isAttacking()) { item = this.inventory.getLeftHand(); }
+		else if (this.advanced.jobInterface.overrideOffHand) { item = this.advanced.jobInterface.getOffhand(); }
+		else { item = this.inventory.getLeftHand(); }
 		return ItemStackWrapper.MCItem(item);
 	}
 
@@ -836,14 +811,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.advanced.scenes.getOwner() != null) {
 			return this.advanced.scenes.getOwner();
 		}
-		if (this.advanced.role == 2 && this.roleInterface instanceof RoleFollower) {
-			return ((RoleFollower) this.roleInterface).owner;
+		if (this.advanced.roleInterface instanceof RoleFollower) {
+			return ((RoleFollower) this.advanced.roleInterface).owner;
 		}
-		if (this.advanced.role == 6 && this.roleInterface instanceof RoleCompanion) {
-			return ((RoleCompanion) this.roleInterface).owner;
+		if (this.advanced.roleInterface instanceof RoleCompanion) {
+			return ((RoleCompanion) this.advanced.roleInterface).owner;
 		}
-		if (this.advanced.job == 5 && this.jobInterface instanceof JobFollower) {
-			return ((JobFollower) this.jobInterface).following;
+		if (this.advanced.jobInterface instanceof JobFollower) {
+			return ((JobFollower) this.advanced.jobInterface).following;
 		}
 		return null;
 	}
@@ -924,9 +899,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean hasOwner() {
 		return this.advanced.scenes.getOwner() != null
-				|| (this.advanced.role == 2 && ((RoleFollower) this.roleInterface).hasOwner())
-				|| (this.advanced.role == 6 && ((RoleCompanion) this.roleInterface).hasOwner())
-				|| (this.advanced.job == 5 && ((JobFollower) this.jobInterface).hasOwner());
+				|| (this.advanced.roleInterface instanceof RoleFollower && ((RoleFollower) this.advanced.roleInterface).hasOwner())
+				|| (this.advanced.roleInterface instanceof RoleCompanion && ((RoleCompanion) this.advanced.roleInterface).hasOwner())
+				|| (this.advanced.jobInterface instanceof JobFollower && ((JobFollower) this.advanced.jobInterface).hasOwner());
 	}
 
 	public boolean isAttacking() {
@@ -938,9 +913,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isFollower() {
-		return this.advanced.scenes.getOwner() != null
-				|| (this.roleInterface != null && this.roleInterface.isFollowing())
-				|| (this.jobInterface != null && this.jobInterface.isFollowing());
+		return this.advanced.scenes.getOwner() != null || this.advanced.roleInterface.isFollowing() || this.advanced.jobInterface.isFollowing();
 	}
 
 	public boolean isInRange(double posX, double posY, double posZ, double range) {
@@ -1074,8 +1047,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.extinguish();
 		this.clearActivePotions();
 		Entity attackingEntity = NoppesUtilServer.GetDamageSourcee(damagesource);
-		if (this.roleInterface!=null) { this.roleInterface.aiDeathExecute(attackingEntity); }
-		if (this.jobInterface!=null) { this.jobInterface.aiDeathExecute(attackingEntity); }
+		if (this.advanced.roleInterface!=null) { this.advanced.roleInterface.aiDeathExecute(attackingEntity); }
+		if (this.advanced.jobInterface!=null) { this.advanced.jobInterface.aiDeathExecute(attackingEntity); }
 		if (!this.isRemote()) {
 			this.advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
 			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity);
@@ -1106,9 +1079,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (!this.hasDied) {
 			this.setDead();
 		}
-		if (this.killedtime < System.currentTimeMillis()
-				&& (this.stats.spawnCycle == 0 || (this.world.isDaytime() && this.stats.spawnCycle == 1)
-						|| (!this.world.isDaytime() && this.stats.spawnCycle == 2))) {
+		if (this.killedtime < System.currentTimeMillis() && (this.stats.spawnCycle == 0 || (this.world.isDaytime() && this.stats.spawnCycle == 1) || (!this.world.isDaytime() && this.stats.spawnCycle == 2))) {
 			this.reset();
 		}
 	}
@@ -1183,9 +1154,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		super.onLivingUpdate();
 		if (this.world.isRemote) {
-			if (this.roleInterface != null) {
-				this.roleInterface.clientUpdate();
-			}
+			this.advanced.roleInterface.clientUpdate();
 			if (this.textureCloakLocation != null) {
 				this.cloakUpdate();
 			}
@@ -1194,8 +1163,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				this.animationStart = this.ticksExisted;
 				this.updateHitbox();
 			}
-			if (this.advanced.job == 1) {
-				((JobBard) this.jobInterface).onLivingUpdate();
+			if (this.advanced.jobInterface instanceof JobBard) {
+				((JobBard) this.advanced.jobInterface).onLivingUpdate();
 			}
 		}
 		if (this.display.getBossbar() > 0) {
@@ -1307,8 +1276,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.QUEST_COMPLETION, data.quest.id);
 		} else if (dialog != null) {
 			NoppesUtilServer.openDialog(player, this, dialog);
-		} else if (this.roleInterface != null) {
-			this.roleInterface.interact(player);
+		} else if (this.advanced.roleInterface.getType()>0) {
+			this.advanced.roleInterface.interact(player);
 		} else {
 			this.say(player, this.advanced.getInteractLine());
 		}
@@ -1325,12 +1294,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.script.readFromNBT(compound);
 		this.timers.readFromNBT(compound);
 		this.advanced.readToNBT(compound);
-		if (this.advanced.role != 0 && this.roleInterface != null) {
-			this.roleInterface.readFromNBT(compound);
-		}
-		if (this.advanced.job != 0 && this.jobInterface != null) {
-			this.jobInterface.readFromNBT(compound);
-		}
+		this.advanced.roleInterface.readFromNBT(compound);
+		this.advanced.jobInterface.readFromNBT(compound);
+		this.animation.readFromNBT(compound);
 		this.inventory.readEntityFromNBT(compound);
 		this.transform.readToNBT(compound);
 		this.killedtime = compound.getLong("KilledTime");
@@ -1348,38 +1314,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.readSpawnData(Server.readNBT(buf));
 		} catch (IOException ex) {
 		}
-	}
-
-	public void readSpawnData(NBTTagCompound compound) {
-		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
-		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
-		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
-		this.ais.setStandingType(compound.getInteger("StandingState"));
-		this.ais.setMovingType(compound.getInteger("MovingState"));
-		this.ais.orientation = compound.getInteger("Orientation");
-		this.ais.bodyOffsetX = compound.getFloat("PositionXOffset");
-		this.ais.bodyOffsetY = compound.getFloat("PositionYOffset");
-		this.ais.bodyOffsetZ = compound.getFloat("PositionZOffset");
-		this.inventory.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
-		this.inventory.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
-		this.advanced.setRole(compound.getInteger("Role"));
-		this.advanced.setJob(compound.getInteger("Job"));
-		if (this.advanced.job == 1) {
-			NBTTagCompound bard = compound.getCompoundTag("Bard");
-			this.jobInterface.readFromNBT(bard);
-		}
-		if (this.advanced.job == 9) {
-			NBTTagCompound puppet = compound.getCompoundTag("Puppet");
-			this.jobInterface.readFromNBT(puppet);
-		}
-		if (this.advanced.role == 6) {
-			NBTTagCompound puppet = compound.getCompoundTag("Companion");
-			this.roleInterface.readFromNBT(puppet);
-		}
-		if (this instanceof EntityCustomNpc) {
-			((EntityCustomNpc) this).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
-		}
-		this.display.readToNBT(compound);
 	}
 
 	public void removeTrackingPlayer(EntityPlayerMP player) {
@@ -1420,9 +1354,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.getOwner().setLastAttackedEntity(null);
 		}
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
-		if (this.jobInterface != null) {
-			this.jobInterface.reset();
-		}
+		this.advanced.jobInterface.reset();
+		this.animation.reset();
 		EventHooks.onNPCInit(this);
 	}
 
@@ -1563,12 +1496,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (this.killedtime <= 0L) {
 				this.killedtime = this.stats.respawnTime * 1000 + System.currentTimeMillis();
 			}
-			if (this.advanced.role != 0 && this.roleInterface != null) {
-				this.roleInterface.killed();
-			}
-			if (this.advanced.job != 0 && this.jobInterface != null) {
-				this.jobInterface.killed();
-			}
+			this.advanced.roleInterface.killed();
+			this.advanced.jobInterface.killed();
 		}
 	}
 
@@ -1757,8 +1686,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		double d2 = this.posY;
 		double d3 = this.posZ;
 		super.travel(f1, f2, f3);
-		if (this.advanced.role == 6 && !this.isRemote()) {
-			((RoleCompanion) this.roleInterface).addMovementStat(this.posX - d0, this.posY - d2, this.posZ - d3);
+		if (this.advanced.roleInterface instanceof RoleCompanion && !this.isRemote()) {
+			((RoleCompanion) this.advanced.roleInterface).addMovementStat(this.posX - d0, this.posY - d2, this.posZ - d3);
 		}
 	}
 
@@ -1834,6 +1763,25 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		CustomNpcs.debugData.endDebug("Server", this, "NPCUpdate");
 	}
 
+	public void readSpawnData(NBTTagCompound compound) {
+		this.display.readToNBT(compound);
+		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
+		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
+		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
+		this.ais.setStandingType(compound.getInteger("StandingState"));
+		this.ais.setMovingType(compound.getInteger("MovingState"));
+		this.ais.orientation = compound.getInteger("Orientation");
+		this.ais.bodyOffsetX = compound.getFloat("PositionXOffset");
+		this.ais.bodyOffsetY = compound.getFloat("PositionYOffset");
+		this.ais.bodyOffsetZ = compound.getFloat("PositionZOffset");
+		this.inventory.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
+		this.inventory.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
+		if (this instanceof EntityCustomNpc) {
+			((EntityCustomNpc) this).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
+		}
+		this.advanced.readToNBT(compound);
+	}
+	
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		this.display.writeToNBT(compound);
@@ -1842,14 +1790,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.script.writeToNBT(compound);
 		this.timers.writeToNBT(compound);
 		this.advanced.writeToNBT(compound);
-		if (this.advanced.role != 0 && this.roleInterface != null) {
-			this.roleInterface.writeToNBT(compound);
-		}
-		if (this.advanced.job != 0 && this.jobInterface != null) {
-			this.jobInterface.writeToNBT(compound);
-		}
 		this.inventory.writeEntityToNBT(compound);
 		this.transform.writeToNBT(compound);
+		this.animation.writeToNBT(compound);
 		compound.setLong("KilledTime", this.killedtime);
 		compound.setLong("TotalTicksAlive", this.totalTicksAlive);
 		compound.setInteger("ModRev", this.npcVersion);
@@ -1870,23 +1813,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setFloat("PositionXOffset", this.ais.bodyOffsetX);
 		compound.setFloat("PositionYOffset", this.ais.bodyOffsetY);
 		compound.setFloat("PositionZOffset", this.ais.bodyOffsetZ);
-		compound.setInteger("Role", this.advanced.role);
-		compound.setInteger("Job", this.advanced.job);
-		if (this.advanced.job == 1) {
-			NBTTagCompound bard = new NBTTagCompound();
-			this.jobInterface.writeToNBT(bard);
-			compound.setTag("Bard", bard);
-		}
-		if (this.advanced.job == 9) {
-			NBTTagCompound bard = new NBTTagCompound();
-			this.jobInterface.writeToNBT(bard);
-			compound.setTag("Puppet", bard);
-		}
-		if (this.advanced.role == 6) {
-			NBTTagCompound bard = new NBTTagCompound();
-			this.roleInterface.writeToNBT(bard);
-			compound.setTag("Companion", bard);
-		}
 		if (this instanceof EntityCustomNpc) {
 			compound.setTag("ModelData", ((EntityCustomNpc) this).modelData.writeToNBT());
 		}

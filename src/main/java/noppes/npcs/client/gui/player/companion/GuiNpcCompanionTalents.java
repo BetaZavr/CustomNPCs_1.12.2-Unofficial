@@ -27,8 +27,11 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanionTalents extends GuiNPCInterface {
+public class GuiNpcCompanionTalents
+extends GuiNPCInterface {
+	
 	public static class GuiTalent extends GuiScreen {
+		
 		private static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/talent.png");
 		private RoleCompanion role;
 		private EnumCompanionTalent talent;
@@ -85,7 +88,7 @@ public class GuiNpcCompanionTalents extends GuiNPCInterface {
 		this.talents = new HashMap<Integer, GuiTalent>();
 		this.lastPressedTime = 0L;
 		this.startPressedTime = 0L;
-		this.role = (RoleCompanion) npc.roleInterface;
+		this.role = (RoleCompanion) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
 		this.setBackground("companion_empty.png");
 		this.xSize = 171;

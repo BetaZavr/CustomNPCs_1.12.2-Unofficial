@@ -16,6 +16,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.role.IJobBuilder;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.blocks.tiles.TileBuilder;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -39,6 +40,7 @@ implements IJobBuilder {
 		this.tryTicks = 0;
 		this.ticks = 0;
 		this.overrideMainHand = true;
+		this.type = EnumNpcJob.BUILDER;
 	}
 
 	@Override
@@ -138,7 +140,20 @@ implements IJobBuilder {
 	}
 
 	@Override
+	public void reset() {
+		this.build = null;
+		this.npc.setJobData("");
+	}
+
+	@Override
+	public void resetTask() {
+		this.reset();
+	}
+
+
+	@Override
 	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
 		if (compound.hasKey("BuildX")) {
 			this.possibleBuildPos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"),
 					compound.getInteger("BuildZ"));
@@ -156,20 +171,10 @@ implements IJobBuilder {
 		}
 		this.npc.ais.doorInteract = 1;
 	}
-
-	@Override
-	public void reset() {
-		this.build = null;
-		this.npc.setJobData("");
-	}
-
-	@Override
-	public void resetTask() {
-		this.reset();
-	}
-
+	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
 		if (this.build != null) {
 			compound.setInteger("BuildX", this.build.getPos().getX());
 			compound.setInteger("BuildY", this.build.getPos().getY());

@@ -497,8 +497,8 @@ implements INPCAi {
 	}
 
 	public boolean shouldReturnHome() {
-		return (this.npc.advanced.job != 10 || !((JobBuilder) this.npc.jobInterface).isBuilding())
-				&& (this.npc.advanced.job != 11 || !((JobFarmer) this.npc.jobInterface).isPlucking())
+		return (!(this.npc.advanced.jobInterface instanceof JobBuilder) || !((JobBuilder) this.npc.advanced.jobInterface).isBuilding())
+				&& (!(this.npc.advanced.jobInterface instanceof JobFarmer) || !((JobFarmer) this.npc.advanced.jobInterface).isPlucking())
 				&& this.returnToStart;
 	}
 

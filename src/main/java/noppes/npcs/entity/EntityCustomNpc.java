@@ -10,7 +10,9 @@ import noppes.npcs.ModelPartData;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.constants.EnumParts;
 
-public class EntityCustomNpc extends EntityNPCFlying {
+public class EntityCustomNpc
+extends EntityNPCFlying {
+	
 	public ModelData modelData;
 
 	public EntityCustomNpc(World world) {

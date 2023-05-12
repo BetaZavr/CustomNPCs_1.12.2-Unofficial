@@ -10,6 +10,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeChunkManager;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class ChunkController implements ForgeChunkManager.LoadingCallback {
@@ -63,19 +64,10 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 				continue;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) ticket.getEntity();
-			if (npc.advanced.job != 8 || tickets.contains(npc)) {
+			if (npc.advanced.jobInterface.getEnumType() != EnumNpcJob.CHUNK_LOADER || tickets.contains(npc)) {
 				continue;
 			}
 			this.tickets.put(npc, ticket);
-			/*
-			 * Changed double x = npc.posX / 16.0; double z = npc.posZ / 16.0;
-			 * ForgeChunkManager.forceChunk(ticket, new ChunkPos(MathHelper.floor(x),
-			 * MathHelper.floor(z))); ForgeChunkManager.forceChunk(ticket, new
-			 * ChunkPos(MathHelper.ceil(x), MathHelper.ceil(z)));
-			 * ForgeChunkManager.forceChunk(ticket, new ChunkPos(MathHelper.floor(x),
-			 * MathHelper.ceil(z))); ForgeChunkManager.forceChunk(ticket, new
-			 * ChunkPos(MathHelper.ceil(x), MathHelper.floor(z)));
-			 */
 			// New 3x3
 			int x = (int) MathHelper.floor(npc.posX);
 			int z = (int) MathHelper.floor(npc.posZ);

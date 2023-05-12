@@ -16,6 +16,8 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.role.IRoleFollower;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RoleFollower
@@ -47,6 +49,7 @@ implements IRoleFollower {
 		this.owner = null;
 		this.inventory = new NpcMiscInventory(3);
 		this.rates = new HashMap<Integer, Integer>();
+		this.type = EnumNpcRole.FOLLOWER;
 	}
 
 	@Override
@@ -71,7 +74,7 @@ implements IRoleFollower {
 
 	@Override
 	public boolean defendOwner() {
-		return this.isFollowing() && this.npc.advanced.job == 3;
+		return this.isFollowing() && this.npc.advanced.jobInterface.getEnumType() == EnumNpcJob.GUARD;
 	}
 
 	@Override
@@ -156,21 +159,6 @@ implements IRoleFollower {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		this.ownerUUID = nbttagcompound.getString("MercenaryOwner");
-		this.daysHired = nbttagcompound.getInteger("MercenaryDaysHired");
-		this.hiredTime = nbttagcompound.getLong("MercenaryHiredTime");
-		this.dialogHire = nbttagcompound.getString("MercenaryDialogHired");
-		this.dialogFarewell = nbttagcompound.getString("MercenaryDialogFarewell");
-		this.rates = NBTTags.getIntegerIntegerMap(nbttagcompound.getTagList("MercenaryDayRates", 10));
-		this.inventory.setFromNBT(nbttagcompound.getCompoundTag("MercenaryInv"));
-		this.isFollowing = nbttagcompound.getBoolean("MercenaryIsFollowing");
-		this.disableGui = nbttagcompound.getBoolean("MercenaryDisableGui");
-		this.infiniteDays = nbttagcompound.getBoolean("MercenaryInfiniteDays");
-		this.refuseSoulStone = nbttagcompound.getBoolean("MercenaryRefuseSoulstone");
-	}
-
-	@Override
 	public void reset() {
 		this.killed();
 	}
@@ -207,21 +195,37 @@ implements IRoleFollower {
 		this.refuseSoulStone = refuse;
 	}
 
+
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("MercenaryDaysHired", this.daysHired);
-		nbttagcompound.setLong("MercenaryHiredTime", this.hiredTime);
-		nbttagcompound.setString("MercenaryDialogHired", this.dialogHire);
-		nbttagcompound.setString("MercenaryDialogFarewell", this.dialogFarewell);
-		if (this.hasOwner()) {
-			nbttagcompound.setString("MercenaryOwner", this.ownerUUID);
-		}
-		nbttagcompound.setTag("MercenaryDayRates", NBTTags.nbtIntegerIntegerMap(this.rates));
-		nbttagcompound.setTag("MercenaryInv", this.inventory.getToNBT());
-		nbttagcompound.setBoolean("MercenaryIsFollowing", this.isFollowing);
-		nbttagcompound.setBoolean("MercenaryDisableGui", this.disableGui);
-		nbttagcompound.setBoolean("MercenaryInfiniteDays", this.infiniteDays);
-		nbttagcompound.setBoolean("MercenaryRefuseSoulstone", this.refuseSoulStone);
-		return nbttagcompound;
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.ownerUUID = compound.getString("MercenaryOwner");
+		this.daysHired = compound.getInteger("MercenaryDaysHired");
+		this.hiredTime = compound.getLong("MercenaryHiredTime");
+		this.dialogHire = compound.getString("MercenaryDialogHired");
+		this.dialogFarewell = compound.getString("MercenaryDialogFarewell");
+		this.rates = NBTTags.getIntegerIntegerMap(compound.getTagList("MercenaryDayRates", 10));
+		this.inventory.setFromNBT(compound.getCompoundTag("MercenaryInv"));
+		this.isFollowing = compound.getBoolean("MercenaryIsFollowing");
+		this.disableGui = compound.getBoolean("MercenaryDisableGui");
+		this.infiniteDays = compound.getBoolean("MercenaryInfiniteDays");
+		this.refuseSoulStone = compound.getBoolean("MercenaryRefuseSoulstone");
+	}
+	
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("MercenaryDaysHired", this.daysHired);
+		compound.setLong("MercenaryHiredTime", this.hiredTime);
+		compound.setString("MercenaryDialogHired", this.dialogHire);
+		compound.setString("MercenaryDialogFarewell", this.dialogFarewell);
+		if (this.hasOwner()) { compound.setString("MercenaryOwner", this.ownerUUID); }
+		compound.setTag("MercenaryDayRates", NBTTags.nbtIntegerIntegerMap(this.rates));
+		compound.setTag("MercenaryInv", this.inventory.getToNBT());
+		compound.setBoolean("MercenaryIsFollowing", this.isFollowing);
+		compound.setBoolean("MercenaryDisableGui", this.disableGui);
+		compound.setBoolean("MercenaryInfiniteDays", this.infiniteDays);
+		compound.setBoolean("MercenaryRefuseSoulstone", this.refuseSoulStone);
+		return compound;
 	}
 }

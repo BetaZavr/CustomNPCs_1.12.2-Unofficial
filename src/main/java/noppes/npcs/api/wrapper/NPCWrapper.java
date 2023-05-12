@@ -115,7 +115,7 @@ implements ICustomNpc {
 
 	@Override
 	public INPCJob getJob() {
-		return this.entity.jobInterface;
+		return this.entity.advanced.jobInterface;
 	}
 
 	@Override
@@ -146,7 +146,7 @@ implements ICustomNpc {
 
 	@Override
 	public INPCRole getRole() {
-		return this.entity.roleInterface;
+		return this.entity.advanced.roleInterface;
 	}
 
 	@Override

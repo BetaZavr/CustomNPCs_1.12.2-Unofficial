@@ -11,7 +11,9 @@ import net.minecraft.world.World;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class ModelData extends ModelDataShared {
+public class ModelData
+extends ModelDataShared {
+	
 	public ModelData copy() {
 		ModelData data = new ModelData();
 		data.readFromNBT(this.writeToNBT());

@@ -472,19 +472,19 @@ public class PacketHandlerServer {
 			TransportLocation location = TransportController.getInstance().saveLocation(cat, Server.readNBT(buffer),
 					player, npc);
 			if (location != null) {
-				if (npc.advanced.role != 4) {
+				if (!(npc.advanced.roleInterface instanceof RoleTransporter)) {
 					CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 					return;
 				}
-				RoleTransporter role = (RoleTransporter) npc.roleInterface;
+				RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 				role.setTransport(location);
 			}
 		} else if (type == EnumPacketServer.TransportGetLocation) {
-			if (npc.advanced.role != 4) {
+			if (!(npc.advanced.roleInterface instanceof RoleTransporter)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
-			RoleTransporter role = (RoleTransporter) npc.roleInterface;
+			RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 			if (role.hasTransport()) {
 				Server.sendData(player, EnumPacketClient.GUI_DATA, role.getLocation().writeNBT());
 				Server.sendData(player, EnumPacketClient.SCROLL_SELECTED, role.getLocation().category.title);
@@ -627,45 +627,43 @@ public class PacketHandlerServer {
 			data.setNBT(Server.readNBT(buffer));
 			data.syncClients();
 		} else if (type == EnumPacketServer.JobSave) {
-			NBTTagCompound original = npc.jobInterface.writeToNBT(new NBTTagCompound());
+			NBTTagCompound original = npc.advanced.jobInterface.writeToNBT(new NBTTagCompound());
 			NBTTagCompound compound = Server.readNBT(buffer);
 			for (String name : compound.getKeySet()) {
-				if (npc.advanced.job==6 && (name.equals("DataEntitysWhenAlive") || name.equals("DataEntitysWhenDead"))) {
-					continue;
-				}
+				if (name.equals("DataEntitysWhenAlive") || name.equals("DataEntitysWhenDead")) { continue; }
 				original.setTag(name, compound.getTag(name));
 			}
-			npc.jobInterface.readFromNBT(original);
+			npc.advanced.jobInterface.readFromNBT(original);
 			npc.updateClient = true;
 		}
 		else if (type == EnumPacketServer.JobClear) {
-			if (!(npc.jobInterface instanceof JobSpawner)) { return; }
-			((JobSpawner) npc.jobInterface).clear(buffer.readBoolean());
+			if (!(npc.advanced.jobInterface instanceof JobSpawner)) { return; }
+			((JobSpawner) npc.advanced.jobInterface).clear(buffer.readBoolean());
 			
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("JobData", true);
-			npc.jobInterface.writeToNBT(compound);
-			((JobSpawner) npc.jobInterface).cleanCompound(compound);
+			npc.advanced.jobInterface.writeToNBT(compound);
+			((JobSpawner) npc.advanced.jobInterface).cleanCompound(compound);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		}
 		else if (type == EnumPacketServer.JobGet) {
-			if (npc.jobInterface == null) {
+			if (npc.advanced.jobInterface == null) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("JobData", true);
-			npc.jobInterface.writeToNBT(compound);
-			if (npc.advanced.job == 6) {
-				((JobSpawner) npc.jobInterface).cleanCompound(compound);
+			npc.advanced.jobInterface.writeToNBT(compound);
+			if (npc.advanced.jobInterface instanceof JobSpawner) {
+				((JobSpawner) npc.advanced.jobInterface).cleanCompound(compound);
 			}
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.JobSpawnerAdd) {
-			if (npc.advanced.job != 6) {
+			if (!(npc.advanced.jobInterface instanceof JobSpawner)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
-			JobSpawner job = (JobSpawner) npc.jobInterface;
+			JobSpawner job = (JobSpawner) npc.advanced.jobInterface;
 			boolean isServerSide = buffer.readBoolean();
 			boolean isDead = buffer.readBoolean();
 			int slot = buffer.readInt();
@@ -690,45 +688,45 @@ public class PacketHandlerServer {
 			}
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("JobData", true);
-			npc.jobInterface.writeToNBT(compound);
+			npc.advanced.jobInterface.writeToNBT(compound);
 			job.cleanCompound(compound);
 			compound.setInteger("SetPos", slot);
 			compound.setBoolean("SetDead", isDead);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.RoleCompanionUpdate) {
-			if (npc.advanced.role != 6) {
+			if (!(npc.advanced.roleInterface instanceof RoleCompanion)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
-			((RoleCompanion) npc.roleInterface).matureTo(EnumCompanionStage.values()[buffer.readInt()]);
+			((RoleCompanion) npc.advanced.roleInterface).matureTo(EnumCompanionStage.values()[buffer.readInt()]);
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.JobSpawnerRemove) {
-			if (npc.advanced.job != 6) {
+			if (!(npc.advanced.jobInterface instanceof JobSpawner)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
-			JobSpawner job = (JobSpawner) npc.jobInterface;
+			JobSpawner job = (JobSpawner) npc.advanced.jobInterface;
 			int slot = buffer.readInt();
 			boolean isDead = buffer.readBoolean();
 			job.removeSpawned(slot, isDead);
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("JobData", true);
-			npc.jobInterface.writeToNBT(compound);
+			npc.advanced.jobInterface.writeToNBT(compound);
 			job.cleanCompound(compound);
 			compound.setInteger("SetPos", -1);
 			compound.setBoolean("SetDie", isDead);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.RoleSave) {
-			npc.roleInterface.readFromNBT(Server.readNBT(buffer));
+			npc.advanced.roleInterface.readFromNBT(Server.readNBT(buffer));
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.RoleGet) {
-			if (npc.roleInterface == null) {
+			if (npc.advanced.roleInterface == null) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("RoleData", true);
-			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.roleInterface.writeToNBT(compound));
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.advanced.roleInterface.writeToNBT(compound));
 		} else if (type == EnumPacketServer.MerchantUpdate) {
 			Entity entity = player.world.getEntityByID(buffer.readInt());
 			if (entity == null || !(entity instanceof EntityVillager)) {
@@ -1179,8 +1177,8 @@ public class PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			boolean bo = buffer.readBoolean();
 			if (bo) {
-				if (npc.roleInterface instanceof RoleTrader) {
-					((RoleTrader) npc.roleInterface).marcet = compound.getInteger("MarcetID");
+				if (npc.advanced.roleInterface instanceof RoleTrader) {
+					((RoleTrader) npc.advanced.roleInterface).marcet = compound.getInteger("MarcetID");
 				}
 			} else {
 				Marcet marcet = new Marcet();
@@ -1224,8 +1222,8 @@ public class PacketHandlerServer {
 		else if (type == EnumPacketServer.GetClone) {
 			NBTTagCompound npcNbt = null;
 			if (buffer.readBoolean()) { // is Job Spawner
-				if (npc!=null && npc.advanced.job == 6) {
-					SpawnNPCData sd = ((JobSpawner) npc.jobInterface).get(buffer.readInt(), buffer.readBoolean());
+				if (npc!=null && npc.advanced.jobInterface instanceof JobSpawner) {
+					SpawnNPCData sd = ((JobSpawner) npc.advanced.jobInterface).get(buffer.readInt(), buffer.readBoolean());
 					if (sd!=null && sd.compound!=null) {
 						npcNbt = sd.compound;
 						if (sd.typeClones==2) {

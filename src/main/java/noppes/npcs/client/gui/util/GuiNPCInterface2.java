@@ -4,7 +4,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface2
@@ -117,70 +116,8 @@ extends GuiNPCInterface {
 							break;
 						}
 						case "menu.advanced": {
-							switch(this.npc.advanced.role) {
-								case 0:
-									str = "role.none";
-									break;
-								case 1:
-									str = "role.trader";
-									break;
-								case 2:
-									str = "role.mercenary";
-									break;
-								case 3:
-									str = "role.bank";
-									break;
-								case 4:
-									str = "role.transporter";
-									break;
-								case 5:
-									str = "role.mailman";
-									break;
-								case 6:
-									str = NoppesStringUtils.translate("role.companion", "(WIP)");
-									break;
-								default:
-									str = "dialog.dialog";
-							}
-							text += "<br>"+chr+"7"+new TextComponentTranslation("role.name").getFormattedText()+chr+"7: "+chr+"r"+new TextComponentTranslation(str).getFormattedText()+chr+"7;";
-							switch(this.npc.advanced.job) {
-								case 0:
-									str = "job.none";
-									break;
-								case 1:
-									str = "job.bard";
-									break;
-								case 2:
-									str = "job.healer";
-									break;
-								case 3:
-									str = "job.guard";
-									break;
-								case 4:
-									str = "job.itemgiver";
-									break;
-								case 5:
-									str = "role.follower";
-									break;
-								case 6:
-									str = "job.spawner";
-									break;
-								case 7:
-									str = "job.conversation";
-									break;
-								case 8:
-									str = "job.chunkloader";
-									break;
-								case 9:
-									str = "job.puppet";
-									break;
-								case 10:
-									str = "job.builder";
-									break;
-								default:
-									str = "job.farmer";
-							}
-							text += "<br>"+chr+"7"+new TextComponentTranslation("job.name").getFormattedText()+chr+"7: "+chr+"r"+new TextComponentTranslation(str).getFormattedText()+chr+"7;";
+							text += "<br>"+chr+"7"+new TextComponentTranslation("role.name").getFormattedText()+chr+"7: "+chr+"r"+new TextComponentTranslation(this.npc.advanced.roleInterface.getEnumType().name).getFormattedText()+chr+"7;";
+							text += "<br>"+chr+"7"+new TextComponentTranslation("job.name").getFormattedText()+chr+"7: "+chr+"r"+new TextComponentTranslation(this.npc.advanced.jobInterface.getEnumType().name).getFormattedText()+chr+"7;";
 							text += "<br>"+chr+"7"+new TextComponentTranslation("menu.factions").getFormattedText()+chr+"7: "+chr+"r"+new TextComponentTranslation(this.npc.getFaction().name).getFormattedText()+chr+"7;";
 							break;
 						}

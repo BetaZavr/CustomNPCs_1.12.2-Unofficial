@@ -32,16 +32,7 @@ public class DataTransform {
 	}
 
 	public NBTTagCompound getAdvanced() {
-		int jopType = this.npc.advanced.job;
-		int roleType = this.npc.advanced.role;
-		this.npc.advanced.job = 0;
-		this.npc.advanced.role = 0;
-		NBTTagCompound compound = this.npc.advanced.writeToNBT(new NBTTagCompound());
-		compound.removeTag("Role");
-		compound.removeTag("NpcJob");
-		this.npc.advanced.job = jopType;
-		this.npc.advanced.role = roleType;
-		return compound;
+		return this.npc.advanced.writeToNBT(new NBTTagCompound());
 	}
 
 	public NBTTagCompound getDisplay() {
@@ -54,19 +45,13 @@ public class DataTransform {
 
 	public NBTTagCompound getJob() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("NpcJob", this.npc.advanced.job);
-		if (this.npc.advanced.job != 0 && this.npc.jobInterface != null) {
-			this.npc.jobInterface.writeToNBT(compound);
-		}
+		this.npc.advanced.jobInterface.writeToNBT(compound);
 		return compound;
 	}
 
 	public NBTTagCompound getRole() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("Role", this.npc.advanced.role);
-		if (this.npc.advanced.role != 0 && this.npc.roleInterface != null) {
-			this.npc.roleInterface.writeToNBT(compound);
-		}
+		this.npc.advanced.roleInterface.writeToNBT(compound);
 		return compound;
 	}
 
@@ -174,12 +159,8 @@ public class DataTransform {
 			NBTTagCompound compoundJob = this.getJob();
 			NBTTagCompound compound2 = this.processAdvanced(compoundAdv, compoundRole, compoundJob);
 			this.npc.advanced.readToNBT(compound2);
-			if (this.npc.advanced.role != 0 && this.npc.roleInterface != null) {
-				this.npc.roleInterface.readFromNBT(NBTTags.NBTMerge(compoundRole, compound2));
-			}
-			if (this.npc.advanced.job != 0 && this.npc.jobInterface != null) {
-				this.npc.jobInterface.readFromNBT(NBTTags.NBTMerge(compoundJob, compound2));
-			}
+			this.npc.advanced.roleInterface.readFromNBT(NBTTags.NBTMerge(compoundRole, compound2));
+			this.npc.advanced.jobInterface.readFromNBT(NBTTags.NBTMerge(compoundJob, compound2));
 			if (this.hasAdvanced) {
 				this.advanced = compoundAdv;
 			}

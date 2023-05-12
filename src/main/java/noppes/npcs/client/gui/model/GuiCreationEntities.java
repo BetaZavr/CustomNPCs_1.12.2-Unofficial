@@ -113,10 +113,8 @@ implements ICustomScrollListener {
 		Entity entity = this.playerdata.getEntity(this.npc);
 		if (entity != null) {
 			@SuppressWarnings("rawtypes")
-			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager()
-					.getEntityClassRenderObject(entity.getClass());
-			if (!NPCRendererHelper.getTexture(render, (EntityLivingBase) entity)
-					.equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
+			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager().getEntityClassRenderObject(entity.getClass());
+			if (!NPCRendererHelper.getTexture(render, (EntityLivingBase) entity).equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
 				this.npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, (EntityLivingBase) entity));
 			}
 		} else {

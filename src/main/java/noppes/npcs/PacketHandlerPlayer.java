@@ -35,6 +35,7 @@ import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
@@ -179,13 +180,13 @@ public class PacketHandlerPlayer {
 			player.closeContainer();
 		} else if (type == EnumPlayerPacket.CompanionTalentExp) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 6 || player != npc.getOwner()) {
+			if (npc == null || !(npc.advanced.roleInterface instanceof RoleCompanion) || player != npc.getOwner()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			int id = buffer.readInt();
 			int exp = buffer.readInt();
-			RoleCompanion role = (RoleCompanion) npc.roleInterface;
+			RoleCompanion role = (RoleCompanion) npc.advanced.roleInterface;
 			if (exp <= 0 || !role.canAddExp(-exp) || id < 0 || id >= EnumCompanionTalent.values().length) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
@@ -195,65 +196,65 @@ public class PacketHandlerPlayer {
 			role.addTalentExp(talent, exp);
 		} else if (type == EnumPlayerPacket.CompanionOpenInv) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 6 || player != npc.getOwner()) {
+			if (npc == null || !(npc.advanced.roleInterface instanceof RoleCompanion) || player != npc.getOwner()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilServer.sendOpenGui((EntityPlayer) player, EnumGuiType.CompanionInv, npc);
 		} else if (type == EnumPlayerPacket.FollowerHire) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 2) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.FOLLOWER) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.hireFollower(player, npc);
 		} else if (type == EnumPlayerPacket.FollowerExtend) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 2) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.FOLLOWER) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.extendFollower(player, npc);
-			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.roleInterface.writeToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.FollowerState) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 2) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.FOLLOWER) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.changeFollowerState(player, npc);
-			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.roleInterface.writeToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.RoleGet) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role == 0) {
+			if (npc == null) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
-			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.roleInterface.writeToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.Transport) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 4) {
+			if (npc == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
-			((RoleTransporter) npc.roleInterface).transport(player, Server.readString(buffer));
+			((RoleTransporter) npc.advanced.roleInterface).transport(player, Server.readString(buffer));
 		} else if (type == EnumPlayerPacket.BankUpgrade) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 3) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.bankUpgrade(player, npc);
 		} else if (type == EnumPlayerPacket.BankUnlock) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 3) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.bankUnlock(player, npc);
 		} else if (type == EnumPlayerPacket.BankSlotOpen) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.role != 3) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}

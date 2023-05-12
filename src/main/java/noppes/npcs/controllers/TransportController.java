@@ -231,10 +231,8 @@ public class TransportController {
 	public TransportLocation saveLocation(int categoryId, NBTTagCompound compound, EntityPlayerMP player,
 			EntityNPCInterface npc) {
 		TransportCategory category = this.categories.get(categoryId);
-		if (category == null || npc.advanced.role != 4) {
-			return null;
-		}
-		RoleTransporter role = (RoleTransporter) npc.roleInterface;
+		if (category == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) { return null; }
+		RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 		TransportLocation location = new TransportLocation();
 		location.readNBT(compound);
 		location.category = category;

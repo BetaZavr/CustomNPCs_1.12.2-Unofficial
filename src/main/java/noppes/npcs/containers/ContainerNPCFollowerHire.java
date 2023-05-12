@@ -15,7 +15,7 @@ public class ContainerNPCFollowerHire extends ContainerNpcInterface {
 
 	public ContainerNPCFollowerHire(EntityNPCInterface npc, EntityPlayer player) {
 		super(player);
-		this.role = (RoleFollower) npc.roleInterface;
+		this.role = (RoleFollower) npc.advanced.roleInterface;
 		this.currencyMatrix = new InventoryBasic("currency", false, 1);
 		this.addSlotToContainer(
 				(Slot) new SlotNpcMercenaryCurrency(this.role, (IInventory) this.currencyMatrix, 0, 44, 35));

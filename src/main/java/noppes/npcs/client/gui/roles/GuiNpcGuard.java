@@ -23,14 +23,16 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobGuard;
 
-public class GuiNpcGuard extends GuiNPCInterface2 {
+public class GuiNpcGuard
+extends GuiNPCInterface2 {
+	
 	private JobGuard role;
 	private GuiCustomScroll scroll1;
 	private GuiCustomScroll scroll2;
 
 	public GuiNpcGuard(EntityNPCInterface npc) {
 		super(npc);
-		this.role = (JobGuard) npc.jobInterface;
+		this.role = (JobGuard) npc.advanced.jobInterface;
 	}
 
 	@Override

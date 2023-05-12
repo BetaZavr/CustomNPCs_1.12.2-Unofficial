@@ -231,12 +231,10 @@ implements ICapabilityProvider {
 	}
 
 	public void setCompanion(EntityNPCInterface npc) {
-		if (npc != null && npc.advanced.role != 6) {
-			return;
-		}
+		if (npc==null || !(npc.advanced.roleInterface instanceof RoleCompanion)) { return; }
 		++this.companionID;
 		if ((this.activeCompanion = npc) != null) {
-			((RoleCompanion) npc.roleInterface).companionID = this.companionID;
+			((RoleCompanion) npc.advanced.roleInterface).companionID = this.companionID;
 		}
 		this.save(false);
 	}
@@ -264,9 +262,9 @@ implements ICapabilityProvider {
 			EntityCustomNpc npc = new EntityCustomNpc(this.player.world);
 			npc.readEntityFromNBT(data.getCompoundTag("PlayerCompanion"));
 			npc.setPosition(this.player.posX, this.player.posY, this.player.posZ);
-			if (npc.advanced.role == 6) {
+			if (npc.advanced.roleInterface instanceof RoleCompanion) {
 				this.setCompanion(npc);
-				((RoleCompanion) npc.roleInterface).setSitting(false);
+				((RoleCompanion) npc.advanced.roleInterface).setSitting(false);
 				this.player.world.spawnEntity(npc);
 			}
 		}
@@ -277,7 +275,7 @@ implements ICapabilityProvider {
 		if (!this.hasCompanion() || world == this.activeCompanion.world) {
 			return;
 		}
-		RoleCompanion role = (RoleCompanion) this.activeCompanion.roleInterface;
+		RoleCompanion role = (RoleCompanion) this.activeCompanion.advanced.roleInterface;
 		role.owner = this.player;
 		if (!role.isFollowing()) {
 			return;
@@ -289,7 +287,7 @@ implements ICapabilityProvider {
 		npc.readEntityFromNBT(nbt);
 		npc.setPosition(this.player.posX, this.player.posY, this.player.posZ);
 		this.setCompanion(npc);
-		((RoleCompanion) npc.roleInterface).setSitting(false);
+		((RoleCompanion) npc.advanced.roleInterface).setSitting(false);
 		world.spawnEntity(npc);
 	}
 

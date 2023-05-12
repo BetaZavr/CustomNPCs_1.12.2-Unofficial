@@ -17,12 +17,15 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBard;
 
-public class GuiNpcBard extends GuiNPCInterface2 implements ISubGuiListener {
+public class GuiNpcBard
+extends GuiNPCInterface2
+implements ISubGuiListener {
+	
 	private JobBard job;
 
 	public GuiNpcBard(EntityNPCInterface npc) {
 		super(npc);
-		this.job = (JobBard) npc.jobInterface;
+		this.job = (JobBard) npc.advanced.jobInterface;
 	}
 
 	@Override

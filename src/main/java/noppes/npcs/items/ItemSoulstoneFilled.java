@@ -39,16 +39,16 @@ extends Item {
 			npc.ais.setStartPos(pos);
 			npc.setHealth(npc.getMaxHealth());
 			npc.setPosition((pos.getX() + 0.5f), npc.getStartYPos(), (pos.getZ() + 0.5f));
-			if (npc.advanced.role == 6 && player != null) {
+			if (npc.advanced.roleInterface instanceof RoleCompanion && player != null) {
 				PlayerData data = PlayerData.get(player);
 				if (data.hasCompanion()) {
 					return null;
 				}
-				((RoleCompanion) npc.roleInterface).setOwner(player);
+				((RoleCompanion) npc.advanced.roleInterface).setOwner(player);
 				data.setCompanion(npc);
 			}
-			if (npc.advanced.role == 2 && player != null) {
-				((RoleFollower) npc.roleInterface).setOwner(player);
+			if (npc.advanced.roleInterface instanceof RoleFollower && player != null) {
+				((RoleFollower) npc.advanced.roleInterface).setOwner(player);
 			}
 		}
 		if (!world.spawnEntity(entity)) {

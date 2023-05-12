@@ -35,6 +35,7 @@ import noppes.npcs.constants.EnumCompanionJobs;
 import noppes.npcs.constants.EnumCompanionStage;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -87,6 +88,7 @@ extends RoleInterface {
 		this.eatingDelay = 0;
 		this.currentExp = 0;
 		this.inventory = new NpcMiscInventory(12);
+		this.type = EnumNpcRole.COMPANION;
 	}
 
 	public void addExp(int exp) {
@@ -573,34 +575,6 @@ extends RoleInterface {
 		NoppesUtilServer.sendOpenGui(player, EnumGuiType.Companion, this.npc);
 	}
 
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.inventory.setFromNBT(compound.getCompoundTag("CompanionInventory"));
-		this.uuid = compound.getString("CompanionOwner");
-		this.ownerName = compound.getString("CompanionOwnerName");
-		this.companionID = compound.getInteger("CompanionID");
-		this.stage = EnumCompanionStage.values()[compound.getInteger("CompanionStage")];
-		this.currentExp = compound.getInteger("CompanionExp");
-		this.canAge = compound.getBoolean("CompanionCanAge");
-		this.ticksActive = compound.getLong("CompanionAge");
-		this.hasInv = compound.getBoolean("CompanionHasInv");
-		this.defendOwner = compound.getBoolean("CompanionDefendOwner");
-		this.foodstats.readNBT(compound);
-		NBTTagList list = compound.getTagList("CompanionTalents", 10);
-		Map<EnumCompanionTalent, Integer> talents = new TreeMap<EnumCompanionTalent, Integer>();
-		for (int i = 0; i < list.tagCount(); ++i) {
-			NBTTagCompound c = list.getCompoundTagAt(i);
-			EnumCompanionTalent talent = EnumCompanionTalent.values()[c.getInteger("Talent")];
-			talents.put(talent, c.getInteger("Exp"));
-		}
-		this.talents = talents;
-		this.setJob(compound.getInteger("CompanionJob"));
-		if (this.jobInterface != null) {
-			this.jobInterface.setNBT(compound.getCompoundTag("CompanionJobData"));
-		}
-		this.setStats();
-	}
-
 	public void setExp(EnumCompanionTalent talent, int exp) {
 		this.talents.put(talent, exp);
 	}
@@ -674,8 +648,39 @@ extends RoleInterface {
 		this.inventory.setSize(2 + this.getTalentLevel(EnumCompanionTalent.INVENTORY) * 2);
 	}
 
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.inventory.setFromNBT(compound.getCompoundTag("CompanionInventory"));
+		this.uuid = compound.getString("CompanionOwner");
+		this.ownerName = compound.getString("CompanionOwnerName");
+		this.companionID = compound.getInteger("CompanionID");
+		this.stage = EnumCompanionStage.values()[compound.getInteger("CompanionStage")];
+		this.currentExp = compound.getInteger("CompanionExp");
+		this.canAge = compound.getBoolean("CompanionCanAge");
+		this.ticksActive = compound.getLong("CompanionAge");
+		this.hasInv = compound.getBoolean("CompanionHasInv");
+		this.defendOwner = compound.getBoolean("CompanionDefendOwner");
+		this.foodstats.readNBT(compound);
+		NBTTagList list = compound.getTagList("CompanionTalents", 10);
+		Map<EnumCompanionTalent, Integer> talents = new TreeMap<EnumCompanionTalent, Integer>();
+		for (int i = 0; i < list.tagCount(); ++i) {
+			NBTTagCompound c = list.getCompoundTagAt(i);
+			EnumCompanionTalent talent = EnumCompanionTalent.values()[c.getInteger("Talent")];
+			talents.put(talent, c.getInteger("Exp"));
+		}
+		this.talents = talents;
+		this.setJob(compound.getInteger("CompanionJob"));
+		if (this.jobInterface != null) {
+			this.jobInterface.setNBT(compound.getCompoundTag("CompanionJobData"));
+		}
+		this.setStats();
+	}
+	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
 		compound.setTag("CompanionInventory", this.inventory.getToNBT());
 		compound.setString("CompanionOwner", this.uuid);
 		compound.setString("CompanionOwnerName", this.ownerName);

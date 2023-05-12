@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.NoppesStringUtils;
+import noppes.npcs.ModelDataShared;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiNpcSelectTraider;
@@ -17,6 +17,7 @@ import noppes.npcs.client.gui.advanced.GuiNPCMarks;
 import noppes.npcs.client.gui.advanced.GuiNPCNightSetup;
 import noppes.npcs.client.gui.advanced.GuiNPCScenes;
 import noppes.npcs.client.gui.advanced.GuiNPCSoundsMenu;
+import noppes.npcs.client.gui.animation.GuiNpcAnimation;
 import noppes.npcs.client.gui.roles.GuiJobFarmer;
 import noppes.npcs.client.gui.roles.GuiNpcBard;
 import noppes.npcs.client.gui.roles.GuiNpcCompanion;
@@ -24,7 +25,6 @@ import noppes.npcs.client.gui.roles.GuiNpcConversation;
 import noppes.npcs.client.gui.roles.GuiNpcFollowerJob;
 import noppes.npcs.client.gui.roles.GuiNpcGuard;
 import noppes.npcs.client.gui.roles.GuiNpcHealer;
-import noppes.npcs.client.gui.roles.GuiNpcPuppet;
 import noppes.npcs.client.gui.roles.GuiNpcSpawner;
 import noppes.npcs.client.gui.roles.GuiNpcTransporter;
 import noppes.npcs.client.gui.roles.GuiRoleDialog;
@@ -35,6 +35,8 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -53,116 +55,98 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		switch (button.id) {
-		case 3: {
-			this.save();
-			Client.sendData(EnumPacketServer.RoleGet, new Object[0]);
-			break;
-		}
-		case 4: {
-			this.save();
-			Client.sendData(EnumPacketServer.JobGet, new Object[0]);
-			break;
-		}
-		case 5: {
-			this.hasChanges = true;
-			this.npc.advanced.setJob(button.getValue());
-			this.getButton(4).setEnabled(
-					this.npc.advanced.job != 0 && this.npc.advanced.job != 8 && this.npc.advanced.job != 10);
-			break;
-		}
-		case 7: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCLinesMenu(this.npc));
-			break;
-		}
-		case 8: {
-			this.hasChanges = true;
-			this.npc.advanced.setRole(button.getValue());
-			this.getButton(3).setEnabled(this.npc.advanced.role != 0 && this.npc.advanced.role != 5);
-			break;
-		}
-		case 9: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCFactionSetup(this.npc));
-			break;
-		}
-		case 10: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCDialogNpcOptions(this.npc, this));
-			break;
-		}
-		case 11: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCSoundsMenu(this.npc));
-			break;
-		}
-		case 12: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCNightSetup(this.npc));
-			break;
-		}
-		case 13: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
-			break;
-		}
-		case 14: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCScenes(this.npc));
-			break;
-		}
-		case 15: {
-			this.save();
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCMarks(this.npc));
-			break;
-		}
-		}
-	}
-
-	@Override
 	public void initGui() {
 		super.initGui();
 		int y = this.guiTop + 8;
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 85 + 160, y, 52, 20, "selectServer.edit"));
-		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 85, y, 155, 20,
-				new String[] { "role.none", "role.trader", "role.mercenary", "role.bank", "role.transporter",
-						"role.mailman", NoppesStringUtils.translate("role.companion", "(WIP)"), "dialog.dialog" },
-				this.npc.advanced.role));
-		this.getButton(3).setEnabled(this.npc.advanced.role != 0 && this.npc.advanced.role != 5);
-		int i = 4;
-		int j = this.guiLeft + 85 + 160;
-		y += 22;
-		this.addButton(new GuiNpcButton(i, j, y, 52, 20, "selectServer.edit"));
-		this.addButton(new GuiButtonBiDirectional(5, this.guiLeft + 85, y, 155, 20,
-				new String[] { "job.none", "job.bard", "job.healer", "job.guard", "job.itemgiver", "role.follower",
-						"job.spawner", "job.conversation", "job.chunkloader", "job.puppet", "job.builder",
-						"job.farmer" },
-				this.npc.advanced.job));
-		this.getButton(4)
-				.setEnabled(this.npc.advanced.job != 0 && this.npc.advanced.job != 8 && this.npc.advanced.job != 10);
-		int k = 7;
-		int l = this.guiLeft + 15;
-		y += 22;
-		this.addButton(new GuiNpcButton(k, l, y, 190, 20, "advanced.lines"));
+		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 85, y, 155, 20, EnumNpcRole.getNames(), this.npc.advanced.roleInterface.getType()));
+		this.getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 245, y += 22, 52, 20, "selectServer.edit"));
+		this.addButton(new GuiButtonBiDirectional(5, this.guiLeft + 85, y, 155, 20, EnumNpcJob.getNames(), this.npc.advanced.jobInterface.getType()));
+		this.getButton(4).setEnabled(this.npc.advanced.jobInterface.getEnumType().hasSettings);
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 15, y += 22, 190, 20, "advanced.lines"));
 		this.addButton(new GuiNpcButton(9, this.guiLeft + 208, y, 190, 20, "menu.factions"));
-		int m = 10;
-		int j2 = this.guiLeft + 15;
-		y += 22;
-		this.addButton(new GuiNpcButton(m, j2, y, 190, 20, "dialog.dialogs"));
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 15, y += 22, 190, 20, "dialog.dialogs"));
 		this.addButton(new GuiNpcButton(11, this.guiLeft + 208, y, 190, 20, "advanced.sounds"));
-		int i2 = 12;
-		int j3 = this.guiLeft + 15;
-		y += 22;
-		this.addButton(new GuiNpcButton(i2, j3, y, 190, 20, "advanced.night"));
+		this.addButton(new GuiNpcButton(12, this.guiLeft + 15, y += 22, 190, 20, "advanced.night"));
 		this.addButton(new GuiNpcButton(13, this.guiLeft + 208, y, 190, 20, "global.linked"));
-		int i3 = 14;
-		int j4 = this.guiLeft + 15;
-		y += 22;
-		this.addButton(new GuiNpcButton(i3, j4, y, 190, 20, "advanced.scenes"));
+		this.addButton(new GuiNpcButton(14, this.guiLeft + 15, y += 22, 190, 20, "advanced.scenes"));
 		this.addButton(new GuiNpcButton(15, this.guiLeft + 208, y, 190, 20, "advanced.marks"));
+		this.addButton(new GuiNpcButton(16, this.guiLeft + 15, y += 22, 190, 20, "movement.animation"));
+		this.getButton(16).enabled = ((EntityCustomNpc) this.npc).modelData instanceof ModelDataShared && ((ModelDataShared) ((EntityCustomNpc) this.npc).modelData).entityClass==null;
+	}
+
+	@Override
+	protected void actionPerformed(GuiButton guibutton) {
+		GuiNpcButton button = (GuiNpcButton) guibutton;
+		switch (button.id) {
+			case 3: {
+				this.save();
+				Client.sendData(EnumPacketServer.RoleGet);
+				break;
+			}
+			case 4: {
+				this.save();
+				Client.sendData(EnumPacketServer.JobGet);
+				break;
+			}
+			case 5: {
+				this.hasChanges = true;
+				this.npc.advanced.setJob(button.getValue());
+				this.getButton(4).setEnabled(this.npc.advanced.jobInterface.getEnumType().hasSettings);
+				break;
+			}
+			case 7: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCLinesMenu(this.npc));
+				break;
+			}
+			case 8: {
+				this.hasChanges = true;
+				this.npc.advanced.setRole(button.getValue());
+				this.getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
+				break;
+			}
+			case 9: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCFactionSetup(this.npc));
+				break;
+			}
+			case 10: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCDialogNpcOptions(this.npc, this));
+				break;
+			}
+			case 11: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCSoundsMenu(this.npc));
+				break;
+			}
+			case 12: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCNightSetup(this.npc));
+				break;
+			}
+			case 13: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
+				break;
+			}
+			case 14: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCScenes(this.npc));
+				break;
+			}
+			case 15: {
+				this.save();
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCMarks(this.npc));
+				break;
+			}
+			case 16: { // Animation Settings
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcAnimation(this, (EntityCustomNpc) this.npc));
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -176,77 +160,74 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("RoleData")) {
-			if (this.npc.roleInterface != null) {
-				this.npc.roleInterface.readFromNBT(compound);
+			if (this.npc.advanced.roleInterface != null) {
+				this.npc.advanced.roleInterface.readFromNBT(compound);
 			}
-			switch (this.npc.advanced.role) {
-				case 1: {
-					// NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader); // Changed
-					this.setSubGui(new SubGuiNpcSelectTraider(((RoleTrader) this.npc.roleInterface).marcet));
+			switch (this.npc.advanced.roleInterface.getEnumType()) {
+				case TRADER: {
+					this.setSubGui(new SubGuiNpcSelectTraider(((RoleTrader) this.npc.advanced.roleInterface).marcet));
 					break;
 				}
-				case 2: {
+				case FOLLOWER: {
 					NoppesUtil.requestOpenGUI(EnumGuiType.SetupFollower);
 					break;
 				}
-				case 3: {
+				case BANK: {
 					NoppesUtil.requestOpenGUI(EnumGuiType.SetupBank);
 					break;
 				}
-				case 4: {
+				case TRANSPORTER: {
 					this.displayGuiScreen(new GuiNpcTransporter(this.npc));
 					break;
 				}
-				case 6: {
+				case COMPANION: {
 					this.displayGuiScreen(new GuiNpcCompanion(this.npc));
 					break;
 				}
-				case 7: {
+				case DIALOG: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiRoleDialog(this.npc));
 					break;
 				}
+				default: { break; }
 			}
 		} else if (compound.hasKey("JobData")) {
-			if (this.npc.jobInterface != null) {
-				this.npc.jobInterface.readFromNBT(compound);
+			if (this.npc.advanced.jobInterface != null) {
+				this.npc.advanced.jobInterface.readFromNBT(compound);
 			}
-			switch (this.npc.advanced.job) {
-				case 1: {
+			switch (this.npc.advanced.jobInterface.getEnumType()) {
+				case BARD: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcBard(this.npc));
 					break;
 				}
-				case 2: {
+				case HEALER: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcHealer(this.npc));
 					break;
 				}
-				case 3: {
+				case GUARD: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcGuard(this.npc));
 					break;
 				}
-				case 4: {
+				case ITEM_GIVER: {
 					NoppesUtil.requestOpenGUI(EnumGuiType.SetupItemGiver);
 					break;
 				}
-				case 5: {
+				case FOLLOWER: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcFollowerJob(this.npc));
 					break;
 				}
-				case 6: {
+				case SPAWNER: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcSpawner(this.npc));
 					break;
 				}
-				case 7: {
+				case CONVERSATION: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcConversation(this.npc));
 					break;
 				}
-				case 9: {
-					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcPuppet(this, (EntityCustomNpc) this.npc));
-					break;
-				}
-				case 11: {
+				case FARMER: {
 					NoppesUtil.openGUI((EntityPlayer) this.player, new GuiJobFarmer(this.npc));
 					break;
 				}
+				default: { break; }
 			}
 		} else {
 			this.npc.advanced.readToNBT(compound);
@@ -259,13 +240,13 @@ implements IGuiData, ISubGuiListener {
 		super.drawScreen(i, j, f);
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.job."+this.npc.advanced.job).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.job."+this.npc.advanced.jobInterface.getType()).getFormattedText());
 		}
 		else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.says").getFormattedText());
 		}
 		else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.role."+this.npc.advanced.role).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.role."+this.npc.advanced.roleInterface.getType()).getFormattedText());
 		}
 		else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.faction").getFormattedText());
@@ -288,13 +269,16 @@ implements IGuiData, ISubGuiListener {
 		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.marks").getFormattedText());
 		}
+		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.anim").getFormattedText());
+		}
 	}
 
 	// New
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcSelectTraider) {
-			((RoleTrader) this.npc.roleInterface).marcet = (((SubGuiNpcSelectTraider) subgui)).id;
+			((RoleTrader) this.npc.advanced.roleInterface).marcet = (((SubGuiNpcSelectTraider) subgui)).id;
 			Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
 		}
 	}

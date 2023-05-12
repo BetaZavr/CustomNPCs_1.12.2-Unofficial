@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.GlobalDataController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Line;
@@ -46,6 +47,7 @@ extends JobInterface {
 		this.availability = new Availability();
 		this.inventory = new NpcMiscInventory(9);
 		this.lines.add("Have these items {player}");
+		this.type = EnumNpcJob.ITEM_GIVER;
 	}
 
 	@Override
@@ -276,28 +278,30 @@ extends JobInterface {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		this.itemGiverId = nbttagcompound.getInteger("ItemGiverId");
-		this.cooldownType = nbttagcompound.getInteger("igCooldownType");
-		this.givingMethod = nbttagcompound.getInteger("igGivingMethod");
-		this.cooldown = nbttagcompound.getInteger("igCooldown");
-		this.lines = NBTTags.getStringList(nbttagcompound.getTagList("igLines", 10));
-		this.inventory.setFromNBT(nbttagcompound.getCompoundTag("igJobInventory"));
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.itemGiverId = compound.getInteger("ItemGiverId");
+		this.cooldownType = compound.getInteger("igCooldownType");
+		this.givingMethod = compound.getInteger("igGivingMethod");
+		this.cooldown = compound.getInteger("igCooldown");
+		this.lines = NBTTags.getStringList(compound.getTagList("igLines", 10));
+		this.inventory.setFromNBT(compound.getCompoundTag("igJobInventory"));
 		if (this.itemGiverId == 0 && GlobalDataController.instance != null) {
 			this.itemGiverId = GlobalDataController.instance.incrementItemGiverId();
 		}
-		this.availability.readFromNBT(nbttagcompound.getCompoundTag("igAvailability"));
+		this.availability.readFromNBT(compound.getCompoundTag("igAvailability"));
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("igCooldownType", this.cooldownType);
-		nbttagcompound.setInteger("igGivingMethod", this.givingMethod);
-		nbttagcompound.setInteger("igCooldown", this.cooldown);
-		nbttagcompound.setInteger("ItemGiverId", this.itemGiverId);
-		nbttagcompound.setTag("igLines", NBTTags.nbtStringList(this.lines));
-		nbttagcompound.setTag("igJobInventory", this.inventory.getToNBT());
-		nbttagcompound.setTag("igAvailability", this.availability.writeToNBT(new NBTTagCompound()));
-		return nbttagcompound;
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setInteger("igCooldownType", this.cooldownType);
+		compound.setInteger("igGivingMethod", this.givingMethod);
+		compound.setInteger("igCooldown", this.cooldown);
+		compound.setInteger("ItemGiverId", this.itemGiverId);
+		compound.setTag("igLines", NBTTags.nbtStringList(this.lines));
+		compound.setTag("igJobInventory", this.inventory.getToNBT());
+		compound.setTag("igAvailability", this.availability.writeToNBT(new NBTTagCompound()));
+		return compound;
 	}
 }

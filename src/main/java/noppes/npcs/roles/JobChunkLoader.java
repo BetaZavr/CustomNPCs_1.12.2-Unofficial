@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.ForgeChunkManager;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -23,6 +24,7 @@ extends JobInterface {
 		this.chunks = new ArrayList<ChunkPos>();
 		this.ticks = 20;
 		this.playerLastSeen = 0L;
+		this.type = EnumNpcJob.CHUNK_LOADER;
 	}
 
 	@Override
@@ -52,13 +54,6 @@ extends JobInterface {
 			return false;
 		}
 		List<ChunkPos> list = new ArrayList<ChunkPos>();
-		/*
-		 * Changed double x = this.npc.posX / 16.0; double z = this.npc.posZ / 16.0;
-		 * list.add(new ChunkPos(MathHelper.floor(x), MathHelper.floor(z)));
-		 * list.add(new ChunkPos(MathHelper.ceil(x), MathHelper.ceil(z))); list.add(new
-		 * ChunkPos(MathHelper.floor(x), MathHelper.ceil(z))); list.add(new
-		 * ChunkPos(MathHelper.ceil(x), MathHelper.floor(z)));
-		 */
 		// New 3x3
 		int x = (int) MathHelper.floor(this.npc.posX);
 		int z = (int) MathHelper.floor(this.npc.posZ);
@@ -86,11 +81,6 @@ extends JobInterface {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.playerLastSeen = compound.getLong("ChunkPlayerLastSeen");
-	}
-
-	@Override
 	public void reset() {
 		ChunkController.instance.deleteNPC(this.npc);
 		this.chunks.clear();
@@ -98,7 +88,14 @@ extends JobInterface {
 	}
 
 	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.playerLastSeen = compound.getLong("ChunkPlayerLastSeen");
+	}
+
+	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
 		compound.setLong("ChunkPlayerLastSeen", this.playerLastSeen);
 		return compound;
 	}

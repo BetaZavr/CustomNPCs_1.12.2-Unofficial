@@ -74,8 +74,6 @@ import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.api.entity.data.role.IJobBuilder;
 import noppes.npcs.api.entity.data.role.IJobFarmer;
 import noppes.npcs.api.entity.data.role.IJobFollower;
-import noppes.npcs.api.entity.data.role.IJobPuppet;
-import noppes.npcs.api.entity.data.role.IJobPuppet.IJobPuppetPart;
 import noppes.npcs.api.entity.data.role.IJobSpawner;
 import noppes.npcs.api.entity.data.role.IRoleDialog;
 import noppes.npcs.api.entity.data.role.IRoleFollower;
@@ -226,7 +224,6 @@ import noppes.npcs.roles.JobGuard;
 import noppes.npcs.roles.JobHealer;
 import noppes.npcs.roles.JobInterface;
 import noppes.npcs.roles.JobItemGiver;
-import noppes.npcs.roles.JobPuppet;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.RoleBank;
 import noppes.npcs.roles.RoleCompanion;
@@ -1022,35 +1019,6 @@ public enum EnumInterfaceData {
 			)
 		)
 	),
-	IJobPuppet(new InterfaseData(IJobPuppet.class, INPCJob.class,
-			new Class<?>[] { JobPuppet.class },
-			"interfase.ijobpuppet",
-			new MetodData(int.class, "getAnimationSpeed", "method.ijobpuppet.getanimationspeed"),
-			new MetodData(boolean.class, "getIsAnimated", "method.ijobpuppet.getisanimated"),
-			new MetodData(IJobPuppetPart.class, "getPart", "method.ijobpuppet.getpart",
-				new ParameterData(int.class, "part", "parameter.ijobpuppet.part")
-			),
-			new MetodData(void.class, "setAnimationSpeed", "method.ijobpuppet.setanimationspeed",
-				new ParameterData(int.class, "speed", "parameter.speed")
-			),
-			new MetodData(void.class, "setIsAnimated", "method.ijobpuppet.setisanimated",
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
-			)
-		)
-	),
-	IJobPuppetPart(new InterfaseData(IJobPuppetPart.class, null,
-			new Class<?>[] { JobPuppet.PartConfig.class },
-			"interfase.ijobpuppetpart",
-			new MetodData(int.class, "getRotationX", "method.getrotx"),
-			new MetodData(int.class, "getRotationY", "method.getroty"),
-			new MetodData(int.class, "getRotationZ", "method.getrotz"),
-			new MetodData(void.class, "setRotation", "method.setrot",
-				new ParameterData(int.class, "x", "parameter.rotx"),
-				new ParameterData(int.class, "y", "parameter.roty"),
-				new ParameterData(int.class, "z", "parameter.rotz")
-			)
-		)
-	),
 	IJobSpawner(new InterfaseData(IJobSpawner.class, INPCJob.class,
 			new Class<?>[] { JobSpawner.class },
 			"interfase.ijobspawner",
@@ -1674,7 +1642,7 @@ public enum EnumInterfaceData {
 	),
 	INPCJob(new InterfaseData(INPCJob.class, null,
 			new Class<?>[] { JobBard.class, JobBuilder.class, JobChunkLoader.class, JobConversation.class, JobInterface.class,
-				JobFollower.class, JobGuard.class, JobHealer.class, JobItemGiver.class, JobPuppet.class, JobSpawner.class },
+				JobFollower.class, JobGuard.class, JobHealer.class, JobItemGiver.class, JobSpawner.class },
 			"interfase.inpcjob",
 			new MetodData(ICustomDrop.class, "getType", "method.inpcjob.gettype")
 		)

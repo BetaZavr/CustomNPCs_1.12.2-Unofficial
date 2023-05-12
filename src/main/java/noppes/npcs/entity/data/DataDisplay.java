@@ -409,9 +409,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setShowName(int type) {
-		if (type == this.showName) {
-			return;
-		}
+		if (type == this.showName) { return; }
 		this.showName = ValueUtil.correctInt(type, 0, 2);
 		this.npc.updateClient = true;
 	}

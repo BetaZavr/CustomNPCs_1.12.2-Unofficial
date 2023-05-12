@@ -35,9 +35,8 @@ advanced.menu.hover.job.5=Follows the specified entity<br>§7Do not leave with t
 advanced.menu.hover.job.6=Summons creatures<br>§7The summon starts when the NPC sees the target
 advanced.menu.hover.job.7=Starts a conversation between NPCs<br>§7All NPCs around this Talker (10 blocks) must not be killed or in combat<br>§7At the end of the entire conversation, the player can be given a quest
 advanced.menu.hover.job.8=Loads chunks around<br>§7Actually loads 4 chunks<br>§7Own (in which it is located)<br>§7and 3 more: X+1 и Z+1<br>§cAttention! §7- contributes to friezes on the server.
-advanced.menu.hover.job.9=Has Animation<br>§7Only available for Steve model<br>§7You can change the position of body parts
-advanced.menu.hover.job.10=Builds structures<br>§7Requires nearby (10 blocks) the presence of the block "Building block"<br>§7Builds the structure configured in this block
-advanced.menu.hover.job.11=Harvest<br>§7Requires nearby (10 blocks) the presence of garden blocks<br>§7Keeps the collected items with him or stores in a chest nearby
+advanced.menu.hover.job.9=Builds structures<br>§7Requires nearby (10 blocks) the presence of the block "Building block"<br>§7Builds the structure configured in this block
+advanced.menu.hover.job.10=Harvest<br>§7Requires nearby (10 blocks) the presence of garden blocks<br>§7Keeps the collected items with him or stores in a chest nearby
 
 advanced.menu.hover.says=Phrases that the NPC says to the world<br>§7Bubble-message above the head
 advanced.menu.hover.dialogs=Dialogues that the NPC should show the player
@@ -47,6 +46,7 @@ advanced.menu.hover.faction=Assign which Faction this NPC belongs to
 advanced.menu.hover.sounds=Sounds used by this NPC
 advanced.menu.hover.lines=Links all settings between NPCs of the same link<br>§7Customize what link this NPC has<br>§7Links can be configured in the "Global" tab
 advanced.menu.hover.marks=What icons are displayed above this NPC's head
+advanced.menu.hover.anim=Custom NPC animation settings<br>§cOnly available for the §eNPC§c model<br>§7For §6PRO§7!
 
 ai.avoidwater=AvoidsWater
 ai.backtracking=Backtracking
@@ -869,6 +869,7 @@ job.builder=Builder
 job.chunkloader=Chunk Loader
 job.conversation=Conversation
 job.farmer=Farmer
+job.follower=Follower
 job.guard=Guard
 job.healer=Beacon
 job.itemgiver=Item Giver
@@ -1063,7 +1064,7 @@ part.wings=Wings
 playerdata.players=Players
 
 puppet.animation=Animation
-puppet.attacking=While attacking
+puppet.attacking=Attack animation
 puppet.standing=While standing
 puppet.walking=While walking
 
@@ -1257,7 +1258,6 @@ remote.tp=Tp to
 
 role.bank=Bank
 role.companion=Companion
-role.follower=Follower
 role.mercenary=Mercenary
 role.mailman=Mailman
 role.marketname=Market Name
@@ -1265,6 +1265,7 @@ role.name=Role
 role.none=No Role
 role.trader=Trader
 role.transporter=Transporter
+role.dialog=Dialog
 
 scale.depth=Depth
 scale.height=Height
@@ -2162,6 +2163,7 @@ method.npcapi.spawnnpc=Spawn and summon a base NPC to a dimension
 method.npcapi.stringtonbt=Returns a set of tags represented by text nbt (or json nbt)
 parameter.npcapi.nbtstr=string containing nbt (or json npt) text
 method.npcapi.getiplayer=Returns the player, no matter what world/dimension he is in
+method.npcapi.getborders=Returns the registrar class of server regions
 
 interfase.iitemstack=Interface for Item Stack
 method.iitemstack.addenchantment=Add Enchantment

@@ -17,7 +17,9 @@ import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
-public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
+public class GuiNpcFollowerHire
+extends GuiContainerNPCInterface {
+	
 	public ContainerNPCFollowerHire container;
 	public EntityNPCInterface npc;
 	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/followerhire.png");
@@ -27,7 +29,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
 		super(npc, container);
 		this.container = container;
 		this.npc = npc;
-		this.role = (RoleFollower) npc.roleInterface;
+		this.role = (RoleFollower) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
 	}
 

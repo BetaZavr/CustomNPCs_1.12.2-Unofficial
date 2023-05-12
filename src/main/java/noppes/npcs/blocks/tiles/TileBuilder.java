@@ -212,8 +212,8 @@ implements ITickable {
 		List<EntityNPCInterface> list = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
 				new AxisAlignedBB(this.getPos(), this.getPos()).grow(32.0, 32.0, 32.0));
 		for (EntityNPCInterface npc : list) {
-			if (npc.advanced.job == 10) {
-				JobBuilder job = (JobBuilder) npc.jobInterface;
+			if (npc.advanced.jobInterface instanceof JobBuilder) {
+				JobBuilder job = (JobBuilder) npc.advanced.jobInterface;
 				if (job.build != null) {
 					continue;
 				}

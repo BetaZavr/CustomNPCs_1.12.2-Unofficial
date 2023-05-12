@@ -26,6 +26,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.role.IJobFarmer;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.AiMutex;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -56,6 +57,7 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 		this.chest = null;
 		this.holding = ItemStack.EMPTY;
 		this.overrideMainHand = true;
+		this.type = EnumNpcJob.FARMER;
 	}
 
 	@Override
@@ -290,20 +292,22 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 		this.waitingForBlocks = false;
 	}
 
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.chestMode = compound.getInteger("JobChestMode");
-		this.holding = new ItemStack(compound.getCompoundTag("JobHolding"));
-		this.blockTicks = 1100;
-	}
-
 	public void setHolding(ItemStack item) {
 		this.holding = item;
 		this.npc.setJobData(this.itemToString(this.holding));
 	}
 
 	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.chestMode = compound.getInteger("JobChestMode");
+		this.holding = new ItemStack(compound.getCompoundTag("JobHolding"));
+		this.blockTicks = 1100;
+	}
+
+	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
 		compound.setInteger("JobChestMode", this.chestMode);
 		if (!this.holding.isEmpty()) {
 			compound.setTag("JobHolding", this.holding.writeToNBT(new NBTTagCompound()));

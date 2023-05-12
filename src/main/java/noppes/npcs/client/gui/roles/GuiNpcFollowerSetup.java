@@ -19,15 +19,15 @@ import noppes.npcs.containers.ContainerNPCFollowerSetup;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
-public class GuiNpcFollowerSetup extends GuiContainerNPCInterface2 {
+public class GuiNpcFollowerSetup
+extends GuiContainerNPCInterface2 {
+	
 	private RoleFollower role;
-	// private static ResourceLocation craftingTableGuiTextures = new
-	// ResourceLocation("textures/gui/followersetup.png");;
 
 	public GuiNpcFollowerSetup(EntityNPCInterface npc, ContainerNPCFollowerSetup container) {
 		super(npc, container);
 		this.ySize = 200;
-		this.role = (RoleFollower) npc.roleInterface;
+		this.role = (RoleFollower) npc.advanced.roleInterface;
 		this.setBackground("followersetup.png");
 	}
 

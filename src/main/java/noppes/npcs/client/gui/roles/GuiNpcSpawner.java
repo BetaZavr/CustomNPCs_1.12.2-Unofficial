@@ -47,7 +47,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	public GuiNpcSpawner(EntityNPCInterface npc) {
 		super(npc);
 		this.slot = -1;
-		this.job = (JobSpawner) npc.jobInterface;
+		this.job = (JobSpawner) npc.advanced.jobInterface;
 		Client.sendData(EnumPacketServer.JobGet, new Object[0]);
 	}
 

@@ -19,13 +19,15 @@ import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobItemGiver;
 
-public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
+public class GuiNpcItemGiver
+extends GuiContainerNPCInterface2 {
+	
 	private JobItemGiver role;
 
 	public GuiNpcItemGiver(EntityNPCInterface npc, ContainerNpcItemGiver container) {
 		super(npc, container);
 		this.ySize = 200;
-		this.role = (JobItemGiver) npc.jobInterface;
+		this.role = (JobItemGiver) npc.advanced.jobInterface;
 		this.setBackground("npcitemgiver.png");
 	}
 

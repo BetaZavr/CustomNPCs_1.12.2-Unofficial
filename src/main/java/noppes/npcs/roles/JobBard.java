@@ -10,6 +10,7 @@ import net.minecraft.util.SoundCategory;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.client.controllers.MusicController;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -30,6 +31,7 @@ implements IJobBard {
 		this.isStreamer = true;
 		this.hasOffRange = true;
 		this.song = "";
+		this.type = EnumNpcJob.BARD;
 	}
 
 	@Override
@@ -82,27 +84,29 @@ implements IJobBard {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		this.song = nbttagcompound.getString("BardSong");
-		this.minRange = nbttagcompound.getInteger("BardMinRange");
-		this.maxRange = nbttagcompound.getInteger("BardMaxRange");
-		this.isStreamer = nbttagcompound.getBoolean("BardStreamer");
-		this.hasOffRange = nbttagcompound.getBoolean("BardHasOff");
-	}
-
-	@Override
 	public void setSong(String song) {
 		this.song = song;
 		this.npc.updateClient = true;
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setString("BardSong", this.song);
-		nbttagcompound.setInteger("BardMinRange", this.minRange);
-		nbttagcompound.setInteger("BardMaxRange", this.maxRange);
-		nbttagcompound.setBoolean("BardStreamer", this.isStreamer);
-		nbttagcompound.setBoolean("BardHasOff", this.hasOffRange);
-		return nbttagcompound;
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.song = compound.getString("BardSong");
+		this.minRange = compound.getInteger("BardMinRange");
+		this.maxRange = compound.getInteger("BardMaxRange");
+		this.isStreamer = compound.getBoolean("BardStreamer");
+		this.hasOffRange = compound.getBoolean("BardHasOff");
+	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setString("BardSong", this.song);
+		compound.setInteger("BardMinRange", this.minRange);
+		compound.setInteger("BardMaxRange", this.maxRange);
+		compound.setBoolean("BardStreamer", this.isStreamer);
+		compound.setBoolean("BardHasOff", this.hasOffRange);
+		return compound;
 	}
 }

@@ -256,7 +256,7 @@ extends GuiScreen {
 			if (this.xSize>252) {
 				this.drawTexturedModalRect(0, 0, 0, 0, 252, this.ySize);
 				int w = this.xSize-252;
-				this.drawTexturedModalRect(252, 0, 255-w, 0, w, this.ySize);
+				this.drawTexturedModalRect(252, 0, 256-w, 0, w, this.ySize);
 			}
 			else { this.drawTexturedModalRect(0, 0, 0, 0, this.xSize,this.ySize); }
 			GlStateManager.popMatrix();

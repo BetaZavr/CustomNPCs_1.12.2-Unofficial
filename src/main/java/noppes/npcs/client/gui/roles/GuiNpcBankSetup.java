@@ -17,7 +17,10 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleBank;
 
-public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
+public class GuiNpcBankSetup
+extends GuiNPCInterface2
+implements IScrollData, ICustomScrollListener {
+	
 	private HashMap<String, Integer> data;
 	private RoleBank role;
 	private GuiCustomScroll scroll;
@@ -25,7 +28,7 @@ public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, IC
 	public GuiNpcBankSetup(EntityNPCInterface npc) {
 		super(npc);
 		this.data = new HashMap<String, Integer>();
-		this.role = (RoleBank) npc.roleInterface;
+		this.role = (RoleBank) npc.advanced.roleInterface;
 	}
 
 	@Override

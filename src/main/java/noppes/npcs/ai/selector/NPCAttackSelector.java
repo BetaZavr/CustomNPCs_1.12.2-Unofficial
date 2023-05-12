@@ -50,11 +50,11 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 				return false;
 			}
 		}
-		if (this.npc.advanced.job == 3 && ((JobGuard) this.npc.jobInterface).isEntityApplicable(entity)) {
+		if (this.npc.advanced.jobInterface instanceof JobGuard && ((JobGuard) this.npc.advanced.jobInterface).isEntityApplicable(entity)) {
 			return true;
 		}
-		if (this.npc.advanced.role == 6) {
-			RoleCompanion role = (RoleCompanion) this.npc.roleInterface;
+		if (this.npc.advanced.roleInterface instanceof RoleCompanion) {
+			RoleCompanion role = (RoleCompanion) this.npc.advanced.roleInterface;
 			if (role.job == EnumCompanionJobs.GUARD
 					&& ((CompanionGuard) role.jobInterface).isEntityApplicable(entity)) {
 				return true;

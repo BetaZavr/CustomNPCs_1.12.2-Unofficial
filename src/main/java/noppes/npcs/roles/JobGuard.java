@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.NBTTags;
+import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobGuard
@@ -23,6 +24,7 @@ extends JobInterface {
 	public JobGuard(EntityNPCInterface npc) {
 		super(npc);
 		this.targets = new ArrayList<String>();
+		this.type = EnumNpcJob.GUARD;
 	}
 
 	public boolean isEntityApplicable(Entity entity) {
@@ -31,9 +33,10 @@ extends JobInterface {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		this.targets = NBTTags.getStringList(nbttagcompound.getTagList("GuardTargets", 10));
-		if (nbttagcompound.getBoolean("GuardAttackAnimals")) {
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		this.targets = NBTTags.getStringList(compound.getTagList("GuardTargets", 10));
+		if (compound.getBoolean("GuardAttackAnimals")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
@@ -42,7 +45,7 @@ extends JobInterface {
 				}
 			}
 		}
-		if (nbttagcompound.getBoolean("GuardAttackMobs")) {
+		if (compound.getBoolean("GuardAttackMobs")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
@@ -52,7 +55,7 @@ extends JobInterface {
 				}
 			}
 		}
-		if (nbttagcompound.getBoolean("GuardAttackCreepers")) {
+		if (compound.getBoolean("GuardAttackCreepers")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
 				String name = "entity." + ent.getName() + ".name";
@@ -64,8 +67,9 @@ extends JobInterface {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setTag("GuardTargets", NBTTags.nbtStringList(this.targets));
-		return nbttagcompound;
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setTag("GuardTargets", NBTTags.nbtStringList(this.targets));
+		return compound;
 	}
 }

@@ -41,16 +41,14 @@ extends Item {
 		if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.SOULSTONE_ALL)) { return true; }
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			if (npc.advanced.role == 6) {
-				RoleCompanion role = (RoleCompanion) npc.roleInterface;
-				if (role.getOwner() == player) {
+			if (npc.advanced.roleInterface instanceof RoleCompanion) {
+				if (((RoleCompanion) npc.advanced.roleInterface).getOwner() == player) {
 					return true;
 				}
 			}
-			if (npc.advanced.role == 2) {
-				RoleFollower role2 = (RoleFollower) npc.roleInterface;
-				if (role2.getOwner() == player) {
-					return !role2.refuseSoulStone;
+			if (npc.advanced.roleInterface instanceof RoleFollower) {
+				if (((RoleFollower) npc.advanced.roleInterface).getOwner() == player) {
+					return !((RoleFollower) npc.advanced.roleInterface).refuseSoulStone;
 				}
 			}
 			return CustomNpcs.SoulStoneNPCs;
@@ -76,9 +74,8 @@ extends Item {
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
 			stone.setTagInfo("DisplayName", new NBTTagString(entity.getName()));
-			if (npc.advanced.role == 6) {
-				RoleCompanion role = (RoleCompanion) npc.roleInterface;
-				stone.setTagInfo("ExtraText", new NBTTagString("companion.stage,: ," + role.stage.name));
+			if (npc.advanced.roleInterface instanceof RoleCompanion) {
+				stone.setTagInfo("ExtraText", new NBTTagString("companion.stage,: ," + ((RoleCompanion) npc.advanced.roleInterface).stage.name));
 			}
 		} else if (entity instanceof EntityLiving && (entity).hasCustomName()) {
 			stone.setTagInfo("DisplayName", new NBTTagString((entity).getCustomNameTag()));

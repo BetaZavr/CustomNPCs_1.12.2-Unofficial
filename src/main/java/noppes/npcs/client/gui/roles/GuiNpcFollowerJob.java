@@ -16,13 +16,16 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobFollower;
 
-public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScrollListener {
+public class GuiNpcFollowerJob
+extends GuiNPCInterface2
+implements ICustomScrollListener {
+	
 	private JobFollower job;
 	private GuiCustomScroll scroll;
 
 	public GuiNpcFollowerJob(EntityNPCInterface npc) {
 		super(npc);
-		this.job = (JobFollower) npc.jobInterface;
+		this.job = (JobFollower) npc.advanced.jobInterface;
 	}
 
 	@Override

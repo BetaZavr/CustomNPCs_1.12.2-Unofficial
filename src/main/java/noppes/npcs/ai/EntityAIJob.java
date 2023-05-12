@@ -13,33 +13,33 @@ public class EntityAIJob
 	}
 
 	public int getMutexBits() {
-		if (this.npc.jobInterface == null) {
+		if (this.npc.advanced.jobInterface == null) {
 			return super.getMutexBits();
 		}
-		return this.npc.jobInterface.getMutexBits();
+		return this.npc.advanced.jobInterface.getMutexBits();
 	}
 
 	public void resetTask() {
-		if (this.npc.jobInterface != null) {
-			this.npc.jobInterface.resetTask();
+		if (this.npc.advanced.jobInterface != null) {
+			this.npc.advanced.jobInterface.resetTask();
 		}
 	}
 
 	public boolean shouldContinueExecuting() {
-		return !this.npc.isKilled() && this.npc.jobInterface != null && this.npc.jobInterface.aiContinueExecute();
+		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null && this.npc.advanced.jobInterface.aiContinueExecute();
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isKilled() && this.npc.jobInterface != null && this.npc.jobInterface.aiShouldExecute();
+		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null && this.npc.advanced.jobInterface.aiShouldExecute();
 	}
 
 	public void startExecuting() {
-		this.npc.jobInterface.aiStartExecuting();
+		this.npc.advanced.jobInterface.aiStartExecuting();
 	}
 
 	public void updateTask() {
-		if (this.npc.jobInterface != null) {
-			this.npc.jobInterface.aiUpdateTask();
+		if (this.npc.advanced.jobInterface != null) {
+			this.npc.advanced.jobInterface.aiUpdateTask();
 		}
 	}
 }
