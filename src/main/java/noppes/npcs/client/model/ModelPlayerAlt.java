@@ -27,14 +27,20 @@ import noppes.npcs.client.model.animation.AniNo;
 import noppes.npcs.client.model.animation.AniPoint;
 import noppes.npcs.client.model.animation.AniWaving;
 import noppes.npcs.client.model.animation.AniYes;
+import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.animation.PartConfig;
+import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class ModelPlayerAlt extends ModelPlayer {
+public class ModelPlayerAlt
+extends ModelPlayer {
+	
 	private ModelRenderer body;
 	private ModelRenderer head;
 	private Map<EnumParts, List<ModelScaleRenderer>> map;
+	private boolean isSwing = false, isDead = false;
 
 	public ModelPlayerAlt(float scale, boolean arms) {
 		super(scale, arms);
@@ -244,63 +250,110 @@ public class ModelPlayerAlt extends ModelPlayer {
 		} else if (this.isSneak) {
 			this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleY;
 		}
-		if (npc.animation.getActive()!=null) {
-			/*float pi = (float) Math.PI;
+		
+		AnimationConfig anim = npc.animation.activeAnim;
+		// Dies
+		if (npc.isDead) {
+			if (!this.isDead) {
+				System.out.println("Start Dies");
+				this.isDead = true;
+				anim = npc.animation.getActive(EnumAnimationType.dies);
+			}
+		} else if (this.isDead) {
+			System.out.println("Stop Dies");
+			this.isDead = false;
+			if (anim!=null && anim.type==EnumAnimationType.dies) { anim = null; }
+		}
+		// Swing
+		if (this.swingProgress>0) {
+			if (!this.isSwing) {
+				System.out.println("Start Swing");
+				this.isSwing = true;
+				anim = npc.animation.getActive(EnumAnimationType.attacking);
+			}
+		} else if (this.isSwing) {
+			System.out.println("Stop Swing");
+			this.isSwing = false;
+			anim = null;
+		}
+		// Moving
+		if (anim==null) {
+			if (npc.getNavigator().noPath()) {
+				anim = npc.animation.getActive(EnumAnimationType.walking);
+			} else {
+				anim = npc.animation.getActive(EnumAnimationType.standing);
+			}
+		} else if (anim.type!=EnumAnimationType.attacking && anim.type!=EnumAnimationType.dies) {
+			if (npc.getNavigator().noPath() && anim.type!=EnumAnimationType.walking) {
+				anim = npc.animation.getActive(EnumAnimationType.walking);
+			} else if (!npc.getNavigator().noPath() && anim.type!=EnumAnimationType.standing) {
+				anim = npc.animation.getActive(EnumAnimationType.standing);
+			}
+		}
+		
+		if (anim!=null) {
+			float pi = (float) Math.PI;
 			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-			if (!npc.animation.head.disabled) {
+			PartConfig[] heads = anim.getParts(0);
+			if (heads!=null && heads.length>0) {
 				ModelRenderer bipedHeadwear7 = this.bipedHeadwear;
 				ModelRenderer bipedHead7 = this.bipedHead;
-				float n7 = npc.animation.getRotation(npc.animation.head, npc.animation.head2, 1, partialTicks) * pi;
-				bipedHead7.rotateAngleX = n7;
-				bipedHeadwear7.rotateAngleX = n7;
+				float rotX = anim.getRotation(heads, 0, partialTicks) * pi;
+				float rotY = anim.getRotation(heads, 1, partialTicks) * pi;
+				float rotZ = anim.getRotation(heads, 2, partialTicks) * pi;
+				bipedHead7.rotateAngleX = rotX;
+				bipedHeadwear7.rotateAngleX = rotX;
 				ModelRenderer bipedHeadwear8 = this.bipedHeadwear;
 				ModelRenderer bipedHead8 = this.bipedHead;
-				float n8 = npc.animation.getRotation(npc.animation.head, npc.animation.head2, 0, partialTicks) * pi;
-				bipedHead8.rotateAngleY = n8;
-				bipedHeadwear8.rotateAngleY = n8;
+				bipedHead8.rotateAngleY = rotY;
+				bipedHeadwear8.rotateAngleY = rotY;
 				ModelRenderer bipedHeadwear9 = this.bipedHeadwear;
 				ModelRenderer bipedHead9 = this.bipedHead;
-				float n9 = npc.animation.getRotation(npc.animation.head, npc.animation.head2, 2, partialTicks) * pi;
-				bipedHead9.rotateAngleZ = n9;
-				bipedHeadwear9.rotateAngleZ = n9;
+				bipedHead9.rotateAngleZ = rotZ;
+				bipedHeadwear9.rotateAngleZ = rotZ;
 			}
-			if (!npc.animation.body.disabled) {
-				this.bipedBody.rotateAngleX = npc.animation.getRotation(npc.animation.body, npc.animation.body2, 0, partialTicks) * pi;
-				this.bipedBody.rotateAngleY = npc.animation.getRotation(npc.animation.body, npc.animation.body2, 1, partialTicks) * pi;
-				this.bipedBody.rotateAngleZ = npc.animation.getRotation(npc.animation.body, npc.animation.body2, 2, partialTicks) * pi;
-			}
-			if (!npc.animation.larm.disabled) {
-				this.bipedLeftArm.rotateAngleX = npc.animation.getRotation(npc.animation.larm, npc.animation.larm2, 0, partialTicks) * pi;
-				this.bipedLeftArm.rotateAngleY = npc.animation.getRotation(npc.animation.larm, npc.animation.larm2, 1, partialTicks) * pi;
-				this.bipedLeftArm.rotateAngleZ = npc.animation.getRotation(npc.animation.larm, npc.animation.larm2, 2, partialTicks) * pi;
-				if (npc.display.getHasLivingAnimation()) {
+			PartConfig[] leftArms = anim.getParts(1);
+			if (leftArms!=null && leftArms.length>0) {
+				this.bipedLeftArm.rotateAngleX = anim.getRotation(leftArms, 0, partialTicks) * pi;
+				this.bipedLeftArm.rotateAngleY = anim.getRotation(leftArms, 1, partialTicks) * pi;
+				this.bipedLeftArm.rotateAngleZ = anim.getRotation(leftArms, 2, partialTicks) * pi;
+				if (npc.display.getHasLivingAnimation() && anim.type==EnumAnimationType.standing) {
 					ModelRenderer bipedLeftArm = this.bipedLeftArm;
 					bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
 					ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
 					bipedLeftArm2.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
 				}
 			}
-			if (!npc.animation.rarm.disabled) {
-				this.bipedRightArm.rotateAngleX = npc.animation.getRotation(npc.animation.rarm, npc.animation.rarm2, 0, partialTicks) * pi;
-				this.bipedRightArm.rotateAngleY = npc.animation.getRotation(npc.animation.rarm, npc.animation.rarm2, 1, partialTicks) * pi;
-				this.bipedRightArm.rotateAngleZ = npc.animation.getRotation(npc.animation.rarm, npc.animation.rarm2, 2, partialTicks) * pi;
-				if (npc.display.getHasLivingAnimation()) {
+			PartConfig[] rightArms = anim.getParts(2);
+			if (rightArms!=null && rightArms.length>0) {
+				this.bipedRightArm.rotateAngleX = anim.getRotation(rightArms, 0, partialTicks) * pi;
+				this.bipedRightArm.rotateAngleY = anim.getRotation(rightArms, 0, partialTicks) * pi;
+				this.bipedRightArm.rotateAngleZ = anim.getRotation(rightArms, 0, partialTicks) * pi;
+				if (npc.display.getHasLivingAnimation() && anim.type==EnumAnimationType.standing) {
 					ModelRenderer bipedRightArm = this.bipedRightArm;
 					bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
 					ModelRenderer bipedRightArm2 = this.bipedRightArm;
 					bipedRightArm2.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
 				}
 			}
-			if (!npc.animation.rleg.disabled) {
-				this.bipedRightLeg.rotateAngleX = npc.animation.getRotation(npc.animation.rleg, npc.animation.rleg2, 0, partialTicks) * pi;
-				this.bipedRightLeg.rotateAngleY = npc.animation.getRotation(npc.animation.rleg, npc.animation.rleg2, 1, partialTicks) * pi;
-				this.bipedRightLeg.rotateAngleZ = npc.animation.getRotation(npc.animation.rleg, npc.animation.rleg2, 2, partialTicks) * pi;
+			PartConfig[] bodys = anim.getParts(3);
+			if (bodys!=null && bodys.length>0) {
+				this.bipedBody.rotateAngleX = anim.getRotation(bodys, 0, partialTicks) * pi;
+				this.bipedBody.rotateAngleY = anim.getRotation(bodys, 1, partialTicks) * pi;
+				this.bipedBody.rotateAngleZ = anim.getRotation(bodys, 2, partialTicks) * pi;
 			}
-			if (!npc.animation.lleg.disabled) {
-				this.bipedLeftLeg.rotateAngleX = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 0, partialTicks) * pi;
-				this.bipedLeftLeg.rotateAngleY = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 1, partialTicks) * pi;
-				this.bipedLeftLeg.rotateAngleZ = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 2, partialTicks) * pi;
-			}*/
+			PartConfig[] leftLeg = anim.getParts(4);
+			if (leftLeg!=null && leftLeg.length>0) {
+				this.bipedLeftLeg.rotateAngleX = anim.getRotation(leftLeg, 0, partialTicks) * pi;
+				this.bipedLeftLeg.rotateAngleY = anim.getRotation(leftLeg, 1, partialTicks) * pi;
+				this.bipedLeftLeg.rotateAngleZ = anim.getRotation(leftLeg, 2, partialTicks) * pi;
+			}
+			PartConfig[] rightLeg = anim.getParts(4);
+			if (rightLeg!=null && rightLeg.length>0) {
+				this.bipedRightLeg.rotateAngleX = anim.getRotation(rightLeg, 0, partialTicks) * pi;
+				this.bipedRightLeg.rotateAngleY = anim.getRotation(rightLeg, 1, partialTicks) * pi;
+				this.bipedRightLeg.rotateAngleZ = anim.getRotation(rightLeg, 2, partialTicks) * pi;
+			}
 		}
 		copyModelAngles(this.bipedLeftLeg, this.bipedLeftLegwear);
 		copyModelAngles(this.bipedRightLeg, this.bipedRightLegwear);

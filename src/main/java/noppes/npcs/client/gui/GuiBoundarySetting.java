@@ -16,9 +16,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.IPos;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -194,6 +194,10 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, this.guiLeft+5, this.guiTop+side+9, 110, 12, "region.keepout."+(this.region!=null ? this.region.keepOut : "false"));
 		checkBox.setSelected(this.region!=null ? this.region.keepOut : false);
 		this.addButton(checkBox);
+		// ID 26 - Keep Out Type
+		checkBox = new GuiNpcCheckBox(26, this.guiLeft+275, this.guiTop+side+9, 110, 12, "region.show.in.client."+(this.region!=null ? this.region.keepOut : "false"));
+		checkBox.setSelected(this.region!=null ? this.region.showInClient : false);
+		this.addButton(checkBox);
 		/** TextFields */
 		// X Point pos
 		GuiNpcTextField textField = new GuiNpcTextField(16, this, r1+39, h0+17, 31, 15, ""+(this.point!=null?this.point.x:0));
@@ -323,7 +327,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			Gui.drawRect(hx-1, hz-1, hx, hz, 0xFFFF0000);
 		}
 		// Center
-		BlockPos c = this.region.getCenter();
+		IPos c = this.region.getCenter();
 		hx = (int) ((c.getX()-mu)*su);
 		hz = (int) ((c.getZ()-mv)*sv);
 		Gui.drawRect(hx-1, hz-1, hx+1, hz+1, 0xFF0000FF);
@@ -429,6 +433,9 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		}
 		else if (this.getButton(25)!=null && this.getButton(25).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.keepout").getFormattedText());
+		}
+		else if (this.getButton(25)!=null && this.getButton(25).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("region.hover.show.in.client").getFormattedText());
 		}
 		else if (this.getLabel(103)!=null && this.getLabel(103).hovered) {
 			this.setHoverText(new TextComponentTranslation("region.hover.regions.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText()).getFormattedText());
@@ -614,13 +621,18 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 					Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, this.point.x, this.region.y[0] + (this.region.y[1]-this.region.y[0])/2, this.point.y });
 					return; 
 				}
-				BlockPos pos = this.region.getCenter();
+				IPos pos = this.region.getCenter();
 				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ() });
 				return;
 			}
 			case 25: { // Keep Out Type
 				if (this.region==null) { return; }
 				this.region.keepOut = ((GuiNpcCheckBox) guibutton).isSelected();
+				break;
+			}
+			case 26: { // Show In Client
+				if (this.region==null) { return; }
+				this.region.showInClient = ((GuiNpcCheckBox) guibutton).isSelected();
 				break;
 			}
 		}
@@ -674,7 +686,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		switch (scroll.id) {
 			case 0: { // Region List
 				if (this.region==null) { return; }
-				BlockPos pos = this.region.getCenter();
+				IPos pos = this.region.getCenter();
 				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, pos.getX(), pos.getY(), pos.getZ() });
 				Client.sendData(EnumPacketServer.RegionData, 0, this.region.getId());
 				this.close();
@@ -725,19 +737,19 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			}
 			case 25: { // Home X
 				if (this.region==null || !textField.isInteger()) { return; }
-				BlockPos pos = this.region.homePos;
+				IPos pos = this.region.homePos;
 				this.region.setHomePos(textField.getInteger(), pos.getY(), pos.getZ());
 				break;
 			}
 			case 26: { // Home Y
 				if (this.region==null || !textField.isInteger()) { return; }
-				BlockPos pos = this.region.homePos;
+				IPos pos = this.region.homePos;
 				this.region.setHomePos(pos.getX(), textField.getInteger(), pos.getZ());
 				break;
 			}
 			case 27: { // Home Z
 				if (this.region==null || !textField.isInteger()) { return; }
-				BlockPos pos = this.region.homePos;
+				IPos pos = this.region.homePos;
 				this.region.setHomePos(pos.getX(), pos.getY(), textField.getInteger());
 				break;
 			}

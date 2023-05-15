@@ -8,6 +8,7 @@ public enum EnumAnimationType {
 
 	attacking,
 	standing,
+	dies,
 	walking;
 
 	public static String[] getNames() {

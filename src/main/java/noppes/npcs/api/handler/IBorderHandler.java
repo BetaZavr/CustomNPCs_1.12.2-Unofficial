@@ -12,12 +12,10 @@ public interface IBorderHandler {
 
 	boolean removeRegion(int regionId);
 
-	IBorder[] getRegions(int dimensionID);
+	IBorder[] getRegions(int dimID);
 
 	IBorder[] getAllRegions();
 
-	void sendToAll(int id);
-
-	IBorder createNew(int imensionID, IPos pos);
+	IBorder createNew(int dimID, IPos pos);
 
 }

@@ -1293,7 +1293,7 @@ public class PacketHandlerServer {
 				Zone3D reg = bData.loadRegion(Server.readNBT(buffer));
 				if (reg!=null) {
 					bData.saveRegions();
-					bData.sendToAll(reg.getId());
+					bData.update(reg.getId());
 				}
 			}
 		}

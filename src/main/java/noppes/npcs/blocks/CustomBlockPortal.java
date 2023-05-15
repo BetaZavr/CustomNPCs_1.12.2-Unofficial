@@ -36,6 +36,8 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
+import noppes.npcs.client.Client;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.util.AdditionalMethods;
 
 public class CustomBlockPortal

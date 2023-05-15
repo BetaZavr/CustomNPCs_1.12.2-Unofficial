@@ -44,6 +44,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.gui.GuiCompassSetings;
@@ -76,7 +77,13 @@ extends Gui
 	private static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
 	private static final ResourceLocation RESOURCE_SLOT = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+	private static final ResourceLocation[] BORDER;
 	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
+	
+	static {
+		BORDER = new ResourceLocation[16];
+		for (int i=0; i<16; i++) { BORDER[i] = new ResourceLocation(CustomNpcs.MODID, "textures/util/border/"+(i<10 ? "0"+i : i)+".png"); }
+	}
 	
 	private Minecraft mc;
 	private ScaledResolution sw;
@@ -613,11 +620,13 @@ extends Gui
 				GlStateManager.popMatrix();
 			}
 		}
-		if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
-		// Show All Regions
+		// Show Regions
 		for (Zone3D reg : this.bData.getRegionsInWorld(this.mc.player.world.provider.getDimension())) {
-			if (reg==null || reg.distanceTo(this.mc.player)>250.0d) { continue; }
-			this.renderRegion(reg, id);
+			if (reg==null || reg.dimensionID!=this.mc.player.world.provider.getDimension() || reg.distanceTo(this.mc.player)>250.0d) { continue; }
+			if (this.mc.player.capabilities.isCreativeMode) { this.renderRegion(reg, id); }
+			else if (reg.showInClient) {
+				this.drawRegion(reg, -1);
+			}
 		}
 	}
 	
@@ -629,12 +638,8 @@ extends Gui
 		Point playerPoint = new Point(this.mc.player.getPosition().getX(), this.mc.player.getPosition().getZ());
 		Point nearestPoint = null;
 		double[] nt = new double[] { 0.0d, 255.0d };
-		float r=1.0f, g=1.0f, b=1.0f;
 		// Draw Vertex/Bound and get nearest Point
-		r = (float) (reg.color >> 16 & 255) / 255.0f;
-		g = (float) (reg.color >> 8 & 255) / 255.0f;
-		b = (float) (reg.color & 255) / 255.0f;
-		drawRegion(reg, editID, r, g, b);
+		drawRegion(reg, editID);
 		if (reg.getId()!=editID) { return; }
 		for (Point p : reg.points.values()) {
 			if (start || distMin>p.distance(playerPoint)) {
@@ -663,7 +668,7 @@ extends Gui
 			}
 			drawVertex(x, y, z, 1.0f, 1.0f, 0.0f);
 			// Bound
-			Point[] pns = reg.getClosestPoints(pb, this.mc.player.getPosition());
+			Point[] pns = reg.getClosestPoints(pb, NpcAPI.Instance().getIPos(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ));
 			drawAddSegment(pns, pb, min, max, 0.75f, 0.75f, 0.75f, 1.0f);
 		}
 
@@ -682,25 +687,43 @@ extends Gui
 		}
 	}
 
-	private void drawRegion(Zone3D reg, int editID, float red, float green, float blue) {
+	private void drawRegion(Zone3D reg, int editID) {
 		if (reg==null || reg.size()==0) { return; }
+		float red = (float) (reg.color >> 16 & 255) / 255.0f;
+		float green = (float) (reg.color >> 8 & 255) / 255.0f;
+		float blue = (float) (reg.color & 255) / 255.0f;
+		
+		// simple colored
+		//float wallAlpha = 0.11f;
+		
+		// textured
+		int xm = reg.getMinX(), xs = reg.getMaxX() - reg.getMinX();
+		int zm = reg.getMinZ(), zs = reg.getMaxZ() - zm;
+		double size = (double) (xs > zs ? xs : zs) / 4.0D;
+		
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
-		float wallAlpha = 0.11f;
 		if (reg.size()>1) {
 			// Walls
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+			
+			// simple colored
+			//GlStateManager.disableTexture2D();
+			//buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+			
+			// textured
+			GlStateManager.color(red, green, blue, 1.0f);
+			this.mc.getTextureManager().bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
+			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX); // textured
 			for (int pos : reg.points.keySet()) {
-				if (pos==reg.points.size()-1) { break; }
 				Point p0 = reg.points.get(pos);
-				Point p1 = reg.points.get(pos+1);
+				Point p1 = pos==reg.points.size()-1 ? reg.points.get(0) : reg.points.get(pos+1);
 				
+				/* simple colored:
 				buffer.pos(p0.x+0.5d, (double) reg.y[0], p0.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
 				buffer.pos(p0.x+0.5d, (double) reg.y[1]+1.0d, p0.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
 				buffer.pos(p1.x+0.5d, (double) reg.y[1]+1.0d, p1.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
@@ -709,56 +732,83 @@ extends Gui
 				buffer.pos(p1.x+0.5d, (double) reg.y[0], p1.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
 				buffer.pos(p1.x+0.5d, (double) reg.y[1]+1.0d, p1.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
 				buffer.pos(p0.x+0.5d, (double) reg.y[1]+1.0d, p0.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
-				buffer.pos(p0.x+0.5d, (double) reg.y[0], p0.y+0.5d).color(red,green,blue,wallAlpha).endVertex();
+				buffer.pos(p0.x+0.5d, (double) reg.y[0], p0.y+0.5d).color(red,green,blue,wallAlpha).endVertex();*/
 				
+				// textured
+				buffer.pos(p0.x+0.5d, (double) reg.y[1]+1.0d, p0.y+0.5d).tex(0.0D, size).endVertex();
+				buffer.pos(p1.x+0.5d, (double) reg.y[1]+1.0d, p1.y+0.5d).tex(size, size).endVertex();
+				buffer.pos(p1.x+0.5d, (double) reg.y[0], p1.y+0.5d).tex(size, 0.0D).endVertex();
+				buffer.pos(p0.x+0.5d, (double) reg.y[0], p0.y+0.5d).tex(0.0D, 0.0D).endVertex();
+
+				buffer.pos(p0.x+0.5d, (double) reg.y[0], p0.y+0.5d).tex(0.0D, 0.0D).endVertex();
+				buffer.pos(p1.x+0.5d, (double) reg.y[0], p1.y+0.5d).tex(size, 0.0D).endVertex();
+				buffer.pos(p1.x+0.5d, (double) reg.y[1]+1.0d, p1.y+0.5d).tex(size, size).endVertex();
+				buffer.pos(p0.x+0.5d, (double) reg.y[1]+1.0d, p0.y+0.5d).tex(0.0D, size).endVertex();
+			}
+			GlStateManager.scale(1.0F, 1.0F, 1.0F);
+			
+			tessellator.draw();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			
+			GlStateManager.depthMask(true);
+			//GlStateManager.enableTexture2D(); // simple colored
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+
+			// Lines
+			buffer = tessellator.getBuffer();
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(2.0f);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+			double x = 0.0d, z = 0.0d;
+			for (Point v : reg.points.values()) {
+				 x += (double) v.x;
+				 z += (double) v.y;
+			}
+			if (reg.points.size()>0) {
+				x /= (double) reg.points.size();
+				z /= (double) reg.points.size();
+			}
+			x += 0.5d;
+			z += 0.5d;
+			float alpha = 0.5f;
+			for (int pos : reg.points.keySet()) {
+				Point p0 = reg.points.get(pos);
+				int minY = reg.y[0], maxY = reg.y[1];
+				Point p1 = reg.points.get(0);
+				if (reg.points.containsKey(pos+1)) { p1 = reg.points.get(pos+1); }
+				
+				buffer.pos(p0.x+0.5d, minY, p0.y+0.5d).color(red,green,blue,alpha).endVertex();
+				buffer.pos(p1.x+0.5d, minY, p1.y+0.5d).color(red,green,blue,alpha).endVertex();
+				buffer.pos(p0.x+0.5d, maxY+1.0D, p0.y+0.5d).color(red,green,blue,alpha).endVertex();
+				buffer.pos(p1.x+0.5d, maxY+1.0D, p1.y+0.5d).color(red,green,blue,alpha).endVertex();
+				
+				if (reg.getId() == editID) {
+					buffer.pos(p0.x+0.5d, minY, p0.y+0.5d).color(red,green,blue,alpha).endVertex();
+					buffer.pos(x, minY, z).color(red,green,blue,alpha).endVertex();
+					buffer.pos(p0.x+0.5d, 1.0d+maxY, p0.y+0.5d).color(red,green,blue,alpha).endVertex();
+					buffer.pos(x, 1.0d+maxY, z).color(red,green,blue,alpha).endVertex();
+					
+					if (maxY-minY>1) {
+						for (int i=1; i<=maxY-minY; i++) {
+							buffer.pos(p0.x+0.5d, minY+(double)i, p0.y+0.5d).color(red,green,blue,alpha).endVertex();
+							buffer.pos(p1.x+0.5d, minY+(double)i, p1.y+0.5d).color(red,green,blue,alpha).endVertex();
+						}
+					}
+				}
 			}
 			tessellator.draw();
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
-			
-			if (reg.getId() == editID) {
-				// Lines
-				buffer = tessellator.getBuffer();
-				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
-				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-				GlStateManager.glLineWidth(2.0f);
-				GlStateManager.disableTexture2D();
-				GlStateManager.depthMask(false);
-				GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-				buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-				double[] c = reg.getExactCenter();
-				c[0] += 0.5d;
-				c[2] += 0.5d;
-				for (int pos : reg.points.keySet()) {
-					Point p0 = reg.points.get(pos);
-					int minY = reg.y[0], maxY = reg.y[1];
-					Point p1 = reg.points.get(0);
-					if (reg.points.containsKey(pos+1)) { p1 = reg.points.get(pos+1); }
-					buffer.pos(p0.x+0.5d, minY, p0.y+0.5d).color(red,green,blue,1.0f).endVertex();
-					buffer.pos(c[0], minY, c[2]).color(red,green,blue,1.0f).endVertex();
-					buffer.pos(p0.x+0.5d, 1.0d+maxY, p0.y+0.5d).color(red,green,blue,1.0f).endVertex();
-					buffer.pos(c[0], 1.0d+maxY, c[2]).color(red,green,blue,1.0f).endVertex();
-					
-					buffer.pos(p0.x+0.5d, minY, p0.y+0.5d).color(red,green,blue,1.0f).endVertex();
-					buffer.pos(p1.x+0.5d, minY, p1.y+0.5d).color(red,green,blue,1.0f).endVertex();
-					
-					if (maxY-minY>1) {
-						for (int i=1; i<=maxY-minY; i++) {
-							buffer.pos(p0.x+0.5d, minY+(double)i, p0.y+0.5d).color(red,green,blue,1.0f).endVertex();
-							buffer.pos(p1.x+0.5d, minY+(double)i, p1.y+0.5d).color(red,green,blue,1.0f).endVertex();
-						}
-					}
-				}
-				tessellator.draw();
-				GlStateManager.depthMask(true);
-				GlStateManager.enableTexture2D();
-				GlStateManager.disableBlend();
-				GlStateManager.popMatrix();
-			}
 		}
+		
 		
 		if (reg.size()>2) { // Polygons up and down
 			for (int i=0; i<2; i++) {
@@ -767,35 +817,57 @@ extends Gui
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-				GlStateManager.disableTexture2D();
 				GlStateManager.depthMask(false);
 				GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-				buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_COLOR);
+				
+				// simple colored
+				//GlStateManager.disableTexture2D();
+				//buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_COLOR);
+				
+				// textured
+				GlStateManager.color(red, green, blue, 1.0f);
+				this.mc.getTextureManager().bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
+				buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
+				
 				for (Point p : reg.points.values()) {
-					buffer.pos(p.x+0.5d, y, p.y+0.5d).color(red,green,blue, wallAlpha).endVertex();
+					// simple colored
+					//buffer.pos(p.x+0.5d, y, p.y+0.5d).color(red,green,blue, wallAlpha).endVertex();
+					
+					// textured
+					double texU = 2.0d * size *  (double) (p.x - xm) / (double) xs;
+					double texV = 2.0d * size * (double) (p.y - zm) / (double) zs;
+					buffer.pos(p.x+0.5d, y, p.y+0.5d).tex(texU, texV).endVertex();
 				}
 				for (int pos=reg.points.size()-1; pos>=0; pos--) {
 					Point p = reg.points.get(pos);
-					buffer.pos(p.x+0.5d, y, p.y+0.5d).color(red,green,blue, wallAlpha).endVertex();
+					// simple colored
+					//buffer.pos(p.x+0.5d, y, p.y+0.5d).color(red,green,blue, wallAlpha).endVertex();
+
+					// textured
+					double texU = 2.0d * size *  (double) (p.x - xm) / (double) xs;
+					double texV = 2.0d * size * (double) (p.y - zm) / (double) zs;
+					buffer.pos(p.x+0.5d, y, p.y+0.5d).tex(texU, texV).endVertex();
 				}
 				tessellator.draw();
 				GlStateManager.depthMask(true);
-				GlStateManager.enableTexture2D();
+				//GlStateManager.enableTexture2D(); // simple colored
 				GlStateManager.disableBlend();
 				GlStateManager.popMatrix();
 			}
 		}
 		
-		for (int i=0; i<reg.points.size(); i++) {
-			Point p0 = reg.points.get(i);
-			Point p1 = reg.points.get(i>=reg.points.size()-1?0:(i+1));
-			// vertex as * down and up
-			if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
-				drawVertex((double) p0.x+0.5d, (double) reg.y[0], (double) p0.y+0.5d, 0.0f, 1.0f, 0.0f);
-				drawVertex((double) p0.x+0.5d, (double) reg.y[1]+1.0d, (double) p0.y+0.5d, 0.0f, 1.0f, 0.0f);
+		if (reg.getId() == editID) {
+			for (int i=0; i<reg.points.size(); i++) {
+				Point p0 = reg.points.get(i);
+				Point p1 = reg.points.get(i>=reg.points.size()-1?0:(i+1));
+				// vertex as * down and up
+				if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
+					drawVertex((double) p0.x+0.5d, (double) reg.y[0], (double) p0.y+0.5d, red, green, blue);
+					drawVertex((double) p0.x+0.5d, (double) reg.y[1]+1.0d, (double) p0.y+0.5d, red, green, blue);
+				}
+				// Bound
+				drawSegment(p0, p1, (double) reg.y[0], (double) reg.y[1]+1.0d, 2.0f, red, green, blue, 0.5f);
 			}
-			// Bound
-			drawSegment(p0, p1, (double) reg.y[0], (double) reg.y[1]+1.0d, 2.0f, red, green, blue, 0.5f);
 		}
 	}
 	
@@ -904,6 +976,7 @@ extends Gui
 	}
 	
 	private void drawVertex(double x, double y, double z, float red, float green, float blue) {
+		double sizeS = 0.15D;
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		GlStateManager.pushMatrix();
@@ -914,26 +987,26 @@ extends Gui
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-		buffer.pos(x-0.05d, y-0.05d, z-0.05d).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x+0.05d, y+0.05d, z+0.05d).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x-sizeS, y-sizeS, z-sizeS).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x+sizeS, y+sizeS, z+sizeS).color(red,green,blue,1.0f).endVertex();
 		
-		buffer.pos(x-0.05d, y-0.05d, z+0.05d).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x+0.05d, y+0.05d, z-0.05d).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x-sizeS, y-sizeS, z+sizeS).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x+sizeS, y+sizeS, z-sizeS).color(red,green,blue,1.0f).endVertex();
 		
-		buffer.pos(x+0.05d, y-0.05d, z+0.05d).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x-0.05d, y+0.05d, z-0.05d).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x+sizeS, y-sizeS, z+sizeS).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x-sizeS, y+sizeS, z-sizeS).color(red,green,blue,1.0f).endVertex();
 		
-		buffer.pos(x+0.05d, y-0.05d, z-0.05d).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x-0.05d, y+0.05d, z+0.05d).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x+sizeS, y-sizeS, z-sizeS).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x-sizeS, y+sizeS, z+sizeS).color(red,green,blue,1.0f).endVertex();
 
-		buffer.pos(x-0.065d, y, z).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x+0.065d, y, z).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x-sizeS, y, z).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x+sizeS, y, z).color(red,green,blue,1.0f).endVertex();
 
-		buffer.pos(x, y-0.065d, z).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x, y+0.065d, z).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x, y-sizeS, z).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x, y+sizeS, z).color(red,green,blue,1.0f).endVertex();
 
-		buffer.pos(x, y, z-0.065d).color(red,green,blue,1.0f).endVertex();
-		buffer.pos(x, y, z+0.065d).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x, y, z-sizeS).color(red,green,blue,1.0f).endVertex();
+		buffer.pos(x, y, z+sizeS).color(red,green,blue,1.0f).endVertex();
 		tessellator.draw();
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();

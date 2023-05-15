@@ -2,7 +2,6 @@ package noppes.npcs.api.handler.data;
 
 import java.awt.Point;
 
-import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.entity.IEntity;
@@ -13,7 +12,7 @@ public interface IBorder {
 
 	void setHomePos(int x, int y, int z);
 
-	BlockPos getHomePos();
+	IPos getHomePos();
 
 	Point[] getPoints();
 
@@ -21,7 +20,7 @@ public interface IBorder {
 
 	double distanceTo(IEntity<?> entity);
 
-	double distanceTo(double px, double py);
+	double distanceTo(double x, double z);
 
 	Point[] getClosestPoints(Point point, IPos pos);
 
@@ -37,11 +36,7 @@ public interface IBorder {
 
 	int size();
 
-	IPos getIPosCenterMass();
-
-	double[] getExactCenter();
-
-	BlockPos getCenter();
+	IPos getCenter();
 
 	int getMaxZ();
 
@@ -53,15 +48,19 @@ public interface IBorder {
 
 	int getMinX();
 
-	void scaling(float scale, int typePos);
+	int getMaxY();
 
-	void scaling(double radius, int typePos);
+	int getMinY();
+	
+	void scaling(float scale, boolean type);
 
-	void centerOffsetTo(int x, int y, int z, int typePos);
+	void scaling(double radius, boolean type);
 
-	void centerOffsetTo(Point point, int typePos);
+	void centerOffsetTo(int x, int y, int z, boolean type);
 
-	void centerOffsetToIPos(IPos position, int typePos);
+	void centerOffsetTo(Point point, boolean type);
+
+	void centerOffsetTo(IPos pos, boolean type);
 
 	void offset(int x, int y, int z);
 
@@ -69,17 +68,17 @@ public interface IBorder {
 
 	void offset(IPos position);
 
-	void insertPoint(int x, int y, int z, IPos entityPos);
+	boolean insertPoint(int x, int y, int z, IPos pos);
 
-	boolean insertPoint(Point point, int y, IPos entityPos);
+	boolean insertPoint(Point point, int y, IPos pos);
 
-	boolean insertPoint(IPos position, IPos entityPos);
+	boolean insertPoint(IPos pos0, IPos pos1);
 
 	Point addPoint(int x, int y, int z);
 
 	Point addPoint(Point point, int y);
 
-	Point addPoint(IPos position);
+	Point addPoint(IPos pos);
 
 	Point setPoint(int index, int x, int y, int z);
 
@@ -87,7 +86,7 @@ public interface IBorder {
 
 	Point setPoint(int index, Point point, int y);
 
-	Point setPoint(int index, IPos position);
+	Point setPoint(int index, IPos pos);
 
 	int getId();
 
@@ -102,5 +101,13 @@ public interface IBorder {
 	int getColor();
 
 	void setColor(int color);
+
+	IAvailability getAvailability();
+
+	String getMessage();
+
+	void setMessage(String message);
+
+	void update();
 
 }

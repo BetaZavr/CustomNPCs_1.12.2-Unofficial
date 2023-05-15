@@ -26,7 +26,9 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
+import noppes.npcs.controllers.BorderController;
 import noppes.npcs.util.AdditionalMethods;
 
 public class Zone3D
@@ -43,8 +45,8 @@ implements IBorder, Predicate<Entity> {
 	public String message;
 	private List<Entity> entitiesWithinRegion;
 	private Map<Entity, AntiLagTime> playerAntiLag;
-	public BlockPos homePos;
-	public boolean keepOut = false;
+	public IPos homePos;
+	public boolean keepOut = false, showInClient = false;
 	
 	public Zone3D () {
 		this.color = (new Random()).nextInt(0xFFFFFF);
@@ -160,16 +162,11 @@ implements IBorder, Predicate<Entity> {
 	 * Adds a new point between two existing ones (through the smallest lengths)
 	 * @param position
 	 */
-	public boolean insertPoint(BlockPos position, BlockPos entityPos) { return this.insertPoint(position.getX(), position.getY(), position.getZ(), entityPos); }
+	@Override
+	public boolean insertPoint(IPos pos0, IPos pos1) { return this.insertPoint(pos0.getX(), pos0.getY(), pos0.getZ(), pos1); }
 
 	@Override
-	public boolean insertPoint(IPos position, IPos entityPos) { return this.insertPoint(position.getMCBlockPos(), entityPos.getMCBlockPos()); }
-	
-	/**
-	 * Adds a new point between two existing ones (through the smallest lengths)
-	 * @param point
-	 */
-	public boolean insertPoint(Point point, int y, BlockPos entityPos) {
+	public boolean insertPoint(Point point, int y, IPos pos) {
 		if (y>=0) {
 			int min = Math.abs(this.y[0]-y);
 			int max = Math.abs(this.y[1]-y);
@@ -178,18 +175,15 @@ implements IBorder, Predicate<Entity> {
 		}
 		if (this.contains(point.x, point.y)) { return false; }
 		if (this.points.size()<2) { return this.addPoint(point, y)!=null; }
-		int pos = this.getClosestPoint(point, entityPos);
+		int n = this.getClosestPoint(point, pos);
 		TreeMap<Integer, Point> temp = Maps.<Integer, Point>newTreeMap();
 		for (int i=0, j=0; i<this.points.size(); i++) {
 			temp.put(i+j, this.points.get(i));
-			if (i==pos) { j=1; temp.put(i+j, point); }
+			if (i==n) { j=1; temp.put(i+j, point); }
 		}
 		this.points = temp;
 		return true;
 	}
-	
-	@Override
-	public boolean insertPoint(Point point, int y, IPos entityPos) { return this.insertPoint(point, y, entityPos.getMCBlockPos()); }
 	
 	/**
 	 * Adds a new point between two existing ones (through the smallest lengths)
@@ -197,15 +191,13 @@ implements IBorder, Predicate<Entity> {
 	 * @param y
 	 * @param z
 	 */
-	public boolean insertPoint(int x, int y, int z, BlockPos entityPos) {
+	@Override
+	public boolean insertPoint(int x, int y, int z, IPos pos) {
 		Point p = new Point();
 		p.x = x;
 		p.y = z;
-		return this.insertPoint(p, y, entityPos);
+		return this.insertPoint(p, y, pos);
 	}
-	
-	@Override
-	public void insertPoint(int x, int y, int z, IPos entityPos) { this.insertPoint(x, y, z, entityPos.getMCBlockPos()); }
 	
 	/**
 	 * Offsets the entire zone by the specified value
@@ -246,11 +238,11 @@ implements IBorder, Predicate<Entity> {
 	 * @param typePos = 1 - relative to the center of the described contour;
 	 * @param typePos = 2 - relative to the center of mass
 	 */
-	public void centerOffsetTo(BlockPos position, int typePos) { this.centerOffsetTo(position.getX(), position.getY(), position.getZ(), typePos); }
+	public void centerOffsetTo(BlockPos position, boolean type) { this.centerOffsetTo(position.getX(), position.getY(), position.getZ(), type); }
 	
 	@Override
-	public void centerOffsetToIPos(IPos position, int typePos) {
-		this.centerOffsetTo(position.getMCBlockPos(), typePos);
+	public void centerOffsetTo(IPos position, boolean type) {
+		this.centerOffsetTo(position.getMCBlockPos(), type);
 	}
 	/**
 	 * Offsets the position of the zone
@@ -260,33 +252,26 @@ implements IBorder, Predicate<Entity> {
 	 * @param typePos = 2 - relative to the center of mass
 	 */
 	@Override
-	public void centerOffsetTo(Point point, int typePos) { this.centerOffsetTo(point.x, (int) ((this.y[0]+this.y[1])/2), point.y, typePos); }
+	public void centerOffsetTo(Point point, boolean type) { this.centerOffsetTo(point.x, (int) ((this.y[0]+this.y[1])/2), point.y, type); }
 	
 	/**
 	 * Offsets the position of the zone
 	 * @param x
 	 * @param y
 	 * @param z
-	 * @param typePos = 0 - relative to the zero coordinate;
-	 * @param typePos = 1 - relative to the center of the described contour;
-	 * @param typePos = 2 - relative to the center of mass
+	 * @param type  0 - relative to the zero coordinate,  1 - relative to the center of the described contour;
 	 */
 	@Override
-	public void centerOffsetTo(int x, int y, int z, int typePos) {
-		BlockPos ctr = null;
+	public void centerOffsetTo(int x, int y, int z, boolean type) {
+		IPos ctr = null;
 		int ry = (this.y[1]-this.y[0])/2;
-		if (typePos==1) {
+		if (type) {
 			ctr = this.getCenter();
 			this.y[0] = y-ry;
 			this.y[1] = y+ry;
 		}
-		else if (typePos==1) {
-			ctr = this.getCenterMass();
-			this.y[0] = y-ry;
-			this.y[1] = y+ry;
-		}
 		else {
-			ctr = new BlockPos(this.getMinX(), this.y[0], this.getMinZ());
+			ctr = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ());
 			this.y[0] = y;
 			this.y[1] = y+ry*2;
 		}
@@ -298,24 +283,20 @@ implements IBorder, Predicate<Entity> {
 
 	/**
 	 * Expand or Shrink a zone outline by a specific value
-	 * @param radius - offset value of each point relative to the center
-	 * @param typePos = 0 - relative to the zero coordinate;
-	 * @param typePos = 1 - relative to the center of the described contour;
-	 * @param typePos = 2 - relative to the center of mass
+	 * @param pos - BlockPos
 	 */
 	@Override
-	public void scaling(double radius, int typePos) {
+	public void scaling(double radius, boolean type) {
 		if (this.points.size()<=1) { return; }
-		BlockPos ctr = null;
-		if (typePos==1) { ctr = this.getCenter(); }
-		else if (typePos==1) { ctr = this.getCenterMass(); }
-		else { ctr = new BlockPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		this.y[0] -= (int) radius;
 		this.y[1] += (int) radius;
+		IPos pos;
+		if (type) { pos = this.getCenter(); }
+		else { pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		for (int key :this.points.keySet()) {
 			Point v = this.points.get(key);
-			double[] data = AdditionalMethods.getAngles3D(ctr.getX(), 0, ctr.getZ(), v.x, 0, v.y);
-			double[] newPoint = AdditionalMethods.getPosition(ctr.getX(), 0, ctr.getZ(), data[0], data[1], radius + data[2]);
+			double[] data = AdditionalMethods.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
+			double[] newPoint = AdditionalMethods.getPosition(pos.getX(), 0, pos.getZ(), data[0], data[1], radius + data[2]);
 			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
 		}
 	}
@@ -323,22 +304,18 @@ implements IBorder, Predicate<Entity> {
 	/**
 	 * Scale zone outline
 	 * @param scale - percentage where 100% = 1.0f
-	 * @param typePos = 0 - relative to the zero coordinate;
-	 * @param typePos = 1 - relative to the center of the described contour;
-	 * @param typePos = 2 - relative to the center of mass
+	 * @param pos - BlockPos
 	 */
 	@Override
-	public void scaling(float scale, int typePos) {
+	public void scaling(float scale, boolean type) {
 		if (this.points.size()<=1) { return; }
-		BlockPos ctr = null;
-		if (typePos==1) { ctr = this.getCenter(); }
-		else if (typePos==1) { ctr = this.getCenterMass(); }
-		else { ctr = new BlockPos(this.getMinX(), this.y[0], this.getMinZ()); }
-		
+		IPos pos;
+		if (type) { pos = this.getCenter(); }
+		else { pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		for (int key :this.points.keySet()) {
 			Point v = this.points.get(key);
-			double[] data = AdditionalMethods.getAngles3D(ctr.getX(), ctr.getY(), ctr.getZ(), v.x, ctr.getY(), v.y);
-			double[] newPoint = AdditionalMethods.getPosition(ctr.getX(), ctr.getY(), ctr.getZ(), data[0], data[1], (double) scale * data[2]);
+			double[] data = AdditionalMethods.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
+			double[] newPoint = AdditionalMethods.getPosition(pos.getX(), pos.getY(), pos.getZ(), data[0], data[1], (double) scale * data[2]);
 			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
 			if (this.y[0] > (int) newPoint[2]) { this.y[0] = (int) newPoint[1]; }
 			if (this.y[1] < (int) newPoint[2]) { this.y[1] = (int) newPoint[1]; }
@@ -393,19 +370,13 @@ implements IBorder, Predicate<Entity> {
 		if (needChange) { this.points = newList; }
 		this.getHomePos();
 	}
-
+	
 	/**
-	 * @return center of the described zone contour
+	 * @return center of mass of the zone
 	 */
 	@Override
-	public BlockPos getCenter() {
-		return new BlockPos((this.getMinX()+this.getMaxX())/2.0d, (this.y[0]+this.y[1])/2.0d, (this.getMinZ()+this.getMaxZ())/2.0d);
-	}
-
-	@Override
-	public double[] getExactCenter() {
+	public IPos getCenter() {
 		double x = 0.0d, z = 0.0d;
-		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
 		for (Point v : this.points.values()) {
 			 x += (double) v.x;
 			 z += (double) v.y;
@@ -414,22 +385,7 @@ implements IBorder, Predicate<Entity> {
 			x /= (double) this.points.size();
 			z /= (double) this.points.size();
 		}
-		return new double[] { x, y, z};
-	}
-	
-	/**
-	 * @return center of mass of the zone
-	 */
-	public BlockPos getCenterMass() {
-		double x=0.0d, y=(this.y[0]+this.y[1])/2.0d, z=0.0d;
-		for (Point v :this.points.values()) { x += v.x; z += v.y; }
-		return new BlockPos(x/(double)this.points.size(), y, z/(double)this.points.size());
-	}
-	
-	@Override
-	public IPos getIPosCenterMass() {
-		BlockPos pos = this.getCenterMass();
-		return NpcAPI.Instance().getIPos(pos.getX(), pos.getY(), pos.getZ());
+		return NpcAPI.Instance().getIPos(x, ((double) this.y[1] - (double) this.y[0]) / 2.0d, z);
 	}
 	
 	/**
@@ -520,14 +476,10 @@ implements IBorder, Predicate<Entity> {
 
 	@Override
 	public int getClosestPoint(Point point, IPos pos) {
-		return this.getClosestPoint(point, pos.getMCBlockPos());
-	}
-	
-	public int getClosestPoint(Point point, BlockPos entityPos) {
 		if (this.points.size()==0) { return -1; }
 		if (this.points.size()==1) { return 0; }
-		int pos = 0;
-		Point entPoint = new Point(entityPos.getX(), entityPos.getZ());
+		int n = 0;
+		Point entPoint = new Point(pos.getX(), pos.getZ());
 		double dm0 = this.points.get(0).distance(point);
 		double dm1 = this.points.get(1).distance(point);
 		double dm2 = this.points.get(0).distance(entPoint);
@@ -540,37 +492,33 @@ implements IBorder, Predicate<Entity> {
 			if (dm0+dm1+dm2+dm3>d0+d1+d2+d3) {
 				dm0=d0; dm1=d1;
 				dm2=d2; dm3=d3;
-				pos = p;
+				n = p;
 			}
 		}
 		double d0 = this.points.get(0).distance(point);
 		double d1 = this.points.get(this.points.size()-1).distance(point);
 		double d2 = this.points.get(0).distance(entPoint);
 		double d3 = this.points.get(this.points.size()-1).distance(entPoint);
-		if (dm0+dm1+dm2+dm3>d0+d1+d2+d3) { pos = this.points.size()-1; }
-		return pos;
+		if (dm0+dm1+dm2+dm3>d0+d1+d2+d3) { n = this.points.size()-1; }
+		return n;
 	}
 
 	@Override
 	public Point[] getClosestPoints(Point point, IPos pos) {
-		return this.getClosestPoints(point, pos.getMCBlockPos());
-	}
-	
-	public Point[] getClosestPoints(Point point, BlockPos entityPos) {
 		Point[] ps = new Point[2];
 		ps[0] = null;
 		ps[1] = null;
-		int pos = this.getClosestPoint(point, entityPos);
-		if (this.points.containsKey(pos)) { ps[0] = this.points.get(pos); }
-		if (this.points.containsKey(pos+1)) { ps[1] = this.points.get(pos+1); }
-		else if (pos==this.points.size()-1) { ps[1] = this.points.get(0); }
+		int n = this.getClosestPoint(point, pos);
+		if (this.points.containsKey(n)) { ps[0] = this.points.get(n); }
+		if (this.points.containsKey(n+1)) { ps[1] = this.points.get(n+1); }
+		else if (n==this.points.size()-1) { ps[1] = this.points.get(0); }
 		return ps;
 	}
 
 	@Override
-	public double distanceTo(double px, double py) {
-		BlockPos pos = this.getCenter();
-		return AdditionalMethods.distanceTo(pos.getX()+0.5d, 0.0d, pos.getZ()+0.5d, px, 0.0d, py);
+	public double distanceTo(double x, double z) {
+		IPos pos = this.getCenter();
+		return AdditionalMethods.distanceTo(pos.getX()+0.5d, 0.0d, pos.getZ()+0.5d, x, 0.0d, z);
 	}
 
 	@Override
@@ -580,7 +528,7 @@ implements IBorder, Predicate<Entity> {
 	
 	public double distanceTo(Entity entity) {
 		if (entity==null) { return -1; }
-		BlockPos c = this.getCenter();
+		IPos c = this.getCenter();
 		return AdditionalMethods.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX()+0.5d, c.getY()+0.5d, c.getZ()+0.5d);
 	}
 
@@ -616,6 +564,7 @@ implements IBorder, Predicate<Entity> {
 		int[] pos = nbtRegion.getIntArray("HomePos");
 		this.setHomePos(pos[0], pos[1], pos[2]);
 		this.keepOut = nbtRegion.getBoolean("IsKeepOut");
+		this.showInClient = nbtRegion.getBoolean("ShowInClient");
 		this.fix();
 	}
 	
@@ -640,6 +589,7 @@ implements IBorder, Predicate<Entity> {
 		int[] pos = new int[] { this.homePos.getX(), this.homePos.getY(), this.homePos.getZ() };
 		nbtRegion.setIntArray("HomePos", pos);
 		nbtRegion.setBoolean("IsKeepOut", this.keepOut);
+		nbtRegion.setBoolean("ShowInClient", this.showInClient);
 	}
 
 	@Override
@@ -724,9 +674,19 @@ implements IBorder, Predicate<Entity> {
 	}
 
 	private double[] getPlayerTeleportPosition(Entity entity) {
-		double[] c = this.getExactCenter();
-		double[] data = AdditionalMethods.getAngles3D(entity.posX, entity.posY, entity.posZ, c[0], c[1], c[2]);
-		double[] p = new double[] { (c[0]-entity.posX), (c[1]-entity.posY), (c[2]-entity.posZ) };
+		double x = 0.0d, z = 0.0d;
+		for (Point v : this.points.values()) {
+			 x += (double) v.x;
+			 z += (double) v.y;
+		}
+		if (this.points.size()>0) {
+			x /= (double) this.points.size();
+			z /= (double) this.points.size();
+		}
+		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
+		
+		double[] data = AdditionalMethods.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
+		double[] p = new double[] { (x-entity.posX), (y-entity.posY), (z-entity.posZ) };
 		for (int i=0; i<4; i++) {
 			double radiusXZ = data[2]+((double) (i+1) * (this.keepOut ? 0.5d : -0.5d));
 			p[0] = Math.sin(data[0]*Math.PI/180.0d) * radiusXZ * -1.0d;
@@ -735,9 +695,9 @@ implements IBorder, Predicate<Entity> {
 				break;
 			}
 		}
-		p[0] = c[0]-p[0];
+		p[0] = x-p[0];
 		p[1] = entity.getPosition().getY();
-		p[2] = c[2]-p[2];
+		p[2] = z-p[2];
 		
 		boolean rev = false;
 		while (p[1]>0 && p[1]<256) {
@@ -759,7 +719,7 @@ implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public BlockPos getHomePos() {
+	public IPos getHomePos() {
 		if (this.homePos==null  || this.keepOut!=this.contains(this.homePos.getX()+0.5d, this.homePos.getY()+0.5d, this.homePos.getZ()+0.5d, 0.0d)) {
 			this.homePos = this.getCenter();
 			if (this.keepOut && this.points.size()>0) {
@@ -772,7 +732,7 @@ implements IBorder, Predicate<Entity> {
 						default: { x++; }
 					}
 					if (!this.contains(x, z)) {
-						this.homePos = new BlockPos(x, this.y[0]+(this.y[1]-this.y[0])/2, z);
+						this.homePos = NpcAPI.Instance().getIPos(x, this.y[0]+(this.y[1]-this.y[0])/2, z);
 					}
 				}
 			}
@@ -783,7 +743,7 @@ implements IBorder, Predicate<Entity> {
 	@Override
 	public void setHomePos(int x, int y, int z) {
 		if (this.homePos==null  || this.keepOut!=this.contains(x+0.5d, y, z+0.5d, 0.0d)) { return; }
-		this.homePos = new BlockPos(x, y, z);
+		this.homePos = NpcAPI.Instance().getIPos(x, y, z);
 	}
 
 	@Override
@@ -825,10 +785,7 @@ implements IBorder, Predicate<Entity> {
 	public int getDimensionId() { return this.dimensionID; }
 	
 	@Override
-	public void setDimensionId(int dimID) {
-		
-		this.dimensionID = dimID;
-	}
+	public void setDimensionId(int dimID) { this.dimensionID = dimID; }
 	
 	@Override
 	public int getColor() { return this.color; }
@@ -837,7 +794,6 @@ implements IBorder, Predicate<Entity> {
 	public void setColor(int color) { this.color = color; }
 	
 	private class AntiLagTime {
-		
 		private int count;
 		private long time;
 		private BlockPos pos;
@@ -862,6 +818,26 @@ implements IBorder, Predicate<Entity> {
 			this.count++;
 			return this.count>50;
 		}
-		
 	}
+	
+	@Override
+	public IAvailability getAvailability() { return this.availability; }
+
+	@Override
+	public String getMessage() { return this.message; }
+	
+	@Override
+	public void setMessage(String message) { this.message = message; }
+
+	@Override
+	public int getMaxY() { return this.y[0]>this.y[1] ? this.y[0] : this.y[1]; }
+
+	@Override
+	public int getMinY() { return this.y[0]<this.y[1] ? this.y[0] : this.y[1]; }
+	
+	@Override
+	public void update() {
+		BorderController.getInstance().update(this.id);
+	}
+	
 }

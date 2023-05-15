@@ -2,6 +2,7 @@ package noppes.npcs.entity.data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -17,6 +18,7 @@ public class DataAnimation {
 	public AnimationConfig activeAnim;
 	public Map<EnumAnimationType, List<AnimationConfig>> data;
 	private EntityNPCInterface npc;
+	private Random rnd = new Random();
 	
 	public DataAnimation(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -62,10 +64,15 @@ public class DataAnimation {
 		compound.setTag("AllAnimations", allAnimations);
 	}
 
-	public AnimationConfig getActive() {
-		
-		if (this.activeAnim!=null) { return this.activeAnim; }
-		return null;
+	public AnimationConfig getActive(EnumAnimationType type) {
+		if (this.activeAnim!=null && this.activeAnim.type==type) { return this.activeAnim; }
+		this.activeAnim = null;
+		List<AnimationConfig> list = this.data.get(type);
+		if (list.size()>0) {
+			this.activeAnim = list.get(this.rnd.nextInt(list.size()));
+		}
+		if (this.activeAnim!=null) { this.activeAnim.reset(); }
+		return this.activeAnim;
 	}
 	
 }

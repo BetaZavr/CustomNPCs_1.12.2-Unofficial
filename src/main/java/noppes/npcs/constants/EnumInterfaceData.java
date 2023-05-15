@@ -1,5 +1,6 @@
 package noppes.npcs.constants;
 
+import java.awt.Point;
 import java.io.File;
 
 import net.minecraft.enchantment.Enchantment;
@@ -1176,7 +1177,7 @@ public enum EnumInterfaceData {
 			new MetodData(int.class, "getY", "method.gety"),
 			new MetodData(int.class, "getZ", "method.getz"),
 			new MetodData(void.class, "setPos", "method.itransportlocation.set«os",
-				new ParameterData(int.class, "dimentionID", "parameter.dimensionId"),
+				new ParameterData(int.class, "dimentionID", "parameter.dimensionid"),
 				new ParameterData(int.class, "x", "parameter.posx"),
 				new ParameterData(int.class, "y", "parameter.posy"),
 				new ParameterData(int.class, "z", "parameter.posz")
@@ -1715,30 +1716,71 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "setBurst", "method.inpcranged.setburst",
 				new ParameterData(int.class, "count", "parameter.range")
+			),
+			new MetodData(void.class, "setBurstDelay", "method.inpcranged.setburstdelay",
+				new ParameterData(int.class, "delay", "parameter.ticks")
+			),
+			new MetodData(void.class, "setDelay", "method.inpcranged.setDelay",
+				new ParameterData(int.class, "min", "parameter.min"),
+				new ParameterData(int.class, "max", "parameter.max")
+			),
+			new MetodData(void.class, "setEffect", "method.inpcranged.seteffect",
+				new ParameterData(int.class, "type", "parameter.effect.type"),
+				new ParameterData(int.class, "strength", "parameter.effect.strength"),
+				new ParameterData(int.class, "time", "parameter.ticks")
+			),
+			new MetodData(void.class, "setExplodeSize", "method.inpcranged.setexplodesize",
+				new ParameterData(int.class, "delay", "parameter.explode.size")
+			),
+			new MetodData(void.class, "setFireType", "method.inpcranged.setfiretype",
+				new ParameterData(int.class, "type", "parameter.inpcranged.firetype")
+			),
+			new MetodData(void.class, "setGlows", "method.inpcranged.setglows",
+				new ParameterData(boolean.class, "glows", "parameter.boolean")
+			),
+			new MetodData(void.class, "setHasAimAnimation", "method.inpcranged.sethasaimanimation",
+				new ParameterData(boolean.class, "aim", "parameter.boolean")
+			),
+			new MetodData(void.class, "setHasGravity", "method.inpcranged.sethasgravity",
+				new ParameterData(boolean.class, "hasGravity", "parameter.boolean")
+			),
+			new MetodData(void.class, "setKnockback", "method.inpcranged.setknockback",
+				new ParameterData(int.class, "punch", "parameter.knockback")
+			),
+			new MetodData(void.class, "setMeleeRange", "method.inpcranged.setmeleemange",
+				new ParameterData(int.class, "range", "parameter.range")
+			),
+			new MetodData(void.class, "setParticle", "method.inpcranged.setparticle",
+				new ParameterData(int.class, "type", "parameter.particle.type")
+			),
+			new MetodData(void.class, "setRange", "method.inpcranged.setrange",
+				new ParameterData(int.class, "range", "parameter.range")
+			),
+			new MetodData(void.class, "setRender3D", "method.inpcranged.setrender3d",
+				new ParameterData(boolean.class, "render3d", "parameter.boolean")
+			),
+			new MetodData(void.class, "setShotCount", "method.inpcranged.setshotcount",
+				new ParameterData(int.class, "count", "parameter.count")
+			),
+			new MetodData(void.class, "setSize", "method.inpcranged.setsize",
+				new ParameterData(int.class, "size", "parameter.size")
+			),
+			new MetodData(void.class, "setSize", "method.inpcranged.setsize",
+				new ParameterData(int.class, "type", "parameter.sound.type"),
+				new ParameterData(String.class, "sound", "parameter.sound.name")
+			),
+			new MetodData(void.class, "setSpeed", "method.inpcranged.setspeed",
+				new ParameterData(int.class, "speed", "parameter.speed")
+			),
+			new MetodData(void.class, "setSpins", "method.inpcranged.setspins",
+				new ParameterData(boolean.class, "spins", "parameter.boolean")
+			),
+			new MetodData(void.class, "setSticks", "method.inpcranged.setsticks",
+				new ParameterData(boolean.class, "spins", "parameter.boolean")
+			),
+			new MetodData(void.class, "setSticks", "method.inpcranged.setsticks",
+				new ParameterData(int.class, "strength", "parameter.inpcranged.strength")
 			)
-			
-			/*
-	void (int count);
-	void setBurstDelay(int delay);
-	void setDelay(int min, int max);
-	void setEffect(int type, int strength, int time);
-	void setExplodeSize(int size);
-	void setFireType(int type);
-	void setGlows(boolean glows);
-	void setHasAimAnimation(boolean aim);
-	void setHasGravity(boolean hasGravity);
-	void setKnockback(int punch);
-	void setMeleeRange(int range);
-	void setParticle(int type);
-	void setRange(int range);
-	void setRender3D(boolean render3d);
-	void setShotCount(int count);
-	void setSize(int size);
-	void setSound(int type, String sound);
-	void setSpeed(int speed);
-	void setSpins(boolean spins);
-	void setSticks(boolean sticks);
-	void setStrength(int strength);*/
 		)
 	),
 	INPCRole(new InterfaseData(INPCRole.class, null,
@@ -1999,136 +2041,6 @@ public enum EnumInterfaceData {
 			"interfase.ilabel"
 		)
 	),
-	IOverlayHUD(new InterfaseData(IOverlayHUD.class, null,
-			new Class<?>[] { PlayerOverlayHUD.class },
-			"interfase.ihud",
-			new MetodData(boolean.class, "isShowElementType", "method.ihud.isshowelementtype",
-				new ParameterData(int.class, "type", "parameter.ihud.elementtype")
-			),
-			new MetodData(void.class, "setShowElementType", "method.ihud.setshowelementtype",
-				new ParameterData(int.class, "type", "parameter.ihud.elementtype"),
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
-			),
-			new MetodData(void.class, "isShowElementType", "method.ihud.isShowElementType",
-				new ParameterData(String.class, "name", "parameter.ihud.elementname"),
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
-			),
-			new MetodData(IItemSlot.class, "addItemSlot", "method.ihud.additemslot",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv")
-			),
-			new MetodData(IItemSlot.class, "addItemSlot", "method.ihud.additemslot",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(IItemStack.class, "stack", "parameter.stack")
-			),
-			new MetodData(ILabel.class, "addLabel", "method.ihud.addlabel",
-				new ParameterData(int.class, "id", "parameter.component.id"),
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(String.class, "label", "parameter.label.text"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(int.class, "width", "parameter.width"),
-				new ParameterData(int.class, "height", "parameter.height")
-			),
-			new MetodData(ILabel.class, "addLabel", "method.ihud.addlabel",
-				new ParameterData(int.class, "id", "parameter.component.id"),
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(String.class, "label", "parameter.label.text"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(int.class, "width", "parameter.width"),
-				new ParameterData(int.class, "height", "parameter.height"),
-				new ParameterData(int.class, "color", "parameter.color")
-			),
-			new MetodData(ITexturedRect.class, "addTexturedRect", "method.ihud.addtexturedrect",
-				new ParameterData(int.class, "id", "parameter.component.id"),
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(String.class, "texture", "parameter.resource"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(int.class, "width", "parameter.width"),
-				new ParameterData(int.class, "height", "parameter.height")
-			),
-			new MetodData(ITexturedRect.class, "addTexturedRect", "method.ihud.addtexturedrect",
-				new ParameterData(int.class, "id", "parameter.component.id"),
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(String.class, "texture", "parameter.resource"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(int.class, "width", "parameter.width"),
-				new ParameterData(int.class, "height", "parameter.height"),
-				new ParameterData(int.class, "textureX", "parameter.posu"),
-				new ParameterData(int.class, "textureY", "parameter.posv")
-			),
-			new MetodData(IGuiTimer.class, "addTimer", "method.ihud.addtimer",
-				new ParameterData(int.class, "id", "parameter.component.id"),
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(long.class, "start", "parameter.ihud.timer.start"),
-				new ParameterData(long.class, "end", "parameter.ihud.timer.end"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(int.class, "width", "parameter.width"),
-				new ParameterData(int.class, "height", "parameter.height")
-			),
-			new MetodData(IGuiTimer.class, "addTimer", "method.ihud.addtimer",
-				new ParameterData(int.class, "id", "parameter.component.id"),
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(long.class, "start", "parameter.ihud.timer.start"),
-				new ParameterData(long.class, "end", "parameter.ihud.timer.end"),
-				new ParameterData(int.class, "x", "parameter.posu"),
-				new ParameterData(int.class, "y", "parameter.posv"),
-				new ParameterData(int.class, "width", "parameter.width"),
-				new ParameterData(int.class, "height", "parameter.height"),
-				new ParameterData(int.class, "color", "parameter.color")
-			),
-			new MetodData(int[].class, "getKeyPressed", "method.ihud.getkeypressed"),
-			new MetodData(int[].class, "getMousePressed", "method.ihud.getmousepressed"),
-			new MetodData(boolean.class, "isMoved", "method.ihud.ismoved"),
-			new MetodData(boolean.class, "hasMousePress", "method.ihud.hasmousepress",
-				new ParameterData(int.class, "key", "parameter.mousekey")
-			),
-			new MetodData(boolean.class, "hasOrKeysPressed", "method.ihud.hasorkeyspressed",
-				new ParameterData(int[].class, "key", "parameter.keyboardkey")
-			),
-			new MetodData(double[].class, "getWindowSize", "method.ihud.getwindowsize"),
-			new MetodData(String.class, "getCurrentLanguage", "method.ihud.getcurrentlanguage"),
-			new MetodData(ICustomGuiComponent.class, "getComponent", "method.ihud.getcomponent",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(int.class, "id", "parameter.component.id")
-			),
-			new MetodData(ICustomGuiComponent[].class, "getComponents", "method.ihud.getcomponents",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype")
-			),
-			new MetodData(ICustomGuiComponent[].class, "getComponents", "method.ihud.getcomponents"),
-			new MetodData(IItemSlot[].class, "getSlots", "method.ihud.getslots",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype")
-			),
-			new MetodData(IItemSlot[].class, "getSlots", "method.ihud.getslots"),
-			new MetodData(boolean.class, "removeComponent", "method.ihud.removecomponent",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(int.class, "id", "parameter.component.id")
-			),
-			new MetodData(boolean.class, "removeSlot", "method.ihud.removeslot",
-				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
-				new ParameterData(int.class, "id", "parameter.slot")
-			),
-			new MetodData(void.class, "update", "method.ihud.update"),
-			new MetodData(void.class, "clear", "method.ihud.clear")
-		)
-	),
-	IBorder(new InterfaseData(IBorder.class, null,
-			new Class<?>[] { Zone3D.class },
-			"interfase.iborder"
-		)
-	),
-	IBorderHandler(new InterfaseData(IBorderHandler.class, null,
-			new Class<?>[] { BorderController.class },
-			"interfase.iborderhandler"
-		)
-	),
 	IScroll(new InterfaseData(IScroll.class, ICustomGuiComponent.class,
 			new Class<?>[] { CustomGuiScrollWrapper.class },
 			"interfase.iscroll"
@@ -2252,6 +2164,304 @@ public enum EnumInterfaceData {
 	IItemScripted(new InterfaseData(IItemScripted.class, IItemStack.class,
 			new Class<?>[] { ItemScriptedWrapper.class },
 			"interfase.iitemscripted"
+		)
+	),
+	IOverlayHUD(new InterfaseData(IOverlayHUD.class, null,
+			new Class<?>[] { PlayerOverlayHUD.class },
+			"interfase.ihud",
+			new MetodData(boolean.class, "isShowElementType", "method.ihud.isshowelementtype",
+				new ParameterData(int.class, "type", "parameter.ihud.elementtype")
+			),
+			new MetodData(void.class, "setShowElementType", "method.ihud.setshowelementtype",
+				new ParameterData(int.class, "type", "parameter.ihud.elementtype"),
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
+			),
+			new MetodData(void.class, "isShowElementType", "method.ihud.isShowElementType",
+				new ParameterData(String.class, "name", "parameter.ihud.elementname"),
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
+			),
+			new MetodData(IItemSlot.class, "addItemSlot", "method.ihud.additemslot",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv")
+			),
+			new MetodData(IItemSlot.class, "addItemSlot", "method.ihud.additemslot",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(IItemStack.class, "stack", "parameter.stack")
+			),
+			new MetodData(ILabel.class, "addLabel", "method.ihud.addlabel",
+				new ParameterData(int.class, "id", "parameter.component.id"),
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(String.class, "label", "parameter.label.text"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height")
+			),
+			new MetodData(ILabel.class, "addLabel", "method.ihud.addlabel",
+				new ParameterData(int.class, "id", "parameter.component.id"),
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(String.class, "label", "parameter.label.text"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height"),
+				new ParameterData(int.class, "color", "parameter.color")
+			),
+			new MetodData(ITexturedRect.class, "addTexturedRect", "method.ihud.addtexturedrect",
+				new ParameterData(int.class, "id", "parameter.component.id"),
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(String.class, "texture", "parameter.resource"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height")
+			),
+			new MetodData(ITexturedRect.class, "addTexturedRect", "method.ihud.addtexturedrect",
+				new ParameterData(int.class, "id", "parameter.component.id"),
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(String.class, "texture", "parameter.resource"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height"),
+				new ParameterData(int.class, "textureX", "parameter.posu"),
+				new ParameterData(int.class, "textureY", "parameter.posv")
+			),
+			new MetodData(IGuiTimer.class, "addTimer", "method.ihud.addtimer",
+				new ParameterData(int.class, "id", "parameter.component.id"),
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(long.class, "start", "parameter.ihud.timer.start"),
+				new ParameterData(long.class, "end", "parameter.ihud.timer.end"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height")
+			),
+			new MetodData(IGuiTimer.class, "addTimer", "method.ihud.addtimer",
+				new ParameterData(int.class, "id", "parameter.component.id"),
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(long.class, "start", "parameter.ihud.timer.start"),
+				new ParameterData(long.class, "end", "parameter.ihud.timer.end"),
+				new ParameterData(int.class, "x", "parameter.posu"),
+				new ParameterData(int.class, "y", "parameter.posv"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height"),
+				new ParameterData(int.class, "color", "parameter.color")
+			),
+			new MetodData(int[].class, "getKeyPressed", "method.ihud.getkeypressed"),
+			new MetodData(int[].class, "getMousePressed", "method.ihud.getmousepressed"),
+			new MetodData(boolean.class, "isMoved", "method.ihud.ismoved"),
+			new MetodData(boolean.class, "hasMousePress", "method.ihud.hasmousepress",
+				new ParameterData(int.class, "key", "parameter.mousekey")
+			),
+			new MetodData(boolean.class, "hasOrKeysPressed", "method.ihud.hasorkeyspressed",
+				new ParameterData(int[].class, "key", "parameter.keyboardkey")
+			),
+			new MetodData(double[].class, "getWindowSize", "method.ihud.getwindowsize"),
+			new MetodData(String.class, "getCurrentLanguage", "method.ihud.getcurrentlanguage"),
+			new MetodData(ICustomGuiComponent.class, "getComponent", "method.ihud.getcomponent",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(int.class, "id", "parameter.component.id")
+			),
+			new MetodData(ICustomGuiComponent[].class, "getComponents", "method.ihud.getcomponents",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype")
+			),
+			new MetodData(ICustomGuiComponent[].class, "getComponents", "method.ihud.getcomponents"),
+			new MetodData(IItemSlot[].class, "getSlots", "method.ihud.getslots",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype")
+			),
+			new MetodData(IItemSlot[].class, "getSlots", "method.ihud.getslots"),
+			new MetodData(boolean.class, "removeComponent", "method.ihud.removecomponent",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(int.class, "id", "parameter.component.id")
+			),
+			new MetodData(boolean.class, "removeSlot", "method.ihud.removeslot",
+				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
+				new ParameterData(int.class, "id", "parameter.slot")
+			),
+			new MetodData(void.class, "update", "method.ihud.update"),
+			new MetodData(void.class, "clear", "method.ihud.clear")
+		)
+	),
+	IBorder(new InterfaseData(IBorder.class, null,
+			new Class<?>[] { Zone3D.class },
+			"interfase.iborder",
+			new MetodData(boolean.class, "contains", "method.iborder.contains",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(boolean.class, "contains", "method.iborder.contains",
+				new ParameterData(double.class, "x", "parameter.posx"),
+				new ParameterData(double.class, "y", "parameter.posy"),
+				new ParameterData(double.class, "z", "parameter.posz"),
+				new ParameterData(double.class, "height", "parameter.height")
+			),
+			new MetodData(void.class, "setHomePos", "method.iborder.sethomepos",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(IPos.class, "getHomePos", "method.iborder.gethomepos"),
+			new MetodData(Point[].class, "getPoints", "method.iborder.getpoints"),
+			new MetodData(INbt.class, "getNbt", "method.iborder.getnbt"),
+			new MetodData(double.class, "distanceTo", "method.iborder.distanceto",
+				new ParameterData(IEntity.class, "entity", "parameter.entity")
+			),
+			new MetodData(double.class, "distanceTo", "method.iborder.distanceto",
+				new ParameterData(double.class, "x", "parameter.posx"),
+				new ParameterData(double.class, "z", "parameter.posz")
+			),
+			new MetodData(Point[].class, "getClosestPoints", "method.iborder.getclosestpoints",
+				new ParameterData(Point.class, "point", "parameter.point"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(int.class, "getClosestPoint", "method.iborder.getclosestpoint",
+				new ParameterData(Point.class, "point", "parameter.point"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(boolean.class, "removePoint", "method.iborder.removepoint",
+				new ParameterData(Point.class, "point", "parameter.point")
+			),
+			new MetodData(boolean.class, "removePoint", "method.iborder.removepoint",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(void.class, "clear", "method.iborder.removepoint"),
+			new MetodData(int.class, "size", "method.iborder.size"),
+			new MetodData(IPos.class, "getCenter", "method.iborder.getcenter"),
+			new MetodData(int.class, "getMinX", "method.iborder.getminx"),
+			new MetodData(int.class, "getMaxX", "method.iborder.getmaxx"),
+			new MetodData(int.class, "getMinY", "method.iborder.getminy"),
+			new MetodData(int.class, "getMaxY", "method.iborder.getmaxy"),
+			new MetodData(int.class, "getMinZ", "method.iborder.getminz"),
+			new MetodData(int.class, "getMaxZ", "method.iborder.getmaxz"),
+			new MetodData(void.class, "setNbt", "method.iborder.setnbt",
+				new ParameterData(INbt.class, "x", "parameter.nbt")
+			),
+			new MetodData(void.class, "scaling", "method.iborder.scaling.0",
+				new ParameterData(float.class, "scale", "parameter.scale"),
+				new ParameterData(boolean.class, "type", "parameter.iborder.type")
+			),
+			new MetodData(void.class, "scaling", "method.iborder.scaling.1",
+				new ParameterData(double.class, "range", "parameter.range"),
+				new ParameterData(boolean.class, "type", "parameter.iborder.type")
+			),
+			new MetodData(void.class, "centerOffsetTo", "method.iborder.centeroffsetto",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz"),
+				new ParameterData(boolean.class, "type", "parameter.iborder.type")
+			),
+			new MetodData(void.class, "centerOffsetTo", "method.iborder.centeroffsetto",
+				new ParameterData(Point.class, "point", "parameter.point"),
+				new ParameterData(boolean.class, "type", "parameter.iborder.type")
+			),
+			new MetodData(void.class, "centerOffsetTo", "method.iborder.centeroffsetto",
+				new ParameterData(IPos.class, "pos", "parameter.pos"),
+				new ParameterData(boolean.class, "type", "parameter.iborder.type")
+			),
+			new MetodData(void.class, "offset", "method.iborder.offset",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(void.class, "offset", "method.iborder.offset",
+				new ParameterData(Point.class, "point", "parameter.point")
+			),
+			new MetodData(void.class, "offset", "method.iborder.offset",
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(void.class, "insertPoint", "method.iborder.insertpoint",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(void.class, "insertPoint", "method.iborder.insertpoint",
+				new ParameterData(Point.class, "point", "parameter.point"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(void.class, "insertPoint", "method.iborder.insertpoint",
+				new ParameterData(IPos.class, "pos0", "parameter.pos"),
+				new ParameterData(IPos.class, "pos1", "parameter.pos")
+			),
+			new MetodData(Point.class, "addPoint", "method.iborder.addpoint",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(Point.class, "addPoint", "method.iborder.addpoint",
+				new ParameterData(Point.class, "point", "parameter.point"),
+				new ParameterData(int.class, "y", "parameter.posy")
+			),
+			new MetodData(Point.class, "addPoint", "method.iborder.addpoint",
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(Point.class, "setPoint", "method.iborder.setpoint",
+				new ParameterData(int.class, "index", "parameter.iborder.index"),
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(Point.class, "setPoint", "method.iborder.setpoint",
+				new ParameterData(int.class, "index", "parameter.iborder.index"),
+				new ParameterData(Point.class, "point", "parameter.point"),
+				new ParameterData(int.class, "y", "parameter.posy")
+			),
+			new MetodData(Point.class, "setPoint", "method.iborder.setpoint",
+				new ParameterData(int.class, "index", "parameter.iborder.index"),
+				new ParameterData(Point.class, "point", "parameter.point")
+			),
+			new MetodData(Point.class, "setPoint", "method.iborder.setpoint",
+				new ParameterData(int.class, "index", "parameter.iborder.index"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(int.class, "getId", "method.iborder.getid"),
+			new MetodData(String.class, "getName", "method.iborder.getname"),
+			new MetodData(void.class, "setName", "method.iborder.setname",
+				new ParameterData(String.class, "name", "parameter.name")
+			),
+			new MetodData(int.class, "getDimensionId", "method.iborder.getdimensionid"),
+			new MetodData(void.class, "setDimensionId", "method.iborder.setdimensionid",
+				new ParameterData(int.class, "dimID", "parameter.dimensionid")
+			),
+			new MetodData(int.class, "getColor", "method.iborder.getcolor"),
+			new MetodData(void.class, "setColor", "method.iborder.setcolor",
+				new ParameterData(int.class, "color", "parameter.color")
+			),
+			new MetodData(IAvailability.class, "getAvailability", "method.iborder.getavailability"),
+			new MetodData(int.class, "getMessage", "method.iborder.getmessage"),
+			new MetodData(void.class, "setMessage", "method.iborder.setmessage",
+				new ParameterData(String.class, "message", "parameter.message")
+			),
+			new MetodData(void.class, "update", "method.iborder.update")
+		)
+	),
+	IBorderHandler(new InterfaseData(IBorderHandler.class, null,
+			new Class<?>[] { BorderController.class },
+			"interfase.iborderhandler",
+			new MetodData(IBorder.class, "getRegion", "method.iborderhandler.getcolor",
+				new ParameterData(int.class, "regionId", "parameter.iborderhandler.regionid")
+			),
+			new MetodData(INbt.class, "getNbt", "method.iborderhandler.getnbt"),
+			new MetodData(boolean.class, "removeRegion", "method.iborderhandler.removeregion",
+				new ParameterData(int.class, "regionId", "parameter.iborderhandler.regionid")
+			),
+			new MetodData(IBorder[].class, "getRegions", "method.iborderhandler.getregions",
+				new ParameterData(int.class, "dimID", "parameter.dimensionid")
+			),
+			new MetodData(IBorder[].class, "getAllRegions", "method.iborderhandler.getallregions"),
+			new MetodData(void.class, "update", "method.iborderhandler.update",
+				new ParameterData(int.class, "regionId", "parameter.iborderhandler.regionid")
+			),
+			new MetodData(IBorder.class, "createNew", "method.iborderhandler.createnew",
+				new ParameterData(int.class, "dimID", "parameter.dimensionid"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			)
 		)
 	),
 	IItemStack(new InterfaseData(IItemStack.class, null,
@@ -2397,7 +2607,7 @@ public enum EnumInterfaceData {
 				new ParameterData(double.class, "z", "parameter.posz")
 			),
 			new MetodData(IWorld.class, "getIWorld", "method.npcapi.getiworldid",
-				new ParameterData(int.class, "dimensionId", "parameter.dimensionId")
+				new ParameterData(int.class, "dimensionId", "parameter.dimensionid")
 			),
 			new MetodData(IWorld.class, "getIWorld", "method.npcapi.getiworld",
 				new ParameterData(WorldServer.class, "world", "parameter.world")
@@ -2447,11 +2657,11 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(INbt.class, "getNbt", "method.idimensionhandler.getnbt"),
 			new MetodData(IWorldInfo.class, "getMCWorldInfo", "method.idimensionhandler.getmcworldinfo",
-				new ParameterData(int.class, "dimensionID", "parameter.dimensionId")
+				new ParameterData(int.class, "dimensionID", "parameter.dimensionid")
 			),
 			new MetodData(int[].class, "getAllIDs", "method.idimensionhandler.getallids"),
 			new MetodData(void.class, "deleteDimension", "method.idimensionhandler.delete",
-				new ParameterData(int.class, "dimensionID", "parameter.dimensionId")
+				new ParameterData(int.class, "dimensionID", "parameter.dimensionid")
 			)
 		)
 	),

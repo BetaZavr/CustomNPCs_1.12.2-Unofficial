@@ -1,5 +1,10 @@
 package noppes.npcs.client;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +21,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
@@ -35,7 +42,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class ClientTickHandler {
 	
@@ -192,6 +201,23 @@ public class ClientTickHandler {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (entity instanceof EntityPlayerMP || !CustomNpcs.VerboseDebug) { return; }
 		//Minecraft mc = Minecraft.getMinecraft();
+		/*File file = CustomNpcs.getWorldSaveDirectory().getParentFile().getParentFile();
+		File level = new File(file, "Regression");
+		//File level = new File(file, "New World");
+		file = new File(file, "level.json");
+		level = new File(level, "level.dat");
+		System.out.println("file: "+file);
+		System.out.println("level: "+level);
+		try {
+			// Load
+			//NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(level));
+			//NBTJsonUtil.SaveFile(file, nbt);
+			// Save
+			NBTTagCompound nbt = NBTJsonUtil.LoadFile(file);
+			CompressedStreamTools.writeCompressed(nbt, (OutputStream) new FileOutputStream(level));
+			System.out.println("Saved... ");
+		}
+		catch (IOException | JsonException e) { e.printStackTrace(); }*/
 	}
 
 }

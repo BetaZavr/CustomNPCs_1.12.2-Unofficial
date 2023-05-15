@@ -15,10 +15,6 @@ extends INPCJob {
 		void setRotation(int x, int y, int z);
 	}
 
-	int getAnimationSpeed();
-
-	IJobPuppetPart getPart(int part);
-
-	void setAnimationSpeed(int speed);
+	IJobPuppetPart getPart(int part, int step);
 	
 }

@@ -114,5 +114,6 @@ public abstract class NpcAPI {
 	
 	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
 
-	public abstract IBorderHandler getBorders(); // New
+	public abstract IBorderHandler getBorders();
+	
 }

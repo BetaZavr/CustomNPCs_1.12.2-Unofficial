@@ -23,7 +23,6 @@ import noppes.npcs.client.model.animation.AniNo;
 import noppes.npcs.client.model.animation.AniPoint;
 import noppes.npcs.client.model.animation.AniWaving;
 import noppes.npcs.client.model.animation.AniYes;
-import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.ObfuscationHelper;
@@ -75,32 +74,17 @@ extends ModelBiped {
 
 	public ModelRenderer getRandomModelBox(Random random) {
 		switch (random.nextInt(5)) {
-		case 0: {
-			return this.bipedHead;
-		}
-		case 1: {
-			return this.bipedBody;
-		}
-		case 2: {
-			return this.bipedLeftArm;
-		}
-		case 3: {
-			return this.bipedRightArm;
-		}
-		case 4: {
-			return this.bipedLeftLeg;
-		}
-		case 5: {
-			return this.bipedRightLeg;
-		}
-		default: {
-			return this.bipedHead;
-		}
+			case 0: return this.bipedHead;
+			case 1: return this.bipedBody;
+			case 2: return this.bipedLeftArm;
+			case 3: return this.bipedRightArm;
+			case 4: return this.bipedLeftLeg;
+			case 5: return this.bipedRightLeg;
+			default: return this.bipedHead;
 		}
 	}
 
-	public void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
-			Entity entity) {
+	public void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6, Entity entity) {
 		EntityCustomNpc npc = (EntityCustomNpc) entity;
 		ModelData playerdata = npc.modelData;
 		for (EnumParts part : this.map.keySet()) {
@@ -194,8 +178,8 @@ extends ModelBiped {
 			this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleY;
 		}
 		
-		if (npc.animation.getActive()!=null) {
-			AnimationConfig anim = npc.animation.getActive();
+		//if (npc.animation.getActive()!=null) {
+			//AnimationConfig anim = npc.animation.getActive();
 			/*float pi = (float) Math.PI;
 			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
 			if (!npc.animation.head.disabled) {
@@ -252,7 +236,7 @@ extends ModelBiped {
 				this.bipedLeftLeg.rotateAngleY = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 1, partialTicks) * pi;
 				this.bipedLeftLeg.rotateAngleZ = npc.animation.getRotation(npc.animation.lleg, npc.animation.lleg2, 2, partialTicks) * pi;
 			}*/
-		}
+		//}
 	}
 	
 }

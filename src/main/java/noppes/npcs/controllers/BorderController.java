@@ -188,8 +188,7 @@ implements IBorderHandler {
 		Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
 	}
 
-	@Override
-	public void sendToAll(int id) {
+	public void update(int id) {
 		if (CustomNpcs.Server==null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length==0) { return; }
 		if (id<0) {
 			for (int i : this.regions.keySet()) {

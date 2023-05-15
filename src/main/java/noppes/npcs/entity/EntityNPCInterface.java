@@ -335,9 +335,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean attackEntityAsMob(Entity par1Entity) {
 		float f = this.stats.melee.getStrength();
-		if (this.stats.melee.getDelay() < 10) {
-			par1Entity.hurtResistantTime = 0;
-		}
+		if (this.stats.melee.getDelay() < 10) { par1Entity.hurtResistantTime = 0; }
 		if (par1Entity instanceof EntityLivingBase) {
 			NpcEvent.MeleeAttackEvent event = new NpcEvent.MeleeAttackEvent(this.wrappedNPC,
 					(EntityLivingBase) par1Entity, f);
@@ -1010,8 +1008,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void onAttack(EntityLivingBase entity) {
-		if (entity == null || entity == this || this.isAttacking() || this.ais.onAttack == 3
-				|| entity == this.getOwner()) {
+		if (entity == null || entity == this || this.isAttacking() || this.ais.onAttack == 3 || entity == this.getOwner()) {
 			return;
 		}
 		super.setAttackTarget(entity);

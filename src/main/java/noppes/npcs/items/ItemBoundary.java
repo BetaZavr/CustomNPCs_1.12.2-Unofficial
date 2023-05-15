@@ -21,6 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.BorderController;
@@ -97,7 +98,7 @@ implements IPermission {
 		if (data.hud.hasOrKeysPressed(new int [] { 42, 54 })) {
 			Zone3D reg = bData.createNew(player.world.provider.getDimension(), pos);
 			bData.saveRegions();
-			bData.sendToAll(reg.getId());
+			bData.update(reg.getId());
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BoundarySetting, null, reg.getId(), 0, 0);
 			NBTTagCompound compound = stack.getTagCompound();
 			if (compound==null) { stack.setTagCompound(compound = new NBTTagCompound()); }
@@ -114,7 +115,7 @@ implements IPermission {
 		if (remove) {
 			reg.fix();
 			bData.saveRegions();
-			bData.sendToAll(id);
+			bData.update(id);
 		}
 	}
 
@@ -166,13 +167,13 @@ implements IPermission {
 				player.sendMessage(new TextComponentTranslation("message.boundary.offset.y."+add, ""+pos.getX(),""+pos.getY(),""+pos.getZ(), reg.toString()));
 				add = true;
 			} else { // add new point
-				add = reg.insertPoint(pos.getX(), pos.getY(), pos.getZ(), player.getPosition());
+				add = reg.insertPoint(pos.getX(), pos.getY(), pos.getZ(), NpcAPI.Instance().getIPos(player.posX, player.posY, player.posZ));
 				player.sendMessage(new TextComponentTranslation("message.boundary.add.vertex."+add, ""+pos.getX(),""+pos.getY(),""+pos.getZ(), reg.toString()));
 			}
 			if (add) {
 				reg.fix();
 				bData.saveRegions();
-				bData.sendToAll(reg.getId());
+				bData.update(reg.getId());
 			}
 		}
 	}

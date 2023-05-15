@@ -13,11 +13,13 @@ implements IJobPuppetPart {
 	public boolean disabled;
 	public float[] rotation;
 	private EntityNPCInterface npc;
+	public float speed;
 
 	public PartConfig(EntityNPCInterface npc) {
 		this.rotation = new float[] { 0.0f, 0.0f, 0.0f };
 		this.disabled = false;
 		this.npc = npc;
+		this.speed = 40.0f;
 	}
 
 	@Override
@@ -39,8 +41,10 @@ implements IJobPuppetPart {
 	}
 
 	public void readNBT(NBTTagCompound compound) {
-		for (int i=0; i<3; i++) { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); }
+		for (int i=0; i<3 && i<compound.getTagList("Rotation", 5).tagCount(); i++) { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); }
 		this.disabled = compound.getBoolean("Disabled");
+		this.speed = compound.getFloat("Speed");
+		if (this.speed<0) { this.speed *= -1; }
 	}
 	
 	public NBTTagCompound writeNBT() {
@@ -49,6 +53,7 @@ implements IJobPuppetPart {
 		for (int i=0; i<3; i++) { list.appendTag(new NBTTagFloat(this.rotation[i])); }
 		compound.setTag("Rotation", list);
 		compound.setBoolean("Disabled", this.disabled);
+		compound.setFloat("Speed", this.speed);
 		return compound;
 	}
 	
