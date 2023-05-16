@@ -405,21 +405,22 @@ INPCInventory {
 		if (compound.hasKey("DropChance", 9)) { // if old items
 			Map<Integer, IItemStack> d_old = NBTTags.getIItemStackMap(compound.getTagList("NpcInv", 10));
 			Map<Integer, Integer> dc_old = NBTTags.getIntegerIntegerMap(compound.getTagList("DropChance", 10));
+			int i = 0;
 			for (int slot : d_old.keySet()) {
-				if (dc_old.get(slot) <= 0) {
-					continue;
-				}
+				if (dc_old.get(slot) <= 0) { continue; }
 				DropSet ds = new DropSet(this);
 				ds.item = d_old.get(slot);
 				ds.chance = (double) dc_old.get(slot);
 				ds.amount = new int[] { ds.item.getStackSize(), ds.item.getStackSize() };
-				ds.pos = slot;
-				drs.put(slot, ds);
+				ds.pos = i;
+				drs.put(i, ds);
+				i++;
 			}
 		} else { // new data
 			for (int i = 0; i < compound.getTagList("NpcInv", 10).tagCount(); i++) {
 				DropSet ds = new DropSet(this);
 				ds.load(compound.getTagList("NpcInv", 10).getCompoundTagAt(i));
+				ds.pos = i;
 				drs.put(ds.pos, ds);
 			}
 		}
