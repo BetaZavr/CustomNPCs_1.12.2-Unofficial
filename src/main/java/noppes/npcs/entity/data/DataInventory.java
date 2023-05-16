@@ -559,10 +559,12 @@ INPCInventory {
 		compound.setTag("Armor", NBTTags.nbtIItemStackMap(this.armor));
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.weapons));
 		NBTTagList dropList = new NBTTagList();
+		int s = 0;
 		for (int slot : this.drops.keySet()) {
 			if (this.drops.get(slot)==null) { continue; }
-			if (this.drops.get(slot).pos!=slot) { this.drops.get(slot).pos = slot; }
+			if (this.drops.get(slot).pos!=s) { this.drops.get(slot).pos = s; }
 			dropList.appendTag(this.drops.get(slot).getNBT());
+			s++;
 		}
 		compound.setTag("NpcInv", dropList);
 		compound.setBoolean("LootMode", this.lootMode);
