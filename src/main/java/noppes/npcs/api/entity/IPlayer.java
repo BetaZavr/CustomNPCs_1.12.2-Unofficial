@@ -15,7 +15,7 @@ extends IEntityLivingBase<T> {
 	
 	void addDialog(int id);
 
-	void addFactionPoints(int p0, int p1);
+	void addFactionPoints(int faction, int points);
 
 	boolean canQuestBeAccepted(int id);
 
@@ -57,11 +57,11 @@ extends IEntityLivingBase<T> {
 
 	ITimers getTimers();
 
-	boolean giveItem(IItemStack p0);
+	boolean giveItem(IItemStack item);
 
 	boolean giveItem(String id, int damage, int amount);
 
-	boolean hasAchievement(String p0);
+	boolean hasAchievement(String achievement);
 
 	boolean hasActiveQuest(int id);
 	
@@ -69,83 +69,83 @@ extends IEntityLivingBase<T> {
 
 	boolean hasFinishedQuest(int id);
 
-	boolean hasPermission(String p0);
+	boolean hasPermission(String permission);
 
-	boolean hasReadDialog(int id); // New
+	boolean hasReadDialog(int id);
 
 	@Deprecated
-	int inventoryItemCount(IItemStack p0);
+	int inventoryItemCount(IItemStack item);
 
 	int inventoryItemCount(IItemStack stack, boolean ignoreDamage, boolean ignoreNBT);
 
 	@Deprecated
-	int inventoryItemCount(String p0, int p1);
+	int inventoryItemCount(String id, int amount);
 
-	void kick(String p0);
+	void kick(String message);
 
-	void message(String p0);
+	void message(String message);
 
-	void playSound(String p0, float p1, float p2);
+	void playSound(String sound, float volume, float pitch);
 
-	void removeAllItems(IItemStack p0);
+	void removeAllItems(IItemStack item);
 
-	void removeDialog(int p0);
+	void removeDialog(int id);
 
-	boolean removeItem(IItemStack p0, int p1);
+	boolean removeItem(IItemStack item, int amount);
 
-	boolean removeItem(String p0, int p1, int p2);
+	boolean removeItem(String id, int damage, int amount);
 
-	void removeQuest(int p0);
+	void removeQuest(int id);
 
 	void resetSpawnpoint();
 
-	void sendMail(IPlayerMail p0);
+	void sendMail(IPlayerMail mail);
 
-	void sendNotification(String p0, String p1, int p2);
+	void sendNotification(String title, String message, int type);
 
-	void setExpLevel(int p0);
+	void setExpLevel(int level);
 
-	void setGamemode(int p0);
+	void setGamemode(int mode);
 
-	void setHunger(int p0);
+	void setHunger(int level);
 
-	void setSpawnpoint(int p0, int p1, int p2);
+	void setSpawnpoint(int x, int y, int z);
 
-	void setSpawnPoint(IBlock p0);
+	void setSpawnPoint(IBlock block);
 
 	@Deprecated
-	IContainer showChestGui(int p0);
+	IContainer showChestGui(int rows);
 
-	void showCustomGui(ICustomGui p0);
+	void showCustomGui(ICustomGui gui);
 
-	void showDialog(int p0, String p1);
+	void showDialog(int id, String name);
 
-	void startQuest(int p0);
+	void startQuest(int id);
 
-	void stopQuest(int p0);
+	void stopQuest(int id);
 
 	void updatePlayerInventory();
 
-	boolean isMoved(); // New
+	boolean isMoved();
 
-	void addMoney(long value); // New
+	void addMoney(long value);
 
-	long getMoney(); // New
+	long getMoney();
 
-	void setMoney(long value); // New
+	void setMoney(long value);
 
-	int[] getKeyPressed(); // New
+	int[] getKeyPressed();
 
-	boolean hasKeyPressed(int key); // New
+	boolean hasKeyPressed(int key);
 
-	int[] getMousePressed(); // New
+	int[] getMousePressed();
 
-	boolean hasMousePress(int key); // New
+	boolean hasMousePress(int key);
 	
-	void completeQuest(int id); // New
+	void completeQuest(int id);
 
-	IOverlayHUD getIOverlayHUD(); // New
+	IOverlayHUD getIOverlayHUD();
 
-	void trigger(int id, Object ... arguments); // New
+	void trigger(int id, Object ... arguments);
 	
 }

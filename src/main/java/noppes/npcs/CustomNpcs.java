@@ -73,6 +73,7 @@ import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.command.CommandNoppes;
 import noppes.npcs.config.ConfigLoader;
 import noppes.npcs.config.ConfigProp;
+import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.ChunkController;
@@ -414,6 +415,7 @@ public class CustomNpcs {
 		FactionController.instance.load();
 		new DropController();
 		new RecipeController();
+		new AnimationController();
 		new PlayerDataController();
 		new TransportController();
 		new GlobalDataController();
@@ -455,6 +457,7 @@ public class CustomNpcs {
 		ItemScripted.Resources.clear();
 		MarcetController.getInstance().saveMarcets();
 		RecipeController.getInstance().save();
+		AnimationController.getInstance().save();
 		DropController.getInstance().save();
 		// End
 		CustomNpcs.Server = null;

@@ -1,6 +1,5 @@
 package noppes.npcs.api.gui;
 
-import noppes.npcs.api.IPos;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IOverlayHUD {

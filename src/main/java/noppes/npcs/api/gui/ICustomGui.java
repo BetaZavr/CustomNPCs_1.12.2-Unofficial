@@ -58,4 +58,5 @@ public interface ICustomGui {
 	void update(IPlayer<?> player);
 
 	void updateComponent(ICustomGuiComponent component);
+	
 }

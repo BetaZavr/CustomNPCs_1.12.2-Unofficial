@@ -63,7 +63,9 @@ import noppes.npcs.client.gui.util.IGuiClose;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.IGuiError;
 import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.renderer.MarkRenderer;
+import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
@@ -84,6 +86,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
@@ -562,6 +565,36 @@ extends PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			TileEntity tile = player.world.getTileEntity(new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
 			if (tile!=null) { tile.readFromNBT(compound); }
+		} else if (type == EnumPacketClient.UPDATE_NPC_ANIMATION) {
+			int t = buffer.readInt();
+			NBTTagCompound compound = Server.readNBT(buffer);
+			Entity entity = Minecraft.getMinecraft().world.getEntityByID(compound.getInteger("EntityId"));
+			if (!(entity instanceof EntityNPCInterface)) {
+				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
+				return;
+			}
+			DataAnimation anim = ((EntityNPCInterface) entity).animation;
+			switch(t) {
+				case 0: ((EntityNPCInterface) entity).animation.readFromNBT(compound); break; // reload
+				case 1: ((EntityNPCInterface) entity).animation.stop(); break; // stop
+				case 2: // start
+					int animationType = -1, variant = -1;
+					if (compound.hasKey("Vars", 11)) {
+						int[] vars = compound.getIntArray("Vars");
+						if (vars.length>=1) { animationType = vars[0]; }
+						if (vars.length>=2) { variant = vars[1]; }
+					}
+					if (animationType < 0 || animationType >= EnumAnimationType.values().length ) { return; }
+					anim.start(animationType, variant);
+					break;
+				case 3: // startFromSaved
+					if (!compound.hasKey("CustomAnim", 10)) { return; }
+					AnimationConfig ac = new AnimationConfig((EntityNPCInterface) entity, 0);
+					ac.readFromNBT(compound.getCompoundTag("CustomAnim"));
+					((EntityNPCInterface) entity).animation.activeAnim = ac;
+					break;
+					
+			}
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}

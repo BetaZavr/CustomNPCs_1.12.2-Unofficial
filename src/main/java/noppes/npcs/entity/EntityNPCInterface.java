@@ -123,6 +123,7 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.client.EntityUtil;
+import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
@@ -1353,6 +1354,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
 		this.animation.reset();
+		if (this.isRemote()) { this.animation.start(EnumAnimationType.init.ordinal()); }
 		EventHooks.onNPCInit(this);
 	}
 
@@ -1762,6 +1764,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void readSpawnData(NBTTagCompound compound) {
 		this.display.readToNBT(compound);
+		this.animation.readFromNBT(compound);
 		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
 		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
 		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
@@ -1799,6 +1802,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public NBTTagCompound writeSpawnData() {
 		NBTTagCompound compound = new NBTTagCompound();
 		this.display.writeToNBT(compound);
+		this.animation.writeToNBT(compound);
 		compound.setInteger("MaxHealth", this.stats.maxHealth);
 		compound.setTag("Armor", NBTTags.nbtIItemStackMap(this.inventory.armor));
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.inventory.weapons));

@@ -43,12 +43,14 @@ import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
+import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumCompanionStage;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.containers.ContainerMail;
+import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
@@ -1334,6 +1336,19 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.StopSound) {
 			if (player==null) { return; }
 			EventHooks.onPlayerStopSound(PlayerData.get(player).scriptData, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(player), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat()));
+		} else if (type == EnumPacketServer.AnimationGet) {
+			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.animation.writeToNBT(new NBTTagCompound()));
+			AnimationController.getInstance().sendTo(player);
+		} else if (type == EnumPacketServer.AnimationSave) {
+			npc.animation.readFromNBT(Server.readNBT(buffer));
+			npc.updateClient = true;
+		} else if (type == EnumPacketServer.AnimationGlobalSave) {
+			AnimationController aData = AnimationController.getInstance();
+			AnimationConfig ac = (AnimationConfig) aData.createNew(0);
+			int id = ac.id + 0;
+			ac.readFromNBT(Server.readNBT(buffer));
+			ac.id = id;
+			aData.save();
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 	}

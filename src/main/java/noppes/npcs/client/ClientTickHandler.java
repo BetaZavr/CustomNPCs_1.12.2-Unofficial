@@ -1,10 +1,5 @@
 package noppes.npcs.client;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +16,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
@@ -42,9 +35,7 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class ClientTickHandler {
 	
@@ -200,6 +191,10 @@ public class ClientTickHandler {
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (entity instanceof EntityPlayerMP || !CustomNpcs.VerboseDebug) { return; }
+		/*List<String> list = Lists.newArrayList();
+		for (EnumAnimationType eat : EnumAnimationType.values()) { list.add(eat.name()); }
+		Collections.sort(list);
+		System.out.println("list: "+list);*/
 		//Minecraft mc = Minecraft.getMinecraft();
 		/*File file = CustomNpcs.getWorldSaveDirectory().getParentFile().getParentFile();
 		File level = new File(file, "Regression");
@@ -218,6 +213,8 @@ public class ClientTickHandler {
 			System.out.println("Saved... ");
 		}
 		catch (IOException | JsonException e) { e.printStackTrace(); }*/
+		
+		
 	}
 
 }

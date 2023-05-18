@@ -18,6 +18,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.entity.data.INPCAdvanced;
 import noppes.npcs.api.entity.data.INPCAi;
+import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.entity.data.INPCDisplay;
 import noppes.npcs.api.entity.data.INPCInventory;
 import noppes.npcs.api.entity.data.INPCJob;
@@ -295,5 +296,8 @@ implements ICustomNpc {
 	public void trigger(int id, Object... arguments) {
 		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), null, arguments);
 	}
+
+	@Override
+	public INPCAnimation getAnimations() { return this.entity.animation; }
 	
 }

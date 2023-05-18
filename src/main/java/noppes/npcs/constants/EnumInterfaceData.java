@@ -7,6 +7,7 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -53,6 +55,8 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.entity.IThrowable;
 import noppes.npcs.api.entity.IVillager;
+import noppes.npcs.api.entity.data.IAnimation;
+import noppes.npcs.api.entity.data.IAnimation.IAnimationPart;
 import noppes.npcs.api.entity.data.IAttributeSet;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.entity.data.IData;
@@ -62,6 +66,7 @@ import noppes.npcs.api.entity.data.ILine;
 import noppes.npcs.api.entity.data.IMark;
 import noppes.npcs.api.entity.data.INPCAdvanced;
 import noppes.npcs.api.entity.data.INPCAi;
+import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.entity.data.INPCDisplay;
 import noppes.npcs.api.entity.data.INPCInventory;
 import noppes.npcs.api.entity.data.INPCJob;
@@ -92,6 +97,7 @@ import noppes.npcs.api.gui.IScroll;
 import noppes.npcs.api.gui.ITextField;
 import noppes.npcs.api.gui.ITexturedButton;
 import noppes.npcs.api.gui.ITexturedRect;
+import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDataObject;
@@ -168,9 +174,12 @@ import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.TileScripted;
+import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.client.util.InterfaseData;
 import noppes.npcs.client.util.MetodData;
 import noppes.npcs.client.util.ParameterData;
+import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
@@ -194,6 +203,7 @@ import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.data.AttributeSet;
 import noppes.npcs.entity.data.DataAI;
 import noppes.npcs.entity.data.DataAdvanced;
+import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.entity.data.DataDisplay;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.entity.data.DataMelee;
@@ -1783,24 +1793,233 @@ public enum EnumInterfaceData {
 			)
 		)
 	),
+	IAnimationHandler(new InterfaseData(IAnimationHandler.class, null,
+			new Class<?>[] { AnimationController.class },
+			"interfase.ianimationhandler",
+			new MetodData(IAnimation[].class, "getAnimations", "method.ianimationhandler.getanimations",
+				new ParameterData(int.class, "animationType", "parameter.animation.type")
+			),
+			new MetodData(IAnimation.class, "getAnimation", "method.ianimationhandler.getanimation",
+				new ParameterData(int.class, "animationId", "parameter.animation.id")
+			),
+			new MetodData(IAnimation.class, "getAnimation", "method.ianimationhandler.getanimation",
+				new ParameterData(int.class, "animationName", "parameter.animation.name")
+			),
+			new MetodData(boolean.class, "removeAnimation", "method.ianimationhandler.removeanimation",
+				new ParameterData(int.class, "animationId", "parameter.animation.id")
+			),
+			new MetodData(boolean.class, "removeAnimation", "method.ianimationhandler.removeanimation",
+				new ParameterData(int.class, "animationName", "parameter.animation.name")
+			),
+			new MetodData(IAnimation.class, "createNew", "method.ianimationhandler.createnew",
+				new ParameterData(int.class, "animationType", "parameter.animation.type")
+			)
+		)
+	),
+	INPCAnimation(new InterfaseData(INPCAnimation.class, null,
+			new Class<?>[] { DataAnimation.class },
+			"interfase.inpcanimation",
+			new MetodData(void.class, "reset", "method.inpcanimation.reset"),
+			new MetodData(void.class, "stop", "method.inpcanimation.stop"),
+			new MetodData(void.class, "clear", "method.inpcanimation.clear"),
+			new MetodData(void.class, "update", "method.inpcanimation.update"),
+			new MetodData(IAnimation[].class, "getAnimations", "method.inpcanimation.getanimations",
+				new ParameterData(int.class, "animationType", "parameter.animation.type")
+			),
+			new MetodData(IAnimation.class, "getAnimation", "method.inpcanimation.getanimation",
+				new ParameterData(int.class, "animationType", "parameter.animation.type"),
+				new ParameterData(int.class, "variant", "parameter.animation.variant")
+			),
+			new MetodData(void.class, "start", "method.inpcanimation.start",
+				new ParameterData(int.class, "animationType", "parameter.animation.type")
+			),
+			new MetodData(void.class, "start", "method.inpcanimation.start",
+				new ParameterData(int.class, "animationType", "parameter.animation.type"),
+				new ParameterData(int.class, "variant", "parameter.animation.variant")
+			),
+			new MetodData(void.class, "startFromSaved", "method.inpcanimation.startfromsaved",
+				new ParameterData(int.class, "animationID", "parameter.animation.id")
+			),
+			new MetodData(void.class, "startFromSaved", "method.inpcanimation.startfromsaved",
+				new ParameterData(String.class, "animationName", "parameter.animation.name")
+			),
+			new MetodData(INbt.class, "getNbt", "method.inpcanimation.getnbt"),
+			new MetodData(void.class, "setNbt", "method.inpcanimation.setnbt",
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			)
+		)
+	),
+	IAnimation(new InterfaseData(IAnimation.class, null,
+			new Class<?>[] { AnimationConfig.class },
+			"interfase.ianimation",
+			new MetodData(IAnimationPart[].class, "getParts", "method.ianimation.getparts",
+				new ParameterData(int.class, "frame", "parameter.animation.frame")
+			),
+			new MetodData(IAnimationPart.class, "getPart", "method.ianimation.getpart",
+				new ParameterData(int.class, "frame", "parameter.animation.frame"),
+				new ParameterData(int.class, "part", "parameter.animation.part")
+			),
+			new MetodData(int.class, "getType", "method.ianimation.getåype"),
+			new MetodData(int.class, "getId", "method.ianimation.getid"),
+			new MetodData(String.class, "getName", "method.ianimation.getname"),
+			new MetodData(void.class, "setName", "method.ianimation.setname",
+				new ParameterData(String.class, "name", "parameter.name")
+			),
+			new MetodData(INbt.class, "getNbt", "method.ianimation.getnbt"),
+			new MetodData(void.class, "setNbt", "method.ianimation.setnbt",
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			),
+			new MetodData(INbt.class, "startToNpc", "method.ianimation.starttonpc",
+				new ParameterData(ICustomNpc.class, "nbt", "parameter.npc")
+			),
+			new MetodData(int.class, "addFrame", "method.ianimation.addframe"),
+			new MetodData(int.class, "startToNpc", "method.ianimation.addframe",
+				new ParameterData(IAnimationPart[].class, "parts", "parameter.ianimation.parts")
+			)
+		)
+	),
+	IAnimationPart(new InterfaseData(IAnimationPart.class, null,
+			new Class<?>[] { PartConfig.class },
+			"interfase.ianimationpart",
+			new MetodData(void.class, "clear", "method.ianimationpart.clear"),
+			new MetodData(float[].class, "getRotation", "method.ianimationpart.getrotation"),
+			new MetodData(float[].class, "getOffset", "method.ianimationpart.getoffset"),
+			new MetodData(float[].class, "getScale", "method.ianimationpart.getscale"),
+			new MetodData(void.class, "setRotation", "method.ianimationpart.getrotation",
+				new ParameterData(float.class, "x", "parameter.rotx"),
+				new ParameterData(float.class, "y", "parameter.rotx"),
+				new ParameterData(float.class, "z", "parameter.rotx")
+			),
+			new MetodData(void.class, "setOffset", "method.ianimationpart.setoffset",
+				new ParameterData(float.class, "x", "parameter.posdx"),
+				new ParameterData(float.class, "y", "parameter.posdx"),
+				new ParameterData(float.class, "z", "parameter.posdx")
+			),
+			new MetodData(void.class, "setScale", "method.ianimationpart.setscale",
+				new ParameterData(float.class, "x", "parameter.scalex"),
+				new ParameterData(float.class, "y", "parameter.scalex"),
+				new ParameterData(float.class, "z", "parameter.scalex")
+			),
+			new MetodData(boolean.class, "isDisabled", "method.ianimationpart.isdisabled"),
+			new MetodData(void.class, "setDisabled", "method.ianimationpart.setdisabled",
+				new ParameterData(boolean.class, "disabled", "parameter.boolean")
+			),
+			new MetodData(boolean.class, "isSmooth", "method.ianimationpart.issmooth"),
+			new MetodData(void.class, "setSmooth", "method.ianimationpart.setsmooth",
+				new ParameterData(boolean.class, "isSmooth", "parameter.boolean")
+			),
+			new MetodData(int.class, "getSpeed", "method.ianimationpart.getspeed"),
+			new MetodData(void.class, "setSpeed", "method.ianimationpart.setspeed",
+				new ParameterData(int.class, "ticks", "parameter.ticks")
+			),
+			new MetodData(int.class, "getEndDelay", "method.ianimationpart.getenddelay"),
+			new MetodData(void.class, "setEndDelay", "method.ianimationpart.setenddelay",
+				new ParameterData(int.class, "ticks", "parameter.ticks")
+			)
+		)
+	),
 	INPCRole(new InterfaseData(INPCRole.class, null,
 			new Class<?>[] { RoleBank.class, RoleCompanion.class, RoleDialog.class, RoleFollower.class, RolePostman.class,
 				RoleTrader.class, RoleTransporter.class },
-			"interfase.inpcrole"
+			"interfase.inpcrole",
+			new MetodData(int.class, "getType", "method.inpcrole.gettype")
 		)
 	),
 	INPCStats(new InterfaseData(INPCStats.class, null,
 			new Class<?>[] { DataStats.class },
-			"interfase.inpcstats"
+			"interfase.inpcstats",
+			new MetodData(int.class, "getAggroRange", "method.inpcstats.getaggrorange"),
+			new MetodData(int.class, "getCombatRegen", "method.inpcstats.getcombatregen"),
+			new MetodData(int.class, "getCreatureType", "method.inpcstats.getcreaturetype"),
+			new MetodData(int.class, "getHealthRegen", "method.inpcstats.gethealthregen"),
+			new MetodData(boolean.class, "getHideDeadBody", "method.inpcstats.gethidedeadbody"),
+			new MetodData(boolean.class, "getImmune", "method.inpcstats.getImmune",
+				new ParameterData(int.class, "type", "parameter.inpcstats.immune.type")
+			),
+			new MetodData(int.class, "getLevel", "method.inpcstats.getlevel"),
+			new MetodData(int.class, "getMaxHealth", "method.inpcstats.getmaxhealth"),
+			new MetodData(INPCMelee.class, "getMelee", "method.inpcstats.getmelee"),
+			new MetodData(INPCRanged.class, "getRanged", "method.inpcstats.getranged"),
+			new MetodData(int.class, "getRarity", "method.inpcstats.getrarity"),
+			new MetodData(String.class, "getResistance", "method.inpcstats.getresistance"),
+			new MetodData(float.class, "getImmune", "method.inpcstats.getImmune",
+				new ParameterData(int.class, "type", "parameter.inpcstats.resistance.type")
+			),
+			new MetodData(int.class, "getRespawnTime", "method.inpcstats.getrespawntime"),
+			new MetodData(int.class, "getRespawnType", "method.inpcstats.getrespawntype"),
+			new MetodData(boolean.class, "isCalmdown", "method.inpcstats.isCalmdown"),
+			new MetodData(void.class, "setAggroRange", "method.inpcstats.setaggrorange",
+				new ParameterData(int.class, "range", "parameter.inpcstats.aggrorange")
+			),
+			new MetodData(void.class, "setCalmdown", "method.inpcstats.setcalmdown",
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
+			),
+			new MetodData(void.class, "setCombatRegen", "method.inpcstats.setcombatregen",
+				new ParameterData(int.class, "regen", "parameter.inpcstats.combatregen")
+			),
+			new MetodData(void.class, "setCreatureType", "method.inpcstats.setcreaturetype",
+				new ParameterData(int.class, "type", "parameter.inpcstats.creaturetype")
+			),
+			new MetodData(void.class, "setHealthRegen", "method.inpcstats.sethealthregen",
+				new ParameterData(int.class, "regen", "parameter.inpcstats.healthregen")
+			),
+			new MetodData(void.class, "setHideDeadBody", "method.inpcstats.sethidedeadbody",
+				new ParameterData(boolean.class, "hide", "parameter.boolean")
+			),
+			new MetodData(void.class, "setImmune", "method.inpcstats.setimmune",
+				new ParameterData(int.class, "type", "parameter.inpcstats.immunetype"),
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
+			),
+			new MetodData(void.class, "setLevel", "method.inpcstats.setlevel",
+				new ParameterData(int.class, "level", "type.level")
+			),
+			new MetodData(void.class, "setMaxHealth", "method.inpcstats.setmaxmealth",
+				new ParameterData(int.class, "maxHealth", "parameter.health")
+			),
+			new MetodData(void.class, "setRarity", "method.inpcstats.setrarity",
+				new ParameterData(int.class, "rarity", "stats.rarity")
+			),
+			new MetodData(void.class, "setRarityTitle", "method.inpcstats.setraritytitle",
+				new ParameterData(String.class, "rarity", "parameter.inpcstats.rarity")
+			),
+			new MetodData(void.class, "setResistance", "method.inpcstats.setresistance",
+				new ParameterData(int.class, "type", "parameter.inpcstats.resistancetype"),
+				new ParameterData(float.class, "value", "parameter.inpcstats.resistancevalue")
+			),
+			new MetodData(void.class, "setRespawnTime", "method.inpcstats.setrespawntime",
+				new ParameterData(String.class, "seconds", "parameter.seconds")
+			),
+			new MetodData(void.class, "setRespawnType", "method.inpcstats.setrespawntype",
+				new ParameterData(String.class, "seconds", "parameter.inpcstats.respawntype")
+			)
 		)
 	),
 	IPixelmonPlayerData(new InterfaseData(IPixelmonPlayerData.class, null, null,
-			"interfase.ipixelmonplayerdata"
+			"interfase.ipixelmonplayerdata",
+			new MetodData(Object.class, "getParty", "method.ipixelmonplayerdata.getparty"),
+			new MetodData(Object.class, "getPC", "method.ipixelmonplayerdata.getpc")
 		)
 	),
 	IPlayerMail(new InterfaseData(IPlayerMail.class, null,
 			new Class<?>[] { PlayerMail.class },
-			"interfase.iplayermail"
+			"interfase.iplayermail",
+			new MetodData(IContainer.class, "getContainer", "method.iplayermail.getcontainer"),
+			new MetodData(IQuest.class, "getQuest", "method.iplayermail.getquest"),
+			new MetodData(String.class, "getSender", "method.iplayermail.getsender"),
+			new MetodData(String.class, "getSubject", "method.iplayermail.getsubject"),
+			new MetodData(String[].class, "getText", "method.iplayermail.gettext"),
+			new MetodData(void.class, "setQuest", "method.iplayermail.setquest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(void.class, "setSender", "method.iplayermail.setsender",
+				new ParameterData(String.class, "sender", "parameter.iplayermail.sender")
+			),
+			new MetodData(void.class, "setSubject", "method.iplayermail.setsubject",
+				new ParameterData(String.class, "subject", "parameter.iplayermail.subject")
+			),
+			new MetodData(void.class, "setText", "method.iplayermail.settext",
+				new ParameterData(String[].class, "text", "parameter.iplayermail.text")
+			)
 		)
 	),
 	IAnimal(new InterfaseData(IAnimal.class, IEntityLiving.class,
@@ -1819,7 +2038,8 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "trigger", "method.trigger",
 				new ParameterData(int.class, "id", "parameter.trigger.id"),
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
-			)
+			),
+			new MetodData(INPCAnimation.class, "getAnimations", "method.getanimations")
 		)
 	),
 	IEntity(new InterfaseData(IEntity.class, null,
@@ -1890,7 +2110,7 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "kill", "method.ientity.kill"),
 			new MetodData(void.class, "knockback", "method.ientity.knockback",
 				new ParameterData(int.class, "power", "parameter.ientity.power"),
-				new ParameterData(float.class, "direction", "parameter.ientity.direction")
+				new ParameterData(float.class, "direction", "parameter.yaw")
 			),
 			new MetodData(void.class, "playAnimation", "method.ientity.playanimation",
 				new ParameterData(int.class, "type", "parameter.ientity.animtype")
@@ -1964,17 +2184,114 @@ public enum EnumInterfaceData {
 	),
 	IEntityItem(new InterfaseData(IEntityItem.class, IEntity.class,
 			new Class<?>[] { EntityItemWrapper.class },
-			"interfase.ientityitem"
+			"interfase.ientityitem",
+			new MetodData(long.class, "getAge", "method.ientityitem.getage"),
+			new MetodData(IItemStack.class, "getItem", "method.ientityitem.getitem"),
+			new MetodData(int.class, "getLifeSpawn", "method.ientityitem.getlifespawn"),
+			new MetodData(String.class, "getOwner", "method.ientityitem.getowner"),
+			new MetodData(int.class, "getPickupDelay", "method.ientityitem.getpickupdelay"),
+			new MetodData(void.class, "setAge", "method.ientityitem.setquest",
+				new ParameterData(long.class, "age", "parameter.age")
+			),
+			new MetodData(void.class, "setItem", "method.ientityitem.setquest",
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			),
+			new MetodData(void.class, "setLifeSpawn", "method.ientityitem.setlifespawn",
+				new ParameterData(int.class, "age", "parameter.age")
+			),
+			new MetodData(void.class, "setOwner", "method.ientityitem.setowner",
+				new ParameterData(String.class, "name", "parameter.playername")
+			),
+			new MetodData(void.class, "setPickupDelay", "method.ientityitem.setpickupdelay",
+				new ParameterData(int.class, "delay", "parameter.ticks")
+			)
 		)
 	),
 	IEntityLiving(new InterfaseData(IEntityLiving.class, IEntityLivingBase.class,
 			new Class<?>[] { EntityLivingWrapper.class },
-			"interfase.ientityliving"
+			"interfase.ientityliving",
+			new MetodData(void.class, "clearNavigation", "method.ientityliving.clearnavigation"),
+			new MetodData(Entity.class, "getMCEntity", "method.ientity.getmcentity"),
+			new MetodData(IPos.class, "getNavigationPath", "method.ientityliving.getnavigationpath"),
+			new MetodData(boolean.class, "isNavigating", "method.ientityliving.isnavigating"),
+			new MetodData(void.class, "jump", "method.ientityliving.jump"),
+			new MetodData(void.class, "navigateTo", "method.ientityliving.navigateto",
+				new ParameterData(double.class, "x", "parameter.posx"),
+				new ParameterData(double.class, "y", "parameter.posy"),
+				new ParameterData(double.class, "z", "parameter.posz"),
+				new ParameterData(double.class, "speed", "parameter.speed")
+			)
 		)
 	),
 	IEntityLivingBase(new InterfaseData(IEntityLivingBase.class, IEntity.class,
 			new Class<?>[] { EntityLivingBaseWrapper.class },
-			"interfase.ientitylivingbase"
+			"interfase.ientitylivingbase",
+			new MetodData(IMark.class, "addMark", "method.ientitylivingbase.addmark",
+				new ParameterData(int.class, "type", "parameter.mark.type")
+			),
+			new MetodData(void.class, "addPotionEffect", "method.ientitylivingbase.addpotioneffect",
+				new ParameterData(int.class, "effect", "parameter.effect.id"),
+				new ParameterData(int.class, "duration", "parameter.effect.duration"),
+				new ParameterData(int.class, "type", "parameter.effect.strength"),
+				new ParameterData(boolean.class, "hideParticles", "parameter.effect.hideparticles")
+			),
+			new MetodData(boolean.class, "canSeeEntity", "method.ientitylivingbase.canseeentity",
+				new ParameterData(IEntity.class, "entity", "parameter.entity")
+			),
+			new MetodData(void.class, "clearPotionEffects", "method.ientitylivingbase.clearpotioneffects"),
+			new MetodData(IItemStack.class, "getArmor", "method.ientitylivingbase.getarmor",
+				new ParameterData(IEntity.class, "slot", "parameter.armor.slot")
+			),
+			new MetodData(IEntityLivingBase.class, "getAttackTarget", "method.ientitylivingbase.getattacktarget"),
+			new MetodData(float.class, "getHealth", "method.ientitylivingbase.gethealth"),
+			new MetodData(IEntityLivingBase.class, "getLastAttacked", "method.ientitylivingbase.getlastattacked"),
+			new MetodData(int.class, "getLastAttackedTime", "method.ientitylivingbase.getlastattackedtime"),
+			new MetodData(IItemStack.class, "getMainhandItem", "method.ientitylivingbase.getmainhanditem"),
+			new MetodData(IMark[].class, "getMarks", "method.ientitylivingbase.getmarks"),
+			new MetodData(float.class, "getMaxHealth", "method.ientitylivingbase.getmaxhealth"),
+			new MetodData(Entity.class, "getMCEntity", "method.ientity.getmcentity"),
+			new MetodData(float.class, "getMoveForward", "method.ientitylivingbase.getmoveforward"),
+			new MetodData(float.class, "getMoveStrafing", "method.ientitylivingbase.getmovestrafing"),
+			new MetodData(float.class, "getMoveVertical", "method.ientitylivingbase.getmovevertical"),
+			new MetodData(IItemStack.class, "getOffhandItem", "method.ientitylivingbase.getoffhanditem"),
+			new MetodData(int.class, "getPotionEffect", "method.ientitylivingbase.getpotioneffect",
+				new ParameterData(int.class, "effect", "parameter.effect.id")
+			),
+			new MetodData(boolean.class, "isAttacking", "method.ientitylivingbase.isattacking"),
+			new MetodData(boolean.class, "isChild", "method.ientitylivingbase.ischild"),
+			new MetodData(void.class, "removeMark", "method.ientitylivingbase.removemark",
+				new ParameterData(IMark.class, "mark", "parameter.mark")
+			),
+			new MetodData(void.class, "setArmor", "method.ientitylivingbase.setarmor",
+				new ParameterData(IMark.class, "slot", "parameter.armor.slot"),
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			),
+			new MetodData(void.class, "setAttackTarget", "method.ientitylivingbase.setattacktarget",
+				new ParameterData(IEntityLivingBase.class, "living", "parameter.entity")
+			),
+			new MetodData(void.class, "setHealth", "method.ientitylivingbase.sethealth",
+				new ParameterData(float.class, "health", "parameter.health")
+			),
+			new MetodData(void.class, "setMainhandItem", "method.ientitylivingbase.setmainhanditem",
+					new ParameterData(IItemStack.class, "item", "parameter.stack")
+			),
+			new MetodData(void.class, "setMaxHealth", "method.ientitylivingbase.setmaxhealth",
+				new ParameterData(float.class, "health", "parameter.health")
+			),
+			new MetodData(void.class, "setMoveForward", "method.ientitylivingbase.setmoveforward",
+				new ParameterData(float.class, "move", "parameter.forward.move")
+			),
+			new MetodData(void.class, "setMoveStrafing", "method.ientitylivingbase.setmovestrafing",
+				new ParameterData(float.class, "move", "parameter.strafing.move")
+			),
+			new MetodData(void.class, "setMoveVertical", "method.ientitylivingbase.setmovevertical",
+				new ParameterData(float.class, "move", "parameter.vertical.move")
+			),
+			new MetodData(void.class, "setOffhandItem", "method.ientitylivingbase.setoffhanditem",
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			),
+			new MetodData(void.class, "swingMainhand", "method.ientitylivingbase.swingmainhand"),
+			new MetodData(void.class, "swingMainhand", "method.ientitylivingbase.swingoffhand")
 		)
 	),
 	IMonster(new InterfaseData(IMonster.class, IEntityLiving.class,
@@ -1984,12 +2301,178 @@ public enum EnumInterfaceData {
 	),
 	IPixelmon(new InterfaseData(IPixelmon.class, IAnimal.class,
 			new Class<?>[] { PixelmonWrapper.class },
-			"interfase.ipixelmon"
+			"interfase.ipixelmon",
+			new MetodData(Object.class, "getPokemonData", "method.ipixelmon.getpokemondata")
 		)
 	),
 	IPlayer(new InterfaseData(IPlayer.class, IEntityLivingBase.class,
 			new Class<?>[] { PlayerWrapper.class },
 			"interfase.iplayer",
+			new MetodData(void.class, "addDialog", "method.iplayer.adddialog",
+				new ParameterData(int.class, "id", "parameter.dialog.id")
+			),
+			new MetodData(void.class, "addFactionPoints", "method.iplayer.addfactionpoints",
+				new ParameterData(int.class, "id", "parameter.faction.id"),
+				new ParameterData(int.class, "points", "parameter.value")
+			),
+			new MetodData(boolean.class, "canQuestBeAccepted", "method.iplayer.canquestbeaccepted",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(void.class, "clearData", "method.iplayer.cleardata"),
+			new MetodData(void.class, "closeGui", "method.iplayer.closegui"),
+			new MetodData(int.class, "factionStatus", "method.iplayer.factionstatus",
+				new ParameterData(int.class, "id", "parameter.faction.id")
+			),
+			new MetodData(boolean.class, "finishQuest", "method.iplayer.finishquest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(IQuest[].class, "getActiveQuests", "method.iplayer.getactivequests"),
+			new MetodData(ICustomGui.class, "getCustomGui", "method.iplayer.getcustomGui"),
+			new MetodData(String.class, "getDisplayName", "method.iplayer.getdisplayname"),
+			new MetodData(int.class, "getExpLevel", "method.iplayer.getexplevel"),
+			new MetodData(int.class, "getFactionPoints", "method.iplayer.getfactionpoints",
+				new ParameterData(int.class, "id", "parameter.faction.id")
+			),
+			new MetodData(IQuest[].class, "getFinishedQuests", "method.iplayer.getfinishedquests"),
+			new MetodData(int.class, "getGamemode", "method.iplayer.getgamemode"),
+			new MetodData(int.class, "getHunger", "method.iplayer.gethunger"),
+			new MetodData(IContainer.class, "getInventory", "method.iplayer.getinventory"),
+			new MetodData(IItemStack.class, "getInventoryHeldItem", "method.iplayer.getinventoryhelditem"),
+			new MetodData(EntityPlayer.class, "getMCEntity", "method.ientity.getmcentity"),
+			new MetodData(IContainer.class, "getOpenContainer", "method.iplayer.getopencontainer"),
+			new MetodData(Object.class, "getPixelmonData", "method.iplayer.getpixelmondata"),
+			new MetodData(IBlock.class, "getSpawnPoint", "method.iplayer.getspawnpoint"),
+			new MetodData(ITimers.class, "getTimers", "method.iplayer.gettimers"),
+			new MetodData(boolean.class, "giveItem", "method.iplayer.giveitem",
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			),
+			new MetodData(boolean.class, "giveItem", "method.iplayer.giveitem",
+				new ParameterData(String.class, "id", "parameter.itemname"),
+				new ParameterData(int.class, "damage", "parameter.itemmeta"),
+				new ParameterData(int.class, "amount", "parameter.itemcount")
+			),
+			new MetodData(boolean.class, "hasAchievement", "method.iplayer.hasachievement",
+				new ParameterData(String.class, "achievement", "parameter.iplayer.achievement")
+			),
+			new MetodData(boolean.class, "hasActiveQuest", "method.iplayer.hasactivequest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(boolean.class, "isComleteQuest", "method.iplayer.iscomletequest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(boolean.class, "hasFinishedQuest", "method.iplayer.hasfinishedquest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(boolean.class, "hasPermission", "method.iplayer.haspermission",
+				new ParameterData(String.class, "permission", "parameter.npcapi.permission")
+			),
+			new MetodData(boolean.class, "hasReadDialog", "method.iplayer.hasreaddialog",
+				new ParameterData(int.class, "id", "parameter.dialog.id")
+			),
+			new MetodData(int.class, "inventoryItemCount", "method.iplayer.inventoryitemcount",
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			).setDeprecated(),
+			new MetodData(int.class, "inventoryItemCount", "method.iplayer.inventoryitemcount",
+				new ParameterData(IItemStack.class, "item", "parameter.stack"),
+				new ParameterData(boolean.class, "ignoreDamage", "parameter.ignoredamage"),
+				new ParameterData(boolean.class, "ignoreNBT", "parameter.ignorenbt")
+			),
+			new MetodData(int.class, "inventoryItemCount", "method.iplayer.inventoryitemcount",
+				new ParameterData(String.class, "id", "parameter.itemname"),
+				new ParameterData(int.class, "amount", "parameter.itemcount")
+			).setDeprecated(),
+			new MetodData(void.class, "kick", "method.iplayer.kick",
+				new ParameterData(String.class, "message", "parameter.message")
+			),
+			new MetodData(void.class, "message", "method.iplayer.message",
+				new ParameterData(String.class, "message", "parameter.message")
+			),
+			new MetodData(void.class, "playSound", "method.iplayer.playsound",
+				new ParameterData(String.class, "sound", "parameter.sound.name"),
+				new ParameterData(float.class, "volume", "parameter.sound.volume"),
+				new ParameterData(float.class, "pitch", "parameter.sound.pitch")
+			),
+			new MetodData(void.class, "removeAllItems", "method.iplayer.removeallitems",
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			),
+			new MetodData(void.class, "removeDialog", "method.iplayer.removedialog",
+				new ParameterData(int.class, "id", "parameter.dialog.id")
+			),
+			new MetodData(boolean.class, "removeItem", "method.iplayer.removeitem",
+				new ParameterData(IItemStack.class, "item", "parameter.stack"),
+				new ParameterData(int.class, "amount", "parameter.itemcount")
+			),
+			new MetodData(int.class, "inventoryItemCount", "method.iplayer.inventoryitemcount",
+				new ParameterData(String.class, "id", "parameter.itemname"),
+				new ParameterData(int.class, "damage", "parameter.itemmeta"),
+				new ParameterData(int.class, "amount", "parameter.itemcount")
+			),
+			new MetodData(void.class, "removeQuest", "method.iplayer.removequest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(void.class, "resetSpawnpoint", "method.iplayer.resetspawnpoint"),
+			new MetodData(void.class, "sendMail", "method.iplayer.sendmail",
+				new ParameterData(IPlayerMail.class, "mail", "parameter.mail")
+			),
+			new MetodData(void.class, "sendNotification", "method.iplayer.sendnotification",
+				new ParameterData(String.class, "title", "parameter.title"),
+				new ParameterData(String.class, "message", "parameter.message"),
+				new ParameterData(int.class, "type", "parameter.message.type")
+			),
+			new MetodData(void.class, "setExpLevel", "method.iplayer.setexplevel",
+				new ParameterData(int.class, "level", "type.level")
+			),
+			new MetodData(void.class, "setGamemode", "method.iplayer.setgamemode",
+				new ParameterData(int.class, "mode", "parameter.gamemode")
+			),
+			new MetodData(void.class, "setHunger", "method.iplayer.sethunger",
+				new ParameterData(int.class, "level", "type.level")
+			),
+			new MetodData(void.class, "setSpawnpoint", "method.iplayer.setspawnpoint",
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(void.class, "setSpawnpoint", "method.iplayer.setspawnpoint",
+				new ParameterData(IBlock.class, "block", "parameter.block")
+			),
+			new MetodData(IContainer.class, "showChestGui", "method.iplayer.showchestgui",
+				new ParameterData(int.class, "rows", "parameter.chestgui.rows")
+			).setDeprecated(),
+			new MetodData(void.class, "showCustomGui", "method.iplayer.showcustomgui",
+				new ParameterData(ICustomGui.class, "gui", "parameter.customgui")
+			),
+			new MetodData(void.class, "showDialog", "method.iplayer.showdialog",
+				new ParameterData(int.class, "id", "parameter.dialog.id"),
+				new ParameterData(String.class, "name", "parameter.entity.name")
+			),
+			new MetodData(void.class, "startQuest", "method.iplayer.startquest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(void.class, "stopQuest", "method.iplayer.stopquest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(void.class, "updatePlayerInventory", "method.iplayer.updateplayerinventory"),
+			new MetodData(boolean.class, "isMoved", "method.iplayer.ismoved"),
+			new MetodData(long.class, "getMoney", "method.iplayer.getmoney"),
+			new MetodData(void.class, "addMoney", "method.iplayer.addmoney",
+				new ParameterData(long.class, "value", "parameter.money.value")
+			),
+			new MetodData(void.class, "setMoney", "method.iplayer.setmoney",
+				new ParameterData(long.class, "value", "parameter.money.value")
+			),
+			new MetodData(int[].class, "getKeyPressed", "method.iplayer.getkeypressed"),
+			new MetodData(boolean.class, "hasKeyPressed", "method.iplayer.haskeypressed",
+				new ParameterData(long.class, "key", "parameter.keyboardkey")
+			),
+			new MetodData(int[].class, "getMousePressed", "method.iplayer.getmousepressed"),
+			new MetodData(boolean.class, "hasMousePress", "method.iplayer.hasmousepress",
+				new ParameterData(long.class, "key", "parameter.mousekey")
+			),
+			new MetodData(void.class, "completeQuest", "method.iplayer.completequest",
+				new ParameterData(int.class, "id", "parameter.quest.id")
+			),
+			new MetodData(IOverlayHUD.class, "getIOverlayHUD", "method.iplayer.gethud"),
 			new MetodData(void.class, "trigger", "method.trigger",
 				new ParameterData(int.class, "id", "parameter.trigger.id"),
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
@@ -1998,7 +2481,32 @@ public enum EnumInterfaceData {
 	),
 	IProjectile(new InterfaseData(IProjectile.class, IThrowable.class,
 			new Class<?>[] { ProjectileWrapper.class },
-			"interfase.iprojectile"
+			"interfase.iprojectile",
+			new MetodData(void.class, "enableEvents", "method.iprojectile.enableevents"),
+			new MetodData(int.class, "getAccuracy", "method.iprojectile.getaccuracy"),
+			new MetodData(boolean.class, "getHasGravity", "method.iprojectile.gethasgravity"),
+			new MetodData(IItemStack.class, "getItem", "method.iprojectile.getitem"),
+			new MetodData(void.class, "setAccuracy", "method.iplayer.setaccuracy",
+				new ParameterData(int.class, "accuracy", "parameter.iprojectile.accuracy")
+			),
+			new MetodData(void.class, "setHasGravity", "method.iplayer.sethasgravity",
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
+			),
+			new MetodData(void.class, "setHeading", "method.iplayer.setheading",
+				new ParameterData(double.class, "x", "parameter.posx"),
+				new ParameterData(double.class, "y", "parameter.posy"),
+				new ParameterData(double.class, "z", "parameter.posz")
+			),
+			new MetodData(void.class, "setHeading", "method.iplayer.setheading",
+				new ParameterData(float.class, "yaw", "parameter.yaw"),
+				new ParameterData(float.class, "pitch", "parameter.pitch")
+			),
+			new MetodData(void.class, "setHeading", "method.iplayer.setheading",
+				new ParameterData(IEntity.class, "entity", "parameter.entity")
+			),
+			new MetodData(void.class, "setItem", "method.iplayer.setitem",
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
+			)
 		)
 	),
 	IThrowable(new InterfaseData(IThrowable.class, IEntity.class,
@@ -2008,12 +2516,35 @@ public enum EnumInterfaceData {
 	),
 	IVillager(new InterfaseData(IVillager.class, IEntityLiving.class,
 			new Class<?>[] { VillagerWrapper.class },
-			"interfase.ivillager"
+			"interfase.ivillager",
+			new MetodData(MerchantRecipeList.class, "getRecipes", "method.ivillager.getrecipes",
+				new ParameterData(IPlayer.class, "player", "parameter.player")
+			),
+			new MetodData(IInventory.class, "getVillagerInventory", "method.ivillager.getvillagerinventory")
 		)
 	),
 	IButton(new InterfaseData(IButton.class, ICustomGuiComponent.class,
 			new Class<?>[] { CustomGuiButtonWrapper.class },
-			"interfase.ibutton"
+			"interfase.ibutton",
+			new MetodData(int.class, "getHeight", "method.component.getheight"),
+			new MetodData(String.class, "getLabel", "method.ibutton.getlabel"),
+			new MetodData(int.class, "getTextureX", "method.component.gettexturex"),
+			new MetodData(int.class, "getTextureY", "method.component.gettexturey"),
+			new MetodData(int.class, "getWidth", "method.component.getwidth"),
+			new MetodData(IButton.class, "setLabel", "method.ibutton.setlabel",
+				new ParameterData(String.class, "lable", "gui.name")
+			),
+			new MetodData(IButton.class, "setSize", "method.ibutton.setsize",
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height")
+			),
+			new MetodData(IButton.class, "setTexture", "method.ibutton.settexture",
+				new ParameterData(String.class, "texture", "parameter.texture")
+			),
+			new MetodData(IButton.class, "setTextureOffset", "method.ibutton.setåextureùffset",
+				new ParameterData(String.class, "textureX", "parameter.texturex"),
+				new ParameterData(String.class, "textureY", "parameter.texturey")
+			)
 		)
 	),
 	ICustomGui(new InterfaseData(ICustomGui.class, null,
@@ -2645,7 +3176,8 @@ public enum EnumInterfaceData {
 			new MetodData(IPlayer.class, "getIPlayer", "method.npcapi.getiplayer",
 				new ParameterData(String.class, "nameOrUUID", "parameter.playername")
 			),
-			new MetodData(IBorderHandler.class, "getBorders", "method.npcapi.getborders")
+			new MetodData(IBorderHandler.class, "getBorders", "method.npcapi.getborders"),
+			new MetodData(IAnimationHandler.class, "getAnimations", "method.npcapi.getanimations")
 		)
 	),
 	IDimensionHandler(new InterfaseData(IDimensionHandler.class, null,

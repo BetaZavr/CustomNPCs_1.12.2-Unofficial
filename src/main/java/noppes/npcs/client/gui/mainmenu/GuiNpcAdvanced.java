@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelDataShared;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiNpcSelectTraider;
@@ -18,6 +17,7 @@ import noppes.npcs.client.gui.advanced.GuiNPCNightSetup;
 import noppes.npcs.client.gui.advanced.GuiNPCScenes;
 import noppes.npcs.client.gui.advanced.GuiNPCSoundsMenu;
 import noppes.npcs.client.gui.animation.GuiNpcAnimation;
+import noppes.npcs.client.gui.animation.GuiNpcEmotion;
 import noppes.npcs.client.gui.roles.GuiJobFarmer;
 import noppes.npcs.client.gui.roles.GuiNpcBard;
 import noppes.npcs.client.gui.roles.GuiNpcCompanion;
@@ -73,7 +73,9 @@ implements IGuiData, ISubGuiListener {
 		this.addButton(new GuiNpcButton(14, this.guiLeft + 15, y += 22, 190, 20, "advanced.scenes"));
 		this.addButton(new GuiNpcButton(15, this.guiLeft + 208, y, 190, 20, "advanced.marks"));
 		this.addButton(new GuiNpcButton(16, this.guiLeft + 15, y += 22, 190, 20, "movement.animation"));
-		this.getButton(16).enabled = ((EntityCustomNpc) this.npc).modelData instanceof ModelDataShared && ((ModelDataShared) ((EntityCustomNpc) this.npc).modelData).entityClass==null;
+		this.getButton(16).enabled = ((EntityCustomNpc) this.npc).modelData.entityClass==null;
+		this.addButton(new GuiNpcButton(18, this.guiLeft + 15, y += 22, 190, 20, "advanced.emotion"));
+		this.getButton(18).enabled = ((EntityCustomNpc) this.npc).modelData.eyes.type!=(byte)-1;
 	}
 
 	@Override
@@ -144,6 +146,10 @@ implements IGuiData, ISubGuiListener {
 			}
 			case 16: { // Animation Settings
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcAnimation(this, (EntityCustomNpc) this.npc));
+				break;
+			}
+			case 18: { // Animation Settings
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcEmotion(this, (EntityCustomNpc) this.npc));
 				break;
 			}
 		}
@@ -271,6 +277,10 @@ implements IGuiData, ISubGuiListener {
 		}
 		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.anim").getFormattedText());
+		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("animation.hover.eye",
+				new TextComponentTranslation("gui.help.general").getFormattedText(),
+				new TextComponentTranslation("selectServer.edit").getFormattedText()).getFormattedText());
 		}
 	}
 

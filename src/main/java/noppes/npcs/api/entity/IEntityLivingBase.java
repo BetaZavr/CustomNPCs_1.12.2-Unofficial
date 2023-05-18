@@ -4,16 +4,18 @@ import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.api.entity.data.IMark;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IEntityLivingBase<T extends EntityLivingBase> extends IEntity<T> {
-	IMark addMark(int p0);
+public interface IEntityLivingBase<T extends EntityLivingBase>
+extends IEntity<T> {
+	
+	IMark addMark(int type);
 
-	void addPotionEffect(int p0, int p1, int p2, boolean p3);
+	void addPotionEffect(int effect, int duration, int strength, boolean hideParticles);
 
-	boolean canSeeEntity(IEntity<?> p0);
+	boolean canSeeEntity(IEntity<?> entity);
 
 	void clearPotionEffects();
 
-	IItemStack getArmor(int p0);
+	IItemStack getArmor(int slot);
 
 	IEntityLivingBase<?> getAttackTarget();
 
@@ -39,33 +41,34 @@ public interface IEntityLivingBase<T extends EntityLivingBase> extends IEntity<T
 
 	IItemStack getOffhandItem();
 
-	int getPotionEffect(int p0);
+	int getPotionEffect(int effect);
 
 	boolean isAttacking();
 
 	boolean isChild();
 
-	void removeMark(IMark p0);
+	void removeMark(IMark mark);
 
-	void setArmor(int p0, IItemStack p1);
+	void setArmor(int slot, IItemStack item);
 
-	void setAttackTarget(IEntityLivingBase<?> p0);
+	void setAttackTarget(IEntityLivingBase<?> living);
 
-	void setHealth(float p0);
+	void setHealth(float health);
 
-	void setMainhandItem(IItemStack p0);
+	void setMainhandItem(IItemStack item);
 
-	void setMaxHealth(float p0);
+	void setMaxHealth(float health);
 
-	void setMoveForward(float p0);
+	void setMoveForward(float move);
 
-	void setMoveStrafing(float p0);
+	void setMoveStrafing(float move);
 
-	void setMoveVertical(float p0);
+	void setMoveVertical(float move);
 
-	void setOffhandItem(IItemStack p0);
+	void setOffhandItem(IItemStack item);
 
 	void swingMainhand();
 
 	void swingOffhand();
+	
 }

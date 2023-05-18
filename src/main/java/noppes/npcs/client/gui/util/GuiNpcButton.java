@@ -66,27 +66,16 @@ extends GuiButton {
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!this.visible) {
-			return;
-		}
+		if (!this.visible) { return; }
 		if (this.texture == null) {
 			mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-			if (this.layerColor != 0) {
-				GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f,
-						(float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f,
-						(float) (this.layerColor >> 24 & 255) / 255.0f);
-			} else {
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			}
-			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-					&& mouseY < this.y + this.height;
+			if (this.layerColor != 0) { GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f, (float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f, (float) (this.layerColor >> 24 & 255) / 255.0f); }
+			else { GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); }
+			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			int i = this.getHoverState(this.hovered);
 			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-					GlStateManager.DestFactor.ZERO);
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
 			this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
 			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
@@ -94,50 +83,40 @@ extends GuiButton {
 				this.drawTexturedModalRect(this.x, this.y+this.height-3, 0, 63 + i * 20, this.width / 2, 3);
 				this.drawTexturedModalRect(this.x + this.width / 2, this.y+this.height-3, 200 - this.width / 2, 63 + i * 20, this.width / 2, 3);
 			}
+			if (this.height>20 && this.height<=40) {
+				int h = this.height-17;
+				this.drawTexturedModalRect(this.x, this.y+17, 0, 66 - h + i * 20, this.width / 2, h);
+				this.drawTexturedModalRect(this.x + this.width / 2, this.y+17, 200 - this.width / 2, 66 - h + i * 20, this.width / 2, h);
+			}
 
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 			this.mouseDragged(mc, mouseX, mouseY);
-			int j = 14737632;
-
-			if (this.packedFGColour != 0) {
-				j = this.packedFGColour;
-			} else if (!this.enabled) {
-				j = 10526880;
-			} else if (this.hovered) {
-				j = 16777120;
-			}
+			
+			int j = 0xFFE0E0E0;
+			if (this.packedFGColour != 0) { j = this.packedFGColour; }
+			else if (!this.enabled) { j = 0xFFA0A0A0; }
+			else if (this.hovered) { j = 0xFFFFFFA0; }
 
 			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 		} else {
+			GlStateManager.translate(0.0f, 0.0f, this.id);
 			mc.getTextureManager().bindTexture(this.texture);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
-					&& mouseY < this.y + this.height);
-			int i = this.hovered ? 1 : 0;
+			if (this.layerColor != 0) { GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f, (float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f, (float) (this.layerColor >> 24 & 255) / 255.0f); }
+			else { GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); }
+			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
+			int i = this.hovered || !this.enabled ? 1 : 0;
 			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-					GlStateManager.DestFactor.ZERO);
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width,
-					this.height);
-			int j = 14737632;
-
-			if (this.packedFGColour != 0) {
-				j = this.packedFGColour;
-			} else if (!this.enabled) {
-				j = 10526880;
-			} else if (this.hovered) {
-				j = 16777120;
-			}
-			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2,
-					this.y + (this.height - 8) / 2, j);
-			/*
-			 * if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
-			 * this.parent.hoverText = this.hoverText; }
-			 */
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width, this.height);
+			int j = 0xFFE0E0E0;
+			if (this.packedFGColour != 0) { j = this.packedFGColour; }
+			else if (!this.enabled) { j = 0xFFA0A0A0; }
+			else if (this.hovered) { j = 0xFFFFFFA0; }
+			
+			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		}
 
 	}

@@ -38,6 +38,9 @@ public enum EnumPacketServer
 	TraderMarketGet(CustomNpcsPermissions.GLOBAL_MARCET, true), // New
 	TraderMarketNew(CustomNpcsPermissions.GLOBAL_MARCET, true), // New
 	TraderMarketDel(CustomNpcsPermissions.GLOBAL_MARCET, true), // New
+	AnimationSave(CustomNpcsPermissions.NPC_ADVANCED, true),
+	AnimationGlobalSave(true), 
+	AnimationGet(true), 
 	JobSave(CustomNpcsPermissions.NPC_ADVANCED, true),
 	JobClear(CustomNpcsPermissions.NPC_ADVANCED, true),
 	JobGet(true), 

@@ -1,0 +1,188 @@
+package noppes.npcs.controllers;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.TreeMap;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.CustomNpcs;
+import noppes.npcs.Server;
+import noppes.npcs.api.entity.data.IAnimation;
+import noppes.npcs.api.handler.IAnimationHandler;
+import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.constants.EnumPacketClient;
+
+public class AnimationController
+implements IAnimationHandler {
+	
+	private static AnimationController instance;
+	public TreeMap<Integer, IAnimation> animations;
+	public static int version = 0;
+	private String filePath;
+	
+	public AnimationController() {
+		this.filePath = "";
+		AnimationController.instance = this;
+		this.animations = Maps.<Integer, IAnimation>newTreeMap();
+		this.loadAnimations();
+	}
+	
+	public static AnimationController getInstance() {
+		if (newInstance()) { AnimationController.instance = new AnimationController(); }
+		return AnimationController.instance;
+	}
+
+	private static boolean newInstance() {
+		if (AnimationController.instance == null) { return true; }
+		File file = CustomNpcs.getWorldSaveDirectory();
+		return file != null && !AnimationController.instance.filePath.equals(file.getAbsolutePath());
+	}
+	
+	public NBTTagCompound getNBT() {
+		NBTTagList list = new NBTTagList();
+		for (IAnimation anim : this.animations.values()) {
+			list.appendTag(((AnimationConfig) anim).writeToNBT(new NBTTagCompound()));
+		}
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setTag("Data", list);
+		return compound;
+	}
+	
+	public int getUnusedId() {
+		int id;
+		for (id = 0; this.animations.containsKey(id); ++id) { }
+		return id;
+	}
+	
+	private void loadAnimations() {
+		File saveDir = CustomNpcs.Dir;
+		if (saveDir == null) { return; }
+		if (CustomNpcs.VerboseDebug) {
+			CustomNpcs.debugData.startDebug("Common", null, "loadRegions");
+		}
+		this.filePath = saveDir.getAbsolutePath();
+		try {
+			File file = new File(saveDir, "animations.dat");
+			if (file.exists()) {
+				this.loadAnimations(file);
+			} else {
+				this.loadDefaultAnimations(-1);
+			}
+		} catch (Exception e) { this.loadDefaultAnimations(-1); }
+		if (this.animations.size()==0) {
+			this.loadDefaultAnimations(-1);
+		}
+	}
+
+	private void loadAnimations(File file) throws IOException {
+		this.loadAnimations(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+	}
+
+	public void loadAnimations(NBTTagCompound compound) throws IOException {
+		if (this.animations!=null) { this.animations.clear(); }
+		else { this.animations = Maps.<Integer, IAnimation>newTreeMap(); }
+		if (compound.hasKey("Data", 9)) {
+			for (int i = 0; i < compound.getTagList("Data", 10).tagCount(); ++i) {
+				this.loadAnimation(compound.getTagList("Data", 10).getCompoundTagAt(i));
+			}
+		}
+	}
+
+	public IAnimation loadAnimation(NBTTagCompound nbtAnimation) {
+		if (nbtAnimation==null || !nbtAnimation.hasKey("ID", 3) || nbtAnimation.getInteger("ID")<0) { return null; }
+		if (this.animations.containsKey(nbtAnimation.getInteger("ID"))) {
+			((AnimationConfig) this.animations.get(nbtAnimation.getInteger("ID"))).readFromNBT(nbtAnimation);
+			return this.animations.get(nbtAnimation.getInteger("ID"));
+		}
+		AnimationConfig ac = new AnimationConfig(null, 0);
+		ac.readFromNBT(nbtAnimation);
+		this.animations.put(ac.id, ac);
+		return this.animations.get(ac.id);
+	}
+
+	private void loadDefaultAnimations(int version) {
+		if (version == AnimationController.version) { return; }
+		
+	}
+	
+	public void save() {
+		try {
+			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "animations.dat")));
+		}
+		catch (Exception e) { }
+	}
+	
+	public void sendTo(EntityPlayerMP player) {
+		if (CustomNpcs.Server!=null && CustomNpcs.Server.isSinglePlayer()) { return; }
+		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 7, new NBTTagCompound());
+		for (IAnimation ac : this.animations.values()) {
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 7, ((AnimationConfig) ac).writeToNBT(new NBTTagCompound()));
+		}
+	}
+
+	@Override
+	public IAnimation[] getAnimations(int animationType) {
+		List<IAnimation> list = Lists.<IAnimation>newArrayList();
+		for (IAnimation ac : this.animations.values()) {
+			if (((AnimationConfig) ac).getType()==animationType) {
+				list.add(ac);
+			}
+		}
+		return list.toArray(new IAnimation[list.size()]);
+	}
+
+	@Override
+	public IAnimation getAnimation(int animationId) {
+		if (this.animations.containsKey(animationId)) { return this.animations.get(animationId); }
+		return null;
+	}
+
+	@Override
+	public IAnimation getAnimation(String animationName) {
+		for (IAnimation ac : this.animations.values()) {
+			if (ac.getName().equalsIgnoreCase(animationName)) {
+				return ac;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean removeAnimation(int animationId) {
+		if (this.animations.containsKey(animationId)) {
+			this.animations.remove(animationId);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean removeAnimation(String animationName) {
+		for (int id : this.animations.keySet()) {
+			if (this.animations.get(id).getName().equalsIgnoreCase(animationName)) {
+				this.animations.remove(id);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public IAnimation createNew(int animationType) {
+		AnimationConfig ac = new AnimationConfig(null, 0);
+		ac.id = this.getUnusedId();
+		this.animations.put(ac.id, ac);
+		return this.animations.get(ac.id);
+	}
+	
+}

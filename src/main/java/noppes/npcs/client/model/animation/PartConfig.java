@@ -3,59 +3,165 @@ package noppes.npcs.client.model.animation;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.api.entity.data.role.IJobPuppet.IJobPuppetPart;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.data.IAnimation.IAnimationPart;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
 public class PartConfig
-implements IJobPuppetPart {
-	
-	public boolean disabled;
-	public float[] rotation;
+implements IAnimationPart {
+
 	private EntityNPCInterface npc;
-	public float speed;
+	
+	public boolean disabled, isSmooth;
+	public float[] rotation;
+	public float[] offset; 
+	public float[] scale;
+	public int speed, delay;
 
 	public PartConfig(EntityNPCInterface npc) {
-		this.rotation = new float[] { 0.0f, 0.0f, 0.0f };
-		this.disabled = false;
 		this.npc = npc;
-		this.speed = 40.0f;
+		this.clear();
 	}
 
 	@Override
-	public int getRotationX() { return (int) ((this.rotation[0] + 1.0f) * 180.0f); }
-
-	@Override
-	public int getRotationY() { return (int) ((this.rotation[1] + 1.0f) * 180.0f); }
-
-	@Override
-	public int getRotationZ() { return (int) ((this.rotation[2] + 1.0f) * 180.0f); }
-
-	@Override
-	public void setRotation(int x, int y, int z) {
+	public void clear() {
+		this.rotation = new float[] { 0.5f, 0.5f, 0.5f }; // 0.0 = 0; 1.0 = 360
+		this.offset = new float[] { 0.5f, 0.5f, 0.5f }; // 0.0 = -5; 1.0 = 5
+		this.scale = new float[] { 0.2f, 0.2f, 0.2f }; // 0.0 = 0; 1.0 = 5
 		this.disabled = false;
-		this.rotation[0] = ValueUtil.correctFloat(x / 180.0f - 1.0f, -1.0f, 1.0f);
-		this.rotation[1] = ValueUtil.correctFloat(y / 180.0f - 1.0f, -1.0f, 1.0f);
-		this.rotation[2] = ValueUtil.correctFloat(z / 180.0f - 1.0f, -1.0f, 1.0f);
+		this.isSmooth = false;
+		this.speed = 40;
+		this.delay = 0;
+	}
+
+	@Override
+	public float[] getRotation() { return new float[] { this.rotation[0] * 360.0f, this.rotation[1] * 360.0f, this.rotation[2] * 360.0f }; }
+
+	@Override
+	public float[] getOffset() { return new float[] { 10.0f * this.offset[0] - 5.0f, 10.0f * this.offset[1] - 5.0f, 10.0f * this.offset[2] - 5.0f }; }
+
+	@Override
+	public float[] getScale() { return new float[] { this.scale[0] * 5.0f, this.scale[1] * 5.0f, this.scale[2] * 5.0f }; }
+	
+	@Override
+	public void setRotation(float x, float y, float z) {
+		this.disabled = false;
+		x %= 360.0f;
+		y %= 360.0f;
+		z %= 360.0f;
+		if (x<0.0f) { x += 360.0f; }
+		if (y<0.0f) { y += 360.0f; }
+		if (z<0.0f) { z += 360.0f; }
+		this.rotation[0] = ValueUtil.correctFloat(x / 360.0f, 0.0f, 1.0f);
+		this.rotation[1] = ValueUtil.correctFloat(y / 360.0f, 0.0f, 1.0f);
+		this.rotation[2] = ValueUtil.correctFloat(z / 360.0f, 0.0f, 1.0f);
 		this.npc.updateClient = true;
+	}
+	
+	@Override
+	public void setOffset(float x, float y, float z) {
+		this.disabled = false;
+		x %= 5.0f;
+		y %= 5.0f;
+		z %= 5.0f;
+		this.offset[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
+		this.offset[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
+		this.offset[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
+		this.npc.updateClient = true;
+	}
+	
+	@Override
+	public void setScale(float x, float y, float z) {
+		this.disabled = false;
+		x %= 5.0f;
+		y %= 5.0f;
+		z %= 5.0f;
+		this.scale[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
+		this.scale[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
+		this.scale[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
+		this.npc.updateClient = true;
+	}
+	
+	@Override
+	public boolean isDisabled() { return this.disabled; }
+	
+	@Override
+	public void setDisabled(boolean disabled) { this.disabled = disabled; }
+	
+	@Override
+	public boolean isSmooth() { return this.isSmooth; }
+	
+	@Override
+	public void setSmooth(boolean isSmooth) { this.isSmooth = isSmooth; }
+	
+	@Override
+	public int getSpeed() {
+		if (this.speed<0) { this.speed *= -1; }
+		return this.speed;
+	}
+	
+	@Override
+	public void setSpeed(int ticks) {
+		if (ticks<0) { ticks *= -1; }
+		this.speed = ticks;
+	}
+	
+	@Override
+	public int getEndDelay() {
+		if (this.delay<0) { this.delay *= -1; }
+		return this.delay;
+	}
+	
+	@Override
+	public void setEndDelay(int ticks) {
+		if (ticks<0) { ticks *= -1; }
+		this.delay = ticks;
 	}
 
 	public void readNBT(NBTTagCompound compound) {
-		for (int i=0; i<3 && i<compound.getTagList("Rotation", 5).tagCount(); i++) { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); }
+		for (int i=0; i<3; i++) {
+			try { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
+			try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
+			try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { }
+		}
 		this.disabled = compound.getBoolean("Disabled");
-		this.speed = compound.getFloat("Speed");
+		this.isSmooth = compound.getBoolean("IsSmooth");
+		this.speed = compound.getInteger("Speed");
+		this.delay = compound.getInteger("EndDelay");
 		if (this.speed<0) { this.speed *= -1; }
+		if (this.delay<0) { this.delay *= -1; }
 	}
 	
 	public NBTTagCompound writeNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		NBTTagList list = new NBTTagList();
-		for (int i=0; i<3; i++) { list.appendTag(new NBTTagFloat(this.rotation[i])); }
-		compound.setTag("Rotation", list);
+		NBTTagList listRot = new NBTTagList();
+		NBTTagList listOff = new NBTTagList();
+		NBTTagList listSc = new NBTTagList();
+		for (int i=0; i<3; i++) {
+			listRot.appendTag(new NBTTagFloat(this.rotation[i]));
+			listOff.appendTag(new NBTTagFloat(this.offset[i]));
+			listSc.appendTag(new NBTTagFloat(this.scale[i]));
+		}
+		compound.setTag("Rotation", listRot);
+		compound.setTag("Offset", listOff);
+		compound.setTag("Scale", listSc);
+		
 		compound.setBoolean("Disabled", this.disabled);
-		compound.setFloat("Speed", this.speed);
+		compound.setBoolean("IsSmooth", this.isSmooth);
+		
+		compound.setInteger("Speed", this.speed);
+		compound.setInteger("EndDelay", this.delay);
+		
 		return compound;
 	}
+
+	@Override
+	public INbt getNbt() { return NpcAPI.Instance().getINbt(this.writeNBT()); }
+	
+	@Override
+	public void setNbt(INbt nbt) { this.readNBT(nbt.getMCNBT()); }
 	
 }
 

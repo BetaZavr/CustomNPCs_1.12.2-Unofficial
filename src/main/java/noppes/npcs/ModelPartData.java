@@ -7,7 +7,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 public class ModelPartData {
+	
 	private static Map<String, ResourceLocation> resources = new HashMap<String, ResourceLocation>();
+	
 	public int color;
 	public int colorPattern;
 	private ResourceLocation location;
@@ -17,8 +19,8 @@ public class ModelPartData {
 	public byte type;
 
 	public ModelPartData(String name) {
-		this.color = 16777215;
-		this.colorPattern = 16777215;
+		this.color = 0xFFFFFFFF;
+		this.colorPattern = 0xFFFFFFFF;
 		this.type = 0;
 		this.pattern = 0;
 		this.playerTexture = false;

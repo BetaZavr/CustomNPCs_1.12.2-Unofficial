@@ -13,22 +13,21 @@ import noppes.npcs.util.ValueUtil;
 public class GuiNpcSlider
 extends GuiButton {
 	
-	public boolean dragging;
+	public boolean dragging, isVertical;
 	public int id;
 	private ISliderListener listener;
 	public float sliderValue;
 
 	public GuiNpcSlider(GuiScreen parent, int id, int xPos, int yPos, float sliderValue) {
 		this(parent, id, xPos, yPos, "", sliderValue);
-		if (this.listener != null) {
-			this.listener.mouseDragged(this);
-		}
+		if (this.listener != null) { this.listener.mouseDragged(this); }
 	}
 
 	public GuiNpcSlider(GuiScreen parent, int id, int xPos, int yPos, int width, int height, float sliderValue) {
 		this(parent, id, xPos, yPos, "", sliderValue);
 		this.width = width;
 		this.height = height;
+		this.isVertical = height > width;
 		if (this.listener != null) { this.listener.mouseDragged(this); }
 	}
 
@@ -45,17 +44,31 @@ extends GuiButton {
 		if (!this.visible) { return; }
 		mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-		int i = this.getHoverState(this.hovered);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-		this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
-		if (this.height<20) {
-			this.drawHorizontalLine(this.x, this.x+this.width-2, this.y+this.height-1, 0xFF000000);
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(this.x, this.y, 0.0f);
+		// place:
+		int w = this.width, h = this.height;
+		if (this.isVertical) {
+			w = this.height;
+			h = this.width;
 		}
+		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+		if (this.isVertical) {
+			GlStateManager.translate(h, 0.0f, 0.0f);
+			GlStateManager.rotate(90.0f, 0.0f, 0.0f, 1.0f);
+		}
+		this.drawTexturedModalRect(0, 0, 0, 46 , w / 2, h);
+		this.drawTexturedModalRect(w / 2, 0, 200 - w / 2, 46 , w / 2, h);
+		if (h<20) {
+			this.drawHorizontalLine(0, w-2, h-1, 0xFF000000);
+		}
+		GlStateManager.popMatrix();
+		// button:
 		this.mouseDragged(mc, mouseX, mouseY);
+		// text:
 		if (this.displayString.isEmpty()) { return; }
 		int j = 14737632;
 		if (this.packedFGColour != 0) { j = this.packedFGColour; }
@@ -68,31 +81,41 @@ extends GuiButton {
 
 	public int getHoverState(boolean par1) { return 0; }
 
-	public void mouseDragged(Minecraft mc, int par2, int par3) {
+	public void mouseDragged(Minecraft mc, int mouseX, int mouseY) {
 		if (!this.visible) { return; }
 		mc.getTextureManager().bindTexture(GuiNpcSlider.BUTTON_TEXTURES);
+		int w = this.width, h = this.height;
+		if (this.isVertical) {
+			w = this.height;
+			h = this.width;
+		}
 		if (this.dragging) {
-			this.sliderValue = ValueUtil.correctFloat((par2 - (this.x + 4)) / (float) (this.width - 8), 0.0f, 1.0f);
-			if (this.listener != null) {
-				this.listener.mouseDragged(this);
-			}
-			if (!Mouse.isButtonDown(0)) {
-				this.mouseReleased(0, 0);
-			}
+			if (this.isVertical) { this.sliderValue = ValueUtil.correctFloat((mouseY - (this.y + 4)) / (float) (w - 8), 0.0f, 1.0f); }
+			else { this.sliderValue = ValueUtil.correctFloat((mouseX - (this.x + 4)) / (float) (w - 8), 0.0f, 1.0f); }
+			if (this.listener != null) { this.listener.mouseDragged(this); }
+			if (!Mouse.isButtonDown(0)) { this.mouseReleased(0, 0); }
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		int x = this.x + (int) (this.sliderValue * (this.width - 8));
-		this.drawTexturedModalRect(x, this.y, 0, 66, 4, this.height);
-		this.drawTexturedModalRect(x + 4, this.y, 196, 66, 4, this.height);
-		if (this.height<20) {
-			this.drawHorizontalLine(x+1, x+6, this.y+this.height-1, 0xFF000000);
+		int x = this.x + (int) (this.sliderValue * (w - 8)), y = this.y;
+		GlStateManager.pushMatrix();
+		if (this.isVertical) {
+			x = this.x;
+			y = this.y + (int) (this.sliderValue * (w - 8));
+			GlStateManager.translate(x, y, 0.0f);
+			GlStateManager.translate(h, 0.0f, 0.0f);
+			GlStateManager.rotate(90.0f, 0.0f, 0.0f, 1.0f);
+		} else { GlStateManager.translate(x, y, 0.0f); }
+		this.drawTexturedModalRect(0, 0, 0, 66, 4, h);
+		this.drawTexturedModalRect(4, 0, 196, 66, 4, h);
+		if (h<20) {
+			this.drawHorizontalLine(1, 6, h-1, 0xFF000000);
 		}
+		GlStateManager.popMatrix();
 	}
 
-	public boolean mousePressed(Minecraft par1Minecraft, int par2, int par3) {
-		if (this.enabled && this.visible && par2 >= this.x && par3 >= this.y && par2 < this.x + this.width
-				&& par3 < this.y + this.height) {
-			this.sliderValue = ValueUtil.correctFloat((par2 - (this.x + 4)) / (float) (this.width - 8), 0.0f, 1.0f);
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		if (this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height) {
+			this.sliderValue = ValueUtil.correctFloat((mouseX - (this.x + 4)) / (float) (this.width - 8), 0.0f, 1.0f);
 			if (this.listener != null) {
 				this.listener.mousePressed(this);
 			}
@@ -103,17 +126,14 @@ extends GuiButton {
 
 	public void mouseReleased(int par1, int par2) {
 		this.dragging = false;
-		if (this.listener != null) {
-			this.listener.mouseReleased(this);
-		}
+		if (this.listener != null) { this.listener.mouseReleased(this); }
 	}
 
 	public void setString(String str) {
 		try {
-			float f = Math.round(Float.parseFloat(str) * 10.0d);
-			str = String.valueOf(f / 10.0f).replace(".", ",");
-		} catch (Exception e) {
-		}
+			float f = Math.round(Float.parseFloat(str) * 10.0d) / 10.0f;
+			str = String.valueOf(f).replace(".", ",");
+		} catch (Exception e) { }
 		this.displayString = NoppesStringUtils.translate(str);
 	}
 

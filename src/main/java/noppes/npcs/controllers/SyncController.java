@@ -202,6 +202,17 @@ public class SyncController {
 				}
 				break;
 			}
+			case 7: {
+				if (compound.getKeySet().size()==0) {
+					if (CustomNpcs.Server!=null && CustomNpcs.Server.isSinglePlayer()) { return; }
+					AnimationController.getInstance().animations.clear();
+				} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+					AnimationController.getInstance().removeAnimation(compound.getInteger("ID"));
+				} else {
+					AnimationController.getInstance().loadAnimation(compound);
+				}
+				break;
+			}
 			case 9: {
 				ClientProxy.playerData.game.readFromNBT(compound);
 				CustomNpcs.proxy.updateGUI();
@@ -250,6 +261,7 @@ public class SyncController {
 		Server.sendData(player, EnumPacketClient.SYNC_END, 5, new NBTTagCompound());
 
 		RecipeController.getInstance().sendTo(player);
+		AnimationController.getInstance().sendTo(player);
 
 		compound = new NBTTagCompound();
 		if (!CustomNpcs.showLR) {

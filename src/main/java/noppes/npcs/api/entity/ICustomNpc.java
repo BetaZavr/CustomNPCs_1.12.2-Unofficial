@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityCreature;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.entity.data.INPCAdvanced;
 import noppes.npcs.api.entity.data.INPCAi;
+import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.entity.data.INPCDisplay;
 import noppes.npcs.api.entity.data.INPCInventory;
 import noppes.npcs.api.entity.data.INPCJob;
@@ -43,6 +44,8 @@ extends IEntityLiving<T> {
 	INPCRole getRole();
 
 	INPCStats getStats();
+	
+	INPCAnimation getAnimations();
 
 	ITimers getTimers();
 

@@ -1,12 +1,12 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCStats {
+	
 	int getAggroRange();
 
 	int getCombatRegen();
 
-	int getCreatureType(); // (0=Normal, 1=Undead, 2=Arthropod) Only used for damage calculations with
-							// enchants
+	int getCreatureType(); // (0=Normal, 1=Undead, 2=Arthropod) Only used for damage calculations with enchants
 
 	int getHealthRegen();
 
@@ -14,7 +14,6 @@ public interface INPCStats {
 
 	boolean getImmune(int type);
 
-	// New
 	int getLevel();
 
 	int getMaxHealth();
@@ -35,14 +34,13 @@ public interface INPCStats {
 
 	boolean isCalmdown();
 
-	void setAggroRange(int regen);
+	void setAggroRange(int range);
 
 	void setCalmdown(boolean bo);
 
 	void setCombatRegen(int regen);
 
-	void setCreatureType(int type); // (0=Normal, 1=Undead, 2=Arthropod) Only used for damage calculations with
-									// enchants
+	void setCreatureType(int type); // (0=Normal, 1=Undead, 2=Arthropod) Only used for damage calculations with  enchants
 
 	void setHealthRegen(int regen);
 

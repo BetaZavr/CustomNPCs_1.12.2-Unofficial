@@ -11,7 +11,9 @@ import net.minecraft.client.renderer.Tessellator;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.constants.EnumParts;
 
-public class ModelScaleRenderer extends ModelRenderer {
+public class ModelScaleRenderer
+extends ModelRenderer {
+	
 	public ModelPartConfig config;
 	public int displayList;
 	public boolean isCompiled;

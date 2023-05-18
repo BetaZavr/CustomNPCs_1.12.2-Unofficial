@@ -150,11 +150,8 @@ public class Server {
 	}
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) entity.world.getEntitiesWithinAABB(EntityPlayerMP.class,
-				entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
-		if (list.isEmpty()) {
-			return;
-		}
+		List<EntityPlayerMP> list = (List<EntityPlayerMP>) entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
+		if (list.isEmpty()) { return; }
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {

@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.util.ValueUtil;
 
 public class ModelPartConfig {
+	
 	public boolean notShared;
 	public float scaleX;
 	public float scaleY;

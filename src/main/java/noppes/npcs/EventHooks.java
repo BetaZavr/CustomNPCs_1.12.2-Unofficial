@@ -237,9 +237,7 @@ public class EventHooks {
 	}
 
 	public static void onNPCInit(EntityNPCInterface npc) {
-		if (npc.script.isClient()) {
-			return;
-		}
+		if (npc.script.isClient()) { return; }
 		NpcEvent.InitEvent event = new NpcEvent.InitEvent(npc.wrappedNPC);
 		npc.script.runScript(EnumScriptType.INIT, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
