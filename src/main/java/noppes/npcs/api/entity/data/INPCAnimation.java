@@ -1,6 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.INbt;
+import noppes.npcs.client.model.animation.AnimationConfig;
 
 public interface INPCAnimation {
 
@@ -29,5 +30,11 @@ public interface INPCAnimation {
 	void startAnimationFromSaved(int animationId);
 
 	void startAnimationFromSaved(String animationName);
+
+	boolean removeAnimation(int type, String name);
+	
+	void removeAnimations(int type);
+
+	AnimationConfig createAnimation(int animationType);
 
 }

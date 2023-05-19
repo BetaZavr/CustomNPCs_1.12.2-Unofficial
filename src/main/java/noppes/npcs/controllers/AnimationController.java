@@ -50,8 +50,10 @@ implements IAnimationHandler {
 	
 	public NBTTagCompound getNBT() {
 		NBTTagList list = new NBTTagList();
-		for (IAnimation anim : this.animations.values()) {
-			list.appendTag(((AnimationConfig) anim).writeToNBT(new NBTTagCompound()));
+		for (int id : this.animations.keySet()) {
+			NBTTagCompound nbtAnimation = ((AnimationConfig) this.animations.get(id)).writeToNBT(new NBTTagCompound());
+			nbtAnimation.setInteger("ID", id);
+			list.appendTag(nbtAnimation);
 		}
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setTag("Data", list);
@@ -59,8 +61,8 @@ implements IAnimationHandler {
 	}
 	
 	public int getUnusedId() {
-		int id;
-		for (id = 0; this.animations.containsKey(id); ++id) { }
+		int id = 0;
+		for (int i : this.animations.keySet()) { if (i>id) { id = i; } }
 		return id;
 	}
 	
@@ -104,10 +106,10 @@ implements IAnimationHandler {
 			((AnimationConfig) this.animations.get(nbtAnimation.getInteger("ID"))).readFromNBT(nbtAnimation);
 			return this.animations.get(nbtAnimation.getInteger("ID"));
 		}
-		AnimationConfig ac = new AnimationConfig(null, 0);
+		AnimationConfig ac = new AnimationConfig(0);
 		ac.readFromNBT(nbtAnimation);
-		this.animations.put(ac.id, ac);
-		return this.animations.get(ac.id);
+		this.animations.put(nbtAnimation.getInteger("ID"), ac);
+		return this.animations.get(nbtAnimation.getInteger("ID"));
 	}
 
 	private void loadDefaultAnimations(int version) {
@@ -179,10 +181,10 @@ implements IAnimationHandler {
 
 	@Override
 	public IAnimation createNew(int animationType) {
-		AnimationConfig ac = new AnimationConfig(null, 0);
-		ac.id = this.getUnusedId();
-		this.animations.put(ac.id, ac);
-		return this.animations.get(ac.id);
+		AnimationConfig ac = new AnimationConfig(0);
+		int id = this.getUnusedId();
+		this.animations.put(id, ac);
+		return this.animations.get(id);
 	}
 	
 }

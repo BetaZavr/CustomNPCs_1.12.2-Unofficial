@@ -1345,9 +1345,7 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.AnimationGlobalSave) {
 			AnimationController aData = AnimationController.getInstance();
 			AnimationConfig ac = (AnimationConfig) aData.createNew(0);
-			int id = ac.id + 0;
 			ac.readFromNBT(Server.readNBT(buffer));
-			ac.id = id;
 			aData.save();
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());

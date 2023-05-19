@@ -56,7 +56,8 @@ import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.entity.IThrowable;
 import noppes.npcs.api.entity.IVillager;
 import noppes.npcs.api.entity.data.IAnimation;
-import noppes.npcs.api.entity.data.IAnimation.IAnimationPart;
+import noppes.npcs.api.entity.data.IAnimationFrame;
+import noppes.npcs.api.entity.data.IAnimationPart;
 import noppes.npcs.api.entity.data.IAttributeSet;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.entity.data.IData;
@@ -175,7 +176,8 @@ import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.client.model.animation.PartConfig;
+import noppes.npcs.client.model.animation.AnimationFrameConfig;
+import noppes.npcs.client.model.animation.AnimationFrameConfig.PartConfig;
 import noppes.npcs.client.util.InterfaseData;
 import noppes.npcs.client.util.MetodData;
 import noppes.npcs.client.util.ParameterData;
@@ -1854,21 +1856,37 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "getRepeatLast", "method.inpcanimation.getrepeatlast"),
 			new MetodData(void.class, "setRepeatLast", "method.inpcanimation.setrepeatlast",
 				new ParameterData(int.class, "frames", "parameter.count")
+			),
+			new MetodData(boolean.class, "removeAnimation", "method.inpcanimation.removeanimation",
+				new ParameterData(int.class, "animationType", "parameter.animation.type"),
+				new ParameterData(String.class, "animationName", "parameter.animation.name")
+			),
+			new MetodData(void.class, "removeAnimations", "method.inpcanimation.removeanimations",
+				new ParameterData(int.class, "animationType", "parameter.animation.type")
+			),
+			new MetodData(void.class, "createAnimation", "method.inpcanimation.createanimation",
+				new ParameterData(int.class, "animationType", "parameter.animation.type")
 			)
 		)
 	),
 	IAnimation(new InterfaseData(IAnimation.class, null,
 			new Class<?>[] { AnimationConfig.class },
 			"interfase.ianimation",
-			new MetodData(IAnimationPart[].class, "getParts", "method.ianimation.getparts",
+			new MetodData(IAnimationFrame[].class, "getFrames", "method.ianimation.getframes"),
+			new MetodData(IAnimationFrame.class, "getFrame", "method.ianimation.getframe",
 				new ParameterData(int.class, "frame", "parameter.animation.frame")
 			),
-			new MetodData(IAnimationPart.class, "getPart", "method.ianimation.getpart",
-				new ParameterData(int.class, "frame", "parameter.animation.frame"),
-				new ParameterData(int.class, "part", "parameter.animation.part")
+			new MetodData(IAnimationFrame.class, "addFrame", "method.ianimation.addframe"),
+			new MetodData(IAnimationFrame.class, "addFrame", "method.ianimation.addframe",
+				new ParameterData(IAnimationFrame.class, "frame", "parameter.animation.frame")
+			),
+			new MetodData(boolean.class, "removeFrame", "method.ianimation.removeframe",
+				new ParameterData(int.class, "frame", "parameter.animation.frame")
+			),
+			new MetodData(boolean.class, "removeFrame", "method.ianimation.removeframe",
+				new ParameterData(IAnimationFrame.class, "frame", "parameter.animation.frame")
 			),
 			new MetodData(int.class, "getType", "method.ianimation.getåype"),
-			new MetodData(int.class, "getId", "method.ianimation.getid"),
 			new MetodData(String.class, "getName", "method.ianimation.getname"),
 			new MetodData(void.class, "setName", "method.ianimation.setname",
 				new ParameterData(String.class, "name", "parameter.name")
@@ -1877,12 +1895,34 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "setNbt", "method.ianimation.setnbt",
 				new ParameterData(INbt.class, "nbt", "parameter.nbt")
 			),
+			
 			new MetodData(INbt.class, "startToNpc", "method.ianimation.starttonpc",
 				new ParameterData(ICustomNpc.class, "nbt", "parameter.npc")
 			),
-			new MetodData(int.class, "addFrame", "method.ianimation.addframe"),
-			new MetodData(int.class, "startToNpc", "method.ianimation.addframe",
-				new ParameterData(IAnimationPart[].class, "parts", "parameter.ianimation.parts")
+			new MetodData(boolean.class, "isDisabled", "method.ianimationpart.isdisabled"),
+			new MetodData(void.class, "setDisabled", "method.ianimationpart.setdisabled",
+				new ParameterData(boolean.class, "disabled", "parameter.boolean")
+			),
+			new MetodData(int.class, "getRepeatLast", "method.ianimationpart.getrepeatLast"),
+			new MetodData(void.class, "setRepeatLast", "method.ianimationpart.setrepeatLast",
+				new ParameterData(int.class, "frames", "parameter.count")
+			)
+		)
+	),
+	IAnimationFrame(new InterfaseData(IAnimationFrame.class, null,
+			new Class<?>[] { AnimationFrameConfig.class },
+			"interfase.ianimationframe",
+			new MetodData(boolean.class, "isSmooth", "method.ianimationpart.issmooth"),
+			new MetodData(void.class, "setSmooth", "method.ianimationpart.setsmooth",
+				new ParameterData(boolean.class, "isSmooth", "parameter.boolean")
+			),
+			new MetodData(int.class, "getSpeed", "method.ianimationpart.getspeed"),
+			new MetodData(void.class, "setSpeed", "method.ianimationpart.setspeed",
+				new ParameterData(int.class, "ticks", "parameter.ticks")
+			),
+			new MetodData(int.class, "getEndDelay", "method.ianimationpart.getenddelay"),
+			new MetodData(void.class, "setEndDelay", "method.ianimationpart.setenddelay",
+				new ParameterData(int.class, "ticks", "parameter.ticks")
 			)
 		)
 	),
@@ -1911,18 +1951,6 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "isDisabled", "method.ianimationpart.isdisabled"),
 			new MetodData(void.class, "setDisabled", "method.ianimationpart.setdisabled",
 				new ParameterData(boolean.class, "disabled", "parameter.boolean")
-			),
-			new MetodData(boolean.class, "isSmooth", "method.ianimationpart.issmooth"),
-			new MetodData(void.class, "setSmooth", "method.ianimationpart.setsmooth",
-				new ParameterData(boolean.class, "isSmooth", "parameter.boolean")
-			),
-			new MetodData(int.class, "getSpeed", "method.ianimationpart.getspeed"),
-			new MetodData(void.class, "setSpeed", "method.ianimationpart.setspeed",
-				new ParameterData(int.class, "ticks", "parameter.ticks")
-			),
-			new MetodData(int.class, "getEndDelay", "method.ianimationpart.getenddelay"),
-			new MetodData(void.class, "setEndDelay", "method.ianimationpart.setenddelay",
-				new ParameterData(int.class, "ticks", "parameter.ticks")
 			)
 		)
 	),

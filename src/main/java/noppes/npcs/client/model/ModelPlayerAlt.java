@@ -71,6 +71,7 @@ extends ModelPlayer {
 		
 		this.data = Maps.<Integer, Float[]>newTreeMap();
 		for (int i=0; i<12; i++) { this.data.put(i, new Float[6]); }
+		System.out.println("Create new NPC Render");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -111,7 +112,6 @@ extends ModelPlayer {
 	}
 
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		this.setData();
 		try {
 			GlStateManager.pushMatrix();
 			if (entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
@@ -130,240 +130,288 @@ extends ModelPlayer {
 			GlStateManager.popMatrix();
 		}
 		catch (Exception ex) { }
-		this.resetData();
+		this.resetModel();
 	}
 	
-	private void setData() {
+	private void saveModel() {
 		if (this.bipedLeftArm instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(0)) { this.data.put(0, new Float[6]); }
 			Float[] sets = this.data.get(0);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftArm).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedLeftArmwear instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(1)) { this.data.put(1, new Float[6]); }
 			Float[] sets = this.data.get(1);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftArmwear).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedRightArm instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(2)) { this.data.put(2, new Float[6]); }
 			Float[] sets = this.data.get(2);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightArm).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedRightArmwear instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(3)) { this.data.put(3, new Float[6]); }
 			Float[] sets = this.data.get(3);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightArmwear).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedLeftLeg instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(4)) { this.data.put(4, new Float[6]); }
 			Float[] sets = this.data.get(4);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftLeg).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedLeftLegwear instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(5)) { this.data.put(5, new Float[6]); }
 			Float[] sets = this.data.get(5);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftLegwear).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedRightLeg instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(6)) { this.data.put(6, new Float[6]); }
 			Float[] sets = this.data.get(6);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightLeg).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedRightLegwear instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(7)) { this.data.put(7, new Float[6]); }
 			Float[] sets = this.data.get(7);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightLegwear).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedHead instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(8)) { this.data.put(8, new Float[6]); }
 			Float[] sets = this.data.get(8);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedHead).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedHeadwear instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(9)) { this.data.put(9, new Float[6]); }
 			Float[] sets = this.data.get(9);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedHeadwear).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedBody instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(10)) { this.data.put(10, new Float[6]); }
 			Float[] sets = this.data.get(10);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedBody).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 		if (this.bipedBodyWear instanceof ModelScaleRenderer) {
 			if (!this.data.containsKey(11)) { this.data.put(11, new Float[6]); }
 			Float[] sets = this.data.get(11);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedBodyWear).config;
-			sets[0] = config.transX;
-			sets[1] = config.transY;
-			sets[2] = config.transZ;
-			sets[3] = config.scaleX;
-			sets[4] = config.scaleY;
-			sets[5] = config.scaleZ;
+			if (config!=null ) {
+				sets[0] = config.transX;
+				sets[1] = config.transY;
+				sets[2] = config.transZ;
+				sets[3] = config.scaleX;
+				sets[4] = config.scaleY;
+				sets[5] = config.scaleZ;
+			}
 		}
 	}
 	
-	private void resetData() {
+	private void resetModel() {
 		if (this.bipedLeftArm instanceof ModelScaleRenderer && this.data.containsKey(0)) {
 			Float[] sets = this.data.get(0);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftArm).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedLeftArmwear instanceof ModelScaleRenderer && this.data.containsKey(1)) {
 			Float[] sets = this.data.get(1);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftArmwear).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedRightArm instanceof ModelScaleRenderer && this.data.containsKey(2)) {
 			Float[] sets = this.data.get(2);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightArm).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedRightArmwear instanceof ModelScaleRenderer && this.data.containsKey(3)) {
 			Float[] sets = this.data.get(3);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightArmwear).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedLeftLeg instanceof ModelScaleRenderer && this.data.containsKey(4)) {
 			Float[] sets = this.data.get(4);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftLeg).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedLeftLegwear instanceof ModelScaleRenderer && this.data.containsKey(5)) {
 			Float[] sets = this.data.get(5);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedLeftLegwear).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedRightLeg instanceof ModelScaleRenderer && this.data.containsKey(6)) {
 			Float[] sets = this.data.get(6);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightLeg).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedRightLegwear instanceof ModelScaleRenderer && this.data.containsKey(7)) {
 			Float[] sets = this.data.get(7);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedRightLegwear).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedHead instanceof ModelScaleRenderer && this.data.containsKey(8)) {
 			Float[] sets = this.data.get(8);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedHead).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedHeadwear instanceof ModelScaleRenderer && this.data.containsKey(9)) {
 			Float[] sets = this.data.get(9);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedHeadwear).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedBody instanceof ModelScaleRenderer && this.data.containsKey(10)) {
 			Float[] sets = this.data.get(10);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedBody).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 		if (this.bipedBodyWear instanceof ModelScaleRenderer && this.data.containsKey(11)) {
 			Float[] sets = this.data.get(11);
 			ModelPartConfig config = ((ModelScaleRenderer) this.bipedBodyWear).config;
-			config.setTranslate(sets[0], sets[1], sets[2]);
-			config.scaleX = sets[3];
-			config.scaleY = sets[4];
-			config.scaleZ = sets[5];
+			if (config!=null ) {
+				config.setTranslate(sets[0], sets[1], sets[2]);
+				config.scaleX = sets[3];
+				config.scaleY = sets[4];
+				config.scaleZ = sets[5];
+			}
 		}
 	}
 
@@ -483,145 +531,159 @@ extends ModelPlayer {
 			}
 		}
 		if (anim!=null) {
+			this.saveModel();
 			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-			float[] headRot = anim.getValues(0, 0, anim.type.isCyclical(), partialTicks, npc);
-			if (headRot == null) { npc.animation.stopAnimation(); }
-			if (headRot.length==3) {
-				float[] headTr = anim.getValues(0, 1, anim.type.isCyclical(), partialTicks, npc);
-				float[] headSc = anim.getValues(0, 2, anim.type.isCyclical(), partialTicks, npc);
-				this.bipedHead.rotateAngleX = headRot[0];
-				this.bipedHead.rotateAngleY = headRot[1];
-				this.bipedHead.rotateAngleZ = headRot[2];
-				this.bipedHeadwear.rotateAngleX = headRot[0];
-				this.bipedHeadwear.rotateAngleY = headRot[1];
-				this.bipedHeadwear.rotateAngleZ = headRot[2];
-				((ModelScaleRenderer) this.bipedHead).config.transX += headTr[0];
-				((ModelScaleRenderer) this.bipedHead).config.transY += headTr[1];
-				((ModelScaleRenderer) this.bipedHead).config.transZ += headTr[2];
-				((ModelScaleRenderer) this.bipedHeadwear).config.transX += headTr[0];
-				((ModelScaleRenderer) this.bipedHeadwear).config.transY += headTr[1];
-				((ModelScaleRenderer) this.bipedHeadwear).config.transZ += headTr[2];
+			Map<Integer, Float[]> animData = anim.getValues(partialTicks, npc);
+			if (animData == null) { npc.animation.stopAnimation(); }
+			else {
+				System.out.println("animData: "+animData);
 				
-				((ModelScaleRenderer) this.bipedHead).config.transX *= headSc[0];
-				((ModelScaleRenderer) this.bipedHead).config.transY *= headSc[1];
-				((ModelScaleRenderer) this.bipedHead).config.transZ *= headSc[2];
-				((ModelScaleRenderer) this.bipedHeadwear).config.transX *= headSc[0];
-				((ModelScaleRenderer) this.bipedHeadwear).config.transY *= headSc[1];
-				((ModelScaleRenderer) this.bipedHeadwear).config.transZ *= headSc[2];
-			}
-			float[] leftArmsRot = anim.getValues(1, 0, anim.type.isCyclical(), partialTicks, npc);
-			if (leftArmsRot == null) { npc.animation.stopAnimation(); }
-			if (leftArmsRot.length>0) {
-				float[] leftArmsTr = anim.getValues(1, 1, anim.type.isCyclical(), partialTicks, npc);
-				float[] leftArmsSc = anim.getValues(1, 2, anim.type.isCyclical(), partialTicks, npc);
-				this.bipedLeftArm.rotateAngleX = leftArmsRot[0];
-				this.bipedLeftArm.rotateAngleY = leftArmsRot[1];
-				this.bipedLeftArm.rotateAngleZ = leftArmsRot[2];
-				((ModelScaleRenderer) this.bipedLeftArm).config.transX += leftArmsTr[0];
-				((ModelScaleRenderer) this.bipedLeftArm).config.transY += leftArmsTr[1];
-				((ModelScaleRenderer) this.bipedLeftArm).config.transZ += leftArmsTr[2];
-				((ModelScaleRenderer) this.bipedLeftArm).config.transX *= leftArmsSc[0];
-				((ModelScaleRenderer) this.bipedLeftArm).config.transY *= leftArmsSc[1];
-				((ModelScaleRenderer) this.bipedLeftArm).config.transZ *= leftArmsSc[2];
-				if (npc.display.getHasLivingAnimation() && (anim.type==EnumAnimationType.standing || anim.type==EnumAnimationType.flystand || anim.type==EnumAnimationType.waterstand)) {
-					ModelRenderer bipedLeftArm = this.bipedLeftArm;
-					bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-					ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
-					bipedLeftArm2.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+				// Head
+				Float[] head = animData.get(0);
+				if (head!=null) {
+					this.bipedHead.rotateAngleX = head[0];
+					this.bipedHead.rotateAngleY = head[1];
+					this.bipedHead.rotateAngleZ = head[2];
+					this.bipedHeadwear.rotateAngleX = head[0];
+					this.bipedHeadwear.rotateAngleY = head[1];
+					this.bipedHeadwear.rotateAngleZ = head[2];
+					((ModelScaleRenderer) this.bipedHead).config.transX += head[3];
+					((ModelScaleRenderer) this.bipedHead).config.transY += head[4];
+					((ModelScaleRenderer) this.bipedHead).config.transZ += head[5];
+					((ModelScaleRenderer) this.bipedHeadwear).config.transX += head[3];
+					((ModelScaleRenderer) this.bipedHeadwear).config.transY += head[4];
+					((ModelScaleRenderer) this.bipedHeadwear).config.transZ += head[5];
+					((ModelScaleRenderer) this.bipedHead).config.scaleX *= head[6];
+					((ModelScaleRenderer) this.bipedHead).config.scaleY *= head[7];
+					((ModelScaleRenderer) this.bipedHead).config.scaleZ *= head[8];
+					((ModelScaleRenderer) this.bipedHeadwear).config.scaleX *= head[6];
+					((ModelScaleRenderer) this.bipedHeadwear).config.scaleY *= head[7];
+					((ModelScaleRenderer) this.bipedHeadwear).config.scaleZ *= head[8];
 				}
-			}
-			float[] rightArmsRot = anim.getValues(2, 0, anim.type.isCyclical(), partialTicks, npc);
-			if (rightArmsRot == null) { npc.animation.stopAnimation(); }
-			if (rightArmsRot.length>0) {
-				float[] rightArmsTr = anim.getValues(2, 1, anim.type.isCyclical(), partialTicks, npc);
-				float[] rightArmsSc = anim.getValues(2, 2, anim.type.isCyclical(), partialTicks, npc);
-				this.bipedRightArm.rotateAngleX = rightArmsRot[0];
-				this.bipedRightArm.rotateAngleY = rightArmsRot[1];
-				this.bipedRightArm.rotateAngleZ = rightArmsRot[2];
-				((ModelScaleRenderer) this.bipedRightArm).config.transX += rightArmsTr[0];
-				((ModelScaleRenderer) this.bipedRightArm).config.transY += rightArmsTr[1];
-				((ModelScaleRenderer) this.bipedRightArm).config.transZ += rightArmsTr[2];
-				((ModelScaleRenderer) this.bipedRightArm).config.transX *= rightArmsSc[0];
-				((ModelScaleRenderer) this.bipedRightArm).config.transY *= rightArmsSc[1];
-				((ModelScaleRenderer) this.bipedRightArm).config.transZ *= rightArmsSc[2];
-				if (npc.display.getHasLivingAnimation() && (anim.type==EnumAnimationType.standing || anim.type==EnumAnimationType.flystand || anim.type==EnumAnimationType.waterstand)) {
-					ModelRenderer bipedRightArm = this.bipedRightArm;
-					bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-					ModelRenderer bipedRightArm2 = this.bipedRightArm;
-					bipedRightArm2.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+				
+				// Left Arm
+				Float[] leftArm = animData.get(1);
+				if (leftArm!=null) {
+					this.bipedLeftArm.rotateAngleX = leftArm[0];
+					this.bipedLeftArm.rotateAngleY = leftArm[1];
+					this.bipedLeftArm.rotateAngleZ = leftArm[2];
+					((ModelScaleRenderer) this.bipedLeftArm).config.transX += leftArm[3];
+					((ModelScaleRenderer) this.bipedLeftArm).config.transY += leftArm[4];
+					((ModelScaleRenderer) this.bipedLeftArm).config.transZ += leftArm[5];
+					((ModelScaleRenderer) this.bipedLeftArmwear).config.transX += leftArm[3];
+					((ModelScaleRenderer) this.bipedLeftArmwear).config.transY += leftArm[4];
+					((ModelScaleRenderer) this.bipedLeftArmwear).config.transZ += leftArm[5];
+					((ModelScaleRenderer) this.bipedLeftArm).config.scaleX *= leftArm[6];
+					((ModelScaleRenderer) this.bipedLeftArm).config.scaleY *= leftArm[7];
+					((ModelScaleRenderer) this.bipedLeftArm).config.scaleZ *= leftArm[8];
+					((ModelScaleRenderer) this.bipedLeftArmwear).config.scaleX *= leftArm[6];
+					((ModelScaleRenderer) this.bipedLeftArmwear).config.scaleY *= leftArm[7];
+					((ModelScaleRenderer) this.bipedLeftArmwear).config.scaleZ *= leftArm[8];
+					if (npc.display.getHasLivingAnimation() && (anim.type==EnumAnimationType.standing || anim.type==EnumAnimationType.flystand || anim.type==EnumAnimationType.waterstand)) {
+						ModelRenderer bipedLeftArm = this.bipedLeftArm;
+						bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
+						ModelRenderer bipedLeftArm2 = this.bipedLeftArm;
+						bipedLeftArm2.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+					}
 				}
-			}
-			float[] bodyRot = anim.getValues(3, 0, anim.type.isCyclical(), partialTicks, npc);
-			if (bodyRot == null) { npc.animation.stopAnimation(); }
-			if (bodyRot.length>0) {
-				float[] bodyTr = anim.getValues(2, 1, anim.type.isCyclical(), partialTicks, npc);
-				float[] bodySc = anim.getValues(2, 2, anim.type.isCyclical(), partialTicks, npc);
-				this.bipedBody.rotateAngleX = bodyRot[0];
-				this.bipedBody.rotateAngleY = bodyRot[1];
-				this.bipedBody.rotateAngleZ = bodyRot[2];
-				((ModelScaleRenderer) this.bipedBody).config.transX += bodyTr[0];
-				((ModelScaleRenderer) this.bipedBody).config.transY += bodyTr[1];
-				((ModelScaleRenderer) this.bipedBody).config.transZ += bodyTr[2];
-				((ModelScaleRenderer) this.bipedBody).config.transX *= bodySc[0];
-				((ModelScaleRenderer) this.bipedBody).config.transY *= bodySc[1];
-				((ModelScaleRenderer) this.bipedBody).config.transZ *= bodySc[2];
-			}
-			float[] leftLegRot = anim.getValues(4, 0, anim.type.isCyclical(), partialTicks, npc);
-			if (leftLegRot == null) { npc.animation.stopAnimation(); }
-			if (leftLegRot.length>0) {
-				float[] leftLegTr = anim.getValues(2, 1, anim.type.isCyclical(), partialTicks, npc);
-				float[] leftLegSc = anim.getValues(2, 2, anim.type.isCyclical(), partialTicks, npc);
-				this.bipedLeftLeg.rotateAngleX = leftLegRot[0];
-				this.bipedLeftLeg.rotateAngleY = leftLegRot[1];
-				this.bipedLeftLeg.rotateAngleZ = leftLegRot[2];
-				((ModelScaleRenderer) this.bipedLeftLeg).config.transX += leftLegTr[0];
-				((ModelScaleRenderer) this.bipedLeftLeg).config.transY += leftLegTr[1];
-				((ModelScaleRenderer) this.bipedLeftLeg).config.transZ += leftLegTr[2];
-				((ModelScaleRenderer) this.bipedLeftLeg).config.transX *= leftLegSc[0];
-				((ModelScaleRenderer) this.bipedLeftLeg).config.transY *= leftLegSc[1];
-				((ModelScaleRenderer) this.bipedLeftLeg).config.transZ *= leftLegSc[2];
-			}
-			float[] rightLegRot = anim.getValues(5, 0, anim.type.isCyclical(), partialTicks, npc);
-			if (rightLegRot == null) { npc.animation.stopAnimation(); }
-			if (rightLegRot.length>0) {
-				float[] rightLegTr = anim.getValues(2, 1, anim.type.isCyclical(), partialTicks, npc);
-				float[] rightLegSc = anim.getValues(2, 2, anim.type.isCyclical(), partialTicks, npc);
-				this.bipedRightLeg.rotateAngleX = rightLegRot[0];
-				this.bipedRightLeg.rotateAngleY = rightLegRot[1];
-				this.bipedRightLeg.rotateAngleZ = rightLegRot[2];
-				((ModelScaleRenderer) this.bipedRightLeg).config.transX += rightLegTr[0];
-				((ModelScaleRenderer) this.bipedRightLeg).config.transY += rightLegTr[1];
-				((ModelScaleRenderer) this.bipedRightLeg).config.transZ += rightLegTr[2];
-				((ModelScaleRenderer) this.bipedRightLeg).config.transX *= rightLegSc[0];
-				((ModelScaleRenderer) this.bipedRightLeg).config.transY *= rightLegSc[1];
-				((ModelScaleRenderer) this.bipedRightLeg).config.transZ *= rightLegSc[2];
+				
+				// Right Arm
+				Float[] rightArm = animData.get(2);
+				if (rightArm!=null) {
+					this.bipedRightArm.rotateAngleX = rightArm[0];
+					this.bipedRightArm.rotateAngleY = rightArm[1];
+					this.bipedRightArm.rotateAngleZ = rightArm[2];
+					((ModelScaleRenderer) this.bipedRightArm).config.transX += rightArm[3];
+					((ModelScaleRenderer) this.bipedRightArm).config.transY += rightArm[4];
+					((ModelScaleRenderer) this.bipedRightArm).config.transZ += rightArm[5];
+					((ModelScaleRenderer) this.bipedRightArmwear).config.transX += rightArm[3];
+					((ModelScaleRenderer) this.bipedRightArmwear).config.transY += rightArm[4];
+					((ModelScaleRenderer) this.bipedRightArmwear).config.transZ += rightArm[5];
+					
+					((ModelScaleRenderer) this.bipedRightArm).config.scaleX *= rightArm[6];
+					((ModelScaleRenderer) this.bipedRightArm).config.scaleY *= rightArm[7];
+					((ModelScaleRenderer) this.bipedRightArm).config.scaleZ *= rightArm[8];
+					((ModelScaleRenderer) this.bipedRightArmwear).config.scaleX *= rightArm[6];
+					((ModelScaleRenderer) this.bipedRightArmwear).config.scaleY *= rightArm[7];
+					((ModelScaleRenderer) this.bipedRightArmwear).config.scaleZ *= rightArm[8];
+					
+					if (npc.display.getHasLivingAnimation() && (anim.type==EnumAnimationType.standing || anim.type==EnumAnimationType.flystand || anim.type==EnumAnimationType.waterstand)) {
+						ModelRenderer bipedRightArm = this.bipedRightArm;
+						bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
+						ModelRenderer bipedRightArm2 = this.bipedRightArm;
+						bipedRightArm2.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+					}
+				}
+				
+				// Body
+				Float[] body = animData.get(3);
+				if (body!=null) {
+					this.bipedBody.rotateAngleX = body[0];
+					this.bipedBody.rotateAngleY = body[1];
+					this.bipedBody.rotateAngleZ = body[2];
+					((ModelScaleRenderer) this.bipedBody).config.transX += body[3];
+					((ModelScaleRenderer) this.bipedBody).config.transY += body[4];
+					((ModelScaleRenderer) this.bipedBody).config.transZ += body[5];
+					((ModelScaleRenderer) this.bipedBodyWear).config.transX += body[3];
+					((ModelScaleRenderer) this.bipedBodyWear).config.transY += body[4];
+					((ModelScaleRenderer) this.bipedBodyWear).config.transZ += body[5];
+					
+					((ModelScaleRenderer) this.bipedBody).config.scaleX *= body[6];
+					((ModelScaleRenderer) this.bipedBody).config.scaleY *= body[7];
+					((ModelScaleRenderer) this.bipedBody).config.scaleZ *= body[8];
+					((ModelScaleRenderer) this.bipedBodyWear).config.scaleX *= body[6];
+					((ModelScaleRenderer) this.bipedBodyWear).config.scaleY *= body[7];
+					((ModelScaleRenderer) this.bipedBodyWear).config.scaleZ *= body[8];
+				}
+				// Left Leg
+				Float[] leftLeg = animData.get(4);
+				if (body!=null) {
+					this.bipedLeftLeg.rotateAngleX = leftLeg[0];
+					this.bipedLeftLeg.rotateAngleY = leftLeg[1];
+					this.bipedLeftLeg.rotateAngleZ = leftLeg[2];
+					((ModelScaleRenderer) this.bipedLeftLeg).config.transX += leftLeg[3];
+					((ModelScaleRenderer) this.bipedLeftLeg).config.transY += leftLeg[4];
+					((ModelScaleRenderer) this.bipedLeftLeg).config.transZ += leftLeg[5];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.transX += leftLeg[3];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.transY += leftLeg[4];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.transZ += leftLeg[5];
+					
+					((ModelScaleRenderer) this.bipedLeftLeg).config.scaleX *= leftLeg[6];
+					((ModelScaleRenderer) this.bipedLeftLeg).config.scaleY *= leftLeg[7];
+					((ModelScaleRenderer) this.bipedLeftLeg).config.scaleZ *= leftLeg[8];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.scaleX *= leftLeg[6];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.scaleY *= leftLeg[7];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.scaleZ *= leftLeg[8];
+				}
+
+				// Left Leg
+				Float[] rightLeg = animData.get(5);
+				if (body!=null) {
+					this.bipedRightLeg.rotateAngleX = rightLeg[0];
+					this.bipedRightLeg.rotateAngleY = rightLeg[1];
+					this.bipedRightLeg.rotateAngleZ = rightLeg[2];
+					((ModelScaleRenderer) this.bipedRightLeg).config.transX += rightLeg[3];
+					((ModelScaleRenderer) this.bipedRightLeg).config.transY += rightLeg[4];
+					((ModelScaleRenderer) this.bipedRightLeg).config.transZ += rightLeg[5];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.transX += rightLeg[3];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.transY += rightLeg[4];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.transZ += rightLeg[5];
+					
+					((ModelScaleRenderer) this.bipedRightLeg).config.scaleX *= rightLeg[6];
+					((ModelScaleRenderer) this.bipedRightLeg).config.scaleY *= rightLeg[7];
+					((ModelScaleRenderer) this.bipedRightLeg).config.scaleZ *= rightLeg[8];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.scaleX *= rightLeg[6];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.scaleY *= rightLeg[7];
+					((ModelScaleRenderer) this.bipedLeftLegwear).config.scaleZ *= rightLeg[8];
+				}
 			}
 		}
-		ModelPlayerAlt.copyModelAngles(this.bipedLeftLeg, this.bipedLeftLegwear);
-		ModelPlayerAlt.copyModelAngles(this.bipedRightLeg, this.bipedRightLegwear);
-		ModelPlayerAlt.copyModelAngles(this.bipedLeftArm, this.bipedLeftArmwear);
-		ModelPlayerAlt.copyModelAngles(this.bipedRightArm, this.bipedRightArmwear);
-		ModelPlayerAlt.copyModelAngles(this.bipedBody, this.bipedBodyWear);
-		ModelPlayerAlt.copyModelAngles(this.bipedHead, this.bipedHeadwear);
+		copyModelAngles(this.bipedLeftLeg, this.bipedLeftLegwear);
+		copyModelAngles(this.bipedRightLeg, this.bipedRightLegwear);
+		copyModelAngles(this.bipedLeftArm, this.bipedLeftArmwear);
+		copyModelAngles(this.bipedRightArm, this.bipedRightArmwear);
+		copyModelAngles(this.bipedBody, this.bipedBodyWear);
+		copyModelAngles(this.bipedHead, this.bipedHeadwear);
 	}
 	
-	public static void copyModelAngles(ModelRenderer source, ModelRenderer dest) {
-		
-		dest.rotateAngleX = source.rotateAngleX;
-        dest.rotateAngleY = source.rotateAngleY;
-        dest.rotateAngleZ = source.rotateAngleZ;
-        dest.rotationPointX = source.rotationPointX;
-        dest.rotationPointY = source.rotationPointY;
-        dest.rotationPointZ = source.rotationPointZ;
-        
-        if (source instanceof ModelScaleRenderer && dest instanceof ModelScaleRenderer) {
-			((ModelScaleRenderer) dest).config.transY = ((ModelScaleRenderer) source).config.transX;
-			((ModelScaleRenderer) dest).config.transY = ((ModelScaleRenderer) source).config.transY;
-			((ModelScaleRenderer) dest).config.transZ = ((ModelScaleRenderer) source).config.transZ;
-			
-			((ModelScaleRenderer) dest).config.transX = ((ModelScaleRenderer) source).config.scaleX;
-			((ModelScaleRenderer) dest).config.transY = ((ModelScaleRenderer) source).config.scaleY;
-			((ModelScaleRenderer) dest).config.transZ = ((ModelScaleRenderer) source).config.scaleZ;
-        }
-	}
 }

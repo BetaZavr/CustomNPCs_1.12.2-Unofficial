@@ -983,8 +983,8 @@ puppet.waterwalk=Когда ходит в воде
 puppet.init=Когда обновляется
 animation.type=Тип Анимации: 
 animation.frame=Кадр / Шаг:
-animation.message.save=§7Сохранена Анимация "%s§7" под ID: %s
-animation.message.load=§7Загружена Анимация "%s§7" под ID: %s
+animation.message.save=§7Сохранена Анимация "%s§7"
+animation.message.load=§7Загружена Анимация "%s§7"
 
 animation.hover.type=Тип Анимации<br>§7NPC способен иметь любое число анимаций для каждого типа
 animation.hover.list=Варианты анимации выбранного типа<br>§7При запуске анимации выбирается случайный вариант.

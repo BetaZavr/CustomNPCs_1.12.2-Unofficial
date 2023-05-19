@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
@@ -17,6 +18,7 @@ import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -43,20 +45,76 @@ implements INPCAnimation {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.data.clear();
 		this.emotion.clear();
-		for (int c=0; c<compound.getTagList("AllAnimations", 10).tagCount(); c++) {
-			NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
-			int t = nbtCategory.getInteger("Category");
-			if (t<0) { t *= -1; }
-			t %= EnumAnimationType.values().length;
-			EnumAnimationType eat = EnumAnimationType.values()[t];
-			List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
-			for (int i=0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
-				AnimationConfig ac = new AnimationConfig(this.npc, t);
-				ac.readFromNBT(nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i));
-				ac.id = i;
-				list.add(ac);
+		if (!compound.hasKey("AllAnimations", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+			EnumAnimationType type = compound.getBoolean("PuppetMoving") ? EnumAnimationType.walking : compound.getBoolean("PuppetAttacking") ? EnumAnimationType.attacking : EnumAnimationType.standing;
+			int speed;
+			switch(compound.getInteger("PuppetAnimationSpeed")) {
+				case 0: speed = 80; break;
+				case 1: speed = 48; break;
+				case 2: speed = 26; break;
+				case 3: speed = 20; break;
+				case 5: speed = 8; break;
+				case 6: speed = 6; break;
+				case 7: speed = 4; break;
+				default: speed = 14; break;
 			}
-			this.data.put(eat, list);
+			boolean isAnim = compound.getBoolean("PuppetAnimate");
+			List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
+			AnimationConfig ac = new AnimationConfig(type.ordinal());
+			AnimationFrameConfig f0 = ac.frames.get(0), f1 = null;
+			ac.name = "Loaded from old version";
+			if (isAnim) {
+				f1 = (AnimationFrameConfig) ac.addFrame();
+				f1.setSpeed(speed);
+			}
+			f0.setSpeed(speed);
+			for (int i=0; i < (isAnim ? 12 : 6); i++) {
+				String n;
+				switch(i) {
+					case 1: n = "PuppetLArm"; break;
+					case 2: n = "PuppetRArm"; break;
+					case 3: n = "PuppetBody"; break;
+					case 4: n = "PuppetLLeg"; break;
+					case 5: n = "PuppetRLeg"; break;
+					case 6: n = "PuppetHead2"; break;
+					case 7: n = "PuppetLArm2"; break;
+					case 8: n = "PuppetRArm2"; break;
+					case 9: n = "PuppetBody2"; break;
+					case 10: n = "PuppetLLeg2"; break;
+					case 11: n = "PuppetRLeg2"; break;
+					default: n = "PuppetHead"; break;
+				}
+				if (i<6) {
+					f0.parts[i].rotation[0] = compound.getCompoundTag(n).getFloat("RotationX");
+					f0.parts[i].rotation[1] = compound.getCompoundTag(n).getFloat("RotationY");
+					f0.parts[i].rotation[2] = compound.getCompoundTag(n).getFloat("RotationZ");
+					f0.parts[i].disable = compound.getCompoundTag(n).getBoolean("Disabled");
+				} else {
+					f1.parts[i%6].rotation[0] = compound.getCompoundTag(n).getFloat("RotationX");
+					f1.parts[i%6].rotation[1] = compound.getCompoundTag(n).getFloat("RotationY");
+					f1.parts[i%6].rotation[2] = compound.getCompoundTag(n).getFloat("RotationZ");
+					f1.parts[i%6].disable = compound.getCompoundTag(n).getBoolean("Disabled");
+				}
+			}
+			
+			list.add(ac);
+			this.data.put(type, list);
+			
+		} else {
+			for (int c=0; c<compound.getTagList("AllAnimations", 10).tagCount(); c++) {
+				NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
+				int t = nbtCategory.getInteger("Category");
+				if (t<0) { t *= -1; }
+				t %= EnumAnimationType.values().length;
+				EnumAnimationType eat = EnumAnimationType.values()[t];
+				List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
+				for (int i=0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
+					AnimationConfig ac = new AnimationConfig(t);
+					ac.readFromNBT(nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i));
+					list.add(ac);
+				}
+				this.data.put(eat, list);
+			}
 		}
 		for (EnumAnimationType eat : EnumAnimationType.values()) {
 			if (!this.data.containsKey(eat)) { this.data.put(eat, Lists.<AnimationConfig>newArrayList()); }
@@ -102,6 +160,7 @@ implements INPCAnimation {
 		this.activeAnim = null;
 		List<AnimationConfig> list = this.data.get(type);
 		if (list==null) { this.data.put(type, list = Lists.<AnimationConfig>newArrayList()); }
+
 		if (list.size()==0 && (type==EnumAnimationType.flystand || type==EnumAnimationType.waterstand)) {
 			list = this.data.get(EnumAnimationType.standing);
 		}
@@ -132,7 +191,6 @@ implements INPCAnimation {
 	
 	@Override
 	public void reset() {
-		this.stopAnimation();
 		this.stopAnimation();
 	}
 	
@@ -241,5 +299,38 @@ implements INPCAnimation {
 
 	@Override
 	public void setNbt(INbt nbt) { this.readFromNBT(nbt.getMCNBT()); }
+
+	@Override
+	public boolean removeAnimation(int animationType, String animationName) {
+		if (animationType<0 || animationType>=EnumAnimationType.values().length) {
+			throw new CustomNPCsException("Animation Type must be between 0 and " + EnumAnimationType.values().length + " You have: "+animationType);
+		}
+		EnumAnimationType t = EnumAnimationType.values()[animationType];
+		for (AnimationConfig ac : this.data.get(t)) {
+			if (ac.name.equalsIgnoreCase(animationName)) {
+				this.data.get(t).remove(ac);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public void removeAnimations(int animationType) {
+		if (animationType<0 || animationType>=EnumAnimationType.values().length) {
+			throw new CustomNPCsException("Animation Type must be between 0 and " + EnumAnimationType.values().length + " You have: "+animationType);
+		}
+		this.data.get(EnumAnimationType.values()[animationType]).clear();
+	}
+
+	@Override
+	public AnimationConfig createAnimation(int animationType) {
+		if (animationType<0 || animationType>=EnumAnimationType.values().length) {
+			throw new CustomNPCsException("Animation Type must be between 0 and " + EnumAnimationType.values().length + " You have: "+animationType);
+		}
+		AnimationConfig ac = new AnimationConfig(animationType);
+		this.data.get(ac.type).add(ac);
+		return ac;
+	}
 	
 }

@@ -1080,8 +1080,8 @@ puppet.waterwalk=When walk on water
 puppet.init=When init
 animation.type=Animation Type: 
 animation.frame=Frame / Step:
-animation.message.save=§7Saved Animation "%s§7" under ID: %s
-animation.message.load=§7Load Animation "%s§7" under ID: %s
+animation.message.save=§7Saved Animation "%s§7"
+animation.message.load=§7Load Animation "%s§7"
 
 animation.hover.type=Animation Type<br>§7NPCs can have any number of animations for each type
 animation.hover.list=Animation options of selected type<br>§7Random selection is selected when starting an animation.

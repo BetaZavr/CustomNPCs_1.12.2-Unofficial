@@ -589,7 +589,7 @@ extends PacketHandlerServer {
 					break;
 				case 3: // startAnimationFromSaved
 					if (!compound.hasKey("CustomAnim", 10)) { return; }
-					AnimationConfig ac = new AnimationConfig((EntityNPCInterface) entity, 0);
+					AnimationConfig ac = new AnimationConfig(0);
 					ac.readFromNBT(compound.getCompoundTag("CustomAnim"));
 					((EntityNPCInterface) entity).animation.activeAnim = ac;
 					break;
