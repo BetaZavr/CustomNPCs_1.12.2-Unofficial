@@ -6,7 +6,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class ModelEyeData extends ModelPartData {
+public class ModelEyeData
+extends ModelPartData {
+	
 	public long blinkStart;
 	public int browColor;
 	public int browThickness;

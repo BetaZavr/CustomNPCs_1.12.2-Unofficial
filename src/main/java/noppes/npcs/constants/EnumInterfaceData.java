@@ -1820,7 +1820,7 @@ public enum EnumInterfaceData {
 			new Class<?>[] { DataAnimation.class },
 			"interfase.inpcanimation",
 			new MetodData(void.class, "reset", "method.inpcanimation.reset"),
-			new MetodData(void.class, "stop", "method.inpcanimation.stop"),
+			new MetodData(void.class, "stopAnimation", "method.inpcanimation.stopanimation"),
 			new MetodData(void.class, "clear", "method.inpcanimation.clear"),
 			new MetodData(void.class, "update", "method.inpcanimation.update"),
 			new MetodData(IAnimation[].class, "getAnimations", "method.inpcanimation.getanimations",
@@ -1830,22 +1830,30 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "animationType", "parameter.animation.type"),
 				new ParameterData(int.class, "variant", "parameter.animation.variant")
 			),
-			new MetodData(void.class, "start", "method.inpcanimation.start",
+			new MetodData(void.class, "startAnimation", "method.inpcanimation.startanimation",
 				new ParameterData(int.class, "animationType", "parameter.animation.type")
 			),
-			new MetodData(void.class, "start", "method.inpcanimation.start",
+			new MetodData(void.class, "startAnimation", "method.inpcanimation.startanimation",
 				new ParameterData(int.class, "animationType", "parameter.animation.type"),
 				new ParameterData(int.class, "variant", "parameter.animation.variant")
 			),
-			new MetodData(void.class, "startFromSaved", "method.inpcanimation.startfromsaved",
+			new MetodData(void.class, "startAnimationFromSaved", "method.inpcanimation.startanimationfromsaved",
 				new ParameterData(int.class, "animationID", "parameter.animation.id")
 			),
-			new MetodData(void.class, "startFromSaved", "method.inpcanimation.startfromsaved",
+			new MetodData(void.class, "startAnimationFromSaved", "method.inpcanimation.startanimationfromsaved",
 				new ParameterData(String.class, "animationName", "parameter.animation.name")
 			),
 			new MetodData(INbt.class, "getNbt", "method.inpcanimation.getnbt"),
 			new MetodData(void.class, "setNbt", "method.inpcanimation.setnbt",
 				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			),
+			new MetodData(boolean.class, "isDisable", "method.inpcanimation.isdisable"),
+			new MetodData(void.class, "setDisable", "method.inpcanimation.setdisable",
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
+			),
+			new MetodData(boolean.class, "getRepeatLast", "method.inpcanimation.getrepeatlast"),
+			new MetodData(void.class, "setRepeatLast", "method.inpcanimation.setrepeatlast",
+				new ParameterData(int.class, "frames", "parameter.count")
 			)
 		)
 	),

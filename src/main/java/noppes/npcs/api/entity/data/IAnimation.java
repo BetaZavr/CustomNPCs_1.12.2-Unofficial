@@ -64,5 +64,13 @@ public interface IAnimation {
 	int addFrame();
 
 	int addFrame(IAnimationPart[] parts);
+
+	boolean isDisable();
+
+	void setDisable(boolean bo);
+
+	int getRepeatLast();
+	
+	void setRepeatLast(int frames);
 	
 }

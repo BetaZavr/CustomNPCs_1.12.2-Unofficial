@@ -1354,7 +1354,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
 		this.animation.reset();
-		if (this.isRemote()) { this.animation.start(EnumAnimationType.init.ordinal()); }
+		if (this.isRemote()) { this.animation.startAnimation(EnumAnimationType.init.ordinal()); }
 		EventHooks.onNPCInit(this);
 	}
 

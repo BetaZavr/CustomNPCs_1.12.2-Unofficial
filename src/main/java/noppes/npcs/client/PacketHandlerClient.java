@@ -576,7 +576,7 @@ extends PacketHandlerServer {
 			DataAnimation anim = ((EntityNPCInterface) entity).animation;
 			switch(t) {
 				case 0: ((EntityNPCInterface) entity).animation.readFromNBT(compound); break; // reload
-				case 1: ((EntityNPCInterface) entity).animation.stop(); break; // stop
+				case 1: ((EntityNPCInterface) entity).animation.stopAnimation(); break; // stopAnimation
 				case 2: // start
 					int animationType = -1, variant = -1;
 					if (compound.hasKey("Vars", 11)) {
@@ -585,9 +585,9 @@ extends PacketHandlerServer {
 						if (vars.length>=2) { variant = vars[1]; }
 					}
 					if (animationType < 0 || animationType >= EnumAnimationType.values().length ) { return; }
-					anim.start(animationType, variant);
+					anim.startAnimation(animationType, variant);
 					break;
-				case 3: // startFromSaved
+				case 3: // startAnimationFromSaved
 					if (!compound.hasKey("CustomAnim", 10)) { return; }
 					AnimationConfig ac = new AnimationConfig((EntityNPCInterface) entity, 0);
 					ac.readFromNBT(compound.getCompoundTag("CustomAnim"));

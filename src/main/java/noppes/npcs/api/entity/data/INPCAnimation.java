@@ -6,7 +6,9 @@ public interface INPCAnimation {
 
 	void reset();
 
-	void stop();
+	void stopAnimation();
+	
+	void stopEmotion();
 
 	void clear();
 
@@ -16,16 +18,16 @@ public interface INPCAnimation {
 
 	IAnimation getAnimation(int animationType, int variant);
 
-	void start(int animationType);
+	void startAnimation(int animationType);
 
-	void start(int animationType, int variant);
+	void startAnimation(int animationType, int variant);
 	
 	INbt getNbt();
 	
 	void setNbt(INbt nbt);
 
-	void startFromSaved(int animationId);
+	void startAnimationFromSaved(int animationId);
 
-	void startFromSaved(String animationName);
+	void startAnimationFromSaved(String animationName);
 
 }

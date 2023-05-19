@@ -13,7 +13,9 @@ import noppes.npcs.ModelPartData;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.entity.EntityCustomNpc;
 
-public abstract class LayerInterface<T extends EntityLivingBase> implements LayerRenderer<T> {
+public abstract class LayerInterface<T extends EntityLivingBase>
+implements LayerRenderer<T> {
+	
 	public ModelBiped model;
 	protected EntityCustomNpc npc;
 	protected ModelData playerdata;
@@ -43,8 +45,7 @@ public abstract class LayerInterface<T extends EntityLivingBase> implements Laye
 		return R << 16 | G << 8 | B;
 	}
 
-	public void doRenderLayer(EntityLivingBase entity, float par2, float par3, float par8, float par4, float par5,
-			float par6, float par7) {
+	public void doRenderLayer(EntityLivingBase entity, float par2, float par3, float par8, float par4, float par5, float par6, float par7) {
 		this.npc = (EntityCustomNpc) entity;
 		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) {
 			return;

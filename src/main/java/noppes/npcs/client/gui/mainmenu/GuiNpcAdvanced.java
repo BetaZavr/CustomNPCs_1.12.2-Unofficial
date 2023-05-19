@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.mainmenu;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -76,6 +77,7 @@ implements IGuiData, ISubGuiListener {
 		this.getButton(16).enabled = ((EntityCustomNpc) this.npc).modelData.entityClass==null;
 		this.addButton(new GuiNpcButton(18, this.guiLeft + 15, y += 22, 190, 20, "advanced.emotion"));
 		this.getButton(18).enabled = ((EntityCustomNpc) this.npc).modelData.eyes.type!=(byte)-1;
+		this.getButton(18).enabled = false; // WIP
 	}
 
 	@Override
@@ -280,7 +282,10 @@ implements IGuiData, ISubGuiListener {
 		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.eye",
 				new TextComponentTranslation("gui.help.general").getFormattedText(),
-				new TextComponentTranslation("selectServer.edit").getFormattedText()).getFormattedText());
+				new TextComponentTranslation("selectServer.edit").getFormattedText()).
+					appendSibling(new TextComponentString("<br>")).
+					appendSibling(new TextComponentTranslation("gui.wip"))
+					.getFormattedText());
 		}
 	}
 

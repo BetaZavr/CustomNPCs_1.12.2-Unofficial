@@ -25,13 +25,13 @@ public class AnimationConfig
 implements IAnimation {
 
 	public static final PartConfig EMPTY_PART = new PartConfig(null);
-	private static final float PI = (float) Math.PI;
+	static final float PI = (float) Math.PI;
 
 	public String name;
-	public int id, repeatLast;
-	public long startTick;
-	public int frame;
-	public float val, valNext;
+	public int id, frame, repeatLast;
+	public boolean disable;
+	private long startTick;
+	private float val, valNext;
 	public final Map<Integer, PartConfig[]> frames; // {Frame, 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg]}
 	public EnumAnimationType type;
 	private EntityNPCInterface npc;
@@ -49,9 +49,16 @@ implements IAnimation {
 		this.frame = 0;
 		this.name = "Default Animation";
 		this.id = 0;
+		this.disable = false;
 		this.repeatLast = 0;
 	}
 
+	@Override
+	public boolean isDisable() { return this.disable; }
+	
+	@Override
+	public void setDisable(boolean bo) { this.disable = bo; }
+	
 	@Override
 	public IAnimationPart[] getParts(int frame) { return this.frames.get(frame); }
 	
@@ -99,7 +106,7 @@ implements IAnimation {
 	 * @param npc
 	 * @return values float[ x, y, z ]
 	 */
-	public float[] getRotation(int partType, int valueType, boolean isCyclical, float partialTicks, EntityNPCInterface npc) {
+	public float[] getValues(int partType, int valueType, boolean isCyclical, float partialTicks, EntityNPCInterface npc) {
 		if (this.frames.size()==0 || !this.frames.containsKey(this.frame)) { return null; }
 		this.npc = npc;
 		PartConfig part_1;
@@ -143,7 +150,7 @@ implements IAnimation {
 			this.frame++;
 			if (!this.frames.containsKey(this.frame)) {
 				if (this.type.isCyclical()) { this.frame = 0; }
-				else { npc.animation.stop(); }
+				else { npc.animation.stopAnimation(); }
 			}
 			this.startTick = this.npc.world.getTotalWorldTime();
 		}
@@ -167,6 +174,7 @@ implements IAnimation {
 		this.type = EnumAnimationType.values()[t % EnumAnimationType.values().length];
 		this.name = compound.getString("Name");
 		this.id = compound.getInteger("ID");
+		this.disable = compound.getBoolean("IsDisable");
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -185,6 +193,7 @@ implements IAnimation {
 		compound.setInteger("Type", this.type.ordinal());
 		compound.setString("Name", this.name);
 		compound.setInteger("ID", this.id);
+		compound.setBoolean("IsDisable", this.disable);
 		return compound;
 	}
 
@@ -260,6 +269,16 @@ implements IAnimation {
 			compound.setTag("CustomAnim", this.writeToNBT(new NBTTagCompound()));
 			Server.sendAssociatedData((EntityNPCInterface) npcEntity, EnumPacketClient.UPDATE_NPC_ANIMATION, 3, compound);
 		}
+	}
+
+	@Override
+	public int getRepeatLast() { return this.repeatLast; }
+	
+	@Override
+	public void setRepeatLast(int frames) {
+		if (frames < 0) { frames = 0; }
+		if (frames > this.frames.size()) { frames = this.frames.size(); }
+		this.repeatLast = frames;
 	}
 
 	public AnimationConfig copy() {

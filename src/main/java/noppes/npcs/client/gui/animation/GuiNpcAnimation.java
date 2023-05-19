@@ -165,6 +165,10 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.addLabel(new GuiNpcLabel(3, "animation.frame", u+2, v += 17));
 			this.addButton(new GuiButtonBiDirectional(6, u, v += 10, 99, 20, list.toArray(new String[list.size()]), this.selectedFrame));
 			
+			button = new GuiNpcCheckBox(18, u+25, v - 13, 10, 15, this.currentAnim.isDisable() ? "gui.disabled" : "gui.enabled");
+			((GuiNpcCheckBox) button).setSelected(this.currentAnim.isDisable());
+			this.addButton(button);
+			
 			int u1 = u + 186;
 			this.addButton(new GuiNpcButton(7, u1, v+84, 18, 18, "")); // head
 			this.addButton(new GuiNpcButton(8, u1-9, v+103, 8, 24, "")); // left arm
@@ -226,7 +230,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.addButton(button);
 			this.addButton(new GuiNpcButton(17, u, v - 26, 10, 10, new String[] { "b", "w" }, GuiNpcAnimation.backColor==0xFF000000 ? 0 : 1));
 			
-			if (GuiNpcAnimation.type == EnumAnimationType.dies) {
+			if (GuiNpcAnimation.type.isCyclical()) {
 				this.addLabel(new GuiNpcLabel(16, "gui.repeat", (u += 60) + 2, v -= 6));
 				if (this.currentAnim.repeatLast < 0) { this.currentAnim.repeatLast *= -1; }
 				if (this.currentAnim.repeatLast > this.currentAnim.frames.size()) { this.currentAnim.repeatLast = this.currentAnim.frames.size(); }
@@ -882,6 +886,12 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			case 11: { // delay
 				if (part==null) { return; }
 				part.setEndDelay(textField.getInteger());
+				this.resetAnims();
+				break;
+			}
+			case 12: { // repeatLast
+				if (this.currentAnim==null) { return; }
+				this.currentAnim.setRepeatLast(textField.getInteger());
 				this.resetAnims();
 				break;
 			}
