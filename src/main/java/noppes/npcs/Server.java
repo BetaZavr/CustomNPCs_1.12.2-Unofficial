@@ -156,7 +156,7 @@ public class Server {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
 				if (!(!fillBuffer(buffer, type, obs))) {
-					if (type != EnumPacketClient.EYE_BLINK) {
+					if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.UPDATE_NPC) {
 						LogWriter.debug("SendAssociatedData: " + type);
 					} // Changed
 					Iterator<EntityPlayerMP> iterator = list.iterator();

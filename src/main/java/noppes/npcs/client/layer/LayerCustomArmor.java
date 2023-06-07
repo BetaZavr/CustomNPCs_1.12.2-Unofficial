@@ -5,7 +5,6 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
@@ -30,7 +29,7 @@ extends LayerInterface<T> {
 	
 	public LayerCustomArmor(RenderLiving<?> render) {
 		super(render);
-		this.modelLeggings = new ModelBipedAlt(0.5F);
+		this.modelLeggings = new ModelBipedAlt(1.0F);
 		this.modelArmor = new ModelBipedAlt(1.0F);
 	}
 	
@@ -78,14 +77,12 @@ extends LayerInterface<T> {
 		{
 			if (itemarmor.hasOverlay(itemstack)) {
 				int i = itemarmor.getColor(itemstack);
-				float f = (float)(i >> 16 & 255) / 255.0F;
-				float f1 = (float)(i >> 8 & 255) / 255.0F;
-				float f2 = (float)(i & 255) / 255.0F;
-				GlStateManager.color(f, f1, f2, 1.0F);
+				GlStateManager.color((float)(i >> 16 & 255) / 255.0F, (float)(i >> 8 & 255) / 255.0F, (float)(i & 255) / 255.0F, 1.0F);
 				this.renderPart(t, slot, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 				this.render.bindTexture(this.getArmorResource(entityLivingBaseIn, itemstack, slot, "overlay"));
 			}
 			{
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				this.renderPart(t, slot, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 			}
 			if (!this.skipRenderGlint && itemstack.hasEffect()) { this.renderEnchantedGlint(this.render, entityLivingBaseIn, t, slot, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale); }
@@ -169,11 +166,11 @@ extends LayerInterface<T> {
 	}
 
 	@Deprecated
-	public ResourceLocation getArmorResource(ItemArmor armor, boolean p_177181_2_) { return this.getArmorResource(armor, p_177181_2_, (String)null); }
+	public ResourceLocation getArmorResource(ItemArmor armor, boolean isLegs) { return this.getArmorResource(armor, isLegs, (String)null); }
 
 	@Deprecated
-	public ResourceLocation getArmorResource(ItemArmor armor, boolean p_177178_2_, String p_177178_3_) {
-		String s = String.format("textures/models/armor/%s_layer_%d%s.png", armor.getArmorMaterial().getName(), p_177178_2_ ? 2 : 1, p_177178_3_ == null ? "" : String.format("_%s", p_177178_3_));
+	public ResourceLocation getArmorResource(ItemArmor armor, boolean isLegs, String type) {
+		String s = String.format("textures/models/armor/%s_layer_%d%s.png", armor.getArmorMaterial().getName(), isLegs ? 2 : 1, type == null ? "" : String.format("_%s", type));
 		ResourceLocation resourcelocation = ARMOR_TEXTURE_RES_MAP.get(s);
 		if (resourcelocation == null) {
 			resourcelocation = new ResourceLocation(s);
@@ -201,28 +198,25 @@ extends LayerInterface<T> {
 		return resourcelocation;
 	}
 
-	@Override
-	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) { }
-	
 	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		super.doRenderLayer(entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.pushMatrix();
 		this.renderArmorLayer(this.npc, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.CHEST);
 		GlStateManager.popMatrix();
-		
 		GlStateManager.pushMatrix();
 		this.renderArmorLayer(this.npc, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.LEGS);
 		GlStateManager.popMatrix();
-		
 		GlStateManager.pushMatrix();
 		this.renderArmorLayer(this.npc, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.FEET);
 		GlStateManager.popMatrix();
-		
 		GlStateManager.pushMatrix();
 		this.renderArmorLayer(this.npc, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.HEAD);
 		GlStateManager.popMatrix();
 	}
 
+	@Override
+	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) { }
+	
 	@Override
 	public void rotate(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) { }
 	

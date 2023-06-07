@@ -106,7 +106,7 @@ extends PacketHandlerServer {
 			EnumPacketClient type = null;
 			try {
 				type = EnumPacketClient.values()[buffer.readInt()];
-				if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.NPC_VISUAL_DATA) {
+				if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.NPC_VISUAL_DATA && type != EnumPacketClient.UPDATE_NPC) {
 					LogWriter.debug("Received: " + type);
 				} // Changed
 				this.client(buffer, player, type);
@@ -351,7 +351,6 @@ extends PacketHandlerServer {
 				gui = ((GuiContainerNPCInterface) gui).getSubGui();
 			}
 			if (gui instanceof IGuiData) {
-				System.out.println("gui "+gui);
 				NBTTagCompound compound = Server.readNBT(buffer);
 				((IGuiData) gui).setGuiData(compound);
 			}

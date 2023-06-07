@@ -188,6 +188,8 @@ implements IAnimation {
 			afc.id = i;
 			this.frames.put(i, afc);
 		}
+		if (this.frames.size()==0) { this.frames.put(0, new AnimationFrameConfig()); }
+		
 		int t = compound.getInteger("Type");
 		if (t<0) { t *= -1; }
 		this.type = EnumAnimationType.values()[t % EnumAnimationType.values().length];

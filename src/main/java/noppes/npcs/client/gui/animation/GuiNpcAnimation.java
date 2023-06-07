@@ -140,16 +140,24 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		AnimationFrameConfig frame = null;
 		PartConfig part = null;
 		if (anim!=null) {
+			if (anim.frames.size()==0) { anim.frames.put(0, new AnimationFrameConfig()); }
 			if (anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
 			else {
 				this.selectFrame = 0;
 				frame = anim.frames.get(0);
 			}
-			if (frame!=null && this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
-			else {
-				this.selectPart = 0;
-				part = frame.parts[0];
+			if (frame!=null) {
+				if (this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
+				else {
+					this.selectPart = 0;
+					part = frame.parts[0];
+				}
 			}
+			else { this.selectPart = 0; }
+		}
+		else {
+			this.selectFrame = 0;
+			this.selectPart = 0;
 		}
 		if (anim!=null && frame!=null && part!=null) {
 			List<String> list = Lists.newArrayList();

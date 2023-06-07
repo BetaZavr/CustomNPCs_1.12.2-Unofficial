@@ -237,8 +237,11 @@ implements IGuiData, ISubGuiListener {
 				}
 				default: { break; }
 			}
-		} else {
+		} else if (compound.hasKey("NpcInteractLines", 10)) {
 			this.npc.advanced.readToNBT(compound);
+			this.initGui();
+		} else if (compound.hasKey("NpcInv", 9)) {
+			this.npc.inventory.readEntityFromNBT(compound);
 			this.initGui();
 		}
 	}

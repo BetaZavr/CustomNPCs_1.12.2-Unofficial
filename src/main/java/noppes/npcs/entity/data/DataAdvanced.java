@@ -112,20 +112,15 @@ implements INPCAdvanced {
 	@Override
 	public String getSound(int type) {
 		String sound = null;
-		if (type == 0) {
-			sound = this.idleSound;
-		} else if (type == 1) {
-			sound = this.angrySound;
-		} else if (type == 2) {
-			sound = this.hurtSound;
-		} else if (type == 3) {
-			sound = this.deathSound;
-		} else if (type == 4) {
-			sound = this.stepSound;
+		switch(type) {
+			case 0: { sound = this.idleSound; break; }
+			case 1: { sound = this.angrySound; break; }
+			case 2: { sound = this.hurtSound; break; }
+			case 3: { sound = this.deathSound; break; }
+			case 4: { sound = this.stepSound; break; }
+			default: { break; }
 		}
-		if (sound != null && sound.isEmpty()) {
-			return null;
-		}
+		if (sound != null && sound.isEmpty()) { sound = null; }
 		return sound;
 	}
 
@@ -270,7 +265,6 @@ implements INPCAdvanced {
 		this.roleInterface.writeToNBT(roleNbt);
 		compound.setTag("Role", roleNbt);
 		compound.setTag("Job", jobNbt);
-		
 		return compound;
 	}
 }
