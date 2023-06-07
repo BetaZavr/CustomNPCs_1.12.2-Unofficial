@@ -162,7 +162,7 @@ implements ISubGuiListener, ICustomScrollListener {
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
-		this.drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, true);
+		this.drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, 0, true);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);
 		Gui.drawRect(this.guiLeft + 319, this.guiTop + 30, this.guiLeft + 380, this.guiTop + 165, 0xFF808080);

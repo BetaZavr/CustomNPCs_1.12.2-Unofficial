@@ -21,6 +21,7 @@ implements IAnimationFrame {
 		public PartConfig(EntityNPCInterface npc) {
 			this.npc = npc;
 			this.part = 0;
+			this.disable = false;
 			this.clear();
 		}
 
@@ -29,7 +30,6 @@ implements IAnimationFrame {
 			this.rotation = new float[] { 0.5f, 0.5f, 0.5f }; // 0.0 = 0; 1.0 = 360
 			this.offset = new float[] { 0.5f, 0.5f, 0.5f }; // 0.0 = -5; 1.0 = 5
 			this.scale = new float[] { 0.2f, 0.2f, 0.2f }; // 0.0 = 0; 1.0 = 5
-			this.disable = false;
 		}
 
 		@Override
@@ -129,7 +129,10 @@ implements IAnimationFrame {
 
 	public AnimationFrameConfig() {
 		this.parts = new PartConfig[6];
-		for (int i=0; i<6; i++) { this.parts[i] = new PartConfig(npc);}
+		for (int i=0; i<6; i++) {
+			this.parts[i] = new PartConfig(this.npc);
+			this.parts[i].part = i;
+		}
 		this.id = 0;
 		this.clear();
 	}
@@ -150,7 +153,7 @@ implements IAnimationFrame {
 		this.id = compound.getInteger("ID");
 		this.setSmooth(compound.getBoolean("IsSmooth"));
 		this.setSpeed(compound.getInteger("Speed"));
-		this.setSpeed(compound.getInteger("EndDelay"));
+		this.setEndDelay(compound.getInteger("EndDelay"));
 		for (int i=0; i<6 && i<compound.getTagList("PartConfigs", 10).tagCount(); i++) {
 			this.parts[i].readNBT(compound.getTagList("PartConfigs", 10).getCompoundTagAt(i));
 			this.parts[i].part = i;
@@ -198,6 +201,7 @@ implements IAnimationFrame {
 	@Override
 	public int getEndDelay() {
 		if (this.delay<0) { this.delay *= -1; }
+		if (this.delay>1200) { this.delay = -1200; }
 		return this.delay;
 	}
 

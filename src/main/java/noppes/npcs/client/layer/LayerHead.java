@@ -13,7 +13,9 @@ import noppes.npcs.client.model.part.horns.ModelAntlerHorns;
 import noppes.npcs.client.model.part.horns.ModelBullHorns;
 import noppes.npcs.constants.EnumParts;
 
-public class LayerHead<T extends EntityLivingBase> extends LayerInterface<T> {
+public class LayerHead<T extends EntityLivingBase>
+extends LayerInterface<T> {
+	
 	private ModelRenderer antennasBack;
 	private ModelRenderer antennasFront;
 	private ModelRenderer antlers;

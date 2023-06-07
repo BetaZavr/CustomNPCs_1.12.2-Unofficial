@@ -140,8 +140,8 @@ public class ModelSpiderLegs extends ModelRenderer {
 			this.spiderNeck.rotateAngleX = -0.3926991f;
 		}
 		if (((EntityNPCInterface) entity).isPlayerSleeping() || ((EntityNPCInterface) entity).currentAnimation == 7) {
-			this.rotationPointY = 12.0f * data.getPartConfig(EnumParts.LEG_LEFT).scaleY;
-			this.rotationPointZ = 15.0f * data.getPartConfig(EnumParts.LEG_LEFT).scaleY;
+			this.rotationPointY = 12.0f * data.getPartConfig(EnumParts.LEG_LEFT).scaleBase[1];
+			this.rotationPointZ = 15.0f * data.getPartConfig(EnumParts.LEG_LEFT).scaleBase[1];
 			this.rotateAngleX = -1.5707964f;
 		}
 	}

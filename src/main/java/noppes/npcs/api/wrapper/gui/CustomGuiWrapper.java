@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.gui.IButton;
@@ -298,6 +299,9 @@ implements ICustomGui {
 
 	@Override
 	public void setSize(int width, int height) {
+		if (width  <= 0 || height <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		this.width = width;
 		this.height = height;
 	}

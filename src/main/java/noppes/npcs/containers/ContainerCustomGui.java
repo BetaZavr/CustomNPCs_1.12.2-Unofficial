@@ -67,6 +67,7 @@ public class ContainerCustomGui extends Container {
 			this.cy = -45 + (256 - this.customGui.getHeight()) / 2;
 		}
 		this.slotCount = 0; // New
+		this.inventorySlots.clear();
 		for (IItemSlot slot : this.customGui.getSlots()) {
 			int index = this.slotCount++;
 			this.addSlotToContainer((Slot) new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx, this.cy)); // Changed

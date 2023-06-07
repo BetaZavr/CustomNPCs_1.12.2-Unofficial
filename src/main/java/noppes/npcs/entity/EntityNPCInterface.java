@@ -218,6 +218,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public ICustomNpc<?> wrappedNPC;
 	public boolean updateAI;
 	public DataAnimation animation;
+	public boolean isNavigating;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -1173,10 +1174,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void onUpdate() {
 		super.onUpdate();
 		if (this.ticksExisted % 10 == 0) {
-			if (this.backPos == null) {
-				this.resetBackPos();
+			this.resetBackPos();
+			if (this.isNavigating == this.getNavigator().noPath()) {
+				this.isNavigating = !this.getNavigator().noPath();
+				this.updateClient = true;
 			}
-			if (this.stats.calmdown && this.world != null && !this.world.isRemote) { // New
+			if (this.ais.getMovingType()!=2 && this.stats.calmdown && this.world != null && !this.world.isRemote) { // New
 				double d0 = this.posX - this.backPos.getX();
 				double d2 = this.posY - this.backPos.getY();
 				double d3 = this.posZ - this.backPos.getZ();
@@ -1196,7 +1199,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 					 * true; } else {
 					 */
 					this.setPosition(this.backPos.getX(), this.backPos.getY() + 1.0d, this.backPos.getZ());
-					// }
+					//}
 				} else if (this.isRunHome && distance <= 2.0d) {
 					this.isRunHome = false;
 				}
@@ -1360,27 +1363,24 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	// New
 	public void resetBackPos() {
-		this.backPos = new BlockPos(this.ais.startPos());
-		if (this.backPos.getX() == 0 && this.backPos.getY() == 0 && this.backPos.getZ() == 0) {
-			this.backPos = this.getHomePosition();
+		this.backPos = new BlockPos(this.ais.startPos()); // home
+		
+		if (this.backPos.getX() == 0 && this.backPos.getY() == 0 && this.backPos.getZ() == 0) { this.backPos = this.getHomePosition(); }
+		if (this.backPos.getX() == 0 && this.backPos.getY() == 0 && this.backPos.getZ() == 0) { this.backPos = new BlockPos(this.posX, this.posY, this.posZ); }
+		if (this.backPos.getX() == 0 && this.backPos.getY() == 0 && this.backPos.getZ() == 0) { this.backPos = null; }
+		if (this.ais.getMovingType()==2) {
+			if (this.getNavigator().noPath()) {
+				return;
+			}
+			PathPoint point = this.getNavigator().getPath().getFinalPathPoint();
+			if (point == null) {
+				return;
+			}
+			if (point.x == 0 && point.y == 0 && point.z == 0) {
+				return;
+			}
+			this.backPos = new BlockPos(point.x, point.y, point.z);
 		}
-		if (this.backPos.getX() == 0 && this.backPos.getY() == 0 && this.backPos.getZ() == 0) {
-			this.backPos = new BlockPos(this.posX, this.posY, this.posZ);
-		}
-		if (this.backPos.getX() == 0 && this.backPos.getY() == 0 && this.backPos.getZ() == 0) {
-			this.backPos = null;
-		}
-		if (this.getNavigator().noPath()) {
-			return;
-		}
-		PathPoint point = this.getNavigator().getPath().getFinalPathPoint();
-		if (point == null) {
-			return;
-		}
-		if (point.x == 0 && point.y == 0 && point.z == 0) {
-			return;
-		}
-		this.backPos = new BlockPos(point.x, point.y, point.z);
 	}
 
 	public void say(EntityPlayer player, Line line) {
@@ -1765,9 +1765,15 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void readSpawnData(NBTTagCompound compound) {
 		this.display.readToNBT(compound);
 		this.animation.readFromNBT(compound);
+		
+		this.stats.setLevel(compound.getInteger("NPCLevel"));
+		this.stats.setRarity(compound.getInteger("NPCRarity"));
+		this.stats.setRarityTitle(compound.getString("NPCRarityTitle"));
+		
 		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
 		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
 		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
+		this.isNavigating = compound.getBoolean("IsNavigating");
 		this.ais.setStandingType(compound.getInteger("StandingState"));
 		this.ais.setMovingType(compound.getInteger("MovingState"));
 		this.ais.orientation = compound.getInteger("Orientation");
@@ -1803,11 +1809,15 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		NBTTagCompound compound = new NBTTagCompound();
 		this.display.writeToNBT(compound);
 		this.animation.writeToNBT(compound);
+		compound.setInteger("NPCLevel", this.stats.getLevel());
+		compound.setInteger("NPCRarity", this.stats.getRarity());
+		compound.setString("NPCRarityTitle", this.stats.getRarityTitle());
 		compound.setInteger("MaxHealth", this.stats.maxHealth);
 		compound.setTag("Armor", NBTTags.nbtIItemStackMap(this.inventory.armor));
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.inventory.weapons));
 		compound.setInteger("Speed", this.ais.getWalkingSpeed());
 		compound.setBoolean("DeadBody", this.stats.hideKilledBody);
+		compound.setBoolean("IsNavigating", this.isNavigating);
 		compound.setInteger("StandingState", this.ais.getStandingType());
 		compound.setInteger("MovingState", this.ais.getMovingType());
 		compound.setInteger("Orientation", this.ais.orientation);

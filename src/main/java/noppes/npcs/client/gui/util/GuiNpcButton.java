@@ -16,6 +16,7 @@ extends GuiButton {
 	public int layerColor = 0, textureX = 0, textureY = 0;
 	private ResourceLocation texture = null;
 	public String lable = "";
+	public boolean dropShadow;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -37,6 +38,7 @@ extends GuiButton {
 		this.displayValue = 0;
 		this.id = id;
 		this.layerColor = 0;
+		this.dropShadow = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, String string, boolean enabled) {
@@ -56,6 +58,7 @@ extends GuiButton {
 		this.displayValue = 0;
 		this.layerColor = 0;
 		this.id = id;
+		this.dropShadow = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, String[] display, int val) {
@@ -93,12 +96,13 @@ extends GuiButton {
 
 			this.mouseDragged(mc, mouseX, mouseY);
 			
-			int j = 0xFFE0E0E0;
-			if (this.packedFGColour != 0) { j = this.packedFGColour; }
-			else if (!this.enabled) { j = 0xFFA0A0A0; }
-			else if (this.hovered) { j = 0xFFFFFFA0; }
+			int color = 0xFFE0E0E0;
+			if (this.packedFGColour != 0) { color = this.packedFGColour; }
+			else if (!this.enabled) { color = 0xFFA0A0A0; }
+			else if (this.hovered) { color = 0xFFFFFFA0; }
 
-			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
+			mc.fontRenderer.drawString(this.displayString, this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2, this.y + (this.height - 8) / 2, color, this.dropShadow);
+			//this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 		} else {
 			GlStateManager.translate(0.0f, 0.0f, this.id);
 			mc.getTextureManager().bindTexture(this.texture);
@@ -110,12 +114,13 @@ extends GuiButton {
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width, this.height);
-			int j = 0xFFE0E0E0;
-			if (this.packedFGColour != 0) { j = this.packedFGColour; }
-			else if (!this.enabled) { j = 0xFFA0A0A0; }
-			else if (this.hovered) { j = 0xFFFFFFA0; }
+			int color = 0xFFE0E0E0;
+			if (this.packedFGColour != 0) { color = this.packedFGColour; }
+			else if (!this.enabled) { color = 0xFFA0A0A0; }
+			else if (this.hovered) { color = 0xFFFFFFA0; }
 			
-			this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
+			mc.fontRenderer.drawString(this.displayString, this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2, this.y + (this.height - 8) / 2, color, this.dropShadow);
+			//this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		}
 

@@ -189,7 +189,7 @@ implements ICustomScrollListener {
 				//y = 105;
 				//s = 3.0f;
 			}
-			if (this.npc.textureLocation!=null) { this.drawNpc(this.npc, this.guiLeft + 276 + x, this.guiTop + 155 + y, s, rot, mouse); }
+			if (this.npc.textureLocation!=null) { this.drawNpc(this.npc, this.guiLeft + 276 + x, this.guiTop + 155 + y, s, rot, 0, mouse); }
 		}
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {

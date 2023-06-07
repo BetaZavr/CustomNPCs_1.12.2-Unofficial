@@ -8,8 +8,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
-import noppes.npcs.client.model.animation.EmotionConfig;
-import noppes.npcs.client.model.animation.PartEmotion;
 
 public class LayerEyes<T extends EntityLivingBase>
 extends LayerInterface<T> {
@@ -89,7 +87,7 @@ extends LayerInterface<T> {
 		this.buffer.pos(x2, y, z).color(f1, f2, f3, 1.0f).endVertex();
 	}
 
-	private void drawBrows(EmotionConfig emotion, PartEmotion part, float partialTicks) {
+	/*private void drawBrows(EmotionConfig emotion, PartEmotion part, float partialTicks) {
 		float offsetY = 0.0f;
 		if (emotion.blinkStart > 0L && this.npc.isEntityAlive() && this.npc.deathTime == 0) {
 			float f = (System.currentTimeMillis() - emotion.blinkStart) / 150.0f;
@@ -140,7 +138,7 @@ extends LayerInterface<T> {
 			this.drawRect(-3.0, -4.0, -1.0, -3.0, 0xFFFFFFFF, 4.01);
 			this.drawRect(-2.0, -4.0, -1.0, -3.0, this.playerdata.eyes.color, 4.011);
 		}
-	}
+	}*/
 
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {

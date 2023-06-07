@@ -917,6 +917,24 @@ dialog.hover.change=Change selected dialog
 dialog.hover.down=Move the selected dialog down the list
 dialog.hover.up=Move the selected dialog higher in the list
 
+dialog.hover.text=Text that will be displayed to the player when the dialog is shown<br>§7Localization can be used
+dialog.hover.name=Dialog Name<br>§cImportant! §7- this name is displayed in the tasks of the Quest Log if this dialog is used in quests<br>§7 You can use localization
+dialog.hover.sound=Trigger sound when dialog is shown to player<br>§7 Primarily used for dialog sounds<br>§7Custom sounds can be added via file "§fsound.json§7"
+dialog.hover.delay=Time in ticks to delay the player's choice of an answer<br>§7 Used in conjunction with the §fESC§7 disable to make sure the player listens to audio or read text before choosing an answer
+dialog.hover.texture=Texture to be displayed at the end of the dialog (below the dialog text)<br>§7 Texture scaled down by 2x
+dialog.hover.faction=Setting whether Faction Points are given when dialog is shown to the player
+dialog.hover.options=Setting the player's response options for this dialog<br>§7A also the effect on each choice.
+dialog.hover.quets=Give a quest when dialog is shown to the player
+dialog.hover.command=Sets the Command Block command to be executed when the dialog is shown to the player<br>§7If their execution is not disabled in the mod's configuration
+dialog.hover.hidenpc=Show NPC or not<br>§7 Displayed along with the name at the bottom of the screen when showing dialog to the player
+dialog.hover.wheel=Show answer button wheel<br>§7Otherwise the answer selection is displayed as a list
+dialog.hover.esc=Player will not be able to close the dialog with the ESC button<br>§7Otherwise, they must select at least one answer
+dialog.hover.mail=Settings for the email that will be sent to the player when the dialog is shown
+dialog.hover.quets.del=Do not issue a quest
+dialog.hover.sound.del=Don't play sound
+dialog.hover.texture.del=Do not show texture
+dialog.hover.mail.del
+
 mark.cross=Cross
 mark.exclamation=Exclamation
 mark.hover.add=Add New Mark
@@ -1105,12 +1123,20 @@ animation.hover.scale=Scale body part along %s axis
 animation.hover.part.ticks=Animation time of current frame/step<br>§7 in ticks<br>From current frame settings to next frame settings<br>§7It is recommended to make frames no longer than §65§7 seconds
 animation.hover.part.delay=Animation delay time of the current frame/step<br>§7 in ticks<br>§7 Freezes the state at the end of the frame animation<br>§7 It is recommended to freeze frames for no more than §65§7 seconds
 animation.hover.anim.repeat=Number of frames to repeat at the end of the animation<br>§7Only applicable for looping animation<br>§60§7 or §6all§7 frames: repeats in a loop<br>§7 otherwise repeats specified number of last frames
-animation.hover.disabled.true=Disable animation of the current part of the model in the current frame<br>§7Actually, a default base frame will be applied
-animation.hover.disabled.false=Animation of the current part of the model in the current frame will be active
+animation.hover.disabled.true=Animation is active<br>§7NPC uses this animation until disabled
+animation.hover.disabled.false=Animation Disabled<br>§7NPC will not use it until enabled
 animation.hover.smooth.true=Smooth animation of the current frame<br>§7Animation flow rate changes cosinusoidally<br>§7Slow at the beginning of the card and speeds up towards the middle of time, then slows down again
 animation.hover.smooth.false=Linear animation of the current frame<br>§7Animation flow rate does not change
 animation.hover.color=Background Color
 animation.hover.eye=Adjusting facial emotion animation<br>§7Required to enable eyes when creating model<br>§7"%s§7" tab -> Model "%s§7" -> Parts (§fselect eyes§7)
+animation.hover.reset.parts=Reset all settings of all body parts for this frame/step
+animation.hover.reset.part=Reset all settings for this body part
+animation.hover.reset.patr.0=Reset the rotation setting for this body part along the %s axis
+animation.hover.reset.patr.1=Reset the %s offset setting for this body part
+animation.hover.reset.patr.2=Reset the scale setting for this body part along the %s axis
+animation.hover.shift=<br>§a+ Shift§7 to change to all frames
+animation.hover.disabled.part.true=Disable animation of the current part of the model in the current frame
+animation.hover.disabled.part.false=Animation of the current part of the model in the current frame will be active
 
 quest.areakill=AreaKill
 quest.cancel=Cancel Quest

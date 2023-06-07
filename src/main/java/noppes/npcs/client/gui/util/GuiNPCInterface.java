@@ -17,6 +17,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -59,6 +60,7 @@ extends GuiScreen {
 	private Map<Integer, GuiMenuLeftButton> leftbuttons;
 	public int xSize;
 	public int ySize;
+	public ScaledResolution sw;
 
 	public GuiNPCInterface() {
 		this(null);
@@ -87,6 +89,7 @@ extends GuiScreen {
 		this.mc = Minecraft.getMinecraft();
 		this.itemRender = this.mc.getRenderItem();
 		this.fontRenderer = this.mc.fontRenderer;
+		this.sw = new ScaledResolution(this.mc);
 	}
 
 	protected void actionPerformed(GuiButton guibutton) {
@@ -172,7 +175,7 @@ extends GuiScreen {
 		super.drawDefaultBackground();
 	}
 
-	public void drawNpc(EntityLivingBase entity, int x, int y, float zoomed, int rotation, boolean mouseFocus) {
+	public void drawNpc(EntityLivingBase entity, int x, int y, float zoomed, int rotation, int vertical, boolean mouseFocus) {
 		EntityNPCInterface npc = null;
 		if (entity instanceof EntityNPCInterface) {
 			npc = (EntityNPCInterface) entity;
@@ -180,6 +183,7 @@ extends GuiScreen {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
+		
 		GlStateManager.translate((this.guiLeft + x), (this.guiTop + y), 50.0f);
 		float scale = 1.0f;
 		if (entity.height > 2.4) {
@@ -207,6 +211,12 @@ extends GuiScreen {
 		entity.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
 		entity.rotationYawHead = entity.rotationYaw;
 		this.mc.getRenderManager().playerViewY = 180.0f;
+		if (!mouseFocus && vertical!=0) {
+			GlStateManager.translate(0.0f, 1.0f - Math.cos((double) vertical * 3.14d / 180.0d), 0.0f);
+			GlStateManager.rotate(vertical, 1.0f, 0.0f, 0.0f);
+		}
+		
+		
 		this.mc.getRenderManager().renderEntity(entity, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
 		float n = f2;
 		entity.renderYawOffset = n;
@@ -223,6 +233,7 @@ extends GuiScreen {
 		if (npc != null) {
 			npc.ais.orientation = orientation;
 		}
+		
 		GlStateManager.popMatrix();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
@@ -232,7 +243,7 @@ extends GuiScreen {
 	}
 
 	public void drawNpc(int x, int y) {
-		this.drawNpc(this.npc, x, y, 1.0f, 0, true);
+		this.drawNpc(this.npc, x, y, 1.0f, 0, 0, true);
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -375,6 +386,7 @@ extends GuiScreen {
 		this.sliders = new ConcurrentHashMap<Integer, GuiNpcSlider>();
 		this.extra = new ConcurrentHashMap<Integer, GuiScreen>();
 		this.components = new ArrayList<IGui>();
+		this.sw = new ScaledResolution(this.mc);
 	}
 
 	public void initPacket() {

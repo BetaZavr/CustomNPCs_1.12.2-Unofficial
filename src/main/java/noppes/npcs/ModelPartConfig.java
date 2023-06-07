@@ -6,95 +6,73 @@ import noppes.npcs.util.ValueUtil;
 public class ModelPartConfig {
 	
 	public boolean notShared;
-	public float scaleX;
-	public float scaleY;
-	public float scaleZ;
-	public float transX;
-	public float transY;
-	public float transZ;
+	public float[] scaleBase, scaleAnimation;
+	public float[] offsetBase, offsetAnimation;
+	public float[] rotateAnimation;
 
 	public ModelPartConfig() {
-		this.scaleX = 1.0f;
-		this.scaleY = 1.0f;
-		this.scaleZ = 1.0f;
-		this.transX = 0.0f;
-		this.transY = 0.0f;
-		this.transZ = 0.0f;
+		this.scaleBase = new float[] { 1.0f, 1.0f, 1.0f };
+		this.scaleAnimation = new float[] { 1.0f, 1.0f, 1.0f };
+		this.offsetBase = new float[] { 0.0f, 0.0f, 0.0f };
+		this.offsetAnimation = new float[] { 0.0f, 0.0f, 0.0f };
+		this.rotateAnimation = new float[] { 0.0f, 0.0f, 0.0f };
 		this.notShared = false;
 	}
 
 	public float checkValue(float given, float min, float max) {
-		if (given < min) {
-			return min;
-		}
-		if (given > max) {
-			return max;
-		}
+		if (given < min) { return min; }
+		if (given > max) { return max; }
 		return given;
 	}
 
 	public void copyValues(ModelPartConfig config) {
-		this.scaleX = config.scaleX;
-		this.scaleY = config.scaleY;
-		this.scaleZ = config.scaleZ;
-		this.transX = config.transX;
-		this.transY = config.transY;
-		this.transZ = config.transZ;
-	}
-
-	public float getScaleX() {
-		return this.scaleX;
-	}
-
-	public float getScaleY() {
-		return this.scaleY;
-	}
-
-	public float getScaleZ() {
-		return this.scaleZ;
+		for (int i=0; i<3; i++) {
+			this.scaleBase[i] = config.scaleBase[i];
+			this.offsetBase[i] = config.offsetBase[i];
+		}
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.scaleX = this.checkValue(compound.getFloat("ScaleX"), 0.5f, 1.5f);
-		this.scaleY = this.checkValue(compound.getFloat("ScaleY"), 0.5f, 1.5f);
-		this.scaleZ = this.checkValue(compound.getFloat("ScaleZ"), 0.5f, 1.5f);
-		this.transX = this.checkValue(compound.getFloat("TransX"), -1.0f, 1.0f);
-		this.transY = this.checkValue(compound.getFloat("TransY"), -1.0f, 1.0f);
-		this.transZ = this.checkValue(compound.getFloat("TransZ"), -1.0f, 1.0f);
+		this.scaleBase[0] = this.checkValue(compound.getFloat("ScaleX"), 0.5f, 1.5f);
+		this.scaleBase[1] = this.checkValue(compound.getFloat("ScaleY"), 0.5f, 1.5f);
+		this.scaleBase[2] = this.checkValue(compound.getFloat("ScaleZ"), 0.5f, 1.5f);
+		this.offsetBase[0] = this.checkValue(compound.getFloat("TransX"), -1.0f, 1.0f);
+		this.offsetBase[1] = this.checkValue(compound.getFloat("TransY"), -1.0f, 1.0f);
+		this.offsetBase[2] = this.checkValue(compound.getFloat("TransZ"), -1.0f, 1.0f);
 		this.notShared = compound.getBoolean("NotShared");
 	}
 
 	public void setScale(float x, float y) {
-		this.scaleX = x;
-		this.scaleZ = x;
-		this.scaleY = y;
+		this.scaleBase[0] = x;
+		this.scaleBase[1] = x;
+		this.scaleBase[2] = y;
 	}
 
 	public void setScale(float x, float y, float z) {
-		this.scaleX = ValueUtil.correctFloat(x, 0.5f, 1.5f);
-		this.scaleY = ValueUtil.correctFloat(y, 0.5f, 1.5f);
-		this.scaleZ = ValueUtil.correctFloat(z, 0.5f, 1.5f);
+		this.scaleBase[0] = ValueUtil.correctFloat(x, 0.5f, 1.5f);
+		this.scaleBase[1] = ValueUtil.correctFloat(y, 0.5f, 1.5f);
+		this.scaleBase[2] = ValueUtil.correctFloat(z, 0.5f, 1.5f);
 	}
 
 	public void setTranslate(float transX, float transY, float transZ) {
-		this.transX = transX;
-		this.transY = transY;
-		this.transZ = transZ;
+		this.offsetBase[0] = transX;
+		this.offsetBase[1] = transY;
+		this.offsetBase[2] = transZ;
 	}
 
 	@Override
 	public String toString() {
-		return "ScaleX: " + this.scaleX + " - ScaleY: " + this.scaleY + " - ScaleZ: " + this.scaleZ;
+		return "ScaleXYZ: " + this.scaleBase[0] + ", " + this.scaleBase[1] + ", " + this.scaleBase[2]+"]";
 	}
 
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setFloat("ScaleX", this.scaleX);
-		compound.setFloat("ScaleY", this.scaleY);
-		compound.setFloat("ScaleZ", this.scaleZ);
-		compound.setFloat("TransX", this.transX);
-		compound.setFloat("TransY", this.transY);
-		compound.setFloat("TransZ", this.transZ);
+		compound.setFloat("ScaleX", this.scaleBase[0]);
+		compound.setFloat("ScaleY", this.scaleBase[1]);
+		compound.setFloat("ScaleZ", this.scaleBase[2]);
+		compound.setFloat("TransX", this.offsetBase[0]);
+		compound.setFloat("TransY", this.offsetBase[1]);
+		compound.setFloat("TransZ", this.offsetBase[2]);
 		compound.setBoolean("NotShared", this.notShared);
 		return compound;
 	}

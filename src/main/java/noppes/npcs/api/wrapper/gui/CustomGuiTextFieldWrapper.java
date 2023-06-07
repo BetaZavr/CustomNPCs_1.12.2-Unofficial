@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.gui.ITextField;
 
 public class CustomGuiTextFieldWrapper
@@ -52,6 +53,9 @@ implements ITextField {
 
 	@Override
 	public ITextField setSize(int width, int height) {
+		if (width  <= 0 || height <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		this.width = width;
 		this.height = height;
 		return this;

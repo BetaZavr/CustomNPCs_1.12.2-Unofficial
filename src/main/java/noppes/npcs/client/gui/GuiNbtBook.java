@@ -125,7 +125,7 @@ implements IGuiData {
 		}
 		if (this.entity instanceof EntityLivingBase) {
 			GlStateManager.pushMatrix();
-			this.drawNpc((EntityLivingBase) this.entity, 30, 80, 1.0f, 0, true);
+			this.drawNpc((EntityLivingBase) this.entity, 30, 80, 1.0f, 0, 0, true);
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(this.guiLeft + 5, this.guiTop + 13, this.guiLeft + 55, this.guiTop + 99, 0xFF808080);
 			Gui.drawRect(this.guiLeft + 6, this.guiTop + 14, this.guiLeft + 54, this.guiTop + 98, 0xFF000000);

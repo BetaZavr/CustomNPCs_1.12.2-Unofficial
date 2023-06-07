@@ -45,14 +45,14 @@ implements LayerRenderer<T> {
 		return R << 16 | G << 8 | B;
 	}
 
-	public void doRenderLayer(EntityLivingBase entity, float par2, float par3, float par8, float par4, float par5, float par6, float par7) {
+	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		this.npc = (EntityCustomNpc) entity;
 		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) {
 			return;
 		}
 		this.playerdata = this.npc.modelData;
 		this.model = (ModelBiped) this.render.getMainModel();
-		this.rotate(par2, par3, par4, par5, par6, par7);
+		this.rotate(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.pushMatrix();
 		if (entity.isInvisible()) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
@@ -61,14 +61,11 @@ implements LayerRenderer<T> {
 			GlStateManager.blendFunc(770, 771);
 			GlStateManager.alphaFunc(516, 0.003921569f);
 		}
-		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) {
-			GlStateManager.color(1.0f, 0.0f, 0.0f, 0.3f);
-		}
-		if (this.npc.isSneaking()) {
-			GlStateManager.translate(0.0f, 0.2f, 0.0f);
-		}
+		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) { GlStateManager.color(1.0f, 0.0f, 0.0f, 0.3f); }
+		if (this.npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
+		
 		GlStateManager.enableRescaleNormal();
-		this.render(par2, par3, par4, par5, par6, par7);
+		this.render(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.disableRescaleNormal();
 		if (entity.isInvisible()) {
 			GlStateManager.disableBlend();
@@ -101,9 +98,9 @@ implements LayerRenderer<T> {
 		GlStateManager.color(red, green, blue, this.npc.isInvisible() ? 0.15f : 0.99f);
 	}
 
-	public abstract void render(float p0, float p1, float p2, float p3, float p4, float p5);
+	public abstract void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale);
 
-	public abstract void rotate(float p0, float p1, float p2, float p3, float p4, float p5);
+	public abstract void rotate(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale);
 
 	public void setColor(ModelPartData data, EntityLivingBase entity) {
 	}
@@ -117,4 +114,5 @@ implements LayerRenderer<T> {
 	public boolean shouldCombineTextures() {
 		return false;
 	}
+	
 }

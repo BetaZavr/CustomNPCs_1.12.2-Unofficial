@@ -231,12 +231,12 @@ implements ICustomScrollListener, IGuiData {
 		if (this.gui != null && this.gui.getSlots().size() > 0) { // New
 			int cx = -41 + (256 - this.gui.getWidth()) / 2;
 			int cy = -46 + (256 - this.gui.getHeight()) / 2;
+			
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.mc.getTextureManager().bindTexture(this.slot);
 			for (IItemSlot slot : this.gui.getSlots()) {
-				this.drawTexturedModalRect(this.getGuiLeft() + slot.getPosX() + cx,
-						this.getGuiTop() + slot.getPosY() + cy, 0, 0, 18, 18);
+				this.drawTexturedModalRect(this.getGuiLeft() + slot.getPosX() + cx, this.getGuiTop() + slot.getPosY() + cy, 0, 0, 18, 18);
 			}
 			GlStateManager.popMatrix();
 		}
@@ -316,10 +316,12 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	public void setGuiData(NBTTagCompound compound) {
+
 		Minecraft mc = Minecraft.getMinecraft();
 		CustomGuiWrapper gui = (CustomGuiWrapper) new CustomGuiWrapper(mc.player).fromNBT(compound);
 		((ContainerCustomGui) this.inventorySlots).setGui(gui, (EntityPlayer) mc.player);
 		this.gui = gui;
+		
 		this.xSize = gui.getWidth();
 		this.ySize = gui.getHeight();
 		if (!gui.getBackgroundTexture().isEmpty()) {
@@ -336,10 +338,6 @@ implements ICustomScrollListener, IGuiData {
 			this.bgTx = 256;
 			this.bgTy = 256;
 		}
-		/*
-		 * if (this.gui!=null && this.gui.getSlots().size()>0) { // New
-		 * this.inventorySlots.detectAndSendChanges(); }
-		 */
 		this.initGui();
 	}
 

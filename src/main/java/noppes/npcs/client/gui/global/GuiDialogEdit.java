@@ -2,6 +2,8 @@ package noppes.npcs.client.gui.global;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiMailmanSendSetup;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
@@ -34,6 +36,113 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 		this.closeOnEsc = true;
 	}
 
+	@Override
+	public void initGui() {
+		super.initGui();
+		if (this.dialog==null) {
+			this.close();
+			return;
+		}
+		this.addLabel(new GuiNpcLabel(1, "gui.title", this.guiLeft + 4, this.guiTop + 8));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 46, this.guiTop + 3, 220, 20, this.dialog.title));
+		this.addLabel(new GuiNpcLabel(0, "ID", this.guiLeft + 268, this.guiTop + 4));
+		this.addLabel(new GuiNpcLabel(2, this.dialog.id + "", this.guiLeft + 268, this.guiTop + 14));
+		this.addLabel(new GuiNpcLabel(3, "dialog.dialogtext", this.guiLeft + 4, this.guiTop + 30));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 120, this.guiTop + 25, 50, 20, "selectServer.edit"));
+		this.addLabel(new GuiNpcLabel(4, "availability.options", this.guiLeft + 4, this.guiTop + 51));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 120, this.guiTop + 46, 50, 20, "selectServer.edit"));
+		this.addLabel(new GuiNpcLabel(5, "faction.options", this.guiLeft + 4, this.guiTop + 72));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, this.guiTop + 67, 50, 20, "selectServer.edit"));
+		this.addLabel(new GuiNpcLabel(6, "dialog.options", this.guiLeft + 4, this.guiTop + 93));
+		this.addButton(new GuiNpcButton(6, this.guiLeft + 120, this.guiTop + 89, 50, 20, "selectServer.edit"));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 4, this.guiTop + 114, 144, 20, "availability.selectquest"));
+		this.addButton(new GuiNpcButton(8, this.guiLeft + 150, this.guiTop + 114, 20, 20, "X"));
+		if (this.dialog.hasQuest()) {
+			this.getButton(7).setDisplayText(this.dialog.getQuest().getTitle()); // Changed
+		}
+		
+		this.addLabel(new GuiNpcLabel(9, "gui.selectSound", this.guiLeft + 4, this.guiTop + 142));
+		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 74, this.guiTop + 138, 252, 18, this.dialog.sound));
+		this.addLabel(new GuiNpcLabel(18, "display.texture", this.guiLeft + 4, this.guiTop + 164));
+		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 74, this.guiTop + 160, 252, 18, this.dialog.texture));
+		
+		this.addButton(new GuiNpcButton(9, this.guiLeft + 330, this.guiTop + 137, 50, 20, "mco.template.button.select"));
+		this.addButton(new GuiNpcButton(16, this.guiLeft + 330, this.guiTop + 159, 50, 20, "mco.template.button.select"));
+		
+		this.addButton(new GuiNpcButton(13, this.guiLeft + 4, this.guiTop + 182, 164, 20, "mailbox.setup"));
+		this.addButton(new GuiNpcButton(14, this.guiLeft + 170, this.guiTop + 182, 20, 20, "X"));
+		if (!this.dialog.mail.subject.isEmpty()) {
+			this.getButton(13).setDisplayText(this.dialog.mail.subject);
+		}
+		int y = this.guiTop + 4;
+		y += 22;
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 330, y, 50, 20, "selectServer.edit"));
+		this.addLabel(new GuiNpcLabel(10, "advMode.command", this.guiLeft + 214, y + 5));
+		y += 22;
+		this.addButton(new GuiNpcButtonYesNo(11, this.guiLeft + 330, y, this.dialog.hideNPC));
+		this.addLabel(new GuiNpcLabel(11, "dialog.hideNPC", this.guiLeft + 214, y + 5));
+		y += 22;
+		this.addButton(new GuiNpcButtonYesNo(12, this.guiLeft + 330, y, this.dialog.showWheel));
+		this.addLabel(new GuiNpcLabel(12, "dialog.showWheel", this.guiLeft + 214, y + 5));
+		y += 22;
+		this.addButton(new GuiNpcButtonYesNo(15, this.guiLeft + 330, y, this.dialog.disableEsc));
+		this.addLabel(new GuiNpcLabel(15, "dialog.disableEsc", this.guiLeft + 214, y + 5));
+		this.addButton(new GuiNpcButton(66, this.guiLeft + 362, this.guiTop + 4, 20, 20, "X"));
+		y += 23;
+		// new
+		GuiNpcTextField textField = new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 331, y, 48, 18, ""+this.dialog.delay);
+		textField.setNumbersOnly();
+		textField.setMinMaxDefault(0, 1200, this.dialog.delay);
+		this.addTextField(textField);
+		this.addLabel(new GuiNpcLabel(16, "dialog.cooldown.time", this.guiLeft + 214, y + 5));
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.showDescriptions) { return; }
+		if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.name").getFormattedText());
+		} else if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.sound").getFormattedText());
+		} else if (this.getTextField(3)!=null && this.getTextField(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.delay").getFormattedText());
+		} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.texture").getFormattedText());
+		}
+		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.text").getFormattedText());
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.faction").getFormattedText());
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.options").getFormattedText());
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.quets").getFormattedText());
+		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.quets.del").getFormattedText());
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.sound.del").getFormattedText());
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.command").getFormattedText());
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.hidenpc").getFormattedText());
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.wheel").getFormattedText());
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.mail").getFormattedText());
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.mail.del").getFormattedText());
+		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.esc").getFormattedText());
+		} else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("dialog.hover.texture.del").getFormattedText());
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+	}
+	
 	@Override
 	public void buttonEvent(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
@@ -101,67 +210,6 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 				break;
 			}
 		}
-	}
-
-	@Override
-	public void initGui() {
-		super.initGui();
-		if (this.dialog==null) {
-			this.close();
-			return;
-		}
-		this.addLabel(new GuiNpcLabel(1, "gui.title", this.guiLeft + 4, this.guiTop + 8));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 46, this.guiTop + 3, 220, 20, this.dialog.title));
-		this.addLabel(new GuiNpcLabel(0, "ID", this.guiLeft + 268, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(2, this.dialog.id + "", this.guiLeft + 268, this.guiTop + 14));
-		this.addLabel(new GuiNpcLabel(3, "dialog.dialogtext", this.guiLeft + 4, this.guiTop + 30));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 120, this.guiTop + 25, 50, 20, "selectServer.edit"));
-		this.addLabel(new GuiNpcLabel(4, "availability.options", this.guiLeft + 4, this.guiTop + 51));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 120, this.guiTop + 46, 50, 20, "selectServer.edit"));
-		this.addLabel(new GuiNpcLabel(5, "faction.options", this.guiLeft + 4, this.guiTop + 72));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, this.guiTop + 67, 50, 20, "selectServer.edit"));
-		this.addLabel(new GuiNpcLabel(6, "dialog.options", this.guiLeft + 4, this.guiTop + 93));
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 120, this.guiTop + 89, 50, 20, "selectServer.edit"));
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 4, this.guiTop + 114, 144, 20, "availability.selectquest"));
-		this.addButton(new GuiNpcButton(8, this.guiLeft + 150, this.guiTop + 114, 20, 20, "X"));
-		if (this.dialog.hasQuest()) {
-			this.getButton(7).setDisplayText(this.dialog.getQuest().getTitle()); // Changed
-		}
-		
-		this.addLabel(new GuiNpcLabel(9, "gui.selectSound", this.guiLeft + 4, this.guiTop + 142));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 64, this.guiTop + 138, 262, 18, this.dialog.sound));
-		this.addLabel(new GuiNpcLabel(18, "display.texture", this.guiLeft + 4, this.guiTop + 164));
-		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 64, this.guiTop + 160, 262, 18, this.dialog.texture));
-		
-		this.addButton(new GuiNpcButton(9, this.guiLeft + 330, this.guiTop + 137, 50, 20, "mco.template.button.select"));
-		this.addButton(new GuiNpcButton(16, this.guiLeft + 330, this.guiTop + 159, 50, 20, "mco.template.button.select"));
-		
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 4, this.guiTop + 182, 164, 20, "mailbox.setup"));
-		this.addButton(new GuiNpcButton(14, this.guiLeft + 170, this.guiTop + 182, 20, 20, "X"));
-		if (!this.dialog.mail.subject.isEmpty()) {
-			this.getButton(13).setDisplayText(this.dialog.mail.subject);
-		}
-		int y = this.guiTop + 4;
-		y += 22;
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 330, y, 50, 20, "selectServer.edit"));
-		this.addLabel(new GuiNpcLabel(10, "advMode.command", this.guiLeft + 214, y + 5));
-		y += 22;
-		this.addButton(new GuiNpcButtonYesNo(11, this.guiLeft + 330, y, this.dialog.hideNPC));
-		this.addLabel(new GuiNpcLabel(11, "dialog.hideNPC", this.guiLeft + 214, y + 5));
-		y += 22;
-		this.addButton(new GuiNpcButtonYesNo(12, this.guiLeft + 330, y, this.dialog.showWheel));
-		this.addLabel(new GuiNpcLabel(12, "dialog.showWheel", this.guiLeft + 214, y + 5));
-		y += 22;
-		this.addButton(new GuiNpcButtonYesNo(15, this.guiLeft + 330, y, this.dialog.disableEsc));
-		this.addLabel(new GuiNpcLabel(15, "dialog.disableEsc", this.guiLeft + 214, y + 5));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 362, this.guiTop + 4, 20, 20, "X"));
-		y += 23;
-		// new
-		GuiNpcTextField textField = new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 331, y, 48, 18, ""+this.dialog.delay);
-		textField.setNumbersOnly();
-		textField.setMinMaxDefault(0, 1200, this.dialog.delay);
-		this.addTextField(textField);
-		this.addLabel(new GuiNpcLabel(16, "dialog.cooldown.time", this.guiLeft + 214, y + 5));
 	}
 
 	@Override

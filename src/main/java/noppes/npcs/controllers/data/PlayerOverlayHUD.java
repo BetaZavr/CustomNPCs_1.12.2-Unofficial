@@ -368,7 +368,7 @@ implements IOverlayHUD {
 	
 	@Override
 	public ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height) {
-		if (width == 0 || height == 0) {
+		if (width  <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
@@ -388,7 +388,7 @@ implements IOverlayHUD {
 
 	@Override
 	public ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height, int color) {
-		if (width == 0 || height == 0) {
+		if (width  <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
@@ -409,7 +409,7 @@ implements IOverlayHUD {
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height) {
-		if (width == 0 || height == 0) {
+		if (width  <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);
@@ -429,7 +429,7 @@ implements IOverlayHUD {
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height, int textureX, int textureY) {
-		if (width == 0 || height == 0) {
+		if (width  <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		ICustomGuiComponent component = this.getComponent(orientationType, id);

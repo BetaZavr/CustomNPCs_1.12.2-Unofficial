@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.gui.ILabel;
 
 public class CustomGuiLabelWrapper
@@ -86,6 +87,9 @@ implements ILabel {
 
 	@Override
 	public ILabel setSize(int width, int height) {
+		if (width  <= 0 || height <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+		}
 		this.width = width;
 		this.height = height;
 		return this;

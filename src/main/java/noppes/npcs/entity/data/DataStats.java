@@ -28,14 +28,15 @@ implements INPCStats {
 	public boolean immuneToFire;
 	// New
 	private int level = 1;
+	private String rarityTitle;
+	private EnumCreatureRarity rarity;
+	
 	public int maxHealth;
 	public DataMelee melee;
 	public boolean noFallDamage;
 	private EntityNPCInterface npc;
 	public boolean potionImmune;
 	public DataRanged ranged;
-	private EnumCreatureRarity rarity;
-	private String rarityTitle;
 	public Resistances resistances;
 	public int respawnTime;
 	public int spawnCycle;

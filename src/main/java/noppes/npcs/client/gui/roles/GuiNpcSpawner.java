@@ -373,7 +373,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		if (this.subgui==null) {
 			GlStateManager.pushMatrix();
 			if (this.selectNpc!=null) {
-				this.drawNpc(this.selectNpc, 385, 92, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), false);
+				this.drawNpc(this.selectNpc, 385, 92, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, false);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			this.drawVerticalLine(this.guiLeft+178, this.guiTop+4, this.guiTop+this.ySize+12, 0xFF404040);

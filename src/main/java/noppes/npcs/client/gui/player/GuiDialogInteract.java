@@ -191,7 +191,7 @@ implements IGuiClose {
 		if (!this.dialog.hideNPC) {
 			int l = -70;
 			int i2 = this.ySize;
-			this.drawNpc(this.npc, l, i2, 1.4f, 0, false);
+			this.drawNpc(this.npc, l, i2, 1.4f, 0, 0, false);
 		}
 		super.drawScreen(i, j, f);
 		GlStateManager.enableBlend();

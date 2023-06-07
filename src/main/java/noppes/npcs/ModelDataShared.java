@@ -43,7 +43,7 @@ public class ModelDataShared {
 	}
 
 	public float getBodyY() {
-		return (1.0f - this.body.scaleY) * 0.75f + this.getLegsY();
+		return (1.0f - this.body.scaleBase[1]) * 0.75f + this.getLegsY();
 	}
 
 	public Class<? extends EntityLivingBase> getEntityClass() {
@@ -52,10 +52,10 @@ public class ModelDataShared {
 
 	public float getLegsY() {
 		ModelPartConfig legs = this.leg1;
-		if (this.leg2.notShared && this.leg2.scaleY > this.leg1.scaleY) {
+		if (this.leg2.notShared && this.leg2.scaleBase[1] > this.leg1.scaleBase[1]) {
 			legs = this.leg2;
 		}
-		return (1.0f - legs.scaleY) * 0.75f;
+		return (1.0f - legs.scaleBase[1]) * 0.75f;
 	}
 
 	public ModelPartData getOrCreatePart(EnumParts type) {
@@ -167,8 +167,8 @@ public class ModelDataShared {
 					config.setTranslate(0.0f, this.getBodyY(), 0.0f);
 				} else if (part == EnumParts.ARM_LEFT) {
 					ModelPartConfig body = this.getPartConfig(EnumParts.BODY);
-					float x = (1.0f - body.scaleX) * 0.25f + (1.0f - config.scaleX) * 0.075f;
-					float y = this.getBodyY() + (1.0f - config.scaleY) * -0.1f;
+					float x = (1.0f - body.scaleBase[0]) * 0.25f + (1.0f - config.scaleBase[0]) * 0.075f;
+					float y = this.getBodyY() + (1.0f - config.scaleBase[1]) * -0.1f;
 					config.setTranslate(-x, y, 0.0f);
 					if (!config.notShared) {
 						ModelPartConfig arm = this.getPartConfig(EnumParts.ARM_RIGHT);
@@ -176,17 +176,17 @@ public class ModelDataShared {
 					}
 				} else if (part == EnumParts.ARM_RIGHT) {
 					ModelPartConfig body = this.getPartConfig(EnumParts.BODY);
-					float x = (1.0f - body.scaleX) * 0.25f + (1.0f - config.scaleX) * 0.075f;
-					float y = this.getBodyY() + (1.0f - config.scaleY) * -0.1f;
+					float x = (1.0f - body.scaleBase[0]) * 0.25f + (1.0f - config.scaleBase[0]) * 0.075f;
+					float y = this.getBodyY() + (1.0f - config.scaleBase[1]) * -0.1f;
 					config.setTranslate(x, y, 0.0f);
 				} else if (part == EnumParts.LEG_LEFT) {
-					config.setTranslate(config.scaleX * 0.125f - 0.113f, this.getLegsY(), 0.0f);
+					config.setTranslate(config.scaleBase[0] * 0.125f - 0.113f, this.getLegsY(), 0.0f);
 					if (!config.notShared) {
 						ModelPartConfig leg = this.getPartConfig(EnumParts.LEG_RIGHT);
 						leg.copyValues(config);
 					}
 				} else if (part == EnumParts.LEG_RIGHT) {
-					config.setTranslate((1.0f - config.scaleX) * 0.125f, this.getLegsY(), 0.0f);
+					config.setTranslate((1.0f - config.scaleBase[0]) * 0.125f, this.getLegsY(), 0.0f);
 				} else if (part == EnumParts.BODY) {
 					config.setTranslate(0.0f, this.getBodyY(), 0.0f);
 				}

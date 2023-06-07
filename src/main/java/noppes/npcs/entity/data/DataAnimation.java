@@ -45,6 +45,7 @@ implements INPCAnimation {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.data.clear();
 		this.emotion.clear();
+		CustomNpcs.FixUpdateFromPre_1_12 = true;
 		if (!compound.hasKey("AllAnimations", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
 			EnumAnimationType type = compound.getBoolean("PuppetMoving") ? EnumAnimationType.walking : compound.getBoolean("PuppetAttacking") ? EnumAnimationType.attacking : EnumAnimationType.standing;
 			int speed;
@@ -85,14 +86,14 @@ implements INPCAnimation {
 					default: n = "PuppetHead"; break;
 				}
 				if (i<6) {
-					f0.parts[i].rotation[0] = compound.getCompoundTag(n).getFloat("RotationX");
-					f0.parts[i].rotation[1] = compound.getCompoundTag(n).getFloat("RotationY");
-					f0.parts[i].rotation[2] = compound.getCompoundTag(n).getFloat("RotationZ");
+					f0.parts[i].rotation[0] = 0.5f * compound.getCompoundTag(n).getFloat("RotationX") + 0.5f;
+					f0.parts[i].rotation[1] = 0.5f * compound.getCompoundTag(n).getFloat("RotationY") + 0.5f;
+					f0.parts[i].rotation[2] = 0.5f * compound.getCompoundTag(n).getFloat("RotationZ") + 0.5f;
 					f0.parts[i].disable = compound.getCompoundTag(n).getBoolean("Disabled");
 				} else {
-					f1.parts[i%6].rotation[0] = compound.getCompoundTag(n).getFloat("RotationX");
-					f1.parts[i%6].rotation[1] = compound.getCompoundTag(n).getFloat("RotationY");
-					f1.parts[i%6].rotation[2] = compound.getCompoundTag(n).getFloat("RotationZ");
+					f1.parts[i%6].rotation[0] = 0.5f * compound.getCompoundTag(n).getFloat("RotationX") + 0.5f;
+					f1.parts[i%6].rotation[1] = 0.5f * compound.getCompoundTag(n).getFloat("RotationY") + 0.5f;
+					f1.parts[i%6].rotation[2] = 0.5f * compound.getCompoundTag(n).getFloat("RotationZ") + 0.5f;
 					f1.parts[i%6].disable = compound.getCompoundTag(n).getBoolean("Disabled");
 				}
 			}

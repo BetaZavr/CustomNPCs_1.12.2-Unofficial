@@ -16,7 +16,7 @@ implements IEmotionPart {
 	public float[] offsetEye, offsetBrow, scale, eyePos;
 
 	private Random rnd;
-	private EntityNPCInterface npc;
+	public EntityNPCInterface npc;
 	
 	public PartEmotion(EntityNPCInterface npc) {
 		this.npc = npc;

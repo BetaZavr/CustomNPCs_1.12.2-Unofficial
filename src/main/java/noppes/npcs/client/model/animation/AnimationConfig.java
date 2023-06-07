@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
@@ -24,7 +25,7 @@ public class AnimationConfig
 implements IAnimation {
 
 	public static final AnimationFrameConfig EMPTY_PART = new AnimationFrameConfig();
-	static final float PI = (float) Math.PI;
+	public static final float PI = (float) Math.PI;
 
 	public String name;
 	public int frame, repeatLast;
@@ -33,12 +34,9 @@ implements IAnimation {
 	public EnumAnimationType type;
 
 	private long startTick;
-	private int animMaxFrame, animDelay, animSpeed;
 	private float val, valNext;
-	private Map<Integer, Map<Integer, Float[]>> dismplayMap; // tick, patr values
 
 	public AnimationConfig(int type) {
-		this.dismplayMap = Maps.<Integer, Map<Integer, Float[]>>newTreeMap();
 		this.frames = Maps.<Integer, AnimationFrameConfig>newTreeMap();
 		this.frames.put(0, new AnimationFrameConfig());
 		this.reset();
@@ -58,10 +56,6 @@ implements IAnimation {
 		this.valNext = 0.0f;
 		this.frame = 0;
 		this.startTick = 0;
-		this.animMaxFrame = -1;
-		this.animDelay = 0;
-		this.animSpeed = 0;
-		this.frames.clear();
 	}
 
 	@Override
@@ -84,7 +78,7 @@ implements IAnimation {
 	@Override
 	public int getType() { return this.type.ordinal(); }
 
-	private float calcValue(float value_0, float value1, int speed, boolean isSmooth, float ticks, float partialTicks) {
+	private float calcValue(float value_0, float value_1, int speed, boolean isSmooth, float ticks, float partialTicks) {
 		if (ticks >= speed - 1) { ticks = speed - 1; }
 		if (isSmooth) {
 			this.val = -0.5f * MathHelper.cos((float) ticks / (float) speed * AnimationConfig.PI) + 0.5f;
@@ -94,7 +88,7 @@ implements IAnimation {
 			this.valNext = (float) (ticks + 1) / (float) speed;
 		}
 		float f = this.val + (this.valNext - this.val) * partialTicks;
-		float value = (value_0 + (value1 - value_0) * f) * 2.0f * AnimationConfig.PI;
+		float value = (value_0 + (value_1 - value_0) * f) * 2.0f * AnimationConfig.PI;
 		return value;
 	}
 
@@ -112,77 +106,70 @@ implements IAnimation {
 		if (this.startTick<=0) { this.startTick = npc.world.getTotalWorldTime(); }
 		
 		int ticks = (int) (npc.world.getTotalWorldTime() - this.startTick);
-		
-		Map<Integer, Float[]> map;
-		
-		if (this.dismplayMap.containsKey(ticks)) { map = this.dismplayMap.get(ticks); }
-		else if (this.dismplayMap.containsKey(this.animMaxFrame)) { map = this.dismplayMap.get(this.animMaxFrame); }
+		AnimationFrameConfig frame_0 = this.frames.get(this.frame);
+		AnimationFrameConfig frame_1;
+		if (this.frames.containsKey(this.frame+1)) { frame_1 = this.frames.get(this.frame + 1); }
 		else {
-			AnimationFrameConfig frame_0 = this.frames.get(this.frame);
-			this.animMaxFrame = frame_0.getSpeed();
-			this.animDelay = frame_0.getEndDelay();
-			this.animSpeed = frame_0.getEndDelay();
-			AnimationFrameConfig frame_1;
-			if (this.frames.containsKey(this.frame+1)) { frame_1 = this.frames.get(this.frame + 1); }
-			else {
-				if (this.type.isCyclical()) {
-					if (this.repeatLast>0 && this.frames.containsKey(this.frame - this.repeatLast)) {
-						frame_1 = this.frames.get(this.frame - this.repeatLast);
-					} else {
-						frame_1 = this.frames.get(0);
-					}
+			if (this.type.isCyclical()) {
+				if (this.repeatLast>0 && this.frames.containsKey(this.frame - this.repeatLast)) {
+					frame_1 = this.frames.get(this.frame - this.repeatLast);
+				} else {
+					frame_1 = this.frames.get(0);
 				}
-				else { return null; }
 			}
-			frame_0.setNpc(npc);
-			frame_1.setNpc(npc);
-			
-			map = Maps.<Integer, Float[]>newTreeMap();
-			for (int part=0; part<6; part++) {
-				Float[] values = new Float[] { 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.2f, 0.2f, 0.2f }; // rotX, rotY, rotZ, ofsX, ofsY, ofsZ, scX, scY, scZ
-				if ( frame_0.parts[part].isDisable()) {
-					map.put(part, null);
-					continue;
-				}
-				for (int t=0; t<3; t++) { // 0:rotations, 1:offsets, 2:scales
-					for (int a=0; a<3; a++) { // x, y, z
-						float value_0;
-						float value_1;
-						switch(t) {
-							case 1: {
-								value_0 = 10.0f * frame_0.parts[part].offset[a] - 5.0f;
-								value_1 = 10.0f * frame_1.parts[part].offset[a] - 5.0f;
-								break;
-							}
-							case 2: {
-								value_0 = frame_0.parts[part].scale[a] * 5.0f;
-								value_1 = frame_1.parts[part].scale[a] * 5.0f;
-								break;
-							}
-							default: {
-								value_0 = frame_0.parts[part].rotation[a];
-								value_1 = frame_1.parts[part].rotation[a];
-								if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
-									value_0 += 1.0f;
-								}
-								else if (value_1 < 0.5f && Math.abs(value_1 + 1.0f - value_0) < Math.abs(value_0 - value_1)) {
-									value_1 += 1.0f;
-								}
-								value_0 -= 0.5f;
-								value_1 -= 0.5f;
-								break;
-							}
-						}
-						values[t*3+t] = this.calcValue(value_0, value_1, frame_0.getSpeed(), frame_0.isSmooth(), ticks, partialTicks);
-						if (t!=0) { values[t*3+t] /= 2 * AnimationConfig.PI; } // offsets, scales - correction
-					}
-				}
-				map.put(part, values);
-			}
-			return map;
+			else { return null; }
 		}
+		frame_0.setNpc(npc);
+		frame_1.setNpc(npc);
 		
-		if (ticks >= this.animSpeed + this.animDelay) {
+		int speed = frame_0.getSpeed();
+		if (this.type == EnumAnimationType.walking || this.type == EnumAnimationType.flywalk || this.type == EnumAnimationType.waterwalk) {
+			double sp = npc.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
+			speed = (int) ((double) speed * 0.25d / sp);
+		}
+		Map<Integer, Float[]> map = Maps.<Integer, Float[]>newTreeMap();
+		for (int part=0; part<6; part++) {
+			Float[] values = new Float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f }; // rotX, rotY, rotZ, ofsX, ofsY, ofsZ, scX, scY, scZ
+			if (frame_0.parts[part].isDisable()) {
+				map.put(part, null);
+				continue;
+			}
+			for (int t=0; t<3; t++) { // 0:rotations, 1:offsets, 2:scales
+				for (int a=0; a<3; a++) { // x, y, z
+					float value_0;
+					float value_1;
+					switch(t) {
+						case 1: {
+							value_0 = 10.0f * frame_0.parts[part].offset[a] - 5.0f;
+							value_1 = 10.0f * frame_1.parts[part].offset[a] - 5.0f;
+							break;
+						}
+						case 2: {
+							value_0 = frame_0.parts[part].scale[a] * 5.0f;
+							value_1 = frame_1.parts[part].scale[a] * 5.0f;
+							break;
+						}
+						default: {
+							value_0 = frame_0.parts[part].rotation[a];
+							value_1 = frame_1.parts[part].rotation[a];
+							if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
+								value_0 += 1.0f;
+							}
+							else if (value_1 < 0.5f && Math.abs(value_1 + 1.0f - value_0) < Math.abs(value_0 - value_1)) {
+								value_1 += 1.0f;
+							}
+							value_0 -= 0.5f;
+							value_1 -= 0.5f;
+							break;
+						}
+					}
+					values[t*3+a] = this.calcValue(value_0, value_1, speed, frame_0.isSmooth(), ticks, partialTicks);
+					if (t!=0) { values[t*3+a] /= 2 * AnimationConfig.PI; } // offsets, scales - correction
+				}
+			}
+			map.put(part, values);
+		}
+		if (ticks >= speed + frame_0.getEndDelay()) {
 			this.frame++;
 			if (!this.frames.containsKey(this.frame)) {
 				if (this.type.isCyclical()) { this.frame = 0; }
@@ -256,6 +243,9 @@ implements IAnimation {
 		}
 		if (isDel) {
 			this.frames.clear();
+			if (newData.size()==0) {
+				newData.put(0, new AnimationFrameConfig());
+			}
 			this.frames.putAll(newData);
 		}
 		return isDel;
@@ -263,8 +253,18 @@ implements IAnimation {
 
 	@Override
 	public boolean removeFrame(IAnimationFrame frame) {
+		if (frame==null) { return false; }
 		for (int f : this.frames.keySet()) {
-			if (this.frames.get(f).equals(frame)) { return this.removeFrame(f); }
+			if (this.frames.get(f).equals(frame)) {
+				if (this.frames.size()==1) {
+					this.frames.get(f).clear();
+					for (int j=0; j<6; j++) {
+						this.frames.get(f).parts[j].clear();
+					}
+				}
+				else { this.removeFrame(f); }
+				return true;
+			}
 		}
 		return false;
 	}

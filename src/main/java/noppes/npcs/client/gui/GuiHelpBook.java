@@ -143,7 +143,6 @@ implements ICustomScrollListener {
 				//scroll
 				if (this.scroll==null) {
 					this.scroll = new GuiCustomScroll(this, 0);
-					this.scroll.setSize(100, this.ySize-50);
 					Map<String, String[]> m = Maps.<String, String[]>newTreeMap();
 					for (EnumInterfaceData enumID : EnumInterfaceData.values()) {
 						List<String> com = enumID.it.getComment();
@@ -156,8 +155,8 @@ implements ICustomScrollListener {
 						this.scroll.hoversTexts[i] = com;
 						i++;
 					}
-					
 				}
+				this.scroll.setSize(100, this.ySize - 50);
 				this.scroll.guiLeft = this.guiLeft - 101;
 				this.scroll.guiTop = this.guiTop + 47;
 				if (this.scroll.selected<0) { this.scroll.selected = 0; }
@@ -188,7 +187,7 @@ implements ICustomScrollListener {
 		GuiTextArea ta = new GuiTextArea(0, this.guiLeft + 4, this.guiTop + 4, this.xSize - 7, this.ySize -7, "" );
 		ta.enableCodeHighlighting();
 		ta.setIsCode(false);
-		ta.onlyReading = true;
+		//ta.onlyReading = true;
 		this.add(ta);
 		this.resetText();
 	}
@@ -208,7 +207,7 @@ implements ICustomScrollListener {
 			return;
 		}
 		List<MetodData> list = EnumInterfaceData.get(this.scroll.getSelected()).getAllMetods(Lists.<MetodData>newArrayList());
-		this.data.clear();
+		
 		TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
 		for (MetodData md : list) {
 			String name = md.name;
@@ -216,6 +215,7 @@ implements ICustomScrollListener {
 			m.put(name, md);
 		}
 		String text = "";
+		this.data.clear();
 		for (String name : m.keySet()) {
 			String key = m.get(name).getText();
 			text += key+(""+((char) 10));
@@ -322,7 +322,7 @@ implements ICustomScrollListener {
 		if (!area.hovered) { return; }
 		try {
 			Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
-			if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])==null) {
+			if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])!=null) {
 				this.scroll.setSelected((String) select[1]);
 				this.resetText();
 				return;

@@ -6,21 +6,22 @@ import com.google.common.collect.Lists;
 
 public enum EnumAnimationType {
 
-	attacking(false),
-	dies(true),
-	flystand(true),
-	flywalk(true),
-	init(false),
-	jump(false),
-	standing(true),
-	walking(true),
-	waterstand(true),
-	waterwalk(true);
+	attacking(false, true),
+	dies(true, false),
+	flystand(true, false),
+	flywalk(true, true),
+	init(false, false),
+	jump(false, false),
+	standing(true, false),
+	walking(true, true),
+	waterstand(true, false),
+	waterwalk(true, true);
 	
-	boolean cyclical;
+	boolean cyclical, moving;
 	
-	EnumAnimationType(boolean c) {
+	EnumAnimationType(boolean c, boolean m) {
 		this.cyclical = c;
+		this.moving = m;
 	}
 
 	public static String[] getNames() {
@@ -30,5 +31,7 @@ public enum EnumAnimationType {
 	}
 
 	public boolean isCyclical() { return this.cyclical; }
+
+	public boolean isMoving() { return this.moving; }
 	
 }

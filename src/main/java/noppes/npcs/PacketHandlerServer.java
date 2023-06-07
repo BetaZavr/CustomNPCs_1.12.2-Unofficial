@@ -161,7 +161,6 @@ public class PacketHandlerServer {
 		return permission != null && permission.isAllowed(type);
 	}
 
-	@SuppressWarnings("unused")
 	private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc)
 			throws Exception {
 		CustomNpcs.debugData.startDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());

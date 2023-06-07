@@ -61,8 +61,7 @@ extends EntityNPCFlying {
 	public void updateHitbox() {
 		Entity entity = this.modelData.getEntity(this);
 		if (this.modelData == null || entity == null) {
-			this.baseHeight = 1.9f - this.modelData.getBodyY()
-					+ (this.modelData.getPartConfig(EnumParts.HEAD).scaleY - 1.0f) / 2.0f;
+			this.baseHeight = 1.9f - this.modelData.getBodyY() + (this.modelData.getPartConfig(EnumParts.HEAD).scaleBase[1] - 1.0f) / 2.0f;
 			super.updateHitbox();
 		} else {
 			if (entity instanceof EntityNPCInterface) {

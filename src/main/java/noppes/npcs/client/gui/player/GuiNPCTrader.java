@@ -212,21 +212,14 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			}
 		}
 		if (this.getLabel(6) != null && this.getLabel(6).enabled) {
-			this.getLabel(6).setLabel(new TextComponentTranslation("gui.market.uptime", new Object[] {
-					AdditionalMethods.ticksToElapsedTime(this.container.marcet.nextTime / 50, false, false, false) })
-							.getFormattedText());
+			this.getLabel(6).setLabel(new TextComponentTranslation("gui.market.uptime", new Object[] { AdditionalMethods.ticksToElapsedTime(this.container.marcet.nextTime / 50, false, false, false) }).getFormattedText());
 		}
 		super.drawScreen(i, j, f);
 		if (this.subgui != null) { return; }
 		if (this.getLabel(3).enabled && isMouseHover(i, j, this.guiLeft + 140, this.guiTop + 113, 80, 24)) {
-			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0",
-					new Object[] { this.container.deal.money, CustomNpcs.charCurrencies.charAt(0),
-							"" + CustomNpcs.proxy.getPlayerData(this.player).game.money,
-							CustomNpcs.charCurrencies.charAt(0) });
+			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { this.container.deal.money, CustomNpcs.charCurrencies.charAt(0), "" + CustomNpcs.proxy.getPlayerData(this.player).game.money, CustomNpcs.charCurrencies.charAt(0) });
 			if (this.container.deal.type != 0) {
-				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", new Object[] {
-						AdditionalMethods.getTextReducedNumber(this.container.deal.money / 4, true, true, false),
-						CustomNpcs.charCurrencies.charAt(0) }));
+				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", new Object[] { AdditionalMethods.getTextReducedNumber(this.container.deal.money / 4, true, true, false), CustomNpcs.charCurrencies.charAt(0) }));
 			}
 			this.setHoverText(text.getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).visible && this.getButton(0).isMouseOver()) {
@@ -237,12 +230,10 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			this.setHoverText(text.getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).visible && this.getButton(1).isMouseOver()) {
 			this.colorP = 0x8000FF00;
-			if (AdditionalMethods.inventoryItemCount(this.player, stack, this.container.deal.availability,
-					this.container.deal.ignoreDamage, this.container.deal.ignoreNBT) < stack.getCount()) {
+			if (AdditionalMethods.inventoryItemCount(this.player, stack, this.container.deal.availability, this.container.deal.ignoreDamage, this.container.deal.ignoreNBT) < stack.getCount()) {
 				this.colorP = 0x80FF0000;
 			}
-			TextComponentBase text = new TextComponentTranslation("market.hover.sell.0",
-					new Object[] { stack.getDisplayName() });
+			TextComponentBase text = new TextComponentTranslation("market.hover.sell.0", stack.getDisplayName());
 			if (!this.container.deal.inventoryCurrency.isEmpty()) {
 				List<ITextComponent> items = new ArrayList<ITextComponent>();
 				for (int slot = 0; slot < 9; slot++) {
@@ -272,15 +263,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			this.setHoverText(text.getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).visible && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.reset").getFormattedText());
-		} else if (this.container.deal.count[1] > 0
-				&& isMouseHover(i, j, this.guiLeft + 177, this.guiTop + 24, 45, 14)) {
-			this.setHoverText(
-					this.container.deal.count[1] > 0
-							? new TextComponentTranslation("market.hover.item.amount",
-									new Object[] { "" + this.container.deal.amount }).getFormattedText()
-							: "");
-		} else if (this.getLabel(6).enabled && isMouseHover(i, j, this.guiLeft + 80, this.guiTop + 5,
-				this.mc.fontRenderer.getStringWidth(this.getLabel(6).label.get(0)), 10)) {
+		} else if (this.container.deal.count[1] > 0 && isMouseHover(i, j, this.guiLeft + 177, this.guiTop + 24, 45, 14)) {
+			this.setHoverText( this.container.deal.count[1] > 0 ? new TextComponentTranslation("market.hover.item.amount", new Object[] { "" + this.container.deal.amount }).getFormattedText() : "");
+		} else if (this.getLabel(6).enabled && isMouseHover(i, j, this.guiLeft + 80, this.guiTop + 5, this.mc.fontRenderer.getStringWidth(this.getLabel(6).label.get(0)), 10)) {
 			this.setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
 		}
 
@@ -356,10 +341,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		if (this.container.deal.money > 0) {
 			this.getLabel(3).enabled = true;
 			this.getLabel(4).enabled = true;
-			this.getLabel(4).setLabel(AdditionalMethods.getTextReducedNumber(this.container.deal.money, true, true,
-					false) + CustomNpcs.charCurrencies.charAt(0) + " / "
-					+ CustomNpcs.proxy.getPlayerData(this.player).game.getTextMoney()
-					+ CustomNpcs.charCurrencies.charAt(0));
+			this.getLabel(4).setLabel(AdditionalMethods.getTextReducedNumber(this.container.deal.money, true, true, false) + CustomNpcs.charCurrencies.charAt(0) + " / " + CustomNpcs.proxy.getPlayerData(this.player).game.getTextMoney() + CustomNpcs.charCurrencies.charAt(0));
 		} else {
 			this.getLabel(3).enabled = false;
 			this.getLabel(4).enabled = false;
@@ -368,11 +350,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.addLabel(new GuiNpcLabel(5, "", this.guiLeft + 177, this.guiTop + 25)); // amount
 		this.getLabel(5).color = 0xFF202020;
 		if (this.container.deal.count[1] > 0) {
-			this.getLabel(5).setLabel(new String(Character.toChars(0x00A7))
-					+ (this.container.deal.amount == 0 ? "4"
-							: this.container.deal.amount < this.container.deal.inventorySold.getStackInSlot(0)
-									.getMaxStackSize() ? "1" : "2")
-					+ "x" + AdditionalMethods.getTextReducedNumber(this.container.deal.amount, true, true, false));
+			this.getLabel(5).setLabel(new String(Character.toChars(0x00A7)) + (this.container.deal.amount == 0 ? "4" : this.container.deal.amount < this.container.deal.inventorySold.getStackInSlot(0).getMaxStackSize() ? "1" : "2") + "x" + AdditionalMethods.getTextReducedNumber(this.container.deal.amount, true, true, false));
 		} else {
 			this.getLabel(5).setLabel(new String(Character.toChars(0x221E)));
 		}

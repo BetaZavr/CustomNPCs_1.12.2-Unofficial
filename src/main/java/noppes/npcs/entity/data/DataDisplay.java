@@ -152,7 +152,7 @@ implements INPCDisplay {
 		if (model == null) {
 			throw new CustomNPCsException("Unknown part: " + part, new Object[0]);
 		}
-		return new float[] { model.scaleX, model.scaleY, model.scaleZ };
+		return new float[] { model.scaleBase[0], model.scaleBase[1], model.scaleBase[2] };
 	}
 
 	@Override

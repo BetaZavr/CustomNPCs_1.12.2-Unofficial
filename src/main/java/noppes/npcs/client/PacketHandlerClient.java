@@ -351,6 +351,7 @@ extends PacketHandlerServer {
 				gui = ((GuiContainerNPCInterface) gui).getSubGui();
 			}
 			if (gui instanceof IGuiData) {
+				System.out.println("gui "+gui);
 				NBTTagCompound compound = Server.readNBT(buffer);
 				((IGuiData) gui).setGuiData(compound);
 			}
