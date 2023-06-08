@@ -35,9 +35,11 @@ implements IAnimation {
 
 	private long startTick;
 	private float val, valNext;
+	public int id;
 
 	public AnimationConfig(int type) {
 		this.frames = Maps.<Integer, AnimationFrameConfig>newTreeMap();
+		this.id = 0;
 		this.frames.put(0, new AnimationFrameConfig());
 		this.reset();
 		

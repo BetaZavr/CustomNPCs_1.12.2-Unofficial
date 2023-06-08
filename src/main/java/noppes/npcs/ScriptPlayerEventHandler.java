@@ -60,7 +60,6 @@ import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.PixelmonHelper;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -75,23 +74,18 @@ public class ScriptPlayerEventHandler {
 
 		@SubscribeEvent
 		public void forgeEntity(Event event) {
-			if (CustomNpcs.Server == null || !ScriptController.Instance.forgeScripts.isEnabled()) {
-				return;
-			}
 			if (event instanceof EntityEvent) {
-				EntityEvent ev = (EntityEvent) event;
-				if (ev.getEntity() == null || !(ev.getEntity().world instanceof WorldServer)) {
+				/*if (ev.getEntity() == null || !(ev.getEntity().world instanceof WorldServer)) {
 					return;
-				}
-				EventHooks.onForgeEntityEvent(ev);
+				}*/
+				EventHooks.onForgeEntityEvent((EntityEvent) event);
 			} else if (event instanceof WorldEvent) {
-				WorldEvent ev2 = (WorldEvent) event;
-				if (!(ev2.getWorld() instanceof WorldServer)) {
+				/*if (!(ev2.getWorld() instanceof WorldServer)) {
 					return;
-				}
-				EventHooks.onForgeWorldEvent(ev2);
+				}*/
+				EventHooks.onForgeWorldEvent((WorldEvent) event);
 			} else {
-				if (event instanceof TickEvent && ((TickEvent) event).side == Side.CLIENT) {
+				/*if (event instanceof TickEvent && ((TickEvent) event).side == Side.CLIENT) {
 					return;
 				}
 				if (event instanceof net.minecraftforge.fml.common.gameevent.PlayerEvent) {
@@ -99,11 +93,10 @@ public class ScriptPlayerEventHandler {
 					if (!(ev3.player.world instanceof WorldServer)) {
 						return;
 					}
-				}
+				}*/
 				EventHooks.onForgeEvent(new ForgeEvent(event), event);
 			}
 		}
-
 	}
 
 	@SubscribeEvent
@@ -482,8 +475,11 @@ public class ScriptPlayerEventHandler {
 			if (list.isEmpty()) { // It shouldn't be like this, but perhaps the manual filling option will help.
 				LogWriter.error("CustomNpcs Error: Not found Forge Events in Loaded Classes");
 				LogWriter.info("CustomNpcs: Trying to download manually");
-				for (int i = 1; i < 85; i++) {
+				int i = 0;
+				boolean notBreak = true;
+				while(notBreak) {
 					Class<?> c = null;
+					i++;
 					try {
 						switch (i) {
 						/** Forge Event Classes */
@@ -571,11 +567,41 @@ public class ScriptPlayerEventHandler {
 							case 82: { c = Class.forName("net.minecraftforge.fml.common.gameevent.PlayerEvent"); break; }
 							case 83: { c = Class.forName("net.minecraftforge.fml.common.gameevent.TickEvent"); break; }
 							case 84: { c = Class.forName("net.minecraftforge.fluids.FluidEvent"); break; }
+							// Client
+							case 85: { c = Class.forName("net.minecraftforge.client.event.sound.PlaySoundEvent"); break; }
+							case 86: { c = Class.forName("net.minecraftforge.client.event.sound.PlaySoundSourceEvent"); break; }
+							case 87: { c = Class.forName("net.minecraftforge.client.event.sound.PlayStreamingSourceEvent"); break; }
+							case 88: { c = Class.forName("net.minecraftforge.client.event.sound.SoundEvent"); break; }
+							case 89: { c = Class.forName("net.minecraftforge.client.event.sound.SoundLoadEvent"); break; }
+							case 90: { c = Class.forName("net.minecraftforge.client.event.sound.SoundSetupEvent"); break; }
+							case 91: { c = Class.forName("net.minecraftforge.client.event.ClientChatEvent"); break; }
+							case 92: { c = Class.forName("net.minecraftforge.client.event.ClientChatReceivedEvent"); break; }
+							case 93: { c = Class.forName("net.minecraftforge.client.event.ColorHandlerEvent"); break; }
+							case 94: { c = Class.forName("net.minecraftforge.client.event.DrawBlockHighlightEvent"); break; }
+							case 95: { c = Class.forName("net.minecraftforge.client.event.EntityViewRenderEvent"); break; }
+							case 96: { c = Class.forName("net.minecraftforge.client.event.FOVUpdateEvent"); break; }
+							case 97: { c = Class.forName("net.minecraftforge.client.event.GuiContainerEvent"); break; }
+							case 98: { c = Class.forName("net.minecraftforge.client.event.GuiOpenEvent"); break; }
+							case 99: { c = Class.forName("net.minecraftforge.client.event.GuiScreenEvent"); break; }
+							case 100: { c = Class.forName("net.minecraftforge.client.event.InputUpdateEvent"); break; }
+							case 101: { c = Class.forName("net.minecraftforge.client.event.ModelBakeEvent"); break; }
+							case 102: { c = Class.forName("net.minecraftforge.client.event.MouseEvent"); break; }
+							case 103: { c = Class.forName("net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent"); break; }
+							case 104: { c = Class.forName("net.minecraftforge.client.event.RenderBlockOverlayEvent"); break; }
+							case 105: { c = Class.forName("net.minecraftforge.client.event.RenderGameOverlayEvent"); break; }
+							case 106: { c = Class.forName("net.minecraftforge.client.event.RenderHandEvent"); break; }
+							case 107: { c = Class.forName("net.minecraftforge.client.event.RenderItemInFrameEvent"); break; }
+							case 108: { c = Class.forName("net.minecraftforge.client.event.RenderLivingEvent"); break; }
+							case 109: { c = Class.forName("net.minecraftforge.client.event.RenderPlayerEvent"); break; }
+							case 110: { c = Class.forName("net.minecraftforge.client.event.RenderSpecificHandEvent"); break; }
+							case 111: { c = Class.forName("net.minecraftforge.client.event.RenderTooltipEvent"); break; }
+							case 112: { c = Class.forName("net.minecraftforge.client.event.RenderWorldLastEvent"); break; }
+							case 113: { c = Class.forName("net.minecraftforge.client.event.ScreenshotEvent"); break; }
+							case 114: { c = Class.forName("net.minecraftforge.client.event.TextureStitchEvent"); break; }
+							default: { notBreak = false; break; }
 						}
 					} catch (ClassNotFoundException e) { continue; }
-					if (c != null) {
-						listCalsses.add(c);
-					}
+					if (c != null) { listCalsses.add(c); }
 				}
 			}
 			for (ClassPath.ClassInfo info : list) {
@@ -586,13 +612,15 @@ public class ScriptPlayerEventHandler {
 			// Not Assing List
 			List<Class<?>> notAssingException = new ArrayList<Class<?>>();
 			notAssingException.add(GenericEvent.class);
-			notAssingException.add(ItemTooltipEvent.class);
-			notAssingException.add(GetCollisionBoxesEvent.class);
 			notAssingException.add(EntityEvent.EntityConstructing.class);
 			notAssingException.add(WorldEvent.PotentialSpawns.class);
-			notAssingException.add(TickEvent.RenderTickEvent.class);
-			notAssingException.add(TickEvent.ClientTickEvent.class);
-			notAssingException.add(FMLNetworkEvent.ClientCustomPacketEvent.class);
+			
+			List<Class<?>> isClientEvents = new ArrayList<Class<?>>();
+			isClientEvents.add(ItemTooltipEvent.class);
+			isClientEvents.add(GetCollisionBoxesEvent.class);
+			isClientEvents.add(TickEvent.RenderTickEvent.class);
+			isClientEvents.add(TickEvent.ClientTickEvent.class);
+			isClientEvents.add(FMLNetworkEvent.ClientCustomPacketEvent.class);
 			// Set the main method of the mod for each event
 			for (Class<?> infoClass : listCalsses) {
 				try {
@@ -609,19 +637,28 @@ public class ScriptPlayerEventHandler {
 								break;
 							}
 						}
+						boolean isClient = false;
+						for (Class<?> nae : isClientEvents) {
+							if (nae.isAssignableFrom(c)) {
+								isClient = true;
+								break;
+							}
+						}
 						if (!canAdd || !Event.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())
 								|| !Modifier.isPublic(c.getModifiers()) || CustomNpcs.forgeEventNames.containsKey(c)) {
 							continue;
 						}
 						// Put Name
 						String eventName = c.getName();
+						if (!isClient) { isClient = eventName.toLowerCase().indexOf("client")!=-1; }
 						int i = eventName.lastIndexOf(".");
 						eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						// Add
 						register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
-						CustomNpcs.forgeEventNames.put(c, eventName);
-						LogWriter.debug("Add Forge Event["+CustomNpcs.forgeEventNames.size()+"]; "+c.getName());
+						CustomNpcs.forgeClientEventNames.put(c, eventName);
+						if (!isClient) { CustomNpcs.forgeEventNames.put(c, eventName); }
+						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event "+c.getName());
 					}
 				} catch (Throwable t) {
 					System.out.println("CustomNpcs Error Register Forge Event: " + t);
@@ -658,7 +695,7 @@ public class ScriptPlayerEventHandler {
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
-		LogWriter.info("CustomNpcs: Registered [" + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listCalsses.size() + "] classes");
+		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size()+"; Server: "+ CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listCalsses.size() + "] classes");
 		return this;
 	}
 

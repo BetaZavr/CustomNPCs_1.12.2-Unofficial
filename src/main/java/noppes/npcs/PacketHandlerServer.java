@@ -68,6 +68,7 @@ import noppes.npcs.controllers.SpawnController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Bank;
+import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
@@ -941,6 +942,13 @@ public class PacketHandlerServer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptForgeSave) {
 			ScriptController.Instance.setForgeScripts(Server.readNBT(buffer));
+		} else if (type == EnumPacketServer.ScriptClientGet) {
+			ClientScriptData data = ScriptController.Instance.clientScripts;
+			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+		} else if (type == EnumPacketServer.ScriptClientSave) {
+			ScriptController.Instance.setClientScripts(Server.readNBT(buffer));
 		} else if (type == EnumPacketServer.ScriptPlayerGet) {
 			NBTTagCompound compound = ScriptController.Instance.playerScripts.writeToNBT(new NBTTagCompound());
 			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());

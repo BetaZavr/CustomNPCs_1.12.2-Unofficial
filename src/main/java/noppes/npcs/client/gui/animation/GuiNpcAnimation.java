@@ -50,7 +50,7 @@ public class GuiNpcAnimation
 extends GuiNPCInterface
 implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldListener, IGuiData {
 
-	private static int backColor = 0xFF000000;
+	public static int backColor = 0xFF000000;
 	private static EnumAnimationType type = EnumAnimationType.standing;
 
 	private GuiScreen parent;
@@ -68,6 +68,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	private long ticksExisted;
 	private EntityNPCInterface[] npcs;
 	private float scaleFrame;
+	private char c;
 
 	public GuiNpcAnimation(GuiScreen parent, EntityCustomNpc npc) {
 		super(npc);
@@ -77,6 +78,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		this.animation = npc.animation;
 		this.closeOnEsc = true;
 		
+		this.c = ((char) 167);
 		this.scaleFrame = 0.5f;
 		this.selectAnim = "";
 		this.onlyCurrentPart = false;
@@ -106,15 +108,18 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		for (EnumAnimationType t : this.animation.data.keySet()) {
 			if (t!=GuiNpcAnimation.type) { continue; }
 			List<AnimationConfig> list = this.animation.data.get(t);
+			int id = 0;
 			for (AnimationConfig ac : list) {
-				this.dataAnim.put(ac.name, ac);
+				ac.id = id;
+				String key = this.c+"7"+id+": "+this.c+"r"+ac.name;
+				this.dataAnim.put(key, ac);
 				if (first == null) { first= ac; }
-				if (!this.selectAnim.isEmpty() && this.selectAnim.equals(ac.name) && ac.type==GuiNpcAnimation.type) { anim = ac; }
+				if (!this.selectAnim.isEmpty() && this.selectAnim.equals(key) && ac.type==GuiNpcAnimation.type) { anim = ac; }
 			}
 		}
 		if (anim==null && first!=null) {
 			anim = first;
-			this.selectAnim = anim.name;
+			this.selectAnim = this.c+"7"+anim.id+": "+this.c+"r"+anim.name;
 		}
 		
 		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
@@ -264,7 +269,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					this.addLabel(new GuiNpcLabel(7 + i * 3 + j, j==0 ? "X:" : j==1 ? "Y:" : "Z:", u+100, v + j*10));
 					this.addTextField(textField);
 					
-					button = new GuiNpcButton(80 + i, u+154, v - 1 + j*10, 10, 10, "x");
+					button = new GuiNpcButton(80 + i * 3 + j, u+154, v - 1 + j*10, 10, 10, "x");
 					button.packedFGColour = 0xFF000000;
 					button.dropShadow = false;
 					this.addButton(button);
@@ -299,6 +304,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	protected void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		if (!(button instanceof GuiNpcButton)) { return; }
+System.out.println("buttonID: "+button.id);
 		GuiNpcButton npcButton = (GuiNpcButton) button;
 		AnimationConfig anim = null;
 		AnimationFrameConfig frame = null;
@@ -321,7 +327,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			}
 			case 3: { // del anim
 				if (anim==null) { return; }
-				boolean bo = this.animation.removeAnimation(GuiNpcAnimation.type.ordinal(), this.selectAnim);
+				boolean bo = this.animation.removeAnimation(GuiNpcAnimation.type.ordinal(), anim.name);
 				if (bo) {
 					this.selectAnim = "";
 					this.selectFrame = 0;
@@ -582,7 +588,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				}
 				Gui.drawRect(x-1+i*s, y-1, x+56+i*s, y+91, i==0 ? 0xFFF08080 : i==1 ? 0xFF80F080 : 0xFF8080F0);
 				Gui.drawRect(x+i*s, y, x+55+i*s, y+90, GuiNpcAnimation.backColor);
-				if (this.npcs[i]!=null) {
+				if (this.npcs[i]!=null && this.subgui==null) {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(i*s+259.0f, 85.0f, 100.0f);
 					this.drawNpc(this.npcs[i], 0, 0, 1.0f, this.rots[i]-180, this.rots[i+4], false);
@@ -596,7 +602,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					Gui.drawRect(x-1+i*s, y-1, x+56+i*s, y+91, i==0 ? 0xFF808080 :  0xFFF080F0);
 					Gui.drawRect(x+i*s, y, x+55+i*s, y+90, i==0 ? 0xFFF0F0F0 : GuiNpcAnimation.backColor);
 				}
-				if (i==1 && this.npcs[3]!=null) {
+				if (i==1 && this.npcs[3]!=null && this.subgui==null) {
 					GlStateManager.pushMatrix();
 					float scale, xPos, yPos;
 					if (!this.onlyCurrentPart) {
@@ -921,22 +927,23 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			return;
 		}
 		if (subgui.id == 1) { // add new
-			this.selectAnim = ((SubGuiEditText) subgui).text[0];
+			String name = ((SubGuiEditText) subgui).text[0];
 			this.selectFrame = 0;
 			this.selectPart = 0;
 			boolean next = true;
 			while(next) {
 				next = false;
 				for (AnimationConfig acn : this.animation.data.get(GuiNpcAnimation.type)) {
-					if (acn.name.equals(this.selectAnim)) {
-						this.selectAnim += "_";
+					if (acn.name.equals(name)) {
+						name += "_";
 						next = true;
 						break;
 					}
 				}
 			}
 			AnimationConfig ac = this.animation.createAnimation(GuiNpcAnimation.type.ordinal());
-			ac.name = this.selectAnim;
+			ac.name = name;
+			this.selectAnim = this.c+"7"+ac.id+": "+this.c+"r"+ac.name;
 			for (int i = 0; i<4; i++) {
 				this.rots[i] = 180;
 				this.rots[i+4] = 0;
@@ -947,8 +954,9 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			if (((SubGuiLoadAnimation) subgui).animation==null) { return; }
 			AnimationConfig ac = ((SubGuiLoadAnimation) subgui).animation.copy();
 			ac.type = GuiNpcAnimation.type;
+			ac.id = this.animation.data.get(ac.type).size();
 			this.animation.data.get(ac.type).add(ac);
-			this.selectAnim = ac.name;
+			this.selectAnim = this.c+"7"+ac.id+": "+this.c+"r"+ac.name;
 			this.selectFrame = 0;
 			this.selectPart = 0;
 			this.initGui();
@@ -967,8 +975,13 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		if (anim==null) { return; }
 		switch(textField.getId()) {
 			case 0: { // new name
-				anim.name = textField.getText();
-				this.selectAnim = anim.name;
+				String name = textField.getText();
+				for (AnimationConfig ac : this.dataAnim.values()) {
+					if (ac.equals(anim)) { continue; }
+					while (ac.name.equals(name)) { name += "_"; }
+				}
+				anim.name = name;
+				this.selectAnim = this.c+"7"+anim.id+": "+this.c+"r"+anim.name;
 				this.initGui();
 				break;
 			}

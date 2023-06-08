@@ -109,13 +109,18 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			for (int i = 0; i < this.handler.getScripts().size(); ++i) {
 				this.addTopButton(top = new GuiMenuTopButton(i + 1, top, i + 1 + ""));
 			}
-			if (this.handler.getScripts().size() < 16) {
+			if (!(this instanceof GuiScriptClient) && this.handler.getScripts().size() < 16) {
 				this.addTopButton(top = new GuiMenuTopButton(12, top, "+"));
 			}
 			top = this.getTopButton(this.activeTab);
 			if (top == null) {
-				this.activeTab = 0;
-				top = this.getTopButton(0);
+				if (this.activeTab > 0 && this instanceof GuiScriptClient) {
+					this.activeTab = 1;
+					top = this.getTopButton(12);
+				} else {
+					this.activeTab = 0;
+					top = this.getTopButton(0);
+				}
 			}
 			top.active = true;
 			if (this.activeTab > 0) {
@@ -200,14 +205,19 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
+		System.out.println("buttonID: "+guibutton.id);
 		if (guibutton.id >= 0 && guibutton.id < 12) {
 			this.setScript();
 			this.activeTab = guibutton.id;
 			this.initGui();
 		}
 		if (guibutton.id == 12) {
-			this.handler.getScripts().add(new ScriptContainer(this.handler));
-			this.activeTab = this.handler.getScripts().size();
+			if (this instanceof GuiScriptClient) {
+				this.activeTab = 1;
+			} else {
+				this.handler.getScripts().add(new ScriptContainer(this.handler));
+				this.activeTab = this.handler.getScripts().size();
+			}
 			this.initGui();
 		}
 		if (guibutton.id == 109) {

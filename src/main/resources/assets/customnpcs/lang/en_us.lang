@@ -603,6 +603,7 @@ gui.button=Button
 gui.buy=Buy
 gui.categories=Categories
 gui.clear=Clear
+gui.client=Client
 gui.close=Close
 gui.color=Color
 gui.constant=Constant
@@ -1372,6 +1373,8 @@ script.hooks=Hooks
 script.hover.forge=Forge Events<br>§7Some server cores §8(such as Magma)§7 have ways to combine plugins and mods, which makes some Forge events unavailable!<br>§eERMAScript§8 language example for §fTickEvent.WorldTickEvent§8:<br>§9var§f api§9=§fJava§9.§ftype§9(§7"noppes.npcs.api.NpcAPI"§9).§fInstance§9();<br>§9function§f tickEventWorldTickEvent§9(§eevent§9) {<br>  §9var§f iWorld §9= §fapi§9.§fgetIWorld§9(§fevent§9.§fworld§9);<br>  §fiWorld§9.§fbroadcast§9(§7"Now World ID["§9+§fiWorld§9.§fgetDimension§9().§fgetId§9()+§7"] Time: "§9+§fiWorld§9.§fgetTime§9());<br>§9}<br>§8Full list of available event names can be viewed using the command: §f/noppes script forgelist
 script.hover.players=Events for each Player<br>§7List of player functions:<br>§f%s<br>§eERMAScript§8 language example:<br>§9function§f tick§9(§eevent§9) {<br>  §eevent§9.§fplayer§9.§fmessage§9(§7"Next Step"§9);<br>§9}
 script.hover.potion=Events of Potions added to the game<br>§6For PRO§7, events when activating a potion on an entity<br>§7List of functions of their potions:<br>§f%s<br>§eERMAScript§8 language example for §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>  §9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7"potionexample"§9)) {<br>    §9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>    §eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>  §9}<br>§9}
+script.hover.client=Events that are active on each player's client<br>§6For §9Mega§6PRO
+
 script.init=Init
 script.interact=Interact
 script.killed=Killed

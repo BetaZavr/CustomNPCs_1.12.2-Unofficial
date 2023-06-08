@@ -190,6 +190,7 @@ implements INPCAdvanced {
 
 
 	public void readToNBT(NBTTagCompound compound) {
+		if (!compound.hasKey("NpcInteractLines", 10)) { return; }
 		this.interactLines.readNBT(compound.getCompoundTag("NpcInteractLines"));
 		this.worldLines.readNBT(compound.getCompoundTag("NpcLines"));
 		this.attackLines.readNBT(compound.getCompoundTag("NpcAttackLines"));

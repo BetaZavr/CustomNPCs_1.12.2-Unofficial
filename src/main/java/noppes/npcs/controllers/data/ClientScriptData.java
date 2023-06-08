@@ -1,32 +1,30 @@
 package noppes.npcs.controllers.data;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.EventHooks;
-import noppes.npcs.NBTTags;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
-public class ForgeScriptData
+public class ClientScriptData
 implements IScriptHandler {
 	
 	private boolean enabled;
 	public boolean hadInteract;
 	public long lastInited;
 	private String scriptLanguage;
-	protected List<ScriptContainer> scripts;
+	protected ScriptContainer script;
 
-	public ForgeScriptData() {
-		this.scripts = new ArrayList<ScriptContainer>();
+	public ClientScriptData() {
+		this.script = null;
 		this.scriptLanguage = "ECMAScript";
 		this.lastInited = -1L;
 		this.hadInteract = true;
@@ -34,13 +32,17 @@ implements IScriptHandler {
 	}
 
 	public void clear() {
-		this.scripts = new ArrayList<ScriptContainer>();
+		for (ScriptContainer scr : this.getScripts()) {
+			scr.fullscript = "";
+			scr.script = "";
+			scr.scripts.clear();
+		}
 	}
 
 	@Override
 	public void clearConsole() {
-		for (ScriptContainer script : this.getScripts()) {
-			script.console.clear();
+		for (ScriptContainer scr : this.getScripts()) {
+			scr.console.clear();
 		}
 	}
 
@@ -69,27 +71,27 @@ implements IScriptHandler {
 
 	@Override
 	public List<ScriptContainer> getScripts() {
-		return this.scripts;
+		if (this.script==null) { this.script = new ScriptContainer(this); }
+		return Lists.<ScriptContainer>newArrayList(this.script);
 	}
 
 	@Override
 	public boolean isClient() {
-		//System.out.println("Dedicated Server: "+(CustomNpcs.Server != null && !CustomNpcs.Server.isDedicatedServer()));
-		//System.out.println("Player: "+(CustomNpcs.proxy.getPlayer()!=null && !CustomNpcs.proxy.getPlayer().isServerWorld()));
 		return CustomNpcs.Server == null || (CustomNpcs.Server != null && !CustomNpcs.Server.isDedicatedServer()) || (CustomNpcs.proxy.getPlayer()!=null && !CustomNpcs.proxy.getPlayer().isServerWorld());
 	}
 
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && this.scripts.size() > 0;
+		return this.enabled && ScriptController.HasStart && this.script != null;
 	}
 
 	@Override
 	public String noticeString() {
-		return "ForgeScript";
+		return "ClientForgeScript";
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		if (this.script==null) { this.script = new ScriptContainer(this); }
+		this.script.readFromNBT(compound.getCompoundTag("Scripts"));
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}
@@ -106,14 +108,9 @@ implements IScriptHandler {
 		CustomNpcs.Server.addScheduledTask(() -> {
 			if (ScriptController.Instance.lastLoaded > this.lastInited) {
 				this.lastInited = ScriptController.Instance.lastLoaded;
-				if (!type.equals("init")) {
-					EventHooks.onForgeInit(this);
-				}
 			}
-			Iterator<ScriptContainer> iterator = this.scripts.iterator();
-			while (iterator.hasNext()) {
-				((ScriptContainer) iterator.next()).run(type, event);
-			}
+			if (this.script==null) { this.script = new ScriptContainer(this); }
+			this.script.run(type, event);
 		});
 	}
 
@@ -128,9 +125,11 @@ implements IScriptHandler {
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setTag("Scripts", NBTTags.NBTScript(this.scripts));
+		if (this.script==null) { this.script = new ScriptContainer(this); }
+		compound.setTag("Scripts", this.script.writeToNBT(new NBTTagCompound()));
 		compound.setString("ScriptLanguage", this.scriptLanguage);
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
+	
 }

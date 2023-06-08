@@ -219,6 +219,7 @@ public class CustomNpcs {
 	public static MinecraftServer Server;
 	public static DataDebug debugData = new DataDebug();
 	public static final Map<Class<?>, String> forgeEventNames = new HashMap<Class<?>, String>();
+	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<Class<?>, String>();
 	public static boolean FreezeNPCs = false;
 	public static File Dir;
 	public static ConfigLoader Config;

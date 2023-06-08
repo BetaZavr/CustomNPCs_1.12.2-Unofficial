@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -96,17 +97,10 @@ extends GuiNPCInterface {
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		switch(guibutton.id) {
-			case 1: {
-				this.displayGuiScreen(new GuiScriptForge());
-				break;
-			}
-			case 2: {
-				this.displayGuiScreen(new GuiScriptPotion());
-				break;
-			}
-			default: {
-				this.displayGuiScreen(new GuiScriptPlayers());
-			}
+			case 1: { this.displayGuiScreen(new GuiScriptForge()); break; }
+			case 2: { this.displayGuiScreen(new GuiScriptPotion()); break; }
+			case 3: { this.displayGuiScreen(new GuiScriptClient()); break; }
+			default: { this.displayGuiScreen(new GuiScriptPlayers()); }
 		}
 	}
 
@@ -119,24 +113,29 @@ extends GuiNPCInterface {
 		super.drawScreen(i, j, f);
 		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("script.hover.players", new Object[] { this.playerEventsList })
-							.getFormattedText());
-		}
-		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("script.hover.players", new Object[] { this.playerEventsList }) .getFormattedText());
+		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.forge").getFormattedText());
-		}
-		if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.potion", new Object[] { this.potionEventsList }).getFormattedText());
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("script.hover.client").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + 20, 100, 20, "Players"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 38, this.guiTop + 50, 100, 20, "Forge"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 38, this.guiTop + 80, 100, 20, "Custom Potions"));
+		for (int i=0; i<4; i++) {
+			String name;
+			switch(i) {
+				case 1: name = "Forge"; break;
+				case 2: name = "gui.help.potions"; break;
+				case 3: name = "gui.client"; break;
+				default: name = "playerdata.players"; break;
+			}
+			this.addButton(new GuiNpcButton(i, this.guiLeft + 38, this.guiTop + 20 + i * 30, 100, 20, name));
+		}
 	}
 
 	@Override

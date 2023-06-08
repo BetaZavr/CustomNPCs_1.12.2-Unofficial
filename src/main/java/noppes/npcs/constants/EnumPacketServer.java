@@ -111,7 +111,9 @@ public enum EnumPacketServer
 	ScriptItemDataSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptItemDataGet(false), 
 	ScriptForgeSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
+	ScriptClientSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptForgeGet(false), 
+	ScriptClientGet(false), 
 	SpawnerNpcMove(CustomNpcsPermissions.NPC_ADVANCED, true), // New
 	DialogNpcGet, 
 	RecipesGet, 

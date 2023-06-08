@@ -29,7 +29,7 @@ extends LayerInterface<T> {
 	
 	public LayerCustomArmor(RenderLiving<?> render) {
 		super(render);
-		this.modelLeggings = new ModelBipedAlt(1.0F);
+		this.modelLeggings = new ModelBipedAlt(0.5F);
 		this.modelArmor = new ModelBipedAlt(1.0F);
 	}
 	

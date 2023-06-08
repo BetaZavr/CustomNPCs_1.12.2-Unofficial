@@ -330,6 +330,7 @@ implements INPCAnimation {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + EnumAnimationType.values().length + " You have: "+animationType);
 		}
 		AnimationConfig ac = new AnimationConfig(animationType);
+		ac.id = this.data.get(ac.type).size();
 		this.data.get(ac.type).add(ac);
 		return ac;
 	}

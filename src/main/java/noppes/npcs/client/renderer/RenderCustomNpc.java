@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.NPCRendererHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
+import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,7 +21,6 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.layer.LayerArms;
 import noppes.npcs.client.layer.LayerBody;
-import noppes.npcs.client.layer.LayerCustomArmor;
 import noppes.npcs.client.layer.LayerCustomHeldItem;
 import noppes.npcs.client.layer.LayerEyes;
 import noppes.npcs.client.layer.LayerHead;
@@ -27,9 +28,11 @@ import noppes.npcs.client.layer.LayerHeadwear;
 import noppes.npcs.client.layer.LayerLegs;
 import noppes.npcs.client.layer.LayerNpcCloak;
 import noppes.npcs.client.layer.LayerPreRender;
+import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class RenderCustomNpc<T extends EntityCustomNpc>
 extends RenderNPCInterface<T> {
@@ -52,7 +55,11 @@ extends RenderNPCInterface<T> {
 		this.layerRenderers.add(new LayerNpcCloak(this));
 		this.addLayer(new LayerCustomHeldItem(this));
 		this.addLayer(new LayerCustomHead(this.npcmodel.bipedHead));
-		this.addLayer(new LayerCustomArmor(this));
+		//this.addLayer(new LayerCustomArmor(this));
+		LayerBipedArmor armor = new LayerBipedArmor(this);
+		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(0.5f), 1);
+		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(1.0f), 2);
+		this.addLayer(armor);
 	}
 
 	@SuppressWarnings("unchecked")

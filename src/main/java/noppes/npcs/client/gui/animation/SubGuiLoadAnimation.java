@@ -5,7 +5,9 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,7 +29,7 @@ implements ICustomScrollListener {
 
 	public boolean cancelled;
 	private GuiCustomScroll scroll;
-	private Map<String, AnimationConfig> data;
+	private Map<String, Integer> data;
 	private String selected;
 	public AnimationConfig animation;
 	private EntityNPCInterface showNpc;
@@ -39,10 +41,11 @@ implements ICustomScrollListener {
 		this.setBackground("smallbg.png");
 		this.closeOnEsc = true;
 		this.xSize = 176;
-		this.ySize = 200;
+		this.ySize = 222;
 		
-		this.data = Maps.<String, AnimationConfig>newTreeMap();
+		this.data = Maps.<String, Integer>newTreeMap();
 		this.animation = null;
+		this.selected = "";
 		
 		this.showNpc = null;
 		NBTTagCompound npcNbt = new NBTTagCompound();
@@ -79,7 +82,7 @@ implements ICustomScrollListener {
 				case waterwalk: t = c + "cAT"; break;
 				default: t = c + "eS"; break; // standing or any
 			}
-			this.data.put(c + "8ID:" + c + "7" + id + c + "r " + ac.getName() + c + "7[" + t + c + "7]" , ac);
+			this.data.put(c + "8ID:" + c + "7" + id + c + "r " + ac.getName() + c + "7[" + t + c + "7]" , id);
 			hts[i] = new String[] { new TextComponentTranslation("animation.type").appendSibling(new TextComponentTranslation("puppet."+ac.type.name())).getFormattedText() };
 			i++;
 		}
@@ -88,25 +91,47 @@ implements ICustomScrollListener {
 		this.scroll.hoversTexts = hts;
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
-		this.scroll.setSize(120, 156);
+		this.scroll.setSize(110, 178);
 		this.addScroll(this.scroll);
 		
 		this.addLabel(new GuiNpcLabel(0, "puppet.animation", this.guiLeft+4, this.guiTop+4));
 		
-		this.addButton( new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 22, 80, 20, "gui.done"));
-		this.addButton( new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 44, 80, 20, "gui.cancel"));
+		this.addButton( new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 194, 80, 20, "gui.done"));
+		this.addButton( new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 194, 80, 20, "gui.cancel"));
+		this.addButton( new GuiNpcButton(2, this.guiLeft + 115, this.guiTop + 110, 57, 20, "gui.remove"));
+		this.addButton( new GuiNpcButton(3, this.guiLeft + 115, this.guiTop + 98, 10, 10, new String[] { "b", "w" }, GuiNpcAnimation.backColor==0xFF000000 ? 0 : 1));
+		
 		this.resetAnim();
 	}
 
 	@Override
 	public void buttonEvent(GuiButton button) {
-		if (button.id == 0) { this.cancelled = false; }
-		this.close();
+		switch(button.id) {
+			case 0: this.cancelled = false; break;
+			case 1: this.close(); break;
+			case 2:
+				if (!this.data.containsKey(this.selected)) { return; }
+				if (AnimationController.getInstance().removeAnimation(this.data.get(this.selected))) { this.initGui(); }
+				break;
+			case 3: GuiNpcAnimation.backColor = GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF: 0xFF000000; break;
+			default: break;
+		}
 	}
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (this.animation!=null && this.showNpc!=null) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(this.guiLeft + 116.0f, this.guiTop + 5.0f, 1.0f);
+			Gui.drawRect(-1, -1, 56, 91, 0xFFF080F0);
+			Gui.drawRect(0, 0, 55, 90, GuiNpcAnimation.backColor);
+			GlStateManager.popMatrix();
+			this.drawNpc(this.showNpc, 143, 77, 1.0f, 0, 0, false);
+		}
+		if (this.getButton(0)!=null) { this.getButton(0).enabled = this.animation!=null; }
+		if (this.getButton(2)!=null) { this.getButton(2).enabled = this.animation!=null; }
+		if (this.getButton(3)!=null) { this.getButton(3).setVisible(this.animation!=null); }
 	}
 
 	@Override
@@ -116,7 +141,7 @@ implements ICustomScrollListener {
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (this.selected.equals(scroll.getSelected()) || !this.data.containsKey(scroll.getSelected())) { return; }
 		this.selected = scroll.getSelected();
-		this.animation = this.data.get(scroll.getSelected());
+		this.animation = (AnimationConfig) AnimationController.getInstance().getAnimation(this.data.get(scroll.getSelected()));
 		this.resetAnim();
 	}
 

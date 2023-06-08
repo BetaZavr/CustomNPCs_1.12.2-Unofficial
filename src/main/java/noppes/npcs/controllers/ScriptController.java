@@ -25,6 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.wrapper.WorldWrapper;
+import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.PotionScriptData;
@@ -40,6 +41,7 @@ public class ScriptController {
 	public File dir;
 	public Map<String, ScriptEngineFactory> factories;
 	public ForgeScriptData forgeScripts;
+	public ClientScriptData clientScripts;
 	public Map<String, String> languages;
 	public long lastLoaded;
 	public long lastPlayerUpdate;
@@ -49,13 +51,13 @@ public class ScriptController {
 	public boolean shouldSave;
 	public PotionScriptData potionScripts; // new
 	
-
 	public ScriptController() {
 		this.languages = new HashMap<String, String>();
 		this.factories = new HashMap<String, ScriptEngineFactory>();
 		this.scripts = new HashMap<String, String>();
 		this.playerScripts = new PlayerScriptData(null);
 		this.forgeScripts = new ForgeScriptData();
+		this.clientScripts = new ClientScriptData();
 		this.potionScripts = new PotionScriptData();
 		this.lastLoaded = 0L;
 		this.lastPlayerUpdate = 0L;
@@ -127,6 +129,10 @@ public class ScriptController {
 		return new File(this.dir, "forge_scripts.json");
 	}
 
+	private File clientScriptsFile() {
+		return new File(this.dir, "client_scripts.json");
+	}
+	
 	public ScriptEngine getEngineByName(String language) {
 		ScriptEngineFactory fac = this.factories.get(AdditionalMethods.deleteColor(language).toLowerCase());
 		if (fac == null) {
@@ -194,6 +200,21 @@ public class ScriptController {
 				return false;
 			}
 			this.forgeScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+		} catch (Exception e) {
+			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
+			return false;
+		}
+		return true;
+	}
+
+	public boolean loadClientScripts() {
+		this.clientScripts.clear();
+		File file = this.clientScriptsFile();
+		try {
+			if (!file.exists()) {
+				return false;
+			}
+			this.clientScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 			return false;
@@ -380,6 +401,19 @@ public class ScriptController {
 			e2.printStackTrace();
 		}
 	}
+	
+	public void setClientScripts(NBTTagCompound compound) {
+		this.clientScripts.readFromNBT(compound);
+		File file = this.clientScriptsFile();
+		try {
+			NBTJsonUtil.SaveFile(file, compound);
+			this.clientScripts.lastInited = -1L;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NBTJsonUtil.JsonException e2) {
+			e2.printStackTrace();
+		}
+	}
 
 	public void setPlayerScripts(NBTTagCompound compound) {
 		this.playerScripts.readFromNBT(compound);
@@ -427,12 +461,14 @@ public class ScriptController {
 	private File potionScriptsFile() { return new File(this.dir, "potion_scripts.json"); }
 	
 	public void load() {
-		ScriptController.Instance.loadCategories();
-		ScriptController.Instance.loadStoredData();
-		ScriptController.Instance.loadPlayerScripts();
-		ScriptController.Instance.loadForgeScripts();
-		ScriptController.Instance.loadPotionScripts();
-		ScriptController.Instance.loadConstantData();
+		ScriptController sData = ScriptController.Instance;
+		sData.loadCategories();
+		sData.loadStoredData();
+		sData.loadPlayerScripts();
+		sData.loadForgeScripts();
+		sData.loadClientScripts();
+		sData.loadPotionScripts();
+		sData.loadConstantData();
 		ScriptController.HasStart = false;
 	}
 	

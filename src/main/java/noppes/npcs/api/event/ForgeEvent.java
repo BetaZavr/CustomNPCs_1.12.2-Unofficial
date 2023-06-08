@@ -39,4 +39,5 @@ public class ForgeEvent extends CustomNPCsEvent {
 	public ForgeEvent(Event event) {
 		this.event = event;
 	}
+	
 }

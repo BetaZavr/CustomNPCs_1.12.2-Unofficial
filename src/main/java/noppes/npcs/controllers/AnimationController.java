@@ -20,6 +20,8 @@ import noppes.npcs.Server;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.animation.AnimationFrameConfig;
+import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumPacketClient;
 
 public class AnimationController
@@ -45,7 +47,7 @@ implements IAnimationHandler {
 	private static boolean newInstance() {
 		if (AnimationController.instance == null) { return true; }
 		File file = CustomNpcs.getWorldSaveDirectory();
-		return file != null && !AnimationController.instance.filePath.equals(file.getAbsolutePath());
+		return file != null && !AnimationController.instance.filePath.equals(file.getName());
 	}
 	
 	public NBTTagCompound getNBT() {
@@ -62,7 +64,7 @@ implements IAnimationHandler {
 	
 	public int getUnusedId() {
 		int id = 0;
-		for (int i : this.animations.keySet()) { if (i>id) { id = i; } }
+		for (int i : this.animations.keySet()) { if (i>id) { id = i + 1; } }
 		return id;
 	}
 	
@@ -72,7 +74,7 @@ implements IAnimationHandler {
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.startDebug("Common", null, "loadRegions");
 		}
-		this.filePath = saveDir.getAbsolutePath();
+		this.filePath = saveDir.getName();
 		try {
 			File file = new File(saveDir, "animations.dat");
 			if (file.exists()) {
@@ -114,7 +116,173 @@ implements IAnimationHandler {
 
 	private void loadDefaultAnimations(int version) {
 		if (version == AnimationController.version) { return; }
+		AnimationConfig anim = (AnimationConfig) this.createNew(EnumAnimationType.standing.ordinal());
+		anim.name = "Animation Test";
+		// Head
+		// frame 0
+		AnimationFrameConfig frame = anim.frames.get(0);
+		frame.speed = 10;
+		// frame 1
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[0].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[0].rotation[0] = 0.625f;
+		frame.parts[0].offset[1] = 0.52f;
+		frame.parts[0].offset[2] = 0.47f;
+		// frame 2
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[0].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[0].rotation[1] = 0.375f;
+		frame.parts[0].offset[0] = 0.52f;
+		// frame 3
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[0].setScale(1.5f, 1.5f, 1.5f);
+		frame.parts[0].rotation[0] = 0.375f;
+		frame.parts[0].offset[1] = 0.48f;
+		frame.parts[0].offset[2] = 0.47f;
+		// frame 4
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[0].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[0].rotation[1] = 0.625f;
+		frame.parts[0].offset[0] = 0.48f;
+		// frame 5
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[0].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[0].rotation[0] = 0.625f;
+		frame.parts[0].offset[1] = 0.52f;
+		frame.parts[0].offset[2] = 0.47f;
 		
+		// Body
+		// frame 6
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[3].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[3].offset[2] = 0.425f;
+		// frame 7
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[3].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[3].rotation[1] = 0.25f;
+		frame.parts[3].offset[0] = 0.575f;
+		// frame 8
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[3].setScale(1.5f, 1.5f, 1.5f);
+		frame.parts[3].rotation[1] = 0.0f;
+		frame.parts[3].offset[2] = 0.575f;
+		// frame 9
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[3].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[3].rotation[1] = 0.75f;
+		frame.parts[3].offset[0] = 0.425f;
+		// frame 10
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[3].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[3].offset[2] = 0.425f;
+		
+		// Arms
+		// frame 11
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		// frame 12
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[1].setScale(1.25f, 1.25f, 1.25f);
+		frame.parts[2].setScale(1.25f, 1.25f, 1.25f);
+		frame.parts[1].rotation[0] = 0.25f;
+		frame.parts[2].rotation[0] = 0.75f;
+		frame.parts[1].offset[0] = 0.525f;
+		frame.parts[2].offset[0] = 0.475f;
+		// frame 13
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[1].setScale(1.5f, 1.5f, 1.5f);
+		frame.parts[2].setScale(1.5f, 1.5f, 1.5f);
+		frame.parts[1].rotation[0] = 0.0f;
+		frame.parts[2].rotation[0] = 0.0f;
+		frame.parts[1].offset[0] = 0.55f;
+		frame.parts[2].offset[0] = 0.45f;
+		// frame 14
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[1].setScale(1.25f, 1.25f, 1.25f);
+		frame.parts[2].setScale(1.25f, 1.25f, 1.25f);
+		frame.parts[1].rotation[0] = 0.75f;
+		frame.parts[2].rotation[0] = 0.25f;
+		frame.parts[1].offset[0] = 0.525f;
+		frame.parts[2].offset[0] = 0.475f;
+		
+		// Legs
+		// frame 15
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		// frame 16
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[4].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[5].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[4].rotation[0] = 0.25f;
+		frame.parts[5].rotation[0] = 0.25f;
+		frame.parts[4].offset[0] = 0.525f;
+		frame.parts[4].offset[1] = 0.515f;
+		frame.parts[5].offset[0] = 0.475f;
+		frame.parts[5].offset[1] = 0.515f;
+		// frame 17
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[4].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[5].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[4].rotation[0] = 0.25f;
+		frame.parts[4].rotation[1] = 0.25f;
+		frame.parts[5].rotation[0] = 0.25f;
+		frame.parts[5].rotation[1] = 0.75f;
+		frame.parts[4].offset[0] = 0.525f;
+		frame.parts[4].offset[1] = 0.515f;
+		frame.parts[5].offset[0] = 0.475f;
+		frame.parts[5].offset[1] = 0.515f;
+		// frame 18
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[4].setScale(1.5f, 1.5f, 1.5f);
+		frame.parts[5].setScale(1.5f, 1.5f, 1.5f);
+		frame.parts[4].rotation[0] = 0.25f;
+		frame.parts[4].rotation[1] = 0.0f;
+		frame.parts[5].rotation[0] = 0.25f;
+		frame.parts[5].rotation[1] = 0.0f;
+		frame.parts[4].offset[0] = 0.525f;
+		frame.parts[4].offset[1] = 0.515f;
+		frame.parts[5].offset[0] = 0.475f;
+		frame.parts[5].offset[1] = 0.515f;
+		// frame 19
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[4].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[5].setScale(1.3f, 1.3f, 1.3f);
+		frame.parts[4].rotation[0] = 0.25f;
+		frame.parts[4].rotation[1] = 0.75f;
+		frame.parts[5].rotation[0] = 0.25f;
+		frame.parts[5].rotation[1] = 0.25f;
+		frame.parts[4].offset[0] = 0.525f;
+		frame.parts[4].offset[1] = 0.515f;
+		frame.parts[5].offset[0] = 0.475f;
+		frame.parts[5].offset[1] = 0.515f;
+		// frame 20
+		frame = (AnimationFrameConfig) anim.addFrame();
+		frame.speed = 10;
+		frame.parts[4].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[5].setScale(1.15f, 1.15f, 1.15f);
+		frame.parts[4].rotation[0] = 0.25f;
+		frame.parts[5].rotation[0] = 0.25f;
+		frame.parts[4].offset[0] = 0.525f;
+		frame.parts[4].offset[1] = 0.515f;
+		frame.parts[5].offset[0] = 0.475f;
+		frame.parts[5].offset[1] = 0.515f;
 	}
 	
 	public void save() {
@@ -163,6 +331,7 @@ implements IAnimationHandler {
 	public boolean removeAnimation(int animationId) {
 		if (this.animations.containsKey(animationId)) {
 			this.animations.remove(animationId);
+			this.save();
 			return true;
 		}
 		return false;
@@ -173,6 +342,7 @@ implements IAnimationHandler {
 		for (int id : this.animations.keySet()) {
 			if (this.animations.get(id).getName().equalsIgnoreCase(animationName)) {
 				this.animations.remove(id);
+				this.save();
 				return true;
 			}
 		}
@@ -184,6 +354,7 @@ implements IAnimationHandler {
 		AnimationConfig ac = new AnimationConfig(0);
 		int id = this.getUnusedId();
 		this.animations.put(id, ac);
+		this.save();
 		return this.animations.get(id);
 	}
 	

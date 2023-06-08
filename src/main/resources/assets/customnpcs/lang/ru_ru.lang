@@ -506,6 +506,7 @@ gui.button=Кнопка
 gui.buy=Купить
 gui.categories=Категории
 gui.clear=Очистить
+gui.client=Клиент
 gui.close=Закрыть
 gui.color=Цвет
 gui.constant=Постоянный
@@ -1278,7 +1279,9 @@ script.harvested=Заготовлено
 script.hooks=Скобки
 script.hover.forge=События Forge<br>§7Некоторые ядра серверов §8(как пример Magma)§7 способы объединять плагины и моды, из за чего некоторые события Forge недоступны!<br>§8Пример по языку §eERMAScript§8 для §fTickEvent.WorldTickEvent§8:<br>§9var§f api§9=§fJava§9.§ftype§9(§7"noppes.npcs.api.NpcAPI"§9).§fInstance§9();<br>§9function§f tickEventWorldTickEvent§9(§eevent§9) {<br>  §9var§f iWorld §9= §fapi§9.§fgetIWorld§9(§fevent§9.§fworld§9);<br>  §fiWorld§9.§fbroadcast§9(§7"Текущее время в мире ID["§9+§fiWorld§9.§fgetDimension§9().§fgetId§9()+§7"]: "§9+§fiWorld§9.§fgetTime§9());<br>§9}<br>§8Полный список доступных имён событий можно посмотреть через команду: §f/noppes script forgelist
 script.hover.players=События каждого Игрока<br>§7Список функций игрока:<br>§f%s<br>§8Пример по языку §eERMAScript§8:<br>§9function§f tick§9(§eevent§9) {<br>  §eevent§9.§fplayer§9.§fmessage§9(§7"Следующий Шаг"§9);<br>§9}
-script.hover.potion=События добавленых в игру Зелий<br>§6Для PRO§7, события при активации зелья на сущности<br>§7Список функций своих зелий:<br>§f%s<br>§8Пример по языку §eERMAScript для §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>  §9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7"potionexample"§9)) {<br>    §9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>    §eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>  §9}<br>§9}
+script.hover.potionscript.hover.potion=События добавленых в игру Зелий<br>§6Для PRO§7, события при активации зелья на сущности<br>§7Список функций своих зелий:<br>§f%s<br>§8Пример по языку §eERMAScript для §fIsReadyEvent§8:<br>§9function§f isReady§9(§eevent§9) {<br>  §9if (§eevent§9.§fpotion§9.§fgetCustomName§9().§fequals§9(§7"potionexample"§9)) {<br>    §9var §fi§9 = §eevent§9.§famplifier§9 == §60 §9? §620§9 :§6 30§9;<br>    §eevent§9.§fready§9 = (§eevent§9.§fduration§9 ==§f i§9);<br>  §9}<br>§9}
+script.hover.client=События, которые активны на клиенте каждого игрока<br>§6Для §9Mega§6PRO
+
 script.init=Внутри
 script.interact=Инициализация
 script.killed=Убит

@@ -1,5 +1,7 @@
 package noppes.npcs;
 
+import org.apache.commons.lang3.StringUtils;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -58,6 +60,7 @@ import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.ForgeScriptData;
@@ -122,24 +125,53 @@ public class EventHooks {
 	public static void onForgeEntityEvent(EntityEvent event) {
 		if (!ScriptController.Instance.forgeScripts.isEnabled()) { return; }
 		try { // Changed
-			IEntity<?> e = NpcAPI.Instance().getIEntity(event.getEntity());
-			onForgeEvent(new ForgeEvent.EntityEvent(event, e), (Event) event);
+			onForgeEvent(new ForgeEvent.EntityEvent(event, NpcAPI.Instance().getIEntity(event.getEntity())), (Event) event);
 		}
 		catch (Exception e) { }
 	}
 
 	public static void onForgeEvent(ForgeEvent ev, Event event) {
-		ForgeScriptData data = ScriptController.Instance.forgeScripts;
-		if (!data.isEnabled()) { return; }
-		if (!CustomNpcs.forgeEventNames.containsKey(event.getClass())) { return; }
-		String eventName = CustomNpcs.forgeEventNames.get(event.getClass());
-		try { // Changed
-			data.runScript(eventName, event);
-			if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
-			WrapperNpcAPI.EVENT_BUS.post((Event) ev);
-			if (event.isCancelable()) { event.setCanceled(ev.isCanceled()); }
+		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
+		String eventName;
+
+		if (handler.isEnabled()) {
+			if (!CustomNpcs.forgeEventNames.containsKey(event.getClass())) { return; }
+			eventName = CustomNpcs.forgeEventNames.get(event.getClass());
+//System.out.println("Common ForgeEvent: "+eventName);
+			try { // Changed
+				handler.runScript(eventName, event);
+				if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
+				WrapperNpcAPI.EVENT_BUS.post((Event) ev);
+				if (event.isCancelable()) { event.setCanceled(ev.isCanceled()); }
+			}
+			catch (Exception e) { }
 		}
-		catch (Exception e) { }
+		
+		if(handler.isClient()) {
+			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
+			if(!handlerClient.isClient()) { return; }
+			
+			if (handlerClient.isEnabled()) {
+				if (!CustomNpcs.forgeClientEventNames.containsKey(event.getClass())) {
+					eventName = event.getClass().getName();
+					int i = eventName.lastIndexOf(".");
+					eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
+					CustomNpcs.forgeClientEventNames.put(event.getClass(), eventName);
+				} else {
+					eventName = CustomNpcs.forgeClientEventNames.get(event.getClass());
+				}
+				if (eventName.isEmpty()) { return; }
+//System.out.println("Client ForgeEvent: "+eventName);
+				try { // Changed
+					handlerClient.runScript(eventName, event);
+					if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
+					WrapperNpcAPI.EVENT_BUS.post((Event) ev);
+					if (event.isCancelable()) { event.setCanceled(ev.isCanceled()); }
+				}
+				catch (Exception e) { }
+			}
+			return;
+		}
 	}
 
 	public static void onForgeInit(ForgeScriptData handler) {
@@ -153,10 +185,8 @@ public class EventHooks {
 			return;
 		}
 		try { // Changed
-			IWorld e = NpcAPI.Instance().getIWorld((WorldServer) event.getWorld());
-			onForgeEvent(new ForgeEvent.WorldEvent(event, e), (Event) event);
-		} catch (Exception e) {
-		}
+			onForgeEvent(new ForgeEvent.WorldEvent(event, NpcAPI.Instance().getIWorld((WorldServer) event.getWorld())), (Event) event);
+		} catch (Exception e) { }
 	}
 
 	public static void onGlobalFactionsLoaded(IFactionHandler handler) {
@@ -214,8 +244,7 @@ public class EventHooks {
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
-	public static boolean onNPCDialogOption(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog,
-			DialogOption option) {
+	public static boolean onNPCDialogOption(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog, DialogOption option) {
 		if (npc.script.isClient()) {
 			return false;
 		}

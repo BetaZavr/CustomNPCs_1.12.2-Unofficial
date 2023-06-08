@@ -1809,6 +1809,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		NBTTagCompound compound = new NBTTagCompound();
 		this.display.writeToNBT(compound);
 		this.animation.writeToNBT(compound);
+		this.advanced.writeToNBT(compound);
 		compound.setInteger("NPCLevel", this.stats.getLevel());
 		compound.setInteger("NPCRarity", this.stats.getRarity());
 		compound.setString("NPCRarityTitle", this.stats.getRarityTitle());
