@@ -25,12 +25,13 @@ implements LayerPreRender {
 	public void preRender(EntityCustomNpc player) {
 		this.model.bipedHeadwear.isHidden = (CustomNpcs.HeadWearType == 1);
 		//this.headwear.config = null;
-		this.npc  = player;
+		if (player!=null) { this.npc  = player; }
 	}
 
 	@Override
 	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		if (CustomNpcs.HeadWearType != 1) {
+		if (this.npc==null && super.npc!=null) { this.npc = super.npc; }
+		if (CustomNpcs.HeadWearType != 1 || this.npc==null) {
 			return;
 		}
 		if (this.npc.hurtTime <= 0 && this.npc.deathTime <= 0) {

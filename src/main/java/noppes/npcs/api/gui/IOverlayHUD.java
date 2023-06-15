@@ -38,8 +38,6 @@ public interface IOverlayHUD {
 
 	double[] getWindowSize();
 
-	String getCurrentLanguage();
-
 	ICustomGuiComponent getComponent(int orientationType, int componentID);
 
 	ICustomGuiComponent[] getComponents(int orientationType);

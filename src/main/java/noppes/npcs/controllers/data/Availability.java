@@ -266,7 +266,7 @@ implements ICompatibilty, IAvailability {
 		// New
 		if (compound.hasKey("AvailabilityDayTime", 11)) {
 			this.daytime = compound.getIntArray("AvailabilityDayTime");
-		} else { // OLD versions
+		} else if (CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
 			int v = compound.getInteger("AvailabilityDayTime");
 			if (v<0) { v *= -1; }
 			if (v>=EnumDayTime.values().length) { v %= EnumDayTime.values().length; }
@@ -297,7 +297,7 @@ implements ICompatibilty, IAvailability {
 				if (v>=EnumAvailabilityDialog.values().length) { v %= EnumAvailabilityDialog.values().length; }
 				this.dialogues.put(nbtDialog.getInteger("ID"), EnumAvailabilityDialog.values()[v]);
 			}
-		} else if (compound.hasKey("AvailabilityDialogId", 3)) { // OLD versions
+		} else if (compound.hasKey("AvailabilityDialogId", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
 			for (int i = 0; i < 4; i++) {
 				String key = i == 0 ? "" : "" + (i+1);
 				if (compound.getInteger("AvailabilityDialog" + key + "Id") > 0) {
@@ -318,7 +318,7 @@ implements ICompatibilty, IAvailability {
 				if (v>=EnumAvailabilityQuest.values().length) { v %= EnumAvailabilityQuest.values().length; }
 				this.quests.put(nbtQuest.getInteger("ID"), EnumAvailabilityQuest.values()[v]);
 			}
-		} else if (compound.hasKey("AvailabilityQuestId", 3)) { // OLD versions
+		} else if (compound.hasKey("AvailabilityQuestId", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
 			for (int i = 0; i < 4; i++) {
 				String key = i == 0 ? "" : "" + (i+1);
 				if (compound.getInteger("AvailabilityQuest" + key + "Id") > 0) {
@@ -343,7 +343,7 @@ implements ICompatibilty, IAvailability {
 				this.factions.put(nbtFaction.getInteger("ID"),
 						new AvailabilityFactionData(EnumAvailabilityFactionType.values()[g], EnumAvailabilityFaction.values()[v]));
 			}
-		} else if (compound.hasKey("AvailabilityFactionId", 3)) { // OLD versions
+		} else if (compound.hasKey("AvailabilityFactionId", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
 			for (int i = 0; i < 4; i++) {
 				String key = i == 0 ? "" : "2";
 				if (compound.getInteger("AvailabilityFaction" + key + "Id") > 0) {
@@ -374,7 +374,7 @@ implements ICompatibilty, IAvailability {
 								nbtScoreboard.getInteger("Value")));
 				this.initScore(nbtScoreboard.getString("Objective"));
 			}
-		} else if (compound.hasKey("AvailabilityScoreboardObjective", 8)) { // OLD versions
+		} else if (compound.hasKey("AvailabilityScoreboardObjective", 8) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
 			for (int i = 0; i < 2; i++) {
 				String key = i == 0 ? "" : "2";
 				if (!compound.getString("AvailabilityScoreboard" + key + "Objective").isEmpty()) {

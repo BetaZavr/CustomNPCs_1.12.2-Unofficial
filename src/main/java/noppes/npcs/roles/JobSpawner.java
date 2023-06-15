@@ -21,6 +21,7 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumDifficulty;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntityLivingBase;
@@ -491,7 +492,7 @@ implements IJobSpawner {
 		this.id = compound.getString("SpawnerId");
 		this.dataEntitys = new SpawnNPCData[2][];
 		this.offset = new int[2][];
-		if (compound.hasKey("SpawnerDoesntDie", 1)) { // OLD
+		if (compound.hasKey("SpawnerDoesntDie", 1) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
 			this.cooldownSet = 3000L;
 			this.exact = false;
 			this.resetUpdate = true;

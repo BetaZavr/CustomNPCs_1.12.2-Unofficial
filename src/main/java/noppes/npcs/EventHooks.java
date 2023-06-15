@@ -34,6 +34,7 @@ import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.HandlerEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
+import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.PlayerEvent.PlayerSound;
 import noppes.npcs.api.event.ProjectileEvent;
@@ -134,10 +135,9 @@ public class EventHooks {
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
 
-		if (handler.isEnabled()) {
-			if (!CustomNpcs.forgeEventNames.containsKey(event.getClass())) { return; }
+		if (handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.getClass())) {
 			eventName = CustomNpcs.forgeEventNames.get(event.getClass());
-//System.out.println("Common ForgeEvent: "+eventName);
+			//System.out.println("Common ForgeEvent: "+eventName);
 			try { // Changed
 				handler.runScript(eventName, event);
 				if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
@@ -161,7 +161,6 @@ public class EventHooks {
 					eventName = CustomNpcs.forgeClientEventNames.get(event.getClass());
 				}
 				if (eventName.isEmpty()) { return; }
-//System.out.println("Client ForgeEvent: "+eventName);
 				try { // Changed
 					handlerClient.runScript(eventName, event);
 					if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
@@ -795,6 +794,15 @@ public class EventHooks {
 
 	public static void onPlayerStopSound(PlayerScriptData handler, PlayerSound event) {
 		handler.runScript(EnumScriptType.SOUND_STOP, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
+
+	public static void onPackageReceived(PackageReceived event) {
+		IScriptHandler handler;
+		if (event.side) { handler = ScriptController.Instance.forgeScripts; }
+		else { handler = ScriptController.Instance.clientScripts; }
+		if (!handler.getEnabled()) { return; }
+		handler.runScript(EnumScriptType.PACKEGE_RECEIVED, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 	

@@ -71,8 +71,14 @@ implements IScriptHandler {
 
 	@Override
 	public List<ScriptContainer> getScripts() {
-		if (this.script==null) { this.script = new ScriptContainer(this); }
+		if (this.script==null) { this.createScript(); }
 		return Lists.<ScriptContainer>newArrayList(this.script);
+	}
+
+	private void createScript() {
+		if (this.script==null) {
+			this.script = new ScriptContainer(this);
+		}
 	}
 
 	@Override
@@ -90,7 +96,7 @@ implements IScriptHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		if (this.script==null) { this.script = new ScriptContainer(this); }
+		if (this.script==null) { this.createScript(); }
 		this.script.readFromNBT(compound.getCompoundTag("Scripts"));
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
@@ -109,7 +115,7 @@ implements IScriptHandler {
 			if (ScriptController.Instance.lastLoaded > this.lastInited) {
 				this.lastInited = ScriptController.Instance.lastLoaded;
 			}
-			if (this.script==null) { this.script = new ScriptContainer(this); }
+			if (this.script==null) { this.createScript(); }
 			this.script.run(type, event);
 		});
 	}
@@ -125,7 +131,7 @@ implements IScriptHandler {
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		if (this.script==null) { this.script = new ScriptContainer(this); }
+		if (this.script==null) { this.createScript(); }
 		compound.setTag("Scripts", this.script.writeToNBT(new NBTTagCompound()));
 		compound.setString("ScriptLanguage", this.scriptLanguage);
 		compound.setBoolean("ScriptEnabled", this.enabled);

@@ -91,21 +91,6 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 		label.color = 0xFF000000;
 		this.addLabel(label);
 		this.addLabel(new GuiNpcLabel(7, new TextComponentTranslation("dialog.dialogs").getFormattedText()+":", this.guiLeft + 5, this.guiTop + 4));
-		
-		/* OLD
-		for (int i = 0; i < 12; ++i) {
-			int offset = (i >= 6) ? 200 : 0;
-			this.addButton(
-					new GuiNpcButton(i + 20, this.guiLeft + 20 + offset, this.guiTop + 13 + i % 6 * 22, 20, 20, "X"));
-			this.addLabel(new GuiNpcLabel(i, "" + i, this.guiLeft + 6 + offset, this.guiTop + 18 + i % 6 * 22));
-			String title = "dialog.selectoption";
-			if (this.data.containsKey(i)) {
-				title = this.data.get(i).title;
-			}
-			this.addButton(
-					new GuiNpcButton(i, this.guiLeft + 44 + offset, this.guiTop + 13 + i % 6 * 22, 140, 20, title));
-		}
-		*/
 	}
 
 	@Override

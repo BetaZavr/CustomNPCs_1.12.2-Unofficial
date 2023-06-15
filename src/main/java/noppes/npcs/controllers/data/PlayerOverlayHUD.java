@@ -42,7 +42,6 @@ implements IOverlayHUD {
 	private double[] windowSize;
 	public List<Integer> keyPress;
 	public List<Integer> mousePress;
-	private String currentLanguage;
 	private int offsetType;
 	public int questID;
 	
@@ -66,7 +65,6 @@ implements IOverlayHUD {
 		this.guiComponents = Maps.<Integer, TreeMap<Integer, IGuiComponent>>newTreeMap();
 		this.guiSlots = Maps.<Integer, TreeMap<Integer, IItemSlot>>newTreeMap();
 		this.slots = Maps.<Integer, List<IItemSlot>>newTreeMap();
-		this.currentLanguage = "en_us";
 		this.update = false;
 		this.player = null;
 		this.offsetType = 0;
@@ -86,7 +84,6 @@ implements IOverlayHUD {
 		hudNBT.setIntArray("KeyPress", this.getKeyPressed());
 		hudNBT.setIntArray("MousePress", this.getMousePressed());
 		hudNBT.setInteger("QuestID", this.questID);
-		hudNBT.setString("CurrentLanguage", this.currentLanguage);
 		hudNBT.setTag("CompassData", this.compassData.getNbt());
 		
 		list = new NBTTagList();
@@ -127,7 +124,6 @@ implements IOverlayHUD {
 		for (int i = 0; i < 2 && i < hudNBT.getTagList("WindowSize", 6).tagCount(); i++) {
 			this.windowSize[i] = hudNBT.getTagList("WindowSize", 6).getDoubleAt(i);
 		}
-		this.currentLanguage = hudNBT.getString("CurrentLanguage");
 		int[] iK = hudNBT.getIntArray("KeyPress");
 		int[] iM = hudNBT.getIntArray("MousePress");
 		this.keyPress.clear();
@@ -290,11 +286,6 @@ implements IOverlayHUD {
 			i++;
 		}
 		return ids;
-	}
-
-	@Override
-	public String getCurrentLanguage() {
-		return this.currentLanguage;
 	}
 
 	@Override

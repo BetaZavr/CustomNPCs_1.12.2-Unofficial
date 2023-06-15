@@ -2,6 +2,7 @@ package noppes.npcs.entity.data;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.entity.data.INPCAdvanced;
 import noppes.npcs.constants.EnumNpcJob;
@@ -145,8 +146,8 @@ implements INPCAdvanced {
 	public void setJob(int i) {
 		i %= EnumNpcJob.values().length;
 		if (i < EnumNpcJob.values().length && !EnumNpcJob.values()[i].isClass(this.jobInterface)) {
-			if (i==9) { i = 0; }
-			else if (i>9) { i--; }
+			//if (i==9) { i = 0; } // chunkloader
+			//else if (i>9) { i--; } // builder or farmer
 			EnumNpcJob.values()[i].setToNpc(this.npc);
 		}
 		if (!this.npc.world.isRemote) { this.jobInterface.reset(); }
@@ -188,7 +189,6 @@ implements INPCAdvanced {
 		}
 	}
 
-
 	public void readToNBT(NBTTagCompound compound) {
 		if (!compound.hasKey("NpcInteractLines", 10)) { return; }
 		this.interactLines.readNBT(compound.getCompoundTag("NpcInteractLines"));
@@ -211,9 +211,11 @@ implements INPCAdvanced {
 		this.factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
 		this.scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
 		// New
-		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3)) { // OLD
+		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
 			this.setRole(compound.getInteger("Role"));
 			this.setJob(compound.getInteger("NpcJob"));
+			this.roleInterface.readFromNBT(compound);
+			this.jobInterface.readFromNBT(compound);
 		}
 		if (compound.hasKey("Role", 10) && compound.hasKey("Job", 10)) { // New
 			this.setRole(compound.getCompoundTag("Role").getInteger("Type"));
@@ -227,8 +229,8 @@ implements INPCAdvanced {
 		}
 		if (compound.hasKey("NPCDialogOptions", 11)) {
 			this.npc.dialogs = compound.getIntArray("NPCDialogOptions"); // new
-		} else if (compound.hasKey("NPCDialogOptions", 9)) {
-			// Old
+		}
+		else if (compound.hasKey("NPCDialogOptions", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // Old
 			this.npc.dialogs = new int[compound.getTagList("NPCDialogOptions", 10).tagCount()];
 			for (int i = 0; i < compound.getTagList("NPCDialogOptions", 10).tagCount(); ++i) {
 				NBTTagCompound nbttagcompound = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i);

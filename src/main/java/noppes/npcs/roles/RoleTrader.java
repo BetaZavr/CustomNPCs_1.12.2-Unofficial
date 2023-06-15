@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
@@ -136,7 +137,7 @@ extends RoleInterface {
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (compound.hasKey("MarketID", 3)) { this.marcet = compound.getInteger("MarketID"); }
-		else { this.marcet = MarcetController.getInstance().loadOld(compound); } // Old
+		else if (CustomNpcs.FixUpdateFromPre_1_12){ this.marcet = MarcetController.getInstance().loadOld(compound); } // Old
 	}
 	
 	@Override

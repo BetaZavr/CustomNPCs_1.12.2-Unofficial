@@ -191,29 +191,6 @@ public class ClientTickHandler {
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (entity instanceof EntityPlayerMP || !CustomNpcs.VerboseDebug) { return; }
-		/*List<String> list = Lists.newArrayList();
-		for (EnumAnimationType eat : EnumAnimationType.values()) { list.add(eat.name()); }
-		Collections.sort(list);
-		System.out.println("list: "+list);*/
-		//Minecraft mc = Minecraft.getMinecraft();
-		/*File file = CustomNpcs.getWorldSaveDirectory().getParentFile().getParentFile();
-		File level = new File(file, "Regression");
-		//File level = new File(file, "New World");
-		file = new File(file, "level.json");
-		level = new File(level, "level.dat");
-		System.out.println("file: "+file);
-		System.out.println("level: "+level);
-		try {
-			// Load
-			//NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(level));
-			//NBTJsonUtil.SaveFile(file, nbt);
-			// Save
-			NBTTagCompound nbt = NBTJsonUtil.LoadFile(file);
-			CompressedStreamTools.writeCompressed(nbt, (OutputStream) new FileOutputStream(level));
-			System.out.println("Saved... ");
-		}
-		catch (IOException | JsonException e) { e.printStackTrace(); }*/
-		
 		
 	}
 

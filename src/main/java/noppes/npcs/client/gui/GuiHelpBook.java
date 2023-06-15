@@ -7,12 +7,13 @@ import java.util.TreeMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiMenuLeftButton;
 import noppes.npcs.client.gui.util.GuiMenuTopButton;
@@ -22,6 +23,7 @@ import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.util.MetodData;
 import noppes.npcs.constants.EnumInterfaceData;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiHelpBook
 extends GuiNPCInterface
@@ -41,9 +43,10 @@ implements ICustomScrollListener {
 		this.xSize = 300;
 		this.ySize = 174;
 		this.closeOnEsc = true;
-		if (GuiHelpBook.map.isEmpty() || !this.curentLang.equals(ClientProxy.playerData.hud.getCurrentLanguage())) {
+		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class);
+		if (GuiHelpBook.map.isEmpty() || !this.curentLang.equals(currentLanguage)) {
 			String wip = new TextComponentTranslation("gui.wip").getFormattedText();
-			this.curentLang = ClientProxy.playerData.hud.getCurrentLanguage();
+			this.curentLang = currentLanguage;
 			GuiHelpBook.map.clear();
 			for (int i=0; i< this.arr.length; i++) {
 				if (this.arr[i].isEmpty()) {

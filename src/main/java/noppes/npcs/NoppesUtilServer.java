@@ -535,19 +535,6 @@ public class NoppesUtilServer {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI_DATA, compound);
 			slot++;
 		}
-		/* OLD
-		for (int pos : npc.dialogs.keySet()) {
-			DialogOption option = npc.dialogs.get(pos);
-			if (option != null) {
-				if (!option.hasDialog()) {
-					continue;
-				}
-				NBTTagCompound compound = option.writeNBT();
-				compound.setInteger("Position", pos);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI_DATA, compound);
-			}
-		}
-		*/
 	}
 	
 	public static void moveNpcDialogs(EntityPlayer player, int slot, boolean isUp) {

@@ -402,7 +402,7 @@ INPCInventory {
 		this.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
 		this.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
 		Map<Integer, DropSet> drs = new HashMap<Integer, DropSet>();
-		if (compound.hasKey("DropChance", 9)) { // if old items
+		if (compound.hasKey("DropChance", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // if old items
 			Map<Integer, IItemStack> d_old = NBTTags.getIItemStackMap(compound.getTagList("NpcInv", 10));
 			Map<Integer, Integer> dc_old = NBTTags.getIntegerIntegerMap(compound.getTagList("DropChance", 10));
 			int i = 0;

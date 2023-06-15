@@ -144,8 +144,10 @@ extends IEntityLivingBase<T> {
 	
 	void completeQuest(int id);
 
-	IOverlayHUD getIOverlayHUD();
+	IOverlayHUD getOverlayHUD();
 
 	void trigger(int id, Object ... arguments);
+
+	String getLanguage();
 	
 }

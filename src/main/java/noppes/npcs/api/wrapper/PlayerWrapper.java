@@ -64,6 +64,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ValueUtil;
 
 @SuppressWarnings("rawtypes")
@@ -246,7 +247,7 @@ implements IPlayer {
 	}
 
 	@Override
-	public IOverlayHUD getIOverlayHUD() {
+	public IOverlayHUD getOverlayHUD() {
 		return (IOverlayHUD) this.getData().hud;
 	}
 	
@@ -729,5 +730,8 @@ implements IPlayer {
 		if (quest==null) { return false; }
 		return quest.questInterface.isCompleted(this.getMCEntity());
 	}
+	
+	@Override
+	public String getLanguage() { return ObfuscationHelper.getValue(EntityPlayerMP.class, this.entity, String.class); }
 	
 }

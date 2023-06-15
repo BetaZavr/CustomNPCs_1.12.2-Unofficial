@@ -70,6 +70,7 @@ import noppes.npcs.items.ItemScripted;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptPlayerEventHandler {
+	
 	public class ForgeEventHandler {
 
 		@SubscribeEvent
@@ -650,7 +651,7 @@ public class ScriptPlayerEventHandler {
 						}
 						// Put Name
 						String eventName = c.getName();
-						if (!isClient) { isClient = eventName.toLowerCase().indexOf("client")!=-1; }
+						if (!isClient) { isClient = eventName.toLowerCase().indexOf("client")!=-1 || eventName.toLowerCase().indexOf("render")!=-1; }
 						int i = eventName.lastIndexOf(".");
 						eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }

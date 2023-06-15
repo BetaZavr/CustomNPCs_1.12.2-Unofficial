@@ -635,8 +635,10 @@ public class PacketHandlerServer {
 				if (name.equals("DataEntitysWhenAlive") || name.equals("DataEntitysWhenDead")) { continue; }
 				original.setTag(name, compound.getTag(name));
 			}
-			npc.advanced.jobInterface.readFromNBT(original);
-			npc.updateClient = true;
+			if (original.hasKey("Type", 3)) {
+				npc.advanced.jobInterface.readFromNBT(original);
+				npc.updateClient = true;
+			}
 		}
 		else if (type == EnumPacketServer.JobClear) {
 			if (!(npc.advanced.jobInterface instanceof JobSpawner)) { return; }
@@ -719,8 +721,11 @@ public class PacketHandlerServer {
 			compound.setBoolean("SetDie", isDead);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.RoleSave) {
-			npc.advanced.roleInterface.readFromNBT(Server.readNBT(buffer));
-			npc.updateClient = true;
+			NBTTagCompound compound = Server.readNBT(buffer);
+			if (compound.hasKey("Type", 3)) {
+				npc.advanced.roleInterface.readFromNBT(compound);
+				npc.updateClient = true;
+			}
 		} else if (type == EnumPacketServer.RoleGet) {
 			if (npc.advanced.roleInterface == null) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());

@@ -56,7 +56,7 @@ import noppes.npcs.constants.EnumScriptType;
 public class ScriptContainer {
 
 	public static ScriptContainer Current;
-	private static HashMap<String, Object> Data = Maps.<String, Object>newHashMap();
+	public static HashMap<String, Object> Data = Maps.<String, Object>newHashMap();
 	private static Method luaCall;
 	private static Method luaCoerce;
 	public TreeMap<Long, String> console;
@@ -286,22 +286,6 @@ public class ScriptContainer {
 			}
 		}
 	}
-
-	/*
-	 * Old private class Dump implements Function<Object, String> {
-	 * @Override 
-	 * public String apply(Object o) { if (o == null) { return "null"; }
-	 * StringBuilder builder = new StringBuilder();
-	 * builder.append(o + ":" + NoppesStringUtils.newLine());
-	 * for (Field field : o.getClass().getFields()) {
-	 * try { builder.append(field.getName() + " - " +
-	 * field.getType().getSimpleName() + ", "); } catch (IllegalArgumentException
-	 * ex) {} } for (Method method : o.getClass().getMethods()) { try { String s =
-	 * method.getName() + "("; for (Class<?> c : method.getParameterTypes()) { s = s
-	 * + c.getSimpleName() + ", "; } if (s.endsWith(", ")) { s = s.substring(0,
-	 * s.length() - 2); } builder.append(s + "), "); } catch
-	 * (IllegalArgumentException ex2) {} } return builder.toString(); } }
-	 */
 
 	public void setEngine(String scriptLanguage) {
 		this.engine = ScriptController.Instance.getEngineByName(scriptLanguage);

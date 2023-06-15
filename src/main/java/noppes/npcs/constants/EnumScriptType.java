@@ -68,7 +68,8 @@ public enum EnumScriptType
 	POTION_END("endEffect"), // New
 	SCRIPT_TRIGGER("trigger"), // New
 	SOUND_PLAY("soundPlayed"), // New
-	SOUND_STOP("soundStoped"); // New	
+	SOUND_STOP("soundStoped"), // New	
+	PACKEGE_RECEIVED("packageReceived");// New	
 	
 	public String function;
 	

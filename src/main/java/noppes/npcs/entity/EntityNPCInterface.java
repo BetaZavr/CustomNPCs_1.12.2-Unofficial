@@ -1295,8 +1295,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.script.readFromNBT(compound);
 		this.timers.readFromNBT(compound);
 		this.advanced.readToNBT(compound);
-		this.advanced.roleInterface.readFromNBT(compound);
-		this.advanced.jobInterface.readFromNBT(compound);
+		//this.advanced.roleInterface.readFromNBT(compound);
+		//this.advanced.jobInterface.readFromNBT(compound);
 		this.animation.readFromNBT(compound);
 		this.inventory.readEntityFromNBT(compound);
 		this.transform.readToNBT(compound);
@@ -1782,6 +1782,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.ais.bodyOffsetZ = compound.getFloat("PositionZOffset");
 		this.inventory.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
 		this.inventory.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
+		if (this.advanced.jobInterface instanceof JobBard) {
+			NBTTagCompound bard = compound.getCompoundTag("Bard");
+			this.advanced.jobInterface.readFromNBT(bard);
+		}
+		if (this.advanced.jobInterface instanceof JobFollower) {
+			NBTTagCompound follower = compound.getCompoundTag("Companion");
+			this.advanced.jobInterface.readFromNBT(follower);
+		}
 		if (this instanceof EntityCustomNpc) {
 			((EntityCustomNpc) this).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
 		}
@@ -1825,6 +1833,16 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setFloat("PositionXOffset", this.ais.bodyOffsetX);
 		compound.setFloat("PositionYOffset", this.ais.bodyOffsetY);
 		compound.setFloat("PositionZOffset", this.ais.bodyOffsetZ);
+		if (this.advanced.jobInterface instanceof JobBard) {
+			NBTTagCompound bard = compound.getCompoundTag("Bard");
+			this.advanced.jobInterface.writeToNBT(bard);
+			compound.setTag("Bard", bard);
+		}
+		if (this.advanced.jobInterface instanceof JobFollower) {
+			NBTTagCompound follower = compound.getCompoundTag("Companion");
+			this.advanced.jobInterface.writeToNBT(follower);
+			compound.setTag("Companion", follower);
+		}
 		if (this instanceof EntityCustomNpc) {
 			compound.setTag("ModelData", ((EntityCustomNpc) this).modelData.writeToNBT());
 		}

@@ -2508,11 +2508,12 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "completeQuest", "method.iplayer.completequest",
 				new ParameterData(int.class, "id", "parameter.quest.id")
 			),
-			new MetodData(IOverlayHUD.class, "getIOverlayHUD", "method.iplayer.gethud"),
+			new MetodData(IOverlayHUD.class, "getOverlayHUD", "method.iplayer.gethud"),
 			new MetodData(void.class, "trigger", "method.trigger",
 				new ParameterData(int.class, "id", "parameter.trigger.id"),
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
-			)
+			),
+			new MetodData(String.class, "getLanguage", "method.iplayer.getlanguage")
 		)
 	),
 	IProjectile(new InterfaseData(IProjectile.class, IThrowable.class,
@@ -2828,7 +2829,6 @@ public enum EnumInterfaceData {
 				new ParameterData(int[].class, "key", "parameter.keyboardkey")
 			),
 			new MetodData(double[].class, "getWindowSize", "method.ihud.getwindowsize"),
-			new MetodData(String.class, "getCurrentLanguage", "method.ihud.getcurrentlanguage"),
 			new MetodData(ICustomGuiComponent.class, "getComponent", "method.ihud.getcomponent",
 				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
 				new ParameterData(int.class, "id", "parameter.component.id")

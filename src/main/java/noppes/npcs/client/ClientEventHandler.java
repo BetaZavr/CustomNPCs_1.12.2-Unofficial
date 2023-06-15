@@ -51,9 +51,11 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomPacketHandler;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileBuilder;
@@ -332,6 +334,11 @@ public class ClientEventHandler {
 			}
 		}
 		CustomNpcs.debugData.endDebug("Client", event.getEntity(), "ClientEventHandler_postRenderLivingEvent");
+	}
+	
+	@SubscribeEvent
+    public void joinServer(ClientConnectedToServerEvent event) {
+		event.getManager().channel().pipeline().addBefore("fml:packet_handler", CustomNpcs.MODID + ":custom_packet_handler_client", new CustomPacketHandler());
 	}
 
 	@SubscribeEvent
