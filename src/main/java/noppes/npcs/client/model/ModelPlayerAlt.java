@@ -219,17 +219,17 @@ extends ModelPlayer {
 			if (anim==null || (anim.type.isCyclical() && anim.type != EnumAnimationType.dies)) {
 				boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
 				if (npc.isInWater() || npc.isInLava()) {
-					if (isNavigate && anim==null || anim.type!=EnumAnimationType.waterwalk) {
+					if (isNavigate && (anim==null || anim.type!=EnumAnimationType.waterwalk)) {
 						anim = npc.animation.getActiveAnimation(EnumAnimationType.waterwalk);
-					} else if (!isNavigate && anim==null || anim.type!=EnumAnimationType.waterstand) {
+					} else if (!isNavigate && (anim==null || anim.type!=EnumAnimationType.waterstand)) {
 						anim = npc.animation.getActiveAnimation(EnumAnimationType.waterstand);
 					}
 				}
 				else {
 					if (!npc.onGround && npc.ais.getNavigationType()==1) {
-						if (isNavigate && anim==null || anim.type!=EnumAnimationType.flywalk) {
+						if (isNavigate && (anim==null || anim.type!=EnumAnimationType.flywalk)) {
 							anim = npc.animation.getActiveAnimation(EnumAnimationType.flywalk);
-						} else if (!isNavigate && anim==null || anim.type!=EnumAnimationType.flystand) {
+						} else if (!isNavigate && (anim==null || anim.type!=EnumAnimationType.flystand)) {
 							anim = npc.animation.getActiveAnimation(EnumAnimationType.flystand);
 						}
 					} else {

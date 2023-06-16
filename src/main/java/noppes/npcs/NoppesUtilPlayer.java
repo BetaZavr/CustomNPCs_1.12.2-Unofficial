@@ -273,7 +273,7 @@ public class NoppesUtilPlayer {
 		}
 		DialogOption option = dialog.options.get(optionId);
 		if (option == null || EventHooks.onNPCDialogOption(npc, player, dialog, option)
-				|| (option.optionType == 1 && (!option.isAvailable(player) || !option.hasDialog()))
+				|| (option.optionType == 1 && (!option.isAvailable(player) || !option.hasDialogs()))
 				|| option.optionType == 2 || option.optionType == 0) {
 			closeDialog(player, npc, true);
 			return;
@@ -289,7 +289,7 @@ public class NoppesUtilPlayer {
 			}
 		} else if (option.optionType == 1) {
 			closeDialog(player, npc, false);
-			NoppesUtilServer.openDialog(player, npc, option.getDialog());
+			NoppesUtilServer.openDialog(player, npc, option.getDialog(player));
 		} else if (option.optionType == 4) {
 			closeDialog(player, npc, true);
 			NoppesUtilServer.runCommand(npc, npc.getName(), option.command, player);

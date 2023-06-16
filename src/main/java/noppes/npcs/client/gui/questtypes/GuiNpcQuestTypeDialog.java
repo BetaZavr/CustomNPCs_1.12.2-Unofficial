@@ -72,7 +72,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 				break;
 			}
 			case 1: {
-				this.setSubGui(new GuiDialogSelection(this.task.getTargetID()));
+				this.setSubGui(new GuiDialogSelection(this.task.getTargetID(), 0));
 				break;
 			}
 			case 2: {

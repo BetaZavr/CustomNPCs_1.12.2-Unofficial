@@ -3,10 +3,12 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,16 +30,16 @@ public class QuestController
 implements IQuestHandler {
 	
 	public static QuestController instance = new QuestController();
-	public HashMap<Integer, QuestCategory> categories;
-	public HashMap<Integer, QuestCategory> categoriesSync;
+	public final TreeMap<Integer, QuestCategory> categories;
+	public final TreeMap<Integer, QuestCategory> categoriesSync;
+	public final TreeMap<Integer, Quest> quests;
 	private int lastUsedCatID;
 	private int lastUsedQuestID;
-	public HashMap<Integer, Quest> quests;
 
 	public QuestController() {
-		this.categoriesSync = new HashMap<Integer, QuestCategory>();
-		this.categories = new HashMap<Integer, QuestCategory>();
-		this.quests = new HashMap<Integer, Quest>();
+		this.categoriesSync = Maps.<Integer, QuestCategory>newTreeMap();
+		this.categories = Maps.<Integer, QuestCategory>newTreeMap();
+		this.quests = Maps.<Integer, Quest>newTreeMap();
 		this.lastUsedCatID = 0;
 		this.lastUsedQuestID = 0;
 		QuestController.instance = this;
@@ -204,7 +206,8 @@ implements IQuestHandler {
 			while (this.containsCategoryName(category)) { category.title += "_"; }
 			if (newdir.exists()) { return; }
 			if (!olddir.renameTo(newdir)) { return; }
-			category.quests = currentCategory.quests;
+			category.quests.clear();
+			category.quests.putAll(currentCategory.quests);
 		} else {
 			if (category.id < 0) {
 				++this.lastUsedCatID;
@@ -243,8 +246,7 @@ implements IQuestHandler {
 				file2.delete();
 			}
 			file.renameTo(file2);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 2, quest.writeToNBT(new NBTTagCompound()),
-					category.id);
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 2, quest.writeToNBT(new NBTTagCompound()), category.id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

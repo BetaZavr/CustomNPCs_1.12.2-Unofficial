@@ -1,8 +1,10 @@
 package noppes.npcs.controllers.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -13,13 +15,13 @@ public class QuestCategory
 implements IQuestCategory {
 	
 	public int id;
-	public HashMap<Integer, Quest> quests;
+	public final TreeMap<Integer, Quest> quests;
 	public String title;
 
 	public QuestCategory() {
 		this.id = -1;
 		this.title = "";
-		this.quests = new HashMap<Integer, Quest>();
+		this.quests = Maps.<Integer, Quest>newTreeMap();
 	}
 
 	@Override

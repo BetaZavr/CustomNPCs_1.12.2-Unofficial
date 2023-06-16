@@ -226,8 +226,7 @@ extends PacketHandlerServer {
 				}
 				for (Map.Entry<Integer, String> entry : ItemScripted.Resources.entrySet()) {
 					ModelResourceLocation mrl = new ModelResourceLocation((String) entry.getValue(), "inventory");
-					Minecraft.getMinecraft().getRenderItem().getItemModelMesher()
-							.register((Item) CustomItems.scripted_item, entry.getKey(), mrl);
+					Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register((Item) CustomItems.scripted_item, entry.getKey(), mrl);
 					ModelLoader.setCustomModelResourceLocation((Item) CustomItems.scripted_item, entry.getKey(), mrl);
 				}
 			}

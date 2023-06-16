@@ -271,6 +271,7 @@ public class NoppesUtilServer {
 	}
 
 	public static void openDialog(EntityPlayer player, EntityNPCInterface npc, Dialog dia) {
+		if (dia==null) { return; }
 		Dialog dialog = dia.copy(player);
 		PlayerData playerdata = PlayerData.get(player);
 		if (EventHooks.onNPCDialog(npc, player, dialog)) {

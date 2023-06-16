@@ -34,6 +34,7 @@ import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -156,9 +157,18 @@ implements IDimensionHandler
 		EnumDifficulty difficulty = mcServer.getEntityWorld().getDifficulty();
 		WorldServer world = (WorldServer) (new WorldCustom(worldInfo, mcServer, savehandler, dimensionID, overworld, mcServer.profiler).init());
 		world.addEventListener(new ServerWorldEventHandler(mcServer, world));
-		MinecraftForge.EVENT_BUS.post(new WorldEvent.Load(world));
-		if (!mcServer.isSinglePlayer()) { world.getWorldInfo().setGameType(mcServer.getGameType()); }
-		mcServer.setDifficultyForAllWorlds(difficulty);
+		Load load = null;
+		try {
+			load = new WorldEvent.Load(world);
+			MinecraftForge.EVENT_BUS.post(load);
+		}
+		catch (Exception e) {
+			LogWriter.error("Failed to run event World$Load. World: " + world + ". Load: " + load, e);
+		}
+		finally {
+			if (!mcServer.isSinglePlayer()) { world.getWorldInfo().setGameType(mcServer.getGameType()); }
+			mcServer.setDifficultyForAllWorlds(difficulty);
+		}
 	}
 
 	public void deleteDimension(ICommandSender sender, int dimensionID) {

@@ -65,10 +65,7 @@ implements ICompatibilty, IDialog {
 		for (int slot : this.options.keySet()) {
 			DialogOption option = this.options.get(slot);
 			if (option.optionType == 1) {
-				if (!option.hasDialog()) {
-					continue;
-				}
-				if (!option.isAvailable(player)) {
+				if (!option.hasDialogs() || !option.isAvailable(player)) {
 					continue;
 				}
 			}
@@ -137,7 +134,7 @@ implements ICompatibilty, IDialog {
 
 	public boolean hasDialogs(EntityPlayer player) {
 		for (DialogOption option : this.options.values()) {
-			if (option != null && option.optionType == 1 && option.hasDialog() && option.isAvailable(player)) {
+			if (option != null && option.optionType == 1 && option.hasDialogs() && option.isAvailable(player)) {
 				return true;
 			}
 		}
@@ -264,6 +261,11 @@ implements ICompatibilty, IDialog {
 		compound.setInteger("ModRev", this.version);
 		compound.setInteger("ResponseDelay", this.delay);
 		return compound;
+	}
+
+	public String getKey() {
+		char c = ((char) 167);
+		return c + "7ID:" + this.id + c + "8 " + this.category.title + "/" + c + "r" + this.title;
 	}
 
 }

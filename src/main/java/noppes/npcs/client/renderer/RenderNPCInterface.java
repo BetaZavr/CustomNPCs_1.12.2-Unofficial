@@ -223,7 +223,8 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
-		super.renderModel(npc, par2, par3, par4, par5, par6, par7);
+		try { super.renderModel(npc, par2, par3, par4, par5, par6, par7); }
+		catch (Exception e) { }
 		if (!npc.display.getOverlayTexture().isEmpty()) {
 			GlStateManager.depthFunc(515);
 			if (npc.textureGlowLocation == null) {

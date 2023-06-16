@@ -95,7 +95,7 @@ public class CommandNoppes extends CommandBase {
 				useArgs = m.getAnnotation(CommandNoppesBase.SubCommand.class).usage().split(" ");
 			}
 		}
-		if (args.length <= useArgs.length + 2) {
+		if (args.length - 3 > -1 && useArgs.length >= args.length - 3) {
 			String usage = useArgs[args.length - 3];
 			if (usage.equals("<player>") || usage.equals("[player]")) {
 				return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());

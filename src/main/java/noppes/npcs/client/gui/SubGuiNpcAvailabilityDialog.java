@@ -66,7 +66,7 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 			this.initGui();
 		}
 		if (button.id == 1) {
-			this.setSubGui(new GuiDialogSelection(this.select.isEmpty() ? 0 : this.dataIDs.get(this.select)));
+			this.setSubGui(new GuiDialogSelection(this.select.isEmpty() ? 0 : this.dataIDs.get(this.select), 0));
 		}
 		if (button.id == 2) {
 			this.availabitily.dialogues.remove(this.dataIDs.get(this.select));
@@ -204,7 +204,7 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		this.setSubGui(new GuiDialogSelection(this.dataIDs.get(this.select)));
+		this.setSubGui(new GuiDialogSelection(this.dataIDs.get(this.select), 0));
 	}
 
 	@Override

@@ -3,14 +3,17 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
@@ -29,16 +32,16 @@ public class DialogController
 implements IDialogHandler {
 	
 	public static DialogController instance = new DialogController();
-	public HashMap<Integer, DialogCategory> categories;
-	public HashMap<Integer, DialogCategory> categoriesSync;
-	public HashMap<Integer, Dialog> dialogs;
+	public final TreeMap<Integer, DialogCategory> categories;
+	public final TreeMap<Integer, DialogCategory> categoriesSync;
+	public final TreeMap<Integer, Dialog> dialogs;
 	private int lastUsedCatID;
 	private int lastUsedDialogID;
 
 	public DialogController() {
-		this.categoriesSync = new HashMap<Integer, DialogCategory>();
-		this.categories = new HashMap<Integer, DialogCategory>();
-		this.dialogs = new HashMap<Integer, Dialog>();
+		this.categoriesSync = Maps.<Integer, DialogCategory>newTreeMap();
+		this.categories = Maps.<Integer, DialogCategory>newTreeMap();
+		this.dialogs = Maps.<Integer, Dialog>newTreeMap();
 		this.lastUsedDialogID = 0;
 		this.lastUsedCatID = 0;
 		DialogController.instance = this;
@@ -193,35 +196,35 @@ implements IDialogHandler {
 		Dialog dia1 = new Dialog(cat);
 		dia1.id = 1;
 		dia1.title = "Start";
-		dia1.text = "Hello {player}, \n\nWelcome to our village. I hope you enjoy your stay";
+		dia1.text = "dialog.base.1.text";
 		Dialog dia2 = new Dialog(cat);
 		dia2.id = 2;
 		dia2.title = "Ask about village";
-		dia2.text = "This village has been around for ages. Enjoy your stay here.";
+		dia2.text = AdditionalMethods.deleteColor(new TextComponentTranslation("dialog.base.2.text").getFormattedText());
 		Dialog dia3 = new Dialog(cat);
 		dia3.id = 3;
 		dia3.title = "Who are you";
-		dia3.text = "I'm a villager here. I have lived in this village my whole life.";
+		dia3.text = AdditionalMethods.deleteColor(new TextComponentTranslation("dialog.base.3.text").getFormattedText());
 		cat.dialogs.put(dia1.id, dia1);
 		cat.dialogs.put(dia2.id, dia2);
 		cat.dialogs.put(dia3.id, dia3);
 		DialogOption option = new DialogOption();
-		option.title = "Tell me something about this village";
-		option.dialogId = 2;
+		option.title = "dialog.base.1.option.1";
+		option.addDialog(2);
 		option.optionType = 1;
 		DialogOption option2 = new DialogOption();
-		option2.title = "Who are you?";
-		option2.dialogId = 3;
+		option2.title = AdditionalMethods.deleteColor(new TextComponentTranslation("dialog.base.1.option.0").getFormattedText());
+		option2.addDialog(3);
 		option2.optionType = 1;
 		DialogOption option3 = new DialogOption();
-		option3.title = "Goodbye";
+		option3.title = AdditionalMethods.deleteColor(new TextComponentTranslation("dialog.base.1.option.2").getFormattedText());
 		option3.optionType = 0;
 		dia1.options.put(0, option2);
 		dia1.options.put(1, option);
 		dia1.options.put(2, option3);
 		DialogOption option4 = new DialogOption();
-		option4.title = "Back";
-		option4.dialogId = 1;
+		option4.title = AdditionalMethods.deleteColor(new TextComponentTranslation("dialog.base.2.option.0").getFormattedText());
+		option4.addDialog(1);
 		dia2.options.put(1, option4);
 		dia3.options.put(1, option4);
 		this.lastUsedDialogID = 3;
@@ -278,7 +281,8 @@ implements IDialogHandler {
 					return;
 				}
 			}
-			category.dialogs = currentCategory.dialogs;
+			category.dialogs.clear();
+			category.dialogs.putAll(currentCategory.dialogs);
 		} else {
 			if (category.id < 0) {
 				++this.lastUsedCatID;

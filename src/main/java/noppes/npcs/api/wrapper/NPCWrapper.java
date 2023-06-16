@@ -1,7 +1,7 @@
 package noppes.npcs.api.wrapper;
 
-import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.google.common.collect.Sets;
 
@@ -74,7 +74,7 @@ implements ICustomNpc {
 		}
 		IDialog dialog = null;
 		int s = 0;
-		HashMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
+		TreeMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
 		for (int dialogId : this.entity.dialogs) {
 			if (s==slot) {
 				if (dialogs.containsKey(dialogId)) { dialog = dialogs.get(dialogId); }

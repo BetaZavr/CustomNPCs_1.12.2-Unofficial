@@ -458,4 +458,9 @@ implements ICompatibilty, IQuest {
 		return compound;
 	}
 
+	public String getKey() {
+		char c = ((char) 167);
+		return c + "7ID:" + this.id + c + "8" + this.category.title+"/" + c + "7 \"" + c + "5" + this.getTitle() + c + "7\"";
+	}
+
 }

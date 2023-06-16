@@ -599,5 +599,17 @@ implements ICompatibilty, IAvailability {
 		compound.setInteger("AvailabilityHealthType", this.healthType);
 		return compound;
 	}
-
+	
+	public String toString() {
+		return "Availability hasOptions: " + this.hasOptions +
+				", maxData: " + this.max +
+				", { scoreboards:" + this.scoreboards.size() +
+				", dialogues:" + this.dialogues.size() +
+				", quests:" + this.quests.size() +
+				", factions:" + this.factions.size() +
+				", time[min:" + this.daytime[0] + ", max:" + this.daytime[0] + "]" +
+				", player[Lv:" + this.minPlayerLevel + ", H:" + this.health + ", HT:" + this.healthType + "] }"
+		;
+	}
+	
 }

@@ -1,8 +1,10 @@
 package noppes.npcs.controllers.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -12,14 +14,14 @@ import noppes.npcs.api.handler.data.IDialogCategory;
 public class DialogCategory
 implements IDialogCategory {
 	
-	public HashMap<Integer, Dialog> dialogs;
+	public final TreeMap<Integer, Dialog> dialogs;
 	public int id;
 	public String title;
 
 	public DialogCategory() {
 		this.id = -1;
 		this.title = "";
-		this.dialogs = new HashMap<Integer, Dialog>();
+		this.dialogs = Maps.<Integer, Dialog>newTreeMap();
 	}
 
 	@Override

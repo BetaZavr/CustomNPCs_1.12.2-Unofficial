@@ -98,7 +98,7 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 		switch(guibutton.id) {
 			case 1: { // add
 				this.selectedSlot = -1;
-				this.setSubGui(new GuiDialogSelection(-1));
+				this.setSubGui(new GuiDialogSelection(-1, 0));
 				break;
 			}
 			case 2: { // del
@@ -110,7 +110,7 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 			}
 			case 3: { // change
 				if (!this.data.containsKey(this.selectedSlot)) { return; }
-				this.setSubGui(new GuiDialogSelection(this.data.get(this.selectedSlot).getInteger("Id")));
+				this.setSubGui(new GuiDialogSelection(this.data.get(this.selectedSlot).getInteger("Id"), 0));
 				break;
 			}
 			case 4: { // up
@@ -223,7 +223,7 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		// change
 		if (!this.data.containsKey(this.selectedSlot)) { return; }
-		this.setSubGui(new GuiDialogSelection(this.data.get(this.selectedSlot).getInteger("Id")));
+		this.setSubGui(new GuiDialogSelection(this.data.get(this.selectedSlot).getInteger("Id"), 0));
 	}
 	
 	@Override

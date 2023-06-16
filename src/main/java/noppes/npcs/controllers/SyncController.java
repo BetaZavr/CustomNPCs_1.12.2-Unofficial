@@ -1,6 +1,9 @@
 package noppes.npcs.controllers;
 
 import java.util.HashMap;
+import java.util.TreeMap;
+
+import com.google.common.collect.Maps;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,15 +48,18 @@ public class SyncController {
 					QuestController.instance.categoriesSync.put(category.id, category);
 				}
 				if (syncEnd) {
-					HashMap<Integer, Quest> quests = new HashMap<Integer, Quest>();
-					for (QuestCategory category2 : QuestController.instance.categoriesSync.values()) {
+					QuestController qData = QuestController.instance;
+					TreeMap<Integer, Quest> quests = Maps.<Integer, Quest>newTreeMap();
+					for (QuestCategory category2 : qData.categoriesSync.values()) {
 						for (Quest quest : category2.quests.values()) {
 							quests.put(quest.id, quest);
 						}
 					}
-					QuestController.instance.categories = QuestController.instance.categoriesSync;
-					QuestController.instance.quests = quests;
-					QuestController.instance.categoriesSync = new HashMap<Integer, QuestCategory>();
+					qData.categories.clear();
+					qData.categories.putAll(qData.categoriesSync);
+					qData.quests.clear();
+					qData.quests.putAll(quests);
+					qData.categoriesSync.clear();
 				}
 				break;
 			}
@@ -64,16 +70,18 @@ public class SyncController {
 					DialogController.instance.categoriesSync.put(category3.id, category3);
 				}
 				if (syncEnd) {
-					HashMap<Integer, Dialog> dialogs = new HashMap<Integer, Dialog>();
-					for (DialogCategory category4 : DialogController.instance.categoriesSync.values()) {
+					DialogController dData = DialogController.instance;
+					TreeMap<Integer, Dialog> dialogs = Maps.<Integer, Dialog>newTreeMap();
+					for (DialogCategory category4 : dData.categoriesSync.values()) {
 						for (Dialog dialog : category4.dialogs.values()) {
 							dialogs.put(dialog.id, dialog);
 						}
 					}
-					DialogController.instance.categories = DialogController.instance.categoriesSync;
-					DialogController.instance.dialogs = dialogs;
-					DialogController.instance.categoriesSync = new HashMap<Integer, DialogCategory>();
-					
+					dData.categories.clear();
+					dData.categories.putAll(dData.categoriesSync);
+					dData.dialogs.clear();
+					dData.dialogs.putAll(dialogs);
+					dData.categoriesSync.clear();
 				}
 				break;
 			}

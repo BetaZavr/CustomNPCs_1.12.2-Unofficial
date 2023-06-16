@@ -304,7 +304,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	protected void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		if (!(button instanceof GuiNpcButton)) { return; }
-System.out.println("buttonID: "+button.id);
 		GuiNpcButton npcButton = (GuiNpcButton) button;
 		AnimationConfig anim = null;
 		AnimationFrameConfig frame = null;
@@ -411,9 +410,7 @@ System.out.println("buttonID: "+button.id);
 			case 15: { // disabled part
 				if (anim==null || part==null) { return; }
 				part.setDisable(((GuiNpcCheckBox) button).isSelected());
-				System.out.println("disabled part "+GuiScreen.isShiftKeyDown());
 				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
-					System.out.println("CNPCs ");
 					for (AnimationFrameConfig f : anim.frames.values()) {
 						f.parts[this.selectPart].setDisable(part.isDisable());
 					}
@@ -425,7 +422,6 @@ System.out.println("buttonID: "+button.id);
 			case 16: { // smooth
 				if (frame==null) { return; }
 				frame.setSmooth(((GuiNpcCheckBox) button).isSelected());
-				System.out.println("smooth "+GuiScreen.isShiftKeyDown());
 				if (GuiScreen.isShiftKeyDown()) { // Shift pressed
 					for (AnimationFrameConfig f : anim.frames.values()) {
 						f.setSmooth(frame.isSmooth());

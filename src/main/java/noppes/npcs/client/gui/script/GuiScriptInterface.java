@@ -205,7 +205,6 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		System.out.println("buttonID: "+guibutton.id);
 		if (guibutton.id >= 0 && guibutton.id < 12) {
 			this.setScript();
 			this.activeTab = guibutton.id;

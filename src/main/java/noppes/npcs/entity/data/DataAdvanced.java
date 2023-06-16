@@ -8,7 +8,6 @@ import noppes.npcs.api.entity.data.INPCAdvanced;
 import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.FactionOptions;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.Lines;
@@ -233,10 +232,7 @@ implements INPCAdvanced {
 		else if (compound.hasKey("NPCDialogOptions", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // Old
 			this.npc.dialogs = new int[compound.getTagList("NPCDialogOptions", 10).tagCount()];
 			for (int i = 0; i < compound.getTagList("NPCDialogOptions", 10).tagCount(); ++i) {
-				NBTTagCompound nbttagcompound = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i);
-				DialogOption option = new DialogOption();
-				option.readNBT(nbttagcompound.getCompoundTag("NPCDialog"));
-				this.npc.dialogs[i] = option.dialogId;
+				this.npc.dialogs[i] = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i).getCompoundTag("NPCDialog").getInteger("Dialog");
 			}
 		}
 	}

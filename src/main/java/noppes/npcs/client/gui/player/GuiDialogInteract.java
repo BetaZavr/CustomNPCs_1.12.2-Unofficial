@@ -296,7 +296,8 @@ implements IGuiClose {
 		for (int slot : this.dialog.options.keySet()) {
 			DialogOption option = this.dialog.options.get(slot);
 			if (option != null && option.optionType != 2) {
-				if (option.hasDialog() && !option.getDialog().availability.isAvailable((EntityPlayer) this.player)) {
+				Dialog d = option.getDialog((EntityPlayer) this.player);
+				if (d!=null && !d.availability.isAvailable((EntityPlayer) this.player)) {
 					continue;
 				}
 				int color = option.optionColor;
@@ -308,26 +309,21 @@ implements IGuiClose {
 					this.drawString(this.fontRenderer, option.title, this.width / 2 + 13, yoffset - height, color);
 				}
 				if (slot == 1) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 + 33, yoffset - height / 2 + 14,
-							color);
+					this.drawString(this.fontRenderer, option.title, this.width / 2 + 33, yoffset - height / 2 + 14, color);
 				}
 				if (slot == 2) {
 					this.drawString(this.fontRenderer, option.title, this.width / 2 + 27, yoffset + 27, color);
 				}
 				if (slot == 3) {
-					this.drawString(this.fontRenderer, option.title,
-							this.width / 2 - 13 - ClientProxy.Font.width(option.title), yoffset - height, color);
+					this.drawString(this.fontRenderer, option.title, this.width / 2 - 13 - ClientProxy.Font.width(option.title), yoffset - height, color);
 				}
 				if (slot == 4) {
-					this.drawString(this.fontRenderer, option.title,
-							this.width / 2 - 33 - ClientProxy.Font.width(option.title), yoffset - height / 2 + 14,
-							color);
+					this.drawString(this.fontRenderer, option.title, this.width / 2 - 33 - ClientProxy.Font.width(option.title), yoffset - height / 2 + 14, color);
 				}
 				if (slot != 5) {
 					continue;
 				}
-				this.drawString(this.fontRenderer, option.title,
-						this.width / 2 - 27 - ClientProxy.Font.width(option.title), yoffset + 27, color);
+				this.drawString(this.fontRenderer, option.title, this.width / 2 - 27 - ClientProxy.Font.width(option.title), yoffset + 27, color);
 			}
 		}
 		this.mc.renderEngine.bindTexture(this.indicator);
