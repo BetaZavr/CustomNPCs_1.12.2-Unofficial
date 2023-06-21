@@ -47,9 +47,10 @@ implements LayerRenderer<T> {
 
 	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		this.npc = (EntityCustomNpc) entity;
-		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) {
-			return;
+		if (this instanceof LayerHeadwear && !this.npc.equals(((LayerHeadwear<?>) this).npc)) {
+			((LayerHeadwear<?>) this).preRender(this.npc);
 		}
+		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) { return; }
 		this.playerdata = this.npc.modelData;
 		this.model = (ModelBiped) this.render.getMainModel();
 		this.rotate(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
@@ -63,7 +64,6 @@ implements LayerRenderer<T> {
 		}
 		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) { GlStateManager.color(1.0f, 0.0f, 0.0f, 0.3f); }
 		if (this.npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
-		
 		GlStateManager.enableRescaleNormal();
 		this.render(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.disableRescaleNormal();

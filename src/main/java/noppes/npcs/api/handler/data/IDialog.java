@@ -1,8 +1,7 @@
 package noppes.npcs.api.handler.data;
 
-import java.util.List;
-
 public interface IDialog {
+	
 	IAvailability getAvailability();
 
 	IDialogCategory getCategory();
@@ -13,9 +12,9 @@ public interface IDialog {
 
 	String getName();
 
-	IDialogOption getOption(int p0);
+	IDialogOption getOption(int slot);
 
-	List<IDialogOption> getOptions();
+	IDialogOption[] getOptions();
 
 	IQuest getQuest();
 
@@ -23,11 +22,12 @@ public interface IDialog {
 
 	void save();
 
-	void setCommand(String p0);
+	void setCommand(String command);
 
-	void setName(String p0);
+	void setName(String name);
 
-	void setQuest(IQuest p0);
+	void setQuest(IQuest quest);
 
-	void setText(String p0);
+	void setText(String text);
+	
 }

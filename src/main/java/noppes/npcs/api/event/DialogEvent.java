@@ -9,6 +9,7 @@ import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogOption;
 
 public class DialogEvent extends NpcEvent {
+	
 	public static class CloseEvent extends DialogEvent {
 		public CloseEvent(ICustomNpc<?> npc, EntityPlayer player, IDialog dialog) {
 			super(npc, player, dialog);

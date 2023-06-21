@@ -223,7 +223,13 @@ implements IDataElement {
 
 	@Override
 	public boolean isBelong(Class<?> cz) {
-		return this.parent != null && this.parent == cz;
+		if (this.parent==null) { return false; }
+		Class<?> sc = this.parent;
+		while(sc.getSuperclass()!=null) {
+			if (sc==cz) { return true; }
+			sc = sc.getSuperclass();
+		}
+		return false;
 	}
 
 	@Override

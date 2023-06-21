@@ -1,7 +1,5 @@
 package noppes.npcs.api.handler;
 
-import java.util.List;
-
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.handler.data.INpcRecipe;
 
@@ -11,21 +9,20 @@ public interface IRecipeHandler {
 	
 	INpcRecipe getRecipe(int id);
 	
-	INpcRecipe addRecipe(String name, String group, boolean global, boolean known, ItemStack result, int width,
-			int height, ItemStack... stacks);
+	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width, int height, ItemStack[] stacks);
 
-	INpcRecipe addRecipe(String name, String group, boolean global, boolean known, ItemStack result, Object... objects);
+	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, Object[] objects);
 
-	boolean delete(String name, String group);
+	boolean delete(String group, String name);
 	
 	boolean delete(int id);
 
-	List<INpcRecipe> getCarpentryData();
+	INpcRecipe[] getCarpentryData();
 
-	List<INpcRecipe> getCarpentryRecipes(String group);
+	INpcRecipe[] getCarpentryRecipes(String group);
 
-	List<INpcRecipe> getGlobalData();
+	INpcRecipe[] getGlobalData();
 
-	List<INpcRecipe> getGlobalRecipes(String group);
+	INpcRecipe[] getGlobalRecipes(String group);
 
 }

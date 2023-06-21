@@ -19,7 +19,6 @@ public interface IQuest {
 
 	boolean getIsRepeatable();
 
-	// new
 	int getLevel();
 
 	String getLogText();
@@ -30,7 +29,7 @@ public interface IQuest {
 
 	String getNpcName();
 
-	IQuestObjective[] getObjectives(IPlayer<?> p0);
+	IQuestObjective[] getObjectives(IPlayer<?> player);
 
 	IContainer getRewards();
 
@@ -50,7 +49,7 @@ public interface IQuest {
 
 	void setCancelable(boolean cancelable);
 
-	void setCompleteText(String p0);
+	void setCompleteText(String text);
 
 	void setForgetDialogues(int[] forget);
 
@@ -58,13 +57,13 @@ public interface IQuest {
 
 	void setLevel(int level);
 
-	void setLogText(String p0);
+	void setLogText(String text);
 
-	void setName(String p0);
+	void setName(String name);
 
-	void setNextQuest(IQuest p0);
+	void setNextQuest(IQuest quest);
 
-	void setNpcName(String p0);
+	void setNpcName(String name);
 
 	void setRewardText(String text);
 

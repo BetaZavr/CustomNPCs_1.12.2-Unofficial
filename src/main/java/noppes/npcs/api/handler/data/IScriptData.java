@@ -1,12 +1,12 @@
 package noppes.npcs.api.handler.data;
 
-import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.INbt;
 
 public interface IScriptData {
 
 	String getName();
 
-	NBTTagCompound getNBT();
+	INbt getNBT();
 
 	Object getObject();
 
@@ -14,6 +14,6 @@ public interface IScriptData {
 
 	String getValue();
 
-	void load(NBTTagCompound nbt);
+	void setNBT(INbt nbt);
 
 }

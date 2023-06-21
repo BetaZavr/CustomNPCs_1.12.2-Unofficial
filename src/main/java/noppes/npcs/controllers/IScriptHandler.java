@@ -22,7 +22,7 @@ public interface IScriptHandler {
 
 	String noticeString();
 
-	void runScript(EnumScriptType p0, Event p1);
+	void runScript(EnumScriptType type, Event event);
 
 	void setEnabled(boolean bo);
 

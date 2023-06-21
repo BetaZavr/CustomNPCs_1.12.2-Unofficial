@@ -10,7 +10,6 @@ public interface IMark {
 
 	int getType();
 
-	// New
 	boolean isRotate();
 
 	void setColor(int color);

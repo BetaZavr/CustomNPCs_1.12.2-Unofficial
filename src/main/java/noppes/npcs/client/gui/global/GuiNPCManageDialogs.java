@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
@@ -95,28 +96,33 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 								i++;
 							}
 						}
-						for (int dialogId : dData.dialogs.keySet()) {
-							Dialog d = dData.dialogs.get(dialogId);
-							if (d==null) { continue; }
-							for (DialogOption option : d.options.values()) {
-								if (option.optionType!=1 ||  option.dialogs.isEmpty()) { continue; }
-								int i = 0;
-								for (OptionDialogID od : option.dialogs) {
-									if (od.dialogId!=dialog.id) { continue; }
-									activationDialogs.add(chr + "7ID:" + d.id + chr + "8 " +
-											(new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + option.slot + "." + i + chr + "8; " +
-											d.category.getName() + "/" + chr + "r" + d.getName());
-									i++;
+						try {
+							Set<Integer> dSet = dData.dialogs.keySet();
+							for (int dialogId : dSet) {
+								if (!dData.hasDialog(dialogId)) { continue; }
+								Dialog d = (Dialog) dData.get(dialogId);
+								for (DialogOption option : d.options.values()) {
+									if (option.optionType!=1 ||  option.dialogs.isEmpty()) { continue; }
+									int i = 0;
+									for (OptionDialogID od : option.dialogs) {
+										if (od.dialogId!=dialog.id) { continue; }
+										activationDialogs.add(chr + "7ID:" + d.id + chr + "8 " +
+												(new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + option.slot + "." + i + chr + "8; " +
+												d.category.getName() + "/" + chr + "r" + d.getName());
+										i++;
+									}
+								}
+								if (nextDialogIDs.containsValue(d.id)) {
+									for (String k : nextDialogIDs.keySet()) {
+										if (nextDialogIDs.get(k)!=d.id) { continue; }
+										nextDialogs.add(chr + "8" +
+												(new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + k + chr + "7 ID:" + d.id + chr + "8; " +
+												d.category.getName() + "/" + chr + "r" + d.getName());
+									}
 								}
 							}
-							if (nextDialogIDs.containsValue(d.id)) {
-								for (String k : nextDialogIDs.keySet()) {
-									if (nextDialogIDs.get(k)!=d.id) { continue; }
-									nextDialogs.add(chr + "8" +
-											(new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + k + chr + "7 ID:" + d.id + chr + "8; " +
-											d.category.getName() + "/" + chr + "r" + d.getName());
-								}
-							}
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 						if (!activationDialogs.isEmpty()) {
 							h.add(new TextComponentTranslation("dialog.hover.act.1").getFormattedText());

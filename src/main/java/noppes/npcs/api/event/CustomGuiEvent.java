@@ -28,8 +28,7 @@ public class CustomGuiEvent extends CustomNPCsEvent {
 		public int scrollIndex;
 		public String[] selection;
 
-		public ScrollEvent(IPlayer<?> player, ICustomGui gui, int scrollId, int scrollIndex, String[] selection,
-				boolean doubleClick) {
+		public ScrollEvent(IPlayer<?> player, ICustomGui gui, int scrollId, int scrollIndex, String[] selection, boolean doubleClick) {
 			super(player, gui);
 			this.scrollId = scrollId;
 			this.selection = selection;
@@ -47,8 +46,7 @@ public class CustomGuiEvent extends CustomNPCsEvent {
 		public int slotId;
 		public IItemStack stack;
 
-		public SlotClickEvent(IPlayer<?> player, ICustomGui gui, int slotId, IItemStack stack, int dragType,
-				String clickType, IItemStack heldItem) {
+		public SlotClickEvent(IPlayer<?> player, ICustomGui gui, int slotId, IItemStack stack, int dragType, String clickType, IItemStack heldItem) {
 			super(player, gui);
 			this.slotId = slotId;
 			this.stack = stack;

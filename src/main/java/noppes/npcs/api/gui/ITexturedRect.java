@@ -15,12 +15,12 @@ extends ICustomGuiComponent {
 
 	int getWidth();
 
-	ITexturedRect setScale(float p0);
+	ITexturedRect setScale(float scale);
 
-	ITexturedRect setSize(int p0, int p1);
+	ITexturedRect setSize(int width, int height);
+	
+	ITexturedRect setTexture(String texture);
 
-	ITexturedRect setTexture(String p0);
-
-	ITexturedRect setTextureOffset(int p0, int p1);
+	ITexturedRect setTextureOffset(int textureX, int textureY);
 	
 }

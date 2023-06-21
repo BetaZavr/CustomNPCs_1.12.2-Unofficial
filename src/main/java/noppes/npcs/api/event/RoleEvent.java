@@ -11,6 +11,7 @@ import noppes.npcs.api.entity.data.role.IRoleTransporter;
 import noppes.npcs.api.item.IItemStack;
 
 public class RoleEvent extends CustomNPCsEvent {
+	
 	public static class BankUnlockedEvent extends RoleEvent {
 		public int slot;
 
@@ -61,8 +62,7 @@ public class RoleEvent extends CustomNPCsEvent {
 		public IItemStack receiving;
 		public IItemStack sold;
 
-		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, ItemStack currency1,
-				ItemStack currency2) {
+		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, ItemStack currency1, ItemStack currency2) {
 			super(player, npc);
 			this.currency1 = (currency1.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency1.copy()));
 			this.currency2 = (currency2.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency2.copy()));
@@ -76,8 +76,7 @@ public class RoleEvent extends CustomNPCsEvent {
 		public IItemStack currency2;
 		public IItemStack sold;
 
-		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, ItemStack currency1,
-				ItemStack currency2) {
+		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, ItemStack currency1, ItemStack currency2) {
 			super(player, npc);
 			this.currency1 = (currency1.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency1.copy()));
 			this.currency2 = (currency2.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency2.copy()));
@@ -96,8 +95,7 @@ public class RoleEvent extends CustomNPCsEvent {
 	public static class TransporterUseEvent extends RoleEvent {
 		public IRoleTransporter.ITransportLocation location;
 
-		public TransporterUseEvent(EntityPlayer player, ICustomNpc<?> npc,
-				IRoleTransporter.ITransportLocation location) {
+		public TransporterUseEvent(EntityPlayer player, ICustomNpc<?> npc, IRoleTransporter.ITransportLocation location) {
 			super(player, npc);
 			this.location = location;
 		}
@@ -111,4 +109,5 @@ public class RoleEvent extends CustomNPCsEvent {
 		this.npc = npc;
 		this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
 	}
+	
 }

@@ -1,7 +1,5 @@
 package noppes.npcs.controllers.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -30,8 +28,8 @@ implements IDialogCategory {
 	}
 
 	@Override
-	public List<IDialog> dialogs() {
-		return new ArrayList<IDialog>(this.dialogs.values());
+	public IDialog[] dialogs() {
+		return this.dialogs.values().toArray(new IDialog[this.dialogs.size()]);
 	}
 
 	@Override

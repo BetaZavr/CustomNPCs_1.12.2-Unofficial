@@ -16,7 +16,7 @@ public interface INPCDisplay {
 
 	String getModel();
 
-	float[] getModelScale(int p0);
+	float[] getModelScale(int part);
 
 	String getName();
 

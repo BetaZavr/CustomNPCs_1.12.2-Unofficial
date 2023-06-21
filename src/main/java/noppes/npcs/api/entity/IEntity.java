@@ -19,7 +19,7 @@ public interface IEntity<T extends Entity> {
 
 	void damage(float amount);
 	
-	void damage(float amount, IEntityDamageSource source); // New
+	void damage(float amount, IEntityDamageSource source);
 
 	void despawn();
 

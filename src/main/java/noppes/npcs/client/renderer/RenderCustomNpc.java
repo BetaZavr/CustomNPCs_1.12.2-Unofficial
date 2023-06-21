@@ -60,6 +60,7 @@ extends RenderNPCInterface<T> {
 		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(0.5f), 1);
 		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(1.0f), 2);
 		this.addLayer(armor);
+		System.out.println(entity);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,14 +131,12 @@ extends RenderNPCInterface<T> {
 		}
 	}
 
-	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks,
-			float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
+	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
+		//System.out.println("entity: "+this.entity + " == " + this.renderEntity);
 		if (this.entity != null && this.renderEntity != null) {
-			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw,
-					headPitch, scaleIn, this.renderEntity);
+			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {
-			super.renderLayers(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw,
-					headPitch, scaleIn);
+			super.renderLayers(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
 		}
 	}
 

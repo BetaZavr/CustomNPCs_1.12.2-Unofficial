@@ -12,9 +12,9 @@ public class MetodData {
 	String ifc = "";
 	private String returnTypeName;
 	public String name;
-	private List<ParameterData> parameters;
-	private String comment;
-	private boolean isDeprecated;
+	public List<ParameterData> parameters;
+	public String comment;
+	public boolean isDeprecated;
 
 	public MetodData(Class<?> ret, String name, String comment, ParameterData ... parameters) {
 		this.returnTypeName = "c" + ret.getSimpleName();

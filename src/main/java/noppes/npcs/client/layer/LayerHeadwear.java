@@ -14,7 +14,7 @@ extends LayerInterface<T>
 implements LayerPreRender {
 	
 	private ModelHeadwear headwear;
-	private EntityCustomNpc npc;
+	public EntityCustomNpc npc;
 
 	public LayerHeadwear(RenderLiving<?> render) {
 		super(render);
@@ -24,16 +24,13 @@ implements LayerPreRender {
 	@Override
 	public void preRender(EntityCustomNpc player) {
 		this.model.bipedHeadwear.isHidden = (CustomNpcs.HeadWearType == 1);
-		//this.headwear.config = null;
 		if (player!=null) { this.npc  = player; }
+		
 	}
 
 	@Override
 	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		if (this.npc==null && super.npc!=null) { this.npc = super.npc; }
-		if (CustomNpcs.HeadWearType != 1 || this.npc==null) {
-			return;
-		}
+		if (CustomNpcs.HeadWearType != 1 || this.npc==null) { return; }
 		if (this.npc.hurtTime <= 0 && this.npc.deathTime <= 0) {
 			int color = this.npc.display.getTint();
 			float red = (color >> 16 & 0xFF) / 255.0f;

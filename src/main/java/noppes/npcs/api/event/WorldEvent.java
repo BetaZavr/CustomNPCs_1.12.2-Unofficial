@@ -30,8 +30,8 @@ public class WorldEvent extends CustomNPCsEvent {
 		public IEntity<?> entity;
 		public int id;
 		
-		public ScriptTriggerEvent(int id, IWorld level, IPos pos, IEntity<?> entity, Object[] arguments) {
-			super(level);
+		public ScriptTriggerEvent(int id, IWorld world, IPos pos, IEntity<?> entity, Object[] arguments) {
+			super(world);
 			this.id = id;
 			this.arguments = arguments;
 			this.pos = pos;

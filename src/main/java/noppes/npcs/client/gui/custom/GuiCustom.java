@@ -38,9 +38,9 @@ import noppes.npcs.client.gui.custom.components.CustomGuiScrollComponent;
 import noppes.npcs.client.gui.custom.components.CustomGuiTextField;
 import noppes.npcs.client.gui.custom.components.CustomGuiTexturedRect;
 import noppes.npcs.client.gui.custom.interfaces.IClickListener;
+import noppes.npcs.client.gui.custom.interfaces.ICustomKeyListener;
 import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
-import noppes.npcs.client.gui.custom.interfaces.IKeyListener;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
@@ -59,7 +59,7 @@ implements ICustomScrollListener, IGuiData {
 	List<IDataHolder> dataHolders;
 	CustomGuiWrapper gui;
 	public String[] hoverText;
-	List<IKeyListener> keyListeners;
+	List<ICustomKeyListener> keyListeners;
 	public ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png"); // New
 	int xSize;
 	int ySize;
@@ -69,7 +69,7 @@ implements ICustomScrollListener, IGuiData {
 		super((Container) container);
 		this.components = new HashMap<Integer, IGuiComponent>();
 		this.clickListeners = new ArrayList<IClickListener>();
-		this.keyListeners = new ArrayList<IKeyListener>();
+		this.keyListeners = new ArrayList<ICustomKeyListener>();
 		this.dataHolders = new ArrayList<IDataHolder>();
 		this.stretched = 0;
 		this.bgW = 0;
@@ -135,7 +135,7 @@ implements ICustomScrollListener, IGuiData {
 		this.dataHolders.add(component);
 	}
 
-	public void addKeyListener(IKeyListener component) {
+	public void addKeyListener(ICustomKeyListener component) {
 		this.keyListeners.add(component);
 	}
 
@@ -228,7 +228,7 @@ implements ICustomScrollListener, IGuiData {
 		for (IGuiComponent component : this.components.values()) {
 			component.onRender(this.mc, mouseX, mouseY, Mouse.getDWheel(), partialTicks);
 		}
-		if (this.gui != null && this.gui.getSlots().size() > 0) { // New
+		if (this.gui != null && this.gui.getSlots().length > 0) { // New
 			int cx = -41 + (256 - this.gui.getWidth()) / 2;
 			int cy = -46 + (256 - this.gui.getHeight()) / 2;
 			
@@ -279,7 +279,7 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		for (IKeyListener listener : this.keyListeners) {
+		for (ICustomKeyListener listener : this.keyListeners) {
 			listener.keyTyped(typedChar, keyCode);
 		}
 		if (keyCode == 1) { // Changed

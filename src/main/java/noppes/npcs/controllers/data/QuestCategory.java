@@ -1,7 +1,5 @@
 package noppes.npcs.controllers.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -35,8 +33,8 @@ implements IQuestCategory {
 	}
 
 	@Override
-	public List<IQuest> quests() {
-		return new ArrayList<IQuest>(this.quests.values());
+	public IQuest[] quests() {
+		return this.quests.values().toArray(new IQuest[this.quests.size()]);
 	}
 
 	public void readNBT(NBTTagCompound nbttagcompound) {

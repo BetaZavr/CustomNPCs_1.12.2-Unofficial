@@ -319,8 +319,8 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 			this.container.saveRecipe(ClientProxy.recipeGroup, ClientProxy.recipeName,
 					this.getButton(9) != null ? this.getButton(9).getValue() == 1 : true);
 			NBTTagCompound compound = this.container.recipe.isShaped()
-					? ((NpcShapedRecipes) this.container.recipe).writeNBT()
-					: ((NpcShapelessRecipes) this.container.recipe).writeNBT();
+					? ((NpcShapedRecipes) this.container.recipe).getNbt().getMCNBT()
+					: ((NpcShapelessRecipes) this.container.recipe).getNbt().getMCNBT();
 			Client.sendData(EnumPacketServer.RecipeSave, compound);
 		}
 	}

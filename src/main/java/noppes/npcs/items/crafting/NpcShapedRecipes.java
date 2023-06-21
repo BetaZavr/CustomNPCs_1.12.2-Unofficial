@@ -21,8 +21,11 @@ import net.minecraftforge.common.ForgeHooks;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.INpcRecipe;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.util.ObfuscationHelper;
@@ -321,10 +324,14 @@ implements INpcRecipe, IRecipe // Changed
 
 	// New
 	@Override
-	public ItemStack[][] getRecipe() {
-		ItemStack[][] allStacks = new ItemStack[this.recipeItems.size()][];
+	public IItemStack[][] getRecipe() {
+		IItemStack[][] allStacks = new IItemStack[this.recipeItems.size()][];
 		for (int i = 0; i < this.recipeItems.size(); i++) {
-			allStacks[i] = (ItemStack[]) ObfuscationHelper.getValue(Ingredient.class, this.recipeItems.get(i), 2); // matchingStacks
+			ItemStack[] arr = (ItemStack[]) ObfuscationHelper.getValue(Ingredient.class, this.recipeItems.get(i), 2); // matchingStacks
+			allStacks[i] = new IItemStack[arr.length];
+			for (int j = 0; j < arr.length; j++) {
+				allStacks[i][j] = NpcAPI.Instance().getIItemStack(arr[j]);
+			}
 		}
 		return allStacks;
 	}
@@ -337,11 +344,6 @@ implements INpcRecipe, IRecipe // Changed
 			list.set(i, ForgeHooks.getContainerItem(itemstack));
 		}
 		return list;
-	}
-
-	@Override
-	public ItemStack getResult() {
-		return this.recipeOutput;
 	}
 
 	public int getWidth() {
@@ -432,7 +434,7 @@ implements INpcRecipe, IRecipe // Changed
 	}
 
 	@Override
-	public NBTTagCompound writeNBT() {
+	public INbt getNbt() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("ID", this.id);
 		compound.setInteger("Width", this.recipeWidth);
@@ -450,15 +452,22 @@ implements INpcRecipe, IRecipe // Changed
 		compound.setString("Group", this.group);
 		compound.setBoolean("IsKnown", this.known);
 		compound.setBoolean("IsShaped", true);
-		return compound;
+		return NpcAPI.Instance().getINbt(compound);
 	}
 
 	@Override
 	public boolean equal(INpcRecipe recipe) {
-		return recipe.getClass()==NpcShapedRecipes.class && recipe.getNpcGroup().equals(this.group) && recipe.getName().equals(this.name) && ItemStack.areItemStacksEqualUsingNBTShareTag(recipe.getProduct(), this.recipeOutput);
+		return recipe.getClass()==NpcShapedRecipes.class && recipe.getNpcGroup().equals(this.group) && recipe.getName().equals(this.name) && ItemStack.areItemStacksEqualUsingNBTShareTag(recipe.getProduct().getMCItemStack(), this.recipeOutput);
 	}
 
 	@Override
-	public ItemStack getProduct() { return this.recipeOutput; }
+	public IItemStack getProduct() {
+		return NpcAPI.Instance().getIItemStack(this.recipeOutput);
+	}
+
+	@Override
+	public void setNbt(INbt nbt) {
+		this.copy(NpcShapedRecipes.read(nbt.getMCNBT()));
+	}
 
 }

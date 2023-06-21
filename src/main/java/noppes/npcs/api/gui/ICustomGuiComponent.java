@@ -18,8 +18,8 @@ public interface ICustomGuiComponent {
 
 	ICustomGuiComponent setID(int id);
 
-	ICustomGuiComponent setPos(int u, int v);
+	ICustomGuiComponent setPos(int x, int y);
 	
-	void offSet(int type); // new
+	void offSet(int type);
 	
 }

@@ -78,7 +78,7 @@ public class ContainerManageRecipes extends Container {
 
 	public void setRecipe(INpcRecipe recipe) {
 		this.recipe = recipe;
-		this.craftingMatrix.setInventorySlotContents(0, this.recipe.getProduct());
+		this.craftingMatrix.setInventorySlotContents(0, this.recipe.getProduct().getMCItemStack());
 		NonNullList<Ingredient> ings = null;
 		if (this.recipe.isShaped()) { ings = ((NpcShapedRecipes) this.recipe).getIngredients(); }
 		else { ings = ((NpcShapelessRecipes) this.recipe).getIngredients(); }

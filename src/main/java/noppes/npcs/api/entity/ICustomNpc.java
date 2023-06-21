@@ -17,13 +17,13 @@ import noppes.npcs.api.item.IItemStack;
 public interface ICustomNpc<T extends EntityCreature>
 extends IEntityLiving<T> {
 	
-	String executeCommand(String p0);
+	String executeCommand(String command);
 
 	INPCAdvanced getAdvanced();
 
 	INPCAi getAi();
 
-	IDialog getDialog(int p0);
+	IDialog getDialog(int id);
 
 	INPCDisplay getDisplay();
 
@@ -49,25 +49,25 @@ extends IEntityLiving<T> {
 
 	ITimers getTimers();
 
-	void giveItem(IPlayer<?> p0, IItemStack p1);
+	void giveItem(IPlayer<?> player, IItemStack item);
 
 	void reset();
 
-	void say(String p0);
+	void say(String message);
 
-	void sayTo(IPlayer<?> p0, String p1);
+	void sayTo(IPlayer<?> player, String message);
 
-	void setDialog(int p0, IDialog p1);
+	void setDialog(int id, IDialog dialofg);
 
-	void setFaction(int p0);
+	void setFaction(int id);
 
-	void setHome(int p0, int p1, int p2);
+	void setHome(int x, int y, int z);
 
-	IProjectile<?> shootItem(double p0, double p1, double p2, IItemStack p3, int p4);
+	IProjectile<?> shootItem(double x, double y, double z, IItemStack item, int count);
 
-	IProjectile<?> shootItem(IEntityLivingBase<?> p0, IItemStack p1, int p2);
+	IProjectile<?> shootItem(IEntityLivingBase<?> entity, IItemStack item, int count);
 
 	void updateClient();
 
-	void trigger(int id, Object ... arguments);
+	void trigger(int id, Object[] arguments);
 }

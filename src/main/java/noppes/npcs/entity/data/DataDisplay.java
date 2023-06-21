@@ -437,9 +437,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setSkinTexture(String texture) {
-		if (texture == null || this.texture.equals(texture)) {
-			return;
-		}
+		if (texture == null || this.texture.equals(texture)) { return; }
 		this.texture = texture.toLowerCase();
 		this.npc.textureLocation = null;
 		this.skinType = 0;

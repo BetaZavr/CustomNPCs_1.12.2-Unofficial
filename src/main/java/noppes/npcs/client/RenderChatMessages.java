@@ -16,7 +16,9 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.IChatMessages;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RenderChatMessages implements IChatMessages {
+public class RenderChatMessages
+implements IChatMessages {
+	
 	private int boxLength;
 	private String lastMessage;
 	private long lastMessageTime;
@@ -41,11 +43,8 @@ public class RenderChatMessages implements IChatMessages {
 			return;
 		}
 		Map<Long, TextBlockClient> messages = new TreeMap<Long, TextBlockClient>(this.messages);
-		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true,
-				new Object[] { Minecraft.getMinecraft().player, npc }));
-		if (messages.size() > 3) {
-			messages.remove(messages.keySet().iterator().next());
-		}
+		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, new Object[] { Minecraft.getMinecraft().player, npc }));
+		if (messages.size() > 3) { messages.remove(messages.keySet().iterator().next()); }
 		this.messages = messages;
 		this.lastMessage = message;
 		this.lastMessageTime = time;
@@ -116,9 +115,7 @@ public class RenderChatMessages implements IChatMessages {
 		}
 		int black = depth ? -16777216 : 1426063360;
 		int white = depth ? -1140850689 : 1157627903;
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-				GlStateManager.DestFactor.ZERO);
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableCull();
 		this.drawRect(-this.boxLength - 2, -2, this.boxLength + 2, textYSize + 1, white, 0.11);
@@ -161,12 +158,8 @@ public class RenderChatMessages implements IChatMessages {
 	@Override
 	public void renderMessages(double par3, double par5, double par7, float textscale, boolean inRange) {
 		Map<Long, TextBlockClient> messages = this.getMessages();
-		if (messages.isEmpty()) {
-			return;
-		}
-		if (inRange) {
-			this.render(par3, par5, par7, textscale, false);
-		}
+		if (messages.isEmpty()) { return; }
+		if (inRange) { this.render(par3, par5, par7, textscale, false); }
 		this.render(par3, par5, par7, textscale, true);
 	}
 }

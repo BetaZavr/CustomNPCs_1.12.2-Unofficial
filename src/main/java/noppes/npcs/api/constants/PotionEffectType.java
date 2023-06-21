@@ -4,6 +4,7 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.potion.Potion;
 
 public class PotionEffectType {
+	
 	public static int BLINDNESS = 7;
 	public static int FIRE = 1;
 	public static int HUNGER = 3;

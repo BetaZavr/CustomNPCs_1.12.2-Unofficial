@@ -220,7 +220,7 @@ implements IGuiHandler {
 			}
 			RecipeController.Registry.freeze();
 			if (needSend) {
-				NBTTagCompound nbt = recipe.writeNBT();
+				NBTTagCompound nbt = recipe.getNbt().getMCNBT();
 				if (delete) { nbt.setBoolean("delete", true); }
 				for (EntityPlayerMP player : players) {
 					this.updateRecipeBook(player);

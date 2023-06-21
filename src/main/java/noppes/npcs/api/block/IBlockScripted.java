@@ -61,19 +61,19 @@ extends IBlock {
 
 	void setModel(String name);
 
-	void setRedstonePower(int p0);
+	void setRedstonePower(int power);
 
-	void setResistance(float p0);
+	void setResistance(float resistance);
 
-	void setRotation(int p0, int p1, int p2);
+	void setRotation(int x, int y, int z);
 
-	void setScale(float p0, float p1, float p2);
+	void setScale(float x, float y, float z);
 
-	void setModel(String blockName, int meta); // New
+	void setModel(String blockName, int meta);
 	
-	void setModel(IBlock iblock); // New
+	void setModel(IBlock iblock);
 
-	void trigger(int id, Object ... arguments); // New
+	void trigger(int id, Object[] arguments);
 	
 	ILayerModel[] getLayerModels();
 	

@@ -1,11 +1,13 @@
 package noppes.npcs.client.gui.util;
 
 public interface IGui {
-	void drawScreen(int p0, int p1);
+	
+	void drawScreen(int x, int y);
 
 	int getID();
 
 	boolean isActive();
 
 	void updateScreen();
+	
 }

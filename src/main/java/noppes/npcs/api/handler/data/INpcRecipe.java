@@ -1,7 +1,7 @@
 package noppes.npcs.api.handler.data;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.item.IItemStack;
 
 public interface INpcRecipe {
 	
@@ -19,9 +19,7 @@ public interface INpcRecipe {
 
 	String getName();
 
-	ItemStack[][] getRecipe();
-
-	ItemStack getResult();
+	IItemStack[][] getRecipe();
 
 	int getWidth();
 
@@ -43,11 +41,13 @@ public interface INpcRecipe {
 
 	void setKnown(boolean known);
 	
-	NBTTagCompound writeNBT();
+	INbt getNbt();
+	
+	void setNbt(INbt nbt);
 	
 	String getNpcGroup();
 
-	ItemStack getProduct();
+	IItemStack getProduct();
 
 	void copy(INpcRecipe recipe);
 

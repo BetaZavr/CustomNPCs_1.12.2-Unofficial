@@ -95,26 +95,24 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
-		this.runScript(type.function, event);
-	}
+	public void runScript(EnumScriptType type, Event event) { this.runScript(type.function, event); }
 
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		CustomNpcs.Server.addScheduledTask(() -> {
-			if (ScriptController.Instance.lastLoaded > this.lastInited) {
-				this.lastInited = ScriptController.Instance.lastLoaded;
-				if (!type.equals("init")) {
-					EventHooks.onForgeInit(this);
+		if (!this.isEnabled()) { return; }
+		try {
+			CustomNpcs.Server.addScheduledTask(() -> {
+				if (ScriptController.Instance.lastLoaded > this.lastInited) {
+					this.lastInited = ScriptController.Instance.lastLoaded;
+					if (!type.equals("init")) {
+						EventHooks.onForgeInit(this);
+					}
 				}
-			}
-			Iterator<ScriptContainer> iterator = this.scripts.iterator();
-			while (iterator.hasNext()) {
-				((ScriptContainer) iterator.next()).run(type, event);
-			}
-		});
+				Iterator<ScriptContainer> iterator = this.scripts.iterator();
+				while (iterator.hasNext()) {
+					((ScriptContainer) iterator.next()).run(type, event);
+				}
+			});
+		} catch (Exception e) {}
 	}
 
 	@Override

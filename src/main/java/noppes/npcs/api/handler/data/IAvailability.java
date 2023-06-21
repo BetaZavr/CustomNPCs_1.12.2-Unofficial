@@ -16,17 +16,13 @@ public interface IAvailability {
 
 	boolean hasScoreboard(String objective);
 
-	// int getDialog(int pos); Changed
-
-	// int getQuest(int pos); Changed
-
 	boolean isAvailable(IPlayer<?> player);
 
-	void removeDialog(int id); // Changed
+	void removeDialog(int id);
 
-	void removeFaction(int id); // Changed
+	void removeFaction(int id);
 
-	void removeQuest(int id); // Changed
+	void removeQuest(int id);
 
 	void removeScoreboard(String objective);
 
@@ -34,20 +30,20 @@ public interface IAvailability {
 
 	void setDaytime(int minHour, int maxHour);
 
-	void setDialog(int id, int type); // Changed
+	void setDialog(int id, int type);
 
-	void setFaction(int id, int type, int stance); // Changed
+	void setFaction(int id, int type, int stance);
 
 	void setMinPlayerLevel(int level);
 
-	void setQuest(int id, int type); // Changed
+	void setQuest(int id, int type);
 
-	void setScoreboard(String objective, int type, int value); // Changed
-	
+	void setScoreboard(String objective, int type, int value);
+
 	int getHealth();
-	
+
 	int getHealthType();
-	
+
 	void setHealth(int value, int type);
 
 }

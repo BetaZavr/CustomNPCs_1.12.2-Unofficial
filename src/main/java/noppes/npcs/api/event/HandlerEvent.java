@@ -4,6 +4,7 @@ import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 
 public class HandlerEvent {
+	
 	public static class FactionsLoadedEvent extends CustomNPCsEvent {
 		public IFactionHandler handler;
 
@@ -19,4 +20,5 @@ public class HandlerEvent {
 			this.handler = handler;
 		}
 	}
+	
 }

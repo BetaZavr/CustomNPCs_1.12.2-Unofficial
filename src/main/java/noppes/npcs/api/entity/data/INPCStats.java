@@ -6,7 +6,7 @@ public interface INPCStats {
 
 	int getCombatRegen();
 
-	int getCreatureType(); // (0=Normal, 1=Undead, 2=Arthropod) Only used for damage calculations with enchants
+	int getCreatureType();
 
 	int getHealthRegen();
 
@@ -40,7 +40,7 @@ public interface INPCStats {
 
 	void setCombatRegen(int regen);
 
-	void setCreatureType(int type); // (0=Normal, 1=Undead, 2=Arthropod) Only used for damage calculations with  enchants
+	void setCreatureType(int type);
 
 	void setHealthRegen(int regen);
 

@@ -1,7 +1,5 @@
 package noppes.npcs.api.gui;
 
-import java.util.List;
-
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemStack;
 
@@ -19,7 +17,7 @@ public interface ICustomGui {
 
 	ILabel addLabel(int id, String label, int x, int y, int width, int height, int color);
 
-	IScroll addScroll(int id, int x, int y, int width, int height, String[] p5);
+	IScroll addScroll(int id, int x, int y, int width, int height, String[] list);
 
 	ITextField addTextField(int id, int x, int y, int width, int height);
 
@@ -33,13 +31,13 @@ public interface ICustomGui {
 
 	ICustomGuiComponent getComponent(int id);
 
-	List<ICustomGuiComponent> getComponents();
+	ICustomGuiComponent[] getComponents();
 
 	int getHeight();
 
 	int getID();
 
-	List<IItemSlot> getSlots();
+	IItemSlot[] getSlots();
 
 	int getWidth();
 
@@ -47,13 +45,13 @@ public interface ICustomGui {
 
 	void setBackgroundTexture(String resourceLocation);
 	
-	void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretched, String resourceLocation); // new
+	void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretched, String resourceLocation);
 
 	void setDoesPauseGame(boolean pauseGame);
 
 	void setSize(int width, int height);
 
-	void showPlayerInventory(int p0, int p1);
+	void showPlayerInventory(int x, int y);
 
 	void update(IPlayer<?> player);
 

@@ -468,12 +468,52 @@ public class ScriptPlayerEventHandler {
 			ClassPath loader = ClassPath.from(this.getClass().getClassLoader());
 
 			// Get all loaded Forge event classes
-			List<ClassPath.ClassInfo> list = new ArrayList<ClassPath.ClassInfo>(
-					loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
+			List<ClassPath.ClassInfo> list = new ArrayList<ClassPath.ClassInfo>(loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
 			list.addAll(loader.getTopLevelClassesRecursive("net.minecraftforge.fml.common"));
-
+			
+			boolean errorLoadMods = false;
+			/*Map<Class<?>, String> ms = Maps.<Class<?>, String>newHashMap();
+			try {
+				String modId;
+				Map<File, String> mods = Maps.<File, String>newHashMap();
+				for (ModContainer mod : Loader.instance().getModList()) {
+					modId = mod.getName().toLowerCase();
+					while(modId.indexOf(" ")!=-1) { modId = modId.replace(" ", "_"); }
+					if (modId.indexOf("forge")!=-1) { modId = "forge";}
+					if (modId.equals(CustomNpcs.MODID)) { continue; }
+					if (mod.getSource().exists() && !mods.containsKey(mod.getSource())) { mods.put(mod.getSource(), modId); }
+				}
+				for (File file : mods.keySet()) {
+					if (!file.isDirectory() && (file.getName().endsWith(".jar") || file.getName().endsWith(".zip"))) {
+						ZipFile zip = new ZipFile(file);
+						Enumeration<? extends ZipEntry> entries = zip.entries();
+						while (entries.hasMoreElements()) {
+							ZipEntry zipentry = (ZipEntry) entries.nextElement();
+							if (zipentry.getName().indexOf("assets")!=-1 || !zipentry.getName().endsWith(".class")) { continue; }
+							String classPath = zipentry.getName();
+							classPath = classPath.substring(0, classPath.length()-6);
+							while(classPath.indexOf("/")!=-1) { classPath = classPath.replace("/", "."); }
+							while(classPath.indexOf("\\")!=-1) { classPath = classPath.replace("\\", "."); }
+							if(classPath.indexOf("$")!=-1) { classPath = classPath.substring(0, classPath.indexOf("$")); }
+							Class<?> c = null;
+							try {
+								c = Class.forName(classPath);
+								if (c != null && Event.class.isAssignableFrom(c) && !listCalsses.contains(c)) {
+									listCalsses.add(c);
+									if (mods.get(file).indexOf("forge")==-1) { ms.put(c, mods.get(file)); }
+								}
+							} catch (ClassNotFoundException e) { continue; }
+						}
+						zip.close();
+					} else if (file.isDirectory()) {
+						this.cheakDirectory(file, listCalsses, mods.get(file), ms);
+					}
+				}
+			}
+			catch (Exception e) { errorLoadMods = true; }*/
+			
 			// New
-			if (list.isEmpty()) { // It shouldn't be like this, but perhaps the manual filling option will help.
+			if (list.isEmpty() || errorLoadMods) { // It shouldn't be like this, but perhaps the manual filling option will help.
 				LogWriter.error("CustomNpcs Error: Not found Forge Events in Loaded Classes");
 				LogWriter.info("CustomNpcs: Trying to download manually");
 				int i = 0;
@@ -602,7 +642,7 @@ public class ScriptPlayerEventHandler {
 							default: { notBreak = false; break; }
 						}
 					} catch (ClassNotFoundException e) { continue; }
-					if (c != null) { listCalsses.add(c); }
+					if (c != null && !listCalsses.contains(c)) { listCalsses.add(c); }
 				}
 			}
 			for (ClassPath.ClassInfo info : list) {
@@ -625,6 +665,8 @@ public class ScriptPlayerEventHandler {
 			// Set the main method of the mod for each event
 			for (Class<?> infoClass : listCalsses) {
 				try {
+					String pfx = "";
+					//if (ms.containsKey(infoClass)) { pfx = ms.get(infoClass); }
 					List<Class<?>> classes = new ArrayList<Class<?>>(Arrays.asList(infoClass.getDeclaredClasses()));
 					if (classes.isEmpty()) { classes.add(infoClass); }
 
@@ -653,7 +695,7 @@ public class ScriptPlayerEventHandler {
 						String eventName = c.getName();
 						if (!isClient) { isClient = eventName.toLowerCase().indexOf("client")!=-1 || eventName.toLowerCase().indexOf("render")!=-1; }
 						int i = eventName.lastIndexOf(".");
-						eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
+						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						// Add
 						register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
@@ -699,5 +741,27 @@ public class ScriptPlayerEventHandler {
 		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size()+"; Server: "+ CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listCalsses.size() + "] classes");
 		return this;
 	}
+
+	/*private void cheakDirectory(File dir, List<Class<?>> listCalsses, String modName, Map<Class<?>, String> ms) {
+		for (File f : dir.listFiles()) {
+			if (f.getName().equals("assets")) { continue; }
+			if (f.isDirectory()) { this.cheakDirectory(f, listCalsses, modName, ms); }
+			if (f.isFile() && f.getName().endsWith(".class")) {
+				String classPath = f.getName();
+				classPath = classPath.substring(0, classPath.length()-6);
+				while(classPath.indexOf("/")!=-1) { classPath = classPath.replace("/", "."); }
+				while(classPath.indexOf("\\")!=-1) { classPath = classPath.replace("\\", "."); }
+				if(classPath.indexOf("$")!=-1) { classPath = classPath.substring(0, classPath.indexOf("$")); }
+				Class<?> c = null;
+				try {
+					c = Class.forName(classPath);
+					if (c != null && Event.class.isAssignableFrom(c) && !listCalsses.contains(c)) {
+						listCalsses.add(c);
+						if (modName.indexOf("forge")==-1) { ms.put(c, modName); }
+					}
+				} catch (ClassNotFoundException e) { continue; }
+			}
+		}
+	}*/
 
 }

@@ -18,9 +18,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
-import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.constants.EnumPacketClient;
@@ -68,9 +66,6 @@ implements IBorderHandler {
 		nbttagcompound.setTag("Data", list);
 		return nbttagcompound;
 	}
-
-	@Override
-	public INbt getNbt() { return NpcAPI.Instance().getINbt(this.getNBT()); }
 	
 	public int getUnusedId() {
 		int id;

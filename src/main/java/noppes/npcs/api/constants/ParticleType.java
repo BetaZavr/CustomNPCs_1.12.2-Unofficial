@@ -3,6 +3,7 @@ package noppes.npcs.api.constants;
 import net.minecraft.util.EnumParticleTypes;
 
 public class ParticleType {
+	
 	public static int CRIT = 8;
 	public static int ENCHANT = 7;
 	public static int LARGE_SMOKE = 5;

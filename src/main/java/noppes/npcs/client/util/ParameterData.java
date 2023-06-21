@@ -9,13 +9,15 @@ import net.minecraft.util.text.TextComponentTranslation;
 public class ParameterData {
 	
 	public String typename;
-	private String comment;
+	public String comment;
+	public String clazz;
 	
 	public ParameterData(Class<?> clazz, String name, String comment) {
 		char chr = Character.toChars(0x00A7)[0];
-		String type = "c"+ clazz.getSimpleName();
-		if (clazz.isInterface()) { type = "9"+ clazz.getSimpleName(); }
-		else if (clazz == boolean.class || clazz == byte.class || clazz == short.class || clazz == int.class || clazz == float.class || clazz == double.class || clazz == long.class || clazz == String.class) { type = "e"+ clazz.getSimpleName(); }
+		this.clazz = clazz.getSimpleName();
+		String type = "c"+ this.clazz;
+		if (clazz.isInterface()) { type = "9"+ this.clazz; }
+		else if (clazz == boolean.class || clazz == byte.class || clazz == short.class || clazz == int.class || clazz == float.class || clazz == double.class || clazz == long.class || clazz == String.class) { type = "e"+ this.clazz; }
 		this.typename = chr + type  + chr + "f " + name;
 		this.comment = comment;
 	}

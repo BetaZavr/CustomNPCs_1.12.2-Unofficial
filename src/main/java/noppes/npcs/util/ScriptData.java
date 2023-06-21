@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IScriptData;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -305,7 +307,7 @@ implements IScriptData {
 	}
 
 	@Override
-	public NBTTagCompound getNBT() {
+	public INbt getNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setInteger("ObjectType", this.type);
 		nbt.setString("Value", this.value);
@@ -322,7 +324,7 @@ implements IScriptData {
 		NBTTagList subList = new NBTTagList();
 		if (this.subData.size() > 0) {
 			for (IScriptData sd : this.subData) {
-				subList.appendTag(sd.getNBT());
+				subList.appendTag(sd.getNBT().getMCNBT());
 			}
 		}
 		nbt.setTag("SubData", subList);
@@ -336,7 +338,7 @@ implements IScriptData {
 		}
 		nbt.setTag("Parametrs", parList);
 
-		return nbt;
+		return NpcAPI.Instance().getINbt(nbt);
 	}
 
 	@Override
@@ -409,7 +411,6 @@ implements IScriptData {
 		return this.value;
 	}
 
-	@Override
 	public void load(NBTTagCompound nbt) {
 		this.type = nbt.getInteger("ObjectType");
 		this.value = nbt.getString("Value");
@@ -530,5 +531,8 @@ implements IScriptData {
 		for (String key : addedMap.keySet()) { map.put(key, addedMap.get(key)); }
 		return map;
 	}
+
+	@Override
+	public void setNBT(INbt nbt) { this.load(nbt.getMCNBT()); }
 
 }

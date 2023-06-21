@@ -19,7 +19,6 @@ public interface IQuestObjective {
 
 	String getText();
 
-	// New
 	int getType();
 
 	boolean isCompleted();

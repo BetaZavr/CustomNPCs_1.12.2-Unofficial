@@ -3,5 +3,7 @@ package noppes.npcs.client.gui.util;
 import net.minecraft.nbt.NBTTagCompound;
 
 public interface IGuiError {
-	void setError(int p0, NBTTagCompound p1);
+	
+	void setError(int type, NBTTagCompound nbt);
+	
 }

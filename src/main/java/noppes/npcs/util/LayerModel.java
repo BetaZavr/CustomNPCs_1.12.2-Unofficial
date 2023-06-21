@@ -31,7 +31,7 @@ implements ILayerModel {
 	}
 
 	@Override
-	public NBTTagCompound getNbt() {
+	public INbt getNbt() {
 		NBTTagCompound nbtLayer = new NBTTagCompound();
 		if (!this.model.isEmpty()) {
 			nbtLayer.setTag("Model", this.model.writeToNBT(new NBTTagCompound()));
@@ -57,7 +57,7 @@ implements ILayerModel {
 		nbtLayer.setByteArray("isRotate", this.isRotate);
 		nbtLayer.setInteger("Pos", this.pos);
 		nbtLayer.setInteger("Speed", this.rotateSpeed);
-		return nbtLayer;
+		return NpcAPI.Instance().getINbt(nbtLayer);
 	}
 
 	@Override

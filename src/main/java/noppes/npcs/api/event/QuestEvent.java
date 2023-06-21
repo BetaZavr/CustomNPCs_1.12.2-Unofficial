@@ -9,7 +9,7 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.Quest;
 
 public class QuestEvent extends CustomNPCsEvent {
-	// New
+	
 	@Cancelable
 	public static class QuestCanceledEvent extends QuestEvent {
 		public QuestCanceledEvent(IPlayer<?> player, IQuest quest) {

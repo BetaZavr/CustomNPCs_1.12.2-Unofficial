@@ -2,9 +2,7 @@ package noppes.npcs.controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -46,8 +44,8 @@ implements IQuestHandler {
 	}
 
 	@Override
-	public List<IQuestCategory> categories() {
-		return new ArrayList<IQuestCategory>(this.categories.values());
+	public IQuestCategory[] categories() {
+		return this.categories.values().toArray(new IQuestCategory[this.categories.size()]);
 	}
 
 	public boolean containsCategoryName(QuestCategory category) {

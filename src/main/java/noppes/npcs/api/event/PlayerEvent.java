@@ -167,7 +167,6 @@ extends CustomNPCsEvent {
 
 	public static class ItemCrafted extends PlayerEvent {
 
-		@Nonnull
 		public final IItemStack crafting;
 		public final IInventory craftMatrix;
 
@@ -178,7 +177,6 @@ extends CustomNPCsEvent {
 		}
 	}
 
-	// New
 	@Cancelable
 	public static class ItemFished extends PlayerEvent {
 

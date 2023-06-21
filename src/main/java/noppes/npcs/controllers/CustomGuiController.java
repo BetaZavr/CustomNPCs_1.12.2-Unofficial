@@ -93,7 +93,7 @@ public class CustomGuiController {
 	public static void openGui(PlayerWrapper<?> player, CustomGuiWrapper gui) {
 		EntityPlayerMP pl = (EntityPlayerMP) player.getMCEntity();
 		gui.setPlayer(pl);
-		pl.openGui(CustomNpcs.instance, EnumGuiType.CustomGui.ordinal(), pl.world, gui.getSlots().size(), 0, 0);
+		pl.openGui(CustomNpcs.instance, EnumGuiType.CustomGui.ordinal(), pl.world, gui.getSlots().length, 0, 0);
 		CustomNPCsScheduler.runTack(() -> {
 			Server.sendDataChecked(pl, EnumPacketClient.GUI_DATA, gui.toNBT());
 		});

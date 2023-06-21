@@ -1,8 +1,6 @@
 package noppes.npcs.controllers.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -64,7 +62,7 @@ implements ICompatibilty, IDialog {
 		dialog.disableEsc = this.disableEsc;
 		for (int slot : this.options.keySet()) {
 			DialogOption option = this.options.get(slot);
-			if (option.optionType == 1) {
+			if (option.optionType == 1 && player!=null) {
 				if (!option.hasDialogs() || !option.isAvailable(player)) {
 					continue;
 				}
@@ -110,8 +108,8 @@ implements ICompatibilty, IDialog {
 	}
 
 	@Override
-	public List<IDialogOption> getOptions() {
-		return new ArrayList<IDialogOption>(this.options.values());
+	public IDialogOption[] getOptions() {
+		return this.options.values().toArray(new IDialogOption[this.options.size()]);
 	}
 
 	@Override

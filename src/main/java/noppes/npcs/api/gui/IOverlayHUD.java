@@ -34,7 +34,7 @@ public interface IOverlayHUD {
 
 	boolean hasMousePress(int key);
 
-	boolean hasOrKeysPressed(int ... keys);
+	boolean hasOrKeysPressed(int[] keys);
 
 	double[] getWindowSize();
 

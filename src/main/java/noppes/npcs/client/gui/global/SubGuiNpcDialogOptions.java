@@ -42,13 +42,10 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface {
 		for (int i = 0; i < 6; ++i) {
 			String optionString = "";
 			DialogOption option = this.dialog.options.get(i);
-			if (option != null && option.optionType != 2) {
-				optionString += option.title;
-			}
+			if (option != null && option.optionType != 2) { optionString += option.title; }
 			this.addLabel(new GuiNpcLabel(i + 10, i + 1 + ": ", this.guiLeft + 4, this.guiTop + 16 + i * 32));
 			this.addLabel(new GuiNpcLabel(i, optionString, this.guiLeft + 14, this.guiTop + 12 + i * 32));
-			this.addButton(
-					new GuiNpcButton(i, this.guiLeft + 13, this.guiTop + 21 + i * 32, 60, 20, "selectServer.edit"));
+			this.addButton( new GuiNpcButton(i, this.guiLeft + 13, this.guiTop + 21 + i * 32, 60, 20, "selectServer.edit"));
 		}
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 194, 98, 20, "gui.done"));
 	}

@@ -341,7 +341,7 @@ implements ITickable, IScriptBlockHandler {
 		compound.setInteger("ModelMeta", this.metaModel);
 		NBTTagList l = new NBTTagList();
 		for (int i=0; i<this.layers.length; i++) {
-			l.appendTag(this.layers[i].getNbt());
+			l.appendTag(this.layers[i].getNbt().getMCNBT());
 		}
 		compound.setTag("Layers", l);
 		return compound;

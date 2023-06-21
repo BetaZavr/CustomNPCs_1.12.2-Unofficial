@@ -209,8 +209,8 @@ implements ICustomGui {
 	}
 
 	@Override
-	public List<ICustomGuiComponent> getComponents() {
-		return this.components;
+	public ICustomGuiComponent[] getComponents() {
+		return this.components.toArray(new ICustomGuiComponent[this.components.size()]);
 	}
 
 	public boolean getDoesPauseGame() {
@@ -244,11 +244,11 @@ implements ICustomGui {
 	}
 
 	@Override
-	public List<IItemSlot> getSlots() {
+	public IItemSlot[] getSlots() {
 		if (this.player instanceof EntityPlayerMP) {
 			this.setPlayer((EntityPlayerMP) this.player);
 		} // New
-		return this.slots;
+		return this.slots.toArray(new IItemSlot[this.slots.size()]);
 	}
 
 	@Override

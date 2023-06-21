@@ -682,7 +682,7 @@ public class NoppesUtilServer {
 			for (INpcRecipe rec : map.get(group)) {
 				recipes.appendTag(new NBTTagString(rec.getName()));
 				if (recipe.equalsIgnoreCase(rec.getName())) {
-					compound.setTag("SelectRecipe", rec.writeNBT());
+					compound.setTag("SelectRecipe", rec.getNbt().getMCNBT());
 				}
 			}
 		}
@@ -779,9 +779,9 @@ public class NoppesUtilServer {
 		container.setRecipe(recipe);
 		NBTTagCompound compound = new NBTTagCompound();
 		if (recipe.isShaped()) {
-			compound.setTag("SelectRecipe", ((NpcShapedRecipes) recipe).writeNBT());
+			compound.setTag("SelectRecipe", ((NpcShapedRecipes) recipe).getNbt().getMCNBT());
 		} else {
-			compound.setTag("SelectRecipe", ((NpcShapelessRecipes) recipe).writeNBT());
+			compound.setTag("SelectRecipe", ((NpcShapelessRecipes) recipe).getNbt().getMCNBT());
 		}
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}

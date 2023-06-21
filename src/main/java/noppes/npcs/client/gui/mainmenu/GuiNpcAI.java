@@ -70,8 +70,7 @@ implements ITextfieldListener, IGuiData {
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 86, this.guiTop + 10, 60, 20,
 				new String[] { "gui.retaliate", "gui.panic", "gui.retreat", "gui.nothing" }, this.npc.ais.onAttack));
 		this.addLabel(new GuiNpcLabel(1, "ai.door", this.guiLeft + 5, this.guiTop + 40));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 86, this.guiTop + 35, 60, 20,
-				new String[] { "gui.break", "gui.open", "gui.disabled" }, this.npc.ais.doorInteract));
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 86, this.guiTop + 35, 60, 20, new String[] { "gui.break", "gui.open", "gui.disabled" }, this.npc.ais.doorInteract));
 		this.addLabel(new GuiNpcLabel(12, "ai.swim", this.guiLeft + 5, this.guiTop + 65));
 		this.addButton(new GuiNpcButton(7, this.guiLeft + 86, this.guiTop + 60, 60, 20,
 				new String[] { "gui.no", "gui.yes" }, (this.npc.ais.canSwim ? 1 : 0)));

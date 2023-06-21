@@ -20,11 +20,7 @@ public interface INPCInventory {
 	int getExpRNG();
 
 	IItemStack[] getItemsRNG(EntityLivingBase attacking);
-
-	// void setDropItem(int p0, IItemStack p1, int p2); Changed
-
-	// IItemStack getDropItem(int p0); Changed
-
+	
 	IItemStack[] getItemsRNGL(EntityLivingBase attacking);
 
 	IItemStack getLeftHand();
@@ -32,8 +28,6 @@ public interface INPCInventory {
 	IItemStack getProjectile();
 
 	IItemStack getRightHand();
-
-	// IItemStack[] getItemsRNG(); Changed
 
 	boolean getXPLootMode();
 

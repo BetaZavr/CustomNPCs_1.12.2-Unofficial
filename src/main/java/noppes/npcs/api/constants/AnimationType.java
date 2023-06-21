@@ -1,6 +1,7 @@
 package noppes.npcs.api.constants;
 
 public class AnimationType {
+	
 	public static int AIM = 6;
 	public static int BOW = 11;
 	public static int CRAWL = 7;
@@ -16,4 +17,5 @@ public class AnimationType {
 	public static int SNEAK = 4;
 	public static int WAVE = 10;
 	public static int YES = 13;
+	
 }

@@ -78,7 +78,7 @@ implements IRecipeHandler {
 				nbtG.setBoolean("isGlobal", i==0);
 				NBTTagList recipes = new NBTTagList();
 				for (INpcRecipe recipe : map.get(groupName)) {
-					recipes.appendTag(recipe.writeNBT());
+					recipes.appendTag(recipe.getNbt().getMCNBT());
 				}
 				nbtG.setTag("Recipes", recipes);
 				data.appendTag(nbtG);
@@ -165,22 +165,15 @@ implements IRecipeHandler {
 			return;
 		}
 		// Global
-		this.addRecipe("Npc Wand", "normal", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.BREAD,
-				'Y', Items.STICK);
-		this.addRecipe("Npc Wand", "potato", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.POTATO,
-				'Y', Items.STICK);
-		this.addRecipe("Npc Wand", "carrot", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.CARROT,
-				'Y', Items.STICK);
-		this.addRecipe("Mob Cloner", "normal", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X',
-				Items.BREAD, 'Y', Items.STICK);
-		this.addRecipe("Mob Cloner", "potato", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X',
-				Items.POTATO, 'Y', Items.STICK);
-		this.addRecipe("Mob Cloner", "carrot", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X',
-				Items.CARROT, 'Y', Items.STICK);
+		this.addRecipe("Npc Wand", "normal", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
+		this.addRecipe("Npc Wand", "potato", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
+		this.addRecipe("Npc Wand", "carrot", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
+		this.addRecipe("Mob Cloner", "normal", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
+		this.addRecipe("Mob Cloner", "potato", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
+		this.addRecipe("Mob Cloner", "carrot", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
 		this.addRecipe("Soul Stone", "empty", CustomItems.soulstoneEmpty, true, true, false, "XX", 'X', Items.DIAMOND);
 		// Mod
-		this.addRecipe("Npc MailBox", "metallic", new ItemStack(CustomItems.mailbox, 1, 0), false, false, true, " XZ ",
-				"YYYY", "Y  Y", "YYYY", 'X', Items.PAPER, 'Y', Items.IRON_INGOT, 'Z', new ItemStack(Items.DYE, 5, 4));
+		this.addRecipe("Npc MailBox", "metallic", new ItemStack(CustomItems.mailbox, 1, 0), false, false, true, " XZ ", "YYYY", "Y  Y", "YYYY", 'X', Items.PAPER, 'Y', Items.IRON_INGOT, 'Z', new ItemStack(Items.DYE, 5, 4));
 		for (int v = 0; v < 6; v++) {
 			String key = "wood_";
 			switch (v) {
@@ -191,8 +184,7 @@ implements IRecipeHandler {
 				case 5: { key += "dark_oak"; break; }
 				default: { key += "oak"; }
 			}
-			this.addRecipe("Npc MailStand", key, new ItemStack(CustomItems.mailbox, 1, 1), false, true, true, " X  ",
-					"YYY ", "Y Y ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v));
+			this.addRecipe("Npc MailStand", key, new ItemStack(CustomItems.mailbox, 1, 1), false, true, true, " X  ", "YYY ", "Y Y ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v));
 		}
 		for (int v = 0; v < 6; v++) {
 			String key = "wood_";
@@ -203,9 +195,7 @@ implements IRecipeHandler {
 				case 5: { key += "dark_oak"; break; }
 				default: { key += "oak"; }
 			}
-			this.addRecipe("Npc MailStand Old", key, new ItemStack(CustomItems.mailbox, 1, 2), false, true, true,
-					" X  ", "YYY ", "Z Z ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v), 'Z',
-					Items.IRON_INGOT);
+			this.addRecipe("Npc MailStand Old", key, new ItemStack(CustomItems.mailbox, 1, 2), false, true, true, " X  ", "YYY ", "Z Z ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v), 'Z', Items.IRON_INGOT);
 		}
 		this.save();
 	}
@@ -300,8 +290,7 @@ implements IRecipeHandler {
 	}
 	
 	@Override
-	public INpcRecipe addRecipe(String name, String group, boolean global, boolean known, ItemStack result, int width,
-			int height, ItemStack... stacks) {
+	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width, int height, ItemStack... stacks) {
 		NonNullList<Ingredient> list = NonNullList.create();
 		for (ItemStack item : stacks) {
 			if (!item.isEmpty()) {
@@ -320,8 +309,7 @@ implements IRecipeHandler {
 	}
 
 	@Override
-	public INpcRecipe addRecipe(String name, String group, boolean global, boolean known, ItemStack result,
-			Object... objects) {
+	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, Object... objects) {
 		INpcRecipe recipe;
 		if (known) {
 			recipe = NpcShapedRecipes.createRecipe(group, name, global, result, objects);
@@ -334,8 +322,7 @@ implements IRecipeHandler {
 	}
 	
 
-	public void addRecipe(String group, String name, Object ob, boolean global, boolean known, boolean shaped,
-			Object... objects) {
+	public void addRecipe(String group, String name, Object ob, boolean global, boolean known, boolean shaped, Object... objects) {
 		ItemStack item;
 		if (ob instanceof Item) {
 			item = new ItemStack((Item) ob);
@@ -356,7 +343,7 @@ implements IRecipeHandler {
 	}
 	
 	@Override
-	public boolean delete(String name, String group) {
+	public boolean delete(String group, String name) {
 		return this.delete(this.getRecipe(group, name));
 	}
 
@@ -382,35 +369,35 @@ implements IRecipeHandler {
 	}
 
 	@Override
-	public List<INpcRecipe> getCarpentryData() {
+	public INpcRecipe[] getCarpentryData() {
 		List<INpcRecipe> list = Lists.<INpcRecipe>newArrayList();
 		for (List<INpcRecipe> rs : this.modList.values()) {
 			for (INpcRecipe recipe : rs) {
 				list.add(recipe);
 			}
 		}
-		return list;
+		return list.toArray(new INpcRecipe[list.size()]);
 	}
 
 	@Override
-	public List<INpcRecipe> getCarpentryRecipes(String group) {
-		return this.modList.get(group);
+	public INpcRecipe[] getCarpentryRecipes(String group) {
+		return this.modList.get(group).toArray(new INpcRecipe[this.modList.get(group).size()]);
 	}
 
 	@Override
-	public List<INpcRecipe> getGlobalData() {
+	public INpcRecipe[] getGlobalData() {
 		List<INpcRecipe> list = Lists.<INpcRecipe>newArrayList();
 		for (List<INpcRecipe> rs : this.globalList.values()) {
 			for (INpcRecipe recipe : rs) {
 				list.add(recipe);
 			}
 		}
-		return list;
+		return list.toArray(new INpcRecipe[list.size()]);
 	}
 
 	@Override
-	public List<INpcRecipe> getGlobalRecipes(String group) {
-		return this.globalList.get(group);
+	public INpcRecipe[] getGlobalRecipes(String group) {
+		return this.globalList.get(group).toArray(new INpcRecipe[this.globalList.get(group).size()]);
 	}
 	
 	public List<IRecipe> getKnownRecipes() {
@@ -449,7 +436,7 @@ implements IRecipeHandler {
 		for (int i = 0; i < 2; i++) {
 			for (List<INpcRecipe> rs : (i == 0 ? this.globalList.values() : this.modList.values())) {
 				for (INpcRecipe recipe : rs) {
-					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 6, recipe.writeNBT());
+					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 6, recipe.getNbt().getMCNBT());
 				}
 			}
 		}

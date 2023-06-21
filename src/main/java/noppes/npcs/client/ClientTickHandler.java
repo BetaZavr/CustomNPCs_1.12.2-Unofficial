@@ -12,9 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -190,8 +190,8 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
-		if (entity instanceof EntityPlayerMP || !CustomNpcs.VerboseDebug) { return; }
-		
+		if (!(entity instanceof EntityPlayerSP) || !CustomNpcs.VerboseDebug) { return; }
+		//TempClass.run((EntityPlayerSP) entity);
 	}
 
 }

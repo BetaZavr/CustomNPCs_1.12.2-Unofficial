@@ -11,11 +11,8 @@ public class NPCRendererHelper {
 
 	private static ModelWrapper wrapper = new ModelWrapper();
 
-	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_,
-			float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_,
-			RenderLivingBase<EntityLivingBase> renderEntity) {
-		renderEntity.renderLayers(entity, p_177093_2_, p_177093_3_, p_177093_4_, p_177093_5_, p_177093_6_, p_177093_7_,
-				p_177093_8_);
+	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_, float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_, RenderLivingBase<EntityLivingBase> renderEntity) {
+		renderEntity.renderLayers(entity, p_177093_2_, p_177093_3_, p_177093_4_, p_177093_5_, p_177093_6_, p_177093_7_, p_177093_8_);
 	}
 
 	public static String getTexture(RenderLivingBase<EntityLivingBase> render, EntityLivingBase entity) {

@@ -1,13 +1,12 @@
 package noppes.npcs.api;
 
-import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.item.IItemStack;
 
 public interface ILayerModel {
 
 	int getPos();
 	
-	public NBTTagCompound getNbt();
+	INbt getNbt();
 	
 	void setNbt(INbt nbt);
 
