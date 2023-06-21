@@ -241,7 +241,7 @@ implements IBlockScripted {
 	}
 	
 	@Override
-	public void trigger(int id, Object... arguments) {
+	public void trigger(int id, Object[] arguments) {
 		EventHooks.onScriptTriggerEvent(this.tile, id, this.getWorld(), this.getPos(), null, arguments);
 	}
 

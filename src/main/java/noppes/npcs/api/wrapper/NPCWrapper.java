@@ -293,7 +293,7 @@ implements ICustomNpc {
 	}
 	
 	@Override
-	public void trigger(int id, Object... arguments) {
+	public void trigger(int id, Object[] arguments) {
 		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), null, arguments);
 	}
 

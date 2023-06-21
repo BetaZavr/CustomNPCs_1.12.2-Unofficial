@@ -36,6 +36,7 @@ import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.ModelData;
 import noppes.npcs.NBTTags;
@@ -594,6 +595,8 @@ extends PacketHandlerServer {
 					break;
 					
 			}
+		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
+			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}

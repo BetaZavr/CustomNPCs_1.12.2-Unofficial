@@ -3277,7 +3277,10 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "id", "parameter.trigger.id"),
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
 			),
-			new MetodData(String.class, "getLanguage", "method.iplayer.getlanguage")
+			new MetodData(String.class, "getLanguage", "method.iplayer.getlanguage"),
+			new MetodData(void.class, "sendTo", "method.iplayer.sendto",
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			)
 		)
 	),
 	IPlayerMail(new InterfaseData(IPlayerMail.class, 

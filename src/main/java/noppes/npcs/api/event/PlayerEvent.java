@@ -11,6 +11,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.IDamageSource;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
@@ -308,4 +309,15 @@ extends CustomNPCsEvent {
 		}
 	}
 
+	public static class PlayerPackage extends PlayerEvent {
+		
+		public INbt nbt;
+		
+		public PlayerPackage(IPlayer<?> player, INbt nbt) {
+			super(player);
+			this.nbt = nbt;
+		}
+		
+	}
+	
 }

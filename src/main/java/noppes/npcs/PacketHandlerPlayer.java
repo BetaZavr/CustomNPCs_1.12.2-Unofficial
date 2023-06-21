@@ -570,6 +570,8 @@ public class PacketHandlerPlayer {
 				tile.writeToNBT(compound);
 				Server.sendData(player, EnumPacketClient.SET_TILE_DATA, compound);
 			}
+		} else if (type == EnumPlayerPacket.ScriptPackage) {
+			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

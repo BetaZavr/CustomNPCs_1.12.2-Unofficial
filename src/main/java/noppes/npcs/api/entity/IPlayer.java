@@ -2,6 +2,7 @@ package noppes.npcs.api.entity;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.data.IPlayerMail;
@@ -100,6 +101,8 @@ extends IEntityLivingBase<T> {
 	void resetSpawnpoint();
 
 	void sendMail(IPlayerMail mail);
+	
+	void sendTo(INbt nbt);
 
 	void sendNotification(String title, String message, int type);
 

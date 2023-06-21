@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
@@ -25,6 +26,7 @@ import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityItem;
+import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.event.BlockEvent;
 import noppes.npcs.api.event.CustomContainerEvent;
@@ -36,6 +38,7 @@ import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.event.PlayerEvent.PlayerPackage;
 import noppes.npcs.api.event.PlayerEvent.PlayerSound;
 import noppes.npcs.api.event.ProjectileEvent;
 import noppes.npcs.api.event.QuestEvent;
@@ -804,6 +807,17 @@ public class EventHooks {
 		if (!handler.getEnabled()) { return; }
 		handler.runScript(EnumScriptType.PACKEGE_RECEIVED, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
+
+	public static void onScriptPackage(EntityPlayer player, NBTTagCompound nbt) {
+		IScriptHandler handler;
+		if (player==null || player.world.isRemote) { handler = ScriptController.Instance.clientScripts; }
+		else { handler = PlayerData.get(player).scriptData; }
+		if (!handler.getEnabled()) { return; }
+		PlayerPackage event = new PlayerPackage((IPlayer<?>) NpcAPI.Instance().getIEntity(player), NpcAPI.Instance().getINbt(nbt));
+		handler.runScript(EnumScriptType.PACKEGE_FROM, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		
 	}
 	
 }

@@ -55,21 +55,22 @@ public enum EnumScriptType
 	CUSTOM_GUI_SLOT("customGuiSlot"), 
 	CUSTOM_GUI_SCROLL("customGuiScroll"), 
 	CUSTOM_GUI_SLOT_CLICKED("customGuiSlotClicked"),
-	QUEST_CANCELED("questCanceled"), // New
-	ITEM_FISHED("itemFished"), // New
-	ITEM_CRAFTED("itemCrafted"), // New
-	KEY_DOWN("keyDown"), // New
-	MOUSE_DOWN("mouseDown"), // New
-	MOUSE_UP("mousePressed"), // New
-	POTION_IS_READY("isReady"), // New
-	POTION_PERFORM("performEffect"), // New
-	POTION_AFFECT("affectEntity"), // New
-	PLASED("plased"), // New
-	POTION_END("endEffect"), // New
-	SCRIPT_TRIGGER("trigger"), // New
-	SOUND_PLAY("soundPlayed"), // New
-	SOUND_STOP("soundStoped"), // New	
-	PACKEGE_RECEIVED("packageReceived");// New	
+	QUEST_CANCELED("questCanceled"), 
+	ITEM_FISHED("itemFished"), 
+	ITEM_CRAFTED("itemCrafted"), 
+	KEY_DOWN("keyDown"), 
+	MOUSE_DOWN("mouseDown"), 
+	MOUSE_UP("mousePressed"), 
+	POTION_IS_READY("isReady"), 
+	POTION_PERFORM("performEffect"), 
+	POTION_AFFECT("affectEntity"), 
+	PLASED("plased"), 
+	POTION_END("endEffect"), 
+	SCRIPT_TRIGGER("trigger"), 
+	SOUND_PLAY("soundPlayed"), 
+	SOUND_STOP("soundStoped"), 	
+	PACKEGE_RECEIVED("packageReceived"), 	
+	PACKEGE_FROM("packageFrom");	
 	
 	public String function;
 	

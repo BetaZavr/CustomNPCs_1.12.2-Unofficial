@@ -28,6 +28,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.NpcAPI;
@@ -42,9 +43,11 @@ import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
+import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.DialogController;
@@ -715,7 +718,7 @@ implements IPlayer {
 	}
 	
 	@Override
-	public void trigger(int id, Object... arguments) {
+	public void trigger(int id, Object[] arguments) {
 		EventHooks.onScriptTriggerEvent(this.getData().scriptData, id, this.getWorld(), this.getPos(), null, arguments);
 	}
 
@@ -733,5 +736,11 @@ implements IPlayer {
 	
 	@Override
 	public String getLanguage() { return ObfuscationHelper.getValue(EntityPlayerMP.class, this.entity, String.class); }
+
+	@Override
+	public void sendTo(INbt nbt) {
+		if (this.entity.world.isRemote) { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 20, nbt.getMCNBT()); }
+		else { Server.sendData(this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
+	}
 	
 }

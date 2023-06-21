@@ -30,7 +30,6 @@ public enum EnumPlayerPacket
 	CustomGuiClose, 
 	CustomGuiButton, 
 	CustomGuiScrollClick,
-	// New
 	QuestRemoveActive,
 	QuestChooseReward,
 	QuestCompletionReward,
@@ -51,6 +50,7 @@ public enum EnumPlayerPacket
 	HudTimerEnd,
 	TrackQuest,
 	SaveCompassData,
-	GetTileData;
+	GetTileData,
+	ScriptPackage;
 	
 }
