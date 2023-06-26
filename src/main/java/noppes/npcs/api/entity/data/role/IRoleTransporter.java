@@ -24,6 +24,7 @@ extends INPCRole {
 		void setPos(int dimentionID, int x, int y, int z);
 
 		void setType(int type);
+		
 	}
 
 	ITransportLocation getLocation();

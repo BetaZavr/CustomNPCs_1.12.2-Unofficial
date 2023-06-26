@@ -1416,19 +1416,19 @@ public enum EnumInterfaceData {
 			new MetodData(IDataElement.class, "getClazz", "method.idataobject.getclazz",
 				new ParameterData(String.class, "name", "parameter.class.name")
 			),
-			new MetodData(IDataElement[].class, "getConstructors", "method.idata.getconstructors"),
-			new MetodData(String.class, "getConstructorsInfo", "method.idata.getconstructorsinfo"),
-			new MetodData(IDataElement.class, "getField", "method.idata.getfield",
+			new MetodData(IDataElement[].class, "getConstructors", "method.idataobject.getconstructors"),
+			new MetodData(String.class, "getConstructorsInfo", "method.idataobject.getconstructorsinfo"),
+			new MetodData(IDataElement.class, "getField", "method.idataobject.getfield",
 				new ParameterData(String.class, "name", "parameter.field.name")
 			),
-			new MetodData(IDataElement[].class, "getFields", "method.idata.getfields"),
-			new MetodData(String.class, "getFieldsInfo", "method.idata.getfieldsinfo"),
-			new MetodData(String.class, "getInfo", "method.idata.getinfo"),
-			new MetodData(IDataElement.class, "getMethod", "method.idata.getmethod",
+			new MetodData(IDataElement[].class, "getFields", "method.idataobject.getfields"),
+			new MetodData(String.class, "getFieldsInfo", "method.idataobject.getfieldsinfo"),
+			new MetodData(String.class, "getInfo", "method.idataobject.getinfo"),
+			new MetodData(IDataElement.class, "getMethod", "method.idataobject.getmethod",
 				new ParameterData(String.class, "name", "parameter.method.name")
 			),
-			new MetodData(IDataElement[].class, "getMethods", "method.idata.getmethods"),
-			new MetodData(String.class, "getMethodsInfo", "method.idata.getmethodsinfo")
+			new MetodData(IDataElement[].class, "getMethods", "method.idataobject.getmethods"),
+			new MetodData(String.class, "getMethodsInfo", "method.idataobject.getmethodsinfo")
 		)
 	),
 	IDialog(new InterfaseData(IDialog.class, 
@@ -1763,7 +1763,7 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "setAge", "method.ientity.setage",
 				new ParameterData(long.class, "age", "parameter.ticks")
 			),
-			new MetodData(void.class, "setItem", "method.ientityitem.setquest",
+			new MetodData(void.class, "setItem", "method.ientityitem.setitem",
 				new ParameterData(IItemStack.class, "item", "parameter.stack")
 			),
 			new MetodData(void.class, "setLifeSpawn", "method.ientityitem.setlifespawn",
@@ -2607,7 +2607,7 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "setEffect", "method.inpcmelee.seteffect",
 				new ParameterData(int.class, "type", "parameter.effect.type"),
 				new ParameterData(int.class, "strength", "parameter.effect.strength"),
-				new ParameterData(int.class, "time", "parameter.effect.time")
+				new ParameterData(int.class, "time", "parameter.effect.duration")
 			),
 			new MetodData(void.class, "setKnockback", "method.inpcmelee.setknockback",
 				new ParameterData(int.class, "knockback", "parameter.ientity.power")
@@ -2930,7 +2930,6 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "getIgnoreNBT", "method.inpcrecipe.getignorenbt"),
 			new MetodData(String.class, "getName", "method.inpcrecipe.getname"),
 			new MetodData(IItemStack[][].class, "getRecipe", "method.inpcrecipe.getrecipe"),
-			new MetodData(IItemStack.class, "getResult", "method.inpcrecipe.getresult"),
 			new MetodData(int.class, "getWidth", "method.inpcrecipe.getwidth"),
 			new MetodData(boolean.class, "isGlobal", "method.inpcrecipe.isglobal"),
 			new MetodData(boolean.class, "isKnown", "method.inpcrecipe.isknown"),
@@ -2958,7 +2957,7 @@ public enum EnumInterfaceData {
 			new MetodData(String.class, "getNpcGroup", "method.inpcrecipe.getnpcgroup"),
 			new MetodData(IItemStack.class, "getProduct", "method.inpcrecipe.getproduct"),
 			new MetodData(void.class, "copy", "method.inpcrecipe.copy",
-				new ParameterData(INpcRecipe.class, "recipe", "parameter.copy")
+				new ParameterData(INpcRecipe.class, "recipe", "parameter.inpcrecipe.copy")
 			),
 			new MetodData(boolean.class, "isValid", "method.inpcrecipe.isvalid"),
 			new MetodData(boolean.class, "equal", "method.inpcrecipe.equal",
@@ -4089,7 +4088,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "damage", "parameter.itemmeta"),
 				new ParameterData(int.class, "size", "parameter.itemcount")
 			),
-			new MetodData(IItemStack.class, "createItemFromNbt", "method.iworld.createitemfromnbt",
+			new MetodData(IItemStack.class, "createItemFromNbt", "method.iworld.createitem",
 				new ParameterData(INbt.class, "nbt", "parameter.iworld.nbt")
 			),
 			new MetodData(void.class, "explode", "method.iworld.explode",

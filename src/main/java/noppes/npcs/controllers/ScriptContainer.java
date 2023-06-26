@@ -87,13 +87,10 @@ public class ScriptContainer {
 		FillMap(OptionType.class);
 		FillMap(ParticleType.class);
 		FillMap(PotionEffectType.class);
-		
 		FillMap(RoleType.class);
 		FillMap(SideType.class);
 		FillMap(TacticalType.class);
-		FillMap(ScriptController.Instance.constants); // New
-		ScriptContainer.Data.put("API", NpcAPI.Instance()); // New
-		ScriptContainer.Data.put("PosZero", new BlockPosWrapper(BlockPos.ORIGIN));
+		FillMap(ScriptController.Instance.constants);
 	}
 
 	private static void FillMap(Class<?> c) {
@@ -104,6 +101,7 @@ public class ScriptContainer {
 				Method m = e.getClass().getMethod("get");
 				if (m==null || m.getReturnType()!=int.class) { continue; }
 				ScriptContainer.Data.put(c.getSimpleName() + "_" + ((Enum<?>) e).name(), (int) m.invoke(e));
+				LogWriter.debug("Add Base Script Constant: \"" + c.getSimpleName() + "_" + ((Enum<?>) e).name() + "\" == " + ((int) m.invoke(e)));
 			}
 			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException error) {
 				error.printStackTrace();
@@ -116,8 +114,17 @@ public class ScriptContainer {
 		for (String key : c.getCompoundTag("Constants").getKeySet()) {
 			NBTBase tag = c.getCompoundTag("Constants").getTag(key);
 			Object value = getNBTValue(tag);
-			if (value != null) { ScriptContainer.Data.put(key, value); }
+			if (value != null) {
+				ScriptContainer.Data.put(key, value);
+				LogWriter.debug("Add Custom Script Constant: " + key + " == " + value);
+			}
 		}
+		NpcAPI api = NpcAPI.Instance();
+		ScriptContainer.Data.put("API", api); // New
+		LogWriter.debug("Add Base Script Constant: \"API\" == " + api);
+		BlockPosWrapper bpw = new BlockPosWrapper(BlockPos.ORIGIN);
+		ScriptContainer.Data.put("PosZero", bpw);
+		LogWriter.debug("Add Base Script Constant: \"PosZero\" == " + bpw);
 	}
 
 	private static Object getNBTValue(NBTBase tag) {
