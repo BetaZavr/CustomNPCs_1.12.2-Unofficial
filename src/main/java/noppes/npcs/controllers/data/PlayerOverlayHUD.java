@@ -266,7 +266,6 @@ implements IOverlayHUD {
 		this.showElementTypes[type] = (byte) (bo ? 1 : 0);
 	}
 
-	@Override
 	public int[] getKeyPressed() {
 		int[] ids = new int[this.keyPress.size()];
 		int i = 0;
@@ -277,7 +276,6 @@ implements IOverlayHUD {
 		return ids;
 	}
 
-	@Override
 	public int[] getMousePressed() {
 		int[] ids = new int[this.mousePress.size()];
 		int i = 0;
@@ -288,12 +286,10 @@ implements IOverlayHUD {
 		return ids;
 	}
 
-	@Override
 	public double[] getWindowSize() {
 		return this.windowSize;
 	}
 
-	@Override
 	public boolean hasOrKeysPressed(int ... keys) {
 		for (int key : keys) {
 			for (int k : this.keyPress) {
@@ -303,7 +299,6 @@ implements IOverlayHUD {
 		return false;
 	}
 
-	@Override
 	public boolean hasMousePress(int key) {
 		for (int k : this.mousePress) {
 			if (k == key) { return true; }
@@ -311,10 +306,7 @@ implements IOverlayHUD {
 		return this.mousePress.contains((Integer) key) ;
 	}
 
-	@Override
-	public boolean isMoved() {
-		return this.isMoved;
-	}
+	public boolean isMoved() { return this.isMoved; }
 
 	@Override
 	public IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height) {

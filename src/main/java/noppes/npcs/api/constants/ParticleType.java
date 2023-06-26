@@ -2,17 +2,23 @@ package noppes.npcs.api.constants;
 
 import net.minecraft.util.EnumParticleTypes;
 
-public class ParticleType {
+public enum ParticleType {
 	
-	public static int CRIT = 8;
-	public static int ENCHANT = 7;
-	public static int LARGE_SMOKE = 5;
-	public static int LIGHTNING = 4;
-	public static int MAGIC = 6;
-	public static int NONE = 0;
-	public static int PORTAL = 2;
-	public static int REDSTONE = 3;
-	public static int SMOKE = 1;
+	CRIT(8),
+	ENCHANT(7),
+	LARGE_SMOKE(5),
+	LIGHTNING(4),
+	MAGIC(6),
+	NONE(0),
+	PORTAL(2),
+	REDSTONE(3),
+	SMOKE(1);
+	
+	int type = -1;
+	
+	ParticleType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
 
 	public static EnumParticleTypes getMCType(int type) {
 		if (type == 1) {

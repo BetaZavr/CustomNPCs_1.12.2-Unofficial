@@ -6,7 +6,9 @@ import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.constants.EnumAbilityType;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class AbilityBlock extends AbstractAbility implements IAbilityDamaged {
+public class AbilityBlock extends AbstractAbility
+implements IAbilityDamaged {
+	
 	public AbilityBlock(EntityNPCInterface npc) {
 		super(npc);
 	}

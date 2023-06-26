@@ -1,10 +1,18 @@
 package noppes.npcs.api.constants;
 
-public class SideType {
-	public static int DOWN = 0;
-	public static int EAST = 5;
-	public static int NORTH = 2;
-	public static int SOUTH = 3;
-	public static int UP = 1;
-	public static int WEST = 4;
+public enum SideType {
+	
+	DOWN(0),
+	EAST(5),
+	NORTH(2),
+	SOUTH(3),
+	UP(1),
+	WEST(4);
+	
+	int type = -1;
+	
+	SideType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
+	
 }

@@ -1,21 +1,27 @@
 package noppes.npcs.api.constants;
 
-public class AnimationType {
+public enum AnimationType {
+
+	NORMAL(0),
+	SIT(1),
+	SLEEP(2),
+	HUG(3),
+	SNEAK(4),
+	DANCE(5),
+	AIM(6),
+	CRAWL(7),
+	POINT(8),
+	CRY(9),
+	WAVE(10),
+	BOW(11),
+	NO(12),
+	YES(13),
+	DEATH(14);
 	
-	public static int AIM = 6;
-	public static int BOW = 11;
-	public static int CRAWL = 7;
-	public static int CRY = 9;
-	public static int DANCE = 5;
-	public static int DEATH = 14;
-	public static int HUG = 3;
-	public static int NO = 12;
-	public static int NORMAL = 0;
-	public static int POINT = 8;
-	public static int SIT = 1;
-	public static int SLEEP = 2;
-	public static int SNEAK = 4;
-	public static int WAVE = 10;
-	public static int YES = 13;
+	int type = -1;
+	
+	AnimationType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
 	
 }

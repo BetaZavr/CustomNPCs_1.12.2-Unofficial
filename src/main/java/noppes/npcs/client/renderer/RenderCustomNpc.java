@@ -60,7 +60,6 @@ extends RenderNPCInterface<T> {
 		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(0.5f), 1);
 		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(1.0f), 2);
 		this.addLayer(armor);
-		System.out.println(entity);
 	}
 
 	@SuppressWarnings("unchecked")

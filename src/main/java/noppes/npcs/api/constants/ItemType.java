@@ -1,11 +1,19 @@
 package noppes.npcs.api.constants;
 
-public class ItemType {
-	public static int ARMOR = 3;
-	public static int BLOCK = 2;
-	public static int BOOK = 1;
-	public static int NORMAL = 0;
-	public static int SCRIPTED = 6;
-	public static int SEEDS = 5;
-	public static int SWORD = 4;
+public enum ItemType {
+	
+	ARMOR(3),
+	BLOCK(2),
+	BOOK(1),
+	NORMAL(0),
+	SCRIPTED(6),
+	SEEDS(5),
+	SWORD(4);
+	
+	int type = -1;
+	
+	ItemType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
+	
 }

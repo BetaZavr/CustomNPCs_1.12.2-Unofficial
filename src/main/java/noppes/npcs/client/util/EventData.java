@@ -14,11 +14,12 @@ public class EventData {
 	public String comment, func;
 	
 	public EventData(Class<?> event, Class<?> extend, String comment, String func, MetodData ... mds) {
+		this.event = event;
+		this.extend = extend;
 		this.comment = comment;
 		this.func = func;
 		this.metods = Lists.<MetodData>newArrayList();
 		for (MetodData md : mds) { this.metods.add(md); }
-		this.extend = extend;
 	}
 	
 	public List<MetodData> getAllMetods(List<MetodData> parent) {

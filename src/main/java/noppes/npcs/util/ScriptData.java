@@ -320,7 +320,6 @@ implements IScriptData {
 		} else {
 			nbt.setString("Class", this.object.getClass().getName());
 		}
-
 		NBTTagList subList = new NBTTagList();
 		if (this.subData.size() > 0) {
 			for (IScriptData sd : this.subData) {

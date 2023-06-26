@@ -290,7 +290,7 @@ implements IRecipeHandler {
 	}
 	
 	@Override
-	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width, int height, ItemStack... stacks) {
+	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width, int height, ItemStack[] stacks) {
 		NonNullList<Ingredient> list = NonNullList.create();
 		for (ItemStack item : stacks) {
 			if (!item.isEmpty()) {
@@ -309,7 +309,7 @@ implements IRecipeHandler {
 	}
 
 	@Override
-	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, Object... objects) {
+	public INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, Object[] objects) {
 		INpcRecipe recipe;
 		if (known) {
 			recipe = NpcShapedRecipes.createRecipe(group, name, global, result, objects);

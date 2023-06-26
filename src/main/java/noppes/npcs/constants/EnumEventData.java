@@ -190,7 +190,7 @@ public enum EnumEventData {
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	),
-	CustomGuiCustomGuiButton(new EventData(CustomGuiEvent.ButtonEvent.class, 
+	CustomGuiButton(new EventData(CustomGuiEvent.ButtonEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.button",
 			"customGuiButton",
@@ -200,7 +200,7 @@ public enum EnumEventData {
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	),
-	CustomGuiCustomGuiClosed(new EventData(CustomGuiEvent.CloseEvent.class, 
+	CustomGuiClosed(new EventData(CustomGuiEvent.CloseEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.close",
 			"customGuiClosed",
@@ -209,7 +209,7 @@ public enum EnumEventData {
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	),
-	CustomGuiCustomGuiScroll(new EventData(CustomGuiEvent.ScrollEvent.class, 
+	CustomGuiScroll(new EventData(CustomGuiEvent.ScrollEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.scroll",
 			"customGuiScroll",
@@ -222,7 +222,7 @@ public enum EnumEventData {
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	),
-	CustomGuiCustomGuiSlot(new EventData(CustomGuiEvent.SlotEvent.class, 
+	CustomGuiSlot(new EventData(CustomGuiEvent.SlotEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.slot",
 			"customGuiSlot",
@@ -234,7 +234,7 @@ public enum EnumEventData {
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	),
-	CustomGuiCustomGuiSlotClicked(new EventData(CustomGuiEvent.SlotClickEvent.class, 
+	CustomGuiSlotClicked(new EventData(CustomGuiEvent.SlotClickEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.slotclick",
 			"customGuiSlotClicked",

@@ -12,13 +12,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -71,16 +71,16 @@ implements ICustomScrollListener {
 			AnimationConfig ac = (AnimationConfig) aData.animations.get(id);
 			String  t = "";
 			switch(ac.type) {
-				case attacking: t = c + "cAT"; break;
-				case dies: t = c + "4D"; break;
-				case flystand: t = c + "eSF"; break;
-				case flywalk: t = c + "6WF"; break;
-				case init: t = c + "aI"; break;
-				case jump: t = c + "bJ"; break;
-				case walking: t = c + "6W"; break;
-				case waterstand: t = c + "cAT"; break;
-				case waterwalk: t = c + "cAT"; break;
-				default: t = c + "eS"; break; // standing or any
+				case ATTACKING: t = c + "cAT"; break;
+				case DIES: t = c + "4D"; break;
+				case FLY_STAND: t = c + "eSF"; break;
+				case FLY_WALK: t = c + "6WF"; break;
+				case INIT: t = c + "aI"; break;
+				case JUMP: t = c + "bJ"; break;
+				case WALKING: t = c + "6W"; break;
+				case WATER_STAND: t = c + "cAT"; break;
+				case WATER_WALK: t = c + "cAT"; break;
+				default: t = c + "eS"; break; // STANDING or any
 			}
 			this.data.put(c + "8ID:" + c + "7" + id + c + "r " + ac.getName() + c + "7[" + t + c + "7]" , id);
 			hts[i] = new String[] { new TextComponentTranslation("animation.type").appendSibling(new TextComponentTranslation("puppet."+ac.type.name())).getFormattedText() };
@@ -154,7 +154,7 @@ implements ICustomScrollListener {
 	private void resetAnim() {
 		if (this.animation==null) { return; }
 		AnimationConfig ac = this.animation.copy();
-		ac.type = EnumAnimationType.standing;
+		ac.type = AnimationKind.STANDING;
 		if (this.showNpc==null) {
 			NBTTagCompound npcNbt = new NBTTagCompound();
 			this.npc.writeEntityToNBT(npcNbt);

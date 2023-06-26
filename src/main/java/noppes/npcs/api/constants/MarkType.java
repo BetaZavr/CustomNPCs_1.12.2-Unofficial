@@ -1,11 +1,19 @@
 package noppes.npcs.api.constants;
 
-public class MarkType {
-	public static int CROSS = 5;
-	public static int EXCLAMATION = 2;
-	public static int NONE = 0;
-	public static int POINTER = 3;
-	public static int QUESTION = 1;
-	public static int SKULL = 4;
-	public static int STAR = 6;
+public enum MarkType {
+	
+	CROSS(5),
+	EXCLAMATION(2),
+	NONE(0),
+	POINTER(3),
+	QUESTION(1),
+	SKULL(4),
+	STAR(6);
+	
+	int type = -1;
+	
+	MarkType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
+	
 }

@@ -234,6 +234,7 @@ import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
+import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
@@ -297,7 +298,13 @@ public enum EnumInterfaceData {
 	IAbility(new InterfaseData(IAbility.class, 
 			null,
 			new Class<?>[] { AbstractAbility.class },
-			"interfase.iability"
+			"interfase.iability",
+			new MetodData(boolean.class, "canRun", "method.iability.canrun",
+				new ParameterData(EntityLivingBase.class, "target", "parameter.entity")
+			),
+			new MetodData(int.class, "getRNG", "method.iability.getrnd"),
+			new MetodData(void.class, "startCombat", "method.iability.startCombat"),
+			new MetodData(void.class, "endAbility", "method.iability.endability")
 		)
 	),
 	IAbilityAttack(new InterfaseData(IAbilityAttack.class, 
@@ -1745,7 +1752,7 @@ public enum EnumInterfaceData {
 		)
 	),
 	IEntityItem(new InterfaseData(IEntityItem.class, 
-			IEntity.class,
+			IEntityLiving.class,
 			new Class<?>[] { EntityItemWrapper.class },
 			"interfase.ientityitem",
 			new MetodData(long.class, "getAge", "method.ientity.getage"),
@@ -1771,7 +1778,7 @@ public enum EnumInterfaceData {
 		)
 	),
 	IEntityLiving(new InterfaseData(IEntityLiving.class, 
-			IEntityLivingBase.class,
+			IEntity.class,
 			new Class<?>[] { EntityLivingWrapper.class },
 			"interfase.ientityliving",
 			new MetodData(void.class, "clearNavigation", "method.ientityliving.clearnavigation"),
@@ -1788,7 +1795,7 @@ public enum EnumInterfaceData {
 		)
 	),
 	IEntityLivingBase(new InterfaseData(IEntityLivingBase.class, 
-			IEntity.class,
+			IEntityLiving.class,
 			new Class<?>[] { EntityLivingBaseWrapper.class },
 			"interfase.ientitylivingbase",
 			new MetodData(IMark.class, "addMark", "method.ientitylivingbase.addmark",
@@ -1964,13 +1971,13 @@ public enum EnumInterfaceData {
 			new MetodData(String.class, "getAuthor", "method.iitembook.getauthor"),
 			new MetodData(String[].class, "getText", "method.iitembook.gettext"),
 			new MetodData(String.class, "getTitle", "method.iitembook.gettitle"),
-			new MetodData(void.class, "setAuthor", "method.iscriptdata.setAuthor",
+			new MetodData(void.class, "setAuthor", "method.iitembook.setauthor",
 				new ParameterData(String.class, "author", "parameter.book.author")
 			),
 			new MetodData(void.class, "setText", "method.iitembook.settext",
 				new ParameterData(String[].class, "pages", "parameter.iitembook.pages")
 			),
-			new MetodData(void.class, "setTitle", "method.iscriptdata.settitle",
+			new MetodData(void.class, "setTitle", "method.iitembook.settitle",
 				new ParameterData(String.class, "title", "parameter.book.title")
 			)
 		)
@@ -3045,16 +3052,6 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "height", "parameter.height"),
 				new ParameterData(int.class, "color", "parameter.color")
 			),
-			new MetodData(int[].class, "getKeyPressed", "method.ihud.getkeypressed"),
-			new MetodData(int[].class, "getMousePressed", "method.ihud.getmousepressed"),
-			new MetodData(boolean.class, "isMoved", "method.ihud.ismoved"),
-			new MetodData(boolean.class, "hasMousePress", "method.ihud.hasmousepress",
-				new ParameterData(int.class, "key", "parameter.mousekey")
-			),
-			new MetodData(boolean.class, "hasOrKeysPressed", "method.ihud.hasorkeyspressed",
-				new ParameterData(int[].class, "keys", "parameter.keyboard.key")
-			),
-			new MetodData(double[].class, "getWindowSize", "method.ihud.getwindowsize"),
 			new MetodData(ICustomGuiComponent.class, "getComponent", "method.ihud.getcomponent",
 				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
 				new ParameterData(int.class, "componentID", "parameter.component.id")
@@ -3127,7 +3124,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "id", "parameter.quest.id")
 			),
 			new MetodData(IQuest[].class, "getActiveQuests", "method.iplayer.getactivequests"),
-			new MetodData(ICustomGui.class, "getCustomGui", "method.iplayer.getcustomGui"),
+			new MetodData(ICustomGui.class, "getCustomGui", "method.iplayer.getcustomgui"),
 			new MetodData(String.class, "getDisplayName", "method.iplayer.getdisplayname"),
 			new MetodData(int.class, "getExpLevel", "method.iplayer.getexplevel"),
 			new MetodData(int.class, "getFactionPoints", "method.iplayer.getfactionpoints",
@@ -3244,7 +3241,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "showDialog", "method.iplayer.showdialog",
 				new ParameterData(int.class, "id", "parameter.dialog.id"),
-				new ParameterData(String.class, "name", "parameter.entity.name")
+				new ParameterData(String.class, "name", "parameter.showdialog.entity.name")
 			),
 			new MetodData(void.class, "startQuest", "method.iplayer.startquest",
 				new ParameterData(int.class, "id", "parameter.quest.id")
@@ -3262,8 +3259,8 @@ public enum EnumInterfaceData {
 				new ParameterData(long.class, "value", "parameter.money.value")
 			),
 			new MetodData(int[].class, "getKeyPressed", "method.iplayer.getkeypressed"),
-			new MetodData(boolean.class, "hasKeyPressed", "method.iplayer.haskeypressed",
-				new ParameterData(int.class, "key", "parameter.iplayer.key")
+			new MetodData(boolean.class, "hasOrKeyPressed", "method.iplayer.hasorkeyspressed",
+				new ParameterData(int[].class, "key", "parameter.iplayer.key")
 			),
 			new MetodData(int[].class, "getMousePressed", "method.iplayer.getmousepressed"),
 			new MetodData(boolean.class, "hasMousePress", "method.iplayer.hasmousepress",
@@ -3280,7 +3277,9 @@ public enum EnumInterfaceData {
 			new MetodData(String.class, "getLanguage", "method.iplayer.getlanguage"),
 			new MetodData(void.class, "sendTo", "method.iplayer.sendto",
 				new ParameterData(INbt.class, "nbt", "parameter.nbt")
-			)
+			),
+			new MetodData(boolean.class, "isMoved", "method.iplayer.ismoved"),
+			new MetodData(double[].class, "getWindowSize", "method.iplayer.getwindowsize")
 		)
 	),
 	IPlayerMail(new InterfaseData(IPlayerMail.class, 
@@ -3375,25 +3374,25 @@ public enum EnumInterfaceData {
 			new MetodData(int.class, "getAccuracy", "method.iprojectile.getaccuracy"),
 			new MetodData(boolean.class, "getHasGravity", "method.iprojectile.gethasgravity"),
 			new MetodData(IItemStack.class, "getItem", "method.iprojectile.getitem"),
-			new MetodData(void.class, "setAccuracy", "method.iplayer.setaccuracy",
+			new MetodData(void.class, "setAccuracy", "method.iprojectile.setaccuracy",
 				new ParameterData(int.class, "accuracy", "parameter.iprojectile.accuracy")
 			),
-			new MetodData(void.class, "setHasGravity", "method.iplayer.sethasgravity",
+			new MetodData(void.class, "setHasGravity", "method.iprojectile.sethasgravity",
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
-			new MetodData(void.class, "setHeading", "method.iplayer.setheading",
+			new MetodData(void.class, "setHeading", "method.iprojectile.setheading",
 				new ParameterData(double.class, "x", "parameter.posx"),
 				new ParameterData(double.class, "y", "parameter.posy"),
 				new ParameterData(double.class, "z", "parameter.posz")
 			),
-			new MetodData(void.class, "setHeading", "method.iplayer.setheading",
+			new MetodData(void.class, "setHeading", "method.iprojectile.setheading",
 				new ParameterData(float.class, "yaw", "parameter.yaw"),
 				new ParameterData(float.class, "pitch", "parameter.pitch")
 			),
-			new MetodData(void.class, "setHeading", "method.iplayer.setheading",
+			new MetodData(void.class, "setHeading", "method.iprojectile.setheading",
 				new ParameterData(IEntity.class, "entity", "parameter.entity")
 			),
-			new MetodData(void.class, "setItem", "method.iplayer.setitem",
+			new MetodData(void.class, "setItem", "method.iprojectile.setitem",
 				new ParameterData(IItemStack.class, "item", "parameter.stack")
 			)
 		)
@@ -3497,7 +3496,7 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "isIgnoreDamage", "method.iquestobj.isignoredamage"),
 			new MetodData(boolean.class, "isItemIgnoreNBT", "method.iquestobj.isitemignorenbt"),
 			new MetodData(boolean.class, "isItemLeave", "method.iquestobj.isitemleave"),
-			new MetodData(void.class, "setAreaRange", "method.iquestobj.setrewardtype",
+			new MetodData(void.class, "setAreaRange", "method.iquestobj.setarearange",
 				new ParameterData(int.class, "range", "parameter.questobj.range")
 			),
 			new MetodData(void.class, "setItem", "method.iquestobj.setitem",
@@ -3595,11 +3594,11 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "delete", "method.irecipe.delete",
 				new ParameterData(int.class, "id", "parameter.irecipe.id")
 			),
-			new MetodData(INpcRecipe[].class, "getCarpentryData", "method.irecipe.getcarpentrydata"),
+			new MetodData(INpcRecipe[].class, "getCarpentryData", "method.irecipe.getcarpentryrecipes"),
 			new MetodData(INpcRecipe[].class, "getCarpentryRecipes", "method.irecipe.getcarpentryrecipes",
 				new ParameterData(String.class, "group", "parameter.irecipe.group")
 			),
-			new MetodData(INpcRecipe[].class, "getGlobalData", "method.irecipe.getglobaldata"),
+			new MetodData(INpcRecipe[].class, "getGlobalData", "method.irecipe.getglobalrecipes"),
 			new MetodData(INpcRecipe[].class, "getGlobalRecipes", "method.irecipe.getglobalrecipes",
 				new ParameterData(String.class, "group", "parameter.irecipe.group")
 			)
@@ -3694,7 +3693,7 @@ public enum EnumInterfaceData {
 			new Class<?>[] { Schematic.class, Blueprint.class },
 			"interfase.ischematic",
 			new MetodData(IBlockState.class, "getBlockState", "method.ischematic.getblockstate",
-				new ParameterData(int.class, "state", "parameter.ischematic.state")
+				new ParameterData(int.class, "state", "parameter.ischematic.block.pos")
 			),
 			new MetodData(IBlockState.class, "getBlockState", "method.ischematic.getblockstate",
 				new ParameterData(int.class, "x", "parameter.ischematic.x"),
@@ -3870,7 +3869,7 @@ public enum EnumInterfaceData {
 			new Class<?>[] { ForgeScriptData.class, ItemScriptedWrapper.class, DataScript.class, PlayerScriptData.class, ClientScriptData.class },
 			"interfase.iscripthandler",
 			new MetodData(void.class, "clearConsole", "method.iscripthandler.clearconsole"),
-			new MetodData(Map.class, "String>getConsoleText", "method.iscripthandler.string>getconsoletext"),
+			new MetodData(Map.class, "getConsoleText", "method.iscripthandler.getconsoletext"),
 			new MetodData(boolean.class, "getEnabled", "method.iscripthandler.getenabled"),
 			new MetodData(String.class, "getLanguage", "method.iscripthandler.getlanguage"),
 			new MetodData(List.class, "getScripts", "method.iscripthandler.getscripts"),
@@ -4042,7 +4041,7 @@ public enum EnumInterfaceData {
 	),
 	ITransportLocation(new InterfaseData(ITransportLocation.class, 
 			null,
-			null,
+			new Class<?>[] { TransportLocation.class },
 			"interfase.itransportlocation",
 			new MetodData(int.class, "getDimension", "method.itransportlocation.getdimension"),
 			new MetodData(int.class, "getId", "method.itransportlocation.getid"),
@@ -4056,6 +4055,9 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "x", "parameter.posx"),
 				new ParameterData(int.class, "y", "parameter.posy"),
 				new ParameterData(int.class, "z", "parameter.posz")
+			),
+			new MetodData(void.class, "setType", "method.itransportlocation.settype",
+				new ParameterData(int.class, "type", "parameter.itransportlocation.type")
 			)
 		)
 	),

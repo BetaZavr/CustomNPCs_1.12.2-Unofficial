@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -8,29 +10,30 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
-import noppes.npcs.client.gui.util.GuiMenuLeftButton;
 import noppes.npcs.client.gui.util.GuiMenuTopButton;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.ITextChangeListener;
+import noppes.npcs.client.util.EventData;
+import noppes.npcs.client.util.InterfaseData;
 import noppes.npcs.client.util.MetodData;
+import noppes.npcs.client.util.ParameterData;
+import noppes.npcs.constants.EnumEventData;
 import noppes.npcs.constants.EnumInterfaceData;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiHelpBook
 extends GuiNPCInterface
-implements ICustomScrollListener {
+implements ICustomScrollListener, ITextChangeListener {
 	
-	int activeTopTab = 0;
-	int activeLeftTab = 0;
+	public static int activeTab = 0,  activeButton = 0;
 	private static final Map<Integer, String> map = Maps.<Integer, String>newHashMap();
 	private final String[] arr = new String [] { "config", "blocks", "items", "potions", "", "", "", "", "", "",
 			"npc.display", "npc.stats", "npc.ais", "npc.inventory", "npc.advanced", "", "", "", "", "", 
@@ -38,11 +41,14 @@ implements ICustomScrollListener {
 	private GuiCustomScroll scroll;
 	private String curentLang = "";
 	private Map<String, MetodData> data = Maps.<String, MetodData>newHashMap();
+	private char chr = ((char) 167);
 	
 	public GuiHelpBook() {
-		this.xSize = 300;
-		this.ySize = 174;
+		this.drawDefaultBackground = true;
 		this.closeOnEsc = true;
+		this.xSize = 427;
+		this.setBackground("menubg.png");
+		
 		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class);
 		if (GuiHelpBook.map.isEmpty() || !this.curentLang.equals(currentLanguage)) {
 			String wip = new TextComponentTranslation("gui.wip").getFormattedText();
@@ -66,163 +72,235 @@ implements ICustomScrollListener {
 	
 	@Override
 	public void initGui() {
-		super.initGui();
-		int maxW = 0, w = 0;
-		switch(this.activeTopTab) {
-			case 1: { // npcEdit
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.display").getFormattedText());
-				maxW = w;
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.stats").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.ai").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.inventory").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("menu.advanced").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				break;
-			}
-			case 2: { // scripts
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.general").getFormattedText());
-				maxW = w;
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.api").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				if (this.activeLeftTab==21 && maxW<110) { maxW = 110; }
-				break;
-			}
-			default: { // general
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.config").getFormattedText());
-				maxW = w;
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.blocks").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.items").getFormattedText());
-				if (maxW<w) { maxW = w; }
-				w = this.mc.fontRenderer.getStringWidth(new TextComponentTranslation("gui.help.potions").getFormattedText());
-				if (maxW<w) { maxW = w; }
-			}
+		this.xSize = (int) (this.width * 0.88d);
+		this.ySize = (int) (this.xSize * 0.56);
+		if (this.ySize > this.height * 0.95) {
+			this.ySize = (int) (this.height * 0.95);
+			this.xSize = (int) (this.ySize / 0.56);
 		}
-		ScaledResolution sr = new ScaledResolution(this.mc);
-		this.xSize = (int) (sr.getScaledWidth_double() - maxW - 40);
-		this.ySize = (int) (sr.getScaledHeight_double() - 60);
-		this.width = this.xSize;
-		this.height = this.ySize;
-		this.guiLeft = 20 + maxW;
-		this.guiTop = 30;
+		this.bgScale = this.xSize / 400.0f;
+		super.initGui();
+		this.guiTop += 10;
+		int yoffset = (int) (this.ySize * 0.02);
 		
-		GuiMenuTopButton general = new GuiMenuTopButton(0, this.guiLeft + 4, this.guiTop - 17, "gui.help.general");
-		GuiMenuTopButton npcEdit = new GuiMenuTopButton(1, general.x + general.getWidth(), guiTop - 17, "gui.help.npc");
-		GuiMenuTopButton scripts = new GuiMenuTopButton(2, npcEdit.x + npcEdit.getWidth(), guiTop - 17, "gui.help.scripts");
-		general.active = general.id==this.activeTopTab;
-		npcEdit.active = npcEdit.id==this.activeTopTab;
-		scripts.active = scripts.id==this.activeTopTab;
-		this.addTopButton(general);
-		this.addTopButton(npcEdit);
-		this.addTopButton(scripts);
+		GuiTextArea ta = new GuiTextArea(0, this.guiLeft + 1 + yoffset, this.guiTop + yoffset, this.xSize - 108 - yoffset, (int) ((this.ySize * 0.96) - yoffset * 2), "");
+		ta.enableCodeHighlighting();
+		ta.setIsCode(false);
+		ta.setListener(this);
+		ta.onlyReading = true;
+		this.add(ta);
 		
-		switch(this.activeTopTab) {
+		GuiMenuTopButton topButton;
+		int pre = 0;
+		
+		int u = this.guiLeft + 4, v = this.guiTop - 17;
+		for (int i = 0; i < 3 ; i++) {
+			topButton = new GuiMenuTopButton(i, u + pre, v, "gui.help."+(i==0 ? "general" : i==1 ? "npc" : "scripts"));
+			pre += topButton.getWidth();
+			topButton.active = i == GuiHelpBook.activeTab;
+			this.addTopButton(topButton);
+		}
+		u = this.guiLeft + ta.width + 8;
+		v = this.guiTop - 12;
+		int wb = this.xSize - ta.width + 6;
+		switch(GuiHelpBook.activeTab) {
 			case 1: { // npcEdit
-				if (this.activeLeftTab<10 || this.activeLeftTab>19) { this.activeLeftTab = 10; }
-				GuiMenuLeftButton display = new GuiMenuLeftButton(10, this.guiLeft, this.guiTop + 4, "menu.display");
-				GuiMenuLeftButton stats = new GuiMenuLeftButton(11, this.guiLeft, display.y+display.getHeight(), "menu.stats");
-				GuiMenuLeftButton ais = new GuiMenuLeftButton(12, this.guiLeft, stats.y+stats.getHeight(), "menu.ai");
-				GuiMenuLeftButton inventory = new GuiMenuLeftButton(13, this.guiLeft, ais.y+ais.getHeight(), "menu.inventory");
-				GuiMenuLeftButton advanced = new GuiMenuLeftButton(14, this.guiLeft, inventory.y+inventory.getHeight(), "menu.advanced");
-				display.active = display.id==this.activeLeftTab;
-				stats.active = stats.id==this.activeLeftTab;
-				ais.active = ais.id==this.activeLeftTab;
-				inventory.active = inventory.id==this.activeLeftTab;
-				advanced.active = advanced.id==this.activeLeftTab;
-				this.addLeftButton(display);
-				this.addLeftButton(stats);
-				this.addLeftButton(ais);
-				this.addLeftButton(inventory);
-				this.addLeftButton(advanced);
+				if (GuiHelpBook.activeButton<10 || GuiHelpBook.activeButton>19) { GuiHelpBook.activeButton = 10; }
+				for (int i = 0; i < 5 ; i++) {
+					String name;
+					switch(i) {
+						case 1: name = "menu.stats"; break;
+						case 2: name = "menu.ai"; break;
+						case 3: name = "menu.inventory"; break;
+						case 4: name = "menu.advanced"; break;
+						default: name = "menu.display"; break;
+					}
+					this.addButton(new GuiNpcButton(i + 10, u, v += 17, wb, 15, name));
+				}
 				break;
 			}
 			case 2: { // scripts
-				if (this.activeLeftTab<20 || this.activeLeftTab>29) { this.activeLeftTab = 20; }
-				GuiMenuLeftButton main = new GuiMenuLeftButton(20, this.guiLeft, this.guiTop + 4, "gui.help.general");
-				GuiMenuLeftButton api = new GuiMenuLeftButton(21, this.guiLeft, main.y+main.getHeight(), "gui.help.api");
+				if (GuiHelpBook.activeButton<20 || GuiHelpBook.activeButton>29) { GuiHelpBook.activeButton = 20; }
+				for (int i = 0; i < 3 ; i++) {
+					String name;
+					switch(i) {
+						case 1: name = "gui.help.api"; break;
+						case 2: name = "gui.help.events"; break;
+						default: name = "gui.help.general"; break;
+					}
+					this.addButton(new GuiNpcButton(i + 20, u, v += 17, wb, 15, name));
+				}
 				//scroll
-				if (this.scroll==null) {
-					this.scroll = new GuiCustomScroll(this, 0);
-					Map<String, String[]> m = Maps.<String, String[]>newTreeMap();
+				if (this.scroll==null) { this.scroll = new GuiCustomScroll(this, 0); }
+				Map<String, String[]> m = Maps.<String, String[]>newTreeMap();
+				if (GuiHelpBook.activeButton==21) {
 					for (EnumInterfaceData enumID : EnumInterfaceData.values()) {
 						List<String> com = enumID.it.getComment();
 						m.put(enumID.name(), com.toArray(new String[com.size()]));
 					}
-					this.scroll.setList(Lists.newArrayList(m.keySet()));
-					this.scroll.hoversTexts = new String[m.size()][];
-					int i = 0;
-					for (String[] com : m.values()) {
-						this.scroll.hoversTexts[i] = com;
-						i++;
+				}
+				else if (GuiHelpBook.activeButton==22) {
+					for (EnumEventData enumED : EnumEventData.values()) {
+						List<String> com = enumED.ed.getComment();
+						m.put(enumED.name(), com.toArray(new String[com.size()]));
 					}
 				}
-				this.scroll.setSize(100, this.ySize - 50);
-				this.scroll.guiLeft = this.guiLeft - 101;
-				this.scroll.guiTop = this.guiTop + 47;
+				this.scroll.setList(Lists.newArrayList(m.keySet()));
+				this.scroll.hoversTexts = new String[m.size()][];
+				int i = 0;
+				for (String[] com : m.values()) {
+					this.scroll.hoversTexts[i] = com;
+					i++;
+				}
+				this.scroll.guiLeft = u;
+				this.scroll.guiTop = (v += 17);
+				
+				this.scroll.setSize(wb, this.ySize - this.scroll.guiTop + this.guiTop - 15);
 				if (this.scroll.selected<0) { this.scroll.selected = 0; }
 				this.addScroll(this.scroll);
-				
-				main.active = main.id==this.activeLeftTab;
-				api.active = api.id==this.activeLeftTab;
-				this.addLeftButton(main);
-				this.addLeftButton(api);
 				break;
 			}
 			default: { // general
-				if (this.activeLeftTab<0 || this.activeLeftTab>9) { this.activeLeftTab = 0; }
-				GuiMenuLeftButton conf = new GuiMenuLeftButton(0, this.guiLeft, this.guiTop + 4, "gui.help.config");
-				GuiMenuLeftButton blocks = new GuiMenuLeftButton(1, this.guiLeft, conf.y+conf.getHeight(), "gui.help.blocks");
-				GuiMenuLeftButton items = new GuiMenuLeftButton(2, this.guiLeft, blocks.y+blocks.getHeight(), "gui.help.items");
-				GuiMenuLeftButton potions = new GuiMenuLeftButton(3, this.guiLeft, items.y+items.getHeight(), "gui.help.potions");
-				conf.active = conf.id==this.activeLeftTab;
-				blocks.active = blocks.id==this.activeLeftTab;
-				items.active = items.id==this.activeLeftTab;
-				potions.active = potions.id==this.activeLeftTab;
-				this.addLeftButton(conf);
-				this.addLeftButton(blocks);
-				this.addLeftButton(items);
-				this.addLeftButton(potions);
+				if (GuiHelpBook.activeButton<0 || GuiHelpBook.activeButton>9) { GuiHelpBook.activeButton = 0; }
+				for (int i = 0; i < 5 ; i++) {
+					String name;
+					switch(i) {
+						case 1: name = "gui.help.blocks"; break;
+						case 2: name = "gui.help.items"; break;
+						case 3: name = "gui.help.potions"; break;
+						default: name = "gui.help.config"; break;
+					}
+					this.addButton(new GuiNpcButton(i, u, v += 17, wb, 15, name));
+				}
+				break;	
 			}
 		}
-		GuiTextArea ta = new GuiTextArea(0, this.guiLeft + 4, this.guiTop + 4, this.xSize - 7, this.ySize -7, "" );
-		ta.enableCodeHighlighting();
-		ta.setIsCode(false);
-		//ta.onlyReading = true;
-		this.add(ta);
+		this.xSize = 420;
+		this.ySize = 256;
 		this.resetText();
 	}
 
 	private void resetText() {
 		if (!(this.get(0) instanceof GuiTextArea)) { return; }
-		if (this.activeLeftTab!=21) {
-			String text = GuiHelpBook.map.get(this.activeLeftTab);
+		if (GuiHelpBook.activeButton!=21 && GuiHelpBook.activeButton!=22) {
+			String text = GuiHelpBook.map.get(GuiHelpBook.activeButton);
 			if (text==null) { text = ""; }
 			((GuiTextArea) this.get(0)).setText(text);
 			((GuiTextArea) this.get(0)).scrolledLine = 0;
 			return;
 		}
-		if (this.scroll==null || EnumInterfaceData.get(this.scroll.getSelected())==null) {
-			((GuiTextArea) this.get(0)).setText("");
-			((GuiTextArea) this.get(0)).scrolledLine = 0;
-			return;
-		}
-		List<MetodData> list = EnumInterfaceData.get(this.scroll.getSelected()).getAllMetods(Lists.<MetodData>newArrayList());
-		
-		TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
-		for (MetodData md : list) {
-			String name = md.name;
-			while (m.containsKey(name)) { name += "_"; }
-			m.put(name, md);
-		}
 		String text = "";
-		this.data.clear();
-		for (String name : m.keySet()) {
-			String key = m.get(name).getText();
-			text += key+(""+((char) 10));
-			this.data.put(key, m.get(name));
+		if (GuiHelpBook.activeButton == 21) { // API
+			if (this.scroll==null || EnumInterfaceData.get(this.scroll.getSelected())==null) {
+				((GuiTextArea) this.get(0)).setText("");
+				((GuiTextArea) this.get(0)).scrolledLine = 0;
+				return;
+			}
+			InterfaseData intf = EnumInterfaceData.get(this.scroll.getSelected());
+			List<MetodData> list = intf.getAllMetods(Lists.<MetodData>newArrayList());
+			TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
+			for (MetodData md : list) {
+				String name = md.name;
+				while (m.containsKey(name)) { name += "_"; }
+				m.put(name, md);
+			}
+			this.data.clear();
+			InterfaseData intfEx = intf;
+			List<Class<?>> lc = Lists.newArrayList();
+			while(true) {
+				lc.add(0, intfEx.interF);
+				if (intfEx.extend!=null) {
+					intfEx = EnumInterfaceData.get(intfEx.extend.getSimpleName());
+					if (intfEx==null) { break; }
+				}
+				else { break; }
+			}
+			text = new TextComponentTranslation("gui.interfase", ":").getFormattedText() + (""+((char) 10));
+			for (int c = 0; c < lc.size(); c++) {
+				int ofs = 1 + c;
+				while(ofs>0) { text += "  "; ofs--; }
+				text += chr + ((c == lc.size()-1) ? "6" : "7") + lc.get(c).getName() + (""+((char) 10));
+			}
+			if (intf.wraper!=null && intf.wraper.length>0) {
+				text += (""+((char) 10)) + new TextComponentTranslation("interfase.classes").getFormattedText() + (""+((char) 10));
+				for (Class<?> c : intf.wraper) {
+					text += "  " + chr + "e" + c.getName() + (""+((char) 10));
+				}
+			}
+			text += (""+((char) 10)) + new TextComponentTranslation("interfase.methods").getFormattedText() + (""+((char) 10));
+			for (String name : m.keySet()) {
+				String key = m.get(name).getText();
+				text += key+(""+((char) 10));
+				this.data.put(key, m.get(name));
+			}
+		}
+		else if (GuiHelpBook.activeButton==22) { // Events
+			if (this.scroll==null || EnumEventData.get(this.scroll.getSelected())==null) {
+				((GuiTextArea) this.get(0)).setText("");
+				((GuiTextArea) this.get(0)).scrolledLine = 0;
+				return;
+			}
+			EventData evd = EnumEventData.get(this.scroll.getSelected());
+			List<MetodData> list = evd.getAllMetods(Lists.<MetodData>newArrayList());
+			TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
+			for (MetodData md : list) {
+				String name = md.name;
+				while (m.containsKey(name)) { name += "_"; }
+				m.put(name, md);
+			}
+			this.data.clear();
+			EventData evdEx = evd;
+			List<String> lc = Lists.<String>newArrayList();
+			Class<?> sub = evdEx.event;
+			while(sub.getSuperclass()!=null && sub.getSuperclass()!=Event.class) {
+				lc.add(0, sub.getName().replace("$", "."));
+				sub = sub.getSuperclass();
+			}
+			text = new TextComponentTranslation("gui.event", ":").getFormattedText() + (""+((char) 10));
+			int i = 1;
+			for (String name : lc) {
+				int ofs = 1 + i;
+				while(ofs>0) { text += "  "; ofs--; }
+				text += chr + ((i == lc.size()) ? "6" : "7") + name + (""+((char) 10));
+				i++;
+			}
+			String comm = ""; 
+			for (String str : evd.getComment()) {
+				if (!comm.isEmpty()) { comm = ""+((char) 10); }
+				comm += str;
+			}
+			text += (""+((char) 10)) + comm + (""+((char) 10)) + 
+					(""+((char) 10)) + new TextComponentTranslation("event.fields").getFormattedText() + (""+((char) 10));
+			for (String name : m.keySet()) {
+				MetodData md = m.get(name);
+				String ret = md.returnType.getName();
+				if (ret.indexOf("[L")==0) { ret = ret.replace("[L", "").replace(";", "") + "[]"; }
+				else if (ret.indexOf("[B")==0) { ret = ret.replace("[B", "").replace(";", "") + "[]"; }
+				String key = chr + "7 event." + chr + "6" + md.name + chr + "7;   // " + ret;
+				text += key+(""+((char) 10)); 
+				this.data.put(key, m.get(name));
+			}
+			if (evd.event.getMethods().length>0) {
+				text += (""+((char) 10)) + new TextComponentTranslation("event.methods").getFormattedText() + (""+((char) 10));
+				TreeMap<String, MetodData> md = Maps.<String, MetodData>newTreeMap();
+				for (Method mtd : evd.event.getMethods()) {
+					MetodData mdata = new MetodData(mtd.getReturnType(), mtd.getName(), "method.event."+mtd.getName().toLowerCase());
+					if (mtd.getParameterCount()>0) {
+						int g = 0;
+						for (Parameter p : mtd.getParameters()) {
+							mdata.parameters.add(new ParameterData(p.getType(), p.getType().getSimpleName().toLowerCase() + g, "parameter.event."+mtd.getName().toLowerCase()+"."+p.getType().getName().toLowerCase() + g));
+							g++;
+						}
+					}
+					mdata.isVarielble = true;
+					md.put(mtd.getName(), mdata);
+				}
+				for (String name : md.keySet()) {
+					String key = md.get(name).getText();
+					text += key+(""+((char) 10));
+					this.data.put(key, md.get(name));
+				}
+			}
 		}
 		((GuiTextArea) this.get(0)).setText(text);
 		((GuiTextArea) this.get(0)).scrolledLine = 0;
@@ -230,57 +308,39 @@ implements ICustomScrollListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.mc.renderEngine!=null) {
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-			Gui.drawRect(3, 3, this.xSize-2, this.ySize-2, 0xFFC6C6C6);
-			this.drawHorizontalLine(2, this.xSize-2, 0, 0xFF000000);
-			this.drawHorizontalLine(1, 1, 1, 0xFF000000);
-			this.drawHorizontalLine(this.xSize-1, this.xSize-1, 1, 0xFF000000);
-			this.drawVerticalLine(0, 1, this.ySize-1, 0xFF000000);
-			this.drawVerticalLine(this.xSize, 1, this.ySize-1, 0xFF000000);
-			this.drawHorizontalLine(1, 1, this.ySize-1, 0xFF000000);
-			this.drawHorizontalLine(2, this.xSize-2, this.ySize, 0xFF000000);
-			this.drawHorizontalLine(this.xSize-1, this.xSize-1, this.ySize-1, 0xFF000000);
-			this.drawHorizontalLine(2, this.xSize-2, 1, 0xFFFFFFFF);
-			this.drawHorizontalLine(1, this.xSize-2, 2, 0xFFFFFFFF);
-			this.drawVerticalLine(1, 2, this.ySize-1, 0xFFFFFFFF);
-			this.drawVerticalLine(2, 2, this.ySize-1, 0xFFFFFFFF);
-			this.drawHorizontalLine(2, this.xSize-2, this.ySize-1, 0xFF555555);
-			this.drawHorizontalLine(3, this.xSize-1, this.ySize-2, 0xFF555555);
-			this.drawVerticalLine(this.xSize-1, 1, this.ySize-1, 0xFF555555);
-			this.drawVerticalLine(this.xSize-2, 2, this.ySize-1, 0xFF555555);
-			GlStateManager.popMatrix();
-		}
-		if (this.scroll!=null) {
-			this.scroll.visible = this.activeLeftTab==21;
-			if (this.scroll.visible) {
-				GlStateManager.pushMatrix();
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				GlStateManager.translate(this.guiLeft-105, this.guiTop+43, 0.0f);
-				int x = 105;
-				int y = this.scroll.height+7;
-				Gui.drawRect(3, 3, x, y-2, 0xFFC6C6C6);
-				this.drawHorizontalLine(2, x-1, 0, 0xFF000000);
-				this.drawHorizontalLine(1, 1, 1, 0xFF000000);
-				this.drawVerticalLine(0, 1, y-1, 0xFF000000);
-				this.drawHorizontalLine(1, 1, y-1, 0xFF000000);
-				this.drawHorizontalLine(2, x+1, y, 0xFF000000);
-				this.drawHorizontalLine(2, x-1, 1, 0xFFFFFFFF);
-				this.drawHorizontalLine(1, x-1, 2, 0xFFFFFFFF);
-				this.drawVerticalLine(1, 2, y-1, 0xFFFFFFFF);
-				this.drawVerticalLine(2, 2, y-1, 0xFFFFFFFF);
-				this.drawHorizontalLine(2, x, y-1, 0xFF555555);
-				this.drawHorizontalLine(3, x-1, y-2, 0xFF555555);
-				GlStateManager.popMatrix();
-			}
-		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.activeLeftTab==21 && this.scroll!=null && this.get(0) instanceof GuiTextArea) { 
+		if (this.getButton(GuiHelpBook.activeButton)!=null) {
+			this.getButton(GuiHelpBook.activeButton).layerColor = 0xFF00FF00;
+		}
+		if (this.scroll!=null && this.get(0) instanceof GuiTextArea) { 
 			GuiTextArea area = (GuiTextArea) this.get(0);
-			if (area != null && area.hovered) {
-				int pos = area.getSelectionPos(mouseX, mouseY);
+			if (area == null || !area.hovered) { return; }
+			int pos = area.getSelectionPos(mouseX, mouseY);
+			Object[] sel = area.getSelectionText(mouseX, mouseY);
+			if (GuiHelpBook.activeButton==21) { // API
+				if (sel==null) { return; }
+				if (sel!=null && !((String) sel[1]).isEmpty() && !((String) sel[1]).equals(this.scroll.getSelected())) {
+					InterfaseData intf = EnumInterfaceData.get((String) sel[1]);
+					if (intf!=null) {
+						this.drawHoveringText(Lists.<String>newArrayList(new TextComponentTranslation("interfase.next", chr + "9" + chr + "l" + chr + "o" +(String) sel[1]).getFormattedText()), mouseX, mouseY, this.fontRenderer);
+						this.hoverText = null;
+						return;
+					}
+				}
+				if (pos<0) { return; }
+				String text = area.getText(), ent = (""+((char) 10));
+				int start = 1+(pos==0 ? 0 : text.lastIndexOf(ent, pos));
+				int end = pos==text.length()||text.indexOf(ent, pos)<0 ? text.length() : text.indexOf(ent, pos);
+				if (start<0) { start = 0; }
+				if (end<0) { end = text.length(); }
+				if (start>=end) { return; }
+				String metodText = text.substring(start, end);
+				if (this.data.containsKey(metodText)) {
+					this.drawHoveringText(this.data.get(metodText).getComment(), mouseX, mouseY, this.fontRenderer);
+					this.hoverText = null;
+				}
+			}
+			else if (GuiHelpBook.activeButton==22) { // Events
 				if (pos<0) { return; }
 				String text = area.getText(), ent = (""+((char) 10));
 				int start = 1+(pos==0 ? 0 : text.lastIndexOf(ent, pos));
@@ -295,14 +355,13 @@ implements ICustomScrollListener {
 				}
 			}
 		}
-		
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		if (button instanceof GuiMenuTopButton) { this.activeTopTab = button.id; }
-		else { this.activeLeftTab = button.id; }
+		if (button instanceof GuiMenuTopButton) { GuiHelpBook.activeTab = button.id; }
+		else { GuiHelpBook.activeButton = button.id; }
 		this.initGui();
 	}
 	
@@ -320,18 +379,26 @@ implements ICustomScrollListener {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
-		if (this.activeLeftTab!=21 || this.scroll==null || !(this.get(0) instanceof GuiTextArea)) { return; }
+		if (this.scroll==null || !(this.get(0) instanceof GuiTextArea)) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (!area.hovered) { return; }
 		try {
 			Object[] select = area.getSelectionText(this.mouseX, this.mouseY);
-			if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])!=null) {
-				this.scroll.setSelected((String) select[1]);
-				this.resetText();
-				return;
+			if (GuiHelpBook.activeButton == 21) {
+				if (!this.scroll.getSelected().equals(select[1]) && EnumInterfaceData.get((String) select[1])!=null) {
+					this.scroll.setSelected((String) select[1]);
+					this.resetText();
+					return;
+				}
+			}
+			else if (GuiHelpBook.activeButton == 22) {
+				
 			}
 		}
 		catch (Exception e) { }
 	}
+
+	@Override
+	public void textUpdate(String text) { }
 	
 }

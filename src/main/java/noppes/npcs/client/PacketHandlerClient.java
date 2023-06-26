@@ -46,6 +46,7 @@ import noppes.npcs.PacketHandlerServer;
 import noppes.npcs.Server;
 import noppes.npcs.ServerEventsHandler;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.client.controllers.MusicController;
@@ -66,7 +67,6 @@ import noppes.npcs.client.gui.util.IGuiError;
 import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.renderer.MarkRenderer;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
@@ -273,7 +273,7 @@ extends PacketHandlerServer {
 			int id = buffer.readInt();
 			Quest quest = (Quest) QuestController.instance.get(id);
 			if (!quest.completeText.isEmpty()) { NoppesUtil.openGUI(player, new GuiQuestCompletion(quest)); }
-			else if (quest.rewardType==EnumRewardType.ONE && !quest.rewardItems.isEmpty()) { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, quest.id); }
+			else if (quest.rewardType==EnumRewardType.ONE_SELECT && !quest.rewardItems.isEmpty()) { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, quest.id); }
 			else { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletion, id); }
 		} else if (type == EnumPacketClient.EDIT_NPC) {
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(buffer.readInt());
@@ -584,7 +584,7 @@ extends PacketHandlerServer {
 						if (vars.length>=1) { animationType = vars[0]; }
 						if (vars.length>=2) { variant = vars[1]; }
 					}
-					if (animationType < 0 || animationType >= EnumAnimationType.values().length ) { return; }
+					if (animationType < 0 || animationType >= AnimationKind.values().length ) { return; }
 					anim.startAnimation(animationType, variant);
 					break;
 				case 3: // startAnimationFromSaved

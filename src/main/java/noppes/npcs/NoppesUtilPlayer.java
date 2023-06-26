@@ -418,11 +418,11 @@ public class NoppesUtilPlayer {
 		}
 		if (!rewardList.isEmpty()) {
 			switch(quest.rewardType) {
-				case RANDOM: {
+				case RANDOM_ONE: {
 					event.itemRewards = new IItemStack[] { rewardList.get(player.getRNG().nextInt(rewardList.size())) };
 					break;
 				}
-				case ONE: {
+				case ONE_SELECT: {
 					if (stack==null) { stack = ItemStack.EMPTY; }
 					event.itemRewards = new IItemStack[] { NpcAPI.Instance().getIItemStack(stack) };
 					break;

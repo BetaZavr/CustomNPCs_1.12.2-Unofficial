@@ -1,13 +1,19 @@
 package noppes.npcs.api.constants;
 
-public class TacticalType {
+public enum TacticalType {
 	
-	public static int AMBUSH = 4;
-	public static int DEFAULT = 0;
-	public static int DODGE = 1;
-	public static int HITNRUN = 3;
-	public static int NONE = 6;
-	public static int STALK = 5;
-	public static int SURROUND = 2;
+	AMBUSH(4),
+	DEFAULT(0),
+	DODGE(1),
+	HITNRUN(3),
+	NONE(6),
+	STALK(5),
+	SURROUND(2);
+	
+	int type = -1;
+	
+	TacticalType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
 	
 }

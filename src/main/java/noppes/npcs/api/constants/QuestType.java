@@ -1,10 +1,19 @@
 package noppes.npcs.api.constants;
 
-public class QuestType {
-	public static int AREA_KILL = 4;
-	public static int DIALOG = 1;
-	public static int ITEM = 0;
-	public static int KILL = 2;
-	public static int LOCATION = 3;
-	public static int MANUAL = 5;
+public enum QuestType {
+	
+	AREA_KILL(4),
+	DIALOG(1),
+	ITEM(0),
+	KILL(2),
+	LOCATION(3),
+	MANUAL(5),
+	CRAFT(6);
+	
+	int type = -1;
+	
+	QuestType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
+	
 }

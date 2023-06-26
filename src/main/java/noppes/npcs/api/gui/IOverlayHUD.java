@@ -26,18 +26,6 @@ public interface IOverlayHUD {
 
 	IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height, int color);
 
-	int[] getKeyPressed();
-
-	int[] getMousePressed();
-
-	boolean isMoved();
-
-	boolean hasMousePress(int key);
-
-	boolean hasOrKeysPressed(int[] keys);
-
-	double[] getWindowSize();
-
 	ICustomGuiComponent getComponent(int orientationType, int componentID);
 
 	ICustomGuiComponent[] getComponents(int orientationType);

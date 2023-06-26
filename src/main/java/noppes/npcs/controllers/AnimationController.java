@@ -17,11 +17,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumPacketClient;
 
 public class AnimationController
@@ -116,7 +116,7 @@ implements IAnimationHandler {
 
 	private void loadDefaultAnimations(int version) {
 		if (version == AnimationController.version) { return; }
-		AnimationConfig anim = (AnimationConfig) this.createNew(EnumAnimationType.standing.ordinal());
+		AnimationConfig anim = (AnimationConfig) this.createNew(AnimationKind.STANDING.get());
 		anim.name = "Animation Test";
 		// Head
 		// frame 0

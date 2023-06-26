@@ -17,6 +17,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartData;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -36,7 +37,6 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig.PartConfig;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.AnimationController;
@@ -51,7 +51,7 @@ extends GuiNPCInterface
 implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldListener, IGuiData {
 
 	public static int backColor = 0xFF000000;
-	private static EnumAnimationType type = EnumAnimationType.standing;
+	private static AnimationKind type = AnimationKind.STANDING;
 
 	private GuiScreen parent;
 	private DataAnimation animation;
@@ -105,7 +105,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		AnimationController aData = AnimationController.getInstance();
 		AnimationConfig first = null, anim = null;
 		this.dataAnim.clear();
-		for (EnumAnimationType t : this.animation.data.keySet()) {
+		for (AnimationKind t : this.animation.data.keySet()) {
 			if (t!=GuiNpcAnimation.type) { continue; }
 			List<AnimationConfig> list = this.animation.data.get(t);
 			int id = 0;
@@ -133,7 +133,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		this.addButton(new GuiNpcButton(65, this.guiLeft + this.xSize - 25, this.guiTop+3, 10, 10, this.onlyCurrentPart ? "_" : "^"));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 13, this.guiTop+3, 10, 10, "X"));
 		this.addLabel(new GuiNpcLabel(0, "animation.type", this.guiLeft+4, this.guiTop+4));
-		this.addButton(new GuiButtonBiDirectional(1, this.guiLeft+4, this.guiTop+14, 120, 20, EnumAnimationType.getNames(), GuiNpcAnimation.type.ordinal()));
+		this.addButton(new GuiButtonBiDirectional(1, this.guiLeft+4, this.guiTop+14, 120, 20, AnimationKind.getNames(), GuiNpcAnimation.type.get()));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 4, this.guiTop + 194, 58, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 64, this.guiTop + 194, 58, 20, "gui.remove"));
 		this.getButton(3).enabled = anim!=null;
@@ -313,7 +313,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		if (frame!=null && this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
 		switch(npcButton.id) {
 			case 1: { // set type
-				GuiNpcAnimation.type = EnumAnimationType.values()[npcButton.getValue()];
+				GuiNpcAnimation.type = AnimationKind.values()[npcButton.getValue()];
 				this.selectAnim = "";
 				this.selectFrame = 0;
 				this.selectPart = 0;
@@ -326,7 +326,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			}
 			case 3: { // del anim
 				if (anim==null) { return; }
-				boolean bo = this.animation.removeAnimation(GuiNpcAnimation.type.ordinal(), anim.name);
+				boolean bo = this.animation.removeAnimation(GuiNpcAnimation.type.get(), anim.name);
 				if (bo) {
 					this.selectAnim = "";
 					this.selectFrame = 0;
@@ -342,7 +342,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			case 5: { // save
 				if (anim==null) { return; }
 				AnimationController aData = AnimationController.getInstance();
-				AnimationConfig ac = (AnimationConfig) aData.createNew(GuiNpcAnimation.type.ordinal());
+				AnimationConfig ac = (AnimationConfig) aData.createNew(GuiNpcAnimation.type.get());
 				ac.readFromNBT(anim.writeToNBT(new NBTTagCompound()));
 				this.player.sendMessage(new TextComponentTranslation("animation.message.save", ac.name));
 				Client.sendData(EnumPacketServer.AnimationGlobalSave, ac.writeToNBT(new NBTTagCompound()));
@@ -937,7 +937,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					}
 				}
 			}
-			AnimationConfig ac = this.animation.createAnimation(GuiNpcAnimation.type.ordinal());
+			AnimationConfig ac = this.animation.createAnimation(GuiNpcAnimation.type.get());
 			ac.name = name;
 			this.selectAnim = this.c+"7"+ac.id+": "+this.c+"r"+ac.name;
 			for (int i = 0; i<4; i++) {
@@ -1097,7 +1097,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		}
 		AnimationConfig ac = anim.copy();
 		ac.disable = false;
-		ac.type = EnumAnimationType.standing;
+		ac.type = AnimationKind.STANDING;
 		NBTTagCompound npcNbt = new NBTTagCompound();
 		this.npcs[4].writeEntityToNBT(npcNbt);
 		this.npcs[4].writeToNBTOptional(npcNbt);
@@ -1134,11 +1134,11 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			if (this.npcs[p]!=null) {
 				((EntityNPCInterface) this.npcs[p]).display.setName(p+"_"+this.npc.getName());
 				if (this.npcs[p].animation.activeAnim==null) {
-					if (this.npcs[p].animation.data.get(EnumAnimationType.standing).isEmpty()) {
-						this.npcs[p].animation.activeAnim = new AnimationConfig(EnumAnimationType.standing.ordinal());
-						this.npcs[p].animation.data.get(EnumAnimationType.standing).add(this.npcs[p].animation.activeAnim);
+					if (this.npcs[p].animation.data.get(AnimationKind.STANDING).isEmpty()) {
+						this.npcs[p].animation.activeAnim = new AnimationConfig(AnimationKind.STANDING.get());
+						this.npcs[p].animation.data.get(AnimationKind.STANDING).add(this.npcs[p].animation.activeAnim);
 					}
-					else { this.npcs[p].animation.activeAnim = this.npcs[p].animation.data.get(EnumAnimationType.standing).get(0); }
+					else { this.npcs[p].animation.activeAnim = this.npcs[p].animation.data.get(AnimationKind.STANDING).get(0); }
 				}
 				if (!this.npcs[p].animation.activeAnim.frames.containsKey(0)) { this.npcs[p].animation.activeAnim.addFrame(); }
 				for (int i=0; i<6; i++) {

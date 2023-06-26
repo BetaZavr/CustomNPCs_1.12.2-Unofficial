@@ -103,6 +103,10 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			this.bgScale = this.xSize / 400.0f;
 			super.initGui();
 			this.guiTop += 10;
+			
+
+			this.bgScale = this.xSize / 400.0f;
+			
 			int yoffset = (int) (this.ySize * 0.02);
 			GuiMenuTopButton top;
 			this.addTopButton(top = new GuiMenuTopButton(0, this.guiLeft + 4, this.guiTop - 17, "gui.settings"));

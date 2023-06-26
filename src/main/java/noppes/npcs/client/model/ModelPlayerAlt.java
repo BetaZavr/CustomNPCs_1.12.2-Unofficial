@@ -19,6 +19,7 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.ModelData;
 import noppes.npcs.ModelPartConfig;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.gui.animation.GuiNpcAnimation;
 import noppes.npcs.client.model.animation.AniBow;
 import noppes.npcs.client.model.animation.AniCrawling;
@@ -29,7 +30,6 @@ import noppes.npcs.client.model.animation.AniPoint;
 import noppes.npcs.client.model.animation.AniWaving;
 import noppes.npcs.client.model.animation.AniYes;
 import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.util.ObfuscationHelper;
@@ -199,44 +199,44 @@ extends ModelPlayer {
 		AnimationConfig anim = npc.animation.activeAnim;
 		if (!(Minecraft.getMinecraft().currentScreen instanceof GuiNpcAnimation)) {
 			// Dies
-			if (npc.isDead && (anim==null || anim.type!=EnumAnimationType.dies)) {
-				anim = npc.animation.getActiveAnimation(EnumAnimationType.dies);
+			if (npc.isDead && (anim==null || anim.type!=AnimationKind.DIES)) {
+				anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
 			}
 			// Swing
-			if (this.swingProgress>0 && (anim==null || anim.type!=EnumAnimationType.attacking) &&
-					(anim==null || anim.type!=EnumAnimationType.init)) {
-				anim = npc.animation.getActiveAnimation(EnumAnimationType.attacking);
+			if (this.swingProgress>0 && (anim==null || anim.type!=AnimationKind.ATTACKING) &&
+					(anim==null || anim.type!=AnimationKind.INIT)) {
+				anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
 			}
 			// Jump
 			if ((boolean) ObfuscationHelper.getValue(EntityLivingBase.class, npc, 49)/*npc.isJumping*/ &&
-					(anim==null || anim.type!=EnumAnimationType.jump) &&
-					(anim==null || anim.type!=EnumAnimationType.init)) {
-				anim = npc.animation.getActiveAnimation(EnumAnimationType.jump);
+					(anim==null || anim.type!=AnimationKind.JUMP) &&
+					(anim==null || anim.type!=AnimationKind.INIT)) {
+				anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
 			}
 			// Init animation starts in EntityNPCInterface.class
 			
 			// Moving/Standing
-			if (anim==null || (anim.type.isCyclical() && anim.type != EnumAnimationType.dies)) {
+			if (anim==null || (anim.type.isCyclical() && anim.type != AnimationKind.DIES)) {
 				boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
 				if (npc.isInWater() || npc.isInLava()) {
-					if (isNavigate && (anim==null || anim.type!=EnumAnimationType.waterwalk)) {
-						anim = npc.animation.getActiveAnimation(EnumAnimationType.waterwalk);
-					} else if (!isNavigate && (anim==null || anim.type!=EnumAnimationType.waterstand)) {
-						anim = npc.animation.getActiveAnimation(EnumAnimationType.waterstand);
+					if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
+						anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
+					} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
+						anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
 					}
 				}
 				else {
 					if (!npc.onGround && npc.ais.getNavigationType()==1) {
-						if (isNavigate && (anim==null || anim.type!=EnumAnimationType.flywalk)) {
-							anim = npc.animation.getActiveAnimation(EnumAnimationType.flywalk);
-						} else if (!isNavigate && (anim==null || anim.type!=EnumAnimationType.flystand)) {
-							anim = npc.animation.getActiveAnimation(EnumAnimationType.flystand);
+						if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
+						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
 						}
 					} else {
-						if (isNavigate && (anim==null || anim.type!=EnumAnimationType.walking)) {
-							anim = npc.animation.getActiveAnimation(EnumAnimationType.walking);
-						} else if (!isNavigate && (anim==null || anim.type!=EnumAnimationType.standing)) {
-							anim = npc.animation.getActiveAnimation(EnumAnimationType.standing);
+						if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
+						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
 						}
 					}
 				}
@@ -268,7 +268,7 @@ extends ModelPlayer {
 					}
 					((ModelScaleRenderer) this.bipedLeftArm).setAnim(leftArm);
 					((ModelScaleRenderer) this.bipedLeftArmwear).setAnim(leftArm);
-					if (npc.display.getHasLivingAnimation() && (anim.type==EnumAnimationType.standing || anim.type==EnumAnimationType.flystand || anim.type==EnumAnimationType.waterstand)) {
+					if (npc.display.getHasLivingAnimation() && (anim.type==AnimationKind.STANDING || anim.type==AnimationKind.FLY_STAND || anim.type==AnimationKind.WATER_STAND)) {
 						this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
 						this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
 					}

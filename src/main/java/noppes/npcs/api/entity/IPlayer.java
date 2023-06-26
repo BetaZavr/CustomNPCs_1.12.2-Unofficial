@@ -139,7 +139,7 @@ extends IEntityLivingBase<T> {
 
 	int[] getKeyPressed();
 
-	boolean hasKeyPressed(int key);
+	boolean hasOrKeyPressed(int[] key);
 
 	int[] getMousePressed();
 
@@ -152,5 +152,7 @@ extends IEntityLivingBase<T> {
 	void trigger(int id, Object[] arguments);
 
 	String getLanguage();
+
+	double[] getWindowSize();
 	
 }

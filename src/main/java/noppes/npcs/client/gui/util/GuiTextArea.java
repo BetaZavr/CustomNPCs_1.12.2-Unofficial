@@ -13,7 +13,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatAllowedCharacters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.client.gui.GuiHelpBook;
 import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -372,7 +371,7 @@ implements IGui, IKeyListener, IMouseListener {
 	 * 
 	 * @param xMouse
 	 * @param yMouse
-	 * @return [ Integer position, String select, Integer row ]
+	 * @return [ int (cursor text position), String (word select), int (line number) ]
 	 */
 	public Object[] getSelectionText(int xMouse, int yMouse) {
 		if (!this.hovered || !this.visible) {
@@ -526,7 +525,9 @@ implements IGui, IKeyListener, IMouseListener {
 		}
 		if (GuiScreen.isKeyComboCtrlX(i)) {
 			if (this.startSelection != this.endSelection) {
-				NoppesStringUtils.setClipboardContents(this.text.substring(this.startSelection, this.endSelection));
+				String copy = this.text.substring(this.startSelection, this.endSelection);
+				if (this.enableCodeHighlighting) { copy = AdditionalMethods.deleteColor(copy); }
+				NoppesStringUtils.setClipboardContents(copy);
 				if (this.onlyReading) { return; }
 				String s = this.getSelectionBeforeText();
 				this.setText(s + this.getSelectionAfterText());
@@ -539,7 +540,9 @@ implements IGui, IKeyListener, IMouseListener {
 		}
 		if (GuiScreen.isKeyComboCtrlC(i)) {
 			if (this.startSelection != this.endSelection) {
-				NoppesStringUtils.setClipboardContents(this.text.substring(this.startSelection, this.endSelection));
+				String copy = this.text.substring(this.startSelection, this.endSelection);
+				if (this.enableCodeHighlighting) { copy = AdditionalMethods.deleteColor(copy); }
+				NoppesStringUtils.setClipboardContents(copy);
 			}
 			return;
 		}
@@ -592,11 +595,6 @@ implements IGui, IKeyListener, IMouseListener {
 
 	public boolean mouseClicked(int xMouse, int yMouse, int mouseButton) {
 		if (this.freeze) { return false; }
-		if (Minecraft.getMinecraft().currentScreen instanceof GuiHelpBook) {
-			xMouse = (int) (((float) Mouse.getX() + 1.0f) / 2.0f);
-			yMouse =((GuiHelpBook) Minecraft.getMinecraft().currentScreen).sw.getScaledHeight() - (int) (((float) Mouse.getY() + 1.0f) / 2.0f);
-		}
-		if (this.onlyReading && !(mouseButton==0 && this.container.linesCount * this.container.lineHeight > this.height && xMouse > this.x + this.width - 8)) { return false; } 
 		this.active = (xMouse >= this.x && xMouse < this.x + this.width && yMouse >= this.y && yMouse < this.y + this.height);
 		if (this.active) {
 			int selectionPos = this.getSelectionPos(xMouse, yMouse);

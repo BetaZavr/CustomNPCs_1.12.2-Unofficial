@@ -93,4 +93,13 @@ implements IRoleTransporter.ITransportLocation {
 		this.dimension = dimentionID;
 		this.pos = new BlockPos(x, y, z);
 	}
+
+	@Override
+	public void setType(int type) {
+		if (type<0 || type>2) {
+			throw new CustomNPCsException("Unknown location type: " + type);
+		}
+		this.type = type;
+	}
+	
 }

@@ -115,6 +115,7 @@ import noppes.npcs.ai.target.EntityAIClosestTarget;
 import noppes.npcs.ai.target.EntityAIOwnerHurtByTarget;
 import noppes.npcs.ai.target.EntityAIOwnerHurtTarget;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.constants.PotionEffectType;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IProjectile;
@@ -123,7 +124,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.client.EntityUtil;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
@@ -1357,7 +1357,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
 		this.animation.reset();
-		if (this.isRemote()) { this.animation.startAnimation(EnumAnimationType.init.ordinal()); }
+		if (this.isRemote()) { this.animation.startAnimation(AnimationKind.INIT.get()); }
 		EventHooks.onNPCInit(this);
 	}
 

@@ -18,7 +18,10 @@ public class InterfaseData {
 		this.interF = interF;
 		this.comment = comment;
 		this.metods = Lists.<MetodData>newArrayList();
-		for (MetodData md : mds) { this.metods.add(md); }
+		for (MetodData md : mds) {
+			md.ifc = interF.getSimpleName();
+			this.metods.add(md);
+		}
 		this.extend = extend;
 		this.wraper = wraper;
 	}

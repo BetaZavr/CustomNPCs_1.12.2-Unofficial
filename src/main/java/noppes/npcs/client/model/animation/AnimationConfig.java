@@ -13,10 +13,10 @@ import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -31,7 +31,7 @@ implements IAnimation {
 	public int frame, repeatLast;
 	public boolean disable;
 	public final Map<Integer, AnimationFrameConfig> frames; // {Frame, setting Frame]}
-	public EnumAnimationType type;
+	public AnimationKind type;
 
 	private long startTick;
 	private float val, valNext;
@@ -48,8 +48,8 @@ implements IAnimation {
 		this.repeatLast = 0;
 
 		if (type<0) {type *= -1; }
-		type %= EnumAnimationType.values().length;
-		this.type = EnumAnimationType.values()[type];
+		type %= AnimationKind.values().length;
+		this.type = AnimationKind.values()[type];
 		
 	}
 
@@ -78,7 +78,7 @@ implements IAnimation {
 	}
 
 	@Override
-	public int getType() { return this.type.ordinal(); }
+	public int getType() { return this.type.get(); }
 
 	private float calcValue(float value_0, float value_1, int speed, boolean isSmooth, float ticks, float partialTicks) {
 		if (ticks >= speed - 1) { ticks = speed - 1; }
@@ -125,7 +125,7 @@ implements IAnimation {
 		frame_1.setNpc(npc);
 		
 		int speed = frame_0.getSpeed();
-		if (this.type == EnumAnimationType.walking || this.type == EnumAnimationType.flywalk || this.type == EnumAnimationType.waterwalk) {
+		if (this.type == AnimationKind.WALKING || this.type == AnimationKind.FLY_WALK || this.type == AnimationKind.WATER_WALK) {
 			double sp = npc.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
 			speed = (int) ((double) speed * 0.25d / sp);
 		}
@@ -194,7 +194,7 @@ implements IAnimation {
 		
 		int t = compound.getInteger("Type");
 		if (t<0) { t *= -1; }
-		this.type = EnumAnimationType.values()[t % EnumAnimationType.values().length];
+		this.type = AnimationKind.values()[t % AnimationKind.values().length];
 		this.name = compound.getString("Name");
 		this.disable = compound.getBoolean("IsDisable");
 	}
@@ -204,7 +204,7 @@ implements IAnimation {
 		for (AnimationFrameConfig afc : this.frames.values()) { list.appendTag(afc.writeNBT()); }
 		compound.setTag("FrameConfigs", list);
 		
-		compound.setInteger("Type", this.type.ordinal());
+		compound.setInteger("Type", this.type.get());
 		compound.setString("Name", this.name);
 		compound.setBoolean("IsDisable", this.disable);
 		return compound;

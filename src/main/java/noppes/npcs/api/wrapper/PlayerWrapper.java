@@ -212,12 +212,10 @@ implements IPlayer {
 		if (data.questData.activeQuests.containsKey(id)) {
 			data.questData.activeQuests.remove(id);
 		}
-		QuestData activeData = data.questData.activeQuests.get(id);
-		if (activeData==null) {
-			activeData = new QuestData(quest);
-			data.questData.activeQuests.put(id, activeData);
+		if (this.entity instanceof EntityPlayerMP) {
+			Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, "quest.completed", quest.getTitle(), 2);
+			Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.CHAT, "quest.completed", ": ", quest.getTitle());
 		}
-		activeData.isCompleted = true;
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.QUEST_COMPLETION, id);
 	}
 
@@ -433,7 +431,7 @@ implements IPlayer {
 	}
 
 	@Override
-	public boolean hasKeyPressed(int key) {
+	public boolean hasOrKeyPressed(int[] key) {
 		return this.getData().hud.hasOrKeysPressed(key);
 	}
 
@@ -742,5 +740,8 @@ implements IPlayer {
 		if (this.entity.world.isRemote) { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 20, nbt.getMCNBT()); }
 		else { Server.sendData(this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
 	}
+
+	@Override
+	public double[] getWindowSize() { return this.data.hud.getWindowSize(); }
 	
 }

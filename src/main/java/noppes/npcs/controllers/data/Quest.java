@@ -81,7 +81,7 @@ implements ICompatibilty, IQuest {
 		this.questInterface = new QuestInterface();
 		this.rewardExp = 0;
 		this.rewardItems = new NpcMiscInventory(9);
-		this.rewardType = EnumRewardType.RANDOM;
+		this.rewardType = EnumRewardType.RANDOM_ONE;
 		this.factionOptions = new FactionOptions();
 		this.category = category;
 		// New
@@ -177,8 +177,8 @@ implements ICompatibilty, IQuest {
 
 		if (rewardist.size() > 0) {
 			allTextLogs += chr
-					+ new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE ? "one"
-							: this.rewardType == EnumRewardType.RANDOM ? "rnd" : "all") + ".reward").getFormattedText();
+					+ new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one"
+							: this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText();
 			for (String itemText : rewardist) {
 				allTextLogs += chr + itemText;
 			}

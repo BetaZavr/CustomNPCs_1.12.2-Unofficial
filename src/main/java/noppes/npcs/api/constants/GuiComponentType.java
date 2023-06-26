@@ -1,10 +1,18 @@
 package noppes.npcs.api.constants;
 
-public class GuiComponentType {
-	public static int BUTTON = 0;
-	public static int ITEM_SLOT = 5;
-	public static int LABEL = 1;
-	public static int SCROLL = 4;
-	public static int TEXT_FIELD = 3;
-	public static int TEXTURED_RECT = 2;
+public enum GuiComponentType {
+	
+	BUTTON(0),
+	ITEM_SLOT(5),
+	LABEL(1),
+	SCROLL(4),
+	TEXT_FIELD(3),
+	TEXTURED_RECT(2);
+	
+	int type = -1;
+	
+	GuiComponentType(int t) { this.type= t; }
+	
+	public int get() { return this.type; }
+	
 }

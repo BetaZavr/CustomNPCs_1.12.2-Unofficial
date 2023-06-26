@@ -54,11 +54,8 @@ implements IScrollData, IGuiData {
 		this.scroll.guiTop = this.guiTop + 4;
 		this.addScroll(this.scroll);
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 4, this.height + 8));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 3, 140, 20,
-				this.location.name));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 31,
-				new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" },
-				this.location.type));
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 3, 140, 20, this.location.name));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 31, new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, this.location.type));
 	}
 
 	@Override

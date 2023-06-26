@@ -79,7 +79,7 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 
 	@Override
 	public void save() {
-		if (((Quest) this.quest).rewardType==EnumRewardType.ONE) {
+		if (((Quest) this.quest).rewardType==EnumRewardType.ONE_SELECT) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, this.quest.getId());
 		}
 		else {
