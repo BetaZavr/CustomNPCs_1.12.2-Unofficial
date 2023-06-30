@@ -39,21 +39,6 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
-import noppes.npcs.util.ObfuscationPart0;
-import noppes.npcs.util.ObfuscationPart1;
-import noppes.npcs.util.ObfuscationPart10;
-import noppes.npcs.util.ObfuscationPart11;
-import noppes.npcs.util.ObfuscationPart12;
-import noppes.npcs.util.ObfuscationPart13;
-import noppes.npcs.util.ObfuscationPart14;
-import noppes.npcs.util.ObfuscationPart2;
-import noppes.npcs.util.ObfuscationPart3;
-import noppes.npcs.util.ObfuscationPart4;
-import noppes.npcs.util.ObfuscationPart5;
-import noppes.npcs.util.ObfuscationPart6;
-import noppes.npcs.util.ObfuscationPart7;
-import noppes.npcs.util.ObfuscationPart8;
-import noppes.npcs.util.ObfuscationPart9;
 import noppes.npcs.util.ScriptData;
 
 //Changed
@@ -454,50 +439,16 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 				for (String str : vars) {
 					if (CustomNpcs.scriptHelperObfuscations) {
 						boolean found = false;
-						for (int j = 0; j < 15; j++) {
-							Map<String, String> m;
-							if (j == 0) {
-								m = ObfuscationPart0.map;
-							} else if (j == 1) {
-								m = ObfuscationPart1.map;
-							} else if (j == 2) {
-								m = ObfuscationPart2.map;
-							} else if (j == 3) {
-								m = ObfuscationPart3.map;
-							} else if (j == 4) {
-								m = ObfuscationPart4.map;
-							} else if (j == 5) {
-								m = ObfuscationPart5.map;
-							} else if (j == 6) {
-								m = ObfuscationPart6.map;
-							} else if (j == 7) {
-								m = ObfuscationPart7.map;
-							} else if (j == 8) {
-								m = ObfuscationPart8.map;
-							} else if (j == 9) {
-								m = ObfuscationPart9.map;
-							} else if (j == 10) {
-								m = ObfuscationPart10.map;
-							} else if (j == 11) {
-								m = ObfuscationPart11.map;
-							} else if (j == 12) {
-								m = ObfuscationPart12.map;
-							} else if (j == 13) {
-								m = ObfuscationPart13.map;
-							} else {
-								m = ObfuscationPart14.map;
+						if (AdditionalMethods.obfuscations.containsValue(str)) {
+							found = true;
+							String[] parent = this.map.get(str);
+							hts[i] = new String[parent.length + 1];
+							for (int g = 0; g < parent.length; g++) {
+								hts[i][g] = parent[g];
 							}
-							if (m.containsValue(str)) {
-								found = true;
-								String[] parent = this.map.get(str);
-								hts[i] = new String[parent.length + 1];
-								for (int g = 0; g < parent.length; g++) {
-									hts[i][g] = parent[g];
-								}
-								hts[i][parent.length] = Character.toChars(0x00A7)[0] + "8Deobfuscation name: "
-										+ Character.toChars(0x00A7)[0] + "r" + m.get(str);
-								break;
-							}
+							hts[i][parent.length] = Character.toChars(0x00A7)[0] + "8Deobfuscation name: "
+									+ Character.toChars(0x00A7)[0] + "r" + AdditionalMethods.obfuscations.get(str);
+							break;
 						}
 						if (!found) {
 							hts[i] = this.map.get(str);

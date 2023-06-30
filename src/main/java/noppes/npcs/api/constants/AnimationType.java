@@ -20,7 +20,7 @@ public enum AnimationType {
 	
 	int type = -1;
 	
-	AnimationType(int t) { this.type= t; }
+	AnimationType(int t) { this.type = t; }
 	
 	public int get() { return this.type; }
 	

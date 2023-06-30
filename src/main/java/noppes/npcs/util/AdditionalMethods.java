@@ -1,20 +1,31 @@
 package noppes.npcs.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
+
+import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,6 +62,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -164,9 +177,10 @@ import noppes.npcs.controllers.data.QuestData;
 public class AdditionalMethods {
 
 	private static Map<Class<?>, Class<?>> map = Maps.newHashMap();
+	public static TreeMap<String, String> obfuscations = Maps.<String, String>newTreeMap();
 	private static Method copyDataFromOld;
-
-	static {
+	
+	public AdditionalMethods() {
 		try {
 			AdditionalMethods.copyDataFromOld = Entity.class.getDeclaredMethod((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")?"copyDataFromOld":"func_180432_n", Entity.class);
 			AdditionalMethods.copyDataFromOld.setAccessible(true);
@@ -218,6 +232,48 @@ public class AdditionalMethods {
 		AdditionalMethods.map.put(ITexturedRect.class, CustomGuiTexturedRectWrapper.class);
 		AdditionalMethods.map.put(ICustomGui.class, CustomGuiWrapper.class);
 		AdditionalMethods.map.put(IDataElement.class, DataElement.class);
+		
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().equals("bin")) {
+				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
+					try {
+						ZipFile zip = new ZipFile(mod.getSource());
+						Enumeration<? extends ZipEntry> entries = zip.entries();
+						while (entries.hasMoreElements()) {
+							ZipEntry zipentry = (ZipEntry) entries.nextElement();
+							if (zipentry.isDirectory() || zipentry.getName().indexOf("noppes/npcs/data/")!=0 || !zipentry.getName().endsWith(".json")) { continue; }
+							StringWriter writer = new StringWriter();
+							IOUtils.copy(zip.getInputStream(zipentry), writer, Charset.forName("UTF-8"));
+							for (String line : writer.toString().split(""+((char) 10))) {
+								String[] entry = line.split("=");
+								AdditionalMethods.obfuscations.put(entry[0], entry[1]);
+							}
+							writer.close();
+						}
+						zip.close();
+					}
+					catch (IOException e) {  }
+				}
+				else {
+					File dir = new File(mod.getSource(), "noppes/npcs/data");
+					if (dir.exists()) {
+						for (File f : dir.listFiles()) {
+							if (!f.isFile() || f.getName().indexOf("obfuscation_")!=0 || !f.getName().endsWith(".json")) { continue; }
+							try {
+								String line;
+								BufferedReader reader = Files.newBufferedReader(f.toPath());
+								while((line = reader.readLine()) != null) {
+									String[] entry = line.split("=");
+									AdditionalMethods.obfuscations.put(entry[0], entry[1]);
+								}
+								reader.close();
+							}
+							catch (IOException e) { }
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/** Stripping a string of color */
@@ -375,30 +431,18 @@ public class AdditionalMethods {
 			for (Method m : clazz.getMethods()) {
 				methodsMap.put(m.getName(), m);
 			}
-			for (int j = 0; j < 4; j++) {
-				Map<String, String> m;
-				if (j == 0) {
-					m = ObfuscationPart0.map;
-				} else if (j == 1) {
-					m = ObfuscationPart1.map;
-				} else if (j == 2) {
-					m = ObfuscationPart2.map;
-				} else {
-					m = ObfuscationPart3.map;
-				}
-				if (m.containsValue(key)) {
-					for (String s : m.keySet()) {
-						if (m.get(s).equals(key)) {
-							if (methodsMap.containsKey(s)) {
-								obj = methodsMap.get(s).getReturnType();
-							}
-							break;
+			if (AdditionalMethods.obfuscations.containsValue(key)) {
+				for (String s : AdditionalMethods.obfuscations.keySet()) {
+					if (AdditionalMethods.obfuscations.get(s).equals(key)) {
+						if (methodsMap.containsKey(s)) {
+							obj = methodsMap.get(s).getReturnType();
 						}
+						break;
 					}
 				}
-				if (obj != null) {
-					break;
-				}
+			}
+			if (obj != null) {
+				break;
 			}
 			for (Class<?> c : clazz.getClasses()) {
 				if (c.getSimpleName().equals(key)) {
@@ -424,48 +468,21 @@ public class AdditionalMethods {
 			for (Class<?> c : clazz.getClasses()) {
 				classMap.put(c.getSimpleName(), c);
 			}
-
-			for (int j = 0; j < 11; j++) {
-				Map<String, String> m;
-				if (j == 0) {
-					m = ObfuscationPart4.map;
-				} else if (j == 1) {
-					m = ObfuscationPart5.map;
-				} else if (j == 2) {
-					m = ObfuscationPart6.map;
-				} else if (j == 3) {
-					m = ObfuscationPart7.map;
-				} else if (j == 4) {
-					m = ObfuscationPart8.map;
-				} else if (j == 5) {
-					m = ObfuscationPart9.map;
-				} else if (j == 6) {
-					m = ObfuscationPart10.map;
-				} else if (j == 7) {
-					m = ObfuscationPart11.map;
-				} else if (j == 8) {
-					m = ObfuscationPart12.map;
-				} else if (j == 9) {
-					m = ObfuscationPart13.map;
-				} else {
-					m = ObfuscationPart14.map;
-				}
-				if (m.containsValue(key)) {
-					for (String s : m.keySet()) {
-						if (m.get(s).equals(key)) {
-							if (classMap.containsKey(s)) {
-								obj = classMap.get(s);
-							}
-							if (fieldMap.containsKey(s)) {
-								obj = fieldMap.get(s).getType();
-							}
-							break;
+			if (AdditionalMethods.obfuscations.containsValue(key)) {
+				for (String s : AdditionalMethods.obfuscations.keySet()) {
+					if (AdditionalMethods.obfuscations.get(s).equals(key)) {
+						if (classMap.containsKey(s)) {
+							obj = classMap.get(s);
 						}
+						if (fieldMap.containsKey(s)) {
+							obj = fieldMap.get(s).getType();
+						}
+						break;
 					}
 				}
-				if (obj != null) {
-					break;
-				}
+			}
+			if (obj != null) {
+				break;
 			}
 		}
 
@@ -1344,30 +1361,18 @@ public class AdditionalMethods {
 						for (Method m : clazz.getMethods()) {
 							methodsMap.put(m.getName(), m);
 						}
-						for (int j = 0; j < 4; j++) {
-							Map<String, String> m;
-							if (j == 0) {
-								m = ObfuscationPart0.map;
-							} else if (j == 1) {
-								m = ObfuscationPart1.map;
-							} else if (j == 2) {
-								m = ObfuscationPart2.map;
-							} else {
-								m = ObfuscationPart3.map;
-							}
-							if (m.containsValue(k)) {
-								for (String s : m.keySet()) {
-									if (m.get(s).equals(k)) {
-										if (methodsMap.containsKey(s)) {
-											obj = methodsMap.get(s).getReturnType();
-										}
-										break;
+						if (AdditionalMethods.obfuscations.containsValue(k)) {
+							for (String s : AdditionalMethods.obfuscations.keySet()) {
+								if (AdditionalMethods.obfuscations.get(s).equals(k)) {
+									if (methodsMap.containsKey(s)) {
+										obj = methodsMap.get(s).getReturnType();
 									}
+									break;
 								}
 							}
-							if (obj != null) {
-								break;
-							}
+						}
+						if (obj != null) {
+							break;
 						}
 						for (Class<?> c : clazz.getClasses()) {
 							if (c.getSimpleName().equals(k)) {
@@ -1393,48 +1398,21 @@ public class AdditionalMethods {
 						for (Class<?> c : clazz.getClasses()) {
 							classMap.put(c.getSimpleName(), c);
 						}
-
-						for (int j = 0; j < 11; j++) {
-							Map<String, String> m;
-							if (j == 0) {
-								m = ObfuscationPart4.map;
-							} else if (j == 1) {
-								m = ObfuscationPart5.map;
-							} else if (j == 2) {
-								m = ObfuscationPart6.map;
-							} else if (j == 3) {
-								m = ObfuscationPart7.map;
-							} else if (j == 4) {
-								m = ObfuscationPart8.map;
-							} else if (j == 5) {
-								m = ObfuscationPart9.map;
-							} else if (j == 6) {
-								m = ObfuscationPart10.map;
-							} else if (j == 7) {
-								m = ObfuscationPart11.map;
-							} else if (j == 8) {
-								m = ObfuscationPart12.map;
-							} else if (j == 9) {
-								m = ObfuscationPart13.map;
-							} else {
-								m = ObfuscationPart14.map;
-							}
-							if (m.containsValue(k)) {
-								for (String s : m.keySet()) {
-									if (m.get(s).equals(k)) {
-										if (classMap.containsKey(s)) {
-											obj = classMap.get(s);
-										}
-										if (fieldMap.containsKey(s)) {
-											obj = fieldMap.get(s).getType();
-										}
-										break;
+						if (AdditionalMethods.obfuscations.containsValue(k)) {
+							for (String s : AdditionalMethods.obfuscations.keySet()) {
+								if (AdditionalMethods.obfuscations.get(s).equals(k)) {
+									if (classMap.containsKey(s)) {
+										obj = classMap.get(s);
 									}
+									if (fieldMap.containsKey(s)) {
+										obj = fieldMap.get(s).getType();
+									}
+									break;
 								}
 							}
-							if (obj != null) {
-								break;
-							}
+						}
+						if (obj != null) {
+							break;
 						}
 					}
 					map.put(key, AdditionalMethods.getScriptClass(obj));

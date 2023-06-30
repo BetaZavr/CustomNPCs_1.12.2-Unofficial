@@ -2,6 +2,7 @@ package noppes.npcs.client.gui;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,6 +15,17 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.api.constants.AnimationKind;
+import noppes.npcs.api.constants.AnimationType;
+import noppes.npcs.api.constants.EntityType;
+import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.constants.MarkType;
+import noppes.npcs.api.constants.OptionType;
+import noppes.npcs.api.constants.ParticleType;
+import noppes.npcs.api.constants.PotionEffectType;
+import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.constants.SideType;
+import noppes.npcs.api.constants.TacticalType;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiMenuTopButton;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -27,6 +39,8 @@ import noppes.npcs.client.util.MetodData;
 import noppes.npcs.client.util.ParameterData;
 import noppes.npcs.constants.EnumEventData;
 import noppes.npcs.constants.EnumInterfaceData;
+import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiHelpBook
@@ -100,7 +114,7 @@ implements ICustomScrollListener, ITextChangeListener {
 			topButton.active = i == GuiHelpBook.activeTab;
 			this.addTopButton(topButton);
 		}
-		u = this.guiLeft + ta.width + 8;
+		u = this.guiLeft + ta.width + 10;
 		v = this.guiTop - 12;
 		int wb = this.xSize - ta.width + 6;
 		switch(GuiHelpBook.activeTab) {
@@ -121,11 +135,12 @@ implements ICustomScrollListener, ITextChangeListener {
 			}
 			case 2: { // scripts
 				if (GuiHelpBook.activeButton<20 || GuiHelpBook.activeButton>29) { GuiHelpBook.activeButton = 20; }
-				for (int i = 0; i < 3 ; i++) {
+				for (int i = 0; i < 4 ; i++) {
 					String name;
 					switch(i) {
 						case 1: name = "gui.help.api"; break;
 						case 2: name = "gui.help.events"; break;
+						case 3: name = "gui.help.constants"; break;
 						default: name = "gui.help.general"; break;
 					}
 					this.addButton(new GuiNpcButton(i + 20, u, v += 17, wb, 15, name));
@@ -133,29 +148,52 @@ implements ICustomScrollListener, ITextChangeListener {
 				//scroll
 				if (this.scroll==null) { this.scroll = new GuiCustomScroll(this, 0); }
 				Map<String, String[]> m = Maps.<String, String[]>newTreeMap();
+				List<String> keys = Lists.<String>newArrayList();
 				if (GuiHelpBook.activeButton==21) {
 					for (EnumInterfaceData enumID : EnumInterfaceData.values()) {
 						List<String> com = enumID.it.getComment();
 						m.put(enumID.name(), com.toArray(new String[com.size()]));
+						keys.add(enumID.name());
 					}
 				}
 				else if (GuiHelpBook.activeButton==22) {
 					for (EnumEventData enumED : EnumEventData.values()) {
 						List<String> com = enumED.ed.getComment();
 						m.put(enumED.name(), com.toArray(new String[com.size()]));
+						keys.add(enumED.name());
 					}
 				}
-				this.scroll.setList(Lists.newArrayList(m.keySet()));
-				this.scroll.hoversTexts = new String[m.size()][];
+				else if (GuiHelpBook.activeButton==23) {
+					System.out.println("CNPCs Data: "+ScriptContainer.Data.size());
+					for (String c : ScriptContainer.Data.keySet()) {
+						Object value = ScriptContainer.Data.get(c);
+						List<String> com = Lists.newArrayList();
+						if (value instanceof Boolean || 
+								value instanceof Byte || 
+								value instanceof Short || 
+								value instanceof Integer || 
+								value instanceof Float || 
+								value instanceof Double || 
+								value instanceof Long || 
+								value instanceof String || 
+								value instanceof Class) { com.add(" = " + com.toString()); }
+						else { com.add("Object: " + com.getClass().getName()); }
+						m.put(c, new String[] { "" + ScriptContainer.Data.get(c) });
+						keys.add(c);
+					}
+				}
+				Collections.sort(keys);
+				this.scroll.setListNotSorted(keys);
+				this.scroll.hoversTexts = new String[keys.size()][];
 				int i = 0;
-				for (String[] com : m.values()) {
-					this.scroll.hoversTexts[i] = com;
+				for (String key : keys) {
+					this.scroll.hoversTexts[i] = m.get(key);
 					i++;
 				}
 				this.scroll.guiLeft = u;
 				this.scroll.guiTop = (v += 17);
 				
-				this.scroll.setSize(wb, this.ySize - this.scroll.guiTop + this.guiTop - 15);
+				this.scroll.setSize(wb, this.ySize - this.scroll.guiTop + this.guiTop - 17);
 				if (this.scroll.selected<0) { this.scroll.selected = 0; }
 				this.addScroll(this.scroll);
 				break;
@@ -182,7 +220,7 @@ implements ICustomScrollListener, ITextChangeListener {
 
 	private void resetText() {
 		if (!(this.get(0) instanceof GuiTextArea)) { return; }
-		if (GuiHelpBook.activeButton!=21 && GuiHelpBook.activeButton!=22) {
+		if (GuiHelpBook.activeButton!=21 && GuiHelpBook.activeButton!=22 && GuiHelpBook.activeButton!=23) {
 			String text = GuiHelpBook.map.get(GuiHelpBook.activeButton);
 			if (text==null) { text = ""; }
 			((GuiTextArea) this.get(0)).setText(text);
@@ -245,6 +283,7 @@ implements ICustomScrollListener, ITextChangeListener {
 			TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
 			for (MetodData md : list) {
 				String name = md.name;
+				md.isVarielble = true;
 				while (m.containsKey(name)) { name += "_"; }
 				m.put(name, md);
 			}
@@ -256,7 +295,12 @@ implements ICustomScrollListener, ITextChangeListener {
 				lc.add(0, sub.getName().replace("$", "."));
 				sub = sub.getSuperclass();
 			}
-			text = new TextComponentTranslation("gui.event", ":").getFormattedText() + (""+((char) 10));
+			String comm = ""; 
+			for (String str : evd.getComment()) {
+				if (!comm.isEmpty()) { comm = ""+((char) 10); }
+				comm += str;
+			}
+			text = comm + ":" + (""+((char) 10));
 			int i = 1;
 			for (String name : lc) {
 				int ofs = 1 + i;
@@ -264,22 +308,20 @@ implements ICustomScrollListener, ITextChangeListener {
 				text += chr + ((i == lc.size()) ? "6" : "7") + name + (""+((char) 10));
 				i++;
 			}
-			String comm = ""; 
-			for (String str : evd.getComment()) {
-				if (!comm.isEmpty()) { comm = ""+((char) 10); }
-				comm += str;
-			}
-			text += (""+((char) 10)) + comm + (""+((char) 10)) + 
-					(""+((char) 10)) + new TextComponentTranslation("event.fields").getFormattedText() + (""+((char) 10));
+			text += (""+((char) 10)) + 
+					new TextComponentTranslation("event.example").getFormattedText() + (""+((char) 10)) +
+					chr + "9function " + chr + "f" + evdEx.func + chr + "9(" + chr + "eevent" + chr + "9) {" + (""+((char) 10));
+			
 			for (String name : m.keySet()) {
 				MetodData md = m.get(name);
 				String ret = md.returnType.getName();
 				if (ret.indexOf("[L")==0) { ret = ret.replace("[L", "").replace(";", "") + "[]"; }
 				else if (ret.indexOf("[B")==0) { ret = ret.replace("[B", "").replace(";", "") + "[]"; }
-				String key = chr + "7 event." + chr + "6" + md.name + chr + "7;   // " + ret;
-				text += key+(""+((char) 10)); 
+				String key = "  "+chr + "eevent" + chr + "9." + chr + "f" + name + chr + "9; "  + chr + "7// " + ret;
+				text += key + (""+((char) 10)); 
 				this.data.put(key, m.get(name));
 			}
+			text += chr + "9}" + ((char) 10);
 			if (evd.event.getMethods().length>0) {
 				text += (""+((char) 10)) + new TextComponentTranslation("event.methods").getFormattedText() + (""+((char) 10));
 				TreeMap<String, MetodData> md = Maps.<String, MetodData>newTreeMap();
@@ -292,7 +334,7 @@ implements ICustomScrollListener, ITextChangeListener {
 							g++;
 						}
 					}
-					mdata.isVarielble = true;
+					//mdata.isVarielble = true;
 					md.put(mtd.getName(), mdata);
 				}
 				for (String name : md.keySet()) {
@@ -300,6 +342,114 @@ implements ICustomScrollListener, ITextChangeListener {
 					text += key+(""+((char) 10));
 					this.data.put(key, md.get(name));
 				}
+			}
+		}
+		else if (GuiHelpBook.activeButton==23 && this.scroll!=null) { // Constants
+			String select = this.scroll.getSelected();
+			Object value = this.scroll.hoversTexts[this.scroll.selected][0];
+			Class<?> c = null;
+			boolean isMain = false;
+			try {
+				if (select.indexOf("_")!=-1) { c = Class.forName("noppes.npcs.api.constants."+ select.substring(0, select.indexOf("_"))); }
+				else {
+					c = Class.forName("noppes.npcs.api.constants."+ select);
+					isMain = true;
+				}
+			}
+			catch (ClassNotFoundException e) { }
+			if (c==null || !c.isEnum()) { // Object
+				value = ScriptContainer.Data.get(select);
+				String constant = "constant.object";
+				System.out.println("value: "+value);
+				if (value.toString().indexOf("JavaClassStatics[")==0) {
+					value = chr + "e" + value.toString().replace("JavaClassStatics[", "").replace("]", "");
+					constant = "constant.static";
+				} else if (value.getClass().getName().equals("jdk.nashorn.api.scripting.ScriptObjectMirror")) {
+					if (value.toString().indexOf("function")==0) {
+						value = chr + "3" + value.toString().substring(0, value.toString().indexOf("{")) + "{ /*...*/ }";
+					}
+				} else if (value.toString().indexOf("ScriptContainer$")!=-1) {
+					String sfx = "(Object obj)";
+					if (value.toString().indexOf("$Log")!=-1) { sfx = "(String message)"; }
+					value = value.toString().replace("$", ".");
+					value = chr + "e" + value.toString().substring(0, value.toString().indexOf("@")) + sfx;
+				} else if (value.toString().indexOf("WorldWrapper$")!=-1) {
+					String sfx = ".tempdata; // IData";
+					if (value.toString().indexOf("$2@")!=-1) { sfx = ".storeddata; // IData"; }
+					value = chr + "b" + value.toString().substring(0, value.toString().indexOf("$")) + sfx;
+				} else {
+					value = chr + "6" + value.toString();
+				}
+				text += new TextComponentTranslation("constant.custom").getFormattedText() + (""+((char) 10)) + (""+((char) 10)) +
+						chr + "9" + select + chr + "7 == " + (""+((char) 10)) + value + (""+((char) 10)) + (""+((char) 10)) +
+						new TextComponentTranslation(constant).getFormattedText();
+				if (ScriptController.Instance.constants.getCompoundTag("Constants").hasKey(select, 8)) {
+					text += (""+((char) 10)) + (""+((char) 10)) + new TextComponentTranslation("constant.written.as", chr + "7" + ScriptController.Instance.constants.getCompoundTag("Constants").getString(select)).getFormattedText();
+				}
+			} else { // Base Enums
+				String example = "";
+				if (c==AnimationKind.class) {
+					example = chr + "9var " + chr + "fianim " + chr + "9= " + chr + "6INPCAnimation" + chr + "9." + chr + "fgetAnimations" + chr + "9(" + chr + "r" + select + chr + "9);" + (""+((char) 10)) +
+							chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+							chr + "9var " + chr + "fianim " + chr + "9= " + chr + "6IAnimationHandler" + chr + "9." + chr + "fcreateNew" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				else if (c==AnimationType.class) {
+					example = chr + "6INPCAi" + chr + "9." + chr + "fsetAnimation" + chr + "9(" + chr + "r" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "6INPCAi" + chr + "9." + chr + "fsetAnimation" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				else if (c==EntityType.class) {
+					example = chr + "6IWorld" + chr + "9." + chr + "fgetClosestEntity" + chr + "9(" + chr + "7IPos" + chr + "9, " + chr + "7range" + chr + "9, " + chr + "r" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "9if (" + chr + "7IEntity" + chr + "9." + chr + "fgetType" + chr + "9() == " + chr + "6" + value + chr + "9) { " + chr + "7 /*...*/" + chr + "9 }";
+				}
+				else if (c==JobType.class) {
+					example = chr + "9if (" + chr + "7INPCJob" + chr + "9." + chr + "fgetType" + chr + "9() == " + chr + "6" + select + chr + "9) { " + chr + "7 /*...*/" + chr + "9 }" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "9if (" + chr + "7INPCJob" + chr + "9." + chr + "fgetType" + chr + "9() == " + chr + "6" + value + chr + "9) { " + chr + "7 /*...*/" + chr + "9 }";
+				}
+				else if (c==MarkType.class) {
+					example = chr + "9var " + chr + "fimark " + chr + "9= " + chr + "6IEntityLivingBase" + chr + "9." + chr + "faddMark" + chr + "9(" + chr + "r" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "9var " + chr + "fimark " + chr + "9= " + chr + "6IEntityLivingBase" + chr + "9." + chr + "faddMark" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				else if (c==OptionType.class) {
+					example = chr + "9var " + chr + "fidialogoption " + chr + "9= " + chr + "6IDialog" + chr + "9." + chr + "fgetOption" + chr + "9(" + chr + "r" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "9var " + chr + "fidialogoption " + chr + "9= " + chr + "6IDialog" + chr + "9." + chr + "fgetOption" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				else if (c==ParticleType.class) {
+					example = chr + "6INPCRanged" + chr + "9." + chr + "fsetParticle" + chr + "9(" + chr + "r" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "6INPCRanged" + chr + "9." + chr + "fsetParticle" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				else if (c==PotionEffectType.class) {
+					example = chr + "6INPCMelee" + chr + "9." + chr + "fsetEffect" + chr + "9(" + chr + "r" + select + chr + "9, " + chr + "rstrength" + chr + "9, " + chr + "rtime" + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "6INPCRanged" + chr + "9." + chr + "fsetEffect" + chr + "9(" + chr + "6" + value + chr + "9, " + chr + "rstrength" + chr + "9, " + chr + "rtime" + chr + "9);";
+				}
+				else if (c==RoleType.class) {
+					example = chr + "9if (" + chr + "7INPCRole" + chr + "9." + chr + "fgetType" + chr + "9() == " + chr + "6" + select + chr + "9) { " + chr + "7 /*...*/" + chr + "9 }" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "9if (" + chr + "7INPCRole" + chr + "9." + chr + "fgetType" + chr + "9() == " + chr + "6" + value + chr + "9) { " + chr + "7 /*...*/" + chr + "9 }";
+				}
+				else if (c==SideType.class) {
+					example = chr + "6IBlock" + chr + "9." + chr + "finteract" + chr + "9(" + chr + "6" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "6IBlock" + chr + "9." + chr + "finteract" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				else if (c==TacticalType.class) {
+					example = chr + "6INPCAi" + chr + "9." + chr + "fsetTacticalType" + chr + "9(" + chr + "6" + select + chr + "9);" + (""+((char) 10)) +
+					chr + "7// " + new TextComponentTranslation("quest.task.step.2").getFormattedText() + (""+((char) 10)) +
+					chr + "6INPCAi" + chr + "9." + chr + "fsetTacticalType" + chr + "9(" + chr + "6" + value + chr + "9);";
+				}
+				text += new TextComponentTranslation("constant.base").getFormattedText() + (""+((char) 10)) + (""+((char) 10)) +
+						chr + "9" + select + chr + "7 == " + (""+((char) 10)) + chr + "6" + value + (""+((char) 10)) + (""+((char) 10)) + 
+						(isMain ? new TextComponentTranslation("constant.class").getFormattedText()
+								: new TextComponentTranslation("constant."+ c.getSimpleName().toLowerCase()).getFormattedText() +
+								(example.isEmpty() ? "" : 
+								(""+((char) 10)) + (""+((char) 10)) +
+								new TextComponentTranslation("event.example").getFormattedText() + (""+((char) 10)) + example));
 			}
 		}
 		((GuiTextArea) this.get(0)).setText(text);

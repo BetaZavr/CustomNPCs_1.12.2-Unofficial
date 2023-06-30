@@ -2,9 +2,12 @@ package noppes.npcs.constants;
 
 import java.util.List;
 
+import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.inventory.IInventory;
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.IDamageSource;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
@@ -21,14 +24,22 @@ import noppes.npcs.api.entity.data.role.IRoleTransporter.ITransportLocation;
 import noppes.npcs.api.event.BlockEvent;
 import noppes.npcs.api.event.CustomContainerEvent;
 import noppes.npcs.api.event.CustomGuiEvent;
+import noppes.npcs.api.event.CustomNPCsEvent;
 import noppes.npcs.api.event.DialogEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
+import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.event.PlayerEvent.PlayerPackage;
 import noppes.npcs.api.event.ProjectileEvent;
 import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.api.event.WorldEvent;
+import noppes.npcs.api.event.potion.AffectEntity;
+import noppes.npcs.api.event.potion.CustomPotionEvent;
+import noppes.npcs.api.event.potion.EndEffect;
+import noppes.npcs.api.event.potion.IsReadyEvent;
+import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogOption;
@@ -46,7 +57,7 @@ public enum EnumEventData {
 	BlockBroken(new EventData(BlockEvent.BreakEvent.class, 
 			BlockEvent.class,
 			"event.block.break",
-			"broken",
+			EnumScriptType.BROKEN.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -54,7 +65,7 @@ public enum EnumEventData {
 	BlockClicked(new EventData(BlockEvent.ClickedEvent.class, 
 			BlockEvent.class,
 			"event.block.clicked",
-			"clicked",
+			EnumScriptType.CLICKED.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -63,7 +74,7 @@ public enum EnumEventData {
 	BlockCollide(new EventData(BlockEvent.CollidedEvent.class, 
 			BlockEvent.class,
 			"event.block.collided",
-			"collide",
+			EnumScriptType.COLLIDE.function,
 			new MetodData(IEntity.class, "entity", "parameter.entity"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -72,7 +83,7 @@ public enum EnumEventData {
 	BlockDoorToggle(new EventData(BlockEvent.DoorToggleEvent.class, 
 			BlockEvent.class,
 			"event.block.doortoggle",
-			"doorToggle",
+			EnumScriptType.DOOR_TOGGLE.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -80,7 +91,7 @@ public enum EnumEventData {
 	BlockExploded(new EventData(BlockEvent.ExplodedEvent.class, 
 			BlockEvent.class,
 			"event.block.exploded",
-			"exploded",
+			EnumScriptType.EXPLODED.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -88,7 +99,7 @@ public enum EnumEventData {
 	BlockFallenUpon(new EventData(BlockEvent.EntityFallenUponEvent.class, 
 			BlockEvent.class,
 			"event.block.entityfallenupon",
-			"fallenUpon",
+			EnumScriptType.FALLEN_UPON.function,
 			new MetodData(float.class, "distanceFallen", "event.block.distancefallen"),
 			new MetodData(IEntity.class, "entity", "parameter.entity"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
@@ -98,7 +109,7 @@ public enum EnumEventData {
 	BlockHarvested(new EventData(BlockEvent.HarvestedEvent.class, 
 			BlockEvent.class,
 			"event.block.harvested",
-			"harvested",
+			EnumScriptType.HARVESTED.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -107,7 +118,7 @@ public enum EnumEventData {
 	BlockInit(new EventData(BlockEvent.InitEvent.class, 
 			BlockEvent.class,
 			"event.init",
-			"init",
+			EnumScriptType.INIT.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -115,7 +126,7 @@ public enum EnumEventData {
 	BlockInteract(new EventData(BlockEvent.InteractEvent.class, 
 			BlockEvent.class,
 			"event.interact",
-			"interact",
+			EnumScriptType.INTERACT.function,
 			new MetodData(float.class, "hitX", "event.block.hitx"),
 			new MetodData(float.class, "hitY", "event.block.hity"),
 			new MetodData(float.class, "hitZ", "event.block.hitz"),
@@ -128,7 +139,7 @@ public enum EnumEventData {
 	BlockNeighborChanged(new EventData(BlockEvent.NeighborChangedEvent.class, 
 			BlockEvent.class,
 			"event.block.neighborchanged",
-			"neighborChanged",
+			EnumScriptType.NEIGHBOR_CHANGED.function,
 			new MetodData(IPos.class, "changedPos", "parameter.pos"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -137,7 +148,7 @@ public enum EnumEventData {
 	BlockRainFilled(new EventData(BlockEvent.RainFillEvent.class, 
 			BlockEvent.class,
 			"event.block.rainfill",
-			"rainFilled",
+			EnumScriptType.RAIN_FILLED.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -145,7 +156,7 @@ public enum EnumEventData {
 	BlockRedstone(new EventData(BlockEvent.RedstoneEvent.class, 
 			BlockEvent.class,
 			"event.block.redstone",
-			"redstone",
+			EnumScriptType.REDSTONE.function,
 			new MetodData(int.class, "power", "event.block.power"),
 			new MetodData(int.class, "prevPower", "event.block.prevpower"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
@@ -155,7 +166,7 @@ public enum EnumEventData {
 	BlockTick(new EventData(BlockEvent.UpdateEvent.class, 
 			BlockEvent.class,
 			"event.update",
-			"tick",
+			EnumScriptType.TICK.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -163,7 +174,7 @@ public enum EnumEventData {
 	BlockTimer(new EventData(BlockEvent.TimerEvent.class, 
 			BlockEvent.class,
 			"event.timer",
-			"timer",
+			EnumScriptType.TIMER.function,
 			new MetodData(int.class, "id", "parameter.itimers.id"),
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -172,7 +183,7 @@ public enum EnumEventData {
 	CustomContainerCustomChestClosed(new EventData(CustomContainerEvent.CloseEvent.class, 
 			CustomContainerEvent.class,
 			"event.customcontainer.close",
-			"customChestClosed",
+			EnumScriptType.CUSTOM_CHEST_CLOSED.function,
 			new MetodData(IContainer.class, "container", "parameter.container"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -181,7 +192,7 @@ public enum EnumEventData {
 	CustomContainerCustomGuiSlotClicked(new EventData(CustomContainerEvent.SlotClickedEvent.class, 
 			CustomContainerEvent.class,
 			"event.customcontainer.slotclicked",
-			"customGuiSlotClicked",
+			EnumScriptType.CUSTOM_CHEST_CLICKED.function,
 			new MetodData(IItemStack.class, "heldItem", "parameter.stack"),
 			new MetodData(int.class, "slot", "parameter.slot"),
 			new MetodData(IItemStack.class, "slotItem", "parameter.stack"),
@@ -193,7 +204,7 @@ public enum EnumEventData {
 	CustomGuiButton(new EventData(CustomGuiEvent.ButtonEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.button",
-			"customGuiButton",
+			EnumScriptType.CUSTOM_GUI_BUTTON.function,
 			new MetodData(int.class, "buttonId", "event.customgui.buttonid"),
 			new MetodData(ICustomGui.class, "gui", "parameter.customgui"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -203,7 +214,7 @@ public enum EnumEventData {
 	CustomGuiClosed(new EventData(CustomGuiEvent.CloseEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.close",
-			"customGuiClosed",
+			EnumScriptType.CUSTOM_GUI_CLOSED.function,
 			new MetodData(ICustomGui.class, "gui", "parameter.customgui"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -212,7 +223,7 @@ public enum EnumEventData {
 	CustomGuiScroll(new EventData(CustomGuiEvent.ScrollEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.scroll",
-			"customGuiScroll",
+			EnumScriptType.CUSTOM_GUI_SCROLL.function,
 			new MetodData(boolean.class, "doubleClick", "event.customgui.doubleclick"),
 			new MetodData(int.class, "scrollId", "event.customgui.scrollid"),
 			new MetodData(int.class, "scrollIndex", "event.customgui.scrollindex"),
@@ -225,7 +236,7 @@ public enum EnumEventData {
 	CustomGuiSlot(new EventData(CustomGuiEvent.SlotEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.slot",
-			"customGuiSlot",
+			EnumScriptType.CUSTOM_GUI_SLOT.function,
 			new MetodData(IItemStack.class, "heldItem", "parameter.stack"),
 			new MetodData(int.class, "slotId", "parameter.slot"),
 			new MetodData(IItemStack.class, "stack", "parameter.stack"),
@@ -237,7 +248,7 @@ public enum EnumEventData {
 	CustomGuiSlotClicked(new EventData(CustomGuiEvent.SlotClickEvent.class, 
 			CustomGuiEvent.class,
 			"event.customgui.slotclick",
-			"customGuiSlotClicked",
+			EnumScriptType.CUSTOM_GUI_SLOT_CLICKED.function,
 			new MetodData(String.class, "clickType", "event.customgui.clicktype"),
 			new MetodData(int.class, "dragType", "event.customgui.dragtype"),
 			new MetodData(IItemStack.class, "heldItem", "parameter.stack"),
@@ -251,7 +262,7 @@ public enum EnumEventData {
 	DialogDialog(new EventData(DialogEvent.OpenEvent.class, 
 			DialogEvent.class,
 			"event.dialog.open",
-			"dialog",
+			EnumScriptType.DIALOG.function,
 			new MetodData(IDialog.class, "dialog", "parameter.dialog"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
@@ -261,7 +272,7 @@ public enum EnumEventData {
 	DialogDialogClose(new EventData(DialogEvent.CloseEvent.class, 
 			DialogEvent.class,
 			"event.dialog.close",
-			"dialogClose",
+			EnumScriptType.DIALOG_CLOSE.function,
 			new MetodData(IDialog.class, "dialog", "parameter.dialog"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
@@ -271,7 +282,7 @@ public enum EnumEventData {
 	DialogDialogOption(new EventData(DialogEvent.OptionEvent.class, 
 			DialogEvent.class,
 			"event.dialog.option",
-			"dialogOption",
+			EnumScriptType.DIALOG_OPTION.function,
 			new MetodData(IDialogOption.class, "option", "parameter.dialog.option"),
 			new MetodData(IDialog.class, "dialog", "parameter.dialog"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -282,7 +293,7 @@ public enum EnumEventData {
 	ItemAttack(new EventData(ItemEvent.AttackEvent.class, 
 			ItemEvent.class,
 			"event.item.attack",
-			"attack",
+			EnumScriptType.ATTACK.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(Object.class, "target", "event.item.target"),
 			new MetodData(int.class, "type", "parameter.target.type"),
@@ -293,7 +304,7 @@ public enum EnumEventData {
 	ItemInit(new EventData(ItemEvent.InitEvent.class, 
 			ItemEvent.class,
 			"event.init",
-			"init",
+			EnumScriptType.INIT.function,
 			new MetodData(IItemScripted.class, "item", "parameter.stack"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -301,7 +312,7 @@ public enum EnumEventData {
 	ItemInteract(new EventData(ItemEvent.InteractEvent.class, 
 			ItemEvent.class,
 			"event.interact",
-			"interact",
+			EnumScriptType.INTERACT.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(Object.class, "target", "parameter.target"),
 			new MetodData(int.class, "type", "parameter.target.type"),
@@ -312,7 +323,7 @@ public enum EnumEventData {
 	ItemPickedUp(new EventData(ItemEvent.PickedUpEvent.class, 
 			ItemEvent.class,
 			"event.item.pickedup",
-			"pickedUp",
+			EnumScriptType.PICKEDUP.function,
 			new MetodData(IEntityItem.class, "entity", "parameter.entity.item"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IItemScripted.class, "item", "parameter.stack"),
@@ -322,7 +333,7 @@ public enum EnumEventData {
 	ItemSpawn(new EventData(ItemEvent.SpawnEvent.class, 
 			ItemEvent.class,
 			"event.item.spawn",
-			"spawn",
+			EnumScriptType.SPAWN.function,
 			new MetodData(IEntityItem.class, "entity", "parameter.entity.item"),
 			new MetodData(IItemScripted.class, "item", "parameter.stack"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -331,7 +342,7 @@ public enum EnumEventData {
 	ItemTick(new EventData(ItemEvent.UpdateEvent.class, 
 			ItemEvent.class,
 			"event.update",
-			"tick",
+			EnumScriptType.TICK.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IItemScripted.class, "item", "parameter.stack"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -340,7 +351,7 @@ public enum EnumEventData {
 	ItemTossed(new EventData(ItemEvent.TossedEvent.class, 
 			ItemEvent.class,
 			"event.item.tossed",
-			"tossed",
+			EnumScriptType.TOSSED.function,
 			new MetodData(IEntityItem.class, "entity", "parameter.entity.item"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IItemScripted.class, "item", "parameter.stack"),
@@ -350,7 +361,7 @@ public enum EnumEventData {
 	NpcCollide(new EventData(NpcEvent.CollideEvent.class, 
 			NpcEvent.class,
 			"event.npc.collide",
-			"collide",
+			EnumScriptType.COLLIDE.function,
 			new MetodData(IEntity.class, "entity", "parameter.entity"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -359,7 +370,7 @@ public enum EnumEventData {
 	NpcDamaged(new EventData(NpcEvent.DamagedEvent.class, 
 			NpcEvent.class,
 			"event.damaged",
-			"damaged",
+			EnumScriptType.DAMAGED.function,
 			new MetodData(boolean.class, "clearTarget", "event.cleartarget"),
 			new MetodData(float.class, "damage", "parameter.value"),
 			new MetodData(IDamageSource.class, "damageSource", "parameter.damagesource"),
@@ -371,7 +382,7 @@ public enum EnumEventData {
 	NpcDied(new EventData(NpcEvent.DiedEvent.class, 
 			NpcEvent.class,
 			"event.died",
-			"died",
+			EnumScriptType.DIED.function,
 			new MetodData(IDamageSource.class, "damageSource", "parameter.damagesource"),
 			new MetodData(IItemStack[].class, "droppedItems", "event.npc.droppeditems"),
 			new MetodData(int.class, "expDropped", "parameter.exp"),
@@ -386,7 +397,7 @@ public enum EnumEventData {
 	NpcInit(new EventData(NpcEvent.InitEvent.class, 
 			NpcEvent.class,
 			"event.init",
-			"init",
+			EnumScriptType.INIT.function,
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -394,7 +405,7 @@ public enum EnumEventData {
 	NpcInteract(new EventData(NpcEvent.InteractEvent.class, 
 			NpcEvent.class,
 			"event.interact",
-			"interact",
+			EnumScriptType.INTERACT.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -403,7 +414,7 @@ public enum EnumEventData {
 	NpcKill(new EventData(NpcEvent.KilledEntityEvent.class, 
 			NpcEvent.class,
 			"event.killedentity",
-			"kill",
+			EnumScriptType.KILL.function,
 			new MetodData(IEntityLivingBase.class, "entity", "parameter.entity"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -412,7 +423,7 @@ public enum EnumEventData {
 	NpcMeleeAttack(new EventData(NpcEvent.MeleeAttackEvent.class, 
 			NpcEvent.class,
 			"event.npc.meleeattack",
-			"meleeAttack",
+			EnumScriptType.ATTACK_MELEE.function,
 			new MetodData(float.class, "damage", "parameter.value"),
 			new MetodData(IEntityLivingBase.class, "target", "parameter.entity"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
@@ -422,7 +433,7 @@ public enum EnumEventData {
 	NpcRangedLaunched(new EventData(NpcEvent.RangedLaunchedEvent.class, 
 			NpcEvent.class,
 			"event.rangedlaunched",
-			"rangedLaunched",
+			EnumScriptType.RANGED_LAUNCHED.function,
 			new MetodData(float.class, "damage", "parameter.value"),
 			new MetodData(List.class, "projectiles", "event.npc.projectiles"),
 			new MetodData(IEntityLivingBase.class, "target", "parameter.entity"),
@@ -433,7 +444,7 @@ public enum EnumEventData {
 	NpcTarget(new EventData(NpcEvent.TargetEvent.class, 
 			NpcEvent.class,
 			"event.npc.target",
-			"target",
+			EnumScriptType.TARGET.function,
 			new MetodData(IEntityLivingBase.class, "entity", "parameter.entity"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -442,7 +453,7 @@ public enum EnumEventData {
 	NpcTargetLost(new EventData(NpcEvent.TargetLostEvent.class, 
 			NpcEvent.class,
 			"event.npc.targetlost",
-			"targetLost",
+			EnumScriptType.TARGET_LOST.function,
 			new MetodData(IEntityLivingBase.class, "entity", "parameter.entity"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -451,7 +462,7 @@ public enum EnumEventData {
 	NpcTick(new EventData(NpcEvent.UpdateEvent.class, 
 			NpcEvent.class,
 			"event.update",
-			"tick",
+			EnumScriptType.TICK.function,
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -459,7 +470,7 @@ public enum EnumEventData {
 	NpcTimer(new EventData(NpcEvent.TimerEvent.class, 
 			NpcEvent.class,
 			"event.timer",
-			"timer",
+			EnumScriptType.TIMER.function,
 			new MetodData(int.class, "id", "parameter.itimers.id"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -468,7 +479,7 @@ public enum EnumEventData {
 	PlayerAttack(new EventData(PlayerEvent.AttackEvent.class, 
 			PlayerEvent.class,
 			"event.player.attack",
-			"attack",
+			EnumScriptType.ATTACK.function,
 			new MetodData(Object.class, "target", "parameter.target"),
 			new MetodData(int.class, "type", "parameter.target.type"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -478,7 +489,7 @@ public enum EnumEventData {
 	PlayerBroken(new EventData(PlayerEvent.BreakEvent.class, 
 			PlayerEvent.class,
 			"event.player.break",
-			"broken",
+			EnumScriptType.BROKEN.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(int.class, "exp", "parameter.exp"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -488,7 +499,7 @@ public enum EnumEventData {
 	PlayerChat(new EventData(PlayerEvent.ChatEvent.class, 
 			PlayerEvent.class,
 			"event.player.chat",
-			"chat",
+			EnumScriptType.CHAT.function,
 			new MetodData(String.class, "message", "parameter.message"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -497,7 +508,7 @@ public enum EnumEventData {
 	PlayerContainerClosed(new EventData(PlayerEvent.ContainerClosed.class, 
 			PlayerEvent.class,
 			"event.player.containerclosed",
-			"containerClosed",
+			EnumScriptType.CONTAINER_CLOSED.function,
 			new MetodData(IContainer.class, "container", "parameter.container"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -506,7 +517,7 @@ public enum EnumEventData {
 	PlayerContainerOpen(new EventData(PlayerEvent.ContainerOpen.class, 
 			PlayerEvent.class,
 			"event.player.containeropen",
-			"containerOpen",
+			EnumScriptType.CONTAINER_OPEN.function,
 			new MetodData(IContainer.class, "container", "parameter.container"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -515,7 +526,7 @@ public enum EnumEventData {
 	PlayerDamaged(new EventData(PlayerEvent.DamagedEvent.class, 
 			PlayerEvent.class,
 			"event.damaged",
-			"damaged",
+			EnumScriptType.DAMAGED.function,
 			new MetodData(boolean.class, "clearTarget", "event.cleartarget"),
 			new MetodData(float.class, "damage", "parameter.value"),
 			new MetodData(IDamageSource.class, "damageSource", "parameter.damagesource"),
@@ -527,7 +538,7 @@ public enum EnumEventData {
 	PlayerDamagedEntity(new EventData(PlayerEvent.DamagedEntityEvent.class, 
 			PlayerEvent.class,
 			"event.damagedentity",
-			"damagedEntity",
+			EnumScriptType.DAMAGED_ENTITY.function,
 			new MetodData(float.class, "damage", "parameter.value"),
 			new MetodData(IDamageSource.class, "damageSource", "parameter.damagesource"),
 			new MetodData(IEntity.class, "target", "parameter.entity"),
@@ -538,7 +549,7 @@ public enum EnumEventData {
 	PlayerDied(new EventData(PlayerEvent.DiedEvent.class, 
 			PlayerEvent.class,
 			"event.died",
-			"died",
+			EnumScriptType.DIED.function,
 			new MetodData(IDamageSource.class, "damageSource", "parameter.damagesource"),
 			new MetodData(IEntity.class, "source", "parameter.entity"),
 			new MetodData(String.class, "type", "parameter.target.type"),
@@ -549,7 +560,7 @@ public enum EnumEventData {
 	PlayerFactionUpdate(new EventData(PlayerEvent.FactionUpdateEvent.class, 
 			PlayerEvent.class,
 			"event.player.factionupdate",
-			"factionUpdate",
+			EnumScriptType.FACTION_UPDATE.function,
 			new MetodData(IFaction.class, "faction", "parameter.faction"),
 			new MetodData(boolean.class, "init", "event.player.init"),
 			new MetodData(int.class, "points", "parameter.faction.points"),
@@ -560,7 +571,7 @@ public enum EnumEventData {
 	PlayerInit(new EventData(PlayerEvent.InitEvent.class, 
 			PlayerEvent.class,
 			"event.init",
-			"init",
+			EnumScriptType.INIT.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -568,7 +579,7 @@ public enum EnumEventData {
 	PlayerInteract(new EventData(PlayerEvent.InteractEvent.class, 
 			PlayerEvent.class,
 			"event.interact",
-			"interact",
+			EnumScriptType.INTERACT.function,
 			new MetodData(Object.class, "target", "parameter.target"),
 			new MetodData(int.class, "type", "parameter.target.type"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -578,7 +589,7 @@ public enum EnumEventData {
 	PlayerItemCrafted(new EventData(PlayerEvent.ItemCrafted.class, 
 			PlayerEvent.class,
 			"event.player.itemcrafted",
-			"itemCrafted",
+			EnumScriptType.ITEM_CRAFTED.function,
 			new MetodData(IItemStack.class, "crafting", "parameter.stack"),
 			new MetodData(IInventory.class, "craftMatrix", "parameter.inventory"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -588,7 +599,7 @@ public enum EnumEventData {
 	PlayerItemFished(new EventData(PlayerEvent.ItemFished.class, 
 			PlayerEvent.class,
 			"event.player.itemfished",
-			"itemFished",
+			EnumScriptType.ITEM_FISHED.function,
 			new MetodData(int.class, "rodDamage", "event.player.roddamage"),
 			new MetodData(IItemStack[].class, "stacks", "parameter.stack"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -598,7 +609,7 @@ public enum EnumEventData {
 	PlayerKeyDown(new EventData(PlayerEvent.KeyPressedEvent.class, 
 			PlayerEvent.class,
 			"event.player.key.down",
-			"keyDown",
+			EnumScriptType.KEY_DOWN.function,
 			new MetodData(boolean.class, "isAltPressed", "parameter.isaltpressed"),
 			new MetodData(boolean.class, "isCtrlPressed", "parameter.isctrlpressed"),
 			new MetodData(boolean.class, "isMetaPressed", "parameter.ismetapressed"),
@@ -611,7 +622,7 @@ public enum EnumEventData {
 	PlayerKeyPressed(new EventData(PlayerEvent.KeyPressedEvent.class, 
 			PlayerEvent.class,
 			"event.player.key.up",
-			"keyPressed",
+			EnumScriptType.KEY_UP.function,
 			new MetodData(boolean.class, "isAltPressed", "parameter.isaltpressed"),
 			new MetodData(boolean.class, "isCtrlPressed", "parameter.isctrlpressed"),
 			new MetodData(boolean.class, "isMetaPressed", "parameter.ismetapressed"),
@@ -624,7 +635,7 @@ public enum EnumEventData {
 	PlayerKill(new EventData(PlayerEvent.KilledEntityEvent.class, 
 			PlayerEvent.class,
 			"event.killedentity",
-			"kill",
+			EnumScriptType.KILL.function,
 			new MetodData(IEntityLivingBase.class, "entity", "parameter.entity"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -633,7 +644,7 @@ public enum EnumEventData {
 	PlayerLevelUp(new EventData(PlayerEvent.LevelUpEvent.class, 
 			PlayerEvent.class,
 			"event.player.levelup",
-			"levelUp",
+			EnumScriptType.LEVEL_UP.function,
 			new MetodData(int.class, "change", "event.player.level"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -642,7 +653,7 @@ public enum EnumEventData {
 	PlayerLogin(new EventData(PlayerEvent.LoginEvent.class, 
 			PlayerEvent.class,
 			"event.player.login",
-			"login",
+			EnumScriptType.LOGIN.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -650,7 +661,7 @@ public enum EnumEventData {
 	PlayerLogout(new EventData(PlayerEvent.LogoutEvent.class, 
 			PlayerEvent.class,
 			"event.player.logout",
-			"logout",
+			EnumScriptType.LOGOUT.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -658,7 +669,7 @@ public enum EnumEventData {
 	PlayerMouseDown(new EventData(PlayerEvent.KeyPressedEvent.class, 
 			PlayerEvent.class,
 			"event.player.mouse.down",
-			"mouseDown",
+			EnumScriptType.MOUSE_DOWN.function,
 			new MetodData(boolean.class, "isAltPressed", "parameter.isaltpressed"),
 			new MetodData(boolean.class, "isCtrlPressed", "parameter.isctrlpressed"),
 			new MetodData(boolean.class, "isMetaPressed", "parameter.ismetapressed"),
@@ -671,7 +682,7 @@ public enum EnumEventData {
 	PlayerMousePressed(new EventData(PlayerEvent.KeyPressedEvent.class, 
 			PlayerEvent.class,
 			"event.player.mouse.up",
-			"mousePressed",
+			EnumScriptType.MOUSE_UP.function,
 			new MetodData(boolean.class, "isAltPressed", "parameter.isaltpressed"),
 			new MetodData(boolean.class, "isCtrlPressed", "parameter.isctrlpressed"),
 			new MetodData(boolean.class, "isMetaPressed", "parameter.ismetapressed"),
@@ -684,7 +695,7 @@ public enum EnumEventData {
 	PlayerPickUp(new EventData(PlayerEvent.PickUpEvent.class, 
 			PlayerEvent.class,
 			"event.player.pickup",
-			"pickUp",
+			EnumScriptType.PICKUP.function,
 			new MetodData(IItemStack.class, "item", "parameter.stack"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -693,7 +704,7 @@ public enum EnumEventData {
 	PlayerPlased(new EventData(PlayerEvent.PlaceEvent.class, 
 			PlayerEvent.class,
 			"event.player.place",
-			"plased",
+			EnumScriptType.PLASED.function,
 			new MetodData(IBlock.class, "block", "parameter.block"),
 			new MetodData(int.class, "exp", "parameter.exp"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -703,7 +714,7 @@ public enum EnumEventData {
 	PlayerRangedLaunched(new EventData(PlayerEvent.RangedLaunchedEvent.class, 
 			PlayerEvent.class,
 			"event.rangedlaunched",
-			"rangedLaunched",
+			EnumScriptType.RANGED_LAUNCHED.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -711,7 +722,7 @@ public enum EnumEventData {
 	PlayerSoundPlayed(new EventData(PlayerEvent.PlayerSound.class, 
 			PlayerEvent.class,
 			"event.player.sound.play",
-			"soundPlayed",
+			EnumScriptType.SOUND_PLAY.function,
 			new MetodData(String.class, "name", "parameter.sound.name"),
 			new MetodData(String.class, "resource", "parameter.resource"),
 			new MetodData(String.class, "category", "parameter.sound.type"),
@@ -725,7 +736,7 @@ public enum EnumEventData {
 	PlayerSoundStoped(new EventData(PlayerEvent.PlayerSound.class, 
 			PlayerEvent.class,
 			"event.player.sound.stop",
-			"soundStoped",
+			EnumScriptType.SOUND_STOP.function,
 			new MetodData(String.class, "name", "parameter.sound.name"),
 			new MetodData(String.class, "resource", "parameter.resource"),
 			new MetodData(String.class, "category", "parameter.sound.type"),
@@ -739,7 +750,7 @@ public enum EnumEventData {
 	PlayerTick(new EventData(PlayerEvent.UpdateEvent.class, 
 			PlayerEvent.class,
 			"event.update",
-			"tick",
+			EnumScriptType.TICK.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -747,7 +758,7 @@ public enum EnumEventData {
 	PlayerTimer(new EventData(PlayerEvent.TimerEvent.class, 
 			PlayerEvent.class,
 			"event.timer",
-			"timer",
+			EnumScriptType.TIMER.function,
 			new MetodData(int.class, "id", "parameter.itimers.id"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -756,7 +767,7 @@ public enum EnumEventData {
 	PlayerToss(new EventData(PlayerEvent.TossEvent.class, 
 			PlayerEvent.class,
 			"event.player.toss",
-			"toss",
+			EnumScriptType.TOSS.function,
 			new MetodData(IItemStack.class, "item", "parameter.stack"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -765,7 +776,7 @@ public enum EnumEventData {
 	ProjectileProjectileImpact(new EventData(ProjectileEvent.ImpactEvent.class, 
 			ProjectileEvent.class,
 			"event.projectile.impact",
-			"projectileImpact",
+			EnumScriptType.PROJECTILE_IMPACT.function,
 			new MetodData(Object.class, "target", "parameter.target"),
 			new MetodData(int.class, "type", "parameter.target.type"),
 			new MetodData(IProjectile.class, "projectile", "parameter.projectile"),
@@ -775,7 +786,7 @@ public enum EnumEventData {
 	ProjectileProjectileTick(new EventData(ProjectileEvent.UpdateEvent.class, 
 			ProjectileEvent.class,
 			"event.update",
-			"projectileTick",
+			EnumScriptType.PROJECTILE_TICK.function,
 			new MetodData(IProjectile.class, "projectile", "parameter.projectile"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
@@ -783,7 +794,7 @@ public enum EnumEventData {
 	QuestQuestCanceled(new EventData(QuestEvent.QuestCanceledEvent.class, 
 			QuestEvent.class,
 			"event.quest.questcanceled",
-			"questCanceled",
+			EnumScriptType.QUEST_CANCELED.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IQuest.class, "quest", "event.quest.quest"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -792,7 +803,7 @@ public enum EnumEventData {
 	QuestQuestCompleted(new EventData(QuestEvent.QuestCompletedEvent.class, 
 			QuestEvent.class,
 			"event.quest.questcompleted",
-			"questCompleted",
+			EnumScriptType.QUEST_COMPLETED.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IQuest.class, "quest", "event.quest.quest"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -801,7 +812,7 @@ public enum EnumEventData {
 	QuestQuestStart(new EventData(QuestEvent.QuestStartEvent.class, 
 			QuestEvent.class,
 			"event.quest.queststart",
-			"questStart",
+			EnumScriptType.QUEST_START.function,
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(IQuest.class, "quest", "event.quest.quest"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -810,7 +821,7 @@ public enum EnumEventData {
 	QuestQuestTurnIn(new EventData(QuestEvent.QuestTurnedInEvent.class, 
 			QuestEvent.class,
 			"event.quest.questturnedin",
-			"questTurnIn",
+			EnumScriptType.QUEST_TURNIN.function,
 			new MetodData(int.class, "expReward", "parameter.exp"),
 			new MetodData(IItemStack[].class, "itemRewards", "event.quest.itemrewards"),
 			new MetodData(FactionOptions.class, "factionOptions", "parameter.faction.points"),
@@ -825,7 +836,7 @@ public enum EnumEventData {
 	RoleBankUnlocked(new EventData(RoleEvent.BankUnlockedEvent.class, 
 			RoleEvent.class,
 			"event.role.bankunlocked",
-			"BankUnlocked",
+			EnumScriptType.ROLE.function,
 			new MetodData(int.class, "slot", "parameter.slot"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -835,7 +846,7 @@ public enum EnumEventData {
 	RoleBankUpgraded(new EventData(RoleEvent.BankUpgradedEvent.class, 
 			RoleEvent.class,
 			"event.role.bankupgraded",
-			"BankUpgraded",
+			EnumScriptType.ROLE.function,
 			new MetodData(int.class, "slot", "parameter.slot"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -845,7 +856,7 @@ public enum EnumEventData {
 	RoleFollowerFinished(new EventData(RoleEvent.FollowerFinishedEvent.class, 
 			RoleEvent.class,
 			"event.role.followerfinished",
-			"FollowerFinished",
+			EnumScriptType.ROLE.function,
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -854,7 +865,7 @@ public enum EnumEventData {
 	RoleFollowerHire(new EventData(RoleEvent.FollowerHireEvent.class, 
 			RoleEvent.class,
 			"event.role.followerhire",
-			"FollowerHire",
+			EnumScriptType.ROLE.function,
 			new MetodData(int.class, "days", "event.role.days"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -864,7 +875,7 @@ public enum EnumEventData {
 	RoleMailman(new EventData(RoleEvent.MailmanEvent.class, 
 			RoleEvent.class,
 			"event.role.mailman",
-			"Mailman",
+			EnumScriptType.ROLE.function,
 			new MetodData(IPlayerMail.class, "mail", "parameter.mail"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -874,7 +885,7 @@ public enum EnumEventData {
 	RoleTradeFailed(new EventData(RoleEvent.TradeFailedEvent.class, 
 			RoleEvent.class,
 			"event.role.tradefailed",
-			"TradeFailed",
+			EnumScriptType.ROLE.function,
 			new MetodData(IItemStack.class, "currency1", "parameter.stack"),
 			new MetodData(IItemStack.class, "currency2", "parameter.stack"),
 			new MetodData(IItemStack.class, "receiving", "parameter.stack"),
@@ -887,7 +898,7 @@ public enum EnumEventData {
 	RoleTrader(new EventData(RoleEvent.TraderEvent.class, 
 			RoleEvent.class,
 			"event.role.trader",
-			"Trader",
+			EnumScriptType.ROLE.function,
 			new MetodData(IItemStack.class, "currency1", "parameter.stack"),
 			new MetodData(IItemStack.class, "currency2", "parameter.stack"),
 			new MetodData(IItemStack.class, "sold", "parameter.stack"),
@@ -899,7 +910,7 @@ public enum EnumEventData {
 	RoleTransporterUnlocked(new EventData(RoleEvent.TransporterUnlockedEvent.class, 
 			RoleEvent.class,
 			"event.role.transporterunlocked",
-			"TransporterUnlocked",
+			EnumScriptType.ROLE.function,
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
@@ -908,7 +919,7 @@ public enum EnumEventData {
 	RoleTransporterUse(new EventData(RoleEvent.TransporterUseEvent.class, 
 			RoleEvent.class,
 			"event.role.transporteruse",
-			"TransporterUse",
+			EnumScriptType.ROLE.function,
 			new MetodData(ITransportLocation.class, "location", "event.role.location"),
 			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
@@ -918,7 +929,7 @@ public enum EnumEventData {
 	WorldScriptCommand(new EventData(WorldEvent.ScriptCommandEvent.class, 
 			WorldEvent.class,
 			"event.world.scriptcommand",
-			"scriptCommand",
+			EnumScriptType.SCRIPT_COMMAND.function,
 			new MetodData(String[].class, "arguments", "parameter.command.arguments"),
 			new MetodData(IPos.class, "pos", "parameter.pos"),
 			new MetodData(IWorld.class, "world", "parameter.world"),
@@ -928,12 +939,76 @@ public enum EnumEventData {
 	WorldTrigger(new EventData(WorldEvent.ScriptTriggerEvent.class, 
 			WorldEvent.class,
 			"event.world.scripttrigger",
-			"trigger",
+			EnumScriptType.SCRIPT_TRIGGER.function,
 			new MetodData(Object[].class, "arguments", "event.trigger.arguments"),
 			new MetodData(IPos.class, "pos", "parameter.pos"),
 			new MetodData(IEntity.class, "entity", "parameter.entity"),
 			new MetodData(int.class, "id", "parameter.trigger.id"),
 			new MetodData(IWorld.class, "world", "parameter.world"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	
+	AffectEntity(new EventData(AffectEntity.class, 
+			CustomPotionEvent.class,
+			"event.potion.affectentity",
+			EnumScriptType.POTION_AFFECT.function,
+			new MetodData(IEntity.class, "source", "parameter.entity"),
+			new MetodData(IEntity.class, "indirectSource", "parameter.entity"),
+			new MetodData(IEntity.class, "entity", "parameter.entity"),
+			new MetodData(int.class, "amplifier", "parameter.potion.amplifier"),
+			new MetodData(double.class, "health", "parameter.health"),
+			new MetodData(ICustomElement.class, "potion", "event.potion.type"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	EndEffect(new EventData(EndEffect.class, 
+			CustomPotionEvent.class,
+			"event.potion.endeffect",
+			EnumScriptType.POTION_END.function,
+			new MetodData(IEntity.class, "entity", "parameter.entity"),
+			new MetodData(int.class, "amplifier", "parameter.potion.amplifier"),
+			new MetodData(ICustomElement.class, "potion", "event.potion.type"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	IsReadyEvent(new EventData(IsReadyEvent.class, 
+			CustomPotionEvent.class,
+			"event.potion.isreadyevent",
+			EnumScriptType.POTION_IS_READY.function,
+			new MetodData(boolean.class, "ready", "parameter.potion.ready"),
+			new MetodData(int.class, "duration", "parameter.potion.duration"),
+			new MetodData(int.class, "amplifier", "parameter.potion.amplifier"),
+			new MetodData(ICustomElement.class, "potion", "event.potion.type"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	PerformEffect(new EventData(PerformEffect.class, 
+			CustomPotionEvent.class,
+			"event.potion.performeffect",
+			EnumScriptType.POTION_PERFORM.function,
+			new MetodData(IEntity.class, "entity", "parameter.entity"),
+			new MetodData(int.class, "amplifier", "parameter.potion.amplifier"),
+			new MetodData(ICustomElement.class, "potion", "event.potion.type"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	PackageReceived(new EventData(PackageReceived.class, 
+			CustomNPCsEvent.class,
+			"event.api.packagereceived",
+			EnumScriptType.POTION_PERFORM.function,
+			new MetodData(ChannelHandlerContext.class, "channel", "parameter.channel"),
+			new MetodData(boolean.class, "side", "parameter.side"),
+			new MetodData(Object.class, "message", "parameter.package.message"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	PlayerPackage(new EventData(PlayerPackage.class, 
+			PlayerEvent.class,
+			"event.player.playerpackage",
+			EnumScriptType.PACKEGE_FROM.function,
+			new MetodData(INbt.class, "nbt", "parameter.nbt"),
+			new MetodData(IPlayer.class, "player", "parameter.player"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	);

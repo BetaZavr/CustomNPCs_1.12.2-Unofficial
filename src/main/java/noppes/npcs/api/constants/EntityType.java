@@ -18,7 +18,7 @@ public enum EntityType {
 	
 	int type = -1;
 	
-	EntityType(int t) { this.type= t; }
+	EntityType(int t) { this.type = t; }
 	
 	public int get() { return this.type; }
 	

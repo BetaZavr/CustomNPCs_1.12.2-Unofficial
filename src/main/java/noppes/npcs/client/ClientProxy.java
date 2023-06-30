@@ -214,21 +214,6 @@ import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.ObfuscationPart0;
-import noppes.npcs.util.ObfuscationPart1;
-import noppes.npcs.util.ObfuscationPart10;
-import noppes.npcs.util.ObfuscationPart11;
-import noppes.npcs.util.ObfuscationPart12;
-import noppes.npcs.util.ObfuscationPart13;
-import noppes.npcs.util.ObfuscationPart14;
-import noppes.npcs.util.ObfuscationPart2;
-import noppes.npcs.util.ObfuscationPart3;
-import noppes.npcs.util.ObfuscationPart4;
-import noppes.npcs.util.ObfuscationPart5;
-import noppes.npcs.util.ObfuscationPart6;
-import noppes.npcs.util.ObfuscationPart7;
-import noppes.npcs.util.ObfuscationPart8;
-import noppes.npcs.util.ObfuscationPart9;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy
@@ -496,22 +481,6 @@ extends CommonProxy {
 			checker.start();
 		}
 		PixelmonHelper.loadClient();
-		// new
-		new ObfuscationPart0();
-		new ObfuscationPart1();
-		new ObfuscationPart2();
-		new ObfuscationPart3();
-		new ObfuscationPart4();
-		new ObfuscationPart5();
-		new ObfuscationPart6();
-		new ObfuscationPart7();
-		new ObfuscationPart8();
-		new ObfuscationPart9();
-		new ObfuscationPart10();
-		new ObfuscationPart11();
-		new ObfuscationPart12();
-		new ObfuscationPart13();
-		new ObfuscationPart14();
 		OBJLoader.INSTANCE.addDomain(CustomNpcs.MODID);
 	}
 

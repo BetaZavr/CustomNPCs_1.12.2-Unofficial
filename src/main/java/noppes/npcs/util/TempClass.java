@@ -8,12 +8,14 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.Event.HasResult;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -39,8 +41,10 @@ public class TempClass {
 	
 	public static HashMap<Class<?>, String> map = Maps.<Class<?>, String>newHashMap();
 	public static HashMap<Class<?>, String> any = Maps.<Class<?>, String>newHashMap();
+	public static List<File> files = Lists.<File>newArrayList();
+	public static Object temp = null;
 	
-	
+	@SuppressWarnings("unchecked")
 	public static void run(EntityPlayerSP entity) {
 		File dir = new File(CustomNpcs.Dir, "src");
 		int i = 0;
@@ -49,7 +53,7 @@ public class TempClass {
 			dir = new File(dir, "src");
 			i++;
 		}
-		int type = -1;
+		int type = 2;
 		List<String> enumText = Lists.newArrayList();
 		if (type<=0) {
 System.out.println("Collect and save APIs, Events and EnumConstants:");
@@ -200,6 +204,77 @@ System.out.println("Sorting and save Langs:");
 			}
 		}
 		
+		if (type==2) {
+			
+			dir = new File(CustomNpcs.Dir, "deobfuscations");
+System.out.println("Directory: \""+dir.getName()+"\"; exists: "+dir.exists()+"; isDir: "+dir.isDirectory());
+			if (TempClass.temp==null || TempClass.files.size()==0) {
+				TempClass.temp = Maps.<String, String>newTreeMap();
+				for (int s = 0; s<=8; s++) {
+					File obf = new File(CustomNpcs.Dir, "obfuscation_"+s+".json");
+System.out.println("Load "+(s+1)+"/9 - \""+obf.getAbsolutePath().substring(obf.getAbsolutePath().indexOf("customnpcs"))+"\"");
+					try {
+						NBTTagCompound nbt = NBTJsonUtil.LoadFile(obf);
+						for (String key : nbt.getKeySet()) {
+							((Map<String, String>) TempClass.temp).put(key, nbt.getString(key));
+						}
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+						return;
+					}
+				}
+System.out.println("Load all java files:");
+				TempClass.deobfuscation(dir);
+			}
+System.out.println("Total keys: "+((Map<String, String>) TempClass.temp).size());
+System.out.println("Total files: "+TempClass.files.size());
+			List<File> errors = Lists.<File>newArrayList();
+			int p = 0, g = 0;
+			for (File f : TempClass.files) {
+				try {
+					boolean start = true;
+					BufferedReader reader = Files.newBufferedReader(f.toPath());
+					String line, text = "";
+					while((line = reader.readLine()) != null) {
+						if (start && line.indexOf("package ")==0) { start = false; }
+						if (start) { continue; }
+						text += line + ((char) 10);
+						if (line.indexOf("could not be decompiled")!=-1) { errors.add(f); }
+					}
+					reader.close();
+					int r = 0;
+					for (String key : ((Map<String, String>) TempClass.temp).keySet()) {
+						while(text.indexOf(key)!=-1) {
+							text = text.replace(key, ((Map<String, String>) TempClass.temp).get(key));
+							r++;
+						}
+					}
+					p += r;
+					BufferedWriter writer = Files.newBufferedWriter(f.toPath());
+					writer.write(text);
+					writer.close();
+System.out.println((g+1)+"/" + TempClass.files.size() + " - " +f.getAbsolutePath().substring(f.getAbsolutePath().indexOf("customnpcs"))+"; text: "+text.length()+" ; replaces: "+r);
+					g++;
+				}
+				catch (Exception e) {  }
+			}
+System.out.println("Total replaces: "+p);
+			if (!errors.isEmpty()) {
+System.out.println("Found errors in:");
+				for (File f : errors) {
+					System.out.println(f.getAbsolutePath().substring(f.getAbsolutePath().indexOf("customnpcs")));
+				}
+			}
+		}
+	}
+
+	private static void deobfuscation(File dir) {
+		for (File f : dir.listFiles()) {
+			if (f.getName().equals("assets")) { continue; }
+			if (f.isDirectory()) { TempClass.deobfuscation(f); }
+			if (f.isFile() && f.getName().toLowerCase().endsWith(".java")) { TempClass.files.add(f); }
+		}
 	}
 
 	public static List<String> addEvent(List<String> eventText, String text, String name, Class<?> c, Class<?> ev) {

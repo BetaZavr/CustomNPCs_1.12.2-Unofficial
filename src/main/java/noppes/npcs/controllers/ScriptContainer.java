@@ -95,7 +95,7 @@ public class ScriptContainer {
 
 	private static void FillMap(Class<?> c) {
 		if (!c.isEnum()) { return; }
-		ScriptContainer.Data.put(c.getSimpleName(), c.getDeclaringClass());
+		ScriptContainer.Data.put(c.getSimpleName(), c.getDeclaringClass() !=null ? c.getDeclaringClass() : c);
 		for (Object e : c.getEnumConstants()) {
 			try {
 				Method m = e.getClass().getMethod("get");

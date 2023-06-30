@@ -72,7 +72,7 @@ implements IAnimationHandler {
 		File saveDir = CustomNpcs.Dir;
 		if (saveDir == null) { return; }
 		if (CustomNpcs.VerboseDebug) {
-			CustomNpcs.debugData.startDebug("Common", null, "loadRegions");
+			CustomNpcs.debugData.startDebug("Common", null, "loadAnimations");
 		}
 		this.filePath = saveDir.getName();
 		try {
@@ -86,6 +86,7 @@ implements IAnimationHandler {
 		if (this.animations.size()==0) {
 			this.loadDefaultAnimations(-1);
 		}
+		CustomNpcs.debugData.endDebug("Common", null, "loadAnimations");
 	}
 
 	private void loadAnimations(File file) throws IOException {

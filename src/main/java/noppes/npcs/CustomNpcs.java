@@ -353,6 +353,7 @@ public class CustomNpcs {
 			CustomNpcs.charCurrencies = new String(Character.toChars(0x20AC));
 		}
 		CustomNpcs.proxy.postload();
+		new AdditionalMethods();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
 	}
 

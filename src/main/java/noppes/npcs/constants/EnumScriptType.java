@@ -48,7 +48,7 @@ public enum EnumScriptType
 	QUEST_TURNIN("questTurnIn"), 
 	KEY_UP("keyPressed"), 
 	CUSTOM_CHEST_CLOSED("customChestClosed"), 
-	CUSTOM_CHEST_CLICKED("customChestClicked"), 
+	CUSTOM_CHEST_CLICKED("customChestClicked"), //
 	SCRIPT_COMMAND("scriptCommand"), 
 	CUSTOM_GUI_CLOSED("customGuiClosed"), 
 	CUSTOM_GUI_BUTTON("customGuiButton"), 

@@ -35,6 +35,7 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientTickHandler {
