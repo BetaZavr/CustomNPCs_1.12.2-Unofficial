@@ -498,7 +498,7 @@ implements IWorld {
 	}
 	
 	@Override
-	public void trigger(int id, Object... arguments) {
+	public void trigger(int id, Object[] arguments) {
 		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this, this.getBlock(0, 0, 0).getPos(), null, arguments);
 	}
 
