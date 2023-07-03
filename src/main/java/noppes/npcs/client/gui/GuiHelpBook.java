@@ -164,7 +164,6 @@ implements ICustomScrollListener, ITextChangeListener {
 					}
 				}
 				else if (GuiHelpBook.activeButton==23) {
-					System.out.println("CNPCs Data: "+ScriptContainer.Data.size());
 					for (String c : ScriptContainer.Data.keySet()) {
 						Object value = ScriptContainer.Data.get(c);
 						List<String> com = Lists.newArrayList();
@@ -200,7 +199,7 @@ implements ICustomScrollListener, ITextChangeListener {
 			}
 			default: { // general
 				if (GuiHelpBook.activeButton<0 || GuiHelpBook.activeButton>9) { GuiHelpBook.activeButton = 0; }
-				for (int i = 0; i < 5 ; i++) {
+				for (int i = 0; i < 4 ; i++) {
 					String name;
 					switch(i) {
 						case 1: name = "gui.help.blocks"; break;
@@ -220,18 +219,21 @@ implements ICustomScrollListener, ITextChangeListener {
 
 	private void resetText() {
 		if (!(this.get(0) instanceof GuiTextArea)) { return; }
+		GuiTextArea area = (GuiTextArea) this.get(0);
 		if (GuiHelpBook.activeButton!=21 && GuiHelpBook.activeButton!=22 && GuiHelpBook.activeButton!=23) {
 			String text = GuiHelpBook.map.get(GuiHelpBook.activeButton);
-			if (text==null) { text = ""; }
-			((GuiTextArea) this.get(0)).setText(text);
-			((GuiTextArea) this.get(0)).scrolledLine = 0;
+			if (text==null) { text = new TextComponentTranslation("gui.wip").getFormattedText(); }
+			area.setText(text);
+			area.setCursorPosition(0);
+			area.scrolledLine = 0;
 			return;
 		}
 		String text = "";
 		if (GuiHelpBook.activeButton == 21) { // API
 			if (this.scroll==null || EnumInterfaceData.get(this.scroll.getSelected())==null) {
-				((GuiTextArea) this.get(0)).setText("");
-				((GuiTextArea) this.get(0)).scrolledLine = 0;
+				area.setText(text);
+				area.setCursorPosition(0);
+				area.scrolledLine = 0;
 				return;
 			}
 			InterfaseData intf = EnumInterfaceData.get(this.scroll.getSelected());
@@ -274,8 +276,9 @@ implements ICustomScrollListener, ITextChangeListener {
 		}
 		else if (GuiHelpBook.activeButton==22) { // Events
 			if (this.scroll==null || EnumEventData.get(this.scroll.getSelected())==null) {
-				((GuiTextArea) this.get(0)).setText("");
-				((GuiTextArea) this.get(0)).scrolledLine = 0;
+				area.setText(text);
+				area.setCursorPosition(0);
+				area.scrolledLine = 0;
 				return;
 			}
 			EventData evd = EnumEventData.get(this.scroll.getSelected());
@@ -360,7 +363,6 @@ implements ICustomScrollListener, ITextChangeListener {
 			if (c==null || !c.isEnum()) { // Object
 				value = ScriptContainer.Data.get(select);
 				String constant = "constant.object";
-				System.out.println("value: "+value);
 				if (value.toString().indexOf("JavaClassStatics[")==0) {
 					value = chr + "e" + value.toString().replace("JavaClassStatics[", "").replace("]", "");
 					constant = "constant.static";
@@ -452,8 +454,9 @@ implements ICustomScrollListener, ITextChangeListener {
 								new TextComponentTranslation("event.example").getFormattedText() + (""+((char) 10)) + example));
 			}
 		}
-		((GuiTextArea) this.get(0)).setText(text);
-		((GuiTextArea) this.get(0)).scrolledLine = 0;
+		area.setText(text);
+		area.setCursorPosition(0);
+		area.scrolledLine = 0;
 	}
 
 	@Override
@@ -512,6 +515,7 @@ implements ICustomScrollListener, ITextChangeListener {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		if (button instanceof GuiMenuTopButton) { GuiHelpBook.activeTab = button.id; }
 		else { GuiHelpBook.activeButton = button.id; }
+		if (this.scroll!=null) { this.scroll.setSelected(null); }
 		this.initGui();
 	}
 	
@@ -550,5 +554,11 @@ implements ICustomScrollListener, ITextChangeListener {
 
 	@Override
 	public void textUpdate(String text) { }
+	
+	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (this.scroll!=null) { this.resetText(); }
+	}
 	
 }

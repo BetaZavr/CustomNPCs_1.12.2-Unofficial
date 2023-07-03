@@ -38,11 +38,9 @@ implements IGui, IKeyListener, IMouseListener {
 	public boolean clickScrolling;
 	public TextContainer container;
 	private int cursorCounter;
-	private int cursorPosition = -1;
 	public boolean doubleClicked;
 	private boolean enableCodeHighlighting;
 	public boolean enabled;
-	private int endSelection;
 	public int errorLine = -1;
 	public boolean freeze;
 	public int height;
@@ -52,7 +50,7 @@ implements IGui, IKeyListener, IMouseListener {
 	private ITextChangeListener listener;
 	public List<UndoData> redoList;
 	public int scrolledLine;
-	private int startSelection;
+	private int startSelection, endSelection, cursorPosition = -1;
 	public String text;
 	public boolean undoing;
 	public List<UndoData> undoList;
