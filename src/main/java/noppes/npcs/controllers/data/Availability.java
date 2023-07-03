@@ -232,29 +232,14 @@ implements ICompatibilty, IAvailability {
 
 	public boolean questAvailable(int id, EnumAvailabilityQuest en, EntityPlayer player) {
 		switch (en) {
-		case Always: {
-			return true;
-		}
-		case After: {
-			return PlayerQuestController.isQuestFinished(player, id);
-		}
-		case Before: {
-			return !PlayerQuestController.isQuestFinished(player, id);
-		}
-		case Active: {
-			return PlayerQuestController.isQuestActive(player, id);
-		}
-		case NotActive: {
-			return !PlayerQuestController.isQuestActive(player, id);
-		}
-		case Completed: {
-			return PlayerQuestController.isQuestCompleted(player, id);
-		}
-		case CanStart: {
-			return PlayerQuestController.canQuestBeAccepted(player, id);
-		}
-		default: {
-		}
+			case Always: { return true; }
+			case After: { return PlayerQuestController.isQuestFinished(player, id); }
+			case Before: { return !PlayerQuestController.isQuestFinished(player, id); }
+			case Active: { return PlayerQuestController.isQuestActive(player, id); }
+			case NotActive: { return !PlayerQuestController.isQuestActive(player, id); }
+			case Completed: { return PlayerQuestController.isQuestCompleted(player, id); }
+			case CanStart: { return PlayerQuestController.canQuestBeAccepted(player, id); }
+			default: { }
 		}
 		return false;
 	}

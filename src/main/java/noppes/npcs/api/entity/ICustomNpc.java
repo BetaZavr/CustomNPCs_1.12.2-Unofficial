@@ -57,7 +57,7 @@ extends IEntityLiving<T> {
 
 	void sayTo(IPlayer<?> player, String message);
 
-	void setDialog(int id, IDialog dialofg);
+	void setDialog(int id, IDialog dialog);
 
 	void setFaction(int id);
 

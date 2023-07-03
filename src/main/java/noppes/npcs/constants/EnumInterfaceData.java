@@ -904,8 +904,8 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "texture", "parameter.texture")
 			),
 			new MetodData(IButton.class, "setTextureOffset", "method.component.settextureoffset",
-				new ParameterData(int.class, "textureX", "parameter.ibutton.texturex"),
-				new ParameterData(int.class, "textureY", "parameter.ibutton.texturey")
+				new ParameterData(int.class, "textureX", "parameter.texturex"),
+				new ParameterData(int.class, "textureY", "parameter.texturey")
 			)
 		)
 	),
@@ -914,14 +914,14 @@ public enum EnumInterfaceData {
 			new Class<?>[] { RenderChatMessages.class },
 			"interfase.ichatmessages",
 			new MetodData(void.class, "addMessage", "method.ichatmessages.addmessage",
-				new ParameterData(String.class, "message", "parameter.ichatmessages.message"),
-				new ParameterData(EntityNPCInterface.class, "npc", "parameter.ichatmessages.npc")
+				new ParameterData(String.class, "message", "parameter.message"),
+				new ParameterData(EntityNPCInterface.class, "npc", "parameter.npc")
 			),
 			new MetodData(void.class, "renderMessages", "method.ichatmessages.rendermessages",
-				new ParameterData(double.class, "x", "parameter.ichatmessages.x"),
-				new ParameterData(double.class, "y", "parameter.ichatmessages.y"),
-				new ParameterData(double.class, "z", "parameter.ichatmessages.z"),
-				new ParameterData(float.class, "height", "parameter.ichatmessages.height"),
+				new ParameterData(double.class, "x", "parameter.posx"),
+				new ParameterData(double.class, "y", "parameter.posy"),
+				new ParameterData(double.class, "z", "parameter.posz"),
+				new ParameterData(float.class, "height", "parameter.height"),
 				new ParameterData(boolean.class, "inRange", "parameter.ichatmessages.inrange")
 			)
 		)
@@ -960,7 +960,7 @@ public enum EnumInterfaceData {
 			"interfase.icompassdata",
 			new MetodData(int.class, "getDimensionID", "method.icompassdata.getdimensionid"),
 			new MetodData(void.class, "setDimensionID", "method.icompassdata.setdimensionid",
-				new ParameterData(int.class, "dimID", "parameter.icompassdata.dimid")
+				new ParameterData(int.class, "dimID", "parameter.dimension.id")
 			),
 			new MetodData(int.class, "getType", "method.icompassdata.gettype"),
 			new MetodData(void.class, "setType", "method.icompassdata.settype",
@@ -975,9 +975,9 @@ public enum EnumInterfaceData {
 				new ParameterData(IPos.class, "pos", "parameter.icompassdata.pos")
 			),
 			new MetodData(void.class, "setPos", "method.icompassdata.setpos",
-				new ParameterData(int.class, "x", "parameter.icompassdata.x"),
-				new ParameterData(int.class, "y", "parameter.icompassdata.y"),
-				new ParameterData(int.class, "z", "parameter.icompassdata.z")
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
 			),
 			new MetodData(String.class, "getName", "method.icompassdata.getname"),
 			new MetodData(void.class, "setName", "method.icompassdata.setname",
@@ -1006,7 +1006,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "version", "parameter.icompatibilty.version")
 			),
 			new MetodData(NBTTagCompound.class, "writeToNBT", "method.icompatibilty.writetonbt",
-				new ParameterData(NBTTagCompound.class, "nbt", "parameter.icompatibilty.nbt")
+				new ParameterData(NBTTagCompound.class, "nbt", "parameter.nbt")
 			)
 		)
 	),
@@ -1052,8 +1052,8 @@ public enum EnumInterfaceData {
 			new MetodData(IDropNbtSet.class, "addDropNbtSet", "method.icustomdrop.adddropnbtset",
 				new ParameterData(int.class, "type", "parameter.idropnbtset.type"),
 				new ParameterData(double.class, "chance", "parameter.chance"),
-				new ParameterData(String.class, "paht", "parameter.idropnbtset.paht"),
-				new ParameterData(String[].class, "values", "parameter.idropnbtset.values")
+				new ParameterData(String.class, "path", "parameter.idropnbtset.path"),
+				new ParameterData(String[].class, "values", "parameter.idropnbtset.values.1")
 			),
 			new MetodData(IEnchantSet.class, "addEnchant", "method.icustomdrop.addenchant",
 				new ParameterData(int.class, "enchantId", "parameter.enchant.id")
@@ -1062,7 +1062,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "enchantName", "parameter.enchant.name")
 			),
 			new MetodData(IItemStack.class, "createLoot", "method.icustomdrop.createloot",
-				new ParameterData(double.class, "addChance", "parameter.icustomdrop.addchance")
+				new ParameterData(double.class, "chance", "parameter.chance")
 			),
 			new MetodData(IAttributeSet[].class, "getAttributeSets", "method.icustomdrop.getattributesets"),
 			new MetodData(double.class, "getChance", "method.icustomdrop.getchance"),
@@ -1108,7 +1108,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "id", "parameter.quest.id")
 			),
 			new MetodData(void.class, "setTiedToLevel", "method.icustomdrop.settiedtolevel",
-				new ParameterData(boolean.class, "tiedToLevel", "parameter.icustomdrop.tiedToLevel")
+				new ParameterData(boolean.class, "tiedToLevel", "parameter.icustomdrop.tiedtolevel")
 			)
 		)
 	),
@@ -1201,11 +1201,11 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(ITexturedRect.class, "addTexturedRect", "method.icustomgui.addtexturedrect",
 				new ParameterData(int.class, "id", "parameter.icustomgui.id"),
-				new ParameterData(String.class, "texture", "parameter.icustomgui.texture"),
-				new ParameterData(int.class, "x", "parameter.icustomgui.x"),
-				new ParameterData(int.class, "y", "parameter.icustomgui.y"),
-				new ParameterData(int.class, "width", "parameter.icustomgui.width"),
-				new ParameterData(int.class, "height", "parameter.icustomgui.height")
+				new ParameterData(String.class, "texture", "parameter.texture"),
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height")
 			),
 			new MetodData(ITexturedRect.class, "addTexturedRect", "method.icustomgui.addtexturedrect",
 				new ParameterData(int.class, "id", "parameter.icustomgui.id"),
@@ -1271,7 +1271,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "hover", "parameter.hover")
 			),
 			new MetodData(ICustomGuiComponent.class, "setHoverText", "method.icustomguicom.setHovertext",
-				new ParameterData(String[].class, "hovers", "parameter.icustomguicomponent.hovers")
+				new ParameterData(String[].class, "hovers", "parameter.hovers")
 			),
 			new MetodData(ICustomGuiComponent.class, "setID", "method.icustomguicom.setid",
 				new ParameterData(int.class, "id", "parameter.component.id")
@@ -1290,12 +1290,12 @@ public enum EnumInterfaceData {
 			new Class<?>[] { NPCWrapper.class },
 			"interfase.icustomnpc",
 			new MetodData(String.class, "executeCommand", "method.executecommand",
-				new ParameterData(String.class, "command", "parameter.icustomnpc.command")
+				new ParameterData(String.class, "command", "parameter.command")
 			),
 			new MetodData(INPCAdvanced.class, "getAdvanced", "method.icustomnpc.getadvanced"),
 			new MetodData(INPCAi.class, "getAi", "method.icustomnpc.getai"),
 			new MetodData(IDialog.class, "getDialog", "method.icustomnpc.getdialog",
-				new ParameterData(int.class, "id", "parameter.icustomnpc.id")
+				new ParameterData(int.class, "id", "parameter.dialog.id")
 			),
 			new MetodData(INPCDisplay.class, "getDisplay", "method.icustomnpc.getdisplay"),
 			new MetodData(IFaction.class, "getFaction", "method.icustomnpc.getfaction"),
@@ -1310,39 +1310,39 @@ public enum EnumInterfaceData {
 			new MetodData(INPCAnimation.class, "getAnimations", "method.getanimations"),
 			new MetodData(ITimers.class, "getTimers", "method.icustomnpc.gettimers"),
 			new MetodData(void.class, "giveItem", "method.icustomnpc.giveitem",
-				new ParameterData(IPlayer.class, "player", "parameter.icustomnpc.player"),
-				new ParameterData(IItemStack.class, "item", "parameter.icustomnpc.item")
+				new ParameterData(IPlayer.class, "player", "parameter.player"),
+				new ParameterData(IItemStack.class, "item", "parameter.stack")
 			),
 			new MetodData(void.class, "reset", "method.icustomnpc.reset"),
 			new MetodData(void.class, "say", "method.icustomnpc.say",
-				new ParameterData(String.class, "message", "parameter.icustomnpc.message")
+				new ParameterData(String.class, "message", "parameter.message")
 			),
 			new MetodData(void.class, "sayTo", "method.icustomnpc.sayto",
-				new ParameterData(IPlayer.class, "player", "parameter.icustomnpc.player"),
-				new ParameterData(String.class, "message", "parameter.icustomnpc.message")
+				new ParameterData(IPlayer.class, "player", "parameter.player"),
+				new ParameterData(String.class, "message", "parameter.message")
 			),
 			new MetodData(void.class, "setDialog", "method.icustomnpc.setdialog",
-				new ParameterData(int.class, "id", "parameter.icustomnpc.id"),
-				new ParameterData(IDialog.class, "dialofg", "parameter.icustomnpc.dialofg")
+				new ParameterData(int.class, "id", "parameter.dialog.id"),
+				new ParameterData(IDialog.class, "dialog", "parameter.dialog")
 			),
 			new MetodData(void.class, "setFaction", "method.icustomnpc.setfaction",
-				new ParameterData(int.class, "id", "parameter.icustomnpc.id")
+				new ParameterData(int.class, "id", "parameter.faction.id")
 			),
 			new MetodData(void.class, "setHome", "method.icustomnpc.sethome",
-				new ParameterData(int.class, "x", "parameter.icustomnpc.x"),
-				new ParameterData(int.class, "y", "parameter.icustomnpc.y"),
-				new ParameterData(int.class, "z", "parameter.icustomnpc.z")
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "z", "parameter.posz")
 			),
 			new MetodData(IProjectile.class, "shootItem", "method.icustomnpc.shootitem",
-				new ParameterData(double.class, "x", "parameter.icustomnpc.x"),
-				new ParameterData(double.class, "y", "parameter.icustomnpc.y"),
-				new ParameterData(double.class, "z", "parameter.icustomnpc.z"),
-				new ParameterData(IItemStack.class, "item", "parameter.icustomnpc.item"),
-				new ParameterData(int.class, "count", "parameter.icustomnpc.count")
+				new ParameterData(double.class, "x", "parameter.posx"),
+				new ParameterData(double.class, "y", "parameter.posy"),
+				new ParameterData(double.class, "z", "parameter.posz"),
+				new ParameterData(IItemStack.class, "item", "parameter.stack"),
+				new ParameterData(int.class, "count", "parameter.count")
 			),
 			new MetodData(IProjectile.class, "shootItem", "method.icustomnpc.shootitem",
-				new ParameterData(IEntityLivingBase.class, "entity", "parameter.icustomnpc.entity"),
-				new ParameterData(IItemStack.class, "item", "parameter.icustomnpc.item"),
+				new ParameterData(IEntityLivingBase.class, "entity", "parameter.entity"),
+				new ParameterData(IItemStack.class, "item", "parameter.stack"),
 				new ParameterData(int.class, "count", "parameter.icustomnpc.count")
 			),
 			new MetodData(void.class, "updateClient", "method.icustomnpc.updateclient"),
@@ -1399,7 +1399,7 @@ public enum EnumInterfaceData {
 				new ParameterData(Object[].class, "values", "parameter.idatablement.values")
 			),
 			new MetodData(boolean.class, "isBelong", "method.idatablement.isbelong",
-				new ParameterData(Class.class, "clazz", "parameter.idatablement.clazz")
+				new ParameterData(Class.class, "class", "parameter.idatablement.class")
 			),
 			new MetodData(boolean.class, "setValue", "method.idatablement.setvalue",
 				new ParameterData(Object.class, "value", "parameter.idatablement.value")
@@ -1799,7 +1799,7 @@ public enum EnumInterfaceData {
 			new Class<?>[] { EntityLivingBaseWrapper.class },
 			"interfase.ientitylivingbase",
 			new MetodData(IMark.class, "addMark", "method.ientitylivingbase.addmark",
-				new ParameterData(int.class, "type", "parameter.mark.type")
+				new ParameterData(int.class, "type", "parameter.imark.type")
 			),
 			new MetodData(void.class, "addPotionEffect", "method.ientitylivingbase.addpotioneffect",
 				new ParameterData(int.class, "effect", "parameter.effect.id"),
@@ -1812,7 +1812,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "clearPotionEffects", "method.ientitylivingbase.clearpotioneffects"),
 			new MetodData(IItemStack.class, "getArmor", "method.ientitylivingbase.getarmor",
-				new ParameterData(int.class, "slot", "parameter.ientitylivingbase.slot")
+				new ParameterData(int.class, "slot", "parameter.armor.slot")
 			),
 			new MetodData(IEntityLivingBase.class, "getAttackTarget", "method.ientitylivingbase.getattacktarget"),
 			new MetodData(float.class, "getHealth", "method.ientitylivingbase.gethealth"),
@@ -1832,10 +1832,10 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "isAttacking", "method.ientitylivingbase.isattacking"),
 			new MetodData(boolean.class, "isChild", "method.ientitylivingbase.ischild"),
 			new MetodData(void.class, "removeMark", "method.ientitylivingbase.removemark",
-				new ParameterData(IMark.class, "mark", "parameter.mark")
+				new ParameterData(IMark.class, "mark", "parameter.imark")
 			),
 			new MetodData(void.class, "setArmor", "method.ientitylivingbase.setarmor",
-				new ParameterData(int.class, "slot", "parameter.ientitylivingbase.slot"),
+				new ParameterData(int.class, "slot", "parameter.armor.slot"),
 				new ParameterData(IItemStack.class, "item", "parameter.ientitylivingbase.item")
 			),
 			new MetodData(void.class, "setAttackTarget", "method.ientitylivingbase.setattacktarget",
@@ -1897,7 +1897,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "save", "method.ifaction.save"),
 			new MetodData(void.class, "setAttackedByMobs", "method.ifaction.setattackedbymobs",
-				new ParameterData(boolean.class, "bo", "parameter.ifaction.bo")
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
 			new MetodData(void.class, "setDefaultPoints", "method.ifaction.setdefaultpoints",
 				new ParameterData(int.class, "points", "parameter.ifaction.points")
@@ -1991,10 +1991,10 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "getDurabilityShow", "method.iitemscripted.getdurabilityshow"),
 			new MetodData(double.class, "getDurabilityValue", "method.iitemscripted.getdurabilityvalue"),
 			new MetodData(String.class, "getTexture", "method.component.gettexture",
-				new ParameterData(int.class, "damage", "parameter.iitems.damage")
+				new ParameterData(int.class, "damage", "parameter.item.meta")
 			),
 			new MetodData(boolean.class, "hasTexture", "method.iitemscripted.hastexture",
-				new ParameterData(int.class, "damage", "parameter.iitems.damage")
+				new ParameterData(int.class, "damage", "parameter.item.meta")
 			),
 			new MetodData(void.class, "setColor", "method.iitemscripted.setcolor",
 				new ParameterData(int.class, "color", "parameter.color")
@@ -2012,8 +2012,8 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "size", "parameter.size")
 			),
 			new MetodData(void.class, "setTexture", "method.iitemscripted.settexture",
-				new ParameterData(int.class, "damage", "parameter.iitemscripted.damage"),
-				new ParameterData(String.class, "texture", "parameter.iitemscripted.texture")
+				new ParameterData(int.class, "damage", "parameter.item.meta"),
+				new ParameterData(String.class, "texture", "parameter.texture")
 			)
 		)
 	),
@@ -2034,20 +2034,20 @@ public enum EnumInterfaceData {
 			new Class<?>[] { ItemStackWrapper.class },
 			"interfase.iitemstack",
 			new MetodData(void.class, "addEnchantment", "method.iitemstack.addenchantment",
-				new ParameterData(String.class, "name", "parameter.iitemstack.name"),
-				new ParameterData(int.class, "level", "parameter.iitemstack.level")
+				new ParameterData(String.class, "name", "parameter.enchant.name"),
+				new ParameterData(int.class, "level", "parameter.enchant.level")
 			),
 			new MetodData(void.class, "addEnchantment", "method.iitemstack.addenchantment",
-				new ParameterData(int.class, "id", "parameter.iitemstack.id"),
-				new ParameterData(int.class, "level", "parameter.iitemstack.level")
+				new ParameterData(int.class, "id", "parameter.enchant.id"),
+				new ParameterData(int.class, "level", "parameter.enchant.level")
 			),
 			new MetodData(boolean.class, "compare", "method.iitemstack.compare",
-				new ParameterData(IItemStack.class, "item", "parameter.iitemstack.item"),
-				new ParameterData(boolean.class, "ignoreNBT", "parameter.iitemstack.ignorenbt")
+				new ParameterData(IItemStack.class, "item", "parameter.stack"),
+				new ParameterData(boolean.class, "ignoreNBT", "parameter.ignorenbt")
 			),
 			new MetodData(IItemStack.class, "copy", "method.iitemstack.copy"),
 			new MetodData(void.class, "damageItem", "method.iitemstack.damageitem",
-				new ParameterData(int.class, "damage", "parameter.itemmeta"),
+				new ParameterData(int.class, "damage", "parameter.item.meta"),
 				new ParameterData(IEntityLiving.class, "living", "parameter.entity")
 			),
 			new MetodData(double.class, "getAttackDamage", "method.iitemstack.getattackdamage"),
@@ -2074,10 +2074,10 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(boolean.class, "hasCustomName", "method.iitemstack.hascustomName"),
 			new MetodData(boolean.class, "hasEnchant", "method.iitemstack.hasenchant",
-				new ParameterData(String.class, "name", "parameter.ench.name")
+				new ParameterData(String.class, "name", "parameter.enchant.name")
 			),
 			new MetodData(boolean.class, "hasEnchant", "method.iitemstack.hasenchant",
-				new ParameterData(int.class, "id", "parameter.ench.id")
+				new ParameterData(int.class, "id", "parameter.enchant.id")
 			),
 			new MetodData(boolean.class, "hasNbt", "method.iitemstack.hasnbt"),
 			new MetodData(boolean.class, "isBlock", "method.iitemstack.isblock").setDeprecated(),
@@ -2086,10 +2086,10 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "isEnchanted", "method.iitemstack.isenchanted"),
 			new MetodData(boolean.class, "isWearable", "method.iitemstack.iswearable"),
 			new MetodData(boolean.class, "removeEnchant", "method.iitemstack.removeenchant",
-				new ParameterData(String.class, "name", "parameter.ench.name")
+				new ParameterData(String.class, "name", "parameter.enchant.name")
 			),
 			new MetodData(boolean.class, "removeEnchant", "method.iitemstack.removeenchant",
-				new ParameterData(int.class, "id", "parameter.ench.id")
+				new ParameterData(int.class, "id", "parameter.enchant.id")
 			),
 			new MetodData(void.class, "removeNbt", "method.iitemstack.removenbt"),
 			new MetodData(void.class, "setAttribute", "method.iitemstack.setattribute",
@@ -2105,7 +2105,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "name", "parameter.iitemstack.name")
 			),
 			new MetodData(void.class, "setItemDamage", "method.iitemstack.setitemdamage",
-				new ParameterData(int.class, "value", "parameter.itemmeta")
+				new ParameterData(int.class, "value", "parameter.item.meta")
 			),
 			new MetodData(void.class, "setLore", "method.iitemstack.setlore",
 				new ParameterData(String[].class, "lore", "parameter.iitemstack.lore")
@@ -2199,9 +2199,9 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "axis", "parameter.axis")
 			),
 			new MetodData(void.class, "setOffset", "method.ilayermodel.setoffset",
-				new ParameterData(float.class, "x", "parameter.ilayermodel.x"),
-				new ParameterData(float.class, "y", "parameter.ilayermodel.y"),
-				new ParameterData(float.class, "z", "parameter.ilayermodel.z")
+				new ParameterData(float.class, "x", "posx"),
+				new ParameterData(float.class, "y", "parameter.posy"),
+				new ParameterData(float.class, "z", "parameter.posz")
 			),
 			new MetodData(IItemStack.class, "getModel", "method.ilayermodel.getmodel"),
 			new MetodData(void.class, "setModel", "method.ilayermodel.getoffset",
@@ -2215,25 +2215,25 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "axis", "parameter.axis")
 			),
 			new MetodData(void.class, "setRotate", "method.ilayermodel.setrotate",
-				new ParameterData(float.class, "x", "parameter.ilayermodel.x"),
-				new ParameterData(float.class, "y", "parameter.ilayermodel.y"),
-				new ParameterData(float.class, "z", "parameter.ilayermodel.z")
+				new ParameterData(float.class, "x", "parameter.posx"),
+				new ParameterData(float.class, "y", "parameter.posy"),
+				new ParameterData(float.class, "z", "parameter.posz")
 			),
 			new MetodData(boolean.class, "isRotate", "method.ilayermodel.isrotate",
 				new ParameterData(int.class, "axis", "parameter.axis")
 			),
 			new MetodData(void.class, "setIsRotate", "method.ilayermodel.setisrotate",
-				new ParameterData(boolean.class, "x", "parameter.ilayermodel.x"),
-				new ParameterData(boolean.class, "y", "parameter.ilayermodel.y"),
-				new ParameterData(boolean.class, "z", "parameter.ilayermodel.z")
+				new ParameterData(boolean.class, "x", "parameter.posx"),
+				new ParameterData(boolean.class, "y", "parameter.posy"),
+				new ParameterData(boolean.class, "z", "parameter.posz")
 			),
 			new MetodData(float.class, "getScale", "method.ilayermodel.getscale",
 				new ParameterData(int.class, "axis", "parameter.axis")
 			),
 			new MetodData(void.class, "setScale", "method.ilayermodel.setscale",
-				new ParameterData(float.class, "x", "parameter.ilayermodel.x"),
-				new ParameterData(float.class, "y", "parameter.ilayermodel.y"),
-				new ParameterData(float.class, "z", "parameter.ilayermodel.z")
+				new ParameterData(float.class, "x", "parameter.posx"),
+				new ParameterData(float.class, "y", "parameter.posy"),
+				new ParameterData(float.class, "z", "parameter.posz")
 			),
 			new MetodData(int.class, "getRotateSpeed", "method.ilayermodel.getrotatespeed"),
 			new MetodData(void.class, "setRotateSpeed", "method.ilayermodel.setrotatespeed",
@@ -2252,7 +2252,7 @@ public enum EnumInterfaceData {
 				new ParameterData(boolean.class, "show", "parameter.iline.show")
 			),
 			new MetodData(void.class, "setSound", "method.iline.setsound",
-				new ParameterData(String.class, "sound", "parameter.iline.sound")
+				new ParameterData(String.class, "sound", "parameter.sound.name")
 			),
 			new MetodData(void.class, "setText", "method.iline.settext",
 				new ParameterData(String.class, "text", "parameter.iline.text")
@@ -2268,7 +2268,7 @@ public enum EnumInterfaceData {
 			new MetodData(int.class, "getType", "method.imark.gettype"),
 			new MetodData(boolean.class, "isRotate", "method.imark.isrotate"),
 			new MetodData(void.class, "setColor", "method.imark.setcolor",
-				new ParameterData(int.class, "color", "parameter.imark.color")
+				new ParameterData(int.class, "color", "parameter.color")
 			),
 			new MetodData(void.class, "setRotate", "method.imark.setrotate",
 				new ParameterData(boolean.class, "rotate", "parameter.imark.rotate")
@@ -2302,12 +2302,12 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "setLine", "method.inpcadvanced.setline",
 				new ParameterData(int.class, "type", "parameter.inpcadvanced.type"),
 				new ParameterData(int.class, "slot", "parameter.inpcadvanced.slot"),
-				new ParameterData(String.class, "text", "parameter.inpcadvanced.text"),
-				new ParameterData(String.class, "sound", "parameter.inpcadvanced.sound")
+				new ParameterData(String.class, "text", "parameter.message"),
+				new ParameterData(String.class, "sound", "parameter.sound.name")
 			),
 			new MetodData(void.class, "setSound", "method.inpcadvanced.setsound",
 				new ParameterData(int.class, "type", "parameter.inpcadvanced.type"),
-				new ParameterData(String.class, "sound", "parameter.inpcadvanced.sound")
+				new ParameterData(String.class, "sound", "parameter.sound.name")
 			)
 		)
 	),
@@ -2341,19 +2341,19 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "type", "parameter.inpcai.animationtype")
 			),
 			new MetodData(void.class, "setAttackInvisible", "method.inpcai.setattackinvisible",
-				new ParameterData(boolean.class, "attack", "parameter.inpcai.invattack")
+				new ParameterData(boolean.class, "attack", "parameter.enabled")
 			),
 			new MetodData(void.class, "setAttackLOS", "method.inpcai.setattacklos",
 				new ParameterData(boolean.class, "enabled", "parameter.enabled")
 			),
 			new MetodData(void.class, "setAvoidsWater", "method.inpcai.setavoidswater",
-				new ParameterData(boolean.class, "enabled", "parameter.inpcai.enabled")
+				new ParameterData(boolean.class, "enabled", "parameter.enabled")
 			),
 			new MetodData(void.class, "setCanSwim", "method.inpcai.setcanswim",
-				new ParameterData(boolean.class, "canSwim", "parameter.boolean")
+				new ParameterData(boolean.class, "canSwim", "parameter.enabled")
 			),
 			new MetodData(void.class, "setDoorInteract", "method.inpcai.setdoortnteract",
-				new ParameterData(int.class, "type", "parameter.inpcai.type")
+				new ParameterData(int.class, "type", "parameter.inpcai.doortype")
 			),
 			new MetodData(void.class, "setInteractWithNPCs", "method.inpcai.setinteractwithnpcs",
 				new ParameterData(boolean.class, "interact", "parameter.boolean")
@@ -2381,7 +2381,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "type", "parameter.inpcai.sheltype")
 			),
 			new MetodData(void.class, "setStandingType", "method.inpcai.setstandingtype",
-				new ParameterData(int.class, "type", "parameter.inpcai.setsttype")
+				new ParameterData(int.class, "type", "parameter.inpcai.standingtype")
 			),
 			new MetodData(void.class, "setStopOnInteract", "method.inpcai.setstoponinteract",
 				new ParameterData(boolean.class, "stopOnInteract", "parameter.boolean")
@@ -2536,7 +2536,7 @@ public enum EnumInterfaceData {
 				new ParameterData(double.class, "chance", "parameter.chance")
 			),
 			new MetodData(IItemStack.class, "getArmor", "method.inpcinv.getarmor",
-				new ParameterData(int.class, "slot", "parameter.inpcinv.armslot")
+				new ParameterData(int.class, "slot", "parameter.armor.slot")
 			),
 			new MetodData(ICustomDrop.class, "getDrop", "method.inpcinv.getdrop",
 				new ParameterData(int.class, "slot", "parameter.inpcinv.dropslot")
@@ -2616,7 +2616,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "range", "parameter.range")
 			),
 			new MetodData(void.class, "setStrength", "method.inpcmelee.setstrength",
-				new ParameterData(int.class, "strength", "enchantment.damage")
+				new ParameterData(int.class, "strength", "parameter.count")
 			)
 		)
 	),
@@ -2712,7 +2712,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "setSound", "method.inpcranged.setsound",
 				new ParameterData(int.class, "type", "parameter.inpcranged.type"),
-				new ParameterData(String.class, "sound", "parameter.inpcranged.sound")
+				new ParameterData(String.class, "sound", "parameter.sound.name")
 			),
 			new MetodData(void.class, "setSpeed", "method.inpcranged.setspeed",
 				new ParameterData(int.class, "speed", "parameter.speed")
@@ -2754,7 +2754,7 @@ public enum EnumInterfaceData {
 			new MetodData(int.class, "getRarity", "method.inpcstats.getrarity"),
 			new MetodData(String.class, "getRarityTitle", "method.inpcstats.getraritytitle"),
 			new MetodData(float.class, "getResistance", "method.inpcstats.getresistance",
-				new ParameterData(int.class, "type", "parameter.inpcstats.type")
+				new ParameterData(int.class, "type", "parameter.inpcstats.resistancetype")
 			),
 			new MetodData(int.class, "getRespawnTime", "method.inpcstats.getrespawntime"),
 			new MetodData(int.class, "getRespawnType", "method.inpcstats.getrespawntype"),
@@ -2778,7 +2778,7 @@ public enum EnumInterfaceData {
 				new ParameterData(boolean.class, "hide", "parameter.boolean")
 			),
 			new MetodData(void.class, "setImmune", "method.inpcstats.setimmune",
-				new ParameterData(int.class, "type", "parameter.inpcstats.immunetype"),
+				new ParameterData(int.class, "type", "parameter.inpcstats.immune.type"),
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
 			new MetodData(void.class, "setLevel", "method.inpcstats.setlevel",
@@ -2801,7 +2801,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "seconds", "parameter.inpcstats.seconds")
 			),
 			new MetodData(void.class, "setRespawnType", "method.inpcstats.setrespawntype",
-				new ParameterData(int.class, "type", "parameter.inpcstats.type")
+				new ParameterData(int.class, "type", "parameter.inpcstats.respawn.type")
 			)
 		)
 	),
@@ -2873,7 +2873,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "setByte", "method.inbt.setbyte",
 				new ParameterData(String.class, "key", "parameter.inbt.key"),
-				new ParameterData(byte.class, "value", "parameter.inbt.value")
+				new ParameterData(byte.class, "value", "parameter.inbt.key.bytearr")
 			),
 			new MetodData(void.class, "setByteArray", "method.inbt.setbytearray",
 				new ParameterData(String.class, "key", "parameter.inbt.key.nbt"),
@@ -2897,7 +2897,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(void.class, "setIntegerArray", "method.inbt.setintegerarray",
 				new ParameterData(String.class, "key", "parameter.inbt.key"),
-				new ParameterData(int[].class, "value", "parameter.inbt.value")
+				new ParameterData(int[].class, "value", "parameter.inbt.key.intarr")
 			),
 			new MetodData(void.class, "setList", "method.inbt.setlist",
 				new ParameterData(String.class, "key", "parameter.inbt.key.list"),
@@ -2939,10 +2939,10 @@ public enum EnumInterfaceData {
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
 			new MetodData(void.class, "setIgnoreDamage", "method.inpcrecipe.setignoredamage",
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
+				new ParameterData(boolean.class, "bo", "parameter.ignoredamage")
 			),
 			new MetodData(void.class, "setIgnoreNBT", "method.inpcrecipe.setignorenbt",
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
+				new ParameterData(boolean.class, "bo", "parameter.ignorenbt")
 			),
 			new MetodData(void.class, "setIsGlobal", "method.inpcrecipe.setisglobal",
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
@@ -2977,8 +2977,8 @@ public enum EnumInterfaceData {
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
 			new MetodData(void.class, "setShowElementType", "method.ihud.setshowelementtype",
-				new ParameterData(String.class, "name", "parameter.ioverlayhud.name"),
-				new ParameterData(boolean.class, "bo", "parameter.ioverlayhud.bo")
+				new ParameterData(String.class, "name", "parameter.ihud.elementname"),
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
 			new MetodData(IItemSlot.class, "addItemSlot", "method.ihud.additemslot",
 				new ParameterData(int.class, "orientationType", "parameter.ihud.ortype"),
@@ -3143,8 +3143,8 @@ public enum EnumInterfaceData {
 				new ParameterData(IItemStack.class, "item", "parameter.stack")
 			),
 			new MetodData(boolean.class, "giveItem", "method.iplayer.giveitem",
-				new ParameterData(String.class, "id", "parameter.itemname"),
-				new ParameterData(int.class, "damage", "parameter.itemmeta"),
+				new ParameterData(String.class, "id", "parameter.item.name"),
+				new ParameterData(int.class, "damage", "parameter.item.meta"),
 				new ParameterData(int.class, "amount", "parameter.itemcount")
 			),
 			new MetodData(boolean.class, "hasAchievement", "method.iplayer.hasachievement",
@@ -3174,7 +3174,7 @@ public enum EnumInterfaceData {
 				new ParameterData(boolean.class, "ignoreNBT", "parameter.ignorenbt")
 			),
 			new MetodData(int.class, "inventoryItemCount", "method.iplayer.inventoryitemcount",
-				new ParameterData(String.class, "id", "parameter.itemname"),
+				new ParameterData(String.class, "id", "parameter.item.name"),
 				new ParameterData(int.class, "amount", "parameter.itemcount")
 			).setDeprecated(),
 			new MetodData(void.class, "kick", "method.iplayer.kick",
@@ -3199,9 +3199,9 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "amount", "parameter.itemcount")
 			),
 			new MetodData(boolean.class, "removeItem", "method.iplayer.removeitem",
-				new ParameterData(String.class, "id", "parameter.iplayer.id"),
-				new ParameterData(int.class, "damage", "parameter.iplayer.damage"),
-				new ParameterData(int.class, "amount", "parameter.iplayer.amount")
+				new ParameterData(String.class, "id", "parameter.item.name"),
+				new ParameterData(int.class, "damage", "parameter.item.meta"),
+				new ParameterData(int.class, "amount", "parameter.count")
 			),
 			new MetodData(void.class, "removeQuest", "method.iplayer.removequest",
 				new ParameterData(int.class, "id", "parameter.quest.id")
@@ -3230,7 +3230,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "z", "parameter.posz")
 			),
 			new MetodData(void.class, "setSpawnPoint", "method.iplayer.setspawnpoint",
-				new ParameterData(IBlock.class, "block", "parameter.iplayer.block")
+				new ParameterData(IBlock.class, "block", "parameter.block")
 			),
 			new MetodData(IContainer.class, "showChestGui", "method.iplayer.showchestgui",
 				new ParameterData(int.class, "rows", "parameter.chestgui.rows")
@@ -3259,11 +3259,11 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(int[].class, "getKeyPressed", "method.iplayer.getkeypressed"),
 			new MetodData(boolean.class, "hasOrKeyPressed", "method.iplayer.hasorkeyspressed",
-				new ParameterData(int[].class, "key", "parameter.iplayer.key")
+				new ParameterData(int[].class, "key", "parameter.keyboard.key")
 			),
 			new MetodData(int[].class, "getMousePressed", "method.iplayer.getmousepressed"),
 			new MetodData(boolean.class, "hasMousePress", "method.iplayer.hasmousepress",
-				new ParameterData(int.class, "key", "parameter.iplayer.key")
+				new ParameterData(int.class, "key", "parameter.mouse.key")
 			),
 			new MetodData(void.class, "completeQuest", "method.iplayer.completequest",
 				new ParameterData(int.class, "id", "parameter.quest.id")
@@ -3294,10 +3294,10 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "id", "parameter.quest.id")
 			),
 			new MetodData(void.class, "setSender", "method.iplayermail.setsender",
-				new ParameterData(String.class, "sender", "parameter.iplayermail.sender")
+				new ParameterData(String.class, "sender", "parameter.mail.sender")
 			),
 			new MetodData(void.class, "setSubject", "method.iplayermail.setsubject",
-				new ParameterData(String.class, "subject", "parameter.iplayermail.subject")
+				new ParameterData(String.class, "subject", "parameter.mail.subject")
 			),
 			new MetodData(void.class, "setText", "method.iplayermail.settext",
 				new ParameterData(String[].class, "text", "parameter.iplayermail.text")
@@ -3320,11 +3320,11 @@ public enum EnumInterfaceData {
 				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(IPos.class, "down", "method.ipos.down.0"),
-			new MetodData(IPos.class, "down", "method.ipos.down.0",
+			new MetodData(IPos.class, "down", "method.ipos.down.1",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "east", "method.ipos.east.0"),
-			new MetodData(IPos.class, "east", "method.ipos.east.0",
+			new MetodData(IPos.class, "east", "method.ipos.east.1",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(BlockPos.class, "getMCBlockPos", "method.ipos.getmcblockpos"),
@@ -3333,18 +3333,18 @@ public enum EnumInterfaceData {
 			new MetodData(int.class, "getZ", "method.getz"),
 			new MetodData(double[].class, "normalize", "method.ipos.normalize"),
 			new MetodData(IPos.class, "north", "method.ipos.north.0"),
-			new MetodData(IPos.class, "north", "method.ipos.north.0",
+			new MetodData(IPos.class, "north", "method.ipos.north.1",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "offset", "method.ipos.offset.0",
 				new ParameterData(int.class, "direction", "parameter.direction")
 			),
-			new MetodData(IPos.class, "offset", "method.ipos.offset.0",
+			new MetodData(IPos.class, "offset", "method.ipos.offset.1",
 				new ParameterData(int.class, "direction", "parameter.direction"),
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "south", "method.ipos.south.0"),
-			new MetodData(IPos.class, "south", "method.ipos.south.0",
+			new MetodData(IPos.class, "south", "method.ipos.south.1",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "subtract", "method.ipos.subtract",
@@ -3353,14 +3353,14 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "z", "parameter.posz")
 			),
 			new MetodData(IPos.class, "subtract", "method.ipos.subtract",
-				new ParameterData(IPos.class, "pos", "parameter.ipos.pos")
+				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(IPos.class, "up", "method.ipos.up.0"),
-			new MetodData(IPos.class, "up", "method.ipos.up.0",
+			new MetodData(IPos.class, "up", "method.ipos.up.1",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "west", "method.ipos.west.0"),
-			new MetodData(IPos.class, "west", "method.ipos.west.0",
+			new MetodData(IPos.class, "west", "method.ipos.west.1",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			)
 		)
@@ -3374,7 +3374,7 @@ public enum EnumInterfaceData {
 			new MetodData(boolean.class, "getHasGravity", "method.iprojectile.gethasgravity"),
 			new MetodData(IItemStack.class, "getItem", "method.iprojectile.getitem"),
 			new MetodData(void.class, "setAccuracy", "method.iprojectile.setaccuracy",
-				new ParameterData(int.class, "accuracy", "parameter.iprojectile.accuracy")
+				new ParameterData(int.class, "accuracy", "parameter.inpcranged.accuracy")
 			),
 			new MetodData(void.class, "setHasGravity", "method.iprojectile.sethasgravity",
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
@@ -3502,10 +3502,10 @@ public enum EnumInterfaceData {
 				new ParameterData(IItemStack.class, "item", "parameter.stack")
 			),
 			new MetodData(void.class, "setItemIgnoreDamage", "method.iquestobj.setitemignoredamage",
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
+				new ParameterData(boolean.class, "bo", "parameter.ignoredamage")
 			),
 			new MetodData(void.class, "setItemIgnoreNBT", "method.iquestobj.setitemignorenbt",
-				new ParameterData(boolean.class, "bo", "parameter.boolean")
+				new ParameterData(boolean.class, "bo", "parameter.ignorenbt")
 			),
 			new MetodData(void.class, "setItemLeave", "method.iquestobj.setitemleave",
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
@@ -3692,7 +3692,7 @@ public enum EnumInterfaceData {
 			new Class<?>[] { Schematic.class, Blueprint.class },
 			"interfase.ischematic",
 			new MetodData(IBlockState.class, "getBlockState", "method.ischematic.getblockstate",
-				new ParameterData(int.class, "state", "parameter.ischematic.block.pos")
+				new ParameterData(int.class, "state", "parameter.ischematic.pos")
 			),
 			new MetodData(IBlockState.class, "getBlockState", "method.ischematic.getblockstate",
 				new ParameterData(int.class, "x", "parameter.ischematic.x"),
@@ -3715,59 +3715,59 @@ public enum EnumInterfaceData {
 			new Class<?>[] { ScoreboardWrapper.class },
 			"interfase.iscoreboard",
 			new MetodData(IScoreboardObjective.class, "addObjective", "method.iscoreboard.addobjective",
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective"),
-				new ParameterData(String.class, "criteria", "parameter.iscoreboard.criteria")
+				new ParameterData(String.class, "objective", "parameter.score.objective"),
+				new ParameterData(String.class, "criteria", "parameter.score.criteria")
 			),
 			new MetodData(IScoreboardTeam.class, "addTeam", "method.iscoreboard.addTeam",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.teamname")
+				new ParameterData(String.class, "name", "parameter.score.teamname")
 			),
 			new MetodData(void.class, "deletePlayerScore", "method.iscoreboard.deletePlayerScore",
 				new ParameterData(String.class, "player", "parameter.playername"),
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective"),
-				new ParameterData(String.class, "datatag", "parameter.iscoreboard.datatag")
+				new ParameterData(String.class, "objective", "parameter.score.objective"),
+				new ParameterData(String.class, "datatag", "parameter.score.datatag")
 			),
 			new MetodData(IScoreboardObjective.class, "getObjective", "method.iscoreboard.getobjective",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.objective")
+				new ParameterData(String.class, "name", "parameter.score.objective")
 			),
 			new MetodData(IScoreboardObjective[].class, "getObjectives", "method.iscoreboard.getobjectives"),
 			new MetodData(String[].class, "getPlayerList", "method.iscoreboard.getplayerlist"),
 			new MetodData(int.class, "getPlayerScore", "method.iscoreboard.getplayerscore",
 				new ParameterData(String.class, "player", "parameter.playername"),
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective"),
-				new ParameterData(String.class, "datatag", "parameter.iscoreboard.datatag")
+				new ParameterData(String.class, "objective", "parameter.score.objective"),
+				new ParameterData(String.class, "datatag", "parameter.score.datatag")
 			),
 			new MetodData(IScoreboardTeam.class, "getPlayerTeam", "method.iscoreboard.getplayerteam",
 				new ParameterData(String.class, "player", "parameter.playername")
 			),
 			new MetodData(IScoreboardTeam.class, "getTeam", "method.iscoreboard.getteam",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.name")
+				new ParameterData(String.class, "name", "parameter.score.teamname")
 			),
 			new MetodData(IScoreboardTeam[].class, "getTeams", "method.iscoreboard.getteams"),
 			new MetodData(boolean.class, "hasObjective", "method.iscoreboard.hasobjective",
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective")
+				new ParameterData(String.class, "objective", "parameter.score.objective")
 			),
 			new MetodData(boolean.class, "hasPlayerObjective", "method.iscoreboard.hasplayerobjective",
 				new ParameterData(String.class, "player", "parameter.playername"),
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective"),
-				new ParameterData(String.class, "datatag", "parameter.iscoreboard.datatag")
+				new ParameterData(String.class, "objective", "parameter.score.objective"),
+				new ParameterData(String.class, "datatag", "parameter.score.datatag")
 			),
 			new MetodData(boolean.class, "hasTeam", "method.iscoreboard.hasteam",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.teamname")
+				new ParameterData(String.class, "name", "parameter.score.teamname")
 			),
 			new MetodData(void.class, "removeObjective", "method.iscoreboard.removeobjective",
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective")
+				new ParameterData(String.class, "objective", "parameter.score.objective")
 			),
 			new MetodData(void.class, "removePlayerTeam", "method.iscoreboard.removeteam",
 				new ParameterData(String.class, "player", "parameter.playername")
 			),
 			new MetodData(void.class, "removeTeam", "method.iscoreboard.removeteam",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.teamname")
+				new ParameterData(String.class, "name", "parameter.score.teamname")
 			),
 			new MetodData(void.class, "setPlayerScore", "method.iscoreboard.setplayerscore",
 				new ParameterData(String.class, "player", "parameter.playername"),
-				new ParameterData(String.class, "objective", "parameter.iscoreboard.objective"),
-				new ParameterData(int.class, "score", "parameter.iscoreboard.score"),
-				new ParameterData(String.class, "datatag", "parameter.iscoreboard.datatag")
+				new ParameterData(String.class, "objective", "parameter.score.objective"),
+				new ParameterData(int.class, "score", "parameter.score"),
+				new ParameterData(String.class, "datatag", "parameter.score.datatag")
 			)
 		)
 	),
@@ -3793,7 +3793,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "player", "parameter.playername")
 			),
 			new MetodData(void.class, "setDisplayName", "method.iscoreboardobjective.setdisplayname",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.objective")
+				new ParameterData(String.class, "name", "parameter.score.objective")
 			)
 		)
 	),
@@ -3813,7 +3813,7 @@ public enum EnumInterfaceData {
 			new Class<?>[] { ScoreboardTeamWrapper.class },
 			"interfase.iscoreboardteam",
 			new MetodData(void.class, "addPlayer", "method.iscoreboardteam.addplayer",
-				new ParameterData(String.class, "player", "parameter.iscoreboardteam.player")
+				new ParameterData(String.class, "player", "parameter.playername")
 			),
 			new MetodData(void.class, "clearPlayers", "method.iscoreboardteam.clearplayers"),
 			new MetodData(String.class, "getColor", "method.iscoreboardteam.getcolor"),
@@ -3832,7 +3832,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "color", "parameter.colorname")
 			),
 			new MetodData(void.class, "setDisplayName", "method.iscoreboardteam.setdisplayname",
-				new ParameterData(String.class, "name", "parameter.iscoreboard.teamname")
+				new ParameterData(String.class, "name", "parameter.score.teamname")
 			),
 			new MetodData(void.class, "setFriendlyFire", "method.iscoreboardteam.setfriendlyfire",
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
@@ -3879,7 +3879,7 @@ public enum EnumInterfaceData {
 				new ParameterData(Event.class, "event", "parameter.iscripthandler.event")
 			),
 			new MetodData(void.class, "setEnabled", "method.iscripthandler.setenabled",
-				new ParameterData(boolean.class, "bo", "parameter.iscripthandler.bo")
+				new ParameterData(boolean.class, "bo", "parameter.enabled")
 			),
 			new MetodData(void.class, "setLanguage", "method.iscripthandler.setlanguage",
 				new ParameterData(String.class, "language", "parameter.iscripthandler.language")
@@ -3902,7 +3902,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String[].class, "list", "parameter.s.list")
 			),
 			new MetodData(IScroll.class, "setMultiSelect", "method.iscroll.setmultiselect",
-				new ParameterData(boolean.class, "multiSelect", "parameter.iscroll.multiselect")
+				new ParameterData(boolean.class, "multiSelect", "parameter.boolean")
 			),
 			new MetodData(IScroll.class, "setSize", "method.component.setsize",
 				new ParameterData(int.class, "width", "parameter.width"),
@@ -3975,8 +3975,8 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "texture", "parameter.texture")
 			),
 			new MetodData(ITexturedButton.class, "setTextureOffset", "method.component.settextureoffset",
-				new ParameterData(int.class, "textureX", "parameter.itexturedbutton.texturex"),
-				new ParameterData(int.class, "textureY", "parameter.itexturedbutton.texturey")
+				new ParameterData(int.class, "textureX", "parameter.texturex"),
+				new ParameterData(int.class, "textureY", "parameter.texturey")
 			)
 		)
 	),
@@ -4001,8 +4001,8 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "texture", "parameter.texture")
 			),
 			new MetodData(ITexturedRect.class, "setTextureOffset", "method.component.settextureoffset",
-				new ParameterData(int.class, "textureX", "parameter.itexturedrect.texturex"),
-				new ParameterData(int.class, "textureY", "parameter.itexturedrect.texturey")
+				new ParameterData(int.class, "textureX", "parameter.texturex"),
+				new ParameterData(int.class, "textureY", "parameter.texturey")
 			)
 		)
 	),
@@ -4084,12 +4084,12 @@ public enum EnumInterfaceData {
 				new ParameterData(INbt.class, "nbt", "parameter.entitynbt")
 			),
 			new MetodData(IItemStack.class, "createItem", "method.iworld.createitem",
-				new ParameterData(String.class, "name", "parameter.itemname"),
-				new ParameterData(int.class, "damage", "parameter.itemmeta"),
+				new ParameterData(String.class, "name", "parameter.item.name"),
+				new ParameterData(int.class, "damage", "parameter.item.meta"),
 				new ParameterData(int.class, "size", "parameter.itemcount")
 			),
 			new MetodData(IItemStack.class, "createItemFromNbt", "method.iworld.createitem",
-				new ParameterData(INbt.class, "nbt", "parameter.iworld.nbt")
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
 			),
 			new MetodData(void.class, "explode", "method.iworld.explode",
 				new ParameterData(double.class, "x", "parameter.posx"),
@@ -4157,7 +4157,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "type", "parameter.entitytype")
 			),
 			new MetodData(IPlayer.class, "getPlayer", "method.iworld.getplayer",
-				new ParameterData(String.class, "name", "parameter.iworld.name")
+				new ParameterData(String.class, "name", "parameter.playername")
 			),
 			new MetodData(int.class, "getRedstonePower", "method.iworld.getredstonepower",
 				new ParameterData(int.class, "x", "parameter.posx"),

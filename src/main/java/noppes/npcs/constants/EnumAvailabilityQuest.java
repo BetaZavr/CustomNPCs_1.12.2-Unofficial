@@ -9,4 +9,5 @@ public enum EnumAvailabilityQuest
 	NotActive, 
 	Completed, 
 	CanStart;
+	
 }
