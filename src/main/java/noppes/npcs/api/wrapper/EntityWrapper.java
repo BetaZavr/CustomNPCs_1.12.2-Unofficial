@@ -48,6 +48,7 @@ implements IEntity {
 	private Map<String, Object> tempData;
 	private IWorld worldWrapper;
 
+	@SuppressWarnings("deprecation")
 	public EntityWrapper(T entity) {
 		this.tempData = new HashMap<String, Object>();
 		this.tempdata = new IData() {
@@ -144,7 +145,14 @@ implements IEntity {
 			}
 		};
 		this.entity = entity;
-		this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) entity.world);
+		if (entity.world instanceof WorldServer) {
+			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) entity.world);
+		} else if (entity.world != null) {
+			WorldWrapper w = WrapperNpcAPI.worldCache.get(entity.world.provider.getDimension());
+			if (w != null) { w.world = entity.world; }
+			else { WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(), w = WorldWrapper.createNew(entity.world)); }
+			this.worldWrapper = w;
+		}
 	}
 
 	@Override
@@ -197,8 +205,7 @@ implements IEntity {
 	}
 
 	private IEntity[] findEntityOnPath(double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = (List<Entity>) this.entity.world.getEntitiesWithinAABBExcludingEntity(this.entity,
-				this.entity.getEntityBoundingBox().grow(distance));
+		List<Entity> list = (List<Entity>) this.entity.world.getEntitiesWithinAABBExcludingEntity(this.entity, this.entity.getEntityBoundingBox().grow(distance));
 		List<IEntity> result = new ArrayList<IEntity>();
 		for (Entity entity1 : list) {
 			if (entity1.canBeCollidedWith() && entity1 != this.entity) {
@@ -389,7 +396,7 @@ implements IEntity {
 
 	@Override
 	public IWorld getWorld() {
-		if (this.entity.world != this.worldWrapper.getMCWorld()) {
+		if (this.entity.world != this.worldWrapper.getMCWorld() && this.entity.world instanceof WorldServer) {
 			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) this.entity.world);
 		}
 		return this.worldWrapper;
@@ -473,8 +480,8 @@ implements IEntity {
 
 	@Override
 	public void playAnimation(int type) {
-		this.worldWrapper.getMCWorld().getEntityTracker().sendToTrackingAndSelf(this.entity,
-				new SPacketAnimation(this.entity, type));
+		if (!(this.worldWrapper.getMCWorld() instanceof WorldServer)) { return; }
+		((WorldServer) this.worldWrapper.getMCWorld()).getEntityTracker().sendToTrackingAndSelf(this.entity, new SPacketAnimation(this.entity, type));
 	}
 
 	@Override
@@ -597,7 +604,14 @@ implements IEntity {
 
 	@Override
 	public void spawn() {
-		if (this.worldWrapper.getMCWorld().getEntityFromUuid(this.entity.getUniqueID()) != null) {
+		Entity el = null;
+		for (Entity e : this.worldWrapper.getMCWorld().getLoadedEntityList()) {
+			if (e.getUniqueID().equals(this.entity.getUniqueID())) {
+				el = e;
+				break;
+			}
+		}
+		if (el != null) {
 			throw new CustomNPCsException("Entity is already spawned", new Object[0]);
 		}
 		this.entity.isDead = false;

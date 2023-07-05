@@ -91,6 +91,8 @@ public class ScriptContainer {
 		FillMap(SideType.class);
 		FillMap(TacticalType.class);
 		FillMap(ScriptController.Instance.constants);
+		ScriptContainer.Data.put("API", NpcAPI.Instance());
+		ScriptContainer.Data.put("PosZero", new BlockPosWrapper(BlockPos.ORIGIN));
 	}
 
 	private static void FillMap(Class<?> c) {
@@ -109,7 +111,7 @@ public class ScriptContainer {
 		}
 	}
 
-	private static void FillMap(NBTTagCompound c) { // New
+	private static void FillMap(NBTTagCompound c) {
 		if (!c.hasKey("Constants", 10)) { return; }
 		for (String key : c.getCompoundTag("Constants").getKeySet()) {
 			NBTBase tag = c.getCompoundTag("Constants").getTag(key);
@@ -119,12 +121,6 @@ public class ScriptContainer {
 				LogWriter.debug("Add Custom Script Constant: " + key + " == " + value);
 			}
 		}
-		NpcAPI api = NpcAPI.Instance();
-		ScriptContainer.Data.put("API", api); // New
-		LogWriter.debug("Add Base Script Constant: \"API\" == " + api);
-		BlockPosWrapper bpw = new BlockPosWrapper(BlockPos.ORIGIN);
-		ScriptContainer.Data.put("PosZero", bpw);
-		LogWriter.debug("Add Base Script Constant: \"PosZero\" == " + bpw);
 	}
 
 	private static Object getNBTValue(NBTBase tag) {

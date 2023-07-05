@@ -72,31 +72,9 @@ import noppes.npcs.util.ObfuscationHelper;
 public class ScriptPlayerEventHandler {
 	
 	public class ForgeEventHandler {
-
 		@SubscribeEvent
 		public void forgeEntity(Event event) {
-			if (event instanceof EntityEvent) {
-				/*if (ev.getEntity() == null || !(ev.getEntity().world instanceof WorldServer)) {
-					return;
-				}*/
-				EventHooks.onForgeEntityEvent((EntityEvent) event);
-			} else if (event instanceof WorldEvent) {
-				/*if (!(ev2.getWorld() instanceof WorldServer)) {
-					return;
-				}*/
-				EventHooks.onForgeWorldEvent((WorldEvent) event);
-			} else {
-				/*if (event instanceof TickEvent && ((TickEvent) event).side == Side.CLIENT) {
-					return;
-				}
-				if (event instanceof net.minecraftforge.fml.common.gameevent.PlayerEvent) {
-					net.minecraftforge.fml.common.gameevent.PlayerEvent ev3 = (net.minecraftforge.fml.common.gameevent.PlayerEvent) event;
-					if (!(ev3.player.world instanceof WorldServer)) {
-						return;
-					}
-				}*/
-				EventHooks.onForgeEvent(new ForgeEvent(event), event);
-			}
+			EventHooks.onForgeEvent(new ForgeEvent(event));
 		}
 	}
 

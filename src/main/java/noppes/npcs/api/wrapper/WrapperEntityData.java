@@ -1,6 +1,9 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.List;
 import java.util.concurrent.Callable;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -10,45 +13,59 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityProjectile;
+import noppes.npcs.util.ObfuscationHelper;
 
-public class WrapperEntityData implements Callable<PlayerData>, ICapabilityProvider {
+public class WrapperEntityData
+implements INbtHandler, ICapabilityProvider, Callable<PlayerData> {
+	
 	@CapabilityInject(WrapperEntityData.class)
 	public static Capability<WrapperEntityData> ENTITYDATA_CAPABILITY = null;
 	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "entitydata");
 
+
+	public WrapperEntityData() { }
+	
 	public static IEntity<?> get(Entity entity) {
-		if (entity == null) {
-			return null;
-		}
+		if (entity == null || entity.world==null) { return null; }
 		WrapperEntityData data = entity.getCapability(WrapperEntityData.ENTITYDATA_CAPABILITY, null);
 		if (data == null) {
 			LogWriter.warn("Unable to get EntityData for " + entity);
-			return getData(entity).base;
+			WrapperEntityData ret = WrapperEntityData.getData(entity);
+			CapabilityDispatcher capabilities = ObfuscationHelper.getValue(Entity.class, entity, CapabilityDispatcher.class);
+			ICapabilityProvider[] caps = ObfuscationHelper.getValue(CapabilityDispatcher.class, capabilities, 0);
+			List<ICapabilityProvider> list = Lists.newArrayList();
+			for (ICapabilityProvider cap : caps) { list.add(cap); }
+			list.add(ret);
+			ObfuscationHelper.setValue(CapabilityDispatcher.class, capabilities, list.toArray(new ICapabilityProvider[list.size()]), 0);
+			return ret.base;
 		}
 		return data.base;
 	}
 
-	private static WrapperEntityData getData(Entity entity) {
-		if (entity == null || entity.world == null || entity.world.isRemote) {
+	public static WrapperEntityData getData(Entity entity) {
+		if (entity == null) {
 			return null;
 		}
-		if (entity instanceof EntityPlayerMP) {
-			return new WrapperEntityData(new PlayerWrapper<EntityPlayerMP>((EntityPlayerMP) entity));
+		if (entity instanceof EntityPlayer) {
+			return new WrapperEntityData(new PlayerWrapper<EntityPlayer>((EntityPlayer) entity));
 		}
 		if (PixelmonHelper.isPixelmon(entity)) {
 			return new WrapperEntityData(new PixelmonWrapper<EntityTameable>((EntityTameable) entity));
@@ -109,5 +126,11 @@ public class WrapperEntityData implements Callable<PlayerData>, ICapabilityProvi
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		return capability == WrapperEntityData.ENTITYDATA_CAPABILITY;
 	}
+
+	@Override
+	public NBTTagCompound getCapabilityNBT() { return null; }
+
+	@Override
+	public void setCapabilityNBT(NBTTagCompound compound) { }
 
 }

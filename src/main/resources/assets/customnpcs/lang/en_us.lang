@@ -747,6 +747,7 @@ enum.tactical.surround=Surround
 
 error.failedToSpawn=Failed to spawn the NPC
 
+event.forge=Any Forge events
 event.block.break=Player Break Event
 event.block.clicked=Player LMB Click Event
 event.block.collided=Entity Colliding Event
@@ -2993,6 +2994,7 @@ parameter.entity.regname=registered entity name
 parameter.entitynbt=tag where the entity is written
 parameter.entitytype=entity type
 parameter.entityuuid=unique identifier of the entity
+parameter.event=Forge Event
 parameter.event.equals.object0=matchable object as event
 parameter.event.setcanceled.boolean0=yes or no
 parameter.event.setphase.eventpriority0=priority (EventPriority)<br>§60§7-HIGHEST, §61§7-HIGH, §62§7-NORMAL, §63§7-LOW, §64§7-LOWEST

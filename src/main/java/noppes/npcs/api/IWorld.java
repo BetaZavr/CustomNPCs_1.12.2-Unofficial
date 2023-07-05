@@ -1,7 +1,7 @@
 package noppes.npcs.api;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.World;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
@@ -46,7 +46,7 @@ public interface IWorld {
 
 	BlockPos getMCBlockPos(int x, int y, int z);
 
-	WorldServer getMCWorld();
+	World getMCWorld();
 
 	String getName();
 

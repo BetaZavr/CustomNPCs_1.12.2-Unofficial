@@ -49,13 +49,14 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
+import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
 
 @SuppressWarnings("rawtypes")
 public class ItemStackWrapper
-implements IItemStack, ICapabilityProvider, ICapabilitySerializable {
+implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable {
 	
 	public static ItemStackWrapper AIR = new ItemStackEmptyWrapper();
 	@CapabilityInject(ItemStackWrapper.class)
@@ -64,6 +65,8 @@ implements IItemStack, ICapabilityProvider, ICapabilitySerializable {
 	private static EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD,
 			EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
 
+	public ItemStackWrapper() { }
+	
 	private static ItemStackWrapper createNew(ItemStack item) {
 		if (item == null || item.isEmpty()) {
 			return ItemStackWrapper.AIR;
@@ -346,6 +349,10 @@ implements IItemStack, ICapabilityProvider, ICapabilitySerializable {
 	}
 
 	@Override
+	public NBTTagCompound getCapabilityNBT() { return this.getMCNbt(); }
+	
+	
+	@Override
 	public INbt getNbt() {
 		NBTTagCompound compound = this.item.getTagCompound();
 		if (compound == null) {
@@ -598,6 +605,11 @@ implements IItemStack, ICapabilityProvider, ICapabilitySerializable {
 		compound.setTag("Lore", nbtlist);
 	}
 
+	@Override
+	public void setCapabilityNBT(NBTTagCompound compound) {
+		this.setMCNbt(compound);
+	}
+	
 	public void setMCNbt(NBTTagCompound compound) {
 		this.storedData = compound.getCompoundTag("StoredData");
 	}

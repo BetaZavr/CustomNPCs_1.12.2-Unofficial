@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.inventory.IInventory;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.IDamageSource;
@@ -26,6 +27,7 @@ import noppes.npcs.api.event.CustomContainerEvent;
 import noppes.npcs.api.event.CustomGuiEvent;
 import noppes.npcs.api.event.CustomNPCsEvent;
 import noppes.npcs.api.event.DialogEvent;
+import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.PackageReceived;
@@ -1009,6 +1011,21 @@ public enum EnumEventData {
 			EnumScriptType.PACKEGE_FROM.function,
 			new MetodData(INbt.class, "nbt", "parameter.nbt"),
 			new MetodData(IPlayer.class, "player", "parameter.player"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
+	ForgeEvent(new EventData(ForgeEvent.class, 
+			CustomNPCsEvent.class,
+			"event.forge",
+			"any_forge_event",
+			new MetodData(Event.class, "event", "parameter.event"),
+			new MetodData(IPlayer.class, "player", "parameter.player"),
+			new MetodData(ICustomNpc.class, "npc", "parameter.npc"),
+			new MetodData(IEntity.class, "entity", "parameter.entity"),
+			new MetodData(IBlock.class, "block", "parameter.block"),
+			new MetodData(IPos.class, "pos", "parameter.pos"),
+			new MetodData(IWorld.class, "world", "parameter.world"),
+			new MetodData(IItemStack.class, "stack", "parameter.stack"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	);

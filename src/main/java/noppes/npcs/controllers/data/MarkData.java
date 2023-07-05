@@ -16,11 +16,12 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.entity.data.IMark;
+import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.constants.EnumPacketClient;
 
 public class MarkData
-implements ICapabilityProvider {
+implements INbtHandler, ICapabilityProvider {
 	
 	public class Mark
 	implements IMark {
@@ -86,9 +87,10 @@ implements ICapabilityProvider {
 	}
 
 	private static ResourceLocation CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
+	
 	@CapabilityInject(MarkData.class)
 	public static Capability<MarkData> MARKDATA_CAPABILITY = null;
-
+	
 	public static MarkData get(EntityLivingBase entity) {
 		MarkData data = (MarkData) entity.getCapability(MarkData.MARKDATA_CAPABILITY, null);
 		if (data.entity == null) {
@@ -106,9 +108,7 @@ implements ICapabilityProvider {
 
 	public List<Mark> marks;
 
-	public MarkData() {
-		this.marks = new ArrayList<Mark>();
-	}
+	public MarkData() { this.marks = new ArrayList<Mark>(); }
 
 	public IMark addMark(int type) {
 		Mark m = new Mark();
@@ -139,6 +139,9 @@ implements ICapabilityProvider {
 		return null;
 	}
 
+	@Override
+	public NBTTagCompound getCapabilityNBT() { return this.getNBT(); }
+
 	public NBTTagCompound getNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
@@ -168,6 +171,9 @@ implements ICapabilityProvider {
 		this.entity.getEntityData().setTag("cnpcmarkdata", this.getNBT());
 	}
 
+	@Override
+	public void setCapabilityNBT(NBTTagCompound compound) { this.setNBT(compound); }
+	
 	public void setNBT(NBTTagCompound compound) {
 		List<Mark> marks = new ArrayList<Mark>();
 		NBTTagList list = compound.getTagList("marks", 10);

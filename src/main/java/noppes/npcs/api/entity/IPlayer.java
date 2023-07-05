@@ -1,6 +1,6 @@
 package noppes.npcs.api.entity;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.ITimers;
@@ -11,7 +11,7 @@ import noppes.npcs.api.gui.IOverlayHUD;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IPlayer<T extends EntityPlayerMP>
+public interface IPlayer<T extends EntityPlayer>
 extends IEntityLivingBase<T> {
 	
 	void addDialog(int id);

@@ -306,19 +306,11 @@ public class ServerEventsHandler {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void npcEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
 		String side = "Common";
-		if (event.getObject()!=null && event.getObject().world!=null) {
-			side = (event.getObject()).world.isRemote ? "Server" : "Client";
-		}
+		if (event.getObject()!=null && event.getObject().world!=null) { side = (event.getObject()).world.isRemote ? "Server" : "Client"; }
 		CustomNpcs.debugData.startDebug(side, event.getObject(), "ServerEventsHandler_npcEntityCapabilities");
-		if (event.getObject() instanceof EntityPlayer) {
-			PlayerData.register(event);
-		}
-		if (event.getObject() instanceof EntityLivingBase) {
-			MarkData.register(event);
-		}
-		if ((event.getObject()).world!=null && !(event.getObject()).world.isRemote && (event.getObject()).world instanceof WorldServer) {
-			WrapperEntityData.register(event);
-		}
+		if (event.getObject() instanceof EntityPlayer) { PlayerData.register(event); }
+		if (event.getObject() instanceof EntityLivingBase) { MarkData.register(event); }
+		if (event.getObject().world!=null && !event.getObject().world.isRemote && event.getObject().world instanceof WorldServer) { WrapperEntityData.register(event); }
 		CustomNpcs.debugData.endDebug(side, event.getObject(), "ServerEventsHandler_npcEntityCapabilities");
 	}
 

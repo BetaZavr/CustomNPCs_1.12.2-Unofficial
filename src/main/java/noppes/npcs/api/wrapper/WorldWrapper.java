@@ -64,7 +64,7 @@ implements IWorld {
 	public static Map<String, Object> tempData = new HashMap<String, Object>();
 
 	@Deprecated
-	public static WorldWrapper createNew(WorldServer world) {
+	public static WorldWrapper createNew(World world) {
 		return new WorldWrapper(world);
 	}
 
@@ -72,7 +72,7 @@ implements IWorld {
 	private IData storeddata;
 	private IData tempdata;
 
-	public WorldServer world;
+	public World world;
 
 	private WorldWrapper(World world) {
 		this.tempdata = new IData() {
@@ -297,7 +297,13 @@ implements IWorld {
 	public IEntity<?> getEntity(String uuid) {
 		try {
 			UUID id = UUID.fromString(uuid);
-			Entity e = this.world.getEntityFromUuid(id);
+			Entity e = null;
+			for (Entity entity : this.world.getLoadedEntityList()) {
+				if (entity.getUniqueID().equals(id)) {
+					e = entity;
+					break;
+				}
+			}
 			if (e == null) {
 				e = this.world.getPlayerEntityByUUID(id);
 			}
@@ -332,7 +338,7 @@ implements IWorld {
 	}
 
 	@Override
-	public WorldServer getMCWorld() {
+	public World getMCWorld() {
 		return this.world;
 	}
 
@@ -380,7 +386,10 @@ implements IWorld {
 
 	@Override
 	public IBlock getSpawnPoint() {
-		BlockPos pos = this.world.getSpawnCoordinate();
+		BlockPos pos = null;
+		if (this.world instanceof WorldServer) {
+			pos = ((WorldServer) this.world).getSpawnCoordinate();
+		}
 		if (pos == null) {
 			pos = this.world.getSpawnPoint();
 		}
@@ -408,7 +417,10 @@ implements IWorld {
 	}
 
 	public boolean isChunkLoaded(int x, int z) {
-		return this.world.getChunkProvider().chunkExists(x >> 4, z >> 4);
+		if (this.world instanceof WorldServer) {
+			return ((WorldServer) this.world).getChunkProvider().chunkExists(x >> 4, z >> 4);
+		}
+		return this.world.getChunkProvider().getLoadedChunk(x >> 4, z >> 4) != null;
 	}
 
 	@Override
@@ -465,7 +477,14 @@ implements IWorld {
 	@Override
 	public void spawnEntity(IEntity<?> entity) {
 		Entity e = entity.getMCEntity();
-		if (this.world.getEntityFromUuid(e.getUniqueID()) != null) {
+		Entity ew = null;
+		for (Entity el : this.world.getLoadedEntityList()) {
+			if (el.getUniqueID().equals(e.getUniqueID())) {
+				ew = el;
+				break;
+			}
+		}
+		if (ew != null) {
 			throw new CustomNPCsException("Entity with this UUID already exists", new Object[0]);
 		}
 		e.setPosition(e.posX, e.posY, e.posZ);
@@ -473,8 +492,7 @@ implements IWorld {
 	}
 
 	@Override
-	public void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz,
-			double speed, int count) {
+	public void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count) {
 		EnumParticleTypes particleType = null;
 		for (EnumParticleTypes enumParticle : EnumParticleTypes.values()) {
 			if (enumParticle.getArgumentCount() > 0) {
@@ -488,7 +506,9 @@ implements IWorld {
 			}
 		}
 		if (particleType != null) {
-			this.world.spawnParticle(particleType, x, y, z, count, dx, dy, dz, speed, new int[0]);
+			if (this.world instanceof WorldServer) {
+				((WorldServer) this.world).spawnParticle(particleType, x, y, z, count, dx, dy, dz, speed, new int[0]);
+			}
 		}
 	}
 

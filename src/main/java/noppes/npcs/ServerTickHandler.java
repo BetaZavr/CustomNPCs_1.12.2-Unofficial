@@ -50,7 +50,7 @@ public class ServerTickHandler {
 	public ServerTickHandler() {
 		this.ticks = 0;
 	}
-
+	
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
 		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) {

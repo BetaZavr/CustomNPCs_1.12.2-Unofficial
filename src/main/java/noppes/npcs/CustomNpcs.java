@@ -51,7 +51,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
-import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -67,9 +66,11 @@ import nikedemos.markovnames.generators.MarkovSlavic;
 import nikedemos.markovnames.generators.MarkovSpanish;
 import nikedemos.markovnames.generators.MarkovWelsh;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
+import noppes.npcs.capability.NbtStorage;
 import noppes.npcs.command.CommandNoppes;
 import noppes.npcs.config.ConfigLoader;
 import noppes.npcs.config.ConfigProp;
@@ -285,14 +286,6 @@ public class CustomNpcs {
 				return null;
 			}
 		}, WrapperEntityData.class);
-		CapabilityManager.INSTANCE.register(MarkData.class, new Capability.IStorage() {
-			public void readNBT(Capability capability, Object instance, EnumFacing side, NBTBase nbt) {
-			}
-
-			public NBTBase writeNBT(Capability capability, Object instance, EnumFacing side) {
-				return null;
-			}
-		}, MarkData.class);
 		CapabilityManager.INSTANCE.register(ItemStackWrapper.class, new Capability.IStorage<ItemStackWrapper>() {
 			public void readNBT(Capability capability, ItemStackWrapper instance, EnumFacing side, NBTBase nbt) {
 			}
@@ -301,8 +294,17 @@ public class CustomNpcs {
 				return null;
 			}
 		}, () -> null);
+		/*CapabilityManager.INSTANCE.register(MarkData.class, new Capability.IStorage() {
+			public void readNBT(Capability capability, Object instance, EnumFacing side, NBTBase nbt) {
+			}
 
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, (IGuiHandler) CustomNpcs.proxy);
+			public NBTBase writeNBT(Capability capability, Object instance, EnumFacing side) {
+				return null;
+			}
+		}, MarkData.class);*/
+		CapabilityManager.INSTANCE.register(INbtHandler.class, new NbtStorage(), MarkData::new);
+
+		NetworkRegistry.INSTANCE.registerGuiHandler(this, CustomNpcs.proxy);
 		MinecraftForge.EVENT_BUS.register(new ServerEventsHandler());
 		MinecraftForge.EVENT_BUS.register(new ServerTickHandler());
 		MinecraftForge.EVENT_BUS.register(new CustomEntities());
@@ -382,21 +384,17 @@ public class CustomNpcs {
 						Iterator<EntityPlayerMP> iterator2 = CustomNpcs.Server.getPlayerList().getPlayers().iterator();
 						while (iterator2.hasNext()) {
 							EntityPlayerMP player = iterator2.next();
-							if (!board.entityHasObjective(player.getName(), so)
-									&& board.getObjectiveDisplaySlotCount(so) == 0) {
+							if (!board.entityHasObjective(player.getName(), so) && board.getObjectiveDisplaySlotCount(so) == 0) {
 								player.connection.sendPacket(new SPacketScoreboardObjective(so, 0));
 							}
-							player.connection
-									.sendPacket(new SPacketUpdateScore(board.getOrCreateScore(player.getName(), so)));
+							player.connection.sendPacket(new SPacketUpdateScore(board.getOrCreateScore(player.getName(), so)));
 						}
 					}
 				}
 				return;
 			});
 			board.addDirtyRunnable(() -> {
-				List<EntityPlayerMP> players = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList()
-						.getPlayers();
-				Iterator<EntityPlayerMP> itrPlayer = players.iterator();
+				Iterator<EntityPlayerMP> itrPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers().iterator();
 				while (itrPlayer.hasNext()) {
 					EntityPlayerMP player = itrPlayer.next();
 					PlayerData data = PlayerData.get(player);

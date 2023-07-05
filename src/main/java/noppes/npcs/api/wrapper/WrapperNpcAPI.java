@@ -64,7 +64,7 @@ extends NpcAPI {
 	
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
-	private static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<Integer, WorldWrapper>(10);
+	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<Integer, WorldWrapper>(10);
 
 	public static void clearCache() {
 		WrapperNpcAPI.worldCache.clear();
@@ -169,9 +169,7 @@ extends NpcAPI {
 
 	@Override
 	public IEntity<?> getIEntity(Entity entity) {
-		if (entity == null || entity.world.isRemote) {
-			return null;
-		}
+		if (entity == null || entity.world==null) { return null; }
 		if (entity instanceof EntityNPCInterface) {
 			return ((EntityNPCInterface) entity).wrappedNPC;
 		}

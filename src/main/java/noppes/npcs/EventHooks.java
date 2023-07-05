@@ -15,10 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.IPos;
@@ -126,26 +123,19 @@ public class EventHooks {
 		return CustomGuiController.onSlotClick(event);
 	}
 
-	public static void onForgeEntityEvent(EntityEvent event) {
-		if (!ScriptController.Instance.forgeScripts.isEnabled()) { return; }
-		try { // Changed
-			onForgeEvent(new ForgeEvent.EntityEvent(event, NpcAPI.Instance().getIEntity(event.getEntity())), (Event) event);
-		}
-		catch (Exception e) { }
-	}
-
-	public static void onForgeEvent(ForgeEvent ev, Event event) {
+	public static void onForgeEvent(ForgeEvent event) {
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
+		//System.out.println("forge: "+event+"; event: "+event.event);
 
-		if (handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.getClass())) {
-			eventName = CustomNpcs.forgeEventNames.get(event.getClass());
+		if (handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
+			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
 			//System.out.println("Common ForgeEvent: "+eventName);
 			try { // Changed
 				handler.runScript(eventName, event);
-				if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
-				WrapperNpcAPI.EVENT_BUS.post((Event) ev);
-				if (event.isCancelable()) { event.setCanceled(ev.isCanceled()); }
+				if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
+				WrapperNpcAPI.EVENT_BUS.post(event.event);
+				if (event.isCancelable()) { event.setCanceled(event.event.isCanceled()); }
 			}
 			catch (Exception e) { }
 		}
@@ -155,20 +145,20 @@ public class EventHooks {
 			if(!handlerClient.isClient()) { return; }
 			
 			if (handlerClient.isEnabled()) {
-				if (!CustomNpcs.forgeClientEventNames.containsKey(event.getClass())) {
+				if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
 					eventName = event.getClass().getName();
 					int i = eventName.lastIndexOf(".");
 					eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-					CustomNpcs.forgeClientEventNames.put(event.getClass(), eventName);
+					CustomNpcs.forgeClientEventNames.put(event.event.getClass(), eventName);
 				} else {
-					eventName = CustomNpcs.forgeClientEventNames.get(event.getClass());
+					eventName = CustomNpcs.forgeClientEventNames.get(event.event.getClass());
 				}
 				if (eventName.isEmpty()) { return; }
 				try { // Changed
 					handlerClient.runScript(eventName, event);
-					if (event.isCancelable()) { ev.setCanceled(event.isCanceled()); }
-					WrapperNpcAPI.EVENT_BUS.post((Event) ev);
-					if (event.isCancelable()) { event.setCanceled(ev.isCanceled()); }
+					if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
+					WrapperNpcAPI.EVENT_BUS.post(event.event);
+					if (event.isCancelable()) { event.setCanceled(event.event.isCanceled()); }
 				}
 				catch (Exception e) { }
 			}
@@ -180,15 +170,6 @@ public class EventHooks {
 		ForgeEvent.InitEvent event = new ForgeEvent.InitEvent();
 		handler.runScript(EnumScriptType.INIT, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
-	}
-
-	public static void onForgeWorldEvent(WorldEvent event) {
-		if (!ScriptController.Instance.forgeScripts.isEnabled()) {
-			return;
-		}
-		try { // Changed
-			onForgeEvent(new ForgeEvent.WorldEvent(event, NpcAPI.Instance().getIWorld((WorldServer) event.getWorld())), (Event) event);
-		} catch (Exception e) { }
 	}
 
 	public static void onGlobalFactionsLoaded(IFactionHandler handler) {
@@ -597,12 +578,9 @@ public class EventHooks {
 		if (handler.isClient()) {
 			return distance;
 		}
-		BlockEvent.EntityFallenUponEvent event = new BlockEvent.EntityFallenUponEvent(handler.getBlock(), entity,
-				distance);
+		BlockEvent.EntityFallenUponEvent event = new BlockEvent.EntityFallenUponEvent(handler.getBlock(), entity, distance);
 		handler.runScript(EnumScriptType.FALLEN_UPON, event);
-		if (WrapperNpcAPI.EVENT_BUS.post((Event) event)) {
-			return 0.0f;
-		}
+		if (WrapperNpcAPI.EVENT_BUS.post((Event) event)) { return 0.0f; }
 		return event.distanceFallen;
 	}
 

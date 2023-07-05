@@ -71,7 +71,7 @@ import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ValueUtil;
 
 @SuppressWarnings("rawtypes")
-public class PlayerWrapper<T extends EntityPlayerMP>
+public class PlayerWrapper<T extends EntityPlayer>
 extends EntityLivingBaseWrapper<T>
 implements IPlayer {
 	
@@ -170,8 +170,9 @@ implements IPlayer {
 
 	@Override
 	public void closeGui() {
-		this.entity.closeContainer();
-		Server.sendData(this.entity, EnumPacketClient.GUI_CLOSE, -1, new NBTTagCompound());
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
+		((EntityPlayerMP) this.entity).closeContainer();
+		Server.sendData(((EntityPlayerMP) this.entity), EnumPacketClient.GUI_CLOSE, -1, new NBTTagCompound());
 	}
 
 	@Override
@@ -282,7 +283,8 @@ implements IPlayer {
 
 	@Override
 	public int getGamemode() {
-		return this.entity.interactionManager.getGameType().getID();
+		if (!(this.entity instanceof EntityPlayerMP)) { return 0; }
+		return ((EntityPlayerMP) this.entity).interactionManager.getGameType().getID();
 	}
 
 	@Override
@@ -490,7 +492,8 @@ implements IPlayer {
 
 	@Override
 	public void kick(String message) {
-		this.entity.connection.disconnect(new TextComponentTranslation(message, new Object[0]));
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
+		((EntityPlayerMP) this.entity).connection.disconnect(new TextComponentTranslation(message, new Object[0]));
 	}
 
 	@Override
@@ -501,9 +504,9 @@ implements IPlayer {
 
 	@Override
 	public void playSound(String sound, float volume, float pitch) {
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
 		BlockPos pos = this.entity.getPosition();
-		Server.sendData(this.entity, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume,
-				pitch);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 
 	@Override
@@ -583,10 +586,11 @@ implements IPlayer {
 
 	@Override
 	public void sendNotification(String title, String msg, int type) {
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
 		if (type < 0 || type > 3) {
 			throw new CustomNPCsException("Wrong type value given " + type, new Object[0]);
 		}
-		Server.sendData(this.entity, EnumPacketClient.MESSAGE, title, msg, type);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, title, msg, type);
 	}
 
 	@Override
@@ -612,12 +616,14 @@ implements IPlayer {
 
 	@Override
 	public void setPos(IPos pos) {
-		NoppesUtilPlayer.teleportPlayer(this.entity, pos.getX(), pos.getY(), pos.getZ(), this.entity.dimension);
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
+		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, pos.getX(), pos.getY(), pos.getZ(), this.entity.dimension);
 	}
 
 	@Override
 	public void setPosition(double x, double y, double z) {
-		NoppesUtilPlayer.teleportPlayer(this.entity, x, y, z, this.entity.dimension);
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
+		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, x, y, z, this.entity.dimension);
 	}
 
 	@Override
@@ -672,6 +678,7 @@ implements IPlayer {
 
 	@Override
 	public void startQuest(int id) {
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
 		Quest quest = QuestController.instance.quests.get(id);
 		if (quest == null) {
 			return;
@@ -679,8 +686,8 @@ implements IPlayer {
 		QuestData questdata = new QuestData(quest);
 		PlayerData data = this.getData();
 		data.questData.activeQuests.put(id, questdata);
-		Server.sendData(this.entity, EnumPacketClient.MESSAGE, "quest.newquest", quest.getTitle(), 2);
-		Server.sendData(this.entity, EnumPacketClient.CHAT, "quest.newquest", ": ", quest.getTitle());
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, "quest.newquest", quest.getTitle(), 2);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.CHAT, "quest.newquest", ": ", quest.getTitle());
 		data.updateClient = true;
 	}
 
@@ -733,12 +740,15 @@ implements IPlayer {
 	}
 	
 	@Override
-	public String getLanguage() { return ObfuscationHelper.getValue(EntityPlayerMP.class, this.entity, String.class); }
+	public String getLanguage() {
+		if (!(this.entity instanceof EntityPlayerMP)) { return "en_en"; }
+		return ObfuscationHelper.getValue(EntityPlayerMP.class, (EntityPlayerMP) this.entity, String.class);
+	}
 
 	@Override
 	public void sendTo(INbt nbt) {
-		if (this.entity.world.isRemote) { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 20, nbt.getMCNBT()); }
-		else { Server.sendData(this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
+		if (!(this.entity instanceof EntityPlayerMP)) { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 20, nbt.getMCNBT()); }
+		else { Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
 	}
 
 	@Override

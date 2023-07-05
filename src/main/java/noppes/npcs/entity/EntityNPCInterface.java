@@ -243,9 +243,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.updateClient = false;
 		this.bossInfo = new BossInfoServer(this.getDisplayName(), BossInfo.Color.PURPLE, BossInfo.Overlay.PROGRESS);
 		this.startYPos = -1.0;
-		if (!this.isRemote()) {
-			this.wrappedNPC = new NPCWrapper(this);
-		}
+		this.wrappedNPC = new NPCWrapper(this);
 		this.dialogs = new int[0];
 		if (!CustomNpcs.DefaultInteractLine.isEmpty()) {
 			this.advanced.interactLines.lines.put(0, new Line(CustomNpcs.DefaultInteractLine));
@@ -339,11 +337,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		float f = this.stats.melee.getStrength();
 		if (this.stats.melee.getDelay() < 10) { par1Entity.hurtResistantTime = 0; }
 		if (par1Entity instanceof EntityLivingBase) {
-			NpcEvent.MeleeAttackEvent event = new NpcEvent.MeleeAttackEvent(this.wrappedNPC,
-					(EntityLivingBase) par1Entity, f);
-			if (EventHooks.onNPCAttacksMelee(this, event)) {
-				return false;
-			}
+			NpcEvent.MeleeAttackEvent event = new NpcEvent.MeleeAttackEvent(this.wrappedNPC, (EntityLivingBase) par1Entity, f);
+			if (EventHooks.onNPCAttacksMelee(this, event)) { return false; }
 			f = event.damage;
 		}
 		boolean var4 = par1Entity.attackEntityFrom((DamageSource) new NpcDamageSource("mob", this), f);
@@ -352,11 +347,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				EntityUtil.setRecentlyHit((EntityLivingBase) par1Entity);
 			}
 			if (this.stats.melee.getKnockback() > 0) {
-				par1Entity.addVelocity(
-						(-MathHelper.sin(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback()
-								* 0.5f),
-						0.1, (MathHelper.cos(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback()
-								* 0.5f));
+				par1Entity.addVelocity((-MathHelper.sin(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback() * 0.5f), 0.1, (MathHelper.cos(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback() * 0.5f));
 				this.motionX *= 0.6;
 				this.motionZ *= 0.6;
 			}
@@ -459,8 +450,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.updateAI = true;
 			return;
 		}
-		NpcEvent.RangedLaunchedEvent event = new NpcEvent.RangedLaunchedEvent(this.wrappedNPC, entity,
-				this.stats.ranged.getStrength());
+		NpcEvent.RangedLaunchedEvent event = new NpcEvent.RangedLaunchedEvent(this.wrappedNPC, entity, this.stats.ranged.getStrength());
 		for (int i = 0; i < this.stats.ranged.getShotCount(); ++i) {
 			EntityProjectile projectile2 = this.shoot(entity, this.stats.ranged.getAccuracy(), proj, f == 1.0f);
 			projectile2.damage = event.damage;

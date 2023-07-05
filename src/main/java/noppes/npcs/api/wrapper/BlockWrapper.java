@@ -52,6 +52,7 @@ implements IBlock {
 	protected TileEntity tile;
 	protected IWorld world;
 
+	@SuppressWarnings("deprecation")
 	protected BlockWrapper(World world, Block block, BlockPos pos) {
 		this.tempdata = new IData() {
 			@Override
@@ -171,7 +172,15 @@ implements IBlock {
 				compound.removeTag(key);
 			}
 		};
-		this.world = NpcAPI.Instance().getIWorld((WorldServer) world);
+
+		if (world instanceof WorldServer) {
+			this.world = NpcAPI.Instance().getIWorld((WorldServer) world);
+		} else if (world != null) {
+			WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
+			if (w != null) { w.world = world; }
+			else { WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world)); }
+			this.world = w;
+		}
 		this.block = block;
 		this.pos = pos;
 		this.bPos = new BlockPosWrapper(pos);
@@ -299,9 +308,7 @@ implements IBlock {
 		World w = this.world.getMCWorld();
 		player.setWorld(w);
 		player.setPosition(this.pos.getX(), this.pos.getY(), this.pos.getZ());
-		this.block.onBlockActivated(w, this.pos, w.getBlockState(this.pos),
-				(EntityPlayer) EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f,
-				0.0f, 0.0f);
+		this.block.onBlockActivated(w, this.pos, w.getBlockState(this.pos), (EntityPlayer) EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f, 0.0f, 0.0f);
 	}
 
 	@Override

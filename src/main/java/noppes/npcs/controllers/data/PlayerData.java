@@ -17,6 +17,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataTimers;
@@ -25,7 +26,7 @@ import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class PlayerData
-implements ICapabilityProvider {
+implements INbtHandler, ICapabilityProvider {
 	
 	@CapabilityInject(PlayerData.class)
 	public static Capability<PlayerData> PLAYERDATA_CAPABILITY = null;
@@ -290,5 +291,11 @@ implements ICapabilityProvider {
 		((RoleCompanion) npc.advanced.roleInterface).setSitting(false);
 		world.spawnEntity(npc);
 	}
+
+	@Override
+	public NBTTagCompound getCapabilityNBT() { return this.getNBT(); }
+
+	@Override
+	public void setCapabilityNBT(NBTTagCompound compound) { this.setNBT(compound); }
 
 }

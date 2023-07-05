@@ -749,6 +749,7 @@ enum.tactical.surround=Окружает
 
 error.failedToSpawn=Не удалось создать NPC
 
+event.forge=Любые события Forge
 event.block.break=Событие поломки блока игроком
 event.block.clicked=Событие клика ЛКМ по блоку игроком
 event.block.collided=Событие сталкновения сущности с блоком
@@ -2994,6 +2995,7 @@ parameter.entity.regname=зарегистрированное название �
 parameter.entitynbt=тег, в который записана сущность
 parameter.entitytype=тип сущности
 parameter.entityuuid=уникальный идентификатор сущности
+parameter.event=Событие Forge
 parameter.event.equals.object0=сверяемый объект, как событие
 parameter.event.setcanceled.boolean0=да или нет
 parameter.event.setphase.eventpriority0=приоритет (EventPriority)<br>§60§7-HIGHEST, §61§7-HIGH, §62§7-NORMAL, §63§7-LOW, §64§7-LOWEST
