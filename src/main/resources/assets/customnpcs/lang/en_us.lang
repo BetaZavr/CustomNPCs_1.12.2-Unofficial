@@ -261,6 +261,7 @@ builder.set.point.0=§f[§eBuilder§f]: §7Assigned a central block at [%s§7, %
 builder.set.point.1=§f[§eBuilder§f]: §7Assigned first diagonal block at [%s§7, %s§7, %s§7] for scheme %s§7. Now select the second diagonal block...
 builder.set.point.2=§f[§eBuilder§f]: §7Assigned a second diagonal block at [%s§7, %s§7, %s§7] for schema %s§7. Press §aRMB§7 to save the blocks to a schema file. Or press §bLMB§7 to select blocks again.
 builder.wait=§f[§eBuilder§f]: §6Wait! §7the item is recharged. Expect %s
+builder.wait=§f[§eBuilder§f]: §6Wait! §7this scheme is already under construction in the world
 
 click.here=§9§nClick here
 
@@ -3572,6 +3573,19 @@ schematic.length=Length
 schematic.preview=Preview
 schematic.replace=Replace all blocks, or blocks without air
 schematic.width=Width
+
+schematic.info.notbuild=§cNothing to build, scheme is empty
+schematic.info.empty=§cВ данный момент ниего не строится
+schematic.info.already=§8Already building: %s§8 - %s%s
+schematic.info.start.name=§8Build started by: %s
+schematic.info.started=§8Build started: %s§8 in [ %s§8, %s§8, %s§8]. Expect about: %s
+schematic.info.build.empty=§cNot building
+schematic.info.build.stop=§8Stopped buildings: %s
+schematic.info.build.percentage=%s§8 - %s%s§8 built
+schematic.info.build.finish=%s§7 - building finished
+schematic.info.spawn.entitys=%s§8 - all entities are spawned into the world
+schematic.info.0=§7Schematic: %s§7; completed on %s%s%s
+schematic.info.1=§7; started: %s
 
 script.apidoc=API Doc
 script.apisrc=API Source

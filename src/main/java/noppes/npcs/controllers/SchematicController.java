@@ -1,5 +1,6 @@
 package noppes.npcs.controllers;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,22 +8,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
+
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBanner;
-import net.minecraft.block.BlockLog;
-import net.minecraft.block.BlockRail;
-import net.minecraft.block.BlockSign;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -30,8 +32,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
@@ -40,21 +44,76 @@ import noppes.npcs.schematics.BlueprintUtil;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
-import noppes.npcs.util.SchematicBlockData;
+import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class SchematicController {
 	
 	public static SchematicController Instance = new SchematicController();
-	private SchematicWrapper building;
-	private int buildingPercentage;
-	private ICommandSender buildStarter;
+	public static Map<String, List<String>> data;
+	public static long time = 50L;
+	
+	private List<SchematicWrapper> buildingList;
 	public List<String> included;
 	public Map<String, SchematicWrapper> map;
-
+	private char chr = ((char) 167);
+	
+	static {
+		String json = "";
+		SchematicController.data = Maps.<String, List<String>>newHashMap();
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().equals("bin")) {
+				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
+					try {
+						ZipFile zip = new ZipFile(mod.getSource());
+						Enumeration<? extends ZipEntry> entries = zip.entries();
+						while (entries.hasMoreElements()) {
+							ZipEntry zipentry = (ZipEntry) entries.nextElement();
+							if (zipentry.isDirectory() || !zipentry.getName().equalsIgnoreCase("noppes/npcs/data/scematic_settings.json")) { continue; }
+							StringWriter writer = new StringWriter();
+							IOUtils.copy(zip.getInputStream(zipentry), writer, Charset.forName("UTF-8"));
+							json = writer.toString();
+							writer.close();
+							break;
+						}
+						zip.close();
+					}
+					catch (IOException e) {  }
+				}
+				else {
+					File f = new File(mod.getSource(), "noppes/npcs/data/scematic_settings.json");
+					if (f.exists()) {
+						try {
+							String line;
+							BufferedReader reader = Files.newBufferedReader(f.toPath());
+							while((line = reader.readLine()) != null) { json += line+""+((char) 10); }
+							reader.close();
+						}
+						catch (IOException e) { }
+					}
+				}
+			}
+		}
+		if (!json.isEmpty()) {
+			NBTTagCompound nbt = null;
+			try { nbt = NBTJsonUtil.Convert(json); }
+			catch (JsonException e) { e.printStackTrace(); }
+			if (nbt!=null) {
+				for (String key : nbt.getKeySet()) {
+					if (nbt.getTag(key).getId()!=(byte)9 || ((NBTTagList) nbt.getTag(key)).getTagType()!=8) { continue; }
+					List<String> list = Lists.<String>newArrayList();
+					for (int i=0; i < ((NBTTagList) nbt.getTag(key)).tagCount(); i++) {
+						list.add(((NBTTagList) nbt.getTag(key)).getStringTagAt(i));
+					}
+					SchematicController.data.put(key, list);
+				}
+			}
+		}
+	}
+	
 	public SchematicController() {
-		this.building = null;
-		this.buildStarter = null;
-		this.buildingPercentage = 0;
+		this.buildingList = Lists.<SchematicWrapper>newArrayList();
 		this.included = Arrays.asList("archery_range.schematic", "bakery.schematic", "barn.schematic",
 				"building_site.schematic", "chapel.schematic", "church.schematic", "gate.schematic",
 				"glassworks.schematic", "guard_Tower.schematic", "guild_house.schematic", "house.schematic",
@@ -66,14 +125,19 @@ public class SchematicController {
 	}
 
 	public void build(SchematicWrapper schem, ICommandSender sender) {
-		if (this.building != null && this.building.isBuilding) {
-			this.info(sender);
+		if (schem == null) {
+			this.sendMessage(sender, "schematic.info.notbuild");
 			return;
 		}
-		this.buildingPercentage = 0;
-		this.building = schem;
-		this.building.isBuilding = true;
-		this.buildStarter = sender;
+		if (this.buildingList.contains(schem)) {
+			this.sendMessage(sender, "schematic.info.already", this.chr + "7" + schem.schema.getName(), this.chr + "7" + schem.getPercentage(), this.chr + "7%");
+			if (schem.sender != null) {
+				this.sendMessage(sender, "schematic.info.start.name", this.chr + "7" + schem.sender.getName());
+			}
+			return;
+		}
+		schem.setBuilder(sender);
+		this.buildingList.add(schem);
 	}
 
 	public static File getDir() {
@@ -88,18 +152,6 @@ public class SchematicController {
 		}
 		if (!schematicDir.exists()) { schematicDir.mkdir(); }
 		return schematicDir;
-	}
-
-	public void info(ICommandSender sender) {
-		if (this.building == null) {
-			this.sendMessage(sender, "Nothing is being build");
-		} else {
-			this.sendMessage(sender, "Already building: " + this.building.schema.getName() + " - "
-					+ this.building.getPercentage() + "%");
-			if (this.buildStarter != null) {
-				this.sendMessage(sender, "Build started by: " + this.buildStarter.getName());
-			}
-		}
 	}
 
 	public List<String> list() {
@@ -163,7 +215,7 @@ public class SchematicController {
 		ISchematic schema = null;
 		if (type == 0) {
 			file = new File(SchematicController.getDir(), name + ".schematic");
-			schema = Schematic.Create(world, name, pos, height, width, length);
+			schema = Schematic.create(world, name, pos, height, width, length);
 		} else if (type == 1) {
 			file = new File(SchematicController.getDir(), name + ".blueprint");
 			schema = BlueprintUtil.createBlueprint(world, pos, width, length, height);
@@ -176,35 +228,45 @@ public class SchematicController {
 		}
 	}
 
-	private void sendMessage(ICommandSender sender, String message) {
-		if (sender == null) {
-			return;
-		}
-		sender.sendMessage(new TextComponentString(message));
+	private void sendMessage(ICommandSender sender, String message, Object ... objs) {
+		if (sender == null) { return; }
+		sender.sendMessage(new TextComponentTranslation(message, objs));
 	}
 
 	public void stop(ICommandSender sender) {
-		if (this.building == null || !this.building.isBuilding) {
-			this.sendMessage(sender, "Not building");
+		if (this.buildingList == null || this.buildingList.isEmpty()) {
+			this.sendMessage(sender, "schematic.info.build.empty");
 		} else {
-			this.sendMessage(sender, "Stopped building: " + this.building.schema.getName());
-			this.building = null;
+			String smts = "";
+			for (SchematicWrapper sm : this.buildingList) {
+				if (!smts.isEmpty()) { smts += ";"+((char) 10); }
+				smts += this.chr + "7\"" + sm.schema.getName() + "\" in ["+sm.start.getX() + ", " + sm.start.getY() + ", " + sm.start.getZ()+"]";
+			}
+			this.sendMessage(sender, "schematic.info.build.stop", smts);
+			this.buildingList.clear();
 		}
 	}
 
 	public void updateBuilding() {
-		if (this.building == null) { return; }
-		this.building.build();
-		if (this.buildStarter != null && this.building.getPercentage() - this.buildingPercentage >= 10) {
-			this.sendMessage(this.buildStarter, "Building at " + this.building.getPercentage() + "%");
-			this.buildingPercentage = this.building.getPercentage();
-		}
-		if (!this.building.isBuilding) {
-			if (this.buildStarter != null) {
-				this.sendMessage(this.buildStarter, "Building finished");
+		if (this.buildingList == null || this.buildingList.isEmpty()) { return; }
+		List<SchematicWrapper> del = Lists.newArrayList();
+		for (SchematicWrapper sm : this.buildingList) {
+			sm.build();
+			if (sm.sender != null && sm.getPercentage() - sm.buildingPercentage >= 10) {
+				this.sendMessage(sm.sender, "schematic.info.build.percentage", this.chr + "7" + sm.schema.getName(), this.chr + "7" + sm.getPercentage(), this.chr + "7%");
+				sm.buildingPercentage = sm.getPercentage();
 			}
-			this.building = null;
+			if (!sm.isBuilding) {
+				if (sm.sender != null) {
+					if (sm.schema.hasEntitys()) {
+						this.sendMessage(sm.sender, "schematic.info.spawn.entitys", this.chr + "7" + sm.schema.getName());
+					}
+					this.sendMessage(sm.sender, "schematic.info.build.finish", this.chr + "7" + sm.schema.getName());
+				}
+				del.add(sm);
+			}
 		}
+		for (SchematicWrapper sm : del) { this.buildingList.remove(sm); }
 	}
 
 	public SchematicWrapper getSchema(String name) {
@@ -212,87 +274,23 @@ public class SchematicController {
 		return this.map.get(name.toLowerCase());
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotaion, Schematic schema) { // Schematica Build
-		if (pos==null || schema==null) { return; }
-		SchematicBlockData[][][] blocks = new SchematicBlockData[schema.height][schema.width][schema.length];
-		SchematicBlockData[][][] tempB = new SchematicBlockData[schema.height][schema.width][schema.length];
-		NBTTagList entitys = schema.entityList;
-		int cx, cy, cz;
-		for (int i=0, t=0; i<schema.blockIdsArray.length; i++) {
-			cy = (int) Math.floor(i/(schema.length*schema.width));
-			cz = (int) Math.floor((i/schema.width)%schema.length);
-			cx = (int) Math.floor(i%schema.width);
-			Block b = Block.getBlockById((int) schema.blockIdsArray[i]);
-			IBlockState state = b.getStateFromMeta((int) schema.blockMetadataArray[i]);
-			blocks[cy][cz][cx] = new SchematicBlockData(null, state, new BlockPos(cx+schema.offset[0],cy+schema.offset[1],cz+schema.offset[2]));
-			blocks[cy][cz][cx].nbtTile = null;
-			if (b instanceof ITileEntityProvider) {
-				blocks[cy][cz][cx].nbtTile = schema.entityList.getCompoundTagAt(t);
-				t++;
-			}
-			tempB[cy][cz][cx] = new SchematicBlockData(blocks[cy][cz][cx]);
-		}
-		if (rotaion!=0) {
-			
-		}
-		NBTTagCompound[] tempE = new NBTTagCompound[entitys.tagCount()];
-		for (int i=0; i<schema.entityList.tagCount(); i++) { tempE[i] = schema.entityList.getCompoundTagAt(i); }
-		
-		
+		if (player == null || pos==null || schema==null) { return; }
+		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor(schema.blockIdsArray.length / CustomNpcs.maxBuilderBlocks) * 1000L;
+		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, ""+pos.getX(), ""+pos.getY(), ""+pos.getZ(), AdditionalMethods.ticksToElapsedTime(ticks, true, true, false)));
+		SchematicWrapper sw = new SchematicWrapper(schema);
+		sw.init(pos.east().south(), player.world, rotaion * 90);
+		SchematicController.Instance.build(sw, player);
 	}
 
-	public static byte rotate(IBlockState state, int rot) {
-		Block block = state.getBlock();
-		int meta = block.getMetaFromState(state)%4;
-		int amn = (int) Math.floor(block.getMetaFromState(state)/4.0d);
-		if (block instanceof BlockStairs) {
-			while (rot!=0) {
-				if (meta==0) { meta = 2 + amn * 4; }
-				else if (meta==1) { meta = 3 + amn * 4; }
-				else if (meta==2) { meta = 1 + amn * 4; }
-				else if (meta==3) { meta = amn * 4; }
-				rot--;
-			}
+	public void info(ICommandSender sender) {
+		if (this.buildingList.isEmpty()) {
+			this.sendMessage(sender, "schematic.info.empty");
+			return;
 		}
-		else if (block instanceof BlockBanner || block instanceof BlockSign) {
-			meta = block.getMetaFromState(state) % 16;
-			while (rot!=0) {
-				meta = meta % 16;
-				if (meta<=12) { meta = 4+meta; } else { meta = 4+meta-16; }
-				rot--;
-			}
+		for (SchematicWrapper sm : this.buildingList) {
+			this.sendMessage(sender, "schematic.info.0", this.chr + "7" + sm.schema.getName(), this.chr + "7" + sm.getPercentage(), this.chr + "7%", (sm.sender==null ? "" : new TextComponentTranslation("schematic.info.1").getFormattedText()));
 		}
-		else if (block instanceof BlockLog) {
-			while (rot!=0) {
-				if (amn==1) { meta = 8+meta; }
-				else if (amn==2) { meta = 4+meta; }
-				rot--;
-			}
-		}
-		else if (block instanceof BlockRail) {
-			meta = block.getMetaFromState(state);
-			while (rot!=0) {
-				if (meta==0) { meta=1; }
-				else if (meta==1) { meta=0; }
-				else if (meta >= 6) {
-					meta ++;
-					if ( meta > 9) { meta = 6; }
-				}
-				else {
-					if (meta==2) { meta = 5; }
-					else if (meta==3) { meta = 4; }
-					else if (meta==4) { meta = 2; }
-					else if (meta==5) { meta = 3; }
-				}
-				rot--;
-			}
-		}
-		while (rot!=0) {
-			rot--;
-		}
-		
-		return (byte) meta;
 	}
 
 }

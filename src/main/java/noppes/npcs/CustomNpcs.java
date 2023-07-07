@@ -194,8 +194,8 @@ public class CustomNpcs {
 	public static boolean VerboseDebug = false;
 	@ConfigProp(info = "Enables Vine Growth")
 	public static boolean VineGrowthEnabled = true;
-	@ConfigProp(info = "Maximum number of blocks to set with a Builder item")
-	public static int maxBuilderBlocks = 10000;
+	@ConfigProp(info = "Maximum blocks to install per second with the Builder item")
+	public static int maxBuilderBlocks = 1000;
 	@ConfigProp(info = "Color of Script code elements. "+((char) 167)+"[Numbers, Functions, Strings, Comments]")
 	public static String[] charCodeColor = new String[] { "6", "9", "7", "2" };
 	@ConfigProp(info = "Maximum number of items in one Drop group")

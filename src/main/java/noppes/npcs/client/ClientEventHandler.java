@@ -158,13 +158,13 @@ public class ClientEventHandler {
 					ClientEventHandler.schemaPos = ClientGuiEventHandler.result.getBlockPos();
 					ClientEventHandler.rotaion = MathHelper.floor(player.rotationYaw / 90.0f + 0.5f) & 0x3;
 					int x = -1, y=0, z = -1;
-					boolean has = sc.offset!=null && sc.offset.length>=3 && (sc.offset[0]!=0 || sc.offset[1]!=0 || sc.offset[2]!=0);
+					boolean has = sc.offset!=null && (sc.offset.getX()!=0 || sc.offset.getY()!=0 || sc.offset.getZ()!=0);
 					switch(ClientEventHandler.rotaion) {
 						case 1: {
 							if (has) {
-								x = -1*sc.offset[2] - sc.getLength();
-								y = sc.offset[1];
-								z = sc.offset[0]-1;
+								x = -1*sc.offset.getZ() - sc.getLength();
+								y = sc.offset.getY();
+								z = sc.offset.getX()-1;
 							}
 							else {
 								x = -1*sc.getLength();
@@ -174,9 +174,9 @@ public class ClientEventHandler {
 						}
 						case 2: {
 							if (has) {
-								x = -1*sc.offset[0]-sc.getWidth();
-								y = sc.offset[1];
-								z = -1*sc.offset[2]-sc.getLength();
+								x = -1*sc.offset.getX()-sc.getWidth();
+								y = sc.offset.getY();
+								z = -1*sc.offset.getZ()-sc.getLength();
 							}
 							else {
 								x = (int) (-1 * Math.ceil((double)sc.getWidth()/2.0d));
@@ -186,9 +186,9 @@ public class ClientEventHandler {
 						}
 						case 3: {
 							if (has) {
-								x = sc.offset[2]-1;
-								y = sc.offset[1];
-								z = -1*sc.offset[0]-sc.getWidth();
+								x = sc.offset.getZ()-1;
+								y = sc.offset.getY();
+								z = -1*sc.offset.getX()-sc.getWidth();
 							}
 							else {
 								x = -1;
@@ -198,9 +198,9 @@ public class ClientEventHandler {
 						}
 						default: {
 							if (has) {
-								x = sc.offset[0]-1;
-								y = sc.offset[1];
-								z = sc.offset[2]-1;
+								x = sc.offset.getX()-1;
+								y = sc.offset.getY();
+								z = sc.offset.getZ()-1;
 							} else {
 								x = (int) (-1 * Math.ceil((double)sc.getWidth()/2.0d));
 							}

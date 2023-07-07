@@ -2,6 +2,8 @@ package noppes.npcs.schematics;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 
 public interface ISchematic {
 	
@@ -22,5 +24,11 @@ public interface ISchematic {
 	int getTileEntitySize();
 
 	short getWidth();
+
+	boolean hasEntitys();
+
+	NBTTagList getEntitys();
+
+	BlockPos getOffset();
 	
 }

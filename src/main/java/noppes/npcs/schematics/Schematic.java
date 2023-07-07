@@ -9,6 +9,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityHanging;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
@@ -19,6 +21,7 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -34,23 +37,22 @@ import noppes.npcs.util.NBTJsonUtil;
 
 public class Schematic implements ISchematic {
 
-	public short[] blockIdsArray;
-	public byte[] blockMetadataArray;
+	public short[] blockIdsArray = new short[0];
+	public byte[] blockMetadataArray = new byte[0];
+	public NBTTagList tileList = new NBTTagList();
 	public NBTTagList entityList = new NBTTagList();
-	public short height;
-	public short length;
-	public String name;
-
-	public short width;
-	public int[] offset; // New
+	public short height = 0; // Y axis
+	public short length = 0; // Z axis
+	public short width = 0; // X axis
+	public String name = "";
+	public BlockPos offset = BlockPos.ORIGIN;
 
 	public Schematic(String name) { this.name = name; }
 	
-	// New
-	public static Schematic Create(World world, EnumFacing fase, String name, Map<Integer, BlockPos> schMap) {
-		BlockPos p = schMap.get(0);
-		BlockPos m = schMap.get(1);
-		BlockPos n = schMap.get(2);
+	public static Schematic create(World world, EnumFacing fase, String name, Map<Integer, BlockPos> schMap) {
+		BlockPos p = schMap.get(0); // offset
+		BlockPos m = schMap.get(1); // min
+		BlockPos n = schMap.get(2); // max
 		AxisAlignedBB bb = new AxisAlignedBB(m, n);
 		short height = (short) (Math.abs(bb.maxY-bb.minY)+1);
 		short width = (short) (Math.abs(bb.maxX-bb.minX)+1);
@@ -96,38 +98,36 @@ public class Schematic implements ISchematic {
 					break;
 				}
 			}
-			IBlockState state = world.getBlockState(pos.add(x, y, z));
+			IBlockState state = SchematicWrapper.rotationState(world.getBlockState(pos.add(x, y, z)), rot);
 			schema.blockIdsArray[i] = (short) Block.REGISTRY.getIDForObject(state.getBlock());
 			schema.blockMetadataArray[i] = (byte) state.getBlock().getMetaFromState(state);
-			
-			if (rot!=0) { schema.blockMetadataArray[i] = SchematicController.rotate(state, rot); }
 			if (state.getBlock() instanceof ITileEntityProvider) {
 				TileEntity tile = world.getTileEntity(pos.add(x, y, z));
-				NBTTagCompound compound = new NBTTagCompound();
-				tile.writeToNBT(compound);
-				compound.setInteger("x", x);
-				compound.setInteger("y", y);
-				compound.setInteger("z", z);
-				schema.entityList.appendTag(compound);
+				NBTTagCompound nbtTile = new NBTTagCompound();
+				tile.writeToNBT(nbtTile);
+				nbtTile.setInteger("x", x);
+				nbtTile.setInteger("y", y);
+				nbtTile.setInteger("z", z);
+				schema.tileList.appendTag(nbtTile);
 			}
 		}
 		/** Added by mod */
-		schema.offset = new int[] { (int) (bb.minX-p.getX()), 1 + (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()) };
+		schema.offset = new BlockPos(bb.minX-p.getX(), 1 + (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()));
 		switch(fase) {
 			case EAST: {
-				schema.offset = new int[] { (int) (p.getZ()-bb.maxZ), (int) (bb.minY-p.getY()), (int) (bb.minX-p.getX()) };
+				schema.offset = new BlockPos(p.getZ()-bb.maxZ, (int) (bb.minY-p.getY()), (int) (bb.minX-p.getX()));
 				break;
 			}
 			case NORTH: {
-				schema.offset = new int[] { (int) (p.getX()-bb.maxX), (int) (bb.minY-p.getY()), (int) (p.getZ()-bb.maxZ) };
+				schema.offset = new BlockPos(p.getX()-bb.maxX, (int) (bb.minY-p.getY()), (int) (p.getZ()-bb.maxZ));
 				break;
 			}
 			case WEST: {
-				schema.offset = new int[] { (int) (bb.minZ-p.getZ()), (int) (bb.minY-p.getY()), (int) (p.getX()-bb.maxX) };
+				schema.offset = new BlockPos(bb.minZ-p.getZ(), (int) (bb.minY-p.getY()), (int) (p.getX()-bb.maxX));
 				break;
 			}
 			default: { // SOUTH
-				schema.offset = new int[] { (int) (bb.minX-p.getX()), (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()) };
+				schema.offset = new BlockPos(bb.minX-p.getX(), (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()));
 				break;
 			}
 		}
@@ -137,10 +137,16 @@ public class Schematic implements ISchematic {
 		List<Entity> list = world.getEntitiesWithinAABB(Entity.class, bbE);
 		for (Entity e : list) {
 			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
-			NBTTagCompound nbtEntity = e.writeToNBT(new NBTTagCompound());
+			NBTTagCompound nbtEntity = new NBTTagCompound();
+			if (!e.writeToNBTAtomically(nbtEntity)) {
+				nbtEntity = e.writeToNBT(new NBTTagCompound());
+				ResourceLocation regName = EntityList.getKey(e);
+				if (regName==null) { continue; }
+				nbtEntity.setString("id", regName.toString());
+			}
 			if (!nbtEntity.hasKey("UUID", 8)) { nbtEntity.setString("UUID", e.getUniqueID().toString()); }
 			NBTTagList posList = new NBTTagList();
-			if (nbtEntity.getString("id").equals("minecraft:painting") || nbtEntity.getString("id").equals("minecraft:item_frame")) {
+			if (e instanceof EntityHanging) {
 				nbtEntity.setInteger("TileX", nbtEntity.getInteger("TileX")-p.getX());
 				nbtEntity.setInteger("TileY", nbtEntity.getInteger("TileY")-p.getY());
 				nbtEntity.setInteger("TileZ", nbtEntity.getInteger("TileZ")-p.getZ());
@@ -159,10 +165,9 @@ public class Schematic implements ISchematic {
 		return schema;
 	}
 
-	// Parent
-	public static Schematic Create(World world, String name, BlockPos pos, short height, short width, short length) {
+	public static Schematic create(World world, String name, BlockPos pos, short height, short width, short length) {
 		Schematic schema = new Schematic(name);
-		schema.offset = new int[] { 0, 0, 0, 0, 0, 0 };
+		schema.offset = BlockPos.ORIGIN;
 		schema.height = height;
 		schema.width = width;
 		schema.length = length;
@@ -170,7 +175,7 @@ public class Schematic implements ISchematic {
 		schema.blockIdsArray = new short[size];
 		schema.blockMetadataArray = new byte[size];
 		NoppesUtilServer.NotifyOPs("Creating schematic at: " + pos + " might lag slightly", new Object[0]);
-		schema.entityList = new NBTTagList();
+		schema.tileList = new NBTTagList();
 		for (int i = 0; i < size; ++i) {
 			int x = i % width;
 			int z = (i - x) / width % length;
@@ -187,7 +192,7 @@ public class Schematic implements ISchematic {
 						compound.setInteger("x", x);
 						compound.setInteger("y", y);
 						compound.setInteger("z", z);
-						schema.entityList.appendTag(compound);
+						schema.tileList.appendTag(compound);
 					}
 				}
 			}
@@ -255,20 +260,21 @@ public class Schematic implements ISchematic {
 		compound.setByteArray("Blocks", arr[0]);
 		if (arr.length > 1) { compound.setByteArray("AddBlocks", arr[1]); }
 		compound.setByteArray("Data", this.blockMetadataArray);
-		compound.setTag("TileEntities", this.entityList);
+		compound.setTag("TileEntities", this.tileList);
+		compound.setTag("Entities", this.entityList);
 		// New
-		compound.setIntArray("Offset", this.offset);
+		compound.setIntArray("Offset", new int[] { this.offset.getX(), this.offset.getY(), this.offset.getZ() });
 		compound.setString("Name", this.name);
 		return compound;
 	}
 
 	@Override
-	public NBTTagCompound getTileEntity(int i) { return this.entityList.getCompoundTagAt(i); }
+	public NBTTagCompound getTileEntity(int i) { return this.tileList.getCompoundTagAt(i); }
 
 	@Override
 	public int getTileEntitySize() {
-		if (this.entityList == null) { return 0; }
-		return this.entityList.tagCount();
+		if (this.tileList == null) { return 0; }
+		return this.tileList.tagCount();
 	}
 
 	@Override
@@ -281,9 +287,12 @@ public class Schematic implements ISchematic {
 		byte[] addId = compound.hasKey("AddBlocks") ? compound.getByteArray("AddBlocks") : new byte[0];
 		this.setBlockBytes(compound.getByteArray("Blocks"), addId);
 		this.blockMetadataArray = compound.getByteArray("Data");
-		this.entityList = compound.getTagList("TileEntities", 10);
+		this.tileList = compound.getTagList("TileEntities", 10);
+		this.entityList = compound.getTagList("Entities", 10);
 		// New
-		this.offset = compound.getIntArray("Offset");
+		int[] arr = compound.getIntArray("Offset");
+		if (arr!=null && arr.length>=3) { this.offset = new BlockPos(arr[0], arr[1], arr[2]); }
+		else { this.offset = BlockPos.ORIGIN; }
 		this.name = compound.getString("Name");
 	}
 
@@ -323,5 +332,41 @@ public class Schematic implements ISchematic {
 		}
 		catch (Exception e) { }
 	}
+	
+	public boolean equals(Object obj) {
+		if (obj==null || !(obj instanceof Schematic)) { return false; }
+		Schematic s = (Schematic) obj;
+		if (!this.name.equals(s.name) ||
+				this.height!=s.height ||
+				this.length!=s.length ||
+				this.width!=s.width ||
+				!this.offset.equals(s.offset) ||
+				this.blockIdsArray.length!=s.blockIdsArray.length ||
+				this.blockMetadataArray.length!=s.blockMetadataArray.length ||
+				this.tileList.tagCount()!=s.tileList.tagCount() ||
+				this.entityList.tagCount()!=s.entityList.tagCount()) { return false; }
+		for (int i = 0; i < this.blockIdsArray.length; i++) {
+			if (this.blockIdsArray[i]!=s.blockIdsArray[i]) { return false; }
+		}
+		for (int i = 0; i < this.blockMetadataArray.length; i++) {
+			if (this.blockMetadataArray[i]!=s.blockMetadataArray[i]) { return false; }
+		}
+		for (int i = 0; i < this.tileList.tagCount(); i++) {
+			if (!this.tileList.getCompoundTagAt(i).equals(s.tileList.getCompoundTagAt(i))) { return false; }
+		}
+		for (int i = 0; i < this.entityList.tagCount(); i++) {
+			if (!this.entityList.getCompoundTagAt(i).equals(s.entityList.getCompoundTagAt(i))) { return false; }
+		}
+		return true;
+	}
+
+	@Override
+	public boolean hasEntitys() { return this.entityList!=null && this.entityList.tagCount()>0; }
+
+	@Override
+	public NBTTagList getEntitys() { return this.entityList; }
+
+	@Override
+	public BlockPos getOffset() { return this.offset; }
 	
 }

@@ -1,0 +1,19 @@
+{
+	"postBlocks": [
+		"rail",
+		"ladder",
+		"minecraft:vine",
+		"button",
+		"torch",
+		"lever",
+		"_door",
+		"npcscripteddoor",
+		"repeater",
+		"comparator",
+		"sign",
+		"anvil",
+		"gravel",
+		"sand",
+		"concrete"
+	]
+}

@@ -241,7 +241,7 @@ public class AdditionalMethods {
 						Enumeration<? extends ZipEntry> entries = zip.entries();
 						while (entries.hasMoreElements()) {
 							ZipEntry zipentry = (ZipEntry) entries.nextElement();
-							if (zipentry.isDirectory() || zipentry.getName().indexOf("noppes/npcs/data/")!=0 || !zipentry.getName().endsWith(".json")) { continue; }
+							if (zipentry.isDirectory() || zipentry.getName().indexOf("noppes/npcs/data/obfuscation_")!=0 || !zipentry.getName().endsWith(".json")) { continue; }
 							StringWriter writer = new StringWriter();
 							IOUtils.copy(zip.getInputStream(zipentry), writer, Charset.forName("UTF-8"));
 							for (String line : writer.toString().split(""+((char) 10))) {

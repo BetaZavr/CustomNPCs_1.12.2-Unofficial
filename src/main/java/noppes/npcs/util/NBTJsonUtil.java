@@ -25,6 +25,7 @@ import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 
 public class NBTJsonUtil {
+	
 	public static class JsonException extends Exception {
 		private static final long serialVersionUID = 1L;
 

@@ -5,11 +5,14 @@ import java.util.List;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class Blueprint implements ISchematic {
+public class Blueprint
+implements ISchematic {
+	
 	private String[] architects;
 	private String name;
 	private IBlockState[] pallete;
@@ -162,4 +165,14 @@ public class Blueprint implements ISchematic {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	public boolean hasEntitys() { return false; }
+
+	@Override
+	public NBTTagList getEntitys() { return new NBTTagList(); }
+
+	@Override
+	public BlockPos getOffset() { return BlockPos.ORIGIN; }
+	
 }

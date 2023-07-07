@@ -269,6 +269,21 @@ public class GuiBlockBuilder extends GuiNPCInterface
 				public short getWidth() {
 					return compound.getShort("Width");
 				}
+
+				@Override
+				public boolean hasEntitys() {
+					return false;
+				}
+
+				@Override
+				public NBTTagList getEntitys() {
+					return new NBTTagList();
+				}
+
+				@Override
+				public BlockPos getOffset() {
+					return BlockPos.ORIGIN;
+				}
 			};
 			if (TileBuilder.has(this.tile.getPos())) {
 				SchematicWrapper wrapper = new SchematicWrapper(this.selected);

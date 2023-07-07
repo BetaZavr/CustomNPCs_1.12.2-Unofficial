@@ -95,13 +95,9 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.side == Side.CLIENT) {
-			return;
-		}
+		if (event.side == Side.CLIENT) { return; }
 		BorderController.getInstance().update();
-		if (event.phase == TickEvent.Phase.END) {
-			return;
-		}
+		if (event.phase == TickEvent.Phase.END) { return; }
 		if ((this.ticks++) % 20 == 0) {
 			CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			SchematicController.Instance.updateBuilding();

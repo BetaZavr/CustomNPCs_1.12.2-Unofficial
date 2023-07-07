@@ -1,12 +1,14 @@
-package noppes.npcs.util;
+package noppes.npcs.schematics;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class SchematicBlockData {
 	
@@ -14,13 +16,15 @@ public class SchematicBlockData {
 	public IBlockState state;
 	public NBTTagCompound nbtTile;
 	public World world;
+	public int meta = 0, id = 0;
 	
 	public SchematicBlockData(World world, IBlockState state, BlockPos pos) {
 		this.world = world;
 		this.pos = pos;
 		this.state = state;
+		this.meta = this.state.getBlock().getMetaFromState(state);
 		this.nbtTile = null;
-		if (world!=null && world.getTileEntity(pos)!=null) {
+		if (state.getBlock() instanceof ITileEntityProvider && world!=null && world.getTileEntity(pos)!=null) {
 			this.nbtTile = new NBTTagCompound();
 			world.getTileEntity(pos).writeToNBT(this.nbtTile);
 		}
@@ -47,15 +51,21 @@ public class SchematicBlockData {
 		}
 	}
 
-	public void set() {
-		if (this.world==null || this.pos==null || this.state==null) { return; }
-		this.world.setBlockState(this.pos, this.state);
+	public void set(BlockPos pos) {
+		if (this.world==null || pos==null || this.state==null) { return; }
+		this.world.setBlockState(pos, this.state);
 		if (this.nbtTile!=null) {
+			this.nbtTile.setInteger("x", pos.getX());
+			this.nbtTile.setInteger("y", pos.getY());
+			this.nbtTile.setInteger("z", pos.getZ());
 			CustomNPCsScheduler.runTack(() -> {
 				TileEntity tile = this.world.getTileEntity(this.pos);
 				if (tile==null) { tile = this.state.getBlock().createTileEntity(this.world, this.state); }
 				tile.readFromNBT(this.nbtTile);
-			}, 5);
+				this.nbtTile.setInteger("x", this.pos.getX());
+				this.nbtTile.setInteger("y", this.pos.getY());
+				this.nbtTile.setInteger("z", this.pos.getZ());
+			}, 200);
 		}
 	}
 
@@ -88,4 +98,21 @@ public class SchematicBlockData {
 			}
 		}
 	}*/
+	
+	public String toString() {
+		String text = "SchematicBlockData [ ID:" + this.id +
+				"; state:"+this.state+"," +
+				"; pos:" + this.pos +
+				"; meta:" + this.meta +
+				"; hasNbt:" + (this.nbtTile!=null) + " ]";
+		return text;
+	}
+
+	public void setMeta(int meta) {
+		this.meta = meta;
+		if (meta < this.state.getBlock().getBlockState().getValidStates().size()) {
+			this.state = this.state.getBlock().getBlockState().getValidStates().get(meta);
+		}
+	}
+	
 }

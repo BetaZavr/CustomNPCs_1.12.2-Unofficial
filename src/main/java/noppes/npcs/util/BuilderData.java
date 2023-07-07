@@ -9,59 +9,49 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.schematics.Schematic;
+import noppes.npcs.schematics.SchematicBlockData;
 
 public class BuilderData {
 	
 	// General
-	public int type;
-	public int[] region;
-	public int fasing;
-	public int id;
-	public NpcMiscInventory inv;
-	public EntityPlayer player;
-	public boolean addAir, replaseAir;
-	public Map<Integer, Integer> chances;
+	public int type = 0;
+	public int[] region = new int[] { 5, 2, 3 };
+	public int fasing = 0;
+	public int id = 0;
+	public NpcMiscInventory inv = new NpcMiscInventory(10);
+	public EntityPlayer player = null;
+	public boolean addAir = false, replaseAir = false;
+	public Map<Integer, Integer> chances = Maps.<Integer, Integer>newTreeMap();;
 	private Random rnd = new Random();
 	// Schematica
-	public Map<Integer, BlockPos> schMap;
-	public String schematicaName;
+	public Map<Integer, BlockPos> schMap = Maps.<Integer, BlockPos>newTreeMap();
+	public String schematicaName = "";
 	// undo / redo
 	public int doPos = 0;
-	public Map<Integer, List<SchematicBlockData>> doMap;
+	public Map<Integer, List<SchematicBlockData>> doMap = Maps.<Integer, List<SchematicBlockData>>newTreeMap();
+	public Map<Integer, List<Entity>> enMap = Maps.<Integer, List<Entity>>newTreeMap();
 	// tecnical
 	private long lastWork=0L, lastMessage=0L;
 	
-	public BuilderData() {
-		// General
-		this.type = 0;
-		this.fasing = 0;
-		this.region = new int[] { 5, 2, 3 };
-		this.id = 0;
-		this.inv = new NpcMiscInventory(10);
-		this.player = null;
-		this.addAir = false;
-		this.replaseAir = false;
-		this.chances = Maps.<Integer, Integer>newTreeMap();
-		// Schematica
-		this.schMap = Maps.<Integer, BlockPos>newTreeMap();
-		this.schematicaName = "";
-		// undo / redo
-		this.doPos = 0;
-		this.doMap = Maps.<Integer, List<SchematicBlockData>>newTreeMap();
-	}
+	public BuilderData() { }
 	
 	public void undo() {
 		if (this.doPos>9) { this.doPos = 9; }
@@ -69,7 +59,7 @@ public class BuilderData {
 		List<SchematicBlockData> data = Lists.<SchematicBlockData>newArrayList();
 		for (SchematicBlockData bd : this.doMap.get(this.doPos)) {
 			data.add(new SchematicBlockData(bd));
-			bd.set();
+			bd.set(bd.pos);
 		}
 		this.doMap.put(this.doPos, data);
 		this.doPos--;
@@ -82,7 +72,7 @@ public class BuilderData {
 		List<SchematicBlockData> data = Lists.<SchematicBlockData>newArrayList();
 		for (SchematicBlockData bd : this.doMap.get(this.doPos+1)) {
 			data.add(new SchematicBlockData(bd));
-			bd.set();
+			bd.set(bd.pos);
 		}
 		this.doMap.put(this.doPos+1, data);
 		if (this.player!=null) { this.player.sendMessage(new TextComponentTranslation("builder.end.redo", ""+(this.doPos+2), ""+data.size())); }
@@ -459,29 +449,46 @@ public class BuilderData {
 		return d;
 	}
 
-	private void add(List<SchematicBlockData> data) {
+	public void add(List<SchematicBlockData> listB, List<Entity> listE) {
 		if (this.doPos==9) {
 			this.doMap.remove(0);
-			Map<Integer, List<SchematicBlockData>> dm = Maps.<Integer, List<SchematicBlockData>>newTreeMap();
-			for (int i=0; i<9; i++) { dm.put(i, this.doMap.get(i+1)); }
-			this.doMap = dm;
+			this.enMap.remove(0);
+			Map<Integer, List<SchematicBlockData>> db = Maps.<Integer, List<SchematicBlockData>>newTreeMap();
+			Map<Integer, List<Entity>> de = Maps.<Integer, List<Entity>>newTreeMap();
+			for (int i=0; i<9; i++) {
+				db.put(i, this.doMap.get(i+1));
+				de.put(i, this.enMap.get(i+1));
+			}
+			this.doMap = db;
+			this.enMap = de;
 		}
 		else {
 			this.doPos++;
 			if (this.doMap.containsKey(this.doPos+1)) {
 				for (int i=this.doPos+1; this.doMap.containsKey(i); i++) {
 					this.doMap.remove(i);
+					this.enMap.remove(i);
 				}
 			}
 		}
-		this.doMap.put(this.doPos, data);
+		this.doMap.put(this.doPos, listB);
+		this.enMap.put(this.doPos, listE);
 	}
 	
 	public void setBlocks(EntityPlayer player, BlockPos pos) { // Del
 		int[] d = this.getDirections(player);
 		int cx=0, cy=0, cz=0;
 		int size = this.region[0]*this.region[1]*this.region[2];
-		List<SchematicBlockData> data = Lists.<SchematicBlockData>newArrayList();
+		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
+		List<Entity> listE = Lists.<Entity>newArrayList();
+		
+		// remove Entity
+		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(d[0]-0.25d, d[1]-0.25d, d[2]-0.25d, d[3]+0.25d, d[4]+0.25d, d[5]+0.25d))) {
+			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
+			listE.add(e);
+			e.isDead = true;
+		}
+		
 		// Create block data to work
 		Map<Integer, SchematicBlockData> tempBlocks = Maps.<Integer, SchematicBlockData>newHashMap();
 		if (this.type!=0) {
@@ -560,38 +567,38 @@ public class BuilderData {
 						if (!tempBlocks.isEmpty()) {
 							for (SchematicBlockData bd : tempBlocks.values()) {
 								if (bd.state.getBlock()==state.getBlock() && state.getBlock().getMetaFromState(state)==bd.state.getBlock().getMetaFromState(bd.state)) {
-									data.add(new SchematicBlockData(player.world, state, p));
+									listB.add(new SchematicBlockData(player.world, state, p));
 									player.world.setBlockState(p, Blocks.AIR.getDefaultState());
 									break;
 								}
 							}
 						} else {
-							data.add(new SchematicBlockData(player.world, state, p));
+							listB.add(new SchematicBlockData(player.world, state, p));
 							player.world.setBlockState(p, Blocks.AIR.getDefaultState());
 						}
 					}
 					else if (this.type==1) { // set
 						SchematicBlockData bd = tempBlocks.get(sum-1);
-						data.add(new SchematicBlockData(player.world, state, p));
+						listB.add(new SchematicBlockData(player.world, state, p));
 						bd.pos = new BlockPos(p);
 						bd.world = player.world;
-						bd.set();
+						bd.set(bd.pos);
 					}
 					else if (this.type==2) { // replase
 						if (!this.replaseAir && state.getBlock()==Blocks.AIR) { continue; }
 						SchematicBlockData bd = tempBlocks.get(sum-1);
-						data.add(new SchematicBlockData(player.world, state, p));
+						listB.add(new SchematicBlockData(player.world, state, p));
 						bd.pos = new BlockPos(p);
 						bd.world = player.world;
-						bd.set();
+						bd.set(bd.pos);
 					}
 				}
 				cz++; cx=0;
 			}
 			cy++; cz=0;
 		}
-		this.sendMessage("builder.end.work."+(data.size()>0), ""+data.size());
-		if (data.size()>0) { this.add(data); }
+		this.sendMessage("builder.end.work."+(listB.size()>0), ""+listB.size());
+		if (!listB.isEmpty() || !listE.isEmpty()) { this.add(listB, listE); }
 	}
 	
 	public void saveBlocks(EntityPlayerMP player, BlockPos pos, int size) { // Schematica Save
@@ -625,7 +632,7 @@ public class BuilderData {
 			return;
 		}
 		this.lastWork = System.currentTimeMillis() - size;
-		Schematic schema = Schematic.Create(player.world, player.getHorizontalFacing(), this.schematicaName+".schematic", this.schMap);
+		Schematic schema = Schematic.create(player.world, player.getHorizontalFacing(), this.schematicaName+".schematic", this.schMap);
 		Server.sendData(player, EnumPacketClient.SAVE_SCHEMATIC, schema.getNBT());
 	}
 
@@ -734,7 +741,7 @@ public class BuilderData {
 		if (nbtData.hasKey("Inventory", 10)) { this.inv.setFromNBT(nbtData.getCompoundTag("Inventory")); }
 	}
 
-	private void sendMessage(String text, Object ... obj) {
+	public void sendMessage(String text, Object ... obj) {
 		if (this.lastMessage+1000>System.currentTimeMillis() || this.player==null) { return; }
 		this.lastMessage = System.currentTimeMillis();
 		this.player.sendMessage(new TextComponentTranslation(text, obj));

@@ -96,7 +96,7 @@ implements ITickable {
 							.add((Vec3i) this.schematic.rotatePos(x, y, z, this.rotation));
 					IBlockState original = this.world.getBlockState(blockPos);
 					if (Block.getStateId(state) != Block.getStateId(original)) {
-						state = this.schematic.rotationState(state, this.rotation);
+						state = SchematicWrapper.rotationState(state, this.rotation);
 						NBTTagCompound tile = null;
 						if (state.getBlock() instanceof ITileEntityProvider) {
 							tile = this.schematic.getTileEntity(x, y, z, blockPos);
