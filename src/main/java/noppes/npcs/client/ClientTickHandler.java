@@ -192,6 +192,7 @@ public class ClientTickHandler {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (!(entity instanceof EntityPlayerSP) || !CustomNpcs.VerboseDebug) { return; }
 		//TempClass.run((EntityPlayerSP) entity);
+		//System.out.println("CNPCs: "+d);
 	}
 
 }

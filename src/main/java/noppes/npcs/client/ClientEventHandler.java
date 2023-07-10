@@ -249,7 +249,7 @@ public class ClientEventHandler {
 						GlStateManager.translate(p.getX(), p.getY(), p.getZ());
 						Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 						GlStateManager.rotate(-90.0f, 0.0f, 1.0f, 0.0f);
-						state = schem.rotationState(state, 0);
+						state = SchematicWrapper.rotationState(state, 0);
 						try {
 							this.renderBlock(state);
 							if (GL11.glGetError() != 0) { break; }

@@ -205,7 +205,7 @@ implements IEntity {
 	}
 
 	private IEntity[] findEntityOnPath(double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = (List<Entity>) this.entity.world.getEntitiesWithinAABBExcludingEntity(this.entity, this.entity.getEntityBoundingBox().grow(distance));
+		List<Entity> list = this.entity.world.getEntitiesWithinAABBExcludingEntity(this.entity, this.entity.getEntityBoundingBox().grow(distance));
 		List<IEntity> result = new ArrayList<IEntity>();
 		for (Entity entity1 : list) {
 			if (entity1.canBeCollidedWith() && entity1 != this.entity) {
@@ -489,13 +489,11 @@ implements IEntity {
 		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
 		Vec3d vec3d2 = this.entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid,
-				ignoreBlockWithoutBoundingBox, true);
+		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, true);
 		if (result == null) {
 			return null;
 		}
-		return new RayTraceWrapper(NpcAPI.Instance().getIBlock(this.entity.world, result.getBlockPos()),
-				result.sideHit.getIndex());
+		return new RayTraceWrapper(NpcAPI.Instance().getIBlock(this.entity.world, result.getBlockPos()), result.sideHit.getIndex());
 	}
 
 	@Override
@@ -503,8 +501,7 @@ implements IEntity {
 		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
 		Vec3d vec3d2 = this.entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid,
-				ignoreBlockWithoutBoundingBox, false);
+		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, false);
 		if (result != null) {
 			vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
 		}

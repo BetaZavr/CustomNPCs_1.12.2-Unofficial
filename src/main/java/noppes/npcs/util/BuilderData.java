@@ -3,6 +3,7 @@ package noppes.npcs.util;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -22,6 +23,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
@@ -56,26 +58,110 @@ public class BuilderData {
 	public void undo() {
 		if (this.doPos>9) { this.doPos = 9; }
 		if (!this.doMap.containsKey(this.doPos)) { return; }
-		List<SchematicBlockData> data = Lists.<SchematicBlockData>newArrayList();
+		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
+		List<Entity> listE = Lists.<Entity>newArrayList();
+		// Get Zone
+		int mx = Integer.MAX_VALUE, my = Integer.MAX_VALUE, mz = Integer.MAX_VALUE;
+		int nx = Integer.MIN_VALUE, ny = Integer.MIN_VALUE, nz = Integer.MIN_VALUE;
+		World world = null;
+		if (this.player!=null) { world = this.player.world; }
 		for (SchematicBlockData bd : this.doMap.get(this.doPos)) {
-			data.add(new SchematicBlockData(bd));
+			if (world==null && bd.world!=null) { world = bd.world; }
+			if (mx>bd.pos.getX()) { mx = bd.pos.getX(); }
+			if (nx<bd.pos.getX()) { nx = bd.pos.getX(); }
+			if (my>bd.pos.getY()) { my = bd.pos.getY(); }
+			if (ny<bd.pos.getY()) { ny = bd.pos.getY(); }
+			if (mz>bd.pos.getZ()) { mz = bd.pos.getZ(); }
+			if (nz<bd.pos.getZ()) { nz = bd.pos.getZ(); }
+		}
+		// remove Entity
+		for (Entity e : world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(mx-0.5d, my-0.5d, mz-0.5d, nx+0.5d, ny+1.5d, nz+1.5d))) {
+			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
+			listE.add(e);
+			e.isDead = true;
+		}
+		// Set Blocks
+		for (SchematicBlockData bd : this.doMap.get(this.doPos)) {
+			listB.add(new SchematicBlockData(bd.world, bd.world.getBlockState(bd.pos), bd.pos));
 			bd.set(bd.pos);
 		}
-		this.doMap.put(this.doPos, data);
+		// Spawn Entities
+		for (Entity entity : this.enMap.get(this.doPos)) {
+			entity.isDead = false;
+			UUID uuid = entity.getUniqueID();
+			while(uuid!=null) {
+				boolean has = false;
+				for (Entity e : world.loadedEntityList) {
+					if (e.getUniqueID().equals(entity.getUniqueID())) {
+						uuid = UUID.randomUUID();
+						entity.setUniqueId(uuid);
+						has = true;
+						break;
+					}
+				}
+				if (has) { continue; }
+				uuid = null;
+			}
+			world.spawnEntity(entity);
+		}
+		this.enMap.put(this.doPos, listE);
+		this.doMap.put(this.doPos, listB);
 		this.doPos--;
-		if (this.player!=null) { this.player.sendMessage(new TextComponentTranslation("builder.end.undo", ""+(this.doPos+1), ""+data.size())); }
+		if (this.player!=null) { this.player.sendMessage(new TextComponentTranslation("builder.end.undo", ""+(this.doPos+1), ""+listB.size())); }
 	}
 
 	public void redo() {
 		if (this.doPos<0) { this.doPos = 0; }
 		if (!this.doMap.containsKey(this.doPos+1)) { return; }
-		List<SchematicBlockData> data = Lists.<SchematicBlockData>newArrayList();
+		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
+		List<Entity> listE = Lists.<Entity>newArrayList();
+		// Get Zone
+		int mx = Integer.MAX_VALUE, my = Integer.MAX_VALUE, mz = Integer.MAX_VALUE;
+		int nx = Integer.MIN_VALUE, ny = Integer.MIN_VALUE, nz = Integer.MIN_VALUE;
+		World world = null;
+		if (this.player!=null) { world = this.player.world; }
 		for (SchematicBlockData bd : this.doMap.get(this.doPos+1)) {
-			data.add(new SchematicBlockData(bd));
+			if (world==null && bd.world!=null) { world = bd.world; }
+			if (mx>bd.pos.getX()) { mx = bd.pos.getX(); }
+			if (nx<bd.pos.getX()) { nx = bd.pos.getX(); }
+			if (my>bd.pos.getY()) { my = bd.pos.getY(); }
+			if (ny<bd.pos.getY()) { ny = bd.pos.getY(); }
+			if (mz>bd.pos.getZ()) { mz = bd.pos.getZ(); }
+			if (nz<bd.pos.getZ()) { nz = bd.pos.getZ(); }
+		}
+		// remove Entity
+		for (Entity e : world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(mx-0.5d, my-0.5d, mz-0.5d, nx+0.5d, ny+1.5d, nz+1.5d))) {
+			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
+			listE.add(e);
+			e.isDead = true;
+		}
+		// Set Blocks
+		for (SchematicBlockData bd : this.doMap.get(this.doPos+1)) {
+			listB.add(new SchematicBlockData(bd.world, bd.world.getBlockState(bd.pos), bd.pos));
 			bd.set(bd.pos);
 		}
-		this.doMap.put(this.doPos+1, data);
-		if (this.player!=null) { this.player.sendMessage(new TextComponentTranslation("builder.end.redo", ""+(this.doPos+2), ""+data.size())); }
+		// Spawn Entities
+		for (Entity entity : this.enMap.get(this.doPos+1)) {
+			entity.isDead = false;
+			UUID uuid = entity.getUniqueID();
+			while(uuid!=null) {
+				boolean has = false;
+				for (Entity e : world.loadedEntityList) {
+					if (e.getUniqueID().equals(entity.getUniqueID())) {
+						uuid = UUID.randomUUID();
+						entity.setUniqueId(uuid);
+						has = true;
+						break;
+					}
+				}
+				if (has) { continue; }
+				uuid = null;
+			}
+			world.spawnEntity(entity);
+		}
+		this.enMap.put(this.doPos+1, listE);
+		this.doMap.put(this.doPos+1, listB);
+		if (this.player!=null) { this.player.sendMessage(new TextComponentTranslation("builder.end.redo", ""+(this.doPos+2), ""+listB.size())); }
 		this.doPos++;
 	}
 
@@ -481,14 +567,12 @@ public class BuilderData {
 		int size = this.region[0]*this.region[1]*this.region[2];
 		List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
 		List<Entity> listE = Lists.<Entity>newArrayList();
-		
 		// remove Entity
-		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(d[0]-0.25d, d[1]-0.25d, d[2]-0.25d, d[3]+0.25d, d[4]+0.25d, d[5]+0.25d))) {
+		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(d[0]-0.25d, d[1]-0.25d, d[2]-0.25d, d[3]+0.25d, d[4]+0.25d, d[5]+0.25d).offset(pos))) {
 			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
 			listE.add(e);
 			e.isDead = true;
 		}
-		
 		// Create block data to work
 		Map<Integer, SchematicBlockData> tempBlocks = Maps.<Integer, SchematicBlockData>newHashMap();
 		if (this.type!=0) {

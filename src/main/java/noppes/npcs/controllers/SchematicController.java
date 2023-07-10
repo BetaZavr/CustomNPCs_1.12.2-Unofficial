@@ -1,6 +1,5 @@
 package noppes.npcs.controllers;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,19 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,13 +20,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
@@ -45,72 +33,16 @@ import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.AdditionalMethods;
-import noppes.npcs.util.NBTJsonUtil;
-import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class SchematicController {
 	
 	public static SchematicController Instance = new SchematicController();
-	public static Map<String, List<String>> data;
 	public static long time = 50L;
 	
 	private List<SchematicWrapper> buildingList;
 	public List<String> included;
 	public Map<String, SchematicWrapper> map;
 	private char chr = ((char) 167);
-	
-	static {
-		String json = "";
-		SchematicController.data = Maps.<String, List<String>>newHashMap();
-		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().equals("bin")) {
-				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
-					try {
-						ZipFile zip = new ZipFile(mod.getSource());
-						Enumeration<? extends ZipEntry> entries = zip.entries();
-						while (entries.hasMoreElements()) {
-							ZipEntry zipentry = (ZipEntry) entries.nextElement();
-							if (zipentry.isDirectory() || !zipentry.getName().equalsIgnoreCase("noppes/npcs/data/scematic_settings.json")) { continue; }
-							StringWriter writer = new StringWriter();
-							IOUtils.copy(zip.getInputStream(zipentry), writer, Charset.forName("UTF-8"));
-							json = writer.toString();
-							writer.close();
-							break;
-						}
-						zip.close();
-					}
-					catch (IOException e) {  }
-				}
-				else {
-					File f = new File(mod.getSource(), "noppes/npcs/data/scematic_settings.json");
-					if (f.exists()) {
-						try {
-							String line;
-							BufferedReader reader = Files.newBufferedReader(f.toPath());
-							while((line = reader.readLine()) != null) { json += line+""+((char) 10); }
-							reader.close();
-						}
-						catch (IOException e) { }
-					}
-				}
-			}
-		}
-		if (!json.isEmpty()) {
-			NBTTagCompound nbt = null;
-			try { nbt = NBTJsonUtil.Convert(json); }
-			catch (JsonException e) { e.printStackTrace(); }
-			if (nbt!=null) {
-				for (String key : nbt.getKeySet()) {
-					if (nbt.getTag(key).getId()!=(byte)9 || ((NBTTagList) nbt.getTag(key)).getTagType()!=8) { continue; }
-					List<String> list = Lists.<String>newArrayList();
-					for (int i=0; i < ((NBTTagList) nbt.getTag(key)).tagCount(); i++) {
-						list.add(((NBTTagList) nbt.getTag(key)).getStringTagAt(i));
-					}
-					SchematicController.data.put(key, list);
-				}
-			}
-		}
-	}
 	
 	public SchematicController() {
 		this.buildingList = Lists.<SchematicWrapper>newArrayList();

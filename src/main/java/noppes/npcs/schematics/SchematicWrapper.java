@@ -12,6 +12,7 @@ import net.minecraft.block.BlockBanner.BlockBannerStanding;
 import net.minecraft.block.BlockLever.EnumOrientation;
 import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.BlockRailBase.EnumRailDirection;
+import net.minecraft.block.BlockSkull;
 import net.minecraft.block.BlockStandingSign;
 import net.minecraft.block.BlockVine;
 import net.minecraft.block.ITileEntityProvider;
@@ -160,8 +161,11 @@ public class SchematicWrapper {
 			if (has) { continue; }
 			uuid = null;
 		}
-		entity = this.rotatePos(entity, this.rotation / 90);
+		entity = SchematicWrapper.rotatePos(entity, this.rotation / 90, this.start, this.schema.getOffset());
 		this.world.spawnEntity(entity);
+		if (entity instanceof EntityNPCInterface) {
+			((EntityNPCInterface) entity).reset();
+		}
 	}
 
 	public NBTTagCompound getNBTSmall() {
@@ -243,7 +247,15 @@ public class SchematicWrapper {
 			TileEntity tile = this.world.getTileEntity(pos);
 			if (tile != null) {
 				NBTTagCompound comp = this.getTileEntity(x, y, z, pos);
-				if (comp != null) { tile.readFromNBT(comp); }
+				if (comp != null) {
+					if (rotation!=0 && state.getBlock() instanceof BlockSkull && comp.hasKey("Rot", 1)) {
+						byte d = comp.getByte("Rot");
+						for (int i = 0; i < rotation; ++i) { d += (byte) 4; }
+						d %= (byte) 16;
+						comp.setByte("Rot", d);
+					}
+					tile.readFromNBT(comp);
+				}
 			}
 		}
 		this.world.setBlockState(pos, state, 2);
@@ -259,29 +271,70 @@ public class SchematicWrapper {
 		}
 	}
 
-	public Entity rotatePos(Entity entity, int rotation) {
+	public static Entity rotatePos(Entity entity, int rotation, BlockPos pos, BlockPos offset) {
 		if (entity==null) { return entity; }
-		double x = entity.posX + this.start.getX() - this.schema.getOffset().getX();
-		double y = entity.posY + this.start.getY() - this.schema.getOffset().getY();
-		double z = entity.posZ + this.start.getZ() - this.schema.getOffset().getZ();
+		double x, y, z;
 		if (entity instanceof EntityHanging) {
-			((EntityHanging) entity).rotationYaw = (((EntityHanging) entity).rotationYaw + (float) rotation * 90.0f) % 360.0f;
+			EntityHanging eh = (EntityHanging) entity;
+			x = eh.posX;
+			y = eh.posY - offset.getY();
+			z = eh.posZ;
+			eh.rotationYaw = (eh.rotationYaw + (float) rotation * 90.0f) % 360.0f;
+			switch(rotation) {
+				case 1:
+					x += offset.getX() * -1.0d;
+					z += -1.0d - offset.getZ();
+					break;
+				case 2:
+					x += offset.getX() * -1.0d;
+					z += -1.0d - offset.getZ();
+					break;
+				case 3:
+					x += 1.0d + offset.getX() * -1.0d;
+					z += -1.0d - offset.getZ();
+					break;
+				default:
+					x -= offset.getX();
+					z -= offset.getZ();
+					break;
+			}
+			x += pos.getX();
+			y += pos.getY();
+			z += pos.getZ();
+			for (int i = 0; i<rotation; i++) { eh.facingDirection = eh.facingDirection.rotateY(); }
+			entity.setPosition(x, y, z);
+			return entity;
 		}
+		x = entity.posX;
+		y = entity.posY;
+		z = entity.posZ;
 		switch(rotation) {
-			case 1: x += 1.0d; z -= 1.0d; break;
-			case 2: x += 1.0d; break;
-			case 3: x += 1.0d; break;
-			default: break;
+			case 1:
+				x = 1.0d + offset.getZ() - entity.posZ;
+				z = 1.0d + entity.posX + offset.getX() * -1.0d;
+				break;
+			case 2:
+				x = 1.0d + entity.posX * -1.0d + offset.getX();
+				z = 1.0d + entity.posZ * -1.0d + offset.getZ();
+				break;
+			case 3:
+				x = 1.0d + entity.posZ - offset.getZ();
+				z = 1.0d + entity.posX * -1.0d + offset.getX();
+				break;
+			default:
+				x += 1.0d - offset.getX();
+				z += 1.0d - offset.getZ();
+				break;
 		}
-		entity.setPosition(x, y, z);
+		entity.rotationYaw = (entity.rotationYaw + (float) rotation * 90.0f) % 360.0f;
+		entity.posX = x + pos.getX() + 0.5d;
+		entity.posY = y + pos.getY();
+		entity.posZ = z + pos.getZ() + 0.5d;
 		if (entity instanceof EntityCreature) {
 			((EntityCreature) entity).setHomePosAndDistance(entity.getPosition(), (int) ((EntityCreature) entity).getMaximumHomeDistance());
 		}
 		if (entity instanceof EntityNPCInterface) {
-			for (int i = 0; i < rotation; ++i) { ((EntityNPCInterface) entity).ais.orientation += 90; }
-			((EntityNPCInterface) entity).ais.orientation %= 360;
-			System.out.println("ai "+((EntityNPCInterface) entity).ais.orientation);
-			
+			((EntityNPCInterface) entity).ais.orientation = (((EntityNPCInterface) entity).ais.orientation + rotation * 90) % 360;
 		}
 		return entity;
 	}
@@ -308,7 +361,7 @@ public class SchematicWrapper {
 				EnumAxis d = (EnumAxis) state.getValue(prop);
 				if (d == EnumAxis.Y || d == EnumAxis.NONE) { continue; }
 				for (int i = 0; i < rotation; ++i) { d = (d == EnumAxis.X) ? EnumAxis.Z : EnumAxis.X; }
-				return state.withProperty(prop, EnumAxis.Z);
+				return state.withProperty(prop, d);
 			}
 			if (prop.getValueClass()==EnumFacing.class) {
 				EnumFacing d = (EnumFacing) state.getValue(prop);

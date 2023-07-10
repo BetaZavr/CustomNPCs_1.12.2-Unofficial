@@ -18,6 +18,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -146,18 +147,67 @@ public class Schematic implements ISchematic {
 			}
 			if (!nbtEntity.hasKey("UUID", 8)) { nbtEntity.setString("UUID", e.getUniqueID().toString()); }
 			NBTTagList posList = new NBTTagList();
+			double[] d = new double[] { e.posX-p.getX() - 1.0d, e.posY-p.getY(), e.posZ-p.getZ() - 1.0d };
+			double[] ed = new double[] { d[0], d[1], d[2] };
 			if (e instanceof EntityHanging) {
-				nbtEntity.setInteger("TileX", nbtEntity.getInteger("TileX")-p.getX());
-				nbtEntity.setInteger("TileY", nbtEntity.getInteger("TileY")-p.getY());
-				nbtEntity.setInteger("TileZ", nbtEntity.getInteger("TileZ")-p.getZ());
-				posList.appendTag(new NBTTagDouble(nbtEntity.getInteger("TileX")));
-				posList.appendTag(new NBTTagDouble(nbtEntity.getInteger("TileY")));
-				posList.appendTag(new NBTTagDouble(nbtEntity.getInteger("TileZ")));
+				d = new double[] { e.getPosition().getX()-p.getX(), e.getPosition().getY() - 1 - p.getY(), e.getPosition().getZ()-p.getZ() };
+				ed = new double[] { d[0], d[1], d[2] };
+				float er = nbtEntity.getTagList("Rotation", 5).getFloatAt(0);
+				byte f = nbtEntity.getByte("Facing");
+				switch(rot) {
+					case 1:
+						f += 1;
+						er += 90.0f;
+						ed[0] = d[2];
+						ed[2] = d[0];
+					break;
+					case 2:
+						f += 2;
+						er += 180.0f;
+						ed[0] *= -1.0d;
+						ed[2] *= -1.0d;
+						break;
+					case 3:
+						f += 3;
+						er += 270.0f;
+						ed[0] = d[2] * -1.0d;
+						ed[2] = d[0] * -1.0d;
+						break;
+					default: break;
+				}
+				f %= (byte) 4;
+				nbtEntity.setByte("Facing", f);
+				nbtEntity.getTagList("Rotation", 5).set(0, new NBTTagFloat(er % 360.0f));
+				nbtEntity.setInteger("TileX", (int) ed[0]);
+				nbtEntity.setInteger("TileY", (int) ed[1]);
+				nbtEntity.setInteger("TileZ", (int) ed[2]);
+				posList.appendTag(new NBTTagDouble(ed[0]));
+				posList.appendTag(new NBTTagDouble(ed[1]));
+				posList.appendTag(new NBTTagDouble(ed[2]));
 			}
 			else {
-				posList.appendTag(new NBTTagDouble(e.getPosition().getX()-p.getX()-0.5d));
-				posList.appendTag(new NBTTagDouble(e.getPosition().getY()-p.getY()));
-				posList.appendTag(new NBTTagDouble(e.getPosition().getZ()-p.getZ()-0.5d));
+				switch(rot) {
+					case 1:
+						ed[0] = d[2];
+						ed[2] = d[0];
+					break;
+					case 2:
+						ed[0] *= -1.0d;
+						ed[0] -= 1.0d;
+						ed[2] *= -1.0d;
+						ed[2] -= 1.0d;
+						break;
+					case 3:
+						ed[0] = d[2] * -1.0d;
+						ed[0] -= 1.0d;
+						ed[2] = d[0] * -1.0d;
+						ed[2] -= 1.0d;
+						break;
+					default: break;
+				}
+				posList.appendTag(new NBTTagDouble(ed[0]-0.5d));
+				posList.appendTag(new NBTTagDouble(ed[1]));
+				posList.appendTag(new NBTTagDouble(ed[2]-0.5d));
 			}
 			nbtEntity.setTag("Pos", posList);
 			schema.entityList.appendTag(nbtEntity);
