@@ -164,7 +164,7 @@ public class SchematicWrapper {
 		entity = SchematicWrapper.rotatePos(entity, this.rotation / 90, this.start, this.schema.getOffset());
 		this.world.spawnEntity(entity);
 		if (entity instanceof EntityNPCInterface) {
-			((EntityNPCInterface) entity).reset();
+			((EntityNPCInterface) entity).reset(50);
 		}
 	}
 

@@ -150,6 +150,7 @@ import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobFollower;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -1312,6 +1313,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.bossInfo.removePlayer(player);
 	}
 
+	public void reset(int delay) {
+		CustomNPCsScheduler.runTack(() -> { this.reset(); }, delay);	
+	}
+	
 	public void reset() {
 		this.hasDied = false;
 		this.isDead = false;
