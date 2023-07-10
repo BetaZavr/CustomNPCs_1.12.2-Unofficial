@@ -79,7 +79,7 @@ public class Schematic implements ISchematic {
 			int y = i / (width * length);
 			switch(fase) {
 				case EAST: {
-					x = i/length-y*width;
+					x = i / length - y * width;
 					z = length - 1 - i % length;
 					break;
 				}
@@ -106,12 +106,15 @@ public class Schematic implements ISchematic {
 				TileEntity tile = world.getTileEntity(pos.add(x, y, z));
 				NBTTagCompound nbtTile = new NBTTagCompound();
 				tile.writeToNBT(nbtTile);
-				nbtTile.setInteger("x", x);
+				int newX = i % schema.width;
+				int newZ = (i - newX) / schema.width % schema.length;
+				nbtTile.setInteger("x", newX);
 				nbtTile.setInteger("y", y);
-				nbtTile.setInteger("z", z);
+				nbtTile.setInteger("z", newZ);
 				schema.tileList.appendTag(nbtTile);
 			}
 		}
+		
 		/** Added by mod */
 		schema.offset = new BlockPos(bb.minX-p.getX(), 1 + (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()));
 		switch(fase) {

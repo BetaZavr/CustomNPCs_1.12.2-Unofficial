@@ -1,12 +1,12 @@
 package noppes.npcs.schematics;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.block.BlockBanner.BlockBannerStanding;
 import net.minecraft.block.BlockLever.EnumOrientation;
@@ -34,7 +34,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
@@ -51,12 +50,11 @@ public class SchematicWrapper {
 	private long time = 0L;
 	public ISchematic schema;
 	public BlockPos start;
-	public Map<ChunkPos, NBTTagCompound>[] tileEntities;
+	public Map<String, NBTTagCompound> tileEntities;
 	public World world;
 	public ICommandSender sender;
 	private BuilderData builder;
 	
-	@SuppressWarnings("unchecked")
 	public SchematicWrapper(ISchematic schematic) {
 		this.start = BlockPos.ORIGIN;
 		this.rotation = 0;
@@ -65,19 +63,12 @@ public class SchematicWrapper {
 		this.isBlock = true;
 		this.schema = schematic;
 		this.size = schematic.getWidth() * schematic.getHeight() * schematic.getLength();
-		this.tileEntities = new Map[schematic.getHeight()];
+		this.tileEntities = Maps.<String, NBTTagCompound>newHashMap();
 		this.sender = null;
 		this.builder = null;
 		for (int i = 0; i < schematic.getTileEntitySize(); ++i) {
 			NBTTagCompound teTag = schematic.getTileEntity(i);
-			int x = teTag.getInteger("x");
-			int y = teTag.getInteger("y");
-			int z = teTag.getInteger("z");
-			Map<ChunkPos, NBTTagCompound> map = this.tileEntities[y];
-			if (map == null) {
-				map = (this.tileEntities[y] = new HashMap<ChunkPos, NBTTagCompound>());
-			}
-			map.put(new ChunkPos(x, z), teTag);
+			this.tileEntities.put(teTag.getInteger("x")+"_"+teTag.getInteger("y")+"_"+teTag.getInteger("z"), teTag);
 		}
 	}
 
@@ -193,13 +184,8 @@ public class SchematicWrapper {
 	}
 
 	public NBTTagCompound getTileEntity(int x, int y, int z, BlockPos pos) {
-		if (y >= this.tileEntities.length || this.tileEntities[y] == null) {
-			return null;
-		}
-		NBTTagCompound compound = this.tileEntities[y].get(new ChunkPos(x, z));
-		if (compound == null) {
-			return null;
-		}
+		NBTTagCompound compound = this.tileEntities.get(x+"_"+y+"_"+z);
+		if (compound == null) { return null; }
 		compound = compound.copy();
 		compound.setInteger("x", pos.getX());
 		compound.setInteger("y", pos.getY());
