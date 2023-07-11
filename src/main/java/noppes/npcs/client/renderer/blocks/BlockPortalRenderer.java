@@ -31,10 +31,10 @@ extends TileEntitySpecialRenderer<T> {
 
 		for (int j = 0; j < i; ++j) { // j == layer
 			GlStateManager.pushMatrix();
-			float f1 = 2.0F / (float) (18 - j);
+			float f1 = (1.25f / (float) i * (float) j + 0.5f) / (float) (18 - j);
 			if (j == 0) {
 				this.bindTexture(te.getSkyTexture());
-				f1 = 0.15F;
+				f1 = 5.0f;
 				GlStateManager.enableBlend();
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			}

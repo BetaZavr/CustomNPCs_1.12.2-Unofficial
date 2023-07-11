@@ -633,7 +633,7 @@ public class BuilderData {
 				tempBlocks.put(i, new SchematicBlockData(player.world, stack));
 			}
 		}
-		if (tempBlocks.isEmpty()) {
+		if (tempBlocks.isEmpty() && this.type!=0) {
 			this.sendMessage("builder.err.not.blocks");
 			return;
 		}

@@ -210,6 +210,7 @@ implements ICustomElement {
 				((CustomTileEntityPortal) tile).homeDimensionId = adjacent.homeDimensionId;
 				((CustomTileEntityPortal) tile).speed = adjacent.speed;
 				((CustomTileEntityPortal) tile).alpha = adjacent.alpha;
+				((CustomTileEntityPortal) tile).updateToClient();
 			}
 		}
 		super.onBlockPlacedBy(world, pos, state, placer, stack);

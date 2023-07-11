@@ -328,9 +328,9 @@ implements ICustomScrollListener, ITextfieldListener {
 		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("schematic.height").getFormattedText()+"<br>"+new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic"+(type!=3 ? ".schem" : "")+".air").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("schematic"+(type==3 ? ".schem" : "")+".air").getFormattedText());
 		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic"+(type!=3 ? ".schem" : "")+".replace").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("schematic"+(type==3 ? ".schem" : "")+".replace").getFormattedText());
 		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("schematic.schem.solid").getFormattedText());
 		} else if (this.getButton(61)!=null && this.getButton(61).isMouseOver()) {

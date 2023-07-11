@@ -230,13 +230,13 @@ public class SchematicWrapper {
 		BlockPos pos = this.start.add(this.rotatePos(x, y, z, rotation));
 		stateInSchem = SchematicWrapper.rotationState(stateInSchem, rotation);
 		if (this.builder!=null) {
-			if (stateInSchem.getBlock()==Blocks.AIR && !this.builder.addAir) { return false; } // not place air
-			if (stateInSchem.getBlock().canSpawnInBlock() && !this.builder.replaseAir) { return false; } // not place solid
 			IBlockState stateInWolrd = this.world.getBlockState(pos);
+			if (stateInSchem.getBlock()==Blocks.AIR && !this.builder.addAir) { return false; } // not place air
 			if (stateInWolrd!=null) {
+				if (!this.builder.replaseAir && stateInWolrd.getBlock()!=Blocks.AIR && stateInWolrd.getBlock().canSpawnInBlock()) { return false; } // not place solid
 				@SuppressWarnings("deprecation")
 				Material mat = stateInWolrd.getBlock().getMaterial(stateInWolrd);
-				if (mat.isSolid() && !mat.isLiquid() && !this.builder.isSolid) { return false; } // not solid place
+				if (mat.isReplaceable() && this.builder.isSolid) { return false; } // not solid place
 			}
 		}
 		this.world.setBlockState(pos, stateInSchem, 2);

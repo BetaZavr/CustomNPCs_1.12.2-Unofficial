@@ -11,10 +11,12 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.Server;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.client.Client;
+import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 
 public class CustomTileEntityPortal
@@ -128,5 +130,10 @@ extends TileEntityEndPortal {
 			}
 		}
 		return pos;
+	}
+
+	public void updateToClient() {
+		if (this.world==null || this.world.isRemote) { return; }
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SET_TILE_DATA, this.writeToNBT(new NBTTagCompound()));
 	}
 }
