@@ -1082,6 +1082,7 @@ gui.shaped.1=Строгий
 gui.showmore=Дополнительно
 gui.small=Маленький
 gui.smooth=Плавно
+gui.solid=Твёрдый
 gui.start=Нач.
 gui.started=Запустить
 gui.stop=Остановить
@@ -3575,6 +3576,10 @@ schematic.length=Длина
 schematic.preview=Предосмотр
 schematic.replace=Заменить все блоки, либо блоки не учитывая воздух
 schematic.width=Ширина
+schematic.schem.air=Устанавливать ли блоки воздуха из схемы
+schematic.schem.solid=Устанавливать все блоки из схемы в мир, заменяя блоки мира<br>Либо добавить блоки из схемы к имеющимся в мире.
+schematic.schem.replace=Устанавливать ли земеняемые блоки из схемы<br>§7такие как блоки травы, простых цветов, и т.д.
+
 
 schematic.info.notbuild=§cНечего строить, схема пуста
 schematic.info.empty=§cВ данный момент ниего не строится

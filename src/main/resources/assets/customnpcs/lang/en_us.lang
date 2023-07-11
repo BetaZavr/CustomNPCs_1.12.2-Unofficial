@@ -1080,6 +1080,7 @@ gui.shaped.1=Shaped
 gui.showmore=Show More
 gui.small=Small
 gui.smooth=Smooth
+gui.solid=Solid
 gui.start=Start
 gui.started=Started
 gui.stop=Stop
@@ -3573,6 +3574,9 @@ schematic.length=Length
 schematic.preview=Preview
 schematic.replace=Replace all blocks, or blocks without air
 schematic.width=Width
+schematic.schem.air=Whether to install air blocks from a schematic
+schematic.schem.solid=Install all blocks from the schematic into the world, replacing the blocks in the world<br>Or add the blocks from the schematic to the existing ones in the world.
+schematic.schem.replace=Whether to install replaceable blocks from a schematic<br>§7 such as blocks of grass, simple flowers, etc.
 
 schematic.info.notbuild=§cNothing to build, scheme is empty
 schematic.info.empty=§cВ данный момент ниего не строится

@@ -16,6 +16,7 @@ import net.minecraft.block.BlockSkull;
 import net.minecraft.block.BlockStandingSign;
 import net.minecraft.block.BlockVine;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommandSender;
@@ -221,20 +222,30 @@ public class SchematicWrapper {
 	 * @param firstLayer - not Air and FullBlock, next vice versa
 	 */
 	public boolean place(int x, int y, int z, boolean firstLayer) {
-		IBlockState state = this.schema.getBlockState(x, y, z);
-		if (state == null || (firstLayer && !state.isFullBlock() && state.getBlock()!=Blocks.AIR) || (!firstLayer && (state.isFullBlock() || state.getBlock()==Blocks.AIR))) {
+		IBlockState stateInSchem = this.schema.getBlockState(x, y, z);
+		if (stateInSchem == null || (firstLayer && !stateInSchem.isFullBlock() && stateInSchem.getBlock()!=Blocks.AIR) || (!firstLayer && (stateInSchem.isFullBlock() || stateInSchem.getBlock()==Blocks.AIR))) {
 			return false;
 		}
 		int rotation = this.rotation / 90;
 		BlockPos pos = this.start.add(this.rotatePos(x, y, z, rotation));
-		state = SchematicWrapper.rotationState(state, rotation);
-		this.world.setBlockState(pos, state, 2);
-		if (state.getBlock() instanceof ITileEntityProvider) {
+		stateInSchem = SchematicWrapper.rotationState(stateInSchem, rotation);
+		if (this.builder!=null) {
+			if (stateInSchem.getBlock()==Blocks.AIR && !this.builder.addAir) { return false; } // not place air
+			if (stateInSchem.getBlock().canSpawnInBlock() && !this.builder.replaseAir) { return false; } // not place solid
+			IBlockState stateInWolrd = this.world.getBlockState(pos);
+			if (stateInWolrd!=null) {
+				@SuppressWarnings("deprecation")
+				Material mat = stateInWolrd.getBlock().getMaterial(stateInWolrd);
+				if (mat.isSolid() && !mat.isLiquid() && !this.builder.isSolid) { return false; } // not solid place
+			}
+		}
+		this.world.setBlockState(pos, stateInSchem, 2);
+		if (stateInSchem.getBlock() instanceof ITileEntityProvider) {
 			TileEntity tile = this.world.getTileEntity(pos);
 			if (tile != null) {
 				NBTTagCompound comp = this.getTileEntity(x, y, z, pos);
 				if (comp != null) {
-					if (rotation!=0 && state.getBlock() instanceof BlockSkull && comp.hasKey("Rot", 1)) {
+					if (rotation!=0 && stateInSchem.getBlock() instanceof BlockSkull && comp.hasKey("Rot", 1)) {
 						byte d = comp.getByte("Rot");
 						for (int i = 0; i < rotation; ++i) { d += (byte) 4; }
 						d %= (byte) 16;
@@ -244,7 +255,7 @@ public class SchematicWrapper {
 				}
 			}
 		}
-		this.world.setBlockState(pos, state, 2);
+		this.world.setBlockState(pos, stateInSchem, 2);
 		return true;
 	}
 

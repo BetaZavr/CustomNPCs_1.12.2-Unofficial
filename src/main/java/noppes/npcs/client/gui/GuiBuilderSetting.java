@@ -166,17 +166,24 @@ implements ICustomScrollListener, ITextfieldListener {
 				textField.setMinMaxDefault(1, CustomNpcs.maxBuilderBlocks, this.builder.region[i]);
 				this.addTextField(textField);
 			}
-			checkBox = new GuiNpcCheckBox(5, this.guiLeft+172, this.guiTop+130, 70, 15, "tile.air.name");
-			checkBox.setSelected(this.builder.addAir);
-			this.addButton(checkBox);
-			if (type==2) {
-				checkBox = new GuiNpcCheckBox(6, this.guiLeft+172, this.guiTop+145, 70, 15, "drop.type.all");
-				checkBox.setSelected(this.builder.replaseAir);
-				this.addButton(checkBox);
-			}
 		}
 		else {
 			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText()+" [?]:", this.guiLeft + 4, this.guiTop + 4));
+		}
+		if (type<4) {
+			checkBox = new GuiNpcCheckBox(5, this.guiLeft+172+(type==3 ? -52 : 0), this.guiTop+130+(type==3 ? -60 : 0), 70, 15, "tile.air.name");
+			checkBox.setSelected(this.builder.addAir);
+			this.addButton(checkBox);
+			if (type==2 || type==3) {
+				checkBox = new GuiNpcCheckBox(6, this.guiLeft+172+(type==3 ? -52 : 0), this.guiTop+145+(type==3 ? -60 : 0), 70, 15, "drop.type.all");
+				checkBox.setSelected(this.builder.replaseAir);
+				this.addButton(checkBox);
+			}
+			if (type==3) {
+				checkBox = new GuiNpcCheckBox(7, this.guiLeft+120, this.guiTop+100, 70, 15, "gui.solid");
+				checkBox.setSelected(this.builder.isSolid);
+				this.addButton(checkBox);
+			}
 		}
 		
 		this.addLabel(new GuiNpcLabel(1, "ID:"+this.builder.id, this.guiLeft + 120, this.guiTop + 4));
@@ -321,9 +328,11 @@ implements ICustomScrollListener, ITextfieldListener {
 		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("schematic.height").getFormattedText()+"<br>"+new TextComponentTranslation("gui.limitation", "1", "10").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic.air").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("schematic"+(type!=3 ? ".schem" : "")+".air").getFormattedText());
 		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("schematic.replace").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("schematic"+(type!=3 ? ".schem" : "")+".replace").getFormattedText());
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("schematic.schem.solid").getFormattedText());
 		} else if (this.getButton(61)!=null && this.getButton(61).isMouseOver()) {
 			this.setHoverText("hover.save");
 		}
@@ -371,6 +380,11 @@ implements ICustomScrollListener, ITextfieldListener {
 			case 6: { // replase Air
 				if (this.builder==null) { return; }
 				this.builder.replaseAir = ((GuiNpcCheckBox) guibutton).isSelected();
+				break;
+			}
+			case 7: { // is Solid
+				if (this.builder==null) { return; }
+				this.builder.isSolid = ((GuiNpcCheckBox) guibutton).isSelected();
 				break;
 			}
 			case 61: { // exit

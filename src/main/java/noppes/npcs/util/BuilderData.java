@@ -40,7 +40,7 @@ public class BuilderData {
 	public int id = 0;
 	public NpcMiscInventory inv = new NpcMiscInventory(10);
 	public EntityPlayer player = null;
-	public boolean addAir = false, replaseAir = false;
+	public boolean addAir = false, replaseAir = false, isSolid = false;
 	public Map<Integer, Integer> chances = Maps.<Integer, Integer>newTreeMap();;
 	private Random rnd = new Random();
 	// Schematica
@@ -746,6 +746,8 @@ public class BuilderData {
 		nbtData.setInteger("ID", this.id);
 		nbtData.setBoolean("AddAir", this.addAir);
 		nbtData.setBoolean("ReplaseAir", this.replaseAir);
+		nbtData.setBoolean("IsSolid", this.isSolid);
+		
 		
 		NBTTagCompound sch = new NBTTagCompound();
 		sch.setString("FileName", this.schematicaName);
@@ -789,6 +791,7 @@ public class BuilderData {
 		if (nbtData.hasKey("ID", 3)) { this.id = nbtData.getInteger("ID"); }
 		if (nbtData.hasKey("AddAir", 1)) { this.addAir = nbtData.getBoolean("AddAir"); }
 		if (nbtData.hasKey("ReplaseAir", 1)) { this.replaseAir = nbtData.getBoolean("ReplaseAir"); }
+		if (nbtData.hasKey("IsSolid", 1)) { this.isSolid = nbtData.getBoolean("IsSolid"); }
 		
 		if (nbtData.hasKey("Schematica", 10)) {
 			NBTTagCompound sch = nbtData.getCompoundTag("Schematica");
