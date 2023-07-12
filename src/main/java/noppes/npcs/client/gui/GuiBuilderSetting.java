@@ -52,6 +52,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
 
+	private int maxRange;
 	private GuiCustomScroll schematics;
 	private BuilderData builder;
 	private Map<String, SchematicWrapper> files;
@@ -64,8 +65,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		this.xSize = 228;
 		this.ySize = 216;
 		this.builder = cont.builderData;
-		if (CustomNpcs.maxBuilderBlocks<20) { CustomNpcs.maxBuilderBlocks = 20; }
-		else if (CustomNpcs.maxBuilderBlocks>25000) { CustomNpcs.maxBuilderBlocks = 25000; }
+		this.maxRange = 10;
 		if (GuiBuilderSetting.basefiles==null) {
 			GuiBuilderSetting.basefiles = Maps.<String, SchematicWrapper>newTreeMap();
 			SchematicController sData = SchematicController.Instance;
@@ -163,7 +163,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			for (int i=0; i<3; i++) { // Region
 				textField = new GuiNpcTextField(i+10, this, this.guiLeft+120+i*34, this.guiTop+50, 30, 15, ""+this.builder.region[i]);
 				textField.setNumbersOnly();
-				textField.setMinMaxDefault(1, CustomNpcs.maxBuilderBlocks, this.builder.region[i]);
+				textField.setMinMaxDefault(1, this.maxRange, this.builder.region[i]);
 				this.addTextField(textField);
 			}
 		}
@@ -316,7 +316,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		} else if (this.getLabel(4)!=null && this.getLabel(4).hovered) {
 			this.setHoverText("builder.hover.main.block");
 		}  else if (this.getLabel(5)!=null && this.getLabel(5).hovered) {
-			this.setHoverText(new TextComponentTranslation("builder.hover.list", ""+CustomNpcs.maxBuilderBlocks).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("builder.hover.list", ""+this.maxRange).getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText("builder.hover.type."+type);
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
@@ -420,15 +420,8 @@ implements ICustomScrollListener, ITextfieldListener {
 			}
 		} else {
 			int pos = textField.getId()-10;
-			int max = 1;
-			for (int i=0; i<3; i++) {
-				if (i==pos) { continue; }
-				max *= this.builder.region[i];
-			}
 			int value = textField.getInteger();
-			if (max * value > CustomNpcs.maxBuilderBlocks) {
-				value = CustomNpcs.maxBuilderBlocks / max;
-			}
+			if (value > this.maxRange) { value = this.maxRange; }
 			if (value<=0) { value = 1; }
 			this.builder.region[pos] = value;
 		}
