@@ -370,46 +370,46 @@ implements IGuiHandler {
 				jsonState = "{" + crEnt +
 					crTab + "\"_comment\": \"Custom Block Stairs created by default\"," + crEnt +
 					crTab + "\"variants\": {" + crEnt +
-					crTab + crTab + "\"facing=east,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\" }," + crEnt +
-					crTab + crTab + "\"facing=west,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
-					crTab + crTab + "\"facing=west,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
-					crTab + crTab + "\"facing=north,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
-					crTab + crTab + "\"facing=west,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
-					crTab + crTab + "\"facing=north,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=east,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=west,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=south,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"facing=north,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }" + crEnt +
+					crTab + crTab + "\"fasing=east,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\" }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=east,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=west,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=south,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"fasing=north,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }" + crEnt +
 					crTab + "}" + crEnt + "}";
 			}
 			else if (customblock instanceof CustomBlockSlab) {

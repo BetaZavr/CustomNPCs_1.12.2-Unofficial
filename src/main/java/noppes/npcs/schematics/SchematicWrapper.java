@@ -223,9 +223,7 @@ public class SchematicWrapper {
 	 */
 	public boolean place(int x, int y, int z, boolean firstLayer) {
 		IBlockState stateInSchem = this.schema.getBlockState(x, y, z);
-		if (stateInSchem == null || (firstLayer && !stateInSchem.isFullBlock() && stateInSchem.getBlock()!=Blocks.AIR) || (!firstLayer && (stateInSchem.isFullBlock() || stateInSchem.getBlock()==Blocks.AIR))) {
-			return false;
-		}
+		if (stateInSchem == null || (firstLayer && !stateInSchem.isFullBlock() && stateInSchem.getBlock()!=Blocks.AIR) || (!firstLayer && (stateInSchem.isFullBlock() || stateInSchem.getBlock()==Blocks.AIR))) { return false; }
 		int rotation = this.rotation / 90;
 		BlockPos pos = this.start.add(this.rotatePos(x, y, z, rotation));
 		stateInSchem = SchematicWrapper.rotationState(stateInSchem, rotation);
