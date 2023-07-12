@@ -169,7 +169,7 @@ implements IPermission, ICustomElement {
 				!this.nbtData.hasKey("IsOpaqueCube") ?
 						false : this.nbtData.getBoolean("IsOpaqueCube"); }
 	
-	public boolean isFullCube(IBlockState state) { return this.nbtData==null || this.nbtData.hasKey("IsFullCube") ? false : this.nbtData.getBoolean("IsFullCube"); }
+	public boolean isFullCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? false : this.nbtData.getBoolean("IsFullCube"); }
 	
 	public EnumBlockRenderType getRenderType(IBlockState state) { return this.renderType; }
 

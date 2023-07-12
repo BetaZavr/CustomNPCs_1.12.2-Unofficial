@@ -316,15 +316,42 @@ implements IGuiHandler {
 	public void checkBlockFiles(ICustomElement customblock) {
 		String name = customblock.getCustomName();
 		String fileName = ((Block) customblock).getRegistryName().getResourcePath();
-		File blockstatesDir = new File(CustomNpcs.Dir, "assets/customnpcs/blockstates");
+		File blockstatesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/blockstates");
 		if (!blockstatesDir.exists()) { blockstatesDir.mkdirs(); }
 		
-		File blockModelsDir = new File(CustomNpcs.Dir, "assets/customnpcs/models/block");
-		File itemModelsDir = new File(CustomNpcs.Dir, "assets/customnpcs/models/item");
+		File blockModelsDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/block");
+		File itemModelsDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/item");
 		if (!blockModelsDir.exists()) { blockModelsDir.mkdirs(); }
 		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
 		String crEnt = ""+((char) 10);
 		String crTab = ""+((char) 9);
+
+		
+		File orientable = new File(blockModelsDir, "orientable.json");
+		if (!orientable.exists()) {
+			String jsonOrientable = "";
+			jsonOrientable = "{" + crEnt +
+					crTab + "\"parent\": \"block/cube\"," + crEnt +
+					crTab + "\"display\": {" + crEnt +
+					crTab + crTab + "\"firstperson_righthand\": {" + crEnt + 
+					crTab + crTab + crTab + "\"rotation\": [ 0, 135, 0 ]," + crEnt + 
+					crTab + crTab + crTab + "\"translation\": [ 0, 0, 0 ]," + crEnt + 
+					crTab + crTab + crTab + "\"scale\": [ 0.40, 0.40, 0.40 ]" + crEnt + 
+					crTab + crTab + "}" + crEnt + 
+					crTab + "}," + crEnt + 
+					crTab + "\"textures\": {" + crEnt +
+					crTab + crTab + "\"particle\": \"#particle\"," + crEnt + 
+					crTab + crTab + "\"down\": \"#bottom\"," + crEnt + 
+					crTab + crTab + "\"up\": \"#top\"," + crEnt + 
+					crTab + crTab + "\"north\": \"#front\"," + crEnt + 
+					crTab + crTab + "\"east\": \"#left\"," + crEnt + 
+					crTab + crTab + "\"south\": \"#back\"," + crEnt + 
+					crTab + crTab + "\"west\": \"#right\"" + crEnt + 
+					crTab + "}" + crEnt + "}";
+			if (this.saveFile(orientable, jsonOrientable)) {
+				LogWriter.debug("Create Orientable Block Model for \"orientable\" block");
+			}
+		}
 		
 		File blockstate = new File(blockstatesDir, fileName.toLowerCase()+".json");
 		if (!blockstate.exists()) {
@@ -370,46 +397,46 @@ implements IGuiHandler {
 				jsonState = "{" + crEnt +
 					crTab + "\"_comment\": \"Custom Block Stairs created by default\"," + crEnt +
 					crTab + "\"variants\": {" + crEnt +
-					crTab + crTab + "\"fasing=east,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\" }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=bottom,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=bottom,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\" }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=bottom,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=bottom,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\" }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=bottom,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=top,shape=straight\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=top,shape=outer_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=top,shape=outer_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=top,shape=inner_right\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=east,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=west,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=south,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
-					crTab + crTab + "\"fasing=north,half=top,shape=inner_left\": { \"model\": \"customnpcs:"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }" + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\" }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\" }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\" }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=bottom,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=bottom,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=bottom,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\" }," + crEnt +
+					crTab + crTab + "\"facing=north,half=bottom,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=straight\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=outer_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=outer_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_outer\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=inner_right\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=east,half=top,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 90, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=west,half=top,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 270, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=south,half=top,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"y\": 180, \"uvlock\": true }," + crEnt +
+					crTab + crTab + "\"facing=north,half=top,shape=inner_left\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_inner\", \"x\": 180, \"uvlock\": true }" + crEnt +
 					crTab + "}" + crEnt + "}";
 			}
 			else if (customblock instanceof CustomBlockSlab) {
@@ -417,16 +444,16 @@ implements IGuiHandler {
 					jsonState = "{" + crEnt +
 						crTab + "\"_comment\": \"Custom Block Slab created by default\"," + crEnt +
 						crTab + "\"variants\": {" + crEnt +
-						crTab + crTab + "\"half=bottom,type=normal\": { \"model\": \"customnpcs:bottom_"+fileName.toLowerCase()+"\" }," + crEnt +
-						crTab + crTab + "\"half=top,type=normal\": { \"model\": \"customnpcs:upper_"+fileName.toLowerCase()+"\" }," + crEnt +
-						crTab + crTab + "\"inventory\": { \"model\": \"customnpcs:bottom_"+fileName.toLowerCase()+"\" }" + crEnt +
+						crTab + crTab + "\"half=bottom,type=normal\": { \"model\": \""+CustomNpcs.MODID+":bottom_"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"half=top,type=normal\": { \"model\": \""+CustomNpcs.MODID+":upper_"+fileName.toLowerCase()+"\" }," + crEnt +
+						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":bottom_"+fileName.toLowerCase()+"\" }" + crEnt +
 						crTab + "}" + crEnt + "}";
 				} else {
 					jsonState = "{" + crEnt +
 						crTab + "\"_comment\": \"Custom Block Double Slab created by default\"," + crEnt +
 						crTab + "\"variants\": {" + crEnt +
-						crTab + crTab + "\"type=normal\":  { \"model\": \"customnpcs:custom_blockexample\" }," + crEnt +
-						crTab + crTab + "\"inventory\":  { \"model\": \"customnpcs:custom_blockexample\" }" + crEnt +
+						crTab + crTab + "\"type=normal\":  { \"model\": \""+CustomNpcs.MODID+":custom_blockexample\" }," + crEnt +
+						crTab + crTab + "\"inventory\":  { \"model\": \""+CustomNpcs.MODID+":custom_blockexample\" }" + crEnt +
 						crTab + "}" + crEnt + "}";
 				}
 			}
@@ -458,7 +485,6 @@ implements IGuiHandler {
 						jsonState += " }," + crEnt;
 					}
 					jsonState = jsonState.substring(0, jsonState.length()-2) + crEnt + crTab + "}" + crEnt + "}";
-					
 				}
 			}
 			if (jsonState.isEmpty()) {
@@ -526,11 +552,15 @@ implements IGuiHandler {
 					else if (((CustomBlock) customblock).FACING!=null) {
 						jsonModel = "{" + crEnt +
 								crTab + "\"_comment\": \"Custom Fasing Block created by default\"," + crEnt +
-								crTab + "\"parent\": \"block/orientable\"," + crEnt +
+								crTab + "\"parent\": \""+CustomNpcs.MODID+":block/orientable\"," + crEnt +
 								crTab + "\"textures\": {" + crEnt +
+								crTab + crTab + "\"particle\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_front\"," + crEnt + 
+								crTab + crTab + "\"bottom\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_bottom\"," + crEnt + 
 								crTab + crTab + "\"top\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_top\"," + crEnt + 
 								crTab + crTab + "\"front\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_front\"," + crEnt + 
-								crTab + crTab + "\"side\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_side\"" + crEnt + 
+								crTab + crTab + "\"right\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_right\"," + crEnt + 
+								crTab + crTab + "\"back\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_back\"," + crEnt + 
+								crTab + crTab + "\"left\": \""+CustomNpcs.MODID+":blocks/"+name.toLowerCase()+"_left\"" + crEnt + 
 								crTab + "}" + crEnt + "}";
 						if (this.saveFile(blockModel, jsonModel)) {
 							LogWriter.debug("Create Default Fasing Block Model for \""+fileName.toLowerCase()+"\" block");
@@ -577,7 +607,7 @@ implements IGuiHandler {
 		String name = customitem.getCustomName();
 		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
 
-		File itemModelsDir = new File(CustomNpcs.Dir, "assets/customnpcs/models/item");
+		File itemModelsDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/item");
 		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
 

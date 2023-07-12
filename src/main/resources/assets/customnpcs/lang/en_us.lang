@@ -834,6 +834,7 @@ event.player.roddamage=damage taken by luck
 event.player.sound.play=Sound Player Event
 event.player.sound.stop=Sound stop event for player
 event.player.toss=Player Lost Item Event<br>§7drop/fall to the ground
+event.player.teleport=Player teleportation event through custom portal
 event.potion.affectentity=Essence Potion Potion Potioned Step Action Event
 parameter.potion.amplifier=potion power level
 event.potion.type=own potion

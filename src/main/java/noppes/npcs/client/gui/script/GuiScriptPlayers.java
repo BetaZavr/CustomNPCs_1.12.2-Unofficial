@@ -46,6 +46,7 @@ public class GuiScriptPlayers extends GuiScriptInterface {
 		this.baseFuncNames.put("itemFished", PlayerEvent.ItemFished.class);
 		this.baseFuncNames.put("itemCrafted", PlayerEvent.ItemCrafted.class);
 		this.baseFuncNames.put("itemFished", PlayerEvent.ItemFished.class);
+		this.baseFuncNames.put("customTeleport", PlayerEvent.CustomTeleport.class);
 		// BlockEvent
 		this.baseFuncNames.put("plased", PlayerEvent.PlaceEvent.class);
 		// DialogEvent

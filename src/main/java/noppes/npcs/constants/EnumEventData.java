@@ -775,6 +775,17 @@ public enum EnumEventData {
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
 	),
+	PlayerCustomTeleport(new EventData(PlayerEvent.CustomTeleport.class, 
+			PlayerEvent.class,
+			"event.player.teleport",
+			EnumScriptType.CUSTOM_TELEPORT.function,
+			new MetodData(IPos.class, "portal", "parameter.pos"),
+			new MetodData(IPos.class, "pos", "parameter.pos"),
+			new MetodData(int.class, "dimentionID", "parameter.dimension.id"),
+			new MetodData(IPlayer.class, "player", "parameter.player"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
+	),
 	ProjectileProjectileImpact(new EventData(ProjectileEvent.ImpactEvent.class, 
 			ProjectileEvent.class,
 			"event.projectile.impact",

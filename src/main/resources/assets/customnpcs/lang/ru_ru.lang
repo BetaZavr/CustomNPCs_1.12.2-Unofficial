@@ -836,6 +836,7 @@ event.player.roddamage=урон, который получит удачка
 event.player.sound.play=Событие воспроизведения звука игроку
 event.player.sound.stop=Событие завершение проигрывания звука игроку
 event.player.toss=Событие потери предмета игроком<br>§7выбрасывание / выпадение на землю
+event.player.teleport=Событие телепортации игрока через кастомный портал
 event.potion.affectentity=Событие посоянного шагового действия собственного зелья на сущность
 parameter.potion.amplifier=уровень силы зелья
 event.potion.type=собственное зелье

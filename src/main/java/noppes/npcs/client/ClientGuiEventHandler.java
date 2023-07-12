@@ -497,7 +497,8 @@ extends Gui
 						rayName = ((char) 167) + "7ID:" + Block.REGISTRY.getIDForObject(state.getBlock()) + 
 							" " + ((char) 167) + "r" + state.getBlock().getLocalizedName() +
 							((char) 167) + "2 "+dist;
-						rayTitle = ((char) 167) + "7[meta:" + ((char) 167) + "e" + state.getBlock().getMetaFromState(state) + ((char) 167)+"7]" +
+						rayTitle = ((char) 167) + "7[" + ((char) 167) + "r" + state.getBlock().getClass().getSimpleName() +
+							((char) 167) + "7" + "; meta:" + ((char) 167) + "e" + state.getBlock().getMetaFromState(state) + ((char) 167)+"7]" +
 							((char) 167) + "a [X:" + ((char) 167) + "6" + blockPos.getX() +
 							((char) 167) + "a, Y:" + ((char) 167) + "6" + blockPos.getY() +
 							((char) 167) + "a, Z:" + ((char) 167) + "6" + blockPos.getZ() +

@@ -820,7 +820,7 @@ extends CommonProxy {
 		
 		if (customblock instanceof CustomBlockSlab.CustomBlockSlabDouble) { return; }
 		
-		File texturesDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/"+(customblock instanceof CustomLiquid ? "fluids" : customblock instanceof CustomBlockPortal ? "environment" : "blocks")); 
+		File texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/"+(customblock instanceof CustomLiquid ? "fluids" : customblock instanceof CustomBlockPortal ? "environment" : "blocks")); 
 		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
 		File texture = new File(texturesDir, name.toLowerCase()+".png");
 		IResource baseTexrure;
@@ -832,6 +832,11 @@ extends CommonProxy {
 						
 					}
 					else if (((CustomBlock) customblock).FACING!=null) {
+						texture = new File(texturesDir, name.toLowerCase()+"_bottom.png");
+						if (!texture.exists()) {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/brewing_stand_base.png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+						}
 						texture = new File(texturesDir, name.toLowerCase()+"_top.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/endframe_top.png"));
@@ -842,9 +847,19 @@ extends CommonProxy {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/furnace_front_off.png"));
 							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
 						}
-						texture = new File(texturesDir, name.toLowerCase()+"_side.png");
+						texture = new File(texturesDir, name.toLowerCase()+"_right.png");
+						if (!texture.exists()) {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/dispenser_front_vertical.png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+						}
+						texture = new File(texturesDir, name.toLowerCase()+"_back.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/piston_side.png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+						}
+						texture = new File(texturesDir, name.toLowerCase()+"_left.png");
+						if (!texture.exists()) {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/comparator_off.png"));
 							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
 						}
 						has = true;
@@ -970,10 +985,10 @@ extends CommonProxy {
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("item."+fileName+".name", n);
 		String textureName = ""+name;
-		File itemModelsDir = new File(CustomNpcs.Dir, "assets/customnpcs/models/item");
+		File itemModelsDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/item");
 		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
-		String texturePath = "customnpcs/textures/items";
+		String texturePath = CustomNpcs.MODID+"/textures/items";
 		if (itemModel.exists()) {
 			try {
 				BufferedReader reader = Files.newBufferedReader(itemModel.toPath());
@@ -984,14 +999,14 @@ extends CommonProxy {
 					if (tempLine.indexOf(':')!=-1) {
 						if (tempLine.indexOf('/')!=-1) {
 							textureName = tempLine.substring(tempLine.lastIndexOf('/')+1);
-							texturePath = "customnpcs/textures/"+tempLine.substring(tempLine.indexOf(':')+1, tempLine.lastIndexOf('/'));
+							texturePath = CustomNpcs.MODID+"/textures/"+tempLine.substring(tempLine.indexOf(':')+1, tempLine.lastIndexOf('/'));
 						} else {
-							texturePath = "customnpcs/textures/";
+							texturePath = ""+CustomNpcs.MODID+"/textures/";
 							textureName = tempLine.substring(tempLine.indexOf(':')+1);
 						}
 					} else {
 						textureName = tempLine;
-						texturePath = "customnpcs/textures";
+						texturePath = CustomNpcs.MODID+"/textures";
 					}
 					break;
 				}
@@ -1005,7 +1020,7 @@ extends CommonProxy {
 		String parentName = null;
 		IResource baseTexrure;
 		if (customitem instanceof CustomArmor) {
-			File armorDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/models/armor");
+			File armorDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/models/armor");
 			if (!armorDir.exists()) { armorDir.mkdirs(); }
 			// Models
 			boolean[] has = new boolean[] { false, false };
@@ -1141,7 +1156,7 @@ extends CommonProxy {
 		this.setLocalization("tipped_arrow.effect."+name, name.equals("potionexample") ? "Example Custom Arrow Potion" : n+" Arrow");
 		
 		String textureName = name.toLowerCase();
-		File texturesDir = new File(CustomNpcs.Dir, "assets/customnpcs/textures/potions");
+		File texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/potions");
 		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
 		File texture = new File(texturesDir, textureName+".png");
 		if (texture!=null && !texture.exists()) {
@@ -1197,7 +1212,7 @@ extends CommonProxy {
 					hsb[0] += 0.5f;
 					if (hsb[0]>1.0f) { hsb[0] -= 1.0f; }
 					c = Color.getHSBColor(hsb[0] - (hsb[0]>1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
-					c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 128);
+					c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 255);
 					bufferedImage.setRGB(u, v, c.getRGB());
 				}
 			}
@@ -1207,7 +1222,7 @@ extends CommonProxy {
 	}
 
 	private void setLocalization(String key, String name) {
-		File langDir = new File(CustomNpcs.Dir, "assets/customnpcs/lang");
+		File langDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/lang");
 		if (!langDir.exists()) { langDir.mkdirs(); }
 		BufferedWriter writer;
 		String currentLanguage = ObfuscationHelper.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class);
@@ -1247,7 +1262,7 @@ extends CommonProxy {
 	}
 
 	public static void checkLocalization() {
-		File langDir = new File(CustomNpcs.Dir, "assets/customnpcs/lang");
+		File langDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/lang");
 		if (!langDir.exists() || !langDir.isDirectory()) { return; }
 		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();
 		Locale locale = ObfuscationHelper.getValue(LanguageManager.class, languageManager, Locale.class);

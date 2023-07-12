@@ -31,10 +31,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -98,7 +100,10 @@ implements ICustomElement {
 			}
 			if (p == null) { return; }
 			if (entityIn instanceof EntityPlayerMP) {
-				NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entityIn, p.getX()+0.5d, p.getY(), p.getZ()+0.5d, isHome ? homeId : id);
+				CustomTeleport event = EventHooks.onPlayerTeleport((EntityPlayerMP) entityIn, p, pos, isHome ? homeId : id);
+				if (!event.isCanceled()) {
+					NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entityIn, event.pos.getX()+0.5d, event.pos.getY(), event.pos.getZ()+0.5d, event.dimension);
+				}
 			} else {
 				entityIn = AdditionalMethods.travelEntity(CustomNpcs.Server, entityIn, isHome ? homeId : id);
 				entityIn.setPosition(p.getX()+0.5d, p.getY(), p.getZ()+0.5d);

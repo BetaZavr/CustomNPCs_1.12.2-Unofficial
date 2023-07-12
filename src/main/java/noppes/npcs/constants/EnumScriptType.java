@@ -70,7 +70,8 @@ public enum EnumScriptType
 	SOUND_PLAY("soundPlayed"), 
 	SOUND_STOP("soundStoped"), 	
 	PACKEGE_RECEIVED("packageReceived"), 	
-	PACKEGE_FROM("packageFrom");	
+	PACKEGE_FROM("packageFrom"),
+	CUSTOM_TELEPORT("customTeleport");	
 	
 	public String function;
 	

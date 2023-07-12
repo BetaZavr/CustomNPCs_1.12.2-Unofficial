@@ -35,6 +35,7 @@ import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
 import noppes.npcs.api.event.PlayerEvent.PlayerPackage;
 import noppes.npcs.api.event.PlayerEvent.PlayerSound;
 import noppes.npcs.api.event.ProjectileEvent;
@@ -796,6 +797,17 @@ public class EventHooks {
 		handler.runScript(EnumScriptType.PACKEGE_FROM, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 		
+	}
+
+	public static CustomTeleport onPlayerTeleport(EntityPlayerMP player, BlockPos to, BlockPos portal, int dimId) {
+		NpcAPI api = NpcAPI.Instance();
+		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player), api.getIPos(portal.getX(), portal.getZ(), portal.getY()), api.getIPos(to.getX(), to.getZ(), to.getY()), dimId);
+		if (player==null) { return event; }
+		PlayerScriptData handler = PlayerData.get(player).scriptData;
+		if (!handler.getEnabled()) { return event; }
+		handler.runScript(EnumScriptType.CUSTOM_TELEPORT, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		return event;
 	}
 	
 }

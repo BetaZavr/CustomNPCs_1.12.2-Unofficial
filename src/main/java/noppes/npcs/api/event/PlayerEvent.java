@@ -23,7 +23,22 @@ import noppes.npcs.api.item.IItemStack;
 
 public class PlayerEvent
 extends CustomNPCsEvent {
-	
+
+	@Cancelable
+	public static class CustomTeleport extends PlayerEvent {
+		
+		public IPos pos, portal;
+		public int dimension;
+
+		public CustomTeleport(IPlayer<?> player, IPos portal, IPos pos, int dimensionID) {
+			super(player);
+			this.pos = pos;
+			this.portal = portal;
+			this.dimension = dimensionID;
+		}
+		
+	}
+
 	@Cancelable
 	public static class AttackEvent extends PlayerEvent {
 		public Object target;
