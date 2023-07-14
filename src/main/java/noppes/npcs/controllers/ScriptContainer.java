@@ -216,24 +216,19 @@ public class ScriptContainer {
 		this.lastCreated = 0L;
 	}
 
-	public void run(EnumScriptType type, Event event) {
+	public void run(EnumScriptType type, Event event, boolean side) {
 		Object key = event instanceof BlockEvent ? "Block"
 				: event instanceof PlayerEvent ? "Player"
 						: event instanceof ItemEvent ? "Item"
 								: event instanceof NpcEvent ? "Npc" : null;
-		CustomNpcs.debugData.startDebug("Server", "In "+key, "ScriptContainer_run_" + type.function);
+		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type.function, "ScriptContainer_run");
 		this.run(type.function, event);
-		CustomNpcs.debugData.endDebug("Server", key, "ScriptContainer_run_" + type.function);
+		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type.function, "ScriptContainer_run");
 	}
 
 	public void run(String type, Object event) {
 		if (this.engine==null) { this.setEngine(this.handler.getLanguage()); }
-		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting) {
-			return;
-		}
-		if (this.engine == null) {
-			return;
-		}
+		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || this.engine == null) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastCreated) {
 			this.lastCreated = ScriptController.Instance.lastLoaded;
 			this.init = false;

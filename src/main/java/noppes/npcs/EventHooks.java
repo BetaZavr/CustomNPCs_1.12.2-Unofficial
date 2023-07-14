@@ -81,7 +81,7 @@ public class EventHooks {
 		if (!container.script.isValid()) {
 			return;
 		}
-		container.script.run(EnumScriptType.CUSTOM_CHEST_CLICKED, event);
+		container.script.run(EnumScriptType.CUSTOM_CHEST_CLICKED, event, true);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
@@ -90,7 +90,7 @@ public class EventHooks {
 		if (!container.script.isValid()) {
 			return;
 		}
-		container.script.run(EnumScriptType.CUSTOM_CHEST_CLOSED, event);
+		container.script.run(EnumScriptType.CUSTOM_CHEST_CLOSED, event, true);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
@@ -128,8 +128,7 @@ public class EventHooks {
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
 		//System.out.println("forge: "+event+"; event: "+event.event);
-
-		if (handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
+		if (!handler.isClient() && handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
 			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
 			//System.out.println("Common ForgeEvent: "+eventName);
 			try { // Changed
@@ -478,7 +477,7 @@ public class EventHooks {
 	public static void onProjectileImpact(EntityProjectile projectile, ProjectileEvent.ImpactEvent event) {
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_IMPACT, event);
+				script.run(EnumScriptType.PROJECTILE_IMPACT, event, projectile!=null && !projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -489,7 +488,7 @@ public class EventHooks {
 				(IProjectile<?>) NpcAPI.Instance().getIEntity(projectile));
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_TICK, event);
+				script.run(EnumScriptType.PROJECTILE_TICK, event, projectile!=null && !projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);

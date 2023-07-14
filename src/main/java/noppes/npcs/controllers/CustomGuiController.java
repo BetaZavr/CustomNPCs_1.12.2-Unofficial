@@ -51,7 +51,7 @@ public class CustomGuiController {
 	public static void onButton(CustomGuiEvent.ButtonEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_BUTTON, event);
+			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_BUTTON, event, true);
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
@@ -60,7 +60,7 @@ public class CustomGuiController {
 		EntityPlayer player = event.player.getMCEntity();
 		CustomGuiWrapper gui = getOpenGui(player);
 		if (checkGui(event) && gui.getScriptHandler() != null) { // Changed
-			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_CLOSED, event);
+			gui.getScriptHandler().run(EnumScriptType.CUSTOM_GUI_CLOSED, event, true);
 			event.player.closeGui();
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -69,7 +69,7 @@ public class CustomGuiController {
 	public static void onScrollClick(CustomGuiEvent.ScrollEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SCROLL, event);
+			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SCROLL, event, true);
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
@@ -77,7 +77,7 @@ public class CustomGuiController {
 	public static void onSlotChange(CustomGuiEvent.SlotEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT, event);
+			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT, event, true);
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
@@ -85,7 +85,7 @@ public class CustomGuiController {
 	public static boolean onSlotClick(CustomGuiEvent.SlotClickEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		if (checkGui(event) && getOpenGui(player).getScriptHandler() != null) {
-			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT_CLICKED, event);
+			getOpenGui(player).getScriptHandler().run(EnumScriptType.CUSTOM_GUI_SLOT_CLICKED, event, true);
 		}
 		return WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}

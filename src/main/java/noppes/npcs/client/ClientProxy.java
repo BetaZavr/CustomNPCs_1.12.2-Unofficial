@@ -35,8 +35,10 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
@@ -59,6 +61,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ReportedException;
@@ -83,6 +86,7 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
 import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
@@ -213,6 +217,7 @@ import noppes.npcs.items.CustomFood;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
+import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("deprecation")
@@ -535,26 +540,16 @@ extends CommonProxy {
 			}
 		}
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcPony.class, (Render) new RenderNPCPony());
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcCrystal.class,
-				(Render) new RenderNpcCrystal(new ModelNpcCrystal(0.5f)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class,
-				(Render) new RenderNpcDragon(new ModelNpcDragon(0.0f), 0.5f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcSlime.class,
-				(Render) new RenderNpcSlime(new ModelNpcSlime(16), new ModelNpcSlime(0), 0.25f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcCrystal.class, new RenderNpcCrystal(new ModelNpcCrystal(0.5f)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class, new RenderNpcDragon(new ModelNpcDragon(0.0f), 0.5f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcSlime.class, new RenderNpcSlime(new ModelNpcSlime(16), new ModelNpcSlime(0), 0.25f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityProjectile.class, (Render) new RenderProjectile());
-		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class,
-				(Render) new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, false)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class,
-				(Render) new RenderCustomNpc(new ModelBipedAlt(0.0f)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class,
-				(Render) new RenderNPCInterface((ModelBase) new ModelNPCGolem(0.0f), 0.0f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class,
-				(Render) new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, true)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class,
-				(Render) new RenderCustomNpc((ModelBiped) new ModelClassicPlayer(0.0f)));
-		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187,
-				new Item[] { CustomItems.mount, CustomItems.cloner, CustomItems.moving, CustomItems.scripter,
-						CustomItems.wand, CustomItems.teleporter });
+		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class, new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, false)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class, new RenderCustomNpc(new ModelBipedAlt(0.0f)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class, new RenderNPCInterface((ModelBase) new ModelNPCGolem(0.0f), 0.0f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, true)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc((ModelBiped) new ModelClassicPlayer(0.0f)));
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomItems.mount, CustomItems.cloner, CustomItems.moving, CustomItems.scripter, CustomItems.wand, CustomItems.teleporter });
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> {
 			IItemStack item = NpcAPI.Instance().getIItemStack(stack);
 			if (stack.getItem() == CustomItems.scripted_item) {
@@ -564,6 +559,18 @@ extends CommonProxy {
 		}, new Item[] { CustomItems.scripted_item });
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
+		
+		Map<Integer, IParticleFactory> map = ObfuscationHelper.getValue(ParticleManager.class, Minecraft.getMinecraft().effectRenderer, Map.class);
+		for (int id : CustomItems.customparticles.keySet()) {
+			if (map.containsKey(id)) { continue; }
+			map.put(id, new IParticleFactory() {
+				public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
+					CustomParticle p = CustomItems.customparticles.get(particleID);
+					if (p==null) { return new CustomParticle(new NBTTagCompound(), Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);}
+					return new CustomParticle(p.nbtData, Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
+				}
+			});
+		}
 	}
 	
 	@Override
@@ -623,7 +630,7 @@ extends CommonProxy {
 		if (gui == null) { return; }
 		gui.initGui();
 	}
-
+	
 	/**
 	 * RecipeBookClient
 	 * @param recipe
@@ -1198,6 +1205,61 @@ extends CommonProxy {
 				}
 				catch (IOException e) { }
 			}
+		}
+	}
+
+	public void checkParticleFiles(ICustomElement customparticle) {
+		super.checkParticleFiles(customparticle);
+		String name = customparticle.getCustomName();
+		
+		String n = name;
+		if (name.equalsIgnoreCase("PARTICLE_EXAMPLE")) {n = "Example Custom Particle"; }
+		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
+		this.setLocalization("particle."+name, n);
+		
+		INbt nbt = customparticle.getCustomNbt();
+		
+		String textureName = nbt.getString("Texture");
+		File texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/particle");
+		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
+		File texture = new File(texturesDir, textureName+".png");
+		if (texture!=null && !texture.exists()) {
+			boolean has = false;
+			try {
+				IResource baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/particle/particles.png"));
+				if (baseTexrure!=null) {
+					try {
+						BufferedImage particlesImage = new BufferedImage(128, 128, 6);
+						BufferedImage bufferedImage = ImageIO.read(baseTexrure.getInputStream());
+						for (int u=0; u<128; u++) {
+							for (int v=0; v<128; v++) {
+								Color c = new Color(bufferedImage.getRGB(u, v));
+								if (c.getRGB()!=-16777216) {
+									float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+									hsb[0] += 0.25f;
+									if (hsb[0]>1.0f) { hsb[0] -= 1.0f; }
+									c = Color.getHSBColor(hsb[0] - (hsb[0]>1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
+									c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 171);
+									particlesImage.setRGB(u, v, c.getRGB());
+								}
+							}
+						}
+						ImageIO.write(particlesImage, "png", texture);
+						has = true;
+					}
+					catch (IOException e) { }
+				}
+			}
+			catch (IOException e) { }
+			if (!has) {
+				try {
+					BufferedImage bufferedImage = new BufferedImage(128, 128, 6);
+					ImageIO.write(bufferedImage, "png", texture);
+					has = true;
+				}
+				catch (IOException e) { }
+			}
+			if (has) { LogWriter.debug("Create Default Texture for \""+name+"\" particle"); }
 		}
 	}
 	

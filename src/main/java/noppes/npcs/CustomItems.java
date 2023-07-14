@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
@@ -40,12 +43,14 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -119,6 +124,7 @@ import noppes.npcs.items.ItemScriptedDoor;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.items.ItemSoulstoneFilled;
 import noppes.npcs.items.ItemTeleporter;
+import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.potions.CustomPotion;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
@@ -183,12 +189,109 @@ public class CustomItems {
 	private static List<Item> customitems = Lists.<Item>newArrayList();
 	private static List<Potion> custompotions = Lists.<Potion>newArrayList();
 	public static List<PotionType> custompotiontypes = Lists.<PotionType>newArrayList();
-
+	public static Map<Integer, CustomParticle> customparticles = Maps.<Integer, CustomParticle>newTreeMap();
+	
+	/* Registry Types:
+	 * Biome; Block; Enchantment; Item;
+	 * Potion; PotionType; SoundEvent;
+	 * IRecipe
+	 */
+	
 	public static void load() {
 		MinecraftForge.EVENT_BUS.register(new CustomItems());
 		CustomItems.registerFluid();
+		CustomItems.registerParticle();
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	private static void registerParticle() {
+		File prtcsFile = new File(CustomNpcs.Dir, "custom_particles.js");
+		NBTTagCompound nbtParticles = new NBTTagCompound();
+		try { if (prtcsFile.exists()) { nbtParticles = NBTJsonUtil.LoadFile(prtcsFile); } }
+		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_particles.js: ", e); }
+		boolean hPE = false;
+		if (nbtParticles.hasKey("Particles", 9)) {
+			for (int i = 0; i < nbtParticles.getTagList("Particles", 10).tagCount(); i++) {
+				String name = nbtParticles.getTagList("Particles", 10).getCompoundTagAt(i).getString("RegistryName");
+				if (name.equalsIgnoreCase("PARTICLE_EXAMPLE")) { hPE = true;  break; }
+			}
+		}
+		if (!prtcsFile.exists() || !nbtParticles.hasKey("Particles", 9) || !hPE) {
+			if (!nbtParticles.hasKey("Particles", 9)) { nbtParticles.setTag("Particles", new NBTTagList());}
+			if (!hPE) {
+				NBTTagCompound nbt = CustomItems.getExampleParticles();
+				for (int i = 0; i < nbt.getTagList("Particles", 10).tagCount(); i++) {
+					String name = nbt.getTagList("Particles", 10).getCompoundTagAt(i).getString("RegistryName");
+					if (name.equalsIgnoreCase("PARTICLE_EXAMPLE") && !hPE) {
+						nbtParticles.getTagList("Particles", 10).appendTag(nbt.getTagList("Particles", 10).getCompoundTagAt(i));
+					}
+				}
+			}
+			try { NBTJsonUtil.SaveFile(prtcsFile, nbtParticles); }
+			catch (IOException | JsonException e) { }
+		}
+		
+		int id = -1; // max ID
+		for (EnumParticleTypes ept : EnumParticleTypes.values()) {
+			if (ept.getParticleID()>=id) { id = ept.getParticleID() + 1; }
+		}
+		
+		Class<?>[] additionalTypes = { String.class, int.class, boolean.class, int.class }; // particleName, particleID, shouldIgnoreRange, argumentCount
+		
+		// create new
+		List<String> names = Lists.<String>newArrayList();
+		Map<Integer, EnumParticleTypes> particles = Maps.<Integer, EnumParticleTypes>newHashMap();
+		Map<String, EnumParticleTypes> by_name = Maps.<String, EnumParticleTypes>newHashMap();
+		try {
+			Class<?> cl = Class.forName("net.minecraft.util.EnumParticleTypes");
+			for (Field f : cl.getDeclaredFields()) {
+				if (!f.getType().isInterface()) { continue; }
+				try {
+					if (!f.isAccessible()) { f.setAccessible(true); }
+					Map<?, ?> map = (Map<?, ?>) f.get(cl);
+					for (Entry<?, ?> entry : map.entrySet()) {
+						if (entry.getKey().getClass()==Integer.class) { particles = (Map<Integer, EnumParticleTypes>) map; }
+						else if (entry.getKey().getClass()==String.class) { by_name = (Map<String, EnumParticleTypes>) map; }
+						break;
+					}
+				} catch (IllegalArgumentException | IllegalAccessException e) { }
+			}
+		}
+		catch (ClassNotFoundException e) { e.printStackTrace(); }
+		boolean resave = false;
+		for (int i=0; i<nbtParticles.getTagList("Particles", 10).tagCount(); i++) {
+			NBTTagCompound nbtParticle = nbtParticles.getTagList("Particles", 10).getCompoundTagAt(i);
+			if (!nbtParticle.hasKey("RegistryName", 8)) {
+				LogWriter.error("Attempt to load particle pos: "+i+" - failed");
+				continue;
+			}
+			CustomParticle prtc = new CustomParticle(nbtParticle, id);
+			if (names.contains(prtc.getCustomName()) || EnumParticleTypes.getParticleNames().contains(prtc.name)) {
+				LogWriter.error("Attempt to load a registred particle \""+prtc.name+"\"");
+				continue;
+			}
+			id++;
+			EnumHelper.addEnum(EnumParticleTypes.class, prtc.name, additionalTypes, new Object[] { prtc.getCustomName(), prtc.id, prtc.shouldIgnoreRange, prtc.argumentCount} );
+			
+			EnumParticleTypes enumparticletypes = EnumParticleTypes.valueOf(prtc.name);
+			int idT = Integer.valueOf(enumparticletypes.getParticleID());
+			
+			particles.put(idT, enumparticletypes);
+			by_name.put(prtc.getCustomName(), enumparticletypes);
+			CustomItems.customparticles.put(prtc.id, prtc);
+			if (nbtParticle.getBoolean("CreateAllFiles")) {
+				CustomNpcs.proxy.checkParticleFiles((ICustomElement) prtc);
+				nbtParticle.setBoolean("CreateAllFiles", false);
+				resave = true;
+			}
+			LogWriter.info("Load Custom Particle \""+prtc.name+"\"");
+		}
+		if (resave) {
+			try { NBTJsonUtil.SaveFile(prtcsFile, nbtParticles); }
+			catch (IOException | JsonException e) { }
+		}
+	}
+	
 	private static void registerFluid() {
 		File blocksFile = new File(CustomNpcs.Dir, "custom_blocks.js");
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
@@ -990,8 +1093,38 @@ public class CustomItems {
 		nbtItems.setTag("Modifiers", potionModifiers);
 		listPotion.appendTag(examplePotion);
 		nbtItems.setTag("Potions", listPotion);
-		
 		return nbtItems;
+	}
+	
+	private static NBTTagCompound getExampleParticles() {
+		NBTTagCompound nbtParticles = new NBTTagCompound();
+		NBTTagList listParticles = new NBTTagList();
+		
+		NBTTagCompound exampleParticle = new NBTTagCompound();
+		exampleParticle.setString("RegistryName", "PARTICLE_EXAMPLE");
+		exampleParticle.setBoolean("ShouldIgnoreRange", false);
+		exampleParticle.setInteger("ArgumentCount", 0);
+
+		exampleParticle.setInteger("MaxAge", 60);
+		exampleParticle.setIntArray("UVpos", new int[] { 1, 5 });
+		exampleParticle.setFloat("Gravity", 0.25f);
+		exampleParticle.setFloat("Scale", 1.5f);
+		exampleParticle.setString("Texture", "particles");
+		exampleParticle.setBoolean("IsFullTexture", false);
+		
+		exampleParticle.setBoolean("CreateAllFiles", true);
+		NBTTagList motion = new NBTTagList();
+		motion.appendTag(new NBTTagDouble(0.2d));
+		motion.appendTag(new NBTTagDouble(0.1d));
+		motion.appendTag(new NBTTagDouble(0.2d));
+		exampleParticle.setTag("StartMotion", motion);
+		exampleParticle.setBoolean("IsRandomMotion", true);
+		exampleParticle.setBoolean("NotMotionY", true);
+		
+		listParticles.appendTag(exampleParticle);
+		
+		nbtParticles.setTag("Particles", listParticles);
+		return nbtParticles;
 	}
 	
 }

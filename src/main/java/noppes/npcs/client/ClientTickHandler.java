@@ -12,9 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -190,9 +190,50 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
-		if (!(entity instanceof EntityPlayerSP) || !CustomNpcs.VerboseDebug) { return; }
+		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
 		//TempClass.run((EntityPlayerSP) entity);
-		//System.out.println("CNPCs: "+d);
+		
+		/*try {
+			Class<?> cl = Class.forName("net.minecraft.util.EnumParticleTypes");
+			System.out.println("Enum class: "+cl);
+			for (Field f : cl.getDeclaredFields()) {
+				if (!f.getType().isInterface()) { continue; }
+				System.out.println("Field name: "+f.getName()+"; type: "+f.getType());
+				try {
+					if (!f.isAccessible()) { f.setAccessible(true); }
+					Map<?, ?> map = (Map<?, ?>) f.get(cl);
+					for (Entry<?, ?> entry : map.entrySet()) {
+						System.out.println("Field map Key: "+entry.getKey().getClass());
+						break;
+					}
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		catch (ClassNotFoundException e) { e.printStackTrace(); }*/
+		
+		/*// Placer
+		int sx = 4952, sy = 160, sz = 4952, cx = 0, cz = 0, i = 0;
+		long t = System.currentTimeMillis();
+		System.out.println("size: "+(97*97));
+		Block block = Block.REGISTRY.getObject(new ResourceLocation(CustomNpcs.MODID, "custom_block_9"));
+		System.out.println("block_9: "+block);
+		if (block==null) { return; }
+		while(cz<97) {
+			while(cx<97) {
+				IBlockState place = block.getDefaultState();
+				//if (cz>2 && cz<95 && cx>2 && cx<95) { place = Blocks.AIR.getDefaultState(); }
+				entity.world.setBlockState(new BlockPos(sx+cx, sy, sz+cz), Blocks.AIR.getDefaultState());
+				i++;
+				cx ++;
+			}
+			cz ++;
+			cx = 0;
+			System.out.println("z["+cz+"]: "+(sz + cz));
+		}
+		System.out.println("total["+i+"]: "+AdditionalMethods.ticksToElapsedTime(t-System.currentTimeMillis(), true, false, false));*/
 	}
 
 }

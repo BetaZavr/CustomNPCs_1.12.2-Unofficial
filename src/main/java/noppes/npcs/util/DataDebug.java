@@ -59,7 +59,7 @@ public class DataDebug {
 
 	public Map<String, Debug> data = Maps.newHashMap();
 
-	public void endDebug(String side, Object target, String event) {
+	public void endDebug(String side, Object target, String classMetod) {
 		if (!CustomNpcs.VerboseDebug) { return; }
 		try {
 			if (!this.data.containsKey(side)) {
@@ -68,12 +68,12 @@ public class DataDebug {
 			String key = target == null ? "Mod"
 					: (target instanceof String) ? (String) target
 							: (target instanceof EntityPlayer) ? "Players" : "MOBs";
-			this.data.get(side).end(event, key);
+			this.data.get(side).end(classMetod, key);
 		} catch (Exception e) {
 		}
 	}
 
-	public void startDebug(String side, Object target, String event) {
+	public void startDebug(String side, Object target, String classMetod) {
 		if (!CustomNpcs.VerboseDebug) { return; }
 		try {
 			if (!this.data.containsKey(side)) {
@@ -82,7 +82,7 @@ public class DataDebug {
 			String key = target == null ? "Mod"
 					: (target instanceof String) ? (String) target
 							: (target instanceof EntityPlayer) ? "Players" : "MOBs";
-			this.data.get(side).start(event, key);
+			this.data.get(side).start(classMetod, key);
 		} catch (Exception e) {
 		}
 	}

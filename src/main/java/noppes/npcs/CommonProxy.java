@@ -828,8 +828,13 @@ implements IGuiHandler {
 		
 	}
 
+	public void checkParticleFiles(ICustomElement customparticle) {
+		
+	}
+
 	public boolean isLoadTexture(ResourceLocation resource) { return true; }
 
 	public Side getSide() { return Side.SERVER; }
-	
+
+
 }

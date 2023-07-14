@@ -164,25 +164,24 @@ implements IPermission, ICustomElement {
 		return this.nbtData.getBoolean("IsPassable");
 	}
 	
-	public boolean isOpaqueCube(IBlockState state) {
-		return this.nbtData==null ||
-				!this.nbtData.hasKey("IsOpaqueCube") ?
-						false : this.nbtData.getBoolean("IsOpaqueCube"); }
+	public boolean isOpaqueCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsOpaqueCube") ? true : this.nbtData.getBoolean("IsOpaqueCube"); }
 	
-	public boolean isFullCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? false : this.nbtData.getBoolean("IsFullCube"); }
+	public boolean isFullCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? true : this.nbtData.getBoolean("IsFullCube"); }
 	
 	public EnumBlockRenderType getRenderType(IBlockState state) { return this.renderType; }
 
 	public boolean hasProperty() { return this.INT!=null || this.FACING!=null; }
 	
-	@SuppressWarnings("deprecation")
 	public IBlockState getStateFromMeta(int meta) {
 		if (this.FACING!=null) {
 			EnumFacing enumfacing = EnumFacing.getFront(meta);
 			if (enumfacing.getAxis() == EnumFacing.Axis.Y) { enumfacing = EnumFacing.NORTH; }
 			return this.getDefaultState().withProperty(this.FACING, enumfacing);
 		}
-		return super.getStateFromMeta(meta);
+		if (this.INT!=null) {
+			return this.getDefaultState().withProperty(this.INT, meta);
+		}
+		return this.getDefaultState();
 	}
 
 	public int getMetaFromState(IBlockState state) {

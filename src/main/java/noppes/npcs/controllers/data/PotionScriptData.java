@@ -42,7 +42,7 @@ extends ForgeScriptData {
 		for (int i = 0; i < this.scripts.size(); ++i) {
 			ScriptContainer script = this.scripts.get(i);
 			if (!PotionScriptData.errored.contains(i)) {
-				script.run(type, event);
+				script.run(type, event, !this.isClient());
 				if (script.errored) {
 					PotionScriptData.errored.add(i);
 				}

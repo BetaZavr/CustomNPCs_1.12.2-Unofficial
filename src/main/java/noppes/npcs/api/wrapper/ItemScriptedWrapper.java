@@ -182,7 +182,7 @@ implements IItemScripted, IScriptHandler {
 			}
 		}
 		for (ScriptContainer script : this.scripts) {
-			script.run(type, event);
+			script.run(type, event, !this.isClient());
 		}
 	}
 
