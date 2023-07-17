@@ -72,7 +72,8 @@ import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.blocks.BlockWaypoint;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
-import noppes.npcs.blocks.CustomBlockSlab;
+import noppes.npcs.blocks.CustomBlockSlab.CustomBlockSlabDouble;
+import noppes.npcs.blocks.CustomBlockSlab.CustomBlockSlabSingle;
 import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
@@ -124,7 +125,7 @@ import noppes.npcs.items.ItemScriptedDoor;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.items.ItemSoulstoneFilled;
 import noppes.npcs.items.ItemTeleporter;
-import noppes.npcs.particles.CustomParticle;
+import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.potions.CustomPotion;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
@@ -189,7 +190,7 @@ public class CustomItems {
 	private static List<Item> customitems = Lists.<Item>newArrayList();
 	private static List<Potion> custompotions = Lists.<Potion>newArrayList();
 	public static List<PotionType> custompotiontypes = Lists.<PotionType>newArrayList();
-	public static Map<Integer, CustomParticle> customparticles = Maps.<Integer, CustomParticle>newTreeMap();
+	public static Map<Integer, CustomParticleSettings> customparticles = Maps.<Integer, CustomParticleSettings>newTreeMap();
 	
 	/* Registry Types:
 	 * Biome; Block; Enchantment; Item;
@@ -265,19 +266,19 @@ public class CustomItems {
 				LogWriter.error("Attempt to load particle pos: "+i+" - failed");
 				continue;
 			}
-			CustomParticle prtc = new CustomParticle(nbtParticle, id);
-			if (names.contains(prtc.getCustomName()) || EnumParticleTypes.getParticleNames().contains(prtc.name)) {
+			CustomParticleSettings prtc = new CustomParticleSettings(nbtParticle, id);
+			if (names.contains(prtc.enumName) || EnumParticleTypes.getParticleNames().contains(prtc.enumName)) {
 				LogWriter.error("Attempt to load a registred particle \""+prtc.name+"\"");
 				continue;
 			}
 			id++;
-			EnumHelper.addEnum(EnumParticleTypes.class, prtc.name, additionalTypes, new Object[] { prtc.getCustomName(), prtc.id, prtc.shouldIgnoreRange, prtc.argumentCount} );
+			EnumHelper.addEnum(EnumParticleTypes.class, prtc.enumName, additionalTypes, new Object[] { prtc.name, prtc.id, prtc.shouldIgnoreRange, prtc.argumentCount} );
 			
-			EnumParticleTypes enumparticletypes = EnumParticleTypes.valueOf(prtc.name);
+			EnumParticleTypes enumparticletypes = EnumParticleTypes.valueOf(prtc.enumName);
 			int idT = Integer.valueOf(enumparticletypes.getParticleID());
 			
 			particles.put(idT, enumparticletypes);
-			by_name.put(prtc.getCustomName(), enumparticletypes);
+			by_name.put(prtc.name, enumparticletypes);
 			CustomItems.customparticles.put(prtc.id, prtc);
 			if (nbtParticle.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkParticleFiles((ICustomElement) prtc);
@@ -391,7 +392,7 @@ public class CustomItems {
 				String name = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
 				if (name.equals("blockexample")) { hEB = true; }
 				if (name.equals("liquidexample")) { hEL = true; }
-				if (name.equals("fasingblockexample")) { hEFB = true; }
+				if (name.equals("facingblockexample")) { hEFB = true; }
 				if (name.equals("stairsexample")) { hES = true; }
 				if (name.equals("slabexample")) { hEP = true; }
 				if (name.equals("portalexample")) { hEEP = true; }
@@ -408,7 +409,7 @@ public class CustomItems {
 						|| (name.equals("liquidexample") && !hEL)
 						|| (name.equals("stairsexample") && !hES)
 						|| (name.equals("slabexample") && !hEP)
-						|| (name.equals("fasingblockexample") && !hEFB)
+						|| (name.equals("facingblockexample") && !hEFB)
 						|| (name.equals("portalexample") && !hEEP)) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
@@ -436,8 +437,9 @@ public class CustomItems {
 					block = new CustomBlockStairs(nbtBlock);
 					break;
 				case (byte) 4: // Slab
-					block = new CustomBlockSlab.CustomBlockSlabSingle(nbtBlock);
-					addblock = new CustomBlockSlab.CustomBlockSlabDouble(nbtBlock);
+					addblock = new CustomBlockSlabDouble(nbtBlock);
+					block = new CustomBlockSlabSingle(nbtBlock, (CustomBlockSlabDouble) addblock);
+					((CustomBlockSlabDouble) addblock).setSingle((CustomBlockSlabSingle) block);
 					break;
 				case (byte) 5: // Stairs
 					block = new CustomBlockPortal(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
@@ -880,16 +882,16 @@ public class CustomItems {
 		exampleBlock.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(exampleBlock);
 		
-		NBTTagCompound exampleFasingBlock = new NBTTagCompound();
-		exampleFasingBlock.setString("RegistryName", "fasingblockexample");
-		exampleFasingBlock.setByte("BlockType", (byte) 0);
-		exampleFasingBlock.setString("BlockRenderType", "MODEL");
+		NBTTagCompound exampleFacingBlock = new NBTTagCompound();
+		exampleFacingBlock.setString("RegistryName", "facingblockexample");
+		exampleFacingBlock.setByte("BlockType", (byte) 0);
+		exampleFacingBlock.setString("BlockRenderType", "MODEL");
 		NBTTagCompound nbtProperty = new NBTTagCompound();
 		nbtProperty.setByte("Type", (byte) 4);
 		nbtProperty.setString("Name", "facing");
-		exampleFasingBlock.setTag("Property", nbtProperty);
-		exampleFasingBlock.setBoolean("CreateAllFiles", true);
-		listBlocks.appendTag(exampleFasingBlock);
+		exampleFacingBlock.setTag("Property", nbtProperty);
+		exampleFacingBlock.setBoolean("CreateAllFiles", true);
+		listBlocks.appendTag(exampleFacingBlock);
 
 		NBTTagCompound exampleLliquid = new NBTTagCompound();
 		exampleLliquid.setString("RegistryName", "liquidexample");
@@ -915,6 +917,8 @@ public class CustomItems {
 		exampleStairs.setString("RegistryName", "stairsexample");
 		exampleStairs.setByte("BlockType", (byte) 3);
 		exampleStairs.setBoolean("CreateAllFiles", true);
+		exampleStairs.setBoolean("IsFullCube", false);
+		exampleStairs.setBoolean("IsOpaqueCube", false);
 		listBlocks.appendTag(exampleStairs);
 		
 		NBTTagCompound exampleSlab = new NBTTagCompound();
@@ -922,6 +926,8 @@ public class CustomItems {
 		exampleSlab.setByte("BlockType", (byte) 4);
 		exampleSlab.setString("Material", "STONE");
 		exampleSlab.setBoolean("CreateAllFiles", true);
+		exampleSlab.setBoolean("IsFullCube", false);
+		exampleSlab.setBoolean("IsOpaqueCube", false);
 		listBlocks.appendTag(exampleSlab);
 
 		NBTTagCompound examplePortal = new NBTTagCompound();

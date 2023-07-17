@@ -444,6 +444,11 @@ implements IWorld {
 		this.world.setBlockToAir(new BlockPos(x, y, z));
 	}
 
+	@Override
+	public void removeBlock(IPos pos) {
+		this.world.setBlockToAir(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
+	}
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void setBlock(int x, int y, int z, String name, int meta) {
@@ -452,6 +457,16 @@ implements IWorld {
 			throw new CustomNPCsException("There is no such block: %s", new Object[0]);
 		}
 		this.world.setBlockState(new BlockPos(x, y, z), block.getStateFromMeta(meta));
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public void setBlock(IPos pos, String name, int meta) {
+		Block block = Block.getBlockFromName(name);
+		if (block == null) {
+			throw new CustomNPCsException("There is no such block: %s", new Object[0]);
+		}
+		this.world.setBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ()), block.getStateFromMeta(meta));
 	}
 
 	@Override

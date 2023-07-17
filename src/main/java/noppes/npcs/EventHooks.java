@@ -484,8 +484,7 @@ public class EventHooks {
 	}
 
 	public static void onProjectileTick(EntityProjectile projectile) {
-		ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent(
-				(IProjectile<?>) NpcAPI.Instance().getIEntity(projectile));
+		ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent((IProjectile<?>) NpcAPI.Instance().getIEntity(projectile));
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
 				script.run(EnumScriptType.PROJECTILE_TICK, event, projectile!=null && !projectile.world.isRemote);
@@ -800,7 +799,7 @@ public class EventHooks {
 
 	public static CustomTeleport onPlayerTeleport(EntityPlayerMP player, BlockPos to, BlockPos portal, int dimId) {
 		NpcAPI api = NpcAPI.Instance();
-		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player), api.getIPos(portal.getX(), portal.getZ(), portal.getY()), api.getIPos(to.getX(), to.getZ(), to.getY()), dimId);
+		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player), api.getIPos(portal.getX(), portal.getY(), portal.getZ()), api.getIPos(to.getX(), to.getY(), to.getZ()), dimId);
 		if (player==null) { return event; }
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		if (!handler.getEnabled()) { return event; }

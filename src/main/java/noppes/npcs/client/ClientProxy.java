@@ -218,6 +218,7 @@ import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.particles.CustomParticle;
+import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("deprecation")
@@ -565,9 +566,8 @@ extends CommonProxy {
 			if (map.containsKey(id)) { continue; }
 			map.put(id, new IParticleFactory() {
 				public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
-					CustomParticle p = CustomItems.customparticles.get(particleID);
-					if (p==null) { return new CustomParticle(new NBTTagCompound(), Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);}
-					return new CustomParticle(p.nbtData, Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
+					CustomParticleSettings ps = CustomItems.customparticles.get(particleID);
+					return new CustomParticle(ps == null ? new NBTTagCompound() : ps.nbtData, Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
 				}
 			});
 		}
@@ -816,7 +816,7 @@ extends CommonProxy {
 					name.equals("liquidexample") ? "Example Custom Fluid" :
 					name.equals("stairsexample") ? "Example Custom Stairs" :
 					name.equals("slabexample") ? "Example Custom Slab" :
-					name.equals("fasingblockexample") ? "Example Custom Fasing Block" :
+					name.equals("facingblockexample") ? "Example Custom Facing Block" :
 					name.equals("portalexample") ? "Example Custom Portal Block" :
 					name;
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
@@ -835,39 +835,55 @@ extends CommonProxy {
 			boolean has = false;
 			try {
 				if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
-					if (((CustomBlock) customblock).INT!=null) {
-						
+					if (((CustomBlock) customblock).BO!=null) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
+						if (baseTexrure!=null) {
+							texture = new File(texturesDir, name.toLowerCase()+"_true.png");
+							if (!texture.exists()) {ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.25f, 0, 0, 0, 255), "png", texture); has = true; }
+							texture = new File(texturesDir, name.toLowerCase()+"_false.png");
+							if (!texture.exists()) {ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.75f, 0, 0, 0, 255), "png", texture); has = true; }
+						}
+					}
+					else if (((CustomBlock) customblock).INT!=null) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
+						if (baseTexrure!=null) {
+							NBTTagCompound data = ((CustomBlock) customblock).nbtData.getCompoundTag("Property");
+							for (int i = data.getInteger("Min"); i <= data.getInteger("Max"); i++) {
+								texture = new File(texturesDir, name.toLowerCase()+"_"+i+".png");
+								if (!texture.exists()) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f + (float) i / 100.0f, 0, 0, 0, 255), "png", texture); has = true; }
+							}
+						}
 					}
 					else if (((CustomBlock) customblock).FACING!=null) {
 						texture = new File(texturesDir, name.toLowerCase()+"_bottom.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/brewing_stand_base.png"));
-							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png", texture); }
 						}
 						texture = new File(texturesDir, name.toLowerCase()+"_top.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/endframe_top.png"));
-							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png", texture); }
 						}
 						texture = new File(texturesDir, name.toLowerCase()+"_front.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/furnace_front_off.png"));
-							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png", texture); }
 						}
 						texture = new File(texturesDir, name.toLowerCase()+"_right.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/dispenser_front_vertical.png"));
-							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png", texture); }
 						}
 						texture = new File(texturesDir, name.toLowerCase()+"_back.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/piston_side.png"));
-							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png", texture); }
 						}
 						texture = new File(texturesDir, name.toLowerCase()+"_left.png");
 						if (!texture.exists()) {
 							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/comparator_off.png"));
-							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); }
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 20, 40, 255), "png", texture); }
 						}
 						has = true;
 					}
@@ -881,17 +897,17 @@ extends CommonProxy {
 					texture = new File(texturesDir, fileName.toLowerCase()+"_flow.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 128), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_overlay.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_overlay.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 128), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_still.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_still.png"));
-						if (baseTexrure!=null) {ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) {ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 128), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_flow.png.mcmeta");
 					if (!texture.exists()) {
@@ -905,17 +921,17 @@ extends CommonProxy {
 					texture = new File(texturesDir, fileName.toLowerCase()+"_top.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_top.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_bottom.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_top.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_side.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_side.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png", texture); has = true; }
 					}
 					LogWriter.debug("Create Default Texture for \""+name+"\" block slab");
 					return;
@@ -924,17 +940,17 @@ extends CommonProxy {
 					texture = new File(texturesDir, fileName.toLowerCase()+"_top.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_bottom.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block_save.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png", texture); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_side.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block_data.png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png", texture); has = true; }
 					}
 					LogWriter.debug("Create Default Texture for \""+name+"\" block stairs");
 					return;
@@ -955,7 +971,7 @@ extends CommonProxy {
 				}
 				if (!has) {
 					baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/glazed_terracotta_light_blue.png"));
-					if (baseTexrure!=null) { ImageIO.write(this.getBufferImageDefaultFluid(baseTexrure), "png", texture); has = true; }
+					if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.65f, 0, 25, 0, 255), "png", texture); has = true; }
 				}
 			}
 			catch (IOException e) { }
@@ -1036,7 +1052,7 @@ extends CommonProxy {
 				if (!texture.exists()) {
 					try {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/models/armor/iron_layer_"+i+".png"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); has[i-1] = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 40, 40, 255), "png", texture); has[i-1] = true; }
 					}
 					catch (IOException e) { }
 				} else { continue; }
@@ -1072,7 +1088,7 @@ extends CommonProxy {
 				if (!texture.exists()) {
 					try {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/bow"+(i==0 ? "_standby" : "_pulling_"+(i-1))+".png"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); has[i] = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 0, 40, 255), "png", texture); has[i] = true; }
 					}
 					catch (IOException e) { }
 				} else { continue; }
@@ -1095,7 +1111,7 @@ extends CommonProxy {
 				if (!texture.exists()) {
 					try {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/fishing_rod"+(i==0 ? "_uncast" : "_cast")+".png"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); has[i] = true; }
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 40, 0, 255), "png", texture); has[i] = true; }
 					}
 					catch (IOException e) { }
 				} else { continue; }
@@ -1134,7 +1150,7 @@ extends CommonProxy {
 			try {
 				baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/"+parentName+".png"));
 				if (baseTexrure!=null) {
-					Files.copy(baseTexrure.getInputStream(), texture.toPath());
+					ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 40, 0, 40, 255), "png", texture);
 					LogWriter.debug("Create Default Texture for \""+name+"\" item");
 					return;
 				}
@@ -1263,18 +1279,19 @@ extends CommonProxy {
 		}
 	}
 	
-	private RenderedImage getBufferImageDefaultFluid(IResource baseTexrure) {
+	private RenderedImage getBufferImageOffset(IResource baseTexrure, int type, float offset, int addRed, int addGreen, int addBlue, int alpha) {
 		BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
+		if (type<0) { type = 0; } else if (type>2) { type = 2; }
 		try {
 			bufferedImage = ImageIO.read(baseTexrure.getInputStream());
 			for (int u=0; u<bufferedImage.getWidth(); u++) {
 				for (int v=0; v<bufferedImage.getHeight(); v++) {
 					Color c = new Color(bufferedImage.getRGB(u, v));
 					float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-					hsb[0] += 0.5f;
-					if (hsb[0]>1.0f) { hsb[0] -= 1.0f; }
-					c = Color.getHSBColor(hsb[0] - (hsb[0]>1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
-					c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 255);
+					hsb[type] += offset;
+					hsb[type] %= 1.0f;
+					c = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+					c = new Color((c.getRed() + addRed) % 256, (c.getGreen() + addGreen) % 256, (c.getBlue() + addBlue) % 256, alpha);
 					bufferedImage.setRGB(u, v, c.getRGB());
 				}
 			}
@@ -1292,7 +1309,8 @@ extends CommonProxy {
 		for (int i=0; i<2; i++) {
 			if (i==1 && currentLanguage.equals("en_us")) { break; }
 			File lang = new File(langDir, (i==0 ? "en_us" : currentLanguage)+".lang");
-			String jsonStr = key+"="+name;
+			Map<String, String> jsonMap = Maps.<String, String>newTreeMap();
+			jsonMap.put(key, name);
 			char chr = Character.toChars(0x000A)[0];
 			writer = null;
 			if (!lang.exists()) {
@@ -1302,18 +1320,26 @@ extends CommonProxy {
 				try {
 					BufferedReader reader = Files.newBufferedReader(lang.toPath());
 					String line;
-					jsonStr = "";
-					while((line = reader.readLine()) != null) { jsonStr += line + chr; }
-					reader.close();
-					if (jsonStr.indexOf(key+"=")==-1) {
-						jsonStr += key+"="+name + chr;
-						writer = Files.newBufferedWriter(lang.toPath());
+					while((line = reader.readLine()) != null) {
+						if (line.indexOf("=")==-1) { continue; }
+						String[] vk = line.split("=");
+						if (vk[0].equals(key)) { continue; }
+						jsonMap.put(vk[0], vk[1]);
 					}
+					reader.close();
+					writer = Files.newBufferedWriter(lang.toPath());
 				}
-				catch (IOException e) { jsonStr = key+"="+name; }
+				catch (IOException e) { }
 			}
-			if (writer!=null && jsonStr.length()>0) {
+			if (writer!=null && !jsonMap.isEmpty()) {
 				try {
+					String jsonStr = "", str = "";
+					for (String k : jsonMap.keySet()) {
+						String pre = k.indexOf(".")!=-1 ? k.substring(0, k.indexOf(".")) : k;
+						if (!str.isEmpty() && !str.equals(pre)) { jsonStr += ""+chr; }
+						str = pre;
+						jsonStr += k + "=" + jsonMap.get(k) + chr;
+					}
 					writer.write(jsonStr);
 					writer.close();
 					write = true;

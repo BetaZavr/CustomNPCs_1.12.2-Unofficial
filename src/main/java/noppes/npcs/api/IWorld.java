@@ -79,7 +79,11 @@ public interface IWorld {
 
 	void removeBlock(int x, int y, int z);
 
+	void removeBlock(IPos pos);
+
 	void setBlock(int x, int y, int z, String name, int meta);
+	
+	void setBlock(IPos pos, String name, int meta);
 
 	void setRaining(boolean bo);
 

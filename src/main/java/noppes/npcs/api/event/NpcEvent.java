@@ -102,6 +102,7 @@ extends CustomNPCsEvent {
 	}
 
 	public static class RangedLaunchedEvent extends NpcEvent {
+		
 		public float damage;
 		public List<IProjectile<?>> projectiles;
 		public IEntityLivingBase<?> target;

@@ -54,7 +54,10 @@ public class SchematicWrapper {
 	public Map<String, NBTTagCompound> tileEntities;
 	public World world;
 	public ICommandSender sender;
+	
 	private BuilderData builder;
+	private List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
+	private List<Entity> listE = Lists.<Entity>newArrayList();
 	
 	public SchematicWrapper(ISchematic schematic) {
 		this.start = BlockPos.ORIGIN;
@@ -79,16 +82,14 @@ public class SchematicWrapper {
 		if (endPos > this.size) { endPos = this.size; }
 		// blocks first and next types
 		if (this.layer<2) {
-			List<SchematicBlockData> listB = Lists.<SchematicBlockData>newArrayList();
-			List<Entity> listE = Lists.<Entity>newArrayList();
-			if (this.builder.doMap.containsKey(this.builder.doPos)) { listB = this.builder.doMap.get(this.builder.doPos); }
-			if (this.builder.enMap.containsKey(this.builder.doPos)) { listE = this.builder.enMap.get(this.builder.doPos); }
 			if (this.layer==0 && this.builder != null) { // remove Entity
+				this.listB = Lists.<SchematicBlockData>newArrayList();
+				this.listE = Lists.<Entity>newArrayList();
 				BlockPos ps = this.start;
 				BlockPos pe = this.start.add(this.rotation % 2 == 0 ? this.schema.getWidth() : this.schema.getLength(), this.schema.getHeight(), this.rotation % 2 == 0 ? this.schema.getLength() : this.schema.getWidth());
 				for (Entity e : this.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(ps.getX()-0.5d, ps.getY()-0.5d, ps.getZ()-0.5d, pe.getX()+0.5d, pe.getY()+0.5d, pe.getZ()+0.5d))) {
 					if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
-					listE.add(e);
+					this.listE.add(e);
 					e.isDead = true;
 				}
 			}
@@ -97,19 +98,11 @@ public class SchematicWrapper {
 				int x = this.buildPos % this.schema.getWidth();
 				int z = (this.buildPos - x) / this.schema.getWidth() % this.schema.getLength();
 				int y = ((this.buildPos - x) / this.schema.getWidth() - z) / this.schema.getLength();
-				BlockPos p = new BlockPos(x, y, z);
-				SchematicBlockData sbd = new SchematicBlockData(this.world , this.world.getBlockState(p), p);
-				if (this.place(x, y, z, this.layer==0)) {
-					listB.add(sbd);
-				}
+				SchematicBlockData sbd = this.place(x, y, z, this.layer==0);
+				if (sbd!=null) { this.listB.add(sbd); }
 				++this.buildPos;
 			}
 			this.time += System.currentTimeMillis() - t;
-			if (this.builder.doMap.containsKey(this.builder.doPos)) {
-				this.builder.doMap.put(this.builder.doPos, listB);
-				this.builder.enMap.put(this.builder.doPos, listE);
-			}
-			else { this.builder.add(listB, listE); }
 		}
 		if (this.buildPos >= this.size) {
 			switch(this.layer) {
@@ -131,6 +124,9 @@ public class SchematicWrapper {
 				default: {
 					this.layer = 3;
 					this.isBuilding = false;
+					if (this.builder != null) {
+						this.builder.add(this.listB, this.listE);
+					}
 				}
 			}
 		}
@@ -221,29 +217,29 @@ public class SchematicWrapper {
 	 * @param x,y,z - BlockPos
 	 * @param firstLayer - not Air and FullBlock, next vice versa
 	 */
-	public boolean place(int x, int y, int z, boolean firstLayer) {
-		IBlockState stateInSchem = this.schema.getBlockState(x, y, z);
-		if (stateInSchem == null || (firstLayer && !stateInSchem.isFullBlock() && stateInSchem.getBlock()!=Blocks.AIR) || (!firstLayer && (stateInSchem.isFullBlock() || stateInSchem.getBlock()==Blocks.AIR))) { return false; }
+	public SchematicBlockData place(int x, int y, int z, boolean firstLayer) {
+		IBlockState state = this.schema.getBlockState(x, y, z);
+		if (state == null || (firstLayer && !state.isFullBlock() && state.getBlock()!=Blocks.AIR) || (!firstLayer && (state.isFullBlock() || state.getBlock()==Blocks.AIR))) { return null; }
 		int rotation = this.rotation / 90;
 		BlockPos pos = this.start.add(this.rotatePos(x, y, z, rotation));
-		stateInSchem = SchematicWrapper.rotationState(stateInSchem, rotation);
+		SchematicBlockData sbd = new SchematicBlockData(this.world , this.world.getBlockState(pos), pos);
+		state = SchematicWrapper.rotationState(state, rotation);
 		if (this.builder!=null) {
-			IBlockState stateInWolrd = this.world.getBlockState(pos);
-			if (stateInSchem.getBlock()==Blocks.AIR && !this.builder.addAir) { return false; } // not place air
-			if (stateInWolrd!=null) {
-				if (!this.builder.replaseAir && stateInWolrd.getBlock()!=Blocks.AIR && stateInWolrd.getBlock().canSpawnInBlock()) { return false; } // not place solid
+			if (state.getBlock()==Blocks.AIR && !this.builder.addAir) { return null; } // not place air
+			if (sbd.state!=null) {
+				if (!this.builder.replaseAir && sbd.state.getBlock()!=Blocks.AIR && sbd.state.getBlock().canSpawnInBlock()) { return null; } // not place solid
 				@SuppressWarnings("deprecation")
-				Material mat = stateInWolrd.getBlock().getMaterial(stateInWolrd);
-				if (mat.isReplaceable() && this.builder.isSolid) { return false; } // not solid place
+				Material mat = sbd.state.getBlock().getMaterial(sbd.state);
+				if (mat.isReplaceable() && this.builder.isSolid) { return null; } // not solid place
 			}
 		}
-		this.world.setBlockState(pos, stateInSchem, 2);
-		if (stateInSchem.getBlock() instanceof ITileEntityProvider) {
+		this.world.setBlockState(pos, state, 2);
+		if (state.getBlock() instanceof ITileEntityProvider) {
 			TileEntity tile = this.world.getTileEntity(pos);
 			if (tile != null) {
 				NBTTagCompound comp = this.getTileEntity(x, y, z, pos);
 				if (comp != null) {
-					if (rotation!=0 && stateInSchem.getBlock() instanceof BlockSkull && comp.hasKey("Rot", 1)) {
+					if (rotation!=0 && state.getBlock() instanceof BlockSkull && comp.hasKey("Rot", 1)) {
 						byte d = comp.getByte("Rot");
 						for (int i = 0; i < rotation; ++i) { d += (byte) 4; }
 						d %= (byte) 16;
@@ -253,8 +249,8 @@ public class SchematicWrapper {
 				}
 			}
 		}
-		this.world.setBlockState(pos, stateInSchem, 2);
-		return true;
+		this.world.setBlockState(pos, state, 2);
+		return sbd;
 	}
 
 	public BlockPos rotatePos(int x, int y, int z, int rotation) {

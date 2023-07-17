@@ -1,9 +1,11 @@
 package noppes.npcs.api.wrapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -50,11 +52,17 @@ implements INbtHandler, ICapabilityProvider, Callable<PlayerData> {
 			LogWriter.warn("Unable to get EntityData for " + entity);
 			WrapperEntityData ret = WrapperEntityData.getData(entity);
 			CapabilityDispatcher capabilities = ObfuscationHelper.getValue(Entity.class, entity, CapabilityDispatcher.class);
-			ICapabilityProvider[] caps = ObfuscationHelper.getValue(CapabilityDispatcher.class, capabilities, 0);
-			List<ICapabilityProvider> list = Lists.newArrayList();
-			for (ICapabilityProvider cap : caps) { list.add(cap); }
-			list.add(ret);
-			ObfuscationHelper.setValue(CapabilityDispatcher.class, capabilities, list.toArray(new ICapabilityProvider[list.size()]), 0);
+			if (capabilities!=null) {
+				ICapabilityProvider[] caps = ObfuscationHelper.getValue(CapabilityDispatcher.class, capabilities, 0);
+				List<ICapabilityProvider> list = Lists.newArrayList();
+				for (ICapabilityProvider cap : caps) { list.add(cap); }
+				list.add(ret);
+				ObfuscationHelper.setValue(CapabilityDispatcher.class, capabilities, list.toArray(new ICapabilityProvider[list.size()]), 0);
+			} else {
+				Map<ResourceLocation, ICapabilityProvider> m = Maps.<ResourceLocation, ICapabilityProvider>newHashMap();
+				m.put(WrapperEntityData.key, ret);
+				ObfuscationHelper.setValue(Entity.class, entity, new CapabilityDispatcher(m, null), CapabilityDispatcher.class);
+			}
 			return ret.base;
 		}
 		return data.base;

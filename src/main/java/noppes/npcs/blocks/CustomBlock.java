@@ -1,9 +1,12 @@
 package noppes.npcs.blocks;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
@@ -14,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
@@ -22,6 +26,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomItems;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -39,6 +45,7 @@ implements IPermission, ICustomElement {
 	private EnumBlockRenderType renderType = EnumBlockRenderType.MODEL;
 	public PropertyDirection FACING;
 	public PropertyInteger INT;
+	public PropertyBool BO;
 
 	public CustomBlock(Material material, NBTTagCompound nbtBlock) {
 		super(material);
@@ -56,14 +63,20 @@ implements IPermission, ICustomElement {
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
 		this.setAABB(nbtBlock.getTagList("AABB", 6));
+		
 		this.renderType = CustomBlock.getNbtRenderType(nbtBlock.getString("BlockRenderType"));
 
-		this.INT=null;
-		this.FACING=null;
+		this.BO = null;
+		this.INT = null;
+		this.FACING = null;
 		if (nbtBlock.hasKey("Property", 10)) {
 			ObfuscationHelper.setValue(Block.class, this, this.createBlockState(), BlockStateContainer.class);
 			NBTTagCompound nbtProperty = nbtBlock.getCompoundTag("Property");
 			switch(nbtProperty.getByte("Type")) {
+				case (byte) 1: {
+					this.setDefaultState(this.blockState.getBaseState().withProperty(this.BO, false));
+					break;
+				}
 				case (byte) 3: {
 					this.setDefaultState(this.blockState.getBaseState().withProperty(this.INT, 0));
 					break;
@@ -109,20 +122,31 @@ implements IPermission, ICustomElement {
 	public static EnumBlockRenderType getNbtRenderType(String string) {
 		switch(string.toLowerCase()) {
 			case "invisible": return EnumBlockRenderType.INVISIBLE;
-			case "liquid": return EnumBlockRenderType.LIQUID;
+			case "liquid": return EnumBlockRenderType.MODEL;
 			case "entityblock_animated": return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
 			default: return EnumBlockRenderType.MODEL;
 		}
 	}
 
 	private void setAABB(NBTTagList tagList) {
-		double[] v = new double[6];
+		double[] v = new double[] { 0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D };
 		for (int i=0; i<6; i++) {
 			double s = i<3 ? 0.0d : 1.0d;
 			if (i < tagList.tagCount()) { s = tagList.getDoubleAt(i); }
 			v[i] = s;
 		}
 		this.FULL_BLOCK_AABB = new AxisAlignedBB(v[0], v[1], v[2], v[3], v[4], v[5]);
+	}
+	
+	@Nullable
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+		if (this.nbtData==null || !this.nbtData.getBoolean("IsPassable")) { return blockState.getBoundingBox(worldIn, pos); }
+		return NULL_AABB;
+	}
+	
+	public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
+		if (this.nbtData==null || !this.nbtData.hasKey("IsPassable", 3)) { return !this.blockMaterial.blocksMovement(); }
+		return this.nbtData.getBoolean("IsPassable");
 	}
 
 	public static SoundType getNbtSoundType(String soundName) {
@@ -160,28 +184,24 @@ implements IPermission, ICustomElement {
 		return this.nbtData.getBoolean("IsLadder");
 	}
 	
-	public boolean isPassable(IBlockAccess world, BlockPos pos) {
-		return this.nbtData.getBoolean("IsPassable");
-	}
-	
 	public boolean isOpaqueCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsOpaqueCube") ? true : this.nbtData.getBoolean("IsOpaqueCube"); }
 	
 	public boolean isFullCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? true : this.nbtData.getBoolean("IsFullCube"); }
 	
 	public EnumBlockRenderType getRenderType(IBlockState state) { return this.renderType; }
 
-	public boolean hasProperty() { return this.INT!=null || this.FACING!=null; }
+	public boolean hasProperty() { return this.BO!=null || this.INT!=null || this.FACING!=null; }
 	
 	public IBlockState getStateFromMeta(int meta) {
+		IBlockState state = this.getDefaultState();
 		if (this.FACING!=null) {
 			EnumFacing enumfacing = EnumFacing.getFront(meta);
 			if (enumfacing.getAxis() == EnumFacing.Axis.Y) { enumfacing = EnumFacing.NORTH; }
-			return this.getDefaultState().withProperty(this.FACING, enumfacing);
+			state.withProperty(this.FACING, enumfacing);
 		}
-		if (this.INT!=null) {
-			return this.getDefaultState().withProperty(this.INT, meta);
-		}
-		return this.getDefaultState();
+		if (this.INT!=null) { state.withProperty(this.INT, meta); }
+		if (this.BO!=null) { state.withProperty(this.BO, meta!=0); }
+		return state;
 	}
 
 	public int getMetaFromState(IBlockState state) {
@@ -205,6 +225,10 @@ implements IPermission, ICustomElement {
 		if (this.nbtData!=null && this.nbtData.hasKey("Property", 10)) {
 			NBTTagCompound nbtProperty = this.nbtData.getCompoundTag("Property");
 			switch(nbtProperty.getByte("Type")) {
+				case (byte) 1: {
+					this.BO = PropertyBool.create(nbtProperty.getString("Name"));
+					return new BlockStateContainer(this, new IProperty[] {this.BO});
+				}
 				case (byte) 3: {
 					this.INT = PropertyInteger.create(nbtProperty.getString("Name"), nbtProperty.getInteger("Min"), nbtProperty.getInteger("Max"));
 					return new BlockStateContainer(this, new IProperty[] {this.INT});
@@ -216,6 +240,12 @@ implements IPermission, ICustomElement {
 			}
 		}
 		return new BlockStateContainer(this, new IProperty[0]);
+		
+	}
+
+	@Override
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		return this.FULL_BLOCK_AABB;
 	}
 
 	@Override
@@ -223,5 +253,18 @@ implements IPermission, ICustomElement {
 
 	@Override
 	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
+
+
+	@SideOnly(Side.CLIENT)
+	public BlockRenderLayer getBlockLayer() {
+		String name = "";
+		if (this.nbtData!=null && this.nbtData.hasKey("BlockLayer", 8)) { name = this.nbtData.getString("BlockLayer"); }
+		switch(name.toLowerCase()) {
+			case "cutout": return BlockRenderLayer.CUTOUT;
+			case "cutout_mipped": return BlockRenderLayer.CUTOUT_MIPPED;
+			case "translucent": return BlockRenderLayer.TRANSLUCENT;
+			default: return BlockRenderLayer.SOLID;
+		}
+	}
 	
 }

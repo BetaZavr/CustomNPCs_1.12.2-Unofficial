@@ -105,12 +105,14 @@ public class Schematic implements ISchematic {
 			if (state.getBlock() instanceof ITileEntityProvider) {
 				TileEntity tile = world.getTileEntity(pos.add(x, y, z));
 				NBTTagCompound nbtTile = new NBTTagCompound();
-				tile.writeToNBT(nbtTile);
-				int newX = i % schema.width;
-				int newZ = (i - newX) / schema.width % schema.length;
-				nbtTile.setInteger("x", newX);
-				nbtTile.setInteger("y", y);
-				nbtTile.setInteger("z", newZ);
+				if (tile!=null) {
+					tile.writeToNBT(nbtTile);
+					int newX = i % schema.width;
+					int newZ = (i - newX) / schema.width % schema.length;
+					nbtTile.setInteger("x", newX);
+					nbtTile.setInteger("y", y);
+					nbtTile.setInteger("z", newZ);
+				}
 				schema.tileList.appendTag(nbtTile);
 			}
 		}

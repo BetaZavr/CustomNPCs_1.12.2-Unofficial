@@ -193,6 +193,10 @@ public class ClientTickHandler {
 		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
 		//TempClass.run((EntityPlayerSP) entity);
 		
+		//System.out.println("item: "+entity.getHeldItemMainhand().getItem().onItemUse((EntityPlayer) entity, entity.world, new BlockPos(282, 60, 220), EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 0.5f, 0.5f));
+		
+		//((EntityPlayerMP) entity).setPositionAndUpdate(5001.5d, 151.5d, 5001.5d);
+		
 		/*try {
 			Class<?> cl = Class.forName("net.minecraft.util.EnumParticleTypes");
 			System.out.println("Enum class: "+cl);
@@ -214,26 +218,61 @@ public class ClientTickHandler {
 		}
 		catch (ClassNotFoundException e) { e.printStackTrace(); }*/
 		
-		/*// Placer
-		int sx = 4952, sy = 160, sz = 4952, cx = 0, cz = 0, i = 0;
+		/*// Simple Placer
+		int d = 128, sx = -5000 - d, sy = 0, sz = 5000 - d, cx = 0, cy = 0, cz = 0, i = 0;
+		int nx = d*2, ny=9, nz = d*2;
 		long t = System.currentTimeMillis();
-		System.out.println("size: "+(97*97));
-		Block block = Block.REGISTRY.getObject(new ResourceLocation(CustomNpcs.MODID, "custom_block_9"));
-		System.out.println("block_9: "+block);
-		if (block==null) { return; }
-		while(cz<97) {
-			while(cx<97) {
-				IBlockState place = block.getDefaultState();
-				//if (cz>2 && cz<95 && cx>2 && cx<95) { place = Blocks.AIR.getDefaultState(); }
-				entity.world.setBlockState(new BlockPos(sx+cx, sy, sz+cz), Blocks.AIR.getDefaultState());
+		System.out.println("size: "+(nx*nz));
+		//Block block = Block.REGISTRY.getObject(new ResourceLocation(CustomNpcs.MODID, "custom_block_9"));
+		//System.out.println("block_9: "+block);
+		//if (block==null) { return; }
+		while(cy<ny) {
+			while(cz<nz) {
+				while(cx<nx) {
+					//IBlockState place = block.getDefaultState();
+					//if (cz>2 && cz<95 && cx>2 && cx<95) { place = Blocks.AIR.getDefaultState(); }
+					entity.world.setBlockState(new BlockPos(sx+cx, sy, sz+cz), Blocks.AIR.getDefaultState());
+					i++;
+					cx ++;
+					//if (sx+cx == -5000) { System.out.println("xyz["+cx+", "+cy+", "+cz+"]: ["+(sx+cx)+", "+sy+", "+(sz+cz)+"]"); }
+				}
+				cz ++;
+				cx = 0;
+				//System.out.println("y["+cy+"]: "+(sy + cy)+"; z["+cz+"]: "+(sz + cz)+"; ["+sx+"/"+(sx+nx)+"]");
+			}
+			cy ++;
+			cz = 0;
+		}
+		System.out.println("total["+i+"]: "+AdditionalMethods.ticksToElapsedTime(t-System.currentTimeMillis(), true, false, false));
+		*/
+		
+		/*// Radius Placer
+		int radius = 64, sx = -5000 - radius, sy = 3, sz = 5000 - radius, cx = 0 - radius, cz = 0 - radius, i = 0;
+		int nx = radius, nz = radius;
+		System.out.println("size: "+(4 * radius * radius)+" / "+Math.round(Math.PI * Math.pow(radius, 2.0d)));
+		long t = System.currentTimeMillis();
+		while(cz<nz) {
+			while(cx<nx) {
+				double tr = Math.sqrt(Math.pow((double) cx + 0.5d, 2.0d) +Math.pow((double) cz + 0.5d, 2.0d));
+				if (tr>radius) { cx ++; continue; }
+				int cy = tr>radius/3 ? tr>radius*2/3 ? 2 : 1 : 0;
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy, sz+cz+radius), Blocks.BEDROCK.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+1, sz+cz+radius), Blocks.STONE.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+2, sz+cz+radius), Blocks.STONE.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+3, sz+cz+radius), Blocks.STONE.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+4, sz+cz+radius), Blocks.DIRT.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+5, sz+cz+radius), Blocks.DIRT.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+6, sz+cz+radius), Blocks.DIRT.getDefaultState());
+				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+7, sz+cz+radius), Blocks.GRASS.getDefaultState());
 				i++;
 				cx ++;
 			}
 			cz ++;
-			cx = 0;
+			cx = 0 - radius;
 			System.out.println("z["+cz+"]: "+(sz + cz));
 		}
-		System.out.println("total["+i+"]: "+AdditionalMethods.ticksToElapsedTime(t-System.currentTimeMillis(), true, false, false));*/
+		System.out.println("total["+i+"]: "+AdditionalMethods.ticksToElapsedTime(t-System.currentTimeMillis(), true, false, false));
+		*/
 	}
 
 }

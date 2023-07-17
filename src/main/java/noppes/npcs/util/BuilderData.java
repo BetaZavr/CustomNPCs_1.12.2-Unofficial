@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -575,9 +576,13 @@ public class BuilderData {
 		}
 		// Create block data to work
 		Map<Integer, SchematicBlockData> tempBlocks = Maps.<Integer, SchematicBlockData>newHashMap();
+		SchematicBlockData main = null;
 		if (this.type!=0) {
 			int total = 0, mPos = -1, max = -1;
 			Map<Integer, Integer> bls = Maps.<Integer, Integer>newHashMap(); // [slot, chance]
+			if (!this.inv.getStackInSlot(0).isEmpty() && Block.getBlockFromItem(this.inv.getStackInSlot(0).getItem())!=null) {
+				main = new SchematicBlockData(player.world, this.inv.getStackInSlot(0));
+			}
 			for (int i=1; i<10; i++) {
 				ItemStack stack = this.inv.getStackInSlot(i);
 				if (stack.isEmpty() || Block.getBlockFromItem(stack.getItem())==null) { continue; }
@@ -670,11 +675,23 @@ public class BuilderData {
 					}
 					else if (this.type==2) { // replase
 						if (!this.replaseAir && state.getBlock()==Blocks.AIR) { continue; }
-						SchematicBlockData bd = tempBlocks.get(sum-1);
-						listB.add(new SchematicBlockData(player.world, state, p));
-						bd.pos = new BlockPos(p);
-						bd.world = player.world;
-						bd.set(bd.pos);
+						if (main!=null && !main.state.getBlock().equals(state.getBlock())) { continue; }
+						if (!tempBlocks.isEmpty()) {
+							SchematicBlockData bd = tempBlocks.get(this.rnd.nextInt(tempBlocks.size()));
+							listB.add(new SchematicBlockData(player.world, state, p));
+							bd.pos = new BlockPos(p);
+							bd.world = player.world;
+							if (state.getBlock() instanceof BlockSlab) {
+								bd.state.withProperty(BlockSlab.HALF, state.getValue(BlockSlab.HALF));
+							}
+							bd.set(bd.pos);
+						} else {
+							SchematicBlockData bd = tempBlocks.get(sum-1);
+							listB.add(new SchematicBlockData(player.world, state, p));
+							bd.pos = new BlockPos(p);
+							bd.world = player.world;
+							bd.set(bd.pos);
+						}
 					}
 				}
 				cz++; cx=0;

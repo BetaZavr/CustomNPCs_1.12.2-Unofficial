@@ -21,25 +21,9 @@ extends Particle
 implements ICustomElement
 {
 	
-	public NBTTagCompound nbtData;
-	
-	public int id = 0, argumentCount = 0;
-	public boolean shouldIgnoreRange = false;
-	public String name;
+	private NBTTagCompound nbtData;
 	private ResourceLocation texture, obj;
 	private boolean full = false;
-	
-	public CustomParticle(NBTTagCompound nbtParticle, int id) {
-		super(null, 0, 0, 0);
-		this.nbtData = nbtParticle;
-		this.id = id;
-		this.name = nbtParticle.getString("RegistryName").toUpperCase();
-		while(this.name.indexOf(" ")!=-1) { this.name = this.name.replace(" ", "_"); }
-		nbtParticle.setString("RegistryName", this.name);
-		this.name = "CUSTOM_" + this.name;
-		if (nbtParticle.hasKey("ShouldIgnoreRange", 1)) { this.shouldIgnoreRange = nbtParticle.getBoolean("ShouldIgnoreRange"); }
-		if (nbtParticle.hasKey("ArgumentCount", 3)) { this.argumentCount = nbtParticle.getInteger("ArgumentCount"); }
-	}
 	
 	public CustomParticle(NBTTagCompound data, TextureManager textureManager, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int ... parametrs) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);

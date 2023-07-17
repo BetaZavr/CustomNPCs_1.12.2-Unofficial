@@ -123,13 +123,13 @@ implements IPermission {
 			return;
 		}
 		if (builder.type==4) { builder.schMap.clear(); return; }
-		ItemStack st = new ItemStack(player.world.getBlockState(pos).getBlock());
+		ItemStack st = new ItemStack(player.world.getBlockState(pos).getBlock(), 1, player.world.getBlockState(pos).getBlock().getMetaFromState(player.world.getBlockState(pos)));
 		if (builder.inv.isFull() || st.isEmpty()) {
 			return;
 		}
 		TileEntity tile = player.world.getTileEntity(pos);
 		if (tile!=null) { st.setTagCompound(tile.writeToNBT(new NBTTagCompound())); }
-		String name = st.getItem().getRegistryName().toString();
+		String name = st.getItem().getRegistryName().toString() + (st.getItemDamage() !=0 ? " [" + st.getItemDamage() + "]": "");
 		
 		if (builder.type==2) {
 			builder.inv.items.set(0, st);

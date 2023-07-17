@@ -170,9 +170,7 @@ extends NpcAPI {
 	@Override
 	public IEntity<?> getIEntity(Entity entity) {
 		if (entity == null || entity.world==null) { return null; }
-		if (entity instanceof EntityNPCInterface) {
-			return ((EntityNPCInterface) entity).wrappedNPC;
-		}
+		if (entity instanceof EntityNPCInterface) { return ((EntityNPCInterface) entity).wrappedNPC; }
 		return WrapperEntityData.get(entity);
 	}
 

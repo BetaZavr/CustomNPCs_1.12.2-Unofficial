@@ -106,18 +106,14 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 									int i = 0;
 									for (OptionDialogID od : option.dialogs) {
 										if (od.dialogId!=dialog.id) { continue; }
-										activationDialogs.add(chr + "7ID:" + d.id + chr + "8 " +
-												(new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + option.slot + "." + i + chr + "8; " +
-												d.category.getName() + "/" + chr + "r" + d.getName());
+										activationDialogs.add(chr + "7ID:" + d.id + chr + "8 " + (new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + option.slot + "." + i + chr + "8; " + d.category.getName() + "/" + chr + "r" + d.getName());
 										i++;
 									}
 								}
 								if (nextDialogIDs.containsValue(d.id)) {
 									for (String k : nextDialogIDs.keySet()) {
 										if (nextDialogIDs.get(k)!=d.id) { continue; }
-										nextDialogs.add(chr + "8" +
-												(new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + k + chr + "7 ID:" + d.id + chr + "8; " +
-												d.category.getName() + "/" + chr + "r" + d.getName());
+										nextDialogs.add(chr + "8" + (new TextComponentTranslation("gui.answer").getFormattedText()) + chr + "8: " + chr + "7" + k + chr + "7 ID:" + d.id + chr + "8; " + d.category.getName() + "/" + chr + "r" + d.getName());
 									}
 								}
 							}

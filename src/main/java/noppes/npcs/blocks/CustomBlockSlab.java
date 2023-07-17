@@ -8,11 +8,16 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
@@ -26,6 +31,8 @@ extends BlockSlab
 implements ICustomElement {
 	
 	public static class CustomBlockSlabDouble extends CustomBlockSlab {
+
+		public CustomBlockSlabSingle singleBlock;
 		
 		public CustomBlockSlabDouble(NBTTagCompound nbtBlock) {
 			super(nbtBlock);
@@ -35,22 +42,26 @@ implements ICustomElement {
 		}
 
 		@Override
-		public boolean isDouble() {
-			return true;
-		}
+		public boolean isDouble() { return true; }
 
-		public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
-
+		public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) { }
+		
+		public void setSingle(CustomBlockSlabSingle block) {
+			this.singleBlock = block;
 		}
+		
 	}
 
 	public static class CustomBlockSlabSingle extends CustomBlockSlab {
 		
-		public CustomBlockSlabSingle(NBTTagCompound nbtBlock) {
+		public CustomBlockSlabDouble doubleBlock;
+		
+		public CustomBlockSlabSingle(NBTTagCompound nbtBlock, CustomBlockSlabDouble addblock) {
 			super(nbtBlock);
 			String name = "custom_"+nbtBlock.getString("RegistryName");
 			this.setRegistryName(CustomNpcs.MODID, name.toLowerCase());
 			this.setUnlocalizedName(name.toLowerCase());
+			this.doubleBlock = addblock;
 		}
 
 		@Override
@@ -125,10 +136,7 @@ implements ICustomElement {
 	public int getMetaFromState(IBlockState state) {
 		int i = 0;
 		i = i | state.getValue(VARIANT).ordinal();
-
-		if (!isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP)
-			i |= 8;
-
+		if (!isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP) { i |= 8; }
 		return i;
 	}
 	
@@ -137,6 +145,19 @@ implements ICustomElement {
 	}
 
 	public int damageDropped(IBlockState state) { return state.getValue(VARIANT).ordinal(); }
+
+	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+		ItemStack stack = super.getPickBlock(state, target, world, pos, player);
+		return stack;
+	}
+
+	@Override
+	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
+		if (this.isDouble()) { return this.getDefaultState(); }
+		IBlockState iblockstate = super.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(HALF, BlockSlab.EnumBlockHalf.BOTTOM);
+		return facing != EnumFacing.DOWN && (facing == EnumFacing.UP || (double)hitY <= 0.5D) ? iblockstate : iblockstate.withProperty(HALF, BlockSlab.EnumBlockHalf.TOP);
+	}
 	
 	@Override
 	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
