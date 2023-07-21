@@ -8,6 +8,7 @@ import noppes.npcs.api.wrapper.ContainerCustomChestWrapper;
 import noppes.npcs.api.wrapper.ContainerWrapper;
 
 public class ContainerNpcInterface extends Container {
+	
 	public static IContainer getOrCreateIContainer(ContainerNpcInterface container) {
 		if (container.scriptContainer != null) {
 			return container.scriptContainer;
@@ -36,4 +37,5 @@ public class ContainerNpcInterface extends Container {
 		return !player.isDead && this.posX == MathHelper.floor(player.posX)
 				&& this.posZ == MathHelper.floor(player.posZ);
 	}
+	
 }

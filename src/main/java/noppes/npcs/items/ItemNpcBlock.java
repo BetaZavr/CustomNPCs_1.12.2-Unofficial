@@ -2,6 +2,7 @@ package noppes.npcs.items;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.IProperty;
@@ -21,12 +22,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.blocks.CustomBlockSlab.CustomBlockSlabDouble;
 import noppes.npcs.blocks.CustomBlockSlab.CustomBlockSlabSingle;
+import noppes.npcs.blocks.CustomDoor;
 
 public class ItemNpcBlock
 extends ItemBlock {
 
-	private CustomBlockSlabSingle singleSlab;
-	private CustomBlockSlabDouble doubleSlab;
+	public CustomBlockSlabSingle singleSlab;
+	public CustomBlockSlabDouble doubleSlab;
 	
 	public ItemNpcBlock(Block block) {
 		super(block);
@@ -41,15 +43,37 @@ extends ItemBlock {
 			this.singleSlab = ((CustomBlockSlabDouble) block).singleBlock;
 			this.doubleSlab = (CustomBlockSlabDouble) block;
 		}
+		if (block instanceof CustomDoor) {
+			this.setFull3D();
+			this.maxStackSize = 3;
+		}
 	}
 	
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (this.singleSlab==null || this.doubleSlab==null) {
+		if (this.singleSlab==null && this.doubleSlab==null && !(this.block instanceof CustomDoor)) {
 			return super.onItemUse(player, worldIn, pos, hand, facing, hitX, hitY, hitZ);
 		}
-		System.out.println("ItemSlab: "+this.singleSlab+" / "+this.doubleSlab);
-		// ItemSlab
 		ItemStack itemstack = player.getHeldItem(hand);
+		// ItemDoor
+		if (this.block instanceof CustomDoor) {
+			if (facing != EnumFacing.UP) { return EnumActionResult.FAIL; }
+			IBlockState iblockstate = worldIn.getBlockState(pos);
+            Block block = iblockstate.getBlock();
+            if (!block.isReplaceable(worldIn, pos)) { pos = pos.offset(facing); }
+            if (player.canPlayerEdit(pos, facing, itemstack) && this.block.canPlaceBlockAt(worldIn, pos)) {
+                EnumFacing enumfacing = EnumFacing.fromAngle((double)player.rotationYaw);
+                int i = enumfacing.getFrontOffsetX();
+                int j = enumfacing.getFrontOffsetZ();
+                boolean flag = i < 0 && hitZ < 0.5F || i > 0 && hitZ > 0.5F || j < 0 && hitX > 0.5F || j > 0 && hitX < 0.5F;
+                ItemNpcBlock.placeDoor(worldIn, pos, enumfacing, this.block, flag);
+                SoundType soundtype = worldIn.getBlockState(pos).getBlock().getSoundType(worldIn.getBlockState(pos), worldIn, pos, player);
+                worldIn.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                itemstack.shrink(1);
+                return EnumActionResult.SUCCESS;
+            }
+			return EnumActionResult.FAIL;
+		}
+		// ItemSlab
 		if (!itemstack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, itemstack)) {
 			Comparable<?> comparable = this.singleSlab.getTypeForItem(itemstack);
 			IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -116,4 +140,25 @@ extends ItemBlock {
 		return false;
 	}
 	
+	public static void placeDoor(World worldIn, BlockPos pos, EnumFacing facing, Block door, boolean isRightHinge) {
+		BlockPos blockpos = pos.offset(facing.rotateY());
+		BlockPos blockpos1 = pos.offset(facing.rotateYCCW());
+		int i = (worldIn.getBlockState(blockpos1).isNormalCube() ? 1 : 0) + (worldIn.getBlockState(blockpos1.up()).isNormalCube() ? 1 : 0);
+		int j = (worldIn.getBlockState(blockpos).isNormalCube() ? 1 : 0) + (worldIn.getBlockState(blockpos.up()).isNormalCube() ? 1 : 0);
+		boolean flag = worldIn.getBlockState(blockpos1).getBlock() == door || worldIn.getBlockState(blockpos1.up()).getBlock() == door;
+		boolean flag1 = worldIn.getBlockState(blockpos).getBlock() == door || worldIn.getBlockState(blockpos.up()).getBlock() == door;
+		if ((!flag || flag1) && j <= i) {
+			if (flag1 && !flag || j < i) { isRightHinge = false; }
+		}
+		else { isRightHinge = true; }
+		BlockPos posUp = pos.up();
+		boolean flag2 = worldIn.isBlockPowered(pos) || worldIn.isBlockPowered(posUp);
+		IBlockState iblockstate = door.getDefaultState().withProperty(BlockDoor.FACING, facing).withProperty(BlockDoor.HINGE, isRightHinge ? BlockDoor.EnumHingePosition.RIGHT : BlockDoor.EnumHingePosition.LEFT).withProperty(BlockDoor.POWERED, Boolean.valueOf(flag2)).withProperty(BlockDoor.OPEN, Boolean.valueOf(flag2));
+		worldIn.setBlockState(pos, iblockstate.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER), 2);
+		worldIn.setBlockState(posUp, iblockstate.withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER), 2);
+		worldIn.notifyNeighborsOfStateChange(pos, door, false);
+		worldIn.notifyNeighborsOfStateChange(posUp, door, false);
+	}
+	
+	public String toString() { return "ItemNpcBlock: "+this.getRegistryName(); }
 }

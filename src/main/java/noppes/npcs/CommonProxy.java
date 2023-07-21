@@ -24,6 +24,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
@@ -37,7 +38,10 @@ import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
+import noppes.npcs.blocks.CustomChest;
+import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
+import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.containers.ContainerBuilderSettings;
@@ -96,8 +100,17 @@ implements IGuiHandler {
 		return null;
 	}
 
-	public Container getContainer(EnumGuiType gui, EntityPlayer player, int x, int y, int z, EntityNPCInterface npc) { // Changed
+	public Container getContainer(EnumGuiType gui, EntityPlayer player, int x, int y, int z, EntityNPCInterface npc) {
+		//String side = player!=null ? player.world.isRemote ? "Client" : "Server" : npc!=null ? npc.world.isRemote ? "Client" : "Server" : "Common";
+		//System.out.println(side+": Try get container { GUI: "+gui+"; for player: "+(player==null?"null":player.getName())+"; on npc: "+(npc==null?"null":npc.getName())+"; to pos: ["+x+", "+y+", "+z+"] }");
 		switch (gui) {
+			case CustomContainer: {
+				TileEntity tile = player.world.getTileEntity(new BlockPos(x,y,z));
+				if (tile instanceof CustomTileEntityChest) {
+					return ((CustomTileEntityChest) tile).createContainer(player.inventory, player);
+				}
+				return null;
+			}
 			case CustomChest: { return new ContainerCustomChest(player, x); }
 			case MainMenuInv: { return new ContainerNPCInv(npc, player); }
 			case MainMenuInvDrop: { return new ContainerNPCDropSetup(npc, player, x, y, z); } // New
@@ -326,11 +339,10 @@ implements IGuiHandler {
 		String crEnt = ""+((char) 10);
 		String crTab = ""+((char) 9);
 
-		
 		File orientable = new File(blockModelsDir, "orientable.json");
 		if (!orientable.exists()) {
-			String jsonOrientable = "";
-			jsonOrientable = "{" + crEnt +
+			String jsonOrientable = "{" + crEnt +
+					crTab + "\"_comment\": \"Orientable Block Model created by default\"," + crEnt +
 					crTab + "\"parent\": \"block/cube\"," + crEnt +
 					crTab + "\"display\": {" + crEnt +
 					crTab + crTab + "\"firstperson_righthand\": {" + crEnt + 
@@ -350,6 +362,87 @@ implements IGuiHandler {
 					crTab + "}" + crEnt + "}";
 			if (this.saveFile(orientable, jsonOrientable)) {
 				LogWriter.debug("Create Orientable Block Model for \"orientable\" block");
+			}
+		}
+		
+
+		File chest = new File(blockModelsDir, "chest.json");
+		if (!chest.exists()) {
+			String jsonChest = "{" + crEnt +
+					crTab + "\"_comment\": \"Chest Block Model created by default\"," + crEnt +
+					crTab + "\"elements\": [" + crEnt +
+					crTab + crTab + "{" + crEnt + 
+					crTab + crTab + crTab + "\"name\": \"chestLid\"," + crEnt + 
+					crTab + crTab + crTab + "\"from\": [1, 0, 1]," + crEnt + 
+					crTab + crTab + crTab + "\"to\": [15, 10, 15]," + crEnt + 
+					crTab + crTab + crTab + "\"faces\": {" + crEnt + 
+					crTab + crTab + crTab + crTab + "\"north\": {\"uv\": [3.5, 8.25, 7, 10.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"east\": {\"uv\": [0, 8.25, 3.5, 10.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"south\": {\"uv\": [10.5, 8.25, 14, 10.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"west\": {\"uv\": [0, 8.25, 3.5, 10.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"up\": {\"uv\": [3.5, 4.75, 7, 8.25], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"down\": {\"uv\": [7, 4.75, 10.5, 8.25], \"texture\": \"#chest\"}" + crEnt +
+					crTab + crTab + crTab + "}" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "{" + crEnt + 
+					crTab + crTab + crTab + "\"name\": \"chestBelow\"," + crEnt + 
+					crTab + crTab + crTab + "\"from\": [1, 9, 1]," + crEnt + 
+					crTab + crTab + crTab + "\"to\": [15, 14, 15]," + crEnt + 
+					crTab + crTab + crTab + "\"faces\": {" + crEnt + 
+					crTab + crTab + crTab + crTab + "\"north\": {\"uv\": [3.5, 3.5, 7, 4.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"east\": {\"uv\": [0, 3.5, 3.5, 4.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"south\": {\"uv\": [10.5, 3.5, 14, 4.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"west\": {\"uv\": [7, 3.5, 10.5, 4.75], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"up\": {\"uv\": [3.5, 0, 7, 3.5], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"down\": {\"uv\": [7, 0, 10.5, 3.5], \"texture\": \"#chest\"}" + crEnt +
+					crTab + crTab + crTab + "}" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "{" + crEnt + 
+					crTab + crTab + crTab + "\"name\": \"chestKnob\"," + crEnt + 
+					crTab + crTab + crTab + "\"from\": [7, 7, 0]," + crEnt + 
+					crTab + crTab + crTab + "\"to\": [9, 11, 1]," + crEnt + 
+					crTab + crTab + crTab + "\"faces\": {" + crEnt + 
+					crTab + crTab + crTab + crTab + "\"north\": {\"uv\": [0.25, 0.25, 0.75, 1.25], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"east\": {\"uv\": [1, 0.25, 1.25, 1.25], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"south\": {\"uv\": [0.75, 0.25, 1.25, 1.25], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"west\": {\"uv\": [0.25, 0.25, 0.5, 1.25], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"up\": {\"uv\": [0.5, 0, 1, 0.25], \"texture\": \"#chest\"}," + crEnt +
+					crTab + crTab + crTab + crTab + "\"down\": {\"uv\": [0.5, 0, 1, 0.25], \"texture\": \"#chest\"}" + crEnt +
+					crTab + crTab + crTab + "}" + crEnt +
+					crTab + crTab + "}" + crEnt +
+					crTab + "]," + crEnt +
+					crTab + "\"display\": {" + crEnt +
+					crTab + crTab + "\"thirdperson_righthand\": {" + crEnt +
+					crTab + crTab + crTab + "\"rotation\": [90, 0, 0]," + crEnt +
+					crTab + crTab + crTab + "\"translation\": [0, 0.25, 0]," + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.35, 0.35, 0.35]" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "\"thirdperson_lefthand\": {" + crEnt +
+					crTab + crTab + crTab + "\"rotation\": [90, 0, 0]," + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.35, 0.35, 0.35]" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "\"firstperson_righthand\": {" + crEnt +
+					crTab + crTab + crTab + "\"translation\": [3, 0, 0]," + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.5, 0.5, 0.5]" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "\"firstperson_lefthand\": {" + crEnt +
+					crTab + crTab + crTab + "\"translation\": [3, 0, 0]," + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.5, 0.5, 0.5]" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "\"ground\": {" + crEnt +
+					crTab + crTab + crTab + "\"translation\": [0, -1, 0]," + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.35, 0.35, 0.35]" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "\"gui\": {" + crEnt +
+					crTab + crTab + crTab + "\"rotation\": [30, -135, 0]," + crEnt +
+					crTab + crTab + crTab + "\"translation\": [0, 0.25, 0]," + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.65, 0.65, 0.65]" + crEnt +
+					crTab + crTab + "}," + crEnt +
+					crTab + crTab + "\"fixed\": {" + crEnt +
+					crTab + crTab + crTab + "\"scale\": [0.55, 0.55, 0.55]" + crEnt +
+					crTab + crTab + "}" + crEnt + crTab + "}" + crEnt + "}";
+			if (this.saveFile(chest, jsonChest)) {
+				LogWriter.debug("Create Chest Block Model for \"custom chest\" block");
 			}
 		}
 		
@@ -472,7 +565,7 @@ implements IGuiHandler {
 			else if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
 				NBTTagCompound data = ((CustomBlock) customblock).nbtData.getCompoundTag("Property");
 				jsonState = "{" + crEnt +
-						crTab + "\"_comment\": \"Custom Facing Block created by default\"," + crEnt +
+						crTab + "\"_comment\": \"Custom "+(data.getByte("Type")==(byte) 1 ? "Byte" : data.getByte("Type")==(byte) 3 ? "Integer" : "Facing")+" Block created by default\"," + crEnt +
 						crTab + "\"variants\": {" + crEnt +
 						crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt +
 						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt;
@@ -497,6 +590,61 @@ implements IGuiHandler {
 				}
 				jsonState = jsonState.substring(0, jsonState.length()-2) + crEnt + crTab + "}" + crEnt + "}";
 			}
+			else if (customblock instanceof CustomDoor) {
+				jsonState = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Block Door created by default\"," + crEnt +
+						crTab + "\"variants\": {" + crEnt +
+						crTab + crTab + "\"facing=east,half=lower,hinge=left,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\" }," + crEnt +
+						crTab + crTab + "\"facing=south,half=lower,hinge=left,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=west,half=lower,hinge=left,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=lower,hinge=left,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=east,half=lower,hinge=right,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\" }," + crEnt +
+						crTab + crTab + "\"facing=south,half=lower,hinge=right,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=west,half=lower,hinge=right,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=lower,hinge=right,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=east,half=lower,hinge=left,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=south,half=lower,hinge=left,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=west,half=lower,hinge=left,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=lower,hinge=left,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom_rh\" }," + crEnt +
+						crTab + crTab + "\"facing=east,half=lower,hinge=right,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=south,half=lower,hinge=right,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\" }," + crEnt +
+						crTab + crTab + "\"facing=west,half=lower,hinge=right,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=lower,hinge=right,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_bottom\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=east,half=upper,hinge=left,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\" }," + crEnt +
+						crTab + crTab + "\"facing=south,half=upper,hinge=left,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=west,half=upper,hinge=left,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=upper,hinge=left,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=east,half=upper,hinge=right,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\" }," + crEnt +
+						crTab + crTab + "\"facing=south,half=upper,hinge=right,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=west,half=upper,hinge=right,open=false\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=upper,hinge=right,open=false\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=east,half=upper,hinge=left,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=south,half=upper,hinge=left,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\", \"y\": 180 }," + crEnt +
+						crTab + crTab + "\"facing=west,half=upper,hinge=left,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=upper,hinge=left,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top_rh\" }," + crEnt +
+						crTab + crTab + "\"facing=east,half=upper,hinge=right,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\", \"y\": 270 }," + crEnt +
+						crTab + crTab + "\"facing=south,half=upper,hinge=right,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\" }," + crEnt +
+						crTab + crTab + "\"facing=west,half=upper,hinge=right,open=true\":  { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\", \"y\": 90 }," + crEnt +
+						crTab + crTab + "\"facing=north,half=upper,hinge=right,open=true\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"_top\", \"y\": 180 }" + crEnt +
+						crTab + "}" + crEnt + "}";
+			}
+			else if (customblock instanceof CustomChest) {
+				boolean type = ((CustomChest) customblock).isChest;
+				jsonState = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom "+(type ? "Chest" : "Container") + " Block created by default\"," + crEnt +
+						crTab + "\"variants\": {" + crEnt +
+						crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt +
+						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt;
+				for (EnumFacing ef : EnumFacing.VALUES) {
+					if (ef==EnumFacing.DOWN || ef==EnumFacing.UP) { continue; }
+					jsonState += crTab + crTab + "\"facing=" + ef.getName2() + "\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\"";
+					if (ef==EnumFacing.SOUTH) { jsonState += ",\"y\": 180"; }
+					else if (ef==EnumFacing.WEST) { jsonState += ",\"y\": 270"; }
+					else if (ef==EnumFacing.EAST) { jsonState += ",\"y\": 90"; }
+					jsonState += " }," + crEnt;
+				}
+				jsonState = jsonState.substring(0, jsonState.length()-2) + crEnt + crTab + "}" + crEnt + "}";
+			}
 			if (jsonState.isEmpty()) {
 				jsonState = "{" + crEnt +
 						crTab + "\"_comment\": \"Custom Block created by default\"," + crEnt +
@@ -504,6 +652,7 @@ implements IGuiHandler {
 						crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt + 
 						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }" + crEnt + 
 						crTab + "}" + crEnt + "}";
+				
 			}
 			if (this.saveFile(blockstate, jsonState)) {
 				LogWriter.debug("Create Default Blockstate for \""+fileName.toLowerCase()+"\" block");
@@ -574,6 +723,46 @@ implements IGuiHandler {
 					}
 				}
 			}
+			else if (customblock instanceof CustomDoor) {
+				jsonModel = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Door Block created by default\"," + crEnt +
+						crTab + "\"parent\": \"block/door_bottom\"," + crEnt +
+						crTab + "\"textures\": {" + crEnt +
+						crTab + crTab + "\"bottom\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_lower\"," + crEnt +
+						crTab + crTab + "\"top\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_upper\"" + crEnt +
+						crTab + "}" + crEnt + "}";
+				if (this.saveFile(blockModel, jsonModel)) {
+					LogWriter.debug("Create Default Door Blocks Model for \""+fileName.toLowerCase()+"\" block");
+				}
+				this.saveFile(new File(blockModelsDir, fileName.toLowerCase()+"_bottom.json"), jsonModel);
+				this.saveFile(new File(blockModelsDir, fileName.toLowerCase()+"_bottom_rh.json"), jsonModel.replace("block/door_bottom", "block/door_bottom_rh"));
+				this.saveFile(new File(blockModelsDir, fileName.toLowerCase()+"_top.json"), jsonModel.replace("block/door_bottom", "block/door_top"));
+				this.saveFile(new File(blockModelsDir, fileName.toLowerCase()+"_top_rh.json"), jsonModel.replace("block/door_bottom", "block/door_top_rh"));
+			}
+			else if (customblock instanceof CustomChest) {
+				boolean type = ((CustomChest) customblock).isChest;
+				if (type) {
+					jsonModel = "{" + crEnt +
+							crTab + "\"_comment\": \"Custom Chest Block created by default\"," + crEnt +
+							crTab + "\"parent\": \""+CustomNpcs.MODID+":block/chest\"," + crEnt +
+							crTab + "\"textures\": {" + crEnt +
+							crTab + crTab + "\"chest\": \""+CustomNpcs.MODID+":entity/chest/"+fileName.toLowerCase()+"\"," + crEnt +
+							crTab + crTab + "\"particle\": \""+CustomNpcs.MODID+":entity/chest/"+fileName.toLowerCase()+"\"" + crEnt +
+							crTab + "}" + crEnt + "}";
+				} else {
+					jsonModel = "{" + crEnt +
+							crTab + "\"_comment\": \"Custom Container Block created by default\"," + crEnt +
+							crTab + "\"parent\": \"block/cube_column\"," + crEnt +
+							crTab + "\"textures\": {" + crEnt +
+							crTab + crTab + "\"side\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_side\"," + crEnt +
+							crTab + crTab + "\"end\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_top\"" + crEnt +
+							crTab + "}" + crEnt + "}";
+				}
+				
+				if (this.saveFile(blockModel, jsonModel)) {
+					LogWriter.debug("Create Default " + (type ? "Chest" : "Container") + " Blocks Model for \""+fileName.toLowerCase()+"\" block");
+				}
+			}
 			else {
 				if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {
 					if (((CustomBlock) customblock).INT!=null) {
@@ -615,7 +804,17 @@ implements IGuiHandler {
 		
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
 		if (!itemModel.exists()) {
-			String jsonStr = "{" + crEnt +
+			String jsonStr = "";
+			if (customblock instanceof CustomDoor) {
+				jsonStr = "{" + crEnt +
+						crTab + "\"_comment\": \"Custom Item Block created by default\"," + crEnt +
+						crTab + "\"parent\": \"minecraft:item/generated\"," + crEnt +
+						crTab + "\"textures\": {" + crEnt +
+						crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/" + fileName.toLowerCase() + "\"" + crEnt +
+						crTab + "}" + crEnt + "}";
+			}
+			else {
+				jsonStr = "{" + crEnt +
 					crTab + "\"_comment\": \"Custom Item Block created by default\"," + crEnt +
 					crTab + "\"parent\": \"" + CustomNpcs.MODID + ":block/" + fileName.toLowerCase() + "\"," + crEnt +
 					crTab + "\"display\": {" + crEnt +
@@ -623,10 +822,8 @@ implements IGuiHandler {
 					crTab + crTab + crTab + "\"rotation\": [ 10, -45, 170 ]," + crEnt +
 					crTab + crTab + crTab + "\"translation\": [ 0, 1.5, -2.75 ]," + crEnt +
 					crTab + crTab + crTab + "\"scale\": [ 0.375, 0.375, 0.375 ]" + crEnt +
-					crTab + crTab + "}" + crEnt +
-					crTab + "}" + crEnt +
-					"}";
-
+					crTab + crTab + "}" + crEnt + crTab + "}" + crEnt + "}";
+			}
 			if (this.saveFile(itemModel, jsonStr)) {
 				LogWriter.debug("Create Default Block Item Model for \""+name+"\" block");
 			}
@@ -868,6 +1065,10 @@ implements IGuiHandler {
 	public boolean isLoadTexture(ResourceLocation resource) { return true; }
 
 	public Side getSide() { return Side.SERVER; }
+
+	public void fixTileEntityData(TileEntity tile) {
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SET_TILE_DATA, tile.writeToNBT(new NBTTagCompound()));
+	}
 
 
 }

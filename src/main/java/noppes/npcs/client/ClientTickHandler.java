@@ -12,9 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -190,9 +190,25 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
-		if (!(entity instanceof EntityPlayerMP) || !CustomNpcs.VerboseDebug) { return; }
+		if (!(entity instanceof EntityPlayerSP) || !CustomNpcs.VerboseDebug) { return; }
 		//TempClass.run((EntityPlayerSP) entity);
 		
+		/*System.out.println("try found chests:");
+		Iterator<Item> iter = Item.REGISTRY.iterator();
+		int i = 0;
+		while (iter.hasNext()) {
+			Item item = iter.next();
+			if (item.getRegistryName().toString().toLowerCase().indexOf("chest")!=-1 && item.getRegistryName().toString().toLowerCase().indexOf("chestplate")==-1) {
+				System.out.println("found["+i+"] - "+item.getRegistryName());
+			}
+			i++;
+		}
+		System.out.println("total["+i+"];");*/
+		
+		/*ItemStack stack = entity.getHeldItemMainhand();
+		Item item = entity.getHeldItemMainhand().getItem();
+		System.out.println("stack: "+stack.getTagCompound());
+		System.out.println("item: "+item.getClass().getName()+" - "+item.getRegistryName());*/
 		//System.out.println("item: "+entity.getHeldItemMainhand().getItem().onItemUse((EntityPlayer) entity, entity.world, new BlockPos(282, 60, 220), EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 0.5f, 0.5f));
 		
 		//((EntityPlayerMP) entity).setPositionAndUpdate(5001.5d, 151.5d, 5001.5d);

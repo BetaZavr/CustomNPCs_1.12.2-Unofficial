@@ -75,7 +75,10 @@ import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab.CustomBlockSlabDouble;
 import noppes.npcs.blocks.CustomBlockSlab.CustomBlockSlabSingle;
 import noppes.npcs.blocks.CustomBlockStairs;
+import noppes.npcs.blocks.CustomChest;
+import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
+import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
 import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.blocks.tiles.TileBorder;
@@ -90,6 +93,7 @@ import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.blocks.tiles.TileWaypoint;
 import noppes.npcs.client.renderer.blocks.BlockCarpentryBenchRenderer;
+import noppes.npcs.client.renderer.blocks.BlockChestRenderer;
 import noppes.npcs.client.renderer.blocks.BlockCopyRenderer;
 import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
 import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
@@ -186,16 +190,14 @@ public class CustomItems {
 	public static CreativeTabNpcs tab = new CreativeTabNpcs("cnpcs");
 	public static CreativeTabNpcs tabBlocks = new CreativeTabNpcs("blocks");
 	public static CreativeTabNpcs tabItems = new CreativeTabNpcs("items");
-	private static List<Block> customblocks = Lists.<Block>newArrayList();
-	private static List<Item> customitems = Lists.<Item>newArrayList();
-	private static List<Potion> custompotions = Lists.<Potion>newArrayList();
+	public static Map<Block, Item> customblocks = Maps.<Block, Item>newHashMap();
+	public static List<Item> customitems = Lists.<Item>newArrayList();
+	public static List<Potion> custompotions = Lists.<Potion>newArrayList();
 	public static List<PotionType> custompotiontypes = Lists.<PotionType>newArrayList();
 	public static Map<Integer, CustomParticleSettings> customparticles = Maps.<Integer, CustomParticleSettings>newTreeMap();
 	
-	/* Registry Types:
-	 * Biome; Block; Enchantment; Item;
-	 * Potion; PotionType; SoundEvent;
-	 * IRecipe
+	/* RegistryEvent.Register<?> Types:
+	 * Biome; Block; Enchantment; Item; Potion; PotionType; SoundEvent; IRecipe
 	 */
 	
 	public static void load() {
@@ -353,6 +355,7 @@ public class CustomItems {
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation("minecraft", "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
 		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
+		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
 		
 		CustomItems.redstoneBlock = new BlockNpcRedstone();
 		CustomItems.mailbox = new BlockMailbox();
@@ -384,9 +387,8 @@ public class CustomItems {
 		try { if (blocksFile.exists()) { nbtBlocks = NBTJsonUtil.LoadFile(blocksFile); } }
 		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_blocks.js: ", e); }
 		
-		boolean hEB = false, hEL = false, hES = false, hEP = false, hEFB = false, hEEP = false;
+		boolean hEB = false, hEL = false, hES = false, hEP = false, hEFB = false, hEEP = false, hEC = false, hED = false, hECc = false;
 		boolean resave = false;
-		
 		if (nbtBlocks.hasKey("Blocks", 9)) {
 			for (int i = 0; i < nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 				String name = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -396,12 +398,16 @@ public class CustomItems {
 				if (name.equals("stairsexample")) { hES = true; }
 				if (name.equals("slabexample")) { hEP = true; }
 				if (name.equals("portalexample")) { hEEP = true; }
-				if (hEB && hEL && hES && hEP && hEFB && hEEP) { break; }
+				if (name.equals("chestexample")) { hEC = true; }
+				if (name.equals("containerexample")) { hECc = true; }
+				if (name.equals("doorexample")) { hED = true; }
+				if (hEB && hEL && hES && hEP && hEFB && hEEP && hEC && hED && hECc) { break; }
 			}
 		}
-		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEB || !hEL || !hES || !hEP || !hEFB || !hEEP) {
+		boolean hE = !hEB || !hEL || !hES || !hEP || !hEFB || !hEEP || !hEC || !hED || !hECc;
+		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || hE) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
-			if (!hEB || !hEL || !hES || !hEP || !hEFB || !hEEP) {
+			if (hE) {
 				NBTTagCompound nbt = CustomItems.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
@@ -410,7 +416,10 @@ public class CustomItems {
 						|| (name.equals("stairsexample") && !hES)
 						|| (name.equals("slabexample") && !hEP)
 						|| (name.equals("facingblockexample") && !hEFB)
-						|| (name.equals("portalexample") && !hEEP)) {
+						|| (name.equals("portalexample") && !hEEP)
+						|| (name.equals("chestexample") && !hEC)
+						|| (name.equals("containerexample") && !hECc)
+						|| (name.equals("doorexample") && !hED)) {
 						nbtBlocks.getTagList("Blocks", 10).appendTag(nbt.getTagList("Blocks", 10).getCompoundTagAt(i));
 					}
 				}
@@ -420,7 +429,7 @@ public class CustomItems {
 		
 		for (int i=0; i<nbtBlocks.getTagList("Blocks", 10).tagCount(); i++) {
 			NBTTagCompound nbtBlock = nbtBlocks.getTagList("Blocks", 10).getCompoundTagAt(i);
-			if (!nbtBlock.hasKey("RegistryName", 8) || !nbtBlock.hasKey("BlockType", 1) || nbtBlock.getString("RegistryName").isEmpty() || nbtBlock.getByte("BlockType")<(byte)0 || nbtBlock.getByte("BlockType")>(byte)5) {
+			if (!nbtBlock.hasKey("RegistryName", 8) || !nbtBlock.hasKey("BlockType", 1) || nbtBlock.getString("RegistryName").isEmpty() || nbtBlock.getByte("BlockType")<(byte)0 || nbtBlock.getByte("BlockType")>(byte)6) {
 				LogWriter.error("Attempt to load block pos: "+i+"; name: \""+nbtBlock.getString("RegistryName")+"\" - failed");
 				continue;
 			}
@@ -429,9 +438,10 @@ public class CustomItems {
 			switch(nbtBlock.getByte("BlockType")) {
 				case (byte) 1: // Liquid
 					Fluid fluid = FluidRegistry.getFluid("custom_fluid_"+nbtBlock.getString("RegistryName"));
-					if (fluid!=null) {
-						block = new CustomLiquid(fluid, CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
-					}
+					if (fluid!=null) { block = new CustomLiquid(fluid, CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock); }
+					break;
+				case (byte) 2: // Chest
+					block = new CustomChest(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
 					break;
 				case (byte) 3: // Stairs
 					block = new CustomBlockStairs(nbtBlock);
@@ -444,9 +454,13 @@ public class CustomItems {
 				case (byte) 5: // Stairs
 					block = new CustomBlockPortal(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
 					break;
+				case (byte) 6: // Door
+					block = new CustomDoor(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
+					break;
 				default: // Simple
 					block = new CustomBlock(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
 			}
+			if (block==null) { continue; }
 			if (names.contains(block.getRegistryName().toString()) || Block.getBlockFromName(block.getRegistryName().toString())!=null) {
 				LogWriter.error("Attempt to load a registred block \""+block.getRegistryName()+"\"");
 				continue;
@@ -458,7 +472,7 @@ public class CustomItems {
 			}
 			LogWriter.info("Load Custom Block \""+block.getRegistryName()+"\"");
 			blocks.add(block);
-			CustomItems.customblocks.add(block);
+			CustomItems.customblocks.put(block, new ItemNpcBlock(block));
 			names.add(block.getRegistryName().toString());
 			if (addblock!=null) {
 				if (names.contains(addblock.getRegistryName().toString()) || Block.getBlockFromName(addblock.getRegistryName().toString())!=null) {
@@ -471,7 +485,7 @@ public class CustomItems {
 				}
 				LogWriter.info("Load Custom Block \""+addblock.getRegistryName()+"\"");
 				blocks.add(addblock);
-				CustomItems.customblocks.add(addblock);
+				CustomItems.customblocks.put(addblock, new ItemNpcBlock(addblock));
 				names.add(addblock.getRegistryName().toString());
 			}
 		}
@@ -610,8 +624,9 @@ public class CustomItems {
 		
 		CustomItems.tabBlocks.item = iscr;
 		CustomItems.tabItems.item = CustomItems.scripted_item;
-		for (Block block : CustomItems.customblocks) {
-			Item item = new ItemNpcBlock(block);
+		for (Block block : CustomItems.customblocks.keySet()) {
+			Item item = CustomItems.customblocks.get(block);
+			if (item==null) { continue; }
 			items.add(item);
 			if (item.getRegistryName().getResourcePath().equals("custom_blockexample") || CustomItems.tabBlocks.item==iscr) {
 				CustomItems.tabBlocks.item = item;
@@ -811,13 +826,11 @@ public class CustomItems {
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.builder), 0, new ModelResourceLocation(CustomItems.builder.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.copy), 0, new ModelResourceLocation(CustomItems.copy.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.carpentyBench), 0, new ModelResourceLocation(CustomItems.carpentyBench.getRegistryName(), "inventory"));
-		for (Block block : CustomItems.customblocks) {
-			if (block instanceof CustomBlockPortal) {
-				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build());
-			}
-			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
+		for (Block block : CustomItems.customblocks.keySet()) {
+			if (block instanceof CustomBlockPortal) { ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build()); }
+			else if (block instanceof CustomDoor) { ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build()); }
+			ModelLoader.setCustomModelResourceLocation(CustomItems.customblocks.get(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
 		}
-		
 		// Items
 		ModelLoader.setCustomModelResourceLocation(CustomItems.wand, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcwand", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomItems.cloner, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmobcloner", "inventory"));
@@ -846,6 +859,7 @@ public class CustomItems {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<TileDoor>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<TileCopy>());
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<CustomTileEntityPortal>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<CustomTileEntityChest>());
 		
 		// OLD JSON Models
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomItems.carpentyBench), 0, TileBlockAnvil.class);
@@ -907,11 +921,34 @@ public class CustomItems {
 		exampleLliquid.setString("Material", "WOOD");
 		listBlocks.appendTag(exampleLliquid);
 
-		/*NBTTagCompound exampleChest = new NBTTagCompound();
+		NBTTagCompound exampleChest = new NBTTagCompound();
 		exampleChest.setString("RegistryName", "chestexample");
 		exampleChest.setByte("BlockType", (byte) 2);
+		exampleBlock.setString("Material", "WOOD");
 		exampleChest.setBoolean("CreateAllFiles", true);
-		listBlocks.appendTag(exampleChest);*/
+		exampleChest.setBoolean("IsChest", true);
+		exampleChest.setInteger("Size", 14);
+		exampleChest.setInteger("GUIColor", 0x46AB86);
+		exampleChest.setString("Name", "Custom Chest");
+		listBlocks.appendTag(exampleChest);
+		
+		NBTTagCompound exampleContainer = new NBTTagCompound();
+		exampleContainer.setString("RegistryName", "containerexample");
+		exampleContainer.setByte("BlockType", (byte) 2);
+		exampleContainer.setString("Material", "STONE");
+		exampleContainer.setBoolean("CreateAllFiles", true);
+		exampleContainer.setInteger("Size", 97);
+		exampleContainer.setIntArray("GUIColor", new int[] { 0x00DC8C, 0xDC8000 });
+		exampleContainer.setString("Name", "Custom Container");
+		aabb = new NBTTagList();
+		aabb.appendTag(new NBTTagDouble(0.0625d));
+		aabb.appendTag(new NBTTagDouble(0.0d));
+		aabb.appendTag(new NBTTagDouble(0.0625d));
+		aabb.appendTag(new NBTTagDouble(0.9375d));
+		aabb.appendTag(new NBTTagDouble(1.0d));
+		aabb.appendTag(new NBTTagDouble(0.9375d));
+		exampleContainer.setTag("AABB", aabb);
+		listBlocks.appendTag(exampleContainer);
 		
 		NBTTagCompound exampleStairs = new NBTTagCompound();
 		exampleStairs.setString("RegistryName", "stairsexample");
@@ -944,6 +981,17 @@ public class CustomItems {
 		examplePortal.setBoolean("CreateAllFiles", true);
 		listBlocks.appendTag(examplePortal);
 		
+		NBTTagCompound exampleDoor = new NBTTagCompound();
+		exampleDoor.setString("RegistryName", "doorexample");
+		exampleDoor.setByte("BlockType", (byte) 6);
+		exampleDoor.setString("Material", "IRON");
+		exampleDoor.setFloat("Hardness", 1.0f);
+		exampleDoor.setFloat("Resistance", 25.0f);
+		exampleDoor.setBoolean("CreateAllFiles", true);
+		exampleDoor.setBoolean("InteractOpen", true);
+		exampleDoor.setFloat("LightLevel", 2.0f);
+		listBlocks.appendTag(exampleDoor);
+				
 		nbtBlocks.setTag("Blocks", listBlocks);
 		return nbtBlocks;
 	}

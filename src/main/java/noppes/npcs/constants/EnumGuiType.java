@@ -4,7 +4,7 @@ public enum EnumGuiType
 {
 	MainMenuDisplay, 
 	MainMenuInv, 
-	MainMenuInvDrop, // New
+	MainMenuInvDrop,
 	MainMenuStats, 
 	ManageFactions, 
 	MainMenuAdvanced, 
@@ -27,8 +27,8 @@ public enum EnumGuiType
 	ManageQuests, 
 	QuestReward, 
 	ManageRecipes, 
-	QuestTypeItem, // Changed
-	QuestRewardItem, // New
+	QuestTypeItem,
+	QuestRewardItem,
 	NpcRemote, 
 	MoneyBag, 
 	MainMenuAI, 
@@ -60,9 +60,10 @@ public enum EnumGuiType
 	NbtBook, 
 	CustomChest, 
 	CustomGui,
-	HelpBook, // New
-	BoundarySetting, // New
-	BuilderSetting, // New
-	DimentionSetting; // New
+	HelpBook,
+	BoundarySetting,
+	BuilderSetting,
+	DimentionSetting,
+	CustomContainer;
 	
 }

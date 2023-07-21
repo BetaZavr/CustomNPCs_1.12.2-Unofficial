@@ -63,6 +63,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.RecipeBook;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
@@ -95,6 +96,8 @@ import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
+import noppes.npcs.blocks.CustomChest;
+import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.controllers.PresetController;
@@ -133,6 +136,7 @@ import noppes.npcs.client.gui.mainmenu.GuiNpcAdvanced;
 import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
 import noppes.npcs.client.gui.mainmenu.GuiNpcStats;
 import noppes.npcs.client.gui.player.GuiCustomChest;
+import noppes.npcs.client.gui.player.GuiCustomContainer;
 import noppes.npcs.client.gui.player.GuiMailbox;
 import noppes.npcs.client.gui.player.GuiMailmanWrite;
 import noppes.npcs.client.gui.player.GuiNPCBankChest;
@@ -176,6 +180,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.containers.ContainerBuilderSettings;
 import noppes.npcs.containers.ContainerCarpentryBench;
+import noppes.npcs.containers.ContainerChestCustom;
 import noppes.npcs.containers.ContainerCustomChest;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.containers.ContainerMail;
@@ -359,8 +364,10 @@ extends CommonProxy {
 		return this.getGui(npc, gui, container, x, y, z);
 	}
 
-	private GuiScreen getGui(EntityNPCInterface npc, EnumGuiType gui, Container container, int x, int y, int z) { // Changed
+	private GuiScreen getGui(EntityNPCInterface npc, EnumGuiType gui, Container container, int x, int y, int z) {
+		//System.out.println("Client: Try get screen { GUI: "+gui+"; for container: "+(container==null ? "null" : container.getClass().getSimpleName())+"; on npc: "+(npc==null?"null":npc.getName())+"; to pos: ["+x+", "+y+", "+z+"] }");
 		switch (gui) {
+			case CustomContainer: { return new GuiCustomContainer((ContainerChestCustom) container); }
 			case CustomChest: { return new GuiCustomChest((ContainerCustomChest) container); }
 			case MainMenuDisplay: {
 				if (npc != null) {
@@ -574,9 +581,7 @@ extends CommonProxy {
 	}
 	
 	@Override
-	public void postload() {
-		
-	}
+	public void postload() {  }
 
 	@Override
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
@@ -818,13 +823,22 @@ extends CommonProxy {
 					name.equals("slabexample") ? "Example Custom Slab" :
 					name.equals("facingblockexample") ? "Example Custom Facing Block" :
 					name.equals("portalexample") ? "Example Custom Portal Block" :
+					name.equals("chestexample") ? "Example Custom Chest" :
+					name.equals("containerexample") ? "Example Custom Container" :
+					name.equals("doorexample") ? "Example Custom Door" :
 					name;
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("tile."+fileName+".name", n);
+		if (customblock instanceof CustomChest) {
+			boolean type = ((CustomChest) customblock).isChest;
+			n = name.toLowerCase().indexOf("example")!=-1 ? "example" : name;
+			if (!n.isEmpty()) { n = (""+n.charAt(0)).toUpperCase() + n.substring(1); }
+			while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
+			this.setLocalization("custom.chest."+name, "Custom "+(type ? "Chest" : "Container")+": "+n);
+		}
 		if (customblock instanceof CustomLiquid) {
 			this.setLocalization("fluid."+fileName, n);
 		}
-		
 		if (customblock instanceof CustomBlockSlab.CustomBlockSlabDouble) { return; }
 		
 		File texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/"+(customblock instanceof CustomLiquid ? "fluids" : customblock instanceof CustomBlockPortal ? "environment" : "blocks")); 
@@ -914,7 +928,7 @@ extends CommonProxy {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/water_flow.png.mcmeta"));
 						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
 					}
-					LogWriter.debug("Create Default Texture for \""+name+"\" fluid");
+					if (has) { LogWriter.debug("Create Default Texture for \""+name+"\" fluid"); }
 					return;
 				}
 				else if (customblock instanceof CustomBlockSlab) {
@@ -933,7 +947,7 @@ extends CommonProxy {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/stone_slab_side.png"));
 						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 50, 80, 0, 255), "png", texture); has = true; }
 					}
-					LogWriter.debug("Create Default Texture for \""+name+"\" block slab");
+					if (has) { LogWriter.debug("Create Default Texture for \""+name+"\" block slab"); }
 					return;
 				}
 				else if (customblock instanceof CustomBlockStairs) {
@@ -952,21 +966,71 @@ extends CommonProxy {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/structure_block_data.png"));
 						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.5f, 0, 0, 0, 255), "png", texture); has = true; }
 					}
-					LogWriter.debug("Create Default Texture for \""+name+"\" block stairs");
+					if (has) { LogWriter.debug("Create Default Texture for \""+name+"\" block stairs"); }
 					return;
 				}
 				else if (customblock instanceof CustomBlockPortal) {
 					texture = new File(texturesDir, fileName.toLowerCase()+"_portal.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/entity/end_portal.png"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
+						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); has = true; }
 					}
 					texture = new File(texturesDir, fileName.toLowerCase()+"_sky.png");
 					if (!texture.exists()) {
 						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/environment/end_sky.png"));
-						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); }
+						if (baseTexrure!=null) { Files.copy(baseTexrure.getInputStream(), texture.toPath()); has = true; }
 					}
-					LogWriter.debug("Create Default Texture for \""+name+"\" block portal");
+					if (has)  { LogWriter.debug("Create Default Texture for \""+name+"\" block portal"); }
+					return;
+				}
+				else if (customblock instanceof CustomDoor) {
+					texture = new File(texturesDir, fileName.toLowerCase()+"_lower.png");
+					if (!texture.exists()) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/door_wood_lower.png"));
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f, 0, 10, 0, 255), "png", texture); has = true; }
+					}
+					texture = new File(texturesDir, fileName.toLowerCase()+"_upper.png");
+					if (!texture.exists()) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/door_wood_upper.png"));
+						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f, 0, 10, 0, 255), "png", texture); has = true; }
+					}
+					File texturesItemDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/items"); 
+					if (!texturesItemDir.exists()) { texturesItemDir.mkdirs(); }
+					texture = new File(texturesItemDir, fileName.toLowerCase()+".png");
+					if (!texture.exists()) {
+						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/items/door_wood.png"));
+						if (baseTexrure!=null) {
+							ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.15f, 0, 10, 0, 255), "png", texture);
+							has = true;
+							LogWriter.debug("Create Default Texture for \""+name+"\" item door");
+						}
+					}
+					if (has)  { LogWriter.debug("Create Default Texture for \""+name+"\" block door"); }
+					return;
+				}
+				else if (customblock instanceof CustomChest) {
+					boolean type = ((CustomChest) customblock).isChest;
+					if (!type) { // container
+						texture = new File(texturesDir, "custom_"+name.toLowerCase()+"_side.png");
+						if (!texture.exists()) {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/log_oak.png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.35f, 0, 0, 15, 255), "png", texture); has = true; }
+						}
+						texture = new File(texturesDir, "custom_"+name.toLowerCase()+"_top.png");
+						if (!texture.exists()) {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/piston_top_normal.png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.35f, 0, 0, 15, 255), "png", texture); has = true; }
+						}
+					} else { // chest
+						texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/entity/chest");
+						if (!texturesDir.exists()) { texturesDir.mkdirs(); }
+						texture = new File(texturesDir, "custom_"+name.toLowerCase()+".png");
+						if (!texture.exists()) {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/entity/chest/normal.png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.35f, 25, 0, 0, 255), "png", texture); has = true; }
+						}
+					}
+					if (has)  { LogWriter.debug("Create Default Texture for \""+name+"\" block "+(type ? "chest" : "container")); }
 					return;
 				}
 				if (!has) {
@@ -1287,6 +1351,7 @@ extends CommonProxy {
 			for (int u=0; u<bufferedImage.getWidth(); u++) {
 				for (int v=0; v<bufferedImage.getHeight(); v++) {
 					Color c = new Color(bufferedImage.getRGB(u, v));
+					if (c.getRGB()==-16777216) { continue; }
 					float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
 					hsb[type] += offset;
 					hsb[type] %= 1.0f;
@@ -1411,6 +1476,11 @@ extends CommonProxy {
 	@Override
 	public boolean isLoadTexture(ResourceLocation resource) {
 		return Minecraft.getMinecraft().getTextureManager().getTexture(resource)!=null;
+	}
+
+	@Override
+	public void fixTileEntityData(TileEntity tile) {
+		Client.sendDataDelayCheck(EnumPlayerPacket.GetTileData, 0, 0, tile.writeToNBT(new NBTTagCompound()));
 	}
 	
 }

@@ -15,9 +15,7 @@ import noppes.npcs.Server;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.blocks.CustomBlockPortal;
-import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.constants.EnumPlayerPacket;
 
 public class CustomTileEntityPortal
 extends TileEntityEndPortal {
@@ -49,22 +47,17 @@ extends TileEntityEndPortal {
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		if (compound.hasKey("DimensionID", 3) &&
-				compound.hasKey("HomeDimensionID", 3) &&
-				compound.hasKey("SecondSpeed", 5) &&
-				compound.hasKey("HomePosition", 11) &&
-				compound.hasKey("TpPosition", 11)) {
-			this.dimensionId = compound.getInteger("DimensionID");
-			this.homeDimensionId = compound.getInteger("HomeDimensionID");
-			this.speed = compound.getFloat("SecondSpeed");
-			int[] p = compound.getIntArray("HomePosition");
-			if (p!=null && p.length>=3) { this.posHomeTp = NpcAPI.Instance().getIPos(p[0], p[1], p[2]); }
-			p = compound.getIntArray("TpPosition");
-			if (p!=null && p.length>=3) { this.posTp = NpcAPI.Instance().getIPos(p[0], p[1], p[2]); }
-		}
-		else if (this.world==null || this.world.isRemote) {
-			Client.sendDataDelayCheck(EnumPlayerPacket.GetTileData, this, 0, compound);
-		}
+		if (!compound.hasKey("DimensionID", 3)) {
+			CustomNpcs.proxy.fixTileEntityData(this);
+			return;
+		}	
+		this.dimensionId = compound.getInteger("DimensionID");
+		this.homeDimensionId = compound.getInteger("HomeDimensionID");
+		this.speed = compound.getFloat("SecondSpeed");
+		int[] p = compound.getIntArray("HomePosition");
+		if (p!=null && p.length>=3) { this.posHomeTp = NpcAPI.Instance().getIPos(p[0], p[1], p[2]); }
+		p = compound.getIntArray("TpPosition");
+		if (p!=null && p.length>=3) { this.posTp = NpcAPI.Instance().getIPos(p[0], p[1], p[2]); }
     }
 	
 	@Override

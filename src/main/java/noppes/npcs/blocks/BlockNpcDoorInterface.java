@@ -17,6 +17,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.tiles.TileDoor;
 
 public abstract class BlockNpcDoorInterface extends BlockDoor implements ITileEntityProvider {
+	
 	public BlockNpcDoorInterface() {
 		super(Material.WOOD);
 		this.setRegistryName(CustomNpcs.MODID, "npcscripteddoor");

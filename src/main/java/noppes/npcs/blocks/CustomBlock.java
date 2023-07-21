@@ -11,7 +11,6 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -87,8 +86,8 @@ implements IPermission, ICustomElement {
 				}
 			}
 		}
-		
-		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+
+		this.setCreativeTab(CustomItems.tabBlocks);
 	}
 	
 	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
@@ -97,7 +96,7 @@ implements IPermission, ICustomElement {
 		IBlockState iblockstate1 = worldIn.getBlockState(pos.south());
 		IBlockState iblockstate2 = worldIn.getBlockState(pos.west());
 		IBlockState iblockstate3 = worldIn.getBlockState(pos.east());
-		EnumFacing enumfacing = (EnumFacing)state.getValue(this.FACING);
+		EnumFacing enumfacing = (EnumFacing) state.getValue(this.FACING);
 		if (enumfacing == EnumFacing.NORTH && iblockstate.isFullBlock() && !iblockstate1.isFullBlock()) { enumfacing = EnumFacing.SOUTH; }
 		else if (enumfacing == EnumFacing.SOUTH && iblockstate1.isFullBlock() && !iblockstate.isFullBlock()) { enumfacing = EnumFacing.NORTH; }
 		else if (enumfacing == EnumFacing.WEST && iblockstate2.isFullBlock() && !iblockstate3.isFullBlock()) { enumfacing = EnumFacing.EAST; }
@@ -248,12 +247,6 @@ implements IPermission, ICustomElement {
 		return this.FULL_BLOCK_AABB;
 	}
 
-	@Override
-	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
-
-	@Override
-	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
-
 
 	@SideOnly(Side.CLIENT)
 	public BlockRenderLayer getBlockLayer() {
@@ -266,5 +259,11 @@ implements IPermission, ICustomElement {
 			default: return BlockRenderLayer.SOLID;
 		}
 	}
+
+	@Override
+	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
+
+	@Override
+	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
 	
 }

@@ -138,9 +138,14 @@ implements IDimensionHandler
 	public void loadDimensions() {
 		for (Entry<Integer, CustomWorldInfo> entry : this.dimensionInfo.entrySet()) {
 			int dimensionID = entry.getKey();
-			WorldInfo worldInfo = entry.getValue();
-			DimensionManager.registerDimension(dimensionID, CustomNpcs.customDimensionType);
-			loadDimension(dimensionID, worldInfo);
+			try {
+				DimensionManager.registerDimension(dimensionID, CustomNpcs.customDimensionType);
+				loadDimension(dimensionID, entry.getValue());
+			}
+			catch (Exception e) {
+				LogWriter.error("Error Load Custom Dimensions ["+dimensionID+"]: ", e);
+				continue;
+			}
 		}
 	}
 
