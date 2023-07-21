@@ -937,7 +937,7 @@ public class CustomItems {
 		exampleContainer.setByte("BlockType", (byte) 2);
 		exampleContainer.setString("Material", "STONE");
 		exampleContainer.setBoolean("CreateAllFiles", true);
-		exampleContainer.setInteger("Size", 97);
+		exampleContainer.setInteger("Size", 96);
 		exampleContainer.setIntArray("GUIColor", new int[] { 0x00DC8C, 0xDC8000 });
 		exampleContainer.setString("Name", "Custom Container");
 		aabb = new NBTTagList();
