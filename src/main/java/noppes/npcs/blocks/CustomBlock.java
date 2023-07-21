@@ -56,6 +56,8 @@ implements IPermission, ICustomElement {
 		this.blockParticleGravity = 1.0F;
 		this.lightOpacity = this.fullBlock ? 255 : 0;
 		this.translucent = !this.blockMaterial.blocksLight();
+		this.setHardness(0.0f);
+		this.setResistance(10.0f);
 		
 		if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
 		if (nbtBlock.hasKey("Resistance", 5)) { this.setResistance(nbtBlock.getFloat("Resistance")); }

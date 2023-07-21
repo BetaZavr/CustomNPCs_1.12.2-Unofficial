@@ -365,7 +365,6 @@ implements IGuiHandler {
 			}
 		}
 		
-
 		File chest = new File(blockModelsDir, "chest.json");
 		if (!chest.exists()) {
 			String jsonChest = "{" + crEnt +
@@ -630,20 +629,59 @@ implements IGuiHandler {
 			}
 			else if (customblock instanceof CustomChest) {
 				boolean type = ((CustomChest) customblock).isChest;
-				jsonState = "{" + crEnt +
-						crTab + "\"_comment\": \"Custom "+(type ? "Chest" : "Container") + " Block created by default\"," + crEnt +
-						crTab + "\"variants\": {" + crEnt +
-						crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt +
-						crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt;
-				for (EnumFacing ef : EnumFacing.VALUES) {
-					if (ef==EnumFacing.DOWN || ef==EnumFacing.UP) { continue; }
-					jsonState += crTab + crTab + "\"facing=" + ef.getName2() + "\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\"";
-					if (ef==EnumFacing.SOUTH) { jsonState += ",\"y\": 180"; }
-					else if (ef==EnumFacing.WEST) { jsonState += ",\"y\": 270"; }
-					else if (ef==EnumFacing.EAST) { jsonState += ",\"y\": 90"; }
-					jsonState += " }," + crEnt;
+				if (type) {
+					jsonState = "{" + crEnt +
+							crTab + "\"_comment\": \"Custom Chest Block created by default\"," + crEnt +
+							crTab + "\"variants\": {" + crEnt +
+							crTab + crTab + "\"normal\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt +
+							crTab + crTab + "\"inventory\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }, " + crEnt +
+							crTab + crTab + "\"facing=north\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\" }," + crEnt +
+							crTab + crTab + "\"facing=south\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\",\"y\": 180 }," + crEnt +
+							crTab + crTab + "\"facing=west\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\",\"y\": 270 }," + crEnt +
+							crTab + crTab + "\"facing=east\": { \"model\": \""+CustomNpcs.MODID+":"+fileName.toLowerCase()+"\",\"y\": 90 }" + crEnt +
+							crEnt + crTab + "}" + crEnt + "}";
+				} else {
+					jsonState = "{" + crEnt +
+							crTab + "\"_comment\": \"Custom Container Block created by default\"," + crEnt +
+							crTab + "\"forge_marker\": 1," + crEnt +
+							crTab + "\"defaults\": {" + crEnt +
+							crTab + crTab + "\"model\": \""+CustomNpcs.MODID+":obj/"+fileName.toLowerCase()+".obj\" " + crEnt +
+							crTab + "}," + crEnt +
+							crTab + "\"variants\": {" + crEnt +
+							crTab + crTab + "\"inventory\":[{" + crEnt +
+							crTab + crTab + crTab + "\"transform\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.5" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"firstperson_lefthand\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.5" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"thirdperson\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.5" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"thirdperson_lefthand\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.5" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"gui\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.55," + crEnt +
+							crTab + crTab + crTab + crTab + "\"rotation\": [ { \"x\": 30 }, { \"y\": 45 } ]" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"ground\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.3" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"head\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.75" + crEnt +
+							crTab + crTab + crTab + "}," + crEnt +
+							crTab + crTab + crTab + "\"fixed\": {" + crEnt +
+							crTab + crTab + crTab + crTab + "\"scale\": 0.5" + crEnt +
+							crTab + crTab + crTab + "}" + crEnt +
+							crTab + crTab + "}]," + crEnt +
+							crTab + crTab + "\"normal\": [{}]," + crEnt +
+							crTab + crTab + "\"facing=north\": { \"model\": \""+CustomNpcs.MODID+":obj/"+fileName.toLowerCase()+".obj\" }," + crEnt +
+							crTab + crTab + "\"facing=south\": { \"model\": \""+CustomNpcs.MODID+":obj/"+fileName.toLowerCase()+".obj\",\"y\": 180 }," + crEnt +
+							crTab + crTab + "\"facing=west\": { \"model\": \""+CustomNpcs.MODID+":obj/"+fileName.toLowerCase()+".obj\",\"y\": 270 }," + crEnt +
+							crTab + crTab + "\"facing=east\": { \"model\": \""+CustomNpcs.MODID+":obj/"+fileName.toLowerCase()+".obj\",\"y\": 90 }" + crEnt +
+							crTab + "}" + crEnt + "}";
 				}
-				jsonState = jsonState.substring(0, jsonState.length()-2) + crEnt + crTab + "}" + crEnt + "}";
 			}
 			if (jsonState.isEmpty()) {
 				jsonState = "{" + crEnt +
@@ -749,19 +787,167 @@ implements IGuiHandler {
 							crTab + crTab + "\"chest\": \""+CustomNpcs.MODID+":entity/chest/"+fileName.toLowerCase()+"\"," + crEnt +
 							crTab + crTab + "\"particle\": \""+CustomNpcs.MODID+":entity/chest/"+fileName.toLowerCase()+"\"" + crEnt +
 							crTab + "}" + crEnt + "}";
+					if (this.saveFile(blockModel, jsonModel)) {
+						LogWriter.debug("Create Default Chest Blocks Model for \""+fileName.toLowerCase()+"\" block");
+					}
 				} else {
-					jsonModel = "{" + crEnt +
-							crTab + "\"_comment\": \"Custom Container Block created by default\"," + crEnt +
-							crTab + "\"parent\": \"block/cube_column\"," + crEnt +
-							crTab + "\"textures\": {" + crEnt +
-							crTab + crTab + "\"side\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_side\"," + crEnt +
-							crTab + crTab + "\"end\": \""+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_top\"" + crEnt +
-							crTab + "}" + crEnt + "}";
+					blockModel = new File(blockModelsDir, "obj/"+fileName.toLowerCase()+".mtl");
+					jsonModel = "newmtl material" + crEnt +
+							"Kd 1.000000 1.000000 1.000000" + crEnt +
+							"d 1.000000" + crEnt +
+							"map_Kd "+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_side" + crEnt + crEnt +
+							"newmtl top" + crEnt +
+							"Kd 1.000000 1.000000 1.000000" + crEnt +
+							"d 1.000000" + crEnt +
+							"map_Kd "+CustomNpcs.MODID+":blocks/"+fileName.toLowerCase()+"_top";
+					this.saveFile(blockModel, jsonModel);
+					blockModel = new File(blockModelsDir, "obj/"+fileName.toLowerCase()+".obj");
+					jsonModel = "mtllib "+fileName.toLowerCase()+".mtl" + crEnt + 
+							"o body" + crEnt + 
+							"v 0.062500 0.000000 0.645833" + crEnt + 
+							"v 0.062500 1.000000 0.645833" + crEnt + 
+							"v 0.354167 0.000000 0.062500" + crEnt + 
+							"v 0.354167 1.000000 0.062500" + crEnt + 
+							"v 0.645833 0.000000 0.937500" + crEnt + 
+							"v 0.645833 1.000000 0.937500" + crEnt + 
+							"v 0.937500 0.000000 0.354167" + crEnt + 
+							"v 0.937500 1.000000 0.354167" + crEnt + 
+							"v 0.062500 0.000000 0.354167" + crEnt + 
+							"v 0.062500 1.000000 0.354167" + crEnt + 
+							"v 0.937500 0.000000 0.645833" + crEnt + 
+							"v 0.937500 1.000000 0.645833" + crEnt + 
+							"v 0.645833 0.000000 0.062500" + crEnt + 
+							"v 0.645833 1.000000 0.062500" + crEnt + 
+							"v 0.354167 0.000000 0.937500" + crEnt + 
+							"v 0.354167 1.000000 0.937500" + crEnt + 
+							"v 0.791667 1.000000 0.791667" + crEnt + 
+							"v 0.208333 1.000000 0.791667" + crEnt + 
+							"v 0.791667 0.000000 0.791667" + crEnt + 
+							"v 0.208333 0.000000 0.791667" + crEnt + 
+							"v 0.208333 1.000000 0.208333" + crEnt + 
+							"v 0.791667 1.000000 0.208333" + crEnt + 
+							"v 0.208333 0.000000 0.208333" + crEnt + 
+							"v 0.791667 0.000000 0.208333" + crEnt + 
+							"vt 1.000000 1.000000" + crEnt + 
+							"vt 0.000000 1.000000" + crEnt + 
+							"vt 0.000000 0.700000" + crEnt + 
+							"vt 1.000000 0.700000" + crEnt + 
+							"vt 0.000000 0.000000" + crEnt + 
+							"vt 1.000000 0.000000" + crEnt + 
+							"vt 1.000000 0.300000" + crEnt + 
+							"vt 0.000000 0.300000" + crEnt + 
+							"vt 1.000000 1.000000" + crEnt + 
+							"vt 0.000000 1.000000" + crEnt + 
+							"vt 0.000000 0.700000" + crEnt + 
+							"vt 1.000000 0.700000" + crEnt + 
+							"vt 1.000000 1.000000" + crEnt + 
+							"vt 0.000000 1.000000" + crEnt + 
+							"vt 0.000000 0.700000" + crEnt + 
+							"vt 1.000000 0.700000" + crEnt + 
+							"vt 1.000000 0.700000" + crEnt + 
+							"vt 0.000000 0.700000" + crEnt + 
+							"vt 0.000000 0.300000" + crEnt + 
+							"vt 1.000000 0.300000" + crEnt + 
+							"vt 0.000000 0.300000" + crEnt + 
+							"vt 1.000000 0.300000" + crEnt + 
+							"vt 0.000000 0.300000" + crEnt + 
+							"vt 1.000000 0.300000" + crEnt + 
+							"vt 0.000000 0.000000" + crEnt + 
+							"vt 1.000000 0.000000" + crEnt + 
+							"vt 1.000000 1.000000" + crEnt + 
+							"vt 0.000000 1.000000" + crEnt + 
+							"vt 0.000000 0.000000" + crEnt + 
+							"vt 1.000000 0.000000" + crEnt + 
+							"vt 0.000000 0.000000" + crEnt + 
+							"vt 1.000000 0.000000" + crEnt + 
+							"vn -0.7071 -0.0000 -0.7071" + crEnt + 
+							"vn 0.7071 -0.0000 -0.7071" + crEnt + 
+							"vn 0.7071 -0.0000 0.7071" + crEnt + 
+							"vn -0.7071 0.0000 0.7071" + crEnt + 
+							"vn 1.0000 -0.0000 0.0000" + crEnt + 
+							"vn -1.0000 0.0000 0.0000" + crEnt + 
+							"vn 0.0000 0.0000 1.0000" + crEnt + 
+							"vn 0.0000 0.0000 -1.0000" + crEnt + 
+							"usemtl material" + crEnt + 
+							"f 23/1/1 21/2/1 4/3/1 3/4/1" + crEnt + 
+							"f 24/5/2 22/6/2 8/7/2 7/8/2" + crEnt + 
+							"f 19/9/3 17/10/3 6/11/3 5/12/3" + crEnt + 
+							"f 20/13/4 18/14/4 2/15/4 1/16/4" + crEnt + 
+							"f 7/8/5 8/7/5 12/17/5 11/18/5" + crEnt + 
+							"f 1/16/6 2/15/6 10/19/6 9/20/6" + crEnt + 
+							"f 5/12/7 6/11/7 16/21/7 15/22/7" + crEnt + 
+							"f 3/4/8 4/3/8 14/23/8 13/24/8" + crEnt + 
+							"f 15/22/4 16/21/4 18/25/4 20/26/4" + crEnt + 
+							"f 11/18/3 12/17/3 17/27/3 19/28/3" + crEnt + 
+							"f 13/24/2 14/23/2 22/29/2 24/30/2" + crEnt + 
+							"f 9/20/1 10/19/1 21/31/1 23/32/1" + crEnt + 
+							"o lid" + crEnt + 
+							"v 0.062500 0.000000 0.645833" + crEnt + 
+							"v 0.062500 1.000000 0.645833" + crEnt + 
+							"v 0.354167 0.000000 0.062500" + crEnt + 
+							"v 0.354167 1.000000 0.062500" + crEnt + 
+							"v 0.645833 0.000000 0.937500" + crEnt + 
+							"v 0.645833 1.000000 0.937500" + crEnt + 
+							"v 0.937500 0.000000 0.354167" + crEnt + 
+							"v 0.937500 1.000000 0.354167" + crEnt + 
+							"v 0.062500 0.000000 0.354167" + crEnt + 
+							"v 0.062500 1.000000 0.354167" + crEnt + 
+							"v 0.937500 0.000000 0.645833" + crEnt + 
+							"v 0.937500 1.000000 0.645833" + crEnt + 
+							"v 0.645833 0.000000 0.062500" + crEnt + 
+							"v 0.645833 1.000000 0.062500" + crEnt + 
+							"v 0.354167 0.000000 0.937500" + crEnt + 
+							"v 0.354167 1.000000 0.937500" + crEnt + 
+							"v 0.791667 1.000000 0.791667" + crEnt + 
+							"v 0.208333 1.000000 0.791667" + crEnt + 
+							"v 0.791667 0.000000 0.791667" + crEnt + 
+							"v 0.208333 0.000000 0.791667" + crEnt + 
+							"v 0.208333 1.000000 0.208333" + crEnt + 
+							"v 0.791667 1.000000 0.208333" + crEnt + 
+							"v 0.208333 0.000000 0.208333" + crEnt + 
+							"v 0.791667 0.000000 0.208333" + crEnt + 
+							"vt 0.500000 1.000000" + crEnt + 
+							"vt 1.000000 0.500000" + crEnt + 
+							"vt 1.000000 0.750000" + crEnt + 
+							"vt 0.750000 1.000000" + crEnt + 
+							"vt 0.500000 0.000000" + crEnt + 
+							"vt 0.750000 0.000000" + crEnt + 
+							"vt 1.000000 0.250000" + crEnt + 
+							"vt 0.000000 0.500000" + crEnt + 
+							"vt 0.000000 0.250000" + crEnt + 
+							"vt 0.250000 0.000000" + crEnt + 
+							"vt 0.500000 0.000000" + crEnt + 
+							"vt 1.000000 0.500000" + crEnt + 
+							"vt 0.500000 1.000000" + crEnt + 
+							"vt 0.000000 0.500000" + crEnt + 
+							"vt 0.000000 0.250000" + crEnt + 
+							"vt 0.250000 0.000000" + crEnt + 
+							"vt 0.750000 0.000000" + crEnt + 
+							"vt 1.000000 0.250000" + crEnt + 
+							"vt 1.000000 0.750000" + crEnt + 
+							"vt 0.750000 1.000000" + crEnt + 
+							"vt 0.250000 1.000000" + crEnt + 
+							"vt 0.000000 0.750000" + crEnt + 
+							"vt 0.250000 1.000000" + crEnt + 
+							"vt 0.000000 0.750000" + crEnt + 
+							"vn 0.0000 -1.0000 0.0000" + crEnt + 
+							"vn 0.0000 1.0000 0.0000" + crEnt + 
+							"usemtl top" + crEnt + 
+							"f 43/33/9 48/34/9 31/35/9 35/36/9" + crEnt + 
+							"f 48/34/9 47/37/9 27/38/9 37/39/9" + crEnt + 
+							"f 47/37/9 44/40/9 25/41/9 33/42/9" + crEnt + 
+							"f 46/43/10 45/44/10 42/45/10 41/46/10" + crEnt + 
+							"f 46/43/10 41/46/10 36/47/10 32/48/10" + crEnt + 
+							"f 45/44/10 46/43/10 38/49/10 28/50/10" + crEnt + 
+							"f 42/45/10 45/44/10 34/51/10 26/52/10" + crEnt + 
+							"f 44/40/9 43/33/9 29/53/9 39/54/9" + crEnt + 
+							"f 48/34/9 43/33/9 44/40/9 47/37/9" + crEnt + 
+							"f 41/46/10 42/45/10 40/55/10 30/56/10";
+					if (this.saveFile(blockModel, jsonModel)) {
+						LogWriter.debug("Create Default Container Blocks Model for \""+fileName.toLowerCase()+"\" block");
+					}
 				}
 				
-				if (this.saveFile(blockModel, jsonModel)) {
-					LogWriter.debug("Create Default " + (type ? "Chest" : "Container") + " Blocks Model for \""+fileName.toLowerCase()+"\" block");
-				}
 			}
 			else {
 				if (customblock instanceof CustomBlock && ((CustomBlock) customblock).hasProperty()) {

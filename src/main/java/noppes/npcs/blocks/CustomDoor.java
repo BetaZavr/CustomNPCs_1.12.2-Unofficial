@@ -37,6 +37,8 @@ implements ITileEntityProvider, ICustomElement {
 		this.setUnlocalizedName(name.toLowerCase());
 		this.hasTileEntity = false;
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
+		this.setHardness(0.0f);
+		this.setResistance(10.0f);
 		
 		if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
 		if (nbtBlock.hasKey("Resistance", 5)) { this.setResistance(nbtBlock.getFloat("Resistance")); }

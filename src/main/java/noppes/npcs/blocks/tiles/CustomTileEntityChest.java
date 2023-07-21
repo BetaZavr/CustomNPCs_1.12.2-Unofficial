@@ -27,9 +27,9 @@ implements ITickable {
 	
 	public NonNullList<ItemStack> inventory;
 	public ResourceLocation chestTexture;
-	private int size, numPlayersUsing = 0, ticksSinceSync = 0;
+	private int size, numPlayersUsing = 0;
 	public int guiColor = -1;
-	public boolean isLock, isChest;
+	public boolean isChest;
 	private String name, blockName;
 	public int[] guiColorArr;
 
@@ -40,7 +40,6 @@ implements ITickable {
 	public void setBlock(CustomChest block) {
 		this.blockType = block;
 		this.isChest = block.isChest;
-		this.isLock = false;
 		this.name = "custom.chest." + block.getCustomName();
 		this.size = 9;
 		this.blockName = block.getRegistryName().toString();
@@ -49,7 +48,6 @@ implements ITickable {
 		this.guiColorArr = null;
 		if (block.nbtData.hasKey("Name", 8)) { this.name = block.nbtData.getString("Name"); }
 		if (block.nbtData.hasKey("Size", 3)) { this.size = block.nbtData.getInteger("Size"); }
-		if (block.nbtData.hasKey("isLock", 1)) { this.isLock = block.nbtData.getBoolean("isLock"); }
 		if (block.nbtData.hasKey("GUIColor", 3)) { this.guiColor = block.nbtData.getInteger("GUIColor"); }
 		if (block.nbtData.hasKey("GUIColor", 11)) {
 			this.guiColor = -1;
@@ -96,7 +94,9 @@ implements ITickable {
 			if (this.world.getTotalWorldTime()%20==0) { CustomNpcs.proxy.fixTileEntityData(this); }
 			return;
 		}
-		if (!this.world.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + this.pos.getX() + this.pos.getY() + this.pos.getZ()) % 200 == 0) {
+		if (this.numPlayersUsing<0) { this.numPlayersUsing = 0; }
+//if (this.world.getTotalWorldTime()%20==0) { System.out.println("CNPCs: "+this.numPlayersUsing); }
+		if (!this.world.isRemote && this.numPlayersUsing != 0 && (this.world.getTotalWorldTime() + this.pos.getX() + this.pos.getY() + this.pos.getZ()) % 20 == 0) {
 			this.numPlayersUsing = 0;
 			for (EntityPlayer entityplayer : this.world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB((double)((float) this.pos.getX() - 5.0F), (double)((float) this.pos.getY() - 5.0F), (double)((float)pos.getZ() - 5.0F), (double)((float)( this.pos.getX() + 1) + 5.0F), (double)((float)( this.pos.getY() + 1) + 5.0F), (double)((float)( this.pos.getZ() + 1) + 5.0F)))) {
 				if (entityplayer.openContainer instanceof ContainerChestCustom) {
@@ -108,7 +108,7 @@ implements ITickable {
 		if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F) {
 			double d1 = (double) this.pos.getX() + 0.5D;
 			double d2 = (double) this.pos.getZ() + 0.5D;
-			this.world.playSound((EntityPlayer)null, d1, (double) this.pos.getY() + 0.5D, d2, SoundEvents.BLOCK_IRON_TRAPDOOR_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+			this.world.playSound((EntityPlayer)null, d1, (double) this.pos.getY() + 0.5D, d2, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 		}
 		if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
 			float f2 = this.lidAngle;
@@ -118,7 +118,7 @@ implements ITickable {
 			if (this.lidAngle < 0.5F && f2 >= 0.5F) {
 				double d3 = (double) this.pos.getX() + 0.5D;
 				double d0 = (double) this.pos.getZ() + 0.5D;
-				this.world.playSound((EntityPlayer)null, d3, (double) this.pos.getY() + 0.5D, d0, SoundEvents.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+				this.world.playSound((EntityPlayer)null, d3, (double) this.pos.getY() + 0.5D, d0, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 			}
 			if (this.lidAngle < 0.0F) { this.lidAngle = 0.0F; }
 		}		
@@ -128,6 +128,7 @@ implements ITickable {
 	public void openInventory(EntityPlayer player) {
 		if (this.inventory==null || this.world==null) { return; }
 		++this.numPlayersUsing;
+System.out.println("openInventory: "+this.numPlayersUsing);
 		this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
 		this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
 	}
@@ -136,6 +137,7 @@ implements ITickable {
 	public void closeInventory(EntityPlayer player) {
 		if (this.world==null) { return; }
 		--this.numPlayersUsing;
+System.out.println("closeInventory: "+this.numPlayersUsing);
 		this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
 		this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
 	}
@@ -143,7 +145,6 @@ implements ITickable {
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (!compound.hasKey("Items", 9)) { return; }
-		this.isLock = compound.getBoolean("IsLock");
 		this.isChest = compound.getBoolean("IsChest");
 		this.guiColor = -1;
 		this.guiColorArr = null;
@@ -159,7 +160,6 @@ implements ITickable {
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		compound.setBoolean("IsLock", this.isLock);
 		compound.setBoolean("IsChest", this.isChest);
 		compound.setInteger("Size", this.size);
 		compound.setString("CustomName", this.name.isEmpty() ? "custom.chest.chestexample" : this.name);

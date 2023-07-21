@@ -952,6 +952,7 @@ guard.currentTargets=Текущие Цели
 guard.mobs=Атакует Мобов
 
 gui.accelerate=Ускоренный
+gui.allowed=§1G§6M§7 - Разрешено.
 gui.add=Добавить
 gui.always=Всегда
 gui.ambushdistance=Дистанция Засады

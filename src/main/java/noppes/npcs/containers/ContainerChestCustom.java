@@ -14,19 +14,22 @@ public class ContainerChestCustom extends Container {
 	public BlockPos pos;
 	public int height;
 	public EntityPlayer player;
-	public CustomTileEntityChest customChest;
+	public CustomTileEntityChest customChest, trueChest;
 	
 	public ContainerChestCustom(InventoryPlayer playerInventory, CustomTileEntityChest customChest, EntityPlayer player) {
 		this.pos = customChest.getPos();
 		this.player = player;
 		this.customChest = customChest;
+		this.trueChest = customChest;
+		this.trueChest.openInventory(player);
 		if (player.world.isRemote) { this.customChest = customChest.copy(); }
 		int h = ((int) Math.ceil((double) this.customChest.getSizeInventory() / 9.0d) - 4) * 18;
-		
+		int w = 0;
 		if (this.customChest.getSizeInventory() > 45) { h = 18; }
 		h -= 6;
 		// Inventory
 		if (this.customChest.getSizeInventory() > 45) { // Creative
+			w = 8;
 			this.height = 5 * 18;
 			for (int i = 0; i < this.customChest.getSizeInventory(); i++) {
 				this.addSlotToContainer(new Slot(this.customChest, i, -5000, -5000));
@@ -43,11 +46,11 @@ public class ContainerChestCustom extends Container {
 		// Player Inventory
 		for (int r = 0; r < 3; ++r) {
 			for (int p = 0; p < 9; ++p) {
-				this.addSlotToContainer(new Slot(playerInventory, p + r * 9 + 9, 8 + p * 18, 103 + r * 18 + h));
+				this.addSlotToContainer(new Slot(playerInventory, p + r * 9 + 9, 8 + w + p * 18, 103 + r * 18 + h));
 			}
 		}
 		for (int p = 0; p < 9; ++p) {
-			this.addSlotToContainer(new Slot(playerInventory, p, 8 + p * 18, 161 + h));
+			this.addSlotToContainer(new Slot(playerInventory, p, 8 + w + p * 18, 161 + h));
 		}
 	}
 
@@ -72,10 +75,10 @@ public class ContainerChestCustom extends Container {
 
 	public void onContainerClosed(EntityPlayer playerIn){
 		super.onContainerClosed(playerIn);
-		this.customChest.closeInventory(playerIn);
+		this.trueChest.closeInventory(playerIn);
 	}
 
-	public IInventory getLowerChestInventory() { return this.customChest; }
+	public IInventory getLowerChestInventory() { return this.trueChest; }
 	
 	public BlockPos getPos() { return this.pos; }
 

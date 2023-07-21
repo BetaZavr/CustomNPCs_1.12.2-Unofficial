@@ -1,8 +1,11 @@
 package noppes.npcs.client.gui.player;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.lwjgl.input.Mouse;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -22,11 +25,13 @@ extends GuiContainer {
 	private static final ResourceLocation slotTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation rowTexture = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
+	private static final ResourceLocation lockTexture = new ResourceLocation("textures/gui/widgets.png");
 	private ContainerChestCustom inventorySlots;
 	
 	private int guiColor, row, maxRows, yPos, step;
 	private int[] guiColorArr;
 	private boolean isMany, hoverScroll;
+	private String lock;
 	
 	private float currentScroll;
     private boolean isScrolling;
@@ -37,6 +42,7 @@ extends GuiContainer {
 		this.inventorySlots = container;
 		this.isMany = container.customChest.getSizeInventory() > 45;
 		this.allowUserInput = false;
+		this.lock = !container.customChest.getLockCode().isEmpty() ? container.customChest.getLockCode().getLock() : "";
 		this.row = 0;
 		this.maxRows = (int) Math.ceil((double) container.customChest.inventory.size() / 9.0d) - 5;
 		this.guiColor = container.customChest.guiColor;
@@ -76,6 +82,17 @@ extends GuiContainer {
 			else if (dwm<0){ this.resetRow(true); }
 		}
 		this.renderHoveredToolTip(mouseX, mouseY);
+		if (!this.lock.isEmpty()) {
+			int u = (this.width - this.xSize) / 2 + 164 + (this.isMany ? 16 : 0);
+			int v = (this.height - this.ySize) / 2 - 8;
+			if (mouseX >= u && mouseX <= u + 20 && mouseY >= v && mouseY <= v + 20) {
+				List<String> textLines = Lists.<String>newArrayList();
+				textLines.add(new TextComponentTranslation("companion.owner").getFormattedText()+":");
+				textLines.add(this.lock.length()<1000 ? this.lock: this.lock.substring(0, 1000) + "...");
+				this.drawHoveringText(textLines, mouseX, mouseY);
+			}
+			
+		}
 	}
 
 	@Override
@@ -128,6 +145,10 @@ extends GuiContainer {
 			this.drawTexturedModalRect(u +172, v + 17, 174, 17, 14, 86);
 			this.drawTexturedModalRect(u +172, v + 103, 174, 125, 14, 4);
 		}
+		if (!this.lock.isEmpty()) {
+			this.mc.getTextureManager().bindTexture(lockTexture);
+			this.drawTexturedModalRect(u + 164 + (this.isMany ? 16 : 0), v - 8, 0, 146, 20, 20);
+		}
 	}
 
 	@Override
@@ -155,6 +176,24 @@ extends GuiContainer {
 		if (this.hoverScroll) {
 			this.yPos = mouseY;
 			this.isScrolling = true;
+		}
+		else if (this.isMany) {
+			int u = 173 + (this.width - this.xSize) / 2;
+			int v = 18 + (this.height - this.ySize) / 2;
+			if (mouseX >= u && mouseX <= u + 11 && mouseY >= v && mouseY <= v + 88) {
+				int h = mouseY - v, r = -1;
+				if (h<=7) { r = 0; }
+				else if (h >= 81) { r = this.maxRows; }
+				else { r = (int) ((double) this.maxRows * (double) h / 88.0d); }
+				int old = 0 + this.row;
+				if (r<0) { r = 0; }
+				if (r>this.maxRows) { r = this.maxRows; }
+				if (old != r) {
+					this.row = r;
+					this.resetSlots();
+				}
+				
+			}
 		}
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
@@ -186,7 +225,7 @@ extends GuiContainer {
 		if (keyCode==208 || keyCode==ClientProxy.backButton.getKeyCode()) { this.resetRow(true); }
 		super.keyTyped(typedChar, keyCode);
 	}
-
+	
 	private void resetRow(boolean bo) {
 		if (!this.isMany) { return; }
 		int old = 0 + this.row;

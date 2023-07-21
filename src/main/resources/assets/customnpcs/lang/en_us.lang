@@ -950,6 +950,7 @@ guard.currentTargets=Current Targets
 guard.mobs=Attack Monsters
 
 gui.accelerate=Accelerate
+gui.allowed=§1G§6M§7 - Allowed.
 gui.add=Add
 gui.always=Always
 gui.ambushdistance=AmbushDistance

@@ -25,7 +25,10 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,6 +60,8 @@ implements ICustomElement {
 		this.setName("custom_"+nbtBlock.getString("RegistryName"));
 		this.hasTileEntity = true;
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
+		this.setHardness(0.0f);
+		this.setResistance(10.0f);
 		
 		if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
 		if (nbtBlock.hasKey("Resistance", 5)) { this.setResistance(nbtBlock.getFloat("Resistance")); }
@@ -130,10 +135,27 @@ implements ICustomElement {
 		if (this.isChest && worldIn.getBlockState(pos.up()).doesSideBlockChestOpening(worldIn, pos.up(), EnumFacing.DOWN)) {  return true; }
 		TileEntity tile = worldIn.getTileEntity(pos);
 		if (tile instanceof CustomTileEntityChest) {
-			if (((CustomTileEntityChest) tile).isLock) {
-				playerIn.sendMessage(new TextComponentTranslation("container.isLocked", new Object[] { ((CustomTileEntityChest) tile).getName() }));
-				if (playerIn instanceof EntityPlayerMP) { ((EntityPlayerMP) playerIn).connection.sendPacket(new SPacketSoundEffect(SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, pos.getX(), pos.getY(), pos.getZ(), 1.0F, 1.0F)); }
-				if (!playerIn.isCreative()) { return true; }
+			if (((CustomTileEntityChest) tile).isLocked()) {
+				boolean isOwner = false;
+				ITextComponent message = new TextComponentTranslation("container.isLocked", new Object[] { ""+((char) 167)+"r"+((CustomTileEntityChest) tile).getName()});
+				message.getStyle().setColor(TextFormatting.RED);
+				if (!((CustomTileEntityChest) tile).getLockCode().isEmpty()) {
+					String locked = ((CustomTileEntityChest) tile).getLockCode().getLock();
+					isOwner = locked.indexOf(playerIn.getName())!=-1;
+					ITextComponent added = new TextComponentString(" ");
+					added.getStyle().setColor(TextFormatting.GRAY);
+					added.appendSibling(new TextComponentTranslation("companion.owner"));
+					ITextComponent names = new TextComponentString(": " + locked);
+					names.getStyle().setColor(TextFormatting.RESET);
+					added.appendSibling(names);
+					message.appendSibling(added);
+				}
+				if (!isOwner) {
+					playerIn.sendMessage(message);
+					if (playerIn instanceof EntityPlayerMP) { ((EntityPlayerMP) playerIn).connection.sendPacket(new SPacketSoundEffect(SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, pos.getX(), pos.getY(), pos.getZ(), 1.0F, 1.0F)); }
+					if (!playerIn.isCreative()) { return true; }
+					else { playerIn.sendMessage(new TextComponentTranslation("gui.allowed")); }
+				}
 			}
 			if (this.nbtData.hasKey("GUIColor", 3)) { ((CustomTileEntityChest) tile).guiColor = this.nbtData.getInteger("GUIColor"); }
 			if (this.nbtData.hasKey("GUIColor", 11)) {

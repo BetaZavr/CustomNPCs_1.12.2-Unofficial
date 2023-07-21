@@ -154,7 +154,7 @@ implements IWorld {
 				ScriptController.Instance.shouldSave = true;
 			}
 		};
-		this.world = (WorldServer) world;
+		this.world = world;
 		this.dimension = new DimensionWrapper(world.provider.getDimension(), world.provider.getDimensionType());
 	}
 
