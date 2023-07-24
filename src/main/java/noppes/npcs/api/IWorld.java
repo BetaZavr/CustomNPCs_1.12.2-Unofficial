@@ -28,7 +28,10 @@ public interface IWorld {
 
 	String getBiomeName(int x, int z);
 
+	@Deprecated
 	IBlock getBlock(int x, int y, int z);
+	
+	IBlock getBlock(IPos pos);
 
 	@Deprecated
 	IEntity<?> getClone(int tab, String name);
@@ -77,10 +80,12 @@ public interface IWorld {
 
 	void playSoundAt(IPos pos, String sound, float volume, float pitch);
 
+	@Deprecated
 	void removeBlock(int x, int y, int z);
 
 	void removeBlock(IPos pos);
 
+	@Deprecated
 	void setBlock(int x, int y, int z, String name, int meta);
 	
 	void setBlock(IPos pos, String name, int meta);

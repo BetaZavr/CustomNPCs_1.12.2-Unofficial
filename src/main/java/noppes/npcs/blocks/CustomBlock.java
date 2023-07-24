@@ -41,6 +41,9 @@ implements IPermission, ICustomElement {
 
 	public NBTTagCompound nbtData = new NBTTagCompound();
 	public AxisAlignedBB FULL_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+	public AxisAlignedBB EAST_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+	public AxisAlignedBB SOUTH_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+	public AxisAlignedBB WEST_BLOCK_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
 	private EnumBlockRenderType renderType = EnumBlockRenderType.MODEL;
 	public PropertyDirection FACING;
 	public PropertyInteger INT;
@@ -130,6 +133,7 @@ implements IPermission, ICustomElement {
 	}
 
 	private void setAABB(NBTTagList tagList) {
+		if (tagList==null || tagList.tagCount()==0) { return; }
 		double[] v = new double[] { 0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D };
 		for (int i=0; i<6; i++) {
 			double s = i<3 ? 0.0d : 1.0d;
@@ -137,12 +141,22 @@ implements IPermission, ICustomElement {
 			v[i] = s;
 		}
 		this.FULL_BLOCK_AABB = new AxisAlignedBB(v[0], v[1], v[2], v[3], v[4], v[5]);
+		this.WEST_BLOCK_AABB = new AxisAlignedBB(v[2], v[1], 1 - v[3], v[5], v[4], 1 - v[0]);
+		this.SOUTH_BLOCK_AABB = new AxisAlignedBB(1 - v[3], v[1], 1 - v[5], 1 - v[0], v[4], 1 - v[2]);
+		this.EAST_BLOCK_AABB = new AxisAlignedBB(1 - v[5], v[1], v[0], 1 - v[2], v[4], v[3]);
 	}
 	
 	@Nullable
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
-		if (this.nbtData==null || !this.nbtData.getBoolean("IsPassable")) { return blockState.getBoundingBox(worldIn, pos); }
-		return NULL_AABB;
+		if (this.nbtData!=null && this.nbtData.getBoolean("IsPassable")) { return NULL_AABB; }
+		if (this.FACING!=null) {
+			EnumFacing v = blockState.getValue(this.FACING);
+			if (v == EnumFacing.NORTH) { return FULL_BLOCK_AABB; }
+			else if (v == EnumFacing.EAST) { return EAST_BLOCK_AABB; }
+			else if (v == EnumFacing.SOUTH) { return SOUTH_BLOCK_AABB; }
+			else if (v == EnumFacing.WEST) { return WEST_BLOCK_AABB; }
+		}
+		return blockState.getBoundingBox(worldIn, pos);
 	}
 	
 	public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
@@ -198,10 +212,10 @@ implements IPermission, ICustomElement {
 		if (this.FACING!=null) {
 			EnumFacing enumfacing = EnumFacing.getFront(meta);
 			if (enumfacing.getAxis() == EnumFacing.Axis.Y) { enumfacing = EnumFacing.NORTH; }
-			state.withProperty(this.FACING, enumfacing);
+			return state.withProperty(this.FACING, enumfacing);
 		}
-		if (this.INT!=null) { state.withProperty(this.INT, meta); }
-		if (this.BO!=null) { state.withProperty(this.BO, meta!=0); }
+		if (this.INT!=null) { return state.withProperty(this.INT, meta); }
+		if (this.BO!=null) { return state.withProperty(this.BO, meta!=0); }
 		return state;
 	}
 
@@ -246,6 +260,12 @@ implements IPermission, ICustomElement {
 
 	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		if (this.FACING!=null) {
+			EnumFacing v = state.getValue(this.FACING);
+			if (v == EnumFacing.EAST) { return EAST_BLOCK_AABB; }
+			else if (v == EnumFacing.SOUTH) { return SOUTH_BLOCK_AABB; }
+			else if (v == EnumFacing.WEST) { return WEST_BLOCK_AABB; }
+		}
 		return this.FULL_BLOCK_AABB;
 	}
 

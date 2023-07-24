@@ -232,8 +232,16 @@ implements IWorld {
 	}
 
 	@Override
+	@Deprecated
 	public IBlock getBlock(int x, int y, int z) {
 		return NpcAPI.Instance().getIBlock(this.world, new BlockPos(x, y, z));
+	}
+	
+	@Override
+	@Deprecated
+	public IBlock getBlock(IPos pos) {
+		if (pos==null) { return null; }
+		return NpcAPI.Instance().getIBlock(this.world, pos.getMCBlockPos());
 	}
 
 	@SuppressWarnings("rawtypes")

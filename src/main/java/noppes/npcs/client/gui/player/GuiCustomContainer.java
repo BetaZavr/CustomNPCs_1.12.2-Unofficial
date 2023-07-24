@@ -18,7 +18,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.containers.ContainerChestCustom;
 
-public class GuiCustomContainer // GuiChest
+public class GuiCustomContainer
 extends GuiContainer {
 
 	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
