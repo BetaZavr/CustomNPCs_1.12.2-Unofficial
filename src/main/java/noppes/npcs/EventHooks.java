@@ -21,6 +21,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.entity.IPlayer;
@@ -33,6 +34,7 @@ import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.HandlerEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
+import noppes.npcs.api.event.NpcEvent.CustomNpcTeleport;
 import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
@@ -73,6 +75,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
+import noppes.npcs.entity.data.DataScript;
 
 public class EventHooks {
 	
@@ -802,6 +805,17 @@ public class EventHooks {
 		CustomTeleport event = new PlayerEvent.CustomTeleport((IPlayer<?>) api.getIEntity(player), api.getIPos(portal.getX(), portal.getY(), portal.getZ()), api.getIPos(to.getX(), to.getY(), to.getZ()), dimId);
 		if (player==null) { return event; }
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
+		if (!handler.getEnabled()) { return event; }
+		handler.runScript(EnumScriptType.CUSTOM_TELEPORT, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+		return event;
+	}
+
+	public static CustomNpcTeleport onNpcTeleport(EntityNPCInterface npc, BlockPos to, BlockPos portal, int dimId) {
+		NpcAPI api = NpcAPI.Instance();
+		CustomNpcTeleport event = new NpcEvent.CustomNpcTeleport((ICustomNpc<?>) api.getIEntity(npc), api.getIPos(portal.getX(), portal.getY(), portal.getZ()), api.getIPos(to.getX(), to.getY(), to.getZ()), dimId);
+		if (npc==null) { return event; }
+		DataScript handler = npc.script;
 		if (!handler.getEnabled()) { return event; }
 		handler.runScript(EnumScriptType.CUSTOM_TELEPORT, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);

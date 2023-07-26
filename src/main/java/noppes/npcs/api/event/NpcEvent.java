@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.api.IDamageSource;
+import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
@@ -20,6 +21,21 @@ import noppes.npcs.api.item.IItemStack;
 
 public class NpcEvent
 extends CustomNPCsEvent {
+
+	@Cancelable
+	public static class CustomNpcTeleport extends NpcEvent {
+		
+		public IPos pos, portal;
+		public int dimension;
+
+		public CustomNpcTeleport(ICustomNpc<?> npc, IPos portal, IPos pos, int dimensionID) {
+			super(npc);
+			this.pos = pos;
+			this.portal = portal;
+			this.dimension = dimensionID;
+		}
+		
+	}
 	
 	public static class CollideEvent extends NpcEvent {
 		public IEntity<?> entity;

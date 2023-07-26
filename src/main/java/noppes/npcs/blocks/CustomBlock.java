@@ -11,6 +11,7 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,6 +21,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -94,7 +96,14 @@ implements IPermission, ICustomElement {
 
 		this.setCreativeTab(CustomItems.tabBlocks);
 	}
-	
+
+	@Override
+	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+		if (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
+		items.add(new ItemStack(this));
+	}
+
+	@Override
 	public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
 		if (worldIn.isRemote || this.FACING==null) { return; }
 		IBlockState iblockstate = worldIn.getBlockState(pos.north());
@@ -110,6 +119,7 @@ implements IPermission, ICustomElement {
 	}
 	
 	@SuppressWarnings("deprecation")
+	@Override
 	public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
 		if (this.FACING!=null) {
 			return this.getDefaultState().withProperty(this.FACING, placer.getHorizontalFacing().getOpposite());
@@ -147,6 +157,7 @@ implements IPermission, ICustomElement {
 	}
 	
 	@Nullable
+	@Override
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
 		if (this.nbtData!=null && this.nbtData.getBoolean("IsPassable")) { return NULL_AABB; }
 		if (this.FACING!=null) {
@@ -158,7 +169,8 @@ implements IPermission, ICustomElement {
 		}
 		return blockState.getBoundingBox(worldIn, pos);
 	}
-	
+
+	@Override
 	public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
 		if (this.nbtData==null || !this.nbtData.hasKey("IsPassable", 3)) { return !this.blockMaterial.blocksMovement(); }
 		return this.nbtData.getBoolean("IsPassable");
@@ -181,6 +193,7 @@ implements IPermission, ICustomElement {
 		}
 	}
 
+	@Override
 	public boolean hasTileEntity() {
 		return false;
 	}
@@ -195,18 +208,23 @@ implements IPermission, ICustomElement {
 		return true;
 	}
 
+	@Override
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
 		return this.nbtData.getBoolean("IsLadder");
 	}
-	
+
+	@Override
 	public boolean isOpaqueCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsOpaqueCube") ? true : this.nbtData.getBoolean("IsOpaqueCube"); }
-	
+
+	@Override
 	public boolean isFullCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? true : this.nbtData.getBoolean("IsFullCube"); }
-	
+
+	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state) { return this.renderType; }
 
 	public boolean hasProperty() { return this.BO!=null || this.INT!=null || this.FACING!=null; }
-	
+
+	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		IBlockState state = this.getDefaultState();
 		if (this.FACING!=null) {
@@ -219,18 +237,21 @@ implements IPermission, ICustomElement {
 		return state;
 	}
 
+	@Override
 	public int getMetaFromState(IBlockState state) {
 		if (this.FACING!=null) { return ((EnumFacing)state.getValue(this.FACING)).getIndex(); }
 		return super.getMetaFromState(state);
 	}
 
 	@SuppressWarnings("deprecation")
+	@Override
 	public IBlockState withRotation(IBlockState state, Rotation rot) {
 		if (this.FACING!=null) { return state.withProperty(this.FACING, rot.rotate((EnumFacing)state.getValue(FACING))); }
 		return super.withRotation(state, rot);
 	}
 	
 	@SuppressWarnings("deprecation")
+	@Override
 	public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
 		if (this.FACING!=null) { return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(this.FACING))); }
 		return super.withMirror(state, mirrorIn);

@@ -76,6 +76,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemNbtBook;
+import noppes.npcs.items.ItemNpcMovingPath;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
@@ -763,6 +764,9 @@ extends Gui
 			if (ClientGuiEventHandler.result!=null && ClientGuiEventHandler.result.getBlockPos()!=null) {
 				this.drawZone(builder, ClientGuiEventHandler.result.getBlockPos());
 			}
+		}
+		else if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcMovingPath) {
+			
 		}
 		int id = -1;
 		// Show rayTrace point

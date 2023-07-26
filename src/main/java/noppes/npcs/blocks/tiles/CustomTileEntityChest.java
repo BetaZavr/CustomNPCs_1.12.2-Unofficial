@@ -13,6 +13,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.CustomChest;
@@ -32,6 +33,7 @@ implements ITickable {
 	public boolean isChest;
 	private String name, blockName;
 	public int[] guiColorArr;
+	public SoundEvent sound_open = SoundEvents.BLOCK_CHEST_OPEN, sound_close = SoundEvents.BLOCK_CHEST_CLOSE;
 
 	public CustomTileEntityChest() {
 		this.setBlock(new CustomChest(Material.WOOD, new NBTTagCompound()));
@@ -95,7 +97,6 @@ implements ITickable {
 			return;
 		}
 		if (this.numPlayersUsing<0) { this.numPlayersUsing = 0; }
-//if (this.world.getTotalWorldTime()%20==0) { System.out.println("CNPCs: "+this.numPlayersUsing); }
 		if (!this.world.isRemote && this.numPlayersUsing != 0 && (this.world.getTotalWorldTime() + this.pos.getX() + this.pos.getY() + this.pos.getZ()) % 20 == 0) {
 			this.numPlayersUsing = 0;
 			for (EntityPlayer entityplayer : this.world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB((double)((float) this.pos.getX() - 5.0F), (double)((float) this.pos.getY() - 5.0F), (double)((float)pos.getZ() - 5.0F), (double)((float)( this.pos.getX() + 1) + 5.0F), (double)((float)( this.pos.getY() + 1) + 5.0F), (double)((float)( this.pos.getZ() + 1) + 5.0F)))) {
@@ -108,7 +109,7 @@ implements ITickable {
 		if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F) {
 			double d1 = (double) this.pos.getX() + 0.5D;
 			double d2 = (double) this.pos.getZ() + 0.5D;
-			this.world.playSound((EntityPlayer)null, d1, (double) this.pos.getY() + 0.5D, d2, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+			this.world.playSound((EntityPlayer)null, d1, (double) this.pos.getY() + 0.5D, d2, this.sound_open, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 		}
 		if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
 			float f2 = this.lidAngle;
@@ -118,7 +119,7 @@ implements ITickable {
 			if (this.lidAngle < 0.5F && f2 >= 0.5F) {
 				double d3 = (double) this.pos.getX() + 0.5D;
 				double d0 = (double) this.pos.getZ() + 0.5D;
-				this.world.playSound((EntityPlayer)null, d3, (double) this.pos.getY() + 0.5D, d0, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+				this.world.playSound((EntityPlayer)null, d3, (double) this.pos.getY() + 0.5D, d0, this.sound_close, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
 			}
 			if (this.lidAngle < 0.0F) { this.lidAngle = 0.0F; }
 		}		
@@ -128,7 +129,6 @@ implements ITickable {
 	public void openInventory(EntityPlayer player) {
 		if (this.inventory==null || this.world==null) { return; }
 		++this.numPlayersUsing;
-System.out.println("openInventory: "+this.numPlayersUsing);
 		this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
 		this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
 	}
@@ -137,7 +137,6 @@ System.out.println("openInventory: "+this.numPlayersUsing);
 	public void closeInventory(EntityPlayer player) {
 		if (this.world==null) { return; }
 		--this.numPlayersUsing;
-System.out.println("closeInventory: "+this.numPlayersUsing);
 		this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
 		this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
 	}
@@ -151,8 +150,12 @@ System.out.println("closeInventory: "+this.numPlayersUsing);
 		this.name = compound.getString("CustomName");
 		this.size = compound.getInteger("Size");
 		if (compound.hasKey("Texture", 8)) { this.chestTexture = new ResourceLocation(compound.getString("Texture")); }
-		if (compound.hasKey("GUIColor", 3)) { this.guiColor = compound.getInteger("GUIColor"); }
 		if (compound.hasKey("GUIColor", 11)) { this.guiColorArr = compound.getIntArray("GUIColor"); }
+		else if (compound.hasKey("GUIColor", 3)) { this.guiColor = compound.getInteger("GUIColor"); }
+		SoundEvent soundopen = SoundEvent.REGISTRY.getObject(new ResourceLocation(compound.getString("SoundOpen")));
+		if (soundopen!=null) { this.sound_open = soundopen; }
+		SoundEvent soundclose = SoundEvent.REGISTRY.getObject(new ResourceLocation(compound.getString("SoundClose")));
+		if (soundclose!=null) { this.sound_close = soundclose; }
 		if (this.size != this.inventory.size()) { this.inventory = NonNullList.<ItemStack>withSize(this.size, ItemStack.EMPTY); }
 		this.inventory.clear();
 		ItemStackHelper.loadAllItems(compound, this.inventory);
@@ -166,6 +169,8 @@ System.out.println("closeInventory: "+this.numPlayersUsing);
 		if (this.chestTexture!=null) { compound.setString("Texture", this.chestTexture.toString()); }
 		if (this.guiColor!=-1) { compound.setInteger("GUIColor", this.guiColor); }
 		if (this.guiColorArr!=null) { compound.setIntArray("GUIColor", this.guiColorArr); }
+		compound.setString("SoundOpen", this.sound_open.getSoundName().toString());
+		compound.setString("SoundClose", this.sound_close.getSoundName().toString());
 		ItemStackHelper.saveAllItems(compound, this.inventory);
 		return compound;
 	}

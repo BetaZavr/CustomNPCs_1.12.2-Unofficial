@@ -4,7 +4,9 @@ import net.minecraft.block.BlockStairs;
 import net.minecraft.block.SoundType;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
@@ -39,6 +41,12 @@ implements ICustomElement {
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
 		
 		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+	}
+
+	@Override
+	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+		if (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
+		items.add(new ItemStack(this));
 	}
 
 	@Override

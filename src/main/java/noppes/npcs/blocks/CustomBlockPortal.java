@@ -20,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -36,8 +37,10 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.NpcEvent.CustomNpcTeleport;
 import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
 public class CustomBlockPortal
@@ -68,6 +71,12 @@ implements ICustomElement {
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
 		
 		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+	}
+
+	@Override
+	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+		if (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
+		items.add(new ItemStack(this));
 	}
 	
 	@Override
@@ -105,6 +114,10 @@ implements ICustomElement {
 					NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entityIn, event.pos.getX()+0.5d, event.pos.getY(), event.pos.getZ()+0.5d, event.dimension);
 				}
 			} else {
+				if (entityIn instanceof EntityNPCInterface) {
+					CustomNpcTeleport event = EventHooks.onNpcTeleport((EntityNPCInterface) entityIn, p, pos, isHome ? homeId : id);
+					if (event.isCanceled() || entityIn==null || entityIn.isDead) { return; }
+				}
 				entityIn = AdditionalMethods.travelEntity(CustomNpcs.Server, entityIn, isHome ? homeId : id);
 				entityIn.setPosition(p.getX()+0.5d, p.getY(), p.getZ()+0.5d);
 			}

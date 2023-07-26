@@ -136,5 +136,10 @@ implements IPos {
 	public IPos west(int n) {
 		return new BlockPosWrapper(this.blockPos.west(n));
 	}
+
+	@Override
+	public String toString() {
+		return "BlockPosWrapper {"+this.blockPos.getX()+", "+this.blockPos.getY()+", "+this.blockPos.getZ()+"}";
+	}
 	
 }
