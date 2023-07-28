@@ -16,7 +16,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -71,12 +70,12 @@ implements IPermission {
 		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
 	}
 
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos bpos, EnumHand hand, EnumFacing side,
-			float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos bpos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (!world.isRemote) {
 			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
 				ItemStack stack = player.getHeldItem(hand);
 				EntityNPCInterface npc = this.getNpc(stack, world);
+				
 				if (npc == null) {
 					return EnumActionResult.PASS;
 				}
@@ -90,12 +89,9 @@ implements IPermission {
 				double d4 = y - pos[1];
 				double d5 = z - pos[2];
 				double distance = MathHelper.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
-				player.sendMessage(new TextComponentString(
-						"Added point x:" + x + " y:" + y + " z:" + z + " to npc " + npc.getName()));
+				player.sendMessage(new TextComponentTranslation("message.pather.add", "" + ((char) 167) + "6" + x, "" + ((char) 167) + "6" + y, "" + ((char) 167) + "6" + z, npc.getName()));
 				if (distance > CustomNpcs.NpcNavRange) {
-					player.sendMessage(new TextComponentString(
-							"Warning: point is too far away from previous point. Max block walk distance = "
-									+ CustomNpcs.NpcNavRange));
+					player.sendMessage(new TextComponentTranslation("message.pather.warn.add", "" + ((char) 167) + "6" + CustomNpcs.NpcNavRange));
 				}
 				return EnumActionResult.SUCCESS;
 			}

@@ -51,6 +51,7 @@ public enum EnumPlayerPacket
 	TrackQuest,
 	SaveCompassData,
 	GetTileData,
-	ScriptPackage;
+	ScriptPackage,
+	MovingPathGet;
 	
 }

@@ -11,6 +11,7 @@ import noppes.npcs.config.TrueTypeFont;
 public class TextContainer {
 	
 	public class LineData {
+		
 		public int end;
 		public int start;
 		public String text;

@@ -36,9 +36,7 @@ extends GuiNpcButton {
 	}
 
 	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
-		if (!this.getVisible()) {
-			return;
-		}
+		if (!this.getVisible()) { return; }
         this.hovered = i >= this.x && j >= this.y && i < this.x + this.width && j < this.y + this.height;
 		GlStateManager.pushMatrix();
 		minecraft.renderEngine.bindTexture(GuiMenuTopButton.resource);
@@ -47,23 +45,16 @@ extends GuiNpcButton {
 		this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + height);
 		int k = this.getHoverState(this.hover);
 		this.drawTexturedModalRect(this.x, this.y, 0, k * 20, this.getWidth() / 2, height);
-		this.drawTexturedModalRect(this.x + this.getWidth() / 2, this.y, 200 - this.getWidth() / 2, k * 20,
-				this.getWidth() / 2, height);
+		this.drawTexturedModalRect(this.x + this.getWidth() / 2, this.y, 200 - this.getWidth() / 2, k * 20, this.getWidth() / 2, height);
 		this.mouseDragged(minecraft, i, j);
 		FontRenderer fontrenderer = minecraft.fontRenderer;
 		if (this.rotated) {
 			GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
 		}
-		if (this.active) {
-			this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2,
-					this.y + (height - 8) / 2, 16777120);
-		} else if (this.hover) {
-			this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2,
-					this.y + (height - 8) / 2, 16777120);
-		} else {
-			this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2,
-					this.y + (height - 8) / 2, 14737632);
-		}
+		int l = CustomNpcs.mainColor;
+		if (this.packedFGColour != 0) { l = this.packedFGColour; }
+		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2, this.y + (height - 8) / 2, l);
 		GlStateManager.popMatrix();
 	}
 

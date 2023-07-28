@@ -599,6 +599,11 @@ extends PacketHandlerServer {
 			}
 		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
+		} else if (type == EnumPacketClient.NPC_MOVINGPATH) {
+			Entity entity = player.world.getEntityByID(buffer.readInt());
+			if (entity instanceof EntityCustomNpc) {
+				((EntityCustomNpc) entity).ais.readToNBT(Server.readNBT(buffer));
+			}
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_"+type.toString());
 	}

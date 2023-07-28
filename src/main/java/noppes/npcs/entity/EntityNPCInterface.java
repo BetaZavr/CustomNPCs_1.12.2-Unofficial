@@ -1232,17 +1232,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean processInteract(EntityPlayer player, EnumHand hand) {
-		if (this.world.isRemote) {
-			return !this.isAttacking();
-		}
-		if (hand != EnumHand.MAIN_HAND) {
-			return true;
-		}
+		if (this.world.isRemote) { return !this.isAttacking(); }
+		if (hand != EnumHand.MAIN_HAND) { return true; }
 		ItemStack stack = player.getHeldItem(hand);
 		if (stack != null) {
 			Item item = stack.getItem();
-			if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount
-					|| item == CustomItems.scripter) {
+			if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount || item == CustomItems.scripter) {
 				this.setAttackTarget(null);
 				this.setRevengeTarget(null);
 				return true;
@@ -1250,8 +1245,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (item == CustomItems.moving) {
 				this.setAttackTarget(null);
 				stack.setTagInfo("NPCID", new NBTTagInt(this.getEntityId()));
-				player.sendMessage(new TextComponentTranslation("Registered " + this.getName() + " to your NPC Pather",
-						new Object[0]));
+				player.sendMessage(new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVINGPATH, this.getEntityId(), this.ais.writeToNBT(new NBTTagCompound()));
 				return true;
 			}
 		}

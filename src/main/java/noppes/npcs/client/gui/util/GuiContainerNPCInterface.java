@@ -222,8 +222,7 @@ extends GuiContainer {
 
 	public void drawWait(int mouseX, int mouseY, float partialTicks) {
 		ScaledResolution scaleW = new ScaledResolution(this.mc);
-		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(),
-				scaleW.getScaledWidth() / 2, scaleW.getScaledHeight() / 2, 0xFFFF0000);
+		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(), scaleW.getScaledWidth() / 2, scaleW.getScaledHeight() / 2, CustomNpcs.mainColor);
 		int pos_0 = (int) Math.floor((double) (this.player.world.getTotalWorldTime() % 16) / 2.0d);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

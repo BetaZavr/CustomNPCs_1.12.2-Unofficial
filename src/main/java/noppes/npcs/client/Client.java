@@ -21,10 +21,10 @@ import noppes.npcs.util.CustomNPCsScheduler;
 public class Client {
 
 	// Clear in
-	public static Map<Object, Long> delayPackets = new HashMap<Object, Long>(); // New
+	public static Map<Object, Long> delayPackets = new HashMap<Object, Long>();
+	public static List<EnumPacketServer> notDebugShow = Lists.newArrayList(EnumPacketServer.StopSound, EnumPacketServer.PlaySound);
 
 	public static void sendData(EnumPacketServer type, Object... obs) {
-		List<EnumPacketServer> notDebugShow = Lists.newArrayList(EnumPacketServer.StopSound, EnumPacketServer.PlaySound);
 		CustomNPCsScheduler.runTack(() -> {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
@@ -38,7 +38,25 @@ public class Client {
 		});
 	}
 
-	// New
+	public static boolean sendDataDelayCheck(EnumPacketServer type, Object key, int delayMilliSec, Object... obs) {
+		if (delayMilliSec>0 && Client.delayPackets.containsKey(key) && Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
+			return false;
+		}
+		if (delayMilliSec>0) { Client.delayPackets.put(key, System.currentTimeMillis()); }
+		CustomNPCsScheduler.runTack(() -> {
+			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
+			try {
+				if (!(!Server.fillBuffer(buffer, type, obs))) {
+					if (!notDebugShow.contains(type)) { LogWriter.debug("Send: " + type); }
+					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, "CustomNPCs"));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		return true;
+	}
+	
 	public static boolean sendDataDelayCheck(EnumPlayerPacket type, Object key, int delayMilliSec, Object... obs) {
 		if (delayMilliSec>0 && Client.delayPackets.containsKey(key) && Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
 			return false;

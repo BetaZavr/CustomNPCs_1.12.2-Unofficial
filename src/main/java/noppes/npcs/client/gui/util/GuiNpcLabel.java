@@ -22,7 +22,6 @@ public class GuiNpcLabel {
 	public List<String> label;
 	public int x;
 	public int y;
-	// New
 	public int height = 9, width = 0;
 	public String[] hoverText;
 	public boolean hovered;
@@ -40,10 +39,7 @@ public class GuiNpcLabel {
 		this.setLabel(label.toString());
 	}
 
-	public void center(int width) {
-		//int size = Minecraft.getMinecraft().fontRenderer.getStringWidth(this.label);
-		this.x += (width - this.width) / 2;
-	}
+	public void center(int width) { this.x += (width - this.width) / 2; }
 
 	public void drawLabel(GuiScreen gui, FontRenderer fontRenderer, int mouseX, int mouseY, float partialTicks) {
 		if (this.enabled && this.label!=null && this.label.size()!=0) {
@@ -56,14 +52,11 @@ public class GuiNpcLabel {
 					else if (gui instanceof GuiNPCInterface) { ((GuiNPCInterface) gui).hoverText = this.hoverText; }
 				}
 			}
-			if (this.borderColor != 0) {
-				Gui.drawRect(this.x - 2, this.y - 1, this.x + this.width + 2, this.y + this.height, this.borderColor);
-			}
-			if (this.backColor != 0) {
-				Gui.drawRect(this.x - 1, this.y, this.x + this.width + 1, this.y + this.height-1, this.backColor);
-			}
+			if (this.borderColor != 0) { Gui.drawRect(this.x - 2, this.y - 1, this.x + this.width + 2, this.y + this.height, this.borderColor); }
+			if (this.backColor != 0) { Gui.drawRect(this.x - 1, this.y, this.x + this.width + 1, this.y + this.height-1, this.backColor); }
 			int i = 0;
 			for (String str : this.label) {
+				this.color = 0xFF404040;
 				fontRenderer.drawString(str, this.x, this.y + i, this.color);
 				i += 10;
 			}

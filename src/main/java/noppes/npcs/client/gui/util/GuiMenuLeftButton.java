@@ -52,10 +52,11 @@ extends GuiNpcButton {
 		this.mouseDragged(minecraft, i, j);
 		FontRenderer fontrenderer = minecraft.fontRenderer;
 		if (this.rotated) { GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f); }
-		int color = 14737632;
-		if (this.active) { color = 16777120; }
-		else if (this.hover) { color = 16777120; }
-		this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2, this.y + (20 - 8) / 2, color);
+		int l = CustomNpcs.mainColor;
+		if (this.packedFGColour != 0) { l = this.packedFGColour; }
+		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		
+		this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2, this.y + (20 - 8) / 2, l);
 		GlStateManager.popMatrix();
 	}
 

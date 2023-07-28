@@ -60,6 +60,7 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemScripted;
@@ -572,6 +573,12 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.ScriptPackage) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
+		} else if (type == EnumPlayerPacket.MovingPathGet) {
+			int id = buffer.readInt();
+			Entity entity = player.world.getEntityByID(id);
+			if (entity instanceof EntityCustomNpc) {
+				Server.sendData(player, EnumPacketClient.NPC_MOVINGPATH, id, ((EntityCustomNpc) entity).ais.writeToNBT(new NBTTagCompound()));
+			}
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

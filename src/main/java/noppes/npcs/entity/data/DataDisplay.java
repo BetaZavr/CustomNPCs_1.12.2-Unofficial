@@ -478,9 +478,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setVisible(int type) {
-		if (type == this.visible) {
-			return;
-		}
+		if (type == this.visible) { return; }
 		this.visible = ValueUtil.correctInt(type, 0, 2);
 		this.npc.updateClient = true;
 	}

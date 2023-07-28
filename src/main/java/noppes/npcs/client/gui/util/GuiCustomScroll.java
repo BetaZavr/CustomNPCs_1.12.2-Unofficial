@@ -128,22 +128,21 @@ extends GuiScreen {
 				j = 14;
 				xo = -14;
 			}
-			int c = 16777215;
+			int c = CustomNpcs.mainColor;
 			if (this.colors != null && i < this.colors.size()) { c = this.colors.get(i); }
-			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false))
-					|| (!this.multipleSelection && this.selected == i)) {
+			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false)) || (!this.multipleSelection && this.selected == i)) {
 				this.drawVerticalLine(j - 2, k - 4, k + 10, -1);
 				this.drawVerticalLine(j + this.width - 18 + xOffset + xo, k - 4, k + 10, -1);
 				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset + xo, k - 3, -1);
 				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset + xo, k + 10, -1);
 				this.fontRenderer.drawString(text, j, k, c);
-				c = 16777215;
+				c = CustomNpcs.mainColor;
 			} else if (i == this.hover) {
 				this.fontRenderer.drawString(text, j, k, 65280);
-				c = 65280;
+				c = CustomNpcs.hoverColor;
 			} else {
 				this.fontRenderer.drawString(text, j, k, c);
-				c = 16777215;
+				c = CustomNpcs.mainColor;
 			}
 			if (this.suffixs != null &&
 					i < this.suffixs.size() &&
@@ -158,8 +157,7 @@ extends GuiScreen {
 		if (!this.visible) {
 			return;
 		}
-		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop,
-				this.colorBack, this.colorBack);
+		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop, this.colorBack, this.colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(GuiCustomScroll.resource);
 		GlStateManager.pushMatrix();
@@ -173,9 +171,7 @@ extends GuiScreen {
 		}
 		this.drawItems();
 		GlStateManager.popMatrix();
-		if (this.stacks != null) {
-			this.drawStacks();
-		}
+		if (this.stacks != null) { this.drawStacks(); }
 		if (this.scrollHeight < this.height - 8) {
 			this.drawScrollBar(); // Changed
 			mouseX -= this.guiLeft;
@@ -228,15 +224,12 @@ extends GuiScreen {
 
 	private void drawScrollBar() { // Changed
 		int posX = this.guiLeft + this.width - 9;
-		int posY = this.guiTop + (int) ((float) this.scrollY / (float) this.listHeight * ((float) this.height - 18.0f))
-				+ 1;
+		int posY = this.guiTop + (int) ((float) this.scrollY / (float) this.listHeight * ((float) this.height - 18.0f)) + 1;
 		Gui.drawRect(posX, posY, posX + 8, posY + this.scrollHeight + 1, 0xA0FFF0F0);
 	}
 
 	protected void drawStacks() {
-		if (this.stacks == null) {
-			return;
-		}
+		if (this.stacks == null) { return; }
 		for (int i = 0; i < this.list.size() && i < this.stacks.size(); ++i) {
 			int k = 14 * i + 4 - this.scrollY;
 			if (k < 4 || k + 12 >= this.height) {

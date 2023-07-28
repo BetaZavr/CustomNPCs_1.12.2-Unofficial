@@ -193,6 +193,10 @@ public class ClientTickHandler {
 		if (!(entity instanceof EntityPlayerSP) || !CustomNpcs.VerboseDebug) { return; }
 		//TempClass.run((EntityPlayerSP) entity);
 		
+		/*String v = Integer.toHexString(CustomNpcs.mainColor).toUpperCase();
+		int i = (int) Long.parseLong(v, 16);
+		System.out.println("D: "+(int) CustomNpcs.mainColor+" to hex: \""+v+"\" next: "+i);*/
+		
 		/*System.out.println("try found chests:");
 		Iterator<Item> iter = Item.REGISTRY.iterator();
 		int i = 0;

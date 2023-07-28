@@ -135,6 +135,16 @@ public class CustomNpcs {
 	public static int[] experience = new int[] { 2, 3, 100, 115 };
 	@ConfigProp(info = "Font size for custom fonts (doesn't work with minecrafts font)")
 	public static int FontSize = 18;
+
+	@ConfigProp(info = "Main text color of elements in GUI modification")
+	public static int mainColor = 0xFFFFFFFF;
+	@ConfigProp(info = "Name text color in GUI modification")
+	public static int lableColor = 0xFFE0E0E0;
+	@ConfigProp(info = "Text color for inactive elements in modification GUI")
+	public static int notEnableColor = 0xFFA0A0A0;
+	@ConfigProp(info = "Text color of elements in modification GUI when the element is held down by the mouse cursor")
+	public static int hoverColor = 0xFFFFFFA0;
+	
 	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC")
 	public static String FontType = "Default";
 	@ConfigProp(info = "Type 0 = Normal, Type 1 = Solid")

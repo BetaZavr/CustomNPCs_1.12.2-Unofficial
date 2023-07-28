@@ -8,14 +8,13 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
 @SuppressWarnings("deprecation")
 public class CustomNpcResourceListener
 implements IResourceManagerReloadListener {
 	
-	public static int DefaultTextColor = 0xFF066CD0;
+	public static int DefaultTextColor = CustomNpcs.lableColor;
 
 	private void createTextureCache() {
 		this.enlargeTexture("planks_oak");
@@ -33,9 +32,7 @@ implements IResourceManagerReloadListener {
 
 	private void enlargeTexture(String texture) {
 		TextureManager manager = Minecraft.getMinecraft().getTextureManager();
-		if (manager == null) {
-			return;
-		}
+		if (manager == null) { return; }
 		ResourceLocation location = new ResourceLocation(CustomNpcs.MODID, "textures/cache/" + texture + ".png");
 		ITextureObject ob = manager.getTexture(location);
 		if (ob == null || !(ob instanceof TextureCache)) {
@@ -51,12 +48,7 @@ implements IResourceManagerReloadListener {
 			SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) var1;
 			FolderResourcePack pack = new FolderResourcePack(CustomNpcs.Dir);
 			simplemanager.reloadResourcePack(pack);
-			try {
-				CustomNpcResourceListener.DefaultTextColor = Integer.parseInt(
-						new TextComponentTranslation(CustomNpcs.MODID + ".defaultTextColor").getFormattedText(), 16);
-			} catch (NumberFormatException e) {
-				CustomNpcResourceListener.DefaultTextColor = 4210752;
-			}
+			CustomNpcResourceListener.DefaultTextColor = CustomNpcs.lableColor;
 		}
 	}
 

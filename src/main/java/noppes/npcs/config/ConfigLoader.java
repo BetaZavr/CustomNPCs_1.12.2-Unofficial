@@ -95,7 +95,10 @@ public class ConfigLoader {
 						if (class2.isAssignableFrom(String.class)) {
 							obj = prop;
 						} else if (class2.isAssignableFrom(Integer.TYPE)) {
-							obj = Integer.parseInt(prop);
+							if (name.equals("mainColor") || name.equals("lableColor") || name.equals("notEnableColor") || name.equals("hoverColor")) {
+								try { obj = (int) Long.parseLong("FF"+prop, 16); }
+								catch (Exception e) { obj = Integer.parseInt(prop); }
+							} else { obj = Integer.parseInt(prop); }
 						} else if (class2.isAssignableFrom(Short.TYPE)) {
 							obj = Short.parseShort(prop);
 						} else if (class2.isAssignableFrom(Byte.TYPE)) {
@@ -106,7 +109,7 @@ public class ConfigLoader {
 							obj = Float.parseFloat(prop);
 						} else if (class2.isAssignableFrom(Double.TYPE)) {
 							obj = Double.parseDouble(prop);
-						} else if (class2.isArray()) { // New
+						} else if (class2.isArray()) {
 							String text = prop.replace("[", "").replace("]", "");
 							try {
 								while (text.indexOf(" ") != -1) { text = text.replace(" ", ""); }
@@ -153,17 +156,14 @@ public class ConfigLoader {
 	public void updateConfig() {
 		File file = new File(this.dir, this.fileName);
 		try {
-			if (!file.exists()) {
-				file.createNewFile();
-			}
+			if (!file.exists()) { file.createNewFile(); }
 			Map<String, String> map = Maps.<String, String>newTreeMap();
 			for (Field field : this.configFields) {
 				ConfigProp prop = field.getAnnotation(ConfigProp.class);
 				String key = prop.name().isEmpty() ? field.getName() : prop.name();
 				String value = "";
 				if (prop.info().length() != 0) { value = "#" + prop.info() + System.getProperty("line.separator"); }
-				
-				if (field.getType().isArray()) { // New
+				if (field.getType().isArray()) {
 					String text = "[";
 					boolean nextTry = false;
 					try {
@@ -204,7 +204,18 @@ public class ConfigLoader {
 					}
 					value += key + "=" + text + System.getProperty("line.separator");
 				} else {
-					try { value += key + "=" + field.get(null).toString() + System.getProperty("line.separator"); }
+					try {
+						String v = field.get(null).toString();
+						if (key.equals("mainColor") || key.equals("lableColor") || key.equals("notEnableColor") || key.equals("hoverColor")) {
+							String s = Integer.toHexString((int) field.get(null)).toUpperCase();
+							v = s;
+							if (s.length()>6) {
+								v = "";
+								for (int i = s.length()-1, j=0; i>=0 && j<6; i--, j++ ) { v = s.charAt(i) + v; }
+							}
+						}
+						value += key + "=" + v + System.getProperty("line.separator");
+					}
 					catch (IllegalArgumentException | IllegalAccessException e) { e.printStackTrace(); }
 				}
 				map.put(key, value);

@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 
 public class GuiNpcButton
 extends GuiButton {
@@ -91,18 +92,8 @@ extends GuiButton {
 				this.drawTexturedModalRect(this.x, this.y+17, 0, 66 - h + i * 20, this.width / 2, h);
 				this.drawTexturedModalRect(this.x + this.width / 2, this.y+17, 200 - this.width / 2, 66 - h + i * 20, this.width / 2, h);
 			}
-
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
 			this.mouseDragged(mc, mouseX, mouseY);
-			
-			int color = 0xFFE0E0E0;
-			if (this.packedFGColour != 0) { color = this.packedFGColour; }
-			else if (!this.enabled) { color = 0xFFA0A0A0; }
-			else if (this.hovered) { color = 0xFFFFFFA0; }
-
-			mc.fontRenderer.drawString(this.displayString, this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2, this.y + (this.height - 8) / 2, color, this.dropShadow);
-			//this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
 		} else {
 			GlStateManager.translate(0.0f, 0.0f, this.id);
 			mc.getTextureManager().bindTexture(this.texture);
@@ -114,23 +105,20 @@ extends GuiButton {
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width, this.height);
-			int color = 0xFFE0E0E0;
-			if (this.packedFGColour != 0) { color = this.packedFGColour; }
-			else if (!this.enabled) { color = 0xFFA0A0A0; }
-			else if (this.hovered) { color = 0xFFFFFFA0; }
 			
-			mc.fontRenderer.drawString(this.displayString, this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2, this.y + (this.height - 8) / 2, color, this.dropShadow);
-			//this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, j);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		}
-
+		int l = CustomNpcs.mainColor;
+		if (this.packedFGColour != 0) { l = this.packedFGColour; }
+		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
+		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		mc.fontRenderer.drawString(this.displayString, this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2, this.y + (this.height - 8) / 2, l, this.dropShadow);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 
 	public int getValue() {
 		return this.displayValue;
 	}
 
-	// New
 	public String[] getVariants() {
 		return this.display;
 	}

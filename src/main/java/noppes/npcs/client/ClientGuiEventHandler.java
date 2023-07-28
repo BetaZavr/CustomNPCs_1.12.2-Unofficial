@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import org.lwjgl.opengl.GL11;
 
@@ -37,6 +38,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -72,6 +75,7 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.controllers.data.Zone3D;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
@@ -102,6 +106,9 @@ extends Gui
 	private BorderController bData;
 	private double dx, dy, dz;
 	private int qt=0;
+	private List<int[]> listMovingPath;
+	private List<double[]> listPath = Lists.<double[]>newArrayList();
+	
 	
 	public static RayTraceResult result;
 
@@ -766,7 +773,13 @@ extends Gui
 			}
 		}
 		else if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcMovingPath) {
-			
+			NBTTagCompound nbt = this.mc.player.getHeldItemMainhand().getTagCompound();
+			if (nbt!=null && nbt.hasKey("NPCID", 3)) {
+				Entity entity = this.mc.player.world.getEntityByID(nbt.getInteger("NPCID"));
+				if (entity instanceof EntityCustomNpc) {
+					this.drawNpcMovingPath((EntityCustomNpc) entity);
+				} else { this.listMovingPath = null; }
+			}
 		}
 		int id = -1;
 		// Show rayTrace point
@@ -817,7 +830,7 @@ extends Gui
 			}
 		}
 	}
-	
+
 	/** Regions Edit -> Draw */
 	private void renderRegion(Zone3D reg, int editID) {
 		if (reg.size()==0) { return; }
@@ -1306,5 +1319,126 @@ extends Gui
 			}
 		}
 	}
-
+	
+	private void drawNpcMovingPath(EntityCustomNpc npc) {
+		Client.sendDataDelayCheck(EnumPlayerPacket.MovingPathGet, npc, 5000, npc.getEntityId());
+		if (npc.ais.getMovingType()!=2 || npc.ais.getMovingPathSize()<=1) {
+			this.listMovingPath = null;
+			return;
+		}
+		boolean type = npc.ais.getMovingPathType()==0;
+		List<int[]> list = npc.ais.getMovingPath();
+		boolean bo = list==this.listMovingPath;
+		if (this.listMovingPath==null) { this.listMovingPath = list; }
+		if (!bo && this.mc.world.getTotalWorldTime()%100 == 0) {
+			bo = list.size()==this.listMovingPath.size();
+			if (bo) {
+				for (int i = 0; i < list.size(); i++) {
+					if (list.get(i).length!=this.listMovingPath.get(i).length) {
+						bo = false;
+						break;
+					}
+					for (int j = 0; j < list.get(i).length; j++) {
+						if (list.get(i)[j]!=this.listMovingPath.get(i)[j]) {
+							bo = false;
+							break;
+						}
+					}
+					if (!bo) { break; }
+				}
+			}
+		}
+		if (!bo) {
+			this.listPath.clear();
+			NBTTagCompound npcNbt = new NBTTagCompound();
+			npc.writeToNBTAtomically(npcNbt);
+			Entity entity = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
+			entity.setUniqueId(UUID.randomUUID());
+			if (entity instanceof EntityCustomNpc) {
+				EntityCustomNpc newNpc = (EntityCustomNpc) entity;
+				int[] pos = list.get(1);
+				double yo = 0.0d;
+				IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
+				if (state!=null && state.isFullBlock() || state.isFullCube()) { yo = 1.0d; }
+				newNpc.setPosition(pos[0]+0.5d, pos[1]+0.5d+yo, pos[2]+0.5d);
+				newNpc.display.setVisible(1);
+				newNpc.display.setSize(1);
+				newNpc.display.setShowName(1);
+				this.mc.world.spawnEntity(newNpc);
+				for (int i = 1; i < list.size(); i++) {
+					pos = list.get(i);
+					bo = newNpc.getNavigator().tryMoveToXYZ(pos[0] + 0.5d, pos[1], pos[2] + 0.5d, 1.0d);
+					if (!bo) {
+						this.listPath.add(new double[0]);
+						continue;
+					}
+System.out.println("i["+i+"]; create path: "+newNpc.getNavigator().getPath().getOpenSet().length);
+					for (PathPoint p : newNpc.getNavigator().getPath().getOpenSet()) {
+System.out.println("i["+i+"] "+p.x+", "+p.y+", "+p.z+" = "+p);
+						this.listPath.add(new double[] { p.x + 0.5d, p.y + 0.5d, p.z + 0.5d});
+					}
+					break;
+				}
+				newNpc.isDead = true;
+			}
+			this.listMovingPath = list;
+		}
+		
+		double[] pre = null;
+		// Way
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.glLineWidth(2.0f);
+		GlStateManager.disableTexture2D();
+		GlStateManager.depthMask(false);
+		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder buffer = tessellator.getBuffer();
+		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+		float r = 1.0f, g = 0.0f, b = 0.0f;
+		for (int i = 0; i < list.size(); i++) {
+			int[] pos = list.get(i);
+			double[] newPre = new double[] { pos[0]+0.5d, pos[1]+1.5d, pos[2]+0.5d };
+			if (pre!=null) {
+				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
+				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+			}
+			pre = newPre;
+			if (type && i == list.size()-1) {
+				pos = list.get(0);
+				newPre = new double[] { pos[0]+0.5d, pos[1]+1.5d, pos[2]+0.5d };
+				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
+				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+			}
+		}
+		tessellator.draw();
+		GlStateManager.depthMask(true);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();
+		
+		// block poses
+		for (int i = 0; i < list.size(); i++) {
+			if (i==0) { r = 1.0f; g = 1.0f; b = 1.0f; }
+			else { r = 1.0f; g = 1.0f; b = 0.0f; }
+			int[] pos = list.get(i);
+			double yo = 0.0d;
+			IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
+			if (state!=null && state.isFullBlock() || state.isFullCube()) { yo = 1.0d; }
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(1.0F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(pos[0]-this.dx+0.5d, pos[1]-this.dy+0.5d+yo, pos[2]-this.dz+0.5d);
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.25d, -0.25d, -0.25d, 0.25d, 0.25d, 0.25d)), r, g, b, 1.0f);
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+		}
+	}
+	
 }

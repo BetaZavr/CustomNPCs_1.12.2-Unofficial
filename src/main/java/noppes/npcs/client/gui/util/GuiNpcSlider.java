@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.util.ValueUtil;
@@ -70,11 +71,12 @@ extends GuiButton {
 		this.mouseDragged(mc, mouseX, mouseY);
 		// text:
 		if (this.displayString.isEmpty()) { return; }
-		int j = 14737632;
-		if (this.packedFGColour != 0) { j = this.packedFGColour; }
-		else if (!this.enabled) { j = 10526880; }
-		else if (this.hovered) { j = 16777120; }
-		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height-ClientProxy.Font.height(this.displayString)+3) / 2, j);
+		
+		int l = CustomNpcs.mainColor;
+		if (this.packedFGColour != 0) { l = this.packedFGColour; }
+		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
+		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height-ClientProxy.Font.height(this.displayString)+3) / 2, l);
 	}
 	
 	public String getDisplayString() { return this.displayString; }

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 
 public class GuiNpcCheckBox
 extends GuiNpcButton
@@ -43,7 +44,7 @@ extends GuiNpcButton
         this.centered = false;
         this.labels = Lists.<String>newArrayList();
         this.showShadow = false;
-        this.textColor = 0xFF404040;
+        this.textColor = CustomNpcs.mainColor;
         this.setText(label);
     }
     

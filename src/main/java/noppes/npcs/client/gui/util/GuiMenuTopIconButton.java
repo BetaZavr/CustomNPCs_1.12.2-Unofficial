@@ -51,12 +51,8 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
 
 	@Override
 	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
-		if (!this.getVisible()) {
-			return;
-		}
-		if (this.item.getItem() == null) {
-			this.item = new ItemStack(Blocks.DIRT);
-		}
+		if (!this.getVisible()) { return; }
+		if (this.item.getItem() == null) { this.item = new ItemStack(Blocks.DIRT); }
 		this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + this.height);
 		Minecraft mc = Minecraft.getMinecraft();
 		if (this.hover && !this.active) {
