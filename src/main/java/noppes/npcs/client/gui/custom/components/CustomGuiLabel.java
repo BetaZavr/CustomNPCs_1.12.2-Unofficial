@@ -72,7 +72,6 @@ implements IGuiComponent {
 	        List<String> labels = ObfuscationHelper.getValue(GuiLabel.class, this, List.class);
 	        int i = this.y + this.height / 2 + border / 2;
 	        int j = i - labels.size() * 10 / 2;
-
 	        for (int k = 0; k < labels.size(); ++k) {
 	            if (centered) { mc.fontRenderer.drawString(labels.get(k), this.x + (this.width - mc.fontRenderer.getStringWidth(labels.get(k))) / 2, j + k * 10, color); }
 	            else { mc.fontRenderer.drawString(labels.get(k), this.x, j + k * 10, color); }

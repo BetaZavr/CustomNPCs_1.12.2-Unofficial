@@ -1,8 +1,11 @@
 package noppes.npcs.api.wrapper;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -324,5 +327,17 @@ extends NpcAPI {
 
 	@Override
 	public IAnimationHandler getAnimations() { return AnimationController.getInstance(); }
+
+	@Override
+	public IPlayer<?>[] getAllPlayers() {
+		List<IPlayer<?>> list = Lists.newArrayList();
+		if (CustomNpcs.Server!=null) {
+			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+				if (player == null) { continue; }
+				list.add((IPlayer<?>) this.getIEntity(player));
+			}
+		}
+		return list.toArray(new IPlayer<?>[list.size()]);
+	}
 
 }

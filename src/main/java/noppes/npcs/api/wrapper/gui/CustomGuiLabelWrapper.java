@@ -18,11 +18,13 @@ implements ILabel {
 	public CustomGuiLabelWrapper() {
 		this.color = 16777215;
 		this.scale = 1.0f;
+		this.showShedow = true;
 	}
 
 	public CustomGuiLabelWrapper(int id, String label, int x, int y, int width, int height) {
 		this.color = 16777215;
 		this.scale = 1.0f;
+		this.showShedow = true;
 		this.setID(id);
 		this.setText(label);
 		this.setPos(x, y);

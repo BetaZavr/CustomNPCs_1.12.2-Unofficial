@@ -114,6 +114,8 @@ public abstract class NpcAPI {
 	public abstract INbt stringToNbt(String str);
 	
 	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
+	
+	public abstract IPlayer<?>[] getAllPlayers();
 
 	public abstract IBorderHandler getBorders();
 	
