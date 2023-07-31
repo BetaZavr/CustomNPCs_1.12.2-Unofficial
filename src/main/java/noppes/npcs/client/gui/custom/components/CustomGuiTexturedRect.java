@@ -68,16 +68,17 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0, 0, this.id);
+		int pos = this.id < 500 ? this.id : 500;
+		GlStateManager.translate(0, 0, pos);
 		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 		mc.getTextureManager().bindTexture(this.texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(x, (y + this.height * this.scale), this.id).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), this.id).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), y, this.id).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
-		bufferbuilder.pos(x, y, this.id).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
+		bufferbuilder.pos(x, (y + this.height * this.scale), pos).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), pos).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((x + this.width * this.scale), y, pos).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
+		bufferbuilder.pos(x, y, pos).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
 		tessellator.draw();
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
 			this.parent.hoverText = this.hoverText;
