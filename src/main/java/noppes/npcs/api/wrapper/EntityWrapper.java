@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
@@ -576,7 +577,11 @@ implements IEntity {
 
 	@Override
 	public void setPosition(double x, double y, double z) {
-		this.entity.setPosition(x, y, z);
+		if (this.entity instanceof EntityPlayerMP) {
+			((EntityPlayerMP) this.entity).setPositionAndRotation(x, y, z, this.entity.rotationYaw, this.entity.rotationPitch);
+		} else {
+			this.entity.setPosition(x, y, z);
+		}
 	}
 
 	@Override

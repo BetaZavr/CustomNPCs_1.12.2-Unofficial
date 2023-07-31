@@ -57,7 +57,7 @@ implements IGuiComponent {
 		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;
 		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
 		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
-		GlStateManager.translate(x-this.x, y-this.y, this.id);
+		GlStateManager.translate(x-this.x, y-this.y, this.id < 1000 ? this.id : 1000);
 		this.drawLabel(mc, mouseX, mouseY);
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
 			this.parent.hoverText = this.hoverText;
