@@ -8,6 +8,7 @@ public enum EnumPacketClient
 	QUEST_COMPLETION,
 	EDIT_NPC, 
 	PLAY_SOUND, 
+	FORCE_PLAY_SOUND, 
 	PLAY_MUSIC, 
 	UPDATE_NPC, 
 	ROLE, 

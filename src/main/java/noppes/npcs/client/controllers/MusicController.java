@@ -37,7 +37,19 @@ public class MusicController {
 		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
 		handler.playSound(new PositionedSoundRecord(resource, category, 1.0f, 1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f));
 	}
-
+	
+	public void forcePlaySound(SoundCategory cat, String music, int x, int y, int z, float volumne, float pitch) {
+		if (this.isPlaying(music)) {
+			SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
+			handler.stop(music, SoundCategory.MUSIC);
+			handler.stop(music, SoundCategory.PLAYERS);
+			handler.stop(music, SoundCategory.AMBIENT);
+			handler.stop(music, SoundCategory.RECORDS);
+		}
+		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(music), cat, volumne, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);
+		Minecraft.getMinecraft().getSoundHandler().playSound(rec);
+	}
+	
 	public void playSound(SoundCategory cat, String music, int x, int y, int z, float volumne, float pitch) {
 		if (this.isPlaying(music)) { return; }
 		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(music), cat, volumne, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);

@@ -108,5 +108,7 @@ public interface IWorld {
 	void trigger(int id, Object[] arguments);
 
 	IEntity<?>[] getEntitys(int type);
+
+	void forcePlaySoundAt(IPos pos, String sound, float volume, float pitch);
 	
 }

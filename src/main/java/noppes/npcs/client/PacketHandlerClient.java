@@ -285,8 +285,9 @@ extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.PLAY_MUSIC) {
 			MusicController.Instance.playMusic(Server.readString(buffer), SoundCategory.PLAYERS, player);
 		} else if (type == EnumPacketClient.PLAY_SOUND) {
-			MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(),
-					buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
+			MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
+		} else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
+			MusicController.Instance.forcePlaySound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
 		} else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(compound.getInteger("EntityId"));

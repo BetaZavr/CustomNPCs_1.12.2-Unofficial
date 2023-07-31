@@ -443,8 +443,12 @@ implements IWorld {
 
 	@Override
 	public void playSoundAt(IPos pos, String sound, float volume, float pitch) {
-		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(),
-				pos.getY(), pos.getZ(), volume, pitch);
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+	}
+
+	@Override
+	public void forcePlaySoundAt(IPos pos, String sound, float volume, float pitch) {
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 
 	@Override

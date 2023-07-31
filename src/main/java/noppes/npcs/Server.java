@@ -236,11 +236,8 @@ public class Server {
 	}
 
 	public static void sendRangedData(World world, BlockPos pos, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) world.getEntitiesWithinAABB(EntityPlayerMP.class,
-				new AxisAlignedBB(pos).grow(range, range, range));
-		if (list.isEmpty()) {
-			return;
-		}
+		List<EntityPlayerMP> list = (List<EntityPlayerMP>) world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(pos).grow(range, range, range));
+		if (list.isEmpty()) { return; }
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
@@ -248,8 +245,7 @@ public class Server {
 					LogWriter.debug("sendRangedData: " + type);
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-								iterator.next());
+						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"), iterator.next());
 					}
 				}
 			} catch (IOException e) {

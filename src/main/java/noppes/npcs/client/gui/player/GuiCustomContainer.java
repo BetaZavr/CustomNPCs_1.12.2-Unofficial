@@ -91,7 +91,6 @@ extends GuiContainer {
 				textLines.add(this.lock.length()<1000 ? this.lock: this.lock.substring(0, 1000) + "...");
 				this.drawHoveringText(textLines, mouseX, mouseY);
 			}
-			
 		}
 	}
 
