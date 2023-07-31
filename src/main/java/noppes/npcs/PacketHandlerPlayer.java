@@ -559,7 +559,11 @@ public class PacketHandlerPlayer {
 			}
 			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, builder.getNbt());
 		} else if (type == EnumPlayerPacket.HudTimerEnd) {
-			EventHooks.onPlayerTimer(PlayerData.get(player), buffer.readInt());
+			int id = buffer.readInt();
+			int orientationType = buffer.readInt();
+			EventHooks.onPlayerTimer(PlayerData.get(player), id);
+			data.hud.removeComponent(orientationType, id);
+			data.hud.update();
 		} else if (type == EnumPlayerPacket.TrackQuest) {
 			data.hud.questID = buffer.readInt();
 		} else if (type == EnumPlayerPacket.SaveCompassData) {

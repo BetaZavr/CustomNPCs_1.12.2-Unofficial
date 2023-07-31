@@ -6,8 +6,10 @@ import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.renderer.GlStateManager;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiTimerWrapper;
+import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.util.AdditionalMethods;
 
 public class CustomGuiTimer
@@ -30,6 +32,7 @@ implements IGuiComponent {
 	private long start, now, end;
 	private boolean reverse;
     private final FontRenderer fontRenderer;
+    private int offsetType;
     private final int textColor;
     private final int[] offsets;
 
@@ -41,6 +44,7 @@ implements IGuiComponent {
 		super(Minecraft.getMinecraft().fontRenderer, id, GuiCustom.guiLeft + x, GuiCustom.guiTop + y, width, height, colour);
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 		this.textColor = colour;
+		this.offsetType = 0;
 		this.scale = 1.0f;
 		this.colour = colour;
 		this.start = start;
@@ -53,8 +57,11 @@ implements IGuiComponent {
 	public int getID() { return this.id; }
 	
 	public String getText() {
-		long time = this.reverse ? this.now-System.currentTimeMillis() : (System.currentTimeMillis()-this.now);
+		long time = System.currentTimeMillis() - this.now;
 		time /= 50L;
+		if (this.reverse) { time = this.start - time; }
+		if (time < 0 || (!this.reverse && time > this.end)) { Client.sendDataDelayCheck(EnumPlayerPacket.HudTimerEnd, this, 250, this.id, this.offsetType); }
+		if (this.reverse) { time += 20; }
 		return AdditionalMethods.ticksToElapsedTime(time, false, false, false);
 	}
 
@@ -88,6 +95,7 @@ implements IGuiComponent {
 	
 	@Override
 	public void offSet(int offsetType, double[] windowSize) {
+		this.offsetType = offsetType;
 		switch(offsetType) {
 			case 1: { // left down
 				this.offsets[0] = 0;

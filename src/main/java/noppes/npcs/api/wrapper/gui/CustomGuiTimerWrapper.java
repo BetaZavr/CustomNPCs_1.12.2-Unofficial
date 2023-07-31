@@ -56,6 +56,7 @@ implements IGuiTimer {
 		this.start = start;
 		this.end = end;
 		this.now = System.currentTimeMillis();
+		this.reverse = start > end;
 	}
 
 	@Override

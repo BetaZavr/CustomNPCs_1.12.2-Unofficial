@@ -1504,7 +1504,7 @@ extends Gui
 			GlStateManager.glLineWidth(1.0F);
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
-			GlStateManager.translate(pos[0]-this.dx+0.5d, pos[1]-this.dy+0.85d+yo, pos[2]-this.dz+0.5d);
+			GlStateManager.translate(pos[0]-this.dx+0.5d, pos[1]-this.dy+0.5d+yo, pos[2]-this.dz+0.5d);
 			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.25d, -0.25d, -0.25d, 0.25d, 0.25d, 0.25d)), r, g, b, 1.0f);
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();

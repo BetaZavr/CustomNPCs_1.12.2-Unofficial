@@ -319,6 +319,7 @@ implements IOverlayHUD {
 			timer.setTime(start, end);
 			timer.setPos(x, y);
 			timer.setSize(width, height);
+			timer.reverse = start > end;
 			return timer;
 		}
 		if (component!=null) { this.components.get(orientationType).remove(component); }
