@@ -13,6 +13,7 @@ implements ILabel {
 	String label;
 	float scale;
 	int width;
+	boolean showShedow;
 
 	public CustomGuiLabelWrapper() {
 		this.color = 16777215;
@@ -40,6 +41,7 @@ implements ILabel {
 		this.setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
 		this.setColor(nbt.getInteger("color"));
 		this.setScale(nbt.getFloat("scale"));
+		this.showShedow = nbt.getBoolean("shedow");
 		return this;
 	}
 
@@ -108,6 +110,13 @@ implements ILabel {
 		nbt.setIntArray("size", new int[] { this.width, this.height });
 		nbt.setInteger("color", this.color);
 		nbt.setFloat("scale", this.scale);
+		nbt.setBoolean("shedow", this.showShedow);
 		return nbt;
 	}
+
+	@Override
+	public boolean isShedow() { return this.showShedow; }
+
+	@Override
+	public void setShedow(boolean showShedow) { this.showShedow = showShedow; }
 }

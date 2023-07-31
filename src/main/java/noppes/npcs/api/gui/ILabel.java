@@ -12,7 +12,11 @@ extends ICustomGuiComponent {
 	String getText();
 
 	int getWidth();
-
+	
+	boolean isShedow();
+	
+	void setShedow(boolean showShedow);
+	
 	ILabel setColor(int color);
 
 	ILabel setScale(float scale);

@@ -127,10 +127,10 @@ extends Gui
 		this.mc = Minecraft.getMinecraft();
 		this.sw = new ScaledResolution(this.mc);
 		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiCompassSetings)) { return; }
-		
+
 		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
 		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = hud.getGuiComponents();
-		GuiCustom gui = new GuiCustom(null);
+		GuiCustom gui   = new GuiCustom(null);
 		for (int type : mapC.keySet()) {
 			for (IGuiComponent component : mapC.get(type).values()) {
 				component.offSet(type, hud.getWindowSize());

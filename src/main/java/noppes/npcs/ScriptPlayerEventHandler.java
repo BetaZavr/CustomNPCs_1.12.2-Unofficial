@@ -135,7 +135,6 @@ public class ScriptPlayerEventHandler {
 		event.player.world.getChunkFromChunkCoords(0, 0).onLoad();
 	}
 
-	// New
 	@SubscribeEvent
 	public void invoke(ItemFishedEvent event) {
 		if (!(event.getEntityPlayer().world instanceof WorldServer)) {
@@ -439,8 +438,7 @@ public class ScriptPlayerEventHandler {
 			// Get Maim mod Method for All Events
 			Method m = handler.getClass().getMethod("forgeEntity", Event.class);
 			// Get Registration Method for Event Methods
-			Method register = MinecraftForge.EVENT_BUS.getClass().getDeclaredMethod("register", Class.class,
-					Object.class, Method.class, ModContainer.class);
+			Method register = MinecraftForge.EVENT_BUS.getClass().getDeclaredMethod("register", Class.class, Object.class, Method.class, ModContainer.class);
 			register.setAccessible(true);
 
 			ClassPath loader = ClassPath.from(this.getClass().getClassLoader());
