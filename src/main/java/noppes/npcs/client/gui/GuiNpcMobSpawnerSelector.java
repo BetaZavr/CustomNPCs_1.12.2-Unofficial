@@ -217,7 +217,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		this.list = list;
 		this.scroll.setList(this.getSearchList());
 		if (this.spawnData!=null) {
-			this.scroll.setSelected(AdditionalMethods.deleteColor(this.spawnData.getTitle()));
+			this.scroll.setSelected(AdditionalMethods.instance.deleteColor(this.spawnData.getTitle()));
 			if (this.selectNpc == null) {
 				String name = new TextComponentTranslation("type.empty").getFormattedText();
 				if (this.spawnData.compound!= null) {

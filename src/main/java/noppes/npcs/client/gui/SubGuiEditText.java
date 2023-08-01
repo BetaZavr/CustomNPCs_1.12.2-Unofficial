@@ -29,7 +29,7 @@ extends SubGuiInterface {
 		this.text = new String[texts.length > 5 ? 5 : texts.length];
 		this.hovers = new String[texts.length > 5 ? 5 : texts.length];
 		for (int i = 0; i < texts.length && i < 5; i++) {
-			this.text[i] = AdditionalMethods.deleteColor(texts[i]);
+			this.text[i] = AdditionalMethods.instance.deleteColor(texts[i]);
 			this.hovers[i] = "";
 		}
 		this.setBackground("smallbg.png");

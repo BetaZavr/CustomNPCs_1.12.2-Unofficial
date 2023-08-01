@@ -258,7 +258,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			if (container == null) {
 				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
 			}
-			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.deleteColor(this.handler.getLanguage())), container));
+			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
 		}
 		if (guibutton.id == 108) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
@@ -439,7 +439,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 				for (String str : vars) {
 					if (CustomNpcs.scriptHelperObfuscations) {
 						boolean found = false;
-						if (AdditionalMethods.obfuscations.containsValue(str)) {
+						if (AdditionalMethods.instance.obfuscations.containsValue(str)) {
 							found = true;
 							String[] parent = this.map.get(str);
 							hts[i] = new String[parent.length + 1];
@@ -447,7 +447,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 								hts[i][g] = parent[g];
 							}
 							hts[i][parent.length] = Character.toChars(0x00A7)[0] + "8Deobfuscation name: "
-									+ Character.toChars(0x00A7)[0] + "r" + AdditionalMethods.obfuscations.get(str);
+									+ Character.toChars(0x00A7)[0] + "r" + AdditionalMethods.instance.obfuscations.get(str);
 							break;
 						}
 						if (!found) {
@@ -705,7 +705,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (area == null || scroll.getSelected()==null) { return; }
 		String text = area.getText(), add = "";
 		if (scroll.id == 1) { // variebels
-			String select = "" + AdditionalMethods.deleteColor(scroll.getSelected());
+			String select = "" + AdditionalMethods.instance.deleteColor(scroll.getSelected());
 			scroll.selected = -1;
 			ScriptData d = this.dataVar.get(select);
 			if (d==null) { return; }
@@ -720,7 +720,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			this.select = "";
 		}
 		else if (scroll.id==0 && !scroll.getSelected().isEmpty()) { // helper hover
-			add = AdditionalMethods.deleteColor(scroll.getSelected());
+			add = AdditionalMethods.instance.deleteColor(scroll.getSelected());
 		}
 		if (text==null || add==null || add.isEmpty() || this.startPos<0 || (text.length()!=0 && this.startPos>=text.length())) { return; }
 		int newpos = this.startPos + add.length()-1;

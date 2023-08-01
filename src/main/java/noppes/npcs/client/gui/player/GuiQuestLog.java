@@ -392,7 +392,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 	private void sideButtonPressed(GuiMenuSideButton button) {
 		if (button.active) { return; }
 		NoppesUtil.clickSound();
-		this.selectedCategory = AdditionalMethods.deleteColor(button.displayString);
+		this.selectedCategory = AdditionalMethods.instance.deleteColor(button.displayString);
 		this.selectedQuest = null;
 		this.initGui();
 	}

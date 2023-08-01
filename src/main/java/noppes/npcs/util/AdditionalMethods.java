@@ -75,6 +75,7 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.IContainerCustomChest;
 import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IDimension;
+import noppes.npcs.api.IMetods;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IRayTrace;
@@ -174,64 +175,67 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
 
-public class AdditionalMethods {
+public class AdditionalMethods
+implements IMetods {
 
-	private static Map<Class<?>, Class<?>> map = Maps.newHashMap();
-	public static TreeMap<String, String> obfuscations = Maps.<String, String>newTreeMap();
-	private static Method copyDataFromOld;
+	private Map<Class<?>, Class<?>> map = Maps.newHashMap();
+	public TreeMap<String, String> obfuscations = Maps.<String, String>newTreeMap();
+	private Method copyDataFromOld;
+	public static AdditionalMethods instance;
 	
 	public AdditionalMethods() {
+		AdditionalMethods.instance = this;
 		try {
-			AdditionalMethods.copyDataFromOld = Entity.class.getDeclaredMethod((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")?"copyDataFromOld":"func_180432_n", Entity.class);
-			AdditionalMethods.copyDataFromOld.setAccessible(true);
+			this.copyDataFromOld = Entity.class.getDeclaredMethod((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")?"copyDataFromOld":"func_180432_n", Entity.class);
+			this.copyDataFromOld.setAccessible(true);
 		}
 		catch (Exception e) { e.printStackTrace(); }
-		AdditionalMethods.map.put(IAnimal.class, AnimalWrapper.class);
-		AdditionalMethods.map.put(IArrow.class, ArrowWrapper.class);
-		AdditionalMethods.map.put(IBlockFluidContainer.class, BlockFluidContainerWrapper.class);
-		AdditionalMethods.map.put(IPos.class, BlockPosWrapper.class);
-		AdditionalMethods.map.put(IBlockScriptedDoor.class, BlockScriptedDoorWrapper.class);
-		AdditionalMethods.map.put(IBlockScripted.class, BlockScriptedWrapper.class);
-		AdditionalMethods.map.put(IBlock.class, BlockWrapper.class);
-		AdditionalMethods.map.put(IContainerCustomChest.class, ContainerCustomChestWrapper.class);
-		AdditionalMethods.map.put(IContainer.class, ContainerWrapper.class);
-		AdditionalMethods.map.put(IDamageSource.class, DamageSourceWrapper.class);
-		AdditionalMethods.map.put(IDataObject.class, DataObject.class);
-		AdditionalMethods.map.put(IDimension.class, DimensionWrapper.class);
-		AdditionalMethods.map.put(IEntityItem.class, EntityItemWrapper.class);
-		AdditionalMethods.map.put(IEntityLivingBase.class, EntityLivingBaseWrapper.class);
-		AdditionalMethods.map.put(IEntityLiving.class, EntityLivingWrapper.class);
-		AdditionalMethods.map.put(IEntity.class, EntityWrapper.class);
-		AdditionalMethods.map.put(IItemArmor.class, ItemArmorWrapper.class);
-		AdditionalMethods.map.put(IItemBlock.class, ItemBlockWrapper.class);
-		AdditionalMethods.map.put(IItemBook.class, ItemBookWrapper.class);
-		AdditionalMethods.map.put(IItemScripted.class, ItemScriptedWrapper.class);
-		AdditionalMethods.map.put(IScriptHandler.class, ItemScriptedWrapper.class);
-		AdditionalMethods.map.put(IItemStack.class, ItemStackWrapper.class);
-		AdditionalMethods.map.put(IMonster.class, MonsterWrapper.class);
-		AdditionalMethods.map.put(INbt.class, NBTWrapper.class);
-		AdditionalMethods.map.put(ICustomNpc.class, NPCWrapper.class);
-		AdditionalMethods.map.put(IPixelmon.class, PixelmonWrapper.class);
-		AdditionalMethods.map.put(IPlayer.class, PlayerWrapper.class);
-		AdditionalMethods.map.put(IProjectile.class, ProjectileWrapper.class);
-		AdditionalMethods.map.put(IRayTrace.class, RayTraceWrapper.class);
-		AdditionalMethods.map.put(IScoreboardObjective.class, ScoreboardObjectiveWrapper.class);
-		AdditionalMethods.map.put(IScoreboardScore.class, ScoreboardScoreWrapper.class);
-		AdditionalMethods.map.put(IScoreboardTeam.class, ScoreboardTeamWrapper.class);
-		AdditionalMethods.map.put(IScoreboard.class, ScoreboardWrapper.class);
-		AdditionalMethods.map.put(IThrowable.class, ThrowableWrapper.class);
-		AdditionalMethods.map.put(IVillager.class, VillagerWrapper.class);
-		AdditionalMethods.map.put(IWorld.class, WorldWrapper.class);
-		AdditionalMethods.map.put(NpcAPI.class, WrapperNpcAPI.class);
-		AdditionalMethods.map.put(IButton.class, CustomGuiButtonWrapper.class);
-		AdditionalMethods.map.put(ICustomGuiComponent.class, CustomGuiComponentWrapper.class);
-		AdditionalMethods.map.put(IItemSlot.class, CustomGuiItemSlotWrapper.class);
-		AdditionalMethods.map.put(ILabel.class, CustomGuiLabelWrapper.class);
-		AdditionalMethods.map.put(IScroll.class, CustomGuiScrollWrapper.class);
-		AdditionalMethods.map.put(ITextField.class, CustomGuiTextFieldWrapper.class);
-		AdditionalMethods.map.put(ITexturedRect.class, CustomGuiTexturedRectWrapper.class);
-		AdditionalMethods.map.put(ICustomGui.class, CustomGuiWrapper.class);
-		AdditionalMethods.map.put(IDataElement.class, DataElement.class);
+		this.map.put(IAnimal.class, AnimalWrapper.class);
+		this.map.put(IArrow.class, ArrowWrapper.class);
+		this.map.put(IBlockFluidContainer.class, BlockFluidContainerWrapper.class);
+		this.map.put(IPos.class, BlockPosWrapper.class);
+		this.map.put(IBlockScriptedDoor.class, BlockScriptedDoorWrapper.class);
+		this.map.put(IBlockScripted.class, BlockScriptedWrapper.class);
+		this.map.put(IBlock.class, BlockWrapper.class);
+		this.map.put(IContainerCustomChest.class, ContainerCustomChestWrapper.class);
+		this.map.put(IContainer.class, ContainerWrapper.class);
+		this.map.put(IDamageSource.class, DamageSourceWrapper.class);
+		this.map.put(IDataObject.class, DataObject.class);
+		this.map.put(IDimension.class, DimensionWrapper.class);
+		this.map.put(IEntityItem.class, EntityItemWrapper.class);
+		this.map.put(IEntityLivingBase.class, EntityLivingBaseWrapper.class);
+		this.map.put(IEntityLiving.class, EntityLivingWrapper.class);
+		this.map.put(IEntity.class, EntityWrapper.class);
+		this.map.put(IItemArmor.class, ItemArmorWrapper.class);
+		this.map.put(IItemBlock.class, ItemBlockWrapper.class);
+		this.map.put(IItemBook.class, ItemBookWrapper.class);
+		this.map.put(IItemScripted.class, ItemScriptedWrapper.class);
+		this.map.put(IScriptHandler.class, ItemScriptedWrapper.class);
+		this.map.put(IItemStack.class, ItemStackWrapper.class);
+		this.map.put(IMonster.class, MonsterWrapper.class);
+		this.map.put(INbt.class, NBTWrapper.class);
+		this.map.put(ICustomNpc.class, NPCWrapper.class);
+		this.map.put(IPixelmon.class, PixelmonWrapper.class);
+		this.map.put(IPlayer.class, PlayerWrapper.class);
+		this.map.put(IProjectile.class, ProjectileWrapper.class);
+		this.map.put(IRayTrace.class, RayTraceWrapper.class);
+		this.map.put(IScoreboardObjective.class, ScoreboardObjectiveWrapper.class);
+		this.map.put(IScoreboardScore.class, ScoreboardScoreWrapper.class);
+		this.map.put(IScoreboardTeam.class, ScoreboardTeamWrapper.class);
+		this.map.put(IScoreboard.class, ScoreboardWrapper.class);
+		this.map.put(IThrowable.class, ThrowableWrapper.class);
+		this.map.put(IVillager.class, VillagerWrapper.class);
+		this.map.put(IWorld.class, WorldWrapper.class);
+		this.map.put(NpcAPI.class, WrapperNpcAPI.class);
+		this.map.put(IButton.class, CustomGuiButtonWrapper.class);
+		this.map.put(ICustomGuiComponent.class, CustomGuiComponentWrapper.class);
+		this.map.put(IItemSlot.class, CustomGuiItemSlotWrapper.class);
+		this.map.put(ILabel.class, CustomGuiLabelWrapper.class);
+		this.map.put(IScroll.class, CustomGuiScrollWrapper.class);
+		this.map.put(ITextField.class, CustomGuiTextFieldWrapper.class);
+		this.map.put(ITexturedRect.class, CustomGuiTexturedRectWrapper.class);
+		this.map.put(ICustomGui.class, CustomGuiWrapper.class);
+		this.map.put(IDataElement.class, DataElement.class);
 		
 		for (ModContainer mod : Loader.instance().getModList()) {
 			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().equals("bin")) {
@@ -246,7 +250,7 @@ public class AdditionalMethods {
 							IOUtils.copy(zip.getInputStream(zipentry), writer, Charset.forName("UTF-8"));
 							for (String line : writer.toString().split(""+((char) 10))) {
 								String[] entry = line.split("=");
-								AdditionalMethods.obfuscations.put(entry[0], entry[1]);
+								this.obfuscations.put(entry[0], entry[1]);
 							}
 							writer.close();
 						}
@@ -264,7 +268,7 @@ public class AdditionalMethods {
 								BufferedReader reader = Files.newBufferedReader(f.toPath());
 								while((line = reader.readLine()) != null) {
 									String[] entry = line.split("=");
-									AdditionalMethods.obfuscations.put(entry[0], entry[1]);
+									this.obfuscations.put(entry[0], entry[1]);
 								}
 								reader.close();
 							}
@@ -277,7 +281,8 @@ public class AdditionalMethods {
 	}
 
 	/** Stripping a string of color */
-	public static String deleteColor(String str) {
+	@Override
+	public String deleteColor(String str) {
 		if (str == null) { return null; }
 		if (str.isEmpty()) { return str; }
 		for (int i=0; i<4; i++) {
@@ -431,9 +436,9 @@ public class AdditionalMethods {
 			for (Method m : clazz.getMethods()) {
 				methodsMap.put(m.getName(), m);
 			}
-			if (AdditionalMethods.obfuscations.containsValue(key)) {
-				for (String s : AdditionalMethods.obfuscations.keySet()) {
-					if (AdditionalMethods.obfuscations.get(s).equals(key)) {
+			if (AdditionalMethods.instance.obfuscations.containsValue(key)) {
+				for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
+					if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
 						if (methodsMap.containsKey(s)) {
 							obj = methodsMap.get(s).getReturnType();
 						}
@@ -468,9 +473,9 @@ public class AdditionalMethods {
 			for (Class<?> c : clazz.getClasses()) {
 				classMap.put(c.getSimpleName(), c);
 			}
-			if (AdditionalMethods.obfuscations.containsValue(key)) {
-				for (String s : AdditionalMethods.obfuscations.keySet()) {
-					if (AdditionalMethods.obfuscations.get(s).equals(key)) {
+			if (AdditionalMethods.instance.obfuscations.containsValue(key)) {
+				for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
+					if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
 						if (classMap.containsKey(s)) {
 							obj = classMap.get(s);
 						}
@@ -557,7 +562,7 @@ public class AdditionalMethods {
 
 	public static Class<?> getScriptClass(Object obj) {
 		Class<?> clazz = obj instanceof Class ? (Class<?>) obj : obj.getClass();
-		if (AdditionalMethods.map.containsKey(clazz)) { clazz = AdditionalMethods.map.get(clazz); }
+		if (AdditionalMethods.instance.map.containsKey(clazz)) { clazz = AdditionalMethods.instance.map.get(clazz); }
 		return clazz;
 	}
 
@@ -567,14 +572,12 @@ public class AdditionalMethods {
 			return new Object[] { new ArrayList<IScriptData>(), "Container: null!" };
 		}
 		container.setEngine(language);
-		// container.engine == jdk.nashorn.api.scripting.NashornScriptEngine
 		String error = "";
 		try {
 			container.engine.eval(container.getFullCode());
 		} catch (ScriptException e) {
 			error = "" + e;
 		}
-		// Bindings = jdk.nashorn.api.scripting.ScriptObjectMirror
 		Bindings scriptObjectMirror = container.engine.getBindings(ScriptContext.ENGINE_SCOPE);
 		List<IScriptData> list = Lists.newArrayList();
 		List<ScriptData> vars = Lists.newArrayList();
@@ -908,7 +911,7 @@ public class AdditionalMethods {
 
 	@SideOnly(Side.CLIENT)
 	public static void resetRecipes(EntityPlayer player, GuiContainer gui) {
-		CustomNpcs.proxy.updateRecipes(null, false, false, "AdditionalMethods.resetRecipes()");
+		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");
 
 		Container conteiner = null;
 		SlotCrafting slotIn = null;
@@ -1048,8 +1051,8 @@ public class AdditionalMethods {
 	}
 
 	public static boolean equalsDeleteColor(String str0, String str1, boolean ignoreCase) {
-		str0 = AdditionalMethods.deleteColor(str0);
-		str1 = AdditionalMethods.deleteColor(str1);
+		str0 = AdditionalMethods.instance.deleteColor(str0);
+		str1 = AdditionalMethods.instance.deleteColor(str1);
 		return ignoreCase ? str0.equalsIgnoreCase(str1) : str0.equals(str1);
 	}
 
@@ -1097,8 +1100,14 @@ public class AdditionalMethods {
 				stack1.isStackable() &&
 				stack1.getCount() < stack1.getMaxStackSize();
 	}
-
-	public static double distanceTo(double x0, double y0, double z0, double x1, double y1, double z1) {
+	
+	@Override
+	public double distanceTo(IEntity<?> entity, IEntity<?> target) {
+		return this.distanceTo(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
+	}
+	
+	@Override
+	public double distanceTo(double x0, double y0, double z0, double x1, double y1, double z1) {
 		double d0 = x0 - x1;
 		double d1 = y0 - y1;
 		double d2 = z0 - z1;
@@ -1106,7 +1115,7 @@ public class AdditionalMethods {
 	}
 
 	public static double distanceTo(BlockPos pos0, BlockPos pos1) {
-		return distanceTo(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+		return AdditionalMethods.instance.distanceTo(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
 	}
 
 	/**
@@ -1118,7 +1127,8 @@ public class AdditionalMethods {
 	 * @param mz - posZ to look angles
 	 * @return {yaw, pitch, radiusXZ, dist}
 	 */
-	public static double[] getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
+	@Override
+	public double[] getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
 		double yaw, pitch, dist, xVal = mx - dx, yVal = my - dy, zVal = mz - dz;
 		double radiusXZ = Math.sqrt(Math.pow(xVal, 2) + Math.pow(zVal, 2));
 		pitch = Math.atan(yVal / radiusXZ) * 180 / Math.PI;
@@ -1130,15 +1140,25 @@ public class AdditionalMethods {
 		return new double[] {yaw, pitch, radiusXZ, dist};
 	}
 
+	@Override
+	public double[] getAngles3D(IEntity<?> entity, IEntity<?> target) {
+		return this.getAngles3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
+	}
+	
 	/**
 	 * @param pos0 - block position from look angles
 	 * @param pos1 - block position to look angles
 	 * @return {yaw, pitch, radiusXZ, dist}
 	 */
 	public static double[] getAngles3D(BlockPos pos0, BlockPos pos1) {
-		return getAngles3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+		return AdditionalMethods.instance.getAngles3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
 	}
-
+	
+	@Override
+	public double[] getPosition(IEntity<?> entity, double yaw, double pitch, double radius) {
+		return this.getPosition(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, yaw, pitch, radius);
+	}
+	
 	/**
 	 * @param cx - X-axis position center
 	 * @param cy - Y-axis position center
@@ -1146,7 +1166,8 @@ public class AdditionalMethods {
 	 * @param radius
 	 * @return {x, y, z}
 	 */
-	public static double[] getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
+	@Override
+	public double[] getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
 		if (radius<0.0d) { radius *= -1.0d; }
 		double x = Math.sin(yaw * Math.PI / 180) * radius * -1;
 		double y = Math.sin(pitch * Math.PI / 180) * radius;
@@ -1160,10 +1181,21 @@ public class AdditionalMethods {
 	 * @return {x, y, z}
 	 */
 	public static double[] getPosition(BlockPos pos, double yaw, double pitch, double radius) {
-		return getPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, radius);
+		return AdditionalMethods.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, radius);
 	}
-
-	public static double[] getVector3D(double dx, double dy, double dz, double mx, double my, double mz) {
+	
+	@Override
+	public double[] getVector3D(IEntity<?> entity, IEntity<?> target) {
+		return this.getVector3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
+	}
+	
+	@Override
+	public double[] getVector3D(IEntity<?> entity, IPos pos) {
+		return this.getVector3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, pos.getX() + 0.5d,  pos.getY(),  pos.getZ() + 0.5d);
+	}
+	
+	@Override
+	public double[] getVector3D(double dx, double dy, double dz, double mx, double my, double mz) {
 		double ax,ay,az, yaw, hVal = 1.5D + my - dy;
 		if (hVal < 0.35D) {hVal = 0.35D;}
 		double xVal = mx - dx, zVal = mz - dz;
@@ -1181,10 +1213,9 @@ public class AdditionalMethods {
 	}
 
 	public static double[] getVector3D(BlockPos pos0, BlockPos pos1) {
-		return getVector3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+		return AdditionalMethods.instance.getVector3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
 	}
 
-	
 	// Teleport Entity to Spawn next Dimensions
 	public static Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
 		World world = server.getWorld(dimension);
@@ -1206,7 +1237,7 @@ public class AdditionalMethods {
 			entity.dimension = dimensionId;
 			Entity newEntity = EntityList.createEntityByIDFromName(EntityList.getKey(entity.getClass()), worldserverEnd);
 			if (newEntity != null) {
-				try { AdditionalMethods.copyDataFromOld.invoke(newEntity, entity); }
+				try { AdditionalMethods.instance.copyDataFromOld.invoke(newEntity, entity); }
 				catch (Exception e) { e.printStackTrace(); }
 				entity.world.removeEntity(entity);
 				newEntity.forceSpawn = true;
@@ -1238,7 +1269,6 @@ public class AdditionalMethods {
 	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, BlockPos pos) throws CommandException {
 		return AdditionalMethods.teleportEntity(server, entity, dimension, (double) pos.getX()+0.5d, (double) pos.getY(), (double) pos.getZ()+0.5d);
 	}
-
 	
 	public static void teleportEntity(Entity entityIn, double x, double y, double z) {
 		teleportEntity(entityIn, x, y, z, 0.0f, 0.0f);
@@ -1286,6 +1316,18 @@ public class AdditionalMethods {
 		}
 	}
 
+	@Override
+	public IEntity<?> transferEntity(IEntity<?> entity, int dimension, IPos pos) {
+		Entity e = null;
+		try {
+			if (pos!=null) { e = AdditionalMethods.teleportEntity(CustomNpcs.Server, entity.getMCEntity(), dimension, pos.getMCBlockPos()); }
+			else { e = AdditionalMethods.travelAndCopyEntity(CustomNpcs.Server, entity.getMCEntity(), dimension); }
+		}
+		catch (CommandException error) {}
+		if (e!=null) { return NpcAPI.Instance().getIEntity(e); }
+		return entity;
+	}
+	
 	public static String deleteSpase(String str) {
 		if (str==null || str.isEmpty()) { return str; }
 		while (str.indexOf(" ")!=-1) { str = str.replace(" ", ""); }
@@ -1361,9 +1403,9 @@ public class AdditionalMethods {
 						for (Method m : clazz.getMethods()) {
 							methodsMap.put(m.getName(), m);
 						}
-						if (AdditionalMethods.obfuscations.containsValue(k)) {
-							for (String s : AdditionalMethods.obfuscations.keySet()) {
-								if (AdditionalMethods.obfuscations.get(s).equals(k)) {
+						if (AdditionalMethods.instance.obfuscations.containsValue(k)) {
+							for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
+								if (AdditionalMethods.instance.obfuscations.get(s).equals(k)) {
 									if (methodsMap.containsKey(s)) {
 										obj = methodsMap.get(s).getReturnType();
 									}
@@ -1398,9 +1440,9 @@ public class AdditionalMethods {
 						for (Class<?> c : clazz.getClasses()) {
 							classMap.put(c.getSimpleName(), c);
 						}
-						if (AdditionalMethods.obfuscations.containsValue(k)) {
-							for (String s : AdditionalMethods.obfuscations.keySet()) {
-								if (AdditionalMethods.obfuscations.get(s).equals(k)) {
+						if (AdditionalMethods.instance.obfuscations.containsValue(k)) {
+							for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
+								if (AdditionalMethods.instance.obfuscations.get(s).equals(k)) {
 									if (classMap.containsKey(s)) {
 										obj = classMap.get(s);
 									}

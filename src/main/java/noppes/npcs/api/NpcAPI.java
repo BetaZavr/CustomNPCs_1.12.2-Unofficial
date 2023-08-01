@@ -120,5 +120,7 @@ public abstract class NpcAPI {
 	public abstract IBorderHandler getBorders();
 	
 	public abstract IAnimationHandler getAnimations();
+
+	public abstract IMetods getMetods();
 	
 }

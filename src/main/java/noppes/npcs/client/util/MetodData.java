@@ -49,7 +49,7 @@ public class MetodData {
 		} else { text = "()"; }
 		String total = chr + this.returnTypeName +chr+"f " + this.name + text + chr + "f;";
 		if (this.isDeprecated) {
-			total = chr + "8" + AdditionalMethods.deleteColor(total);
+			total = chr + "8" + AdditionalMethods.instance.deleteColor(total);
 		}
 		return total;
 	}

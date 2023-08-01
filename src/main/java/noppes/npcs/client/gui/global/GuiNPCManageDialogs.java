@@ -207,7 +207,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch(button.id) {
 			case 1: { // new cat
-				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 2: { // del cat
@@ -239,7 +239,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				break;
 			}
 			case 11: {
-				this.setSubGui(new SubGuiEditText(11, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				this.setSubGui(new SubGuiEditText(11, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 12: { // del dialog

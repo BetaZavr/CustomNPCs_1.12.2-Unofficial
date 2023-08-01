@@ -28,6 +28,7 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IEntityDamageSource;
+import noppes.npcs.api.IMetods;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
@@ -59,6 +60,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.LRUHashMap;
 import noppes.npcs.util.NBTJsonUtil;
 
@@ -339,5 +341,8 @@ extends NpcAPI {
 		}
 		return list.toArray(new IPlayer<?>[list.size()]);
 	}
+
+	@Override
+	public IMetods getMetods() { return AdditionalMethods.instance; }
 
 }

@@ -211,7 +211,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 				break;
 			}
 			case 4: {
-				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			}
 			case 6: {

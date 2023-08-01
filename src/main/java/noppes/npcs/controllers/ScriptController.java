@@ -184,10 +184,8 @@ public class ScriptController {
 	}
 	
 	public ScriptEngine getEngineByName(String language) {
-		if (language.equals("ECMAScript") && this.graalEngine!=null) {
-			return this.graalEngine;
-		}
-		ScriptEngineFactory fac = this.factories.get(AdditionalMethods.deleteColor(language).toLowerCase());
+		if (language.equals("ECMAScript") && this.hasGraalLib()) { return this.graalEngine; }
+		ScriptEngineFactory fac = this.factories.get(AdditionalMethods.instance.deleteColor(language).toLowerCase());
 		if (fac == null) { return null; }
 		return fac.getScriptEngine();
 	}

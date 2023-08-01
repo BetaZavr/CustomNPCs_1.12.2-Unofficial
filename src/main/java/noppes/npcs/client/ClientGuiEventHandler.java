@@ -198,7 +198,7 @@ extends Gui
 						if (o.rangeCompass==0 && select==null) {
 							select = o;
 						} else if (o.rangeCompass!=0) {
-							double d = AdditionalMethods.distanceTo(o.pos.getX()+0.5d, o.pos.getY(), o.pos.getZ()+0.5d, this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ);
+							double d = AdditionalMethods.instance.distanceTo(o.pos.getX()+0.5d, o.pos.getY(), o.pos.getZ()+0.5d, this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ);
 							if (d <= minD) {
 								minD = d;
 								select = o;
@@ -329,7 +329,7 @@ extends Gui
 		}
 		
 		if (p!=null && p.length>=3) {
-			double[] angles = AdditionalMethods.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
+			double[] angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 			float scale = -30.0f * hud.compassData.scale;
 			float incline = -45.0f + hud.compassData.incline;
 			double[] uvPos = new double[] { this.sw.getScaledWidth_double() * hud.compassData.screenPos[0], this.sw.getScaledHeight_double() * hud.compassData.screenPos[1] };

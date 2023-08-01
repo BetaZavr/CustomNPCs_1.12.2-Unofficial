@@ -349,7 +349,7 @@ implements IGui, IKeyListener, IMouseListener {
 				int yPos = (i - this.scrolledLine) * this.container.lineHeight;
 				if (yMouse >= yPos && yMouse < yPos + this.container.lineHeight) {
 					int lineWidth = 0;
-					String t = GuiTextArea.font.isCode() ? data.text : AdditionalMethods.deleteColor(data.text);
+					String t = GuiTextArea.font.isCode() ? data.text : AdditionalMethods.instance.deleteColor(data.text);
 					char[] chars = t.toCharArray();
 					for (int j = 1; j <= chars.length; ++j) {
 						int w = GuiTextArea.font.width(t.substring(0, j));
@@ -388,7 +388,7 @@ implements IGui, IKeyListener, IMouseListener {
 				int yPos = (i - this.scrolledLine) * this.container.lineHeight;
 				if (yMouse >= yPos && yMouse < yPos + this.container.lineHeight) {
 					int lineWidth = 0;
-					t = GuiTextArea.font.isCode() ? data.text : AdditionalMethods.deleteColor(data.text);
+					t = GuiTextArea.font.isCode() ? data.text : AdditionalMethods.instance.deleteColor(data.text);
 					char[] chars = t.toCharArray();
 					boolean found = false;
 					for (int j = 1; j <= chars.length; ++j) {
@@ -524,7 +524,7 @@ implements IGui, IKeyListener, IMouseListener {
 		if (GuiScreen.isKeyComboCtrlX(i)) {
 			if (this.startSelection != this.endSelection) {
 				String copy = this.text.substring(this.startSelection, this.endSelection);
-				if (this.enableCodeHighlighting) { copy = AdditionalMethods.deleteColor(copy); }
+				if (this.enableCodeHighlighting) { copy = AdditionalMethods.instance.deleteColor(copy); }
 				NoppesStringUtils.setClipboardContents(copy);
 				if (this.onlyReading) { return; }
 				String s = this.getSelectionBeforeText();
@@ -539,7 +539,7 @@ implements IGui, IKeyListener, IMouseListener {
 		if (GuiScreen.isKeyComboCtrlC(i)) {
 			if (this.startSelection != this.endSelection) {
 				String copy = this.text.substring(this.startSelection, this.endSelection);
-				if (this.enableCodeHighlighting) { copy = AdditionalMethods.deleteColor(copy); }
+				if (this.enableCodeHighlighting) { copy = AdditionalMethods.instance.deleteColor(copy); }
 				NoppesStringUtils.setClipboardContents(copy);
 			}
 			return;

@@ -141,8 +141,7 @@ public class QuestInterface {
 				Dialog d = DialogController.instance.dialogs.get(to.getTargetID());
 				if (d != null) {
 					name = chr + "8"
-							+ AdditionalMethods
-									.deleteColor(new TextComponentTranslation(d.category.getName()).getFormattedText())
+							+ AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d.category.getName()).getFormattedText())
 							+ "/" + chr + "r" + new TextComponentTranslation(d.getName()).getFormattedText();
 				}
 				key += "[" + chr + "bDr" + chr + "r] " + name;

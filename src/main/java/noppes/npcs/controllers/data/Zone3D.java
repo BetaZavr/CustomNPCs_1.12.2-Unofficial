@@ -295,8 +295,8 @@ implements IBorder, Predicate<Entity> {
 		else { pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		for (int key :this.points.keySet()) {
 			Point v = this.points.get(key);
-			double[] data = AdditionalMethods.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
-			double[] newPoint = AdditionalMethods.getPosition(pos.getX(), 0, pos.getZ(), data[0], data[1], radius + data[2]);
+			double[] data = AdditionalMethods.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
+			double[] newPoint = AdditionalMethods.instance.getPosition(pos.getX(), 0, pos.getZ(), data[0], data[1], radius + data[2]);
 			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
 		}
 	}
@@ -314,8 +314,8 @@ implements IBorder, Predicate<Entity> {
 		else { pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		for (int key :this.points.keySet()) {
 			Point v = this.points.get(key);
-			double[] data = AdditionalMethods.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
-			double[] newPoint = AdditionalMethods.getPosition(pos.getX(), pos.getY(), pos.getZ(), data[0], data[1], (double) scale * data[2]);
+			double[] data = AdditionalMethods.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
+			double[] newPoint = AdditionalMethods.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), data[0], data[1], (double) scale * data[2]);
 			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
 			if (this.y[0] > (int) newPoint[2]) { this.y[0] = (int) newPoint[1]; }
 			if (this.y[1] < (int) newPoint[2]) { this.y[1] = (int) newPoint[1]; }
@@ -518,7 +518,7 @@ implements IBorder, Predicate<Entity> {
 	@Override
 	public double distanceTo(double x, double z) {
 		IPos pos = this.getCenter();
-		return AdditionalMethods.distanceTo(pos.getX()+0.5d, 0.0d, pos.getZ()+0.5d, x, 0.0d, z);
+		return AdditionalMethods.instance.distanceTo(pos.getX()+0.5d, 0.0d, pos.getZ()+0.5d, x, 0.0d, z);
 	}
 
 	@Override
@@ -529,7 +529,7 @@ implements IBorder, Predicate<Entity> {
 	public double distanceTo(Entity entity) {
 		if (entity==null) { return -1; }
 		IPos c = this.getCenter();
-		return AdditionalMethods.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX()+0.5d, c.getY()+0.5d, c.getZ()+0.5d);
+		return AdditionalMethods.instance.distanceTo(entity.posX, entity.posY, entity.posZ, c.getX()+0.5d, c.getY()+0.5d, c.getZ()+0.5d);
 	}
 
 	public int getWidthX() { return this.getMaxX() - this.getMinX(); }
@@ -611,7 +611,7 @@ implements IBorder, Predicate<Entity> {
 		double min = Double.MAX_VALUE;
 		int id = -1;
 		for (int i : this.points.keySet()) {
-			double dist = AdditionalMethods.distanceTo(this.points.get(i).x, 0, this.points.get(i).y, pos.getX(), 0, pos.getZ());
+			double dist = AdditionalMethods.instance.distanceTo(this.points.get(i).x, 0, this.points.get(i).y, pos.getX(), 0, pos.getZ());
 			if (dist<=min) {
 				min = dist;
 				id = i;
@@ -685,7 +685,7 @@ implements IBorder, Predicate<Entity> {
 		}
 		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
 		
-		double[] data = AdditionalMethods.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
+		double[] data = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
 		double[] p = new double[] { (x-entity.posX), (y-entity.posY), (z-entity.posZ) };
 		for (int i=0; i<4; i++) {
 			double radiusXZ = data[2]+((double) (i+1) * (this.keepOut ? 0.5d : -0.5d));

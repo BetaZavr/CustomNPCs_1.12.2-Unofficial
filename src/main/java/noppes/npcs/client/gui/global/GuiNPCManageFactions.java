@@ -102,7 +102,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		this.addScroll(this.scrollFactions);
 		if (this.faction.id == -1) { return; }
 		
-		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, AdditionalMethods.deleteColor(this.faction.name)));
+		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, AdditionalMethods.instance.deleteColor(this.faction.name)));
 		this.getTextField(0).setMaxStringLength(20);
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 8, this.guiTop + 9));
 		this.addLabel(new GuiNpcLabel(10, "ID", this.guiLeft + 178, this.guiTop + 4));
@@ -216,7 +216,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		char chr = ((char) 167);
 		for (int id  : map.keySet()) {
 			String key = map.get(id);
-			String name = AdditionalMethods.deleteColor(key);
+			String name = AdditionalMethods.instance.deleteColor(key);
 			if (name.indexOf("ID:"+id+" ")>=0) { name = name.substring(name.indexOf(" ")+3); }
 			String str = chr+"7ID:"+id+" "+chr+"r"+name;
 			newList.add(str);
@@ -237,7 +237,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	@Override
 	public void setSelected(String selected) {
 		for (String key : this.scrollFactions.getList()) {
-			if (AdditionalMethods.deleteColor(key+"").equals(selected)) {
+			if (AdditionalMethods.instance.deleteColor(key+"").equals(selected)) {
 				this.selected = key;
 				this.scrollFactions.setSelected(key);
 				return;

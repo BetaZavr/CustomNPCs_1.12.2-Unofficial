@@ -91,7 +91,7 @@ public class GuiNpcLabel {
 				String str = ((List<?>) labels).get(0) == null ? "" : new TextComponentTranslation(labels.toString()).getFormattedText();
 				this.label = Lists.newArrayList(str);
 				this.height = 10;
-				this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(AdditionalMethods.deleteColor(str));
+				this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(AdditionalMethods.instance.deleteColor(str));
 				return;
 			}
 			this.label = Lists.newArrayList();
@@ -100,7 +100,7 @@ public class GuiNpcLabel {
 			for (Object obj : (List<?>) labels) {
 				String str = new TextComponentTranslation(obj.toString()).getFormattedText();
 				this.label.add(str);
-				int w = Minecraft.getMinecraft().fontRenderer.getStringWidth(AdditionalMethods.deleteColor(str));
+				int w = Minecraft.getMinecraft().fontRenderer.getStringWidth(AdditionalMethods.instance.deleteColor(str));
 				if (this.width<w) { this.width = w; }
 			}
 		} else {
@@ -108,7 +108,7 @@ public class GuiNpcLabel {
 			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception e) { }
 			this.label = Lists.newArrayList(str);
 			this.height = 10;
-			this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(AdditionalMethods.deleteColor(str));
+			this.width = Minecraft.getMinecraft().fontRenderer.getStringWidth(AdditionalMethods.instance.deleteColor(str));
 		}
 	}
 }

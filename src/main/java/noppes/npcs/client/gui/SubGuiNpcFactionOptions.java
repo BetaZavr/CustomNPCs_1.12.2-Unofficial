@@ -127,7 +127,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		String name = AdditionalMethods.deleteColor(this.scroll.getSelected());
+		String name = AdditionalMethods.instance.deleteColor(this.scroll.getSelected());
 		if (name!=null && name.indexOf("ID:")>=0 && name.indexOf(" - ")>=name.indexOf("ID:")) {
 			name = name.substring(name.indexOf(" - ")+3);
 		}
@@ -136,7 +136,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 		char chr = Character.toChars(0x00A7)[0];
 		for (String key : data.keySet()) {
 			int id = data.get(key);
-			String newName = AdditionalMethods.deleteColor(key);
+			String newName = AdditionalMethods.instance.deleteColor(key);
 			if (newName.indexOf("ID:"+id+" - ")>=0) {
 				newName = newName.substring(newName.indexOf(" - ")+3);
 			}
