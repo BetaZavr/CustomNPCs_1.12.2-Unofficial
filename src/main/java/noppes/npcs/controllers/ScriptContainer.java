@@ -196,6 +196,9 @@ public class ScriptContainer {
 					this.fullscript = this.fullscript + code + "\n";
 				}
 			}
+			if (ScriptController.Instance.scripts.containsKey("all.js")){
+				this.fullscript = ScriptController.Instance.scripts.get("all.js") + "\n"+this.fullscript;
+			}
 			this.unknownFunctions = new HashSet<String>();
 		}
 		return this.fullscript;
@@ -278,7 +281,6 @@ public class ScriptContainer {
 			this.errored = true;
 			return;
 		}
-		// New
 		if (!ScriptContainer.Data.containsKey("dump")) {
 			for (int i=0; i<ScriptController.Instance.constants.getTagList("Functions", 8).tagCount(); i++) {
 				String body = ScriptController.Instance.constants.getTagList("Functions", 8).getStringTagAt(i);
@@ -321,7 +323,6 @@ public class ScriptContainer {
 		return compound;
 	}
 	
-	// New
 	public class Dump implements Function<Object, IDataObject> {
 
 		@Override
@@ -340,8 +341,6 @@ public class ScriptContainer {
 		}
 	}
 
-	public static void reloadConstants() {
-		ScriptContainer.Data.remove("dump");
-	}
+	public static void reloadConstants() { ScriptContainer.Data.remove("dump"); }
 
 }

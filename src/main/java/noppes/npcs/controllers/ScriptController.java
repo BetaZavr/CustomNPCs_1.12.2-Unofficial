@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,9 @@ public class ScriptController {
 	
 	public static boolean HasStart = false;
 	public static ScriptController Instance;
+
+	public boolean shouldSave;
+	public long lastLoaded, lastPlayerUpdate;
 	public NBTTagCompound compound;
 	public NBTTagCompound constants;
 	public File dir;
@@ -43,13 +47,12 @@ public class ScriptController {
 	public ForgeScriptData forgeScripts;
 	public ClientScriptData clientScripts;
 	public Map<String, String> languages;
-	public long lastLoaded;
-	public long lastPlayerUpdate;
 	private ScriptEngineManager manager;
 	public PlayerScriptData playerScripts;
 	public Map<String, String> scripts;
-	public boolean shouldSave;
-	public PotionScriptData potionScripts; // new
+	public PotionScriptData potionScripts;
+	
+	private ScriptEngine graalEngine;
 	
 	public ScriptController() {
 		this.languages = new HashMap<String, String>();
@@ -68,6 +71,51 @@ public class ScriptController {
 		if (!CustomNpcs.NashorArguments.isEmpty()) {
 			System.setProperty("nashorn.args", CustomNpcs.NashorArguments);
 		}
+		this.graalEngine = null;
+		try {
+			Class<?> graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
+			Class<?> cnt = Class.forName("org.graalvm.polyglot.Context");
+			Object cntInstance = null;
+			for (Method m : cnt.getDeclaredMethods()) {
+				if (m.getName().equals("newBuilder") && m.isAccessible()) {
+					try { cntInstance = m.invoke(cnt, "js"); }
+					catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { e.printStackTrace(); }
+					break;
+				}
+			}
+			if (cntInstance!=null) {
+				for (Method m : cnt.getDeclaredMethods()) {
+					if (!m.isAccessible()) { continue; }
+					try {
+						switch(m.getName()) {
+							case "allowExperimentalOptions": cntInstance = m.invoke(cntInstance, true); break;
+							case "allowHostClassLookup": cntInstance = m.invoke(cntInstance, true); break;
+							case "allowCreateProcess": cntInstance = m.invoke(cntInstance, true); break;
+							case "allowHostClassLoading": cntInstance = m.invoke(cntInstance, true); break;
+							case "allowNativeAccess": cntInstance = m.invoke(cntInstance, true); break;
+							case "allowAllAccess": cntInstance = m.invoke(cntInstance, true); break;
+							case "allowIO": cntInstance = m.invoke(cntInstance, true); break;
+							//case "allowHostAccess": cntInstance = m.invoke(cntInstance, ScriptConstants.hostAccess); break;
+							case "option":
+								cntInstance = m.invoke(cntInstance, "js.ecmascript-version", "2022");
+								cntInstance = m.invoke(cntInstance, "js.nashorn-compat", "true");
+							break;
+							default: continue;
+						}
+					}
+					catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { }
+				}
+				for (Method m : graal.getDeclaredMethods()) {
+					if (m.getName().equals("create")) {
+						try {
+							this.graalEngine = (ScriptEngine) m.invoke(graal, null, cntInstance);
+						}
+						catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { e.printStackTrace(); }
+					}
+				}
+			}
+		}
+		catch (ClassNotFoundException e) { }
 		this.manager = new ScriptEngineManager();
 		try {
 			if (this.manager.getEngineByName("ecmascript") == null) {
@@ -120,6 +168,8 @@ public class ScriptController {
 			}
 		}
 	}
+	
+	public boolean hasGraalLib() { return this.graalEngine!=null; }
 
 	private File constantScriptsFile() {
 		return new File(this.dir, "constant_scripts.json");
@@ -134,10 +184,11 @@ public class ScriptController {
 	}
 	
 	public ScriptEngine getEngineByName(String language) {
-		ScriptEngineFactory fac = this.factories.get(AdditionalMethods.deleteColor(language).toLowerCase());
-		if (fac == null) {
-			return null;
+		if (language.equals("ECMAScript") && this.graalEngine!=null) {
+			return this.graalEngine;
 		}
+		ScriptEngineFactory fac = this.factories.get(AdditionalMethods.deleteColor(language).toLowerCase());
+		if (fac == null) { return null; }
 		return fac.getScriptEngine();
 	}
 
