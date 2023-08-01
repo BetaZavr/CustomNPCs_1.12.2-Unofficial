@@ -17,5 +17,7 @@ extends IEntityLivingBase<T> {
 	void jump();
 
 	void navigateTo(double x, double y, double z, double speed);
+
+	void navigateTo(Integer[][] posses, double speed);
 	
 }

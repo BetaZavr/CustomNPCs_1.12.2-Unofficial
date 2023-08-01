@@ -1,6 +1,12 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.pathfinding.Path;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.IPos;
@@ -68,10 +74,25 @@ implements IEntityLiving {
 	@Override
 	public void navigateTo(double x, double y, double z, double speed) {
 		this.entity.getNavigator().clearPath();
-		this.entity.getNavigator().tryMoveToXYZ(x, y, z, speed * 0.7);
-		if (this.entity instanceof EntityNPCInterface) {
+		boolean isNav = this.entity.getNavigator().tryMoveToXYZ(x, y, z, speed * 0.7);
+		if (isNav && this.entity instanceof EntityNPCInterface) {
 			((EntityNPCInterface) this.entity).resetBackPos();
-		} // New
+		}
+	}
+	
+	@Override
+	public void navigateTo(Integer[][] posses, double speed) {
+		PathNavigate nav = this.entity.getNavigator();
+		nav.clearPath();
+		List<PathPoint> points = Lists.<PathPoint>newArrayList();
+		for (Integer[] posId : posses) {
+			if (posId==null || posId.length<3) { return; }
+			points.add(new PathPoint(posId[0], posId[1], posId[2]));
+		}
+		boolean isNav = nav.setPath(new Path(points.toArray(new PathPoint[points.size()])), speed);
+		if (isNav && this.entity instanceof EntityNPCInterface) {
+			((EntityNPCInterface) this.entity).resetBackPos();
+		}
 	}
 
 	@Override
