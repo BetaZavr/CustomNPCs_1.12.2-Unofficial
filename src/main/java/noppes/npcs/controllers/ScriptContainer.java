@@ -305,6 +305,14 @@ public class ScriptContainer {
 			}
 			ScriptContainer.Data.put("dump", new Dump());
 			ScriptContainer.Data.put("log", new Log());
+			if (ScriptController.Instance.hasGraalLib()) {
+				ScriptContainer.Data.put("booleanValue", new ToBoolean());
+				ScriptContainer.Data.put("intValue", new ToInt());
+				ScriptContainer.Data.put("floatValue", new ToFloat());
+				ScriptContainer.Data.put("doubleValue", new ToDouble());
+				ScriptContainer.Data.put("longValue", new ToDouble());
+				ScriptContainer.Data.put("toString", new ToString());
+			}
 		}
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
 			this.engine.put(entry.getKey(), entry.getValue());
@@ -340,7 +348,60 @@ public class ScriptContainer {
 			return null;
 		}
 	}
-
+	
+	public class ToBoolean implements Function<Object, Boolean> {
+		@Override
+		public Boolean apply(Object o) {
+			if (o==null) { return false; }
+			try { return (boolean) o; } catch (Exception e) { }
+			try { return Boolean.valueOf(o.toString()); } catch (Exception e) { }
+			return true;
+		}
+	}
+	
+	public class ToInt implements Function<Object, Integer> {
+		@Override
+		public Integer apply(Object o) {
+			try { return (int) o; } catch (Exception e) { }
+			try { return Integer.valueOf(o.toString()); } catch (Exception e) { }
+			return 0;
+		}
+	}
+	
+	public class ToFloat implements Function<Object, Float> {
+		@Override
+		public Float apply(Object o) {
+			try { return (float) o; } catch (Exception e) { }
+			try { return Float.valueOf(o.toString()); } catch (Exception e) { }
+			return 0.0f;
+		}
+	}
+	
+	public class ToDouble implements Function<Object, Double> {
+		@Override
+		public Double apply(Object o) {
+			try { return (double) o; } catch (Exception e) { }
+			try { return Double.valueOf(o.toString()); } catch (Exception e) { }
+			return 0.0d;
+		}
+	}
+	
+	public class ToLong implements Function<Object, Long> {
+		@Override
+		public Long apply(Object o) {
+			try { return (long) o; } catch (Exception e) { }
+			try { return Long.valueOf(o.toString()); } catch (Exception e) { }
+			return 0L;
+		}
+	}
+	
+	public class ToString implements Function<Object, String> {
+		@Override
+		public String apply(Object o) {
+			return o==null ? "NULL" : o.toString();
+		}
+	}
+	
 	public static void reloadConstants() { ScriptContainer.Data.remove("dump"); }
 
 }

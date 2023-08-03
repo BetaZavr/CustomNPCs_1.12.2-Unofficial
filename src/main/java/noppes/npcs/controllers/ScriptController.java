@@ -95,7 +95,6 @@ public class ScriptController {
 							case "allowNativeAccess": cntInstance = m.invoke(cntInstance, true); break;
 							case "allowAllAccess": cntInstance = m.invoke(cntInstance, true); break;
 							case "allowIO": cntInstance = m.invoke(cntInstance, true); break;
-							//case "allowHostAccess": cntInstance = m.invoke(cntInstance, ScriptConstants.hostAccess); break;
 							case "option":
 								cntInstance = m.invoke(cntInstance, "js.ecmascript-version", "2022");
 								cntInstance = m.invoke(cntInstance, "js.nashorn-compat", "true");

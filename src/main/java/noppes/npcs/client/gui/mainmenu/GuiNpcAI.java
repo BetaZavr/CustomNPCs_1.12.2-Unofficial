@@ -67,60 +67,51 @@ implements ITextfieldListener, IGuiData {
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(0, "ai.enemyresponse", this.guiLeft + 5, this.guiTop + 17));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 86, this.guiTop + 10, 60, 20,
-				new String[] { "gui.retaliate", "gui.panic", "gui.retreat", "gui.nothing" }, this.npc.ais.onAttack));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 86, this.guiTop + 10, 60, 20, new String[] { "gui.retaliate", "gui.panic", "gui.retreat", "gui.nothing" }, this.npc.ais.onAttack));
 		this.addLabel(new GuiNpcLabel(1, "ai.door", this.guiLeft + 5, this.guiTop + 40));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 86, this.guiTop + 35, 60, 20, new String[] { "gui.break", "gui.open", "gui.disabled" }, this.npc.ais.doorInteract));
 		this.addLabel(new GuiNpcLabel(12, "ai.swim", this.guiLeft + 5, this.guiTop + 65));
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 86, this.guiTop + 60, 60, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.npc.ais.canSwim ? 1 : 0)));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 86, this.guiTop + 60, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.ais.canSwim ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(13, "ai.shelter", this.guiLeft + 5, this.guiTop + 90));
-		this.addButton(new GuiNpcButton(9, this.guiLeft + 86, this.guiTop + 85, 60, 20,
-				new String[] { "gui.darkness", "gui.sunlight", "gui.disabled" }, this.npc.ais.findShelter));
+		this.addButton(new GuiNpcButton(9, this.guiLeft + 86, this.guiTop + 85, 60, 20, new String[] { "gui.darkness", "gui.sunlight", "gui.disabled" }, this.npc.ais.findShelter));
 		this.addLabel(new GuiNpcLabel(14, "ai.clearlos", this.guiLeft + 5, this.guiTop + 115));
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 86, this.guiTop + 110, 60, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.npc.ais.directLOS ? 1 : 0)));
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 86, this.guiTop + 110, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.ais.directLOS ? 1 : 0)));
 		this.addButton(new GuiNpcButtonYesNo(23, this.guiLeft + 86, this.guiTop + 135, 60, 20, this.ai.attackInvisible));
 		this.addLabel(new GuiNpcLabel(23, "stats.attackInvisible", this.guiLeft + 5, this.guiTop + 140));
 		this.addLabel(new GuiNpcLabel(10, "ai.avoidwater", this.guiLeft + 150, this.guiTop + 17));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 230, this.guiTop + 10, 60, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.ai.avoidsWater ? 1 : 0)));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 230, this.guiTop + 10, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.ai.avoidsWater ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(11, "ai.return", this.guiLeft + 150, this.guiTop + 40));
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 230, this.guiTop + 35, 60, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.npc.ais.returnToStart ? 1 : 0)));
+		this.addButton(new GuiNpcButton(6, this.guiLeft + 230, this.guiTop + 35, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.ais.returnToStart ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(17, "ai.leapattarget", this.guiLeft + 150, this.guiTop + 65));
-		this.addButton(new GuiNpcButton(15, this.guiLeft + 230, this.guiTop + 60, 60, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.npc.ais.canLeap ? 1 : 0)));
+		this.addButton(new GuiNpcButton(15, this.guiLeft + 230, this.guiTop + 60, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.ais.canLeap ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(19, "ai.tacticalvariant", this.guiLeft + 150, this.guiTop + 140));
-		this.addButton(new GuiNpcButton(17, this.guiLeft + 230, this.guiTop + 135, 60, 20, this.tacts,
-				this.ai.tacticalVariant));
+		this.addButton(new GuiNpcButton(17, this.guiLeft + 230, this.guiTop + 135, 60, 20, this.tacts, this.ai.tacticalVariant));
 		if (this.ai.tacticalVariant != 0 && this.ai.tacticalVariant != 6) {
 			String label = "";
 			switch (this.ai.tacticalVariant) {
-			case 2: {
-				label = "gui.orbitdistance";
-				break;
-			}
-			case 3: {
-				label = "gui.fightifthisclose";
-				break;
-			}
-			case 4: {
-				label = "gui.ambushdistance";
-				break;
-			}
-			case 5: {
-				label = "gui.ambushdistance";
-				break;
-			}
-			default: {
-				label = "gui.engagedistance";
-				break;
-			}
+				case 2: {
+					label = "gui.orbitdistance";
+					break;
+				}
+				case 3: {
+					label = "gui.fightifthisclose";
+					break;
+				}
+				case 4: {
+					label = "gui.ambushdistance";
+					break;
+				}
+				case 5: {
+					label = "gui.ambushdistance";
+					break;
+				}
+				default: {
+					label = "gui.engagedistance";
+					break;
+				}
 			}
 			this.addLabel(new GuiNpcLabel(21, label, this.guiLeft + 300, this.guiTop + 140));
-			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 380, this.guiTop + 135, 30,
-					20, this.ai.getTacticalRange() + ""));
+			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 380, this.guiTop + 135, 30, 20, this.ai.getTacticalRange() + ""));
 			this.getTextField(3).numbersOnly = true;
 			this.getTextField(3).setMinMaxDefault(1, this.npc.stats.aggroRange, 5);
 		}

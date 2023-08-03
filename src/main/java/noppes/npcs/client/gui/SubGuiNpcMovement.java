@@ -85,8 +85,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		this.addLabel(new GuiNpcLabel(0, "movement.type", this.guiLeft + 4, y + 5));
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 80, y, 100, 20, new String[] { "ai.standing", "ai.wandering", "ai.movingpath" }, this.ai.getMovingType()));
 		y += 22;
-		this.addButton(new GuiNpcButton(15, this.guiLeft + 80, y, 100, 20,
-				new String[] { "movement.ground", "movement.flying", "movement.swimming" }, this.ai.movementType));
+		this.addButton(new GuiNpcButton(15, this.guiLeft + 80, y, 100, 20, new String[] { "movement.ground", "movement.flying", "movement.swimming" }, this.ai.movementType));
 		this.addLabel(new GuiNpcLabel(15, "movement.navigation", this.guiLeft + 4, y + 5));
 		if (this.ai.getMovingType() == 1) {
 			y += 22;
@@ -118,8 +117,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.getTextField(9).setMinMaxDefault(0, 10, 5);
 			y += 22;
 			this.addButton(new GuiNpcButton(4, this.guiLeft + 80, y, 100, 20,
-					new String[] { "stats.normal", "movement.sitting", "movement.lying", "movement.hug",
-							"movement.sneaking", "movement.dancing", "movement.aiming", "movement.crawling" },
+					new String[] { "stats.normal", "movement.sitting", "movement.lying", "movement.hug", "movement.sneaking", "movement.dancing", "movement.aiming", "movement.crawling" },
 					this.ai.animationType));
 			this.addLabel(new GuiNpcLabel(3, "movement.animation", this.guiLeft + 4, y + 5));
 			if (this.ai.animationType != 2) {
