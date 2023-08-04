@@ -317,6 +317,9 @@ public class ScriptContainer {
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
 			this.engine.put(entry.getKey(), entry.getValue());
 		}
+		if (ScriptController.Instance.hasGraalLib()) {
+			this.engine.put("currentThread", Thread.currentThread().getName());
+		}
 		this.init = false;
 	}
 

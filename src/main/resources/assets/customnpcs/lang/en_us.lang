@@ -1368,6 +1368,15 @@ job.none=No Job
 job.puppet=Puppet
 job.spawner=Spawner
 
+key.quest.log=Quest Log
+key.scene.s.e.0=Scene 1 start/pause
+key.scene.s.e.1=Scene 2 start/pause
+key.scene.s.e.2=Scene 3 start/pause
+key.scene.reset=Scene reset
+
+key.custom.name=Default Custom Key
+key.custom.category=Custom Keys
+
 lines.attack=Attack Lines
 lines.interact=Interact Lines
 lines.kill=Kill Lines

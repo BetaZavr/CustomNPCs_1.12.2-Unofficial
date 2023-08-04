@@ -52,6 +52,7 @@ public enum EnumPlayerPacket
 	SaveCompassData,
 	GetTileData,
 	ScriptPackage,
-	MovingPathGet;
+	MovingPathGet,
+	KeyActive;
 	
 }

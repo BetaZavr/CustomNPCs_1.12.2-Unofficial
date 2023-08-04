@@ -112,6 +112,11 @@ public class SyncController {
 				}
 				break;
 			}
+			case 10: {
+				KeyController.getInstance().loadKeys(compound);
+				CustomNpcs.proxy.updateKeys();
+				break;
+			}
 		}
 	}
 
@@ -151,6 +156,11 @@ public class SyncController {
 			}
 			case 6: {
 				RecipeController.getInstance().delete(id);
+				break;
+			}
+			case 10: {
+				KeyController.getInstance().removeKeySetting(id);
+				CustomNpcs.proxy.updateKeys();
 				break;
 			}
 		}
@@ -226,6 +236,11 @@ public class SyncController {
 				CustomNpcs.proxy.updateGUI();
 				break;
 			}
+			case 10: {
+				KeyController.getInstance().loadKey(compound);
+				CustomNpcs.proxy.updateKeys();
+				break;
+			}
 		}
 	}
 
@@ -299,7 +314,9 @@ public class SyncController {
 		}
 		compound = data.getNBT();
 		Server.sendData(player, EnumPacketClient.SYNC_END, 8, compound);
-
+		
+		Server.sendData(player, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
+		
 		syncScriptItems(player);
 
 		syncScriptRecipes(player);

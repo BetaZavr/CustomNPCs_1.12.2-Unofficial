@@ -17,7 +17,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
@@ -38,6 +37,7 @@ import noppes.npcs.api.event.NpcEvent.CustomNpcTeleport;
 import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
+import noppes.npcs.api.event.PlayerEvent.KeyActive;
 import noppes.npcs.api.event.PlayerEvent.PlayerPackage;
 import noppes.npcs.api.event.PlayerEvent.PlayerSound;
 import noppes.npcs.api.event.ProjectileEvent;
@@ -51,6 +51,7 @@ import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
+import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
@@ -130,10 +131,8 @@ public class EventHooks {
 	public static void onForgeEvent(ForgeEvent event) {
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
-		//System.out.println("forge: "+event+"; event: "+event.event);
 		if (!handler.isClient() && handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
 			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
-			//System.out.println("Common ForgeEvent: "+eventName);
 			try { // Changed
 				handler.runScript(eventName, event);
 				if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
@@ -709,28 +708,28 @@ public class EventHooks {
 
 	public static void onCustomPotionIsReady(IsReadyEvent event) { // new
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.getSide()==Side.CLIENT) { return; }
+		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
 		data.runScript(EnumScriptType.POTION_IS_READY, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
 	public static void onCustomPotionPerformEffect(PerformEffect event) { // new
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.getSide()==Side.CLIENT) { return; }
+		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
 		data.runScript(EnumScriptType.POTION_PERFORM, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
 	public static void onCustomPotionAffectEntity(AffectEntity event) { // new
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.getSide()==Side.CLIENT) { return; }
+		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
 		data.runScript(EnumScriptType.POTION_AFFECT, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 
 	public static void onCustomPotionEndEffect(EndEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.getSide()==Side.CLIENT) { return; }
+		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
 		data.runScript(EnumScriptType.POTION_END, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
@@ -820,6 +819,18 @@ public class EventHooks {
 		handler.runScript(EnumScriptType.CUSTOM_TELEPORT, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 		return event;
+	}
+
+	public static void onPlayerKeyActive(EntityPlayerMP player, int id) {
+		if (player==null) { return; }
+		IKeySetting kb = NpcAPI.Instance().getIKeyBinding().getKeySetting(id);
+		if (kb==null) { return; }
+		PlayerScriptData handler = PlayerData.get(player).scriptData;
+		NpcAPI api = NpcAPI.Instance();
+		KeyActive event = new PlayerEvent.KeyActive((IPlayer<?>) api.getIEntity(player), kb);
+		if (!handler.getEnabled()) { return; }
+		handler.runScript(EnumScriptType.KEY_ACTIVE, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 	
 }

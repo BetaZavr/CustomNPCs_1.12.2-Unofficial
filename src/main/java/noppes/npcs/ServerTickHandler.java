@@ -31,6 +31,7 @@ import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.AnalyticsTracking;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.BorderController;
+import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.SyncController;
@@ -99,6 +100,7 @@ public class ServerTickHandler {
 		BorderController.getInstance().update();
 		if (event.phase == TickEvent.Phase.END) { return; }
 		if ((this.ticks++) % 20 == 0) {
+			Thread.currentThread();
 			CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			SchematicController.Instance.updateBuilding();
 			MassBlockController.Update();
@@ -209,5 +211,15 @@ public class ServerTickHandler {
 		SyncController.syncPlayer(player);
 		Server.sendData(player, EnumPacketClient.DIMENSIOS_IDS, DimensionHandler.getInstance().getAllIDs());
 		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_playerLogin");
+	}
+	
+
+	@SubscribeEvent
+	public void playerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+		CustomNpcs.debugData.startDebug("Server", event.player, "ServerTickHandler_playerLogout");
+		if (event.player.world.isRemote) {
+			KeyController.getInstance().save();
+		}
+		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_playerLogout");
 	}
 }

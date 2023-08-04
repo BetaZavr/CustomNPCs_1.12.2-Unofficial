@@ -25,6 +25,7 @@ import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.IFactionHandler;
+import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.item.IItemStack;
@@ -37,13 +38,8 @@ public abstract class NpcAPI {
 	public static NpcAPI Instance() {
 		if (NpcAPI.instance != null) { return NpcAPI.instance; }
 		if (!IsAvailable()) { return null; }
-		try {
-			NpcAPI.instance =  WrapperNpcAPI.Instance();
-			//Class<?> c = Class.forName("noppes.npcs.api.wrapper.WrapperNpcAPI");
-			//NpcAPI.instance = (NpcAPI) c.getMethod("Instance", (Class[]) new Class[0]).invoke(null, new Object[0]);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		try { NpcAPI.instance =  WrapperNpcAPI.Instance(); }
+		catch (Exception e) { e.printStackTrace(); }
 		return NpcAPI.instance;
 	}
 
@@ -122,5 +118,7 @@ public abstract class NpcAPI {
 	public abstract IAnimationHandler getAnimations();
 
 	public abstract IMetods getMetods();
+
+	public abstract IKeyBinding getIKeyBinding();
 	
 }

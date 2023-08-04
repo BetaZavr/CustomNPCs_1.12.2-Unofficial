@@ -82,6 +82,7 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.DropController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.GlobalDataController;
+import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.LinkedNpcController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.MassBlockController;
@@ -423,17 +424,21 @@ public class CustomNpcs {
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
 		FactionController.instance.load();
+		ScriptController.Instance.load();
+		
 		new DropController();
 		new RecipeController();
 		new AnimationController();
-		new PlayerDataController();
+		new KeyController();
 		new TransportController();
+		
+		new PlayerDataController();
 		new GlobalDataController();
 		new SpawnController();
 		new LinkedNpcController();
-		new MassBlockController();
+		new MassBlockController();;
 		new VisibilityController();
-		ScriptController.Instance.load();
+		
 		WrapperNpcAPI.clearCache();
 		Set<ResourceLocation> names = Block.REGISTRY.getKeys();
 		for (ResourceLocation name : names) {
@@ -468,6 +473,7 @@ public class CustomNpcs {
 		MarcetController.getInstance().saveMarcets();
 		RecipeController.getInstance().save();
 		AnimationController.getInstance().save();
+		KeyController.getInstance().save();
 		DropController.getInstance().save();
 		// End
 		CustomNpcs.Server = null;

@@ -1370,6 +1370,15 @@ job.none=Нет Работы
 job.puppet=Марионетка
 job.spawner=Спавнер
 
+key.quest.log=Квестовый журнал
+key.scene.s.e.0=Cцена 1 (старт/пауза)
+key.scene.s.e.1=Cцена 2 (старт/пауза)
+key.scene.s.e.2=Cцена 3 (старт/пауза)
+key.scene.reset=Сброс сцены
+
+key.custom.name=Свой ключ по умолчанию
+key.custom.category=Свои ключи
+
 lines.attack=Фразы во время боя
 lines.interact=Фразы при взаимодействии
 lines.kill=Фразы, когда убьёт

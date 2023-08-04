@@ -73,10 +73,11 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
@@ -89,6 +90,7 @@ import noppes.npcs.PacketHandlerPlayer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
@@ -199,6 +201,7 @@ import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.containers.ContainerNpcQuestReward;
 import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
+import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.PlayerData;
@@ -246,6 +249,7 @@ extends CommonProxy {
 	public static KeyBinding Scene3;
 	public static KeyBinding SceneReset;
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
+	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.<Integer, KeyBinding>newHashMap();
 	
 	public static class FontContainer {
 		private TrueTypeFont textFont;
@@ -475,18 +479,28 @@ extends CommonProxy {
 		MinecraftForge.EVENT_BUS.register(new ClientTickHandler());
 		MinecraftForge.EVENT_BUS.register(new ClientGuiEventHandler());
 		Minecraft mc = Minecraft.getMinecraft();
-		ClientProxy.QuestLog = new KeyBinding("Quest Log", 38, "key.categories.gameplay");
+		ClientProxy.QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay");
 		if (CustomNpcs.SceneButtonsEnabled) {
-			ClientProxy.Scene1 = new KeyBinding("Scene1 start/pause", 79, "key.categories.gameplay");
-			ClientProxy.Scene2 = new KeyBinding("Scene2 start/pause", 80, "key.categories.gameplay");
-			ClientProxy.Scene3 = new KeyBinding("Scene3 start/pause", 81, "key.categories.gameplay");
-			ClientProxy.SceneReset = new KeyBinding("Scene reset", 82, "key.categories.gameplay");
+			ClientProxy.Scene1 = new KeyBinding("key.scene.s.e.0", 79, "key.categories.gameplay");
+			ClientProxy.Scene2 = new KeyBinding("key.scene.s.e.1", 80, "key.categories.gameplay");
+			ClientProxy.Scene3 = new KeyBinding("key.scene.s.e.2", 81, "key.categories.gameplay");
+			ClientProxy.SceneReset = new KeyBinding("key.scene.reset", 82, "key.categories.gameplay");
 			ClientRegistry.registerKeyBinding(ClientProxy.Scene1);
 			ClientRegistry.registerKeyBinding(ClientProxy.Scene2);
 			ClientRegistry.registerKeyBinding(ClientProxy.Scene3);
 			ClientRegistry.registerKeyBinding(ClientProxy.SceneReset);
 		}
 		ClientRegistry.registerKeyBinding(ClientProxy.QuestLog);
+		for (IKeySetting ks : KeyController.getInstance().getKeySettings()) {
+			KeyModifier modifer;
+			switch(ks.getModiferType()) {
+				case 1: modifer = KeyModifier.SHIFT; break;
+				case 2: modifer = KeyModifier.CONTROL; break;
+				case 3: modifer = KeyModifier.ALT; break;
+				default: modifer = KeyModifier.NONE; break;
+			}
+			ClientRegistry.registerKeyBinding(new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory()));
+		}
 		mc.gameSettings.loadOptions();
 		new PresetController(CustomNpcs.Dir);
 		if (CustomNpcs.EnableUpdateChecker) {
@@ -581,7 +595,9 @@ extends CommonProxy {
 	}
 	
 	@Override
-	public void postload() {  }
+	public void postload() {
+		
+	}
 
 	@Override
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
@@ -589,8 +605,7 @@ extends CommonProxy {
 			BlockPos pos = (BlockPos) ob[0];
 			int id = (int) ob[1];
 			Block block = Block.getBlockById(id & 0xFFF);
-			Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(pos,
-					block.getStateFromMeta(id >> 12 & 0xFF));
+			Minecraft.getMinecraft().effectRenderer.addBlockDestroyEffects(pos, block.getStateFromMeta(id >> 12 & 0xFF));
 		} else if (string.equals("ModelData")) {
 			ModelData data = (ModelData) ob[0];
 			ModelPartData particles = (ModelPartData) ob[1];
@@ -609,8 +624,7 @@ extends CommonProxy {
 	}
 
 	@Override
-	public void spawnParticle(EnumParticleTypes particle, double x, double y, double z, double motionX, double motionY,
-			double motionZ, float scale) {
+	public void spawnParticle(EnumParticleTypes particle, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) {
 		Minecraft mc = Minecraft.getMinecraft();
 		double xx = mc.getRenderViewEntity().posX - x;
 		double yy = mc.getRenderViewEntity().posY - y;
@@ -618,16 +632,11 @@ extends CommonProxy {
 		if (xx * xx + yy * yy + zz * zz > 256.0) {
 			return;
 		}
-		Particle fx = mc.effectRenderer.spawnEffectParticle(particle.getParticleID(), x, y, z, motionX, motionY,
-				motionZ, new int[0]);
-		if (fx == null) {
-			return;
+		Particle fx = mc.effectRenderer.spawnEffectParticle(particle.getParticleID(), x, y, z, motionX, motionY, motionZ, new int[0]);
+		if (fx == null) { return; }
+		if (particle == EnumParticleTypes.FLAME) { ObfuscationHelper.setValue(ParticleFlame.class, (ParticleFlame) fx, scale, 0);
 		}
-		if (particle == EnumParticleTypes.FLAME) {
-			ObfuscationHelper.setValue(ParticleFlame.class, (ParticleFlame) fx, scale, 0);
-		} else if (particle == EnumParticleTypes.SMOKE_NORMAL) {
-			ObfuscationHelper.setValue(ParticleSmokeNormal.class, (ParticleSmokeNormal) fx, scale, 0);
-		}
+		else if (particle == EnumParticleTypes.SMOKE_NORMAL) { ObfuscationHelper.setValue(ParticleSmokeNormal.class, (ParticleSmokeNormal) fx, scale, 0); }
 	}
 
 	public void updateGUI() {
@@ -1469,9 +1478,6 @@ extends CommonProxy {
 			}
 		}
 	}
-
-	@Override
-	public Side getSide() { return Side.CLIENT; }
 	
 	@Override
 	public boolean isLoadTexture(ResourceLocation resource) {
@@ -1481,6 +1487,61 @@ extends CommonProxy {
 	@Override
 	public void fixTileEntityData(TileEntity tile) {
 		Client.sendDataDelayCheck(EnumPlayerPacket.GetTileData, 0, 0, tile.writeToNBT(new NBTTagCompound()));
+	}
+
+	@Override
+	public void clearKeys() {
+		List<KeyBinding> list = Lists.<KeyBinding>newArrayList();
+		for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
+			if (ClientProxy.keyBindingMap.containsValue(kb)) { continue; }
+			list.add(kb);
+		}
+		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[list.size()]);
+		ClientProxy.keyBindingMap.clear();
+	}
+
+	@Override
+	public void updateKeys() {
+		List<KeyBinding> list = Lists.<KeyBinding>newArrayList();
+		for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
+			if (ClientProxy.keyBindingMap.containsValue(kb)) { continue; }
+			list.add(kb);
+		}
+		Map<Integer, KeyBinding> keysMap = Maps.<Integer, KeyBinding>newHashMap();
+		for (IKeySetting ks : KeyController.getInstance().getKeySettings()) {
+			KeyBinding kb;
+			KeyModifier modifer;
+			switch(ks.getModiferType()) {
+				case 1: modifer = KeyModifier.SHIFT; break;
+				case 2: modifer = KeyModifier.CONTROL; break;
+				case 3: modifer = KeyModifier.ALT; break;
+				default: modifer = KeyModifier.NONE; break;
+			}
+			if (ClientProxy.keyBindingMap.containsKey(ks.getId())) {
+				kb = ClientProxy.keyBindingMap.get(ks.getId());
+				ObfuscationHelper.setValue(KeyBinding.class, kb, modifer, KeyModifier.class);
+				ObfuscationHelper.setValue(KeyBinding.class, kb, ks.getName(), 4);
+				ObfuscationHelper.setValue(KeyBinding.class, kb, ks.getKeyId(), 5);
+				ObfuscationHelper.setValue(KeyBinding.class, kb, ks.getCategory(), 6);
+			}
+			else {
+				kb = new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory());
+			}
+			list.add(kb);
+			keysMap.put(ks.getId(), kb);
+		}
+		ClientProxy.keyBindingMap.clear();
+		ClientProxy.keyBindingMap.putAll(keysMap);
+		Minecraft.getMinecraft().gameSettings.keyBindings = list.toArray(new KeyBinding[list.size()]);
+	}
+
+	public static void pressed(int keyCode) {
+		for (int id : ClientProxy.keyBindingMap.keySet()) {
+			KeyBinding kb = ClientProxy.keyBindingMap.get(id);
+			if (kb.isActiveAndMatches(keyCode)) {
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyActive, id);
+			}
+		}
 	}
 	
 }

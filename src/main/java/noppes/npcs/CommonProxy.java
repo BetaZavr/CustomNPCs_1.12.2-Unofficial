@@ -31,7 +31,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
-import net.minecraftforge.fml.relauncher.Side;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.blocks.CustomBlock;
@@ -159,9 +158,7 @@ implements IGuiHandler {
 		return this.getContainer(gui, player, x, y, z, npc);
 	}
 
-	public boolean hasClient() {
-		return false;
-	}
+	public boolean hasClient() { return false; }
 
 	public void preload() {
 		CustomNpcs.Channel.register(new PacketHandlerServer());
@@ -1250,11 +1247,13 @@ implements IGuiHandler {
 
 	public boolean isLoadTexture(ResourceLocation resource) { return true; }
 
-	public Side getSide() { return Side.SERVER; }
-
 	public void fixTileEntityData(TileEntity tile) {
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SET_TILE_DATA, tile.writeToNBT(new NBTTagCompound()));
 	}
+
+	public void clearKeys() { }
+
+	public void updateKeys() { }
 
 
 }

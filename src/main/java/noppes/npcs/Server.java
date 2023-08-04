@@ -257,6 +257,7 @@ public class Server {
 	}
 
 	public static void sendToAll(MinecraftServer server, EnumPacketClient type, Object... obs) {
+		if (server==null) { return; }
 		List<EntityPlayerMP> list = new ArrayList<EntityPlayerMP>(server.getPlayerList().getPlayers());
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();

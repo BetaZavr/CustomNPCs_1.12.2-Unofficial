@@ -95,7 +95,6 @@ public class ClientEventHandler {
 		GlStateManager.disableBlend();
 	}
 	
-	// New
 	@SubscribeEvent
 	public void onOpenGUIEvent(GuiOpenEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();

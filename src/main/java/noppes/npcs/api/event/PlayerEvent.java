@@ -19,11 +19,24 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IFaction;
+import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.item.IItemStack;
 
 public class PlayerEvent
 extends CustomNPCsEvent {
 
+	public static class KeyActive extends PlayerEvent {
+		
+		public IKeySetting key;
+		public int id;
+
+		public KeyActive(IPlayer<?> player, IKeySetting kb) {
+			super(player);
+			this.key = kb;
+		}
+		
+	}
+	
 	@Cancelable
 	public static class CustomTeleport extends PlayerEvent {
 		

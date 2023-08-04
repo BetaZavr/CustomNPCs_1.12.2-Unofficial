@@ -12,9 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
@@ -125,7 +125,6 @@ public class ClientTickHandler {
 			}
 		}
 		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
-		
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
 		}
@@ -174,7 +173,10 @@ public class ClientTickHandler {
 			boolean isMetaPressed = ClientProxy.playerData.hud.hasOrKeysPressed(220, 219);
 			boolean isDown = Keyboard.getEventKeyState();
 			int key = Keyboard.getEventKey();
-			if (isDown) { ClientProxy.playerData.hud.keyPress.add(key); }
+			if (isDown) {
+				ClientProxy.playerData.hud.keyPress.add(key);
+				ClientProxy.pressed(key);
+			}
 			else {
 				if (ClientProxy.playerData.hud.hasOrKeysPressed(key)) { ClientProxy.playerData.hud.keyPress.remove((Integer)key); }
 			}
@@ -190,8 +192,17 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
-		if (!(entity instanceof EntityPlayerSP) || !CustomNpcs.VerboseDebug) { return; }
+		
+		if (entity instanceof EntityPlayerMP) {
+			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
+		}
+		
 		//TempClass.run((EntityPlayerSP) entity);
+		//System.out.println("Test: ");
+		
+		/*for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
+			System.out.println("key: "+kb.getDisplayName()+" _ "+kb.getKeyCategory()+" = "+kb.getKeyCode()+" // "+kb.getKeyModifier()+" /// "+kb.getKeyConflictContext().getClass()+"["+kb.getKeyConflictContext()+"]");
+		}*/
 		
 		/*String v = Integer.toHexString(CustomNpcs.mainColor).toUpperCase();
 		int i = (int) Long.parseLong(v, 16);

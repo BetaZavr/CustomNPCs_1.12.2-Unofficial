@@ -583,6 +583,8 @@ public class PacketHandlerPlayer {
 			if (entity instanceof EntityCustomNpc) {
 				Server.sendData(player, EnumPacketClient.NPC_MOVINGPATH, id, ((EntityCustomNpc) entity).ais.writeToNBT(new NBTTagCompound()));
 			}
+		} else if (type == EnumPlayerPacket.KeyActive) {
+			EventHooks.onPlayerKeyActive(player, buffer.readInt());
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
