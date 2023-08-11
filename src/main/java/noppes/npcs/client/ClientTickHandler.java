@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -196,6 +197,7 @@ public class ClientTickHandler {
 		if (entity instanceof EntityPlayerMP) {
 			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
 		}
+		if (!(entity instanceof EntityPlayerSP)) { return; }
 		
 		//TempClass.run((EntityPlayerSP) entity);
 		//System.out.println("Test: ");

@@ -14,12 +14,14 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.village.MerchantRecipeList;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.IChatMessages;
 import noppes.npcs.ICompatibilty;
@@ -40,6 +42,7 @@ import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IDimension;
 import noppes.npcs.api.IEntityDamageSource;
 import noppes.npcs.api.ILayerModel;
+import noppes.npcs.api.IMetods;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IRayTrace;
@@ -121,8 +124,10 @@ import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.IDimensionHandler;
 import noppes.npcs.api.handler.IFactionHandler;
+import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
+import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.api.handler.data.IDataElement;
@@ -130,6 +135,7 @@ import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogCategory;
 import noppes.npcs.api.handler.data.IDialogOption;
 import noppes.npcs.api.handler.data.IFaction;
+import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
@@ -177,7 +183,10 @@ import noppes.npcs.api.wrapper.ScoreboardWrapper;
 import noppes.npcs.api.wrapper.ThrowableWrapper;
 import noppes.npcs.api.wrapper.VillagerWrapper;
 import noppes.npcs.api.wrapper.WorldWrapper;
+import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.api.wrapper.data.DataElement;
+import noppes.npcs.api.wrapper.data.StoredData;
+import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiComponentWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiItemSlotWrapper;
@@ -198,6 +207,8 @@ import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
 import noppes.npcs.blocks.CustomBlockStairs;
+import noppes.npcs.blocks.CustomChest;
+import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
@@ -215,6 +226,7 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.IScriptHandler;
+import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ServerCloneController;
@@ -225,16 +237,17 @@ import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.ForgeScriptData;
+import noppes.npcs.controllers.data.KeyConfig;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerCompassHUDData;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerOverlayHUD;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
-import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.controllers.data.Zone3D;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
@@ -274,6 +287,8 @@ import noppes.npcs.items.ItemScriptedDoor;
 import noppes.npcs.items.ItemTeleporter;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
+import noppes.npcs.particles.CustomParticle;
+import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.potions.CustomPotion;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.roles.JobBard;
@@ -324,7 +339,7 @@ public enum EnumInterfaceData {
 	),
 	IAbilityUpdate(new InterfaseData(IAbilityUpdate.class, 
 			IAbility.class,
-			new Class<?>[] { AbilityTeleport.class, AbilityPull.class, AbilitySnare.class, AbilitySmash.class },
+			new Class<?>[] { AbilitySmash.class, AbilityTeleport.class, AbilityPull.class, AbilitySnare.class },
 			"interfase.iabilityupdate",
 			new MetodData(boolean.class, "isActive", "method.iabilityupdate.isactive"),
 			new MetodData(void.class, "update", "method.iabilityupdate.update")
@@ -368,7 +383,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(boolean.class, "isDisable", "method.ianimation.isdisable"),
 			new MetodData(void.class, "setDisable", "method.ianimation.setdisable",
-				new ParameterData(boolean.class, "disabled", "parameter.boolean")
+				new ParameterData(boolean.class, "bo", "parameter.boolean")
 			),
 			new MetodData(int.class, "getRepeatLast", "method.ianimation.getrepeatLast"),
 			new MetodData(void.class, "setRepeatLast", "method.ianimation.setrepeatLast",
@@ -859,6 +874,10 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "setMessage", "method.iborder.setmessage",
 				new ParameterData(String.class, "message", "parameter.message")
 			),
+			new MetodData(boolean.class, "isShowToPlayers", "method.iborder.isshowtoplayers"),
+			new MetodData(void.class, "setShowToPlayers", "method.iborder.setshowtoplayers",
+				new ParameterData(boolean.class, "show", "parameter.boolean")
+			),
 			new MetodData(void.class, "update", "method.iborder.update")
 		)
 	),
@@ -999,7 +1018,7 @@ public enum EnumInterfaceData {
 	),
 	ICompatibilty(new InterfaseData(ICompatibilty.class, 
 			null,
-			new Class<?>[] { Quest.class, Dialog.class, Availability.class },
+			new Class<?>[] { Quest.class, Availability.class, Dialog.class },
 			"interfase.icompatibilty",
 			new MetodData(int.class, "getVersion", "method.icompatibilty.getversion"),
 			new MetodData(void.class, "setVersion", "method.icompatibilty.setversion",
@@ -1052,7 +1071,7 @@ public enum EnumInterfaceData {
 			new MetodData(IDropNbtSet.class, "addDropNbtSet", "method.icustomdrop.adddropnbtset",
 				new ParameterData(int.class, "type", "parameter.idropnbtset.type"),
 				new ParameterData(double.class, "chance", "parameter.chance"),
-				new ParameterData(String.class, "path", "parameter.idropnbtset.path"),
+				new ParameterData(String.class, "paht", "parameter.idropnbtset.path"),
 				new ParameterData(String[].class, "values", "parameter.idropnbtset.values.1")
 			),
 			new MetodData(IEnchantSet.class, "addEnchant", "method.icustomdrop.addenchant",
@@ -1062,7 +1081,7 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "enchantName", "parameter.enchant.name")
 			),
 			new MetodData(IItemStack.class, "createLoot", "method.icustomdrop.createloot",
-				new ParameterData(double.class, "chance", "parameter.chance")
+				new ParameterData(double.class, "addChance", "parameter.chance")
 			),
 			new MetodData(IAttributeSet[].class, "getAttributeSets", "method.icustomdrop.getattributesets"),
 			new MetodData(double.class, "getChance", "method.icustomdrop.getchance"),
@@ -1114,7 +1133,7 @@ public enum EnumInterfaceData {
 	),
 	ICustomElement(new InterfaseData(ICustomElement.class, 
 			null,
-			new Class<?>[] { CustomBlockSlab.class, CustomLiquid.class, CustomBow.class, CustomItem.class, CustomPotion.class, CustomTool.class, CustomBlockStairs.class, CustomWeapon.class, CustomFood.class, CustomBlock.class, CustomFishingRod.class, CustomShield.class, CustomArmor.class, CustomBlockPortal.class },
+			new Class<?>[] { CustomShield.class, CustomParticle.class, CustomPotion.class, CustomBow.class, CustomLiquid.class, CustomBlockStairs.class, CustomFood.class, CustomBlock.class, CustomTool.class, CustomDoor.class, CustomBlockSlab.class, CustomChest.class, CustomBlockPortal.class, CustomParticleSettings.class, CustomArmor.class, CustomItem.class, CustomFishingRod.class, CustomWeapon.class },
 			"interfase.icustomelement",
 			new MetodData(String.class, "getCustomName", "method.icustomelement.getcustomname"),
 			new MetodData(INbt.class, "getCustomNbt", "method.icustomelement.getcustomnbt")
@@ -1209,13 +1228,13 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(ITexturedRect.class, "addTexturedRect", "method.icustomgui.addtexturedrect",
 				new ParameterData(int.class, "id", "parameter.icustomgui.id"),
-				new ParameterData(String.class, "texture", "parameter.icustomgui.texture"),
-				new ParameterData(int.class, "x", "parameter.icustomgui.x"),
-				new ParameterData(int.class, "y", "parameter.icustomgui.y"),
-				new ParameterData(int.class, "width", "parameter.icustomgui.width"),
-				new ParameterData(int.class, "height", "parameter.icustomgui.height"),
-				new ParameterData(int.class, "textureX", "parameter.icustomgui.texturex"),
-				new ParameterData(int.class, "textureY", "parameter.icustomgui.texturey")
+				new ParameterData(String.class, "texture", "parameter.texture"),
+				new ParameterData(int.class, "x", "parameter.posx"),
+				new ParameterData(int.class, "y", "parameter.posy"),
+				new ParameterData(int.class, "width", "parameter.width"),
+				new ParameterData(int.class, "height", "parameter.height"),
+				new ParameterData(int.class, "textureX", "parameter.texturex"),
+				new ParameterData(int.class, "textureY", "parameter.texturey")
 			),
 			new MetodData(ICustomGuiComponent.class, "getComponent", "method.icustomgui.getcomponent",
 				new ParameterData(int.class, "id", "parameter.component.id")
@@ -1343,7 +1362,7 @@ public enum EnumInterfaceData {
 			new MetodData(IProjectile.class, "shootItem", "method.icustomnpc.shootitem",
 				new ParameterData(IEntityLivingBase.class, "entity", "parameter.entity"),
 				new ParameterData(IItemStack.class, "item", "parameter.stack"),
-				new ParameterData(int.class, "count", "parameter.icustomnpc.count")
+				new ParameterData(int.class, "count", "parameter.count")
 			),
 			new MetodData(void.class, "updateClient", "method.icustomnpc.updateclient"),
 			new MetodData(void.class, "trigger", "method.trigger",
@@ -1366,7 +1385,7 @@ public enum EnumInterfaceData {
 	),
 	IData(new InterfaseData(IData.class, 
 			null,
-			null,
+			new Class<?>[] { TempData.class, StoredData.class },
 			"interfase.idata",
 			new MetodData(void.class, "clear", "method.idata.clear"),
 			new MetodData(Object.class, "get", "method.idata.get",
@@ -1380,8 +1399,12 @@ public enum EnumInterfaceData {
 				new ParameterData(String.class, "key", "parameter.key"),
 				new ParameterData(Object.class, "value", "parameter.value")
 			),
-			new MetodData(void.class, "remove", "method.idata.remove",
+			new MetodData(boolean.class, "remove", "method.idata.remove",
 				new ParameterData(String.class, "key", "parameter.key")
+			),
+			new MetodData(INbt.class, "getNbt", "method.idata.getnbt"),
+			new MetodData(void.class, "setNbt", "method.idata.setnbt",
+				new ParameterData(INbt.class, "nbt", "parameter.idata.nbt")
 			)
 		)
 	),
@@ -1399,7 +1422,7 @@ public enum EnumInterfaceData {
 				new ParameterData(Object[].class, "values", "parameter.idatablement.values")
 			),
 			new MetodData(boolean.class, "isBelong", "method.idatablement.isbelong",
-				new ParameterData(Class.class, "class", "parameter.idatablement.class")
+				new ParameterData(Class.class, "clazz", "parameter.idatablement.class")
 			),
 			new MetodData(boolean.class, "setValue", "method.idatablement.setvalue",
 				new ParameterData(Object.class, "value", "parameter.idatablement.value")
@@ -1752,7 +1775,7 @@ public enum EnumInterfaceData {
 		)
 	),
 	IEntityItem(new InterfaseData(IEntityItem.class, 
-			IEntityLiving.class,
+			IEntity.class,
 			new Class<?>[] { EntityItemWrapper.class },
 			"interfase.ientityitem",
 			new MetodData(long.class, "getAge", "method.ientity.getage"),
@@ -1778,7 +1801,7 @@ public enum EnumInterfaceData {
 		)
 	),
 	IEntityLiving(new InterfaseData(IEntityLiving.class, 
-			IEntity.class,
+			IEntityLivingBase.class,
 			new Class<?>[] { EntityLivingWrapper.class },
 			"interfase.ientityliving",
 			new MetodData(void.class, "clearNavigation", "method.ientityliving.clearnavigation"),
@@ -1791,11 +1814,15 @@ public enum EnumInterfaceData {
 				new ParameterData(double.class, "y", "parameter.posy"),
 				new ParameterData(double.class, "z", "parameter.posz"),
 				new ParameterData(double.class, "speed", "parameter.speed")
+			),
+			new MetodData(void.class, "navigateTo", "method.ientityliving.navigateto",
+				new ParameterData(Integer[][].class, "posses", "Integer"),
+				new ParameterData(double.class, "speed", "parameter.ientityliving.speed")
 			)
 		)
 	),
 	IEntityLivingBase(new InterfaseData(IEntityLivingBase.class, 
-			IEntityLiving.class,
+			IEntity.class,
 			new Class<?>[] { EntityLivingBaseWrapper.class },
 			"interfase.ientitylivingbase",
 			new MetodData(IMark.class, "addMark", "method.ientitylivingbase.addmark",
@@ -2162,6 +2189,47 @@ public enum EnumInterfaceData {
 			)
 		)
 	),
+	IKeyBinding(new InterfaseData(IKeyBinding.class, 
+			null,
+			new Class<?>[] { KeyController.class },
+			"interfase.ikeybinding",
+			new MetodData(IKeySetting.class, "createKeySetting", "method.ikeybinding.createkeysetting"),
+			new MetodData(IKeySetting.class, "getKeySetting", "method.ikeybinding.getkeysetting",
+				new ParameterData(int.class, "id", "parameter.ikeybinding.id")
+			),
+			new MetodData(IKeySetting[].class, "getKeySettings", "method.ikeybinding.getkeysettings"),
+			new MetodData(boolean.class, "removeKeySetting", "method.ikeybinding.removekeysetting",
+				new ParameterData(int.class, "id", "parameter.ikeybinding.id")
+			)
+		)
+	),
+	IKeySetting(new InterfaseData(IKeySetting.class, 
+			null,
+			new Class<?>[] { KeyConfig.class },
+			"interfase.ikeysetting",
+			new MetodData(String.class, "getName", "method.ikeysetting.getname"),
+			new MetodData(void.class, "setName", "method.ikeysetting.setname",
+				new ParameterData(String.class, "name", "parameter.ikeysetting.name")
+			),
+			new MetodData(String.class, "getCategory", "method.ikeysetting.getcategory"),
+			new MetodData(void.class, "setCategory", "method.ikeysetting.setcategory",
+				new ParameterData(String.class, "name", "parameter.ikeysetting.name")
+			),
+			new MetodData(int.class, "getId", "method.ikeysetting.getid"),
+			new MetodData(int.class, "getKeyId", "method.ikeysetting.getkeyid"),
+			new MetodData(int.class, "getModiferType", "method.ikeysetting.getmodifertype"),
+			new MetodData(void.class, "setKeyId", "method.ikeysetting.setkeyid",
+				new ParameterData(int.class, "keyId", "parameter.ikeysetting.keyid")
+			),
+			new MetodData(void.class, "setModiferType", "method.ikeysetting.setmodifertype",
+				new ParameterData(int.class, "type", "parameter.ikeysetting.type")
+			),
+			new MetodData(INbt.class, "getNbt", "method.ikeysetting.getnbt"),
+			new MetodData(void.class, "setNbt", "method.ikeysetting.setnbt",
+				new ParameterData(INbt.class, "nbt", "parameter.ikeysetting.nbt")
+			)
+		)
+	),
 	ILabel(new InterfaseData(ILabel.class, 
 			ICustomGuiComponent.class,
 			new Class<?>[] { CustomGuiLabelWrapper.class },
@@ -2171,6 +2239,10 @@ public enum EnumInterfaceData {
 			new MetodData(float.class, "getScale", "method.component.getscale"),
 			new MetodData(String.class, "getText", "method.component.gettext"),
 			new MetodData(int.class, "getWidth", "method.component.getwidth"),
+			new MetodData(boolean.class, "isShedow", "method.ilabel.isshedow"),
+			new MetodData(void.class, "setShedow", "method.ilabel.setshedow",
+				new ParameterData(boolean.class, "showShedow", "parameter.boolean")
+			),
 			new MetodData(ILabel.class, "setColor", "method.component.setcolor",
 				new ParameterData(int.class, "color", "parameter.color")
 			),
@@ -2199,7 +2271,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "axis", "parameter.axis")
 			),
 			new MetodData(void.class, "setOffset", "method.ilayermodel.setoffset",
-				new ParameterData(float.class, "x", "posx"),
+				new ParameterData(float.class, "x", "parameter.posx"),
 				new ParameterData(float.class, "y", "parameter.posy"),
 				new ParameterData(float.class, "z", "parameter.posz")
 			),
@@ -2261,7 +2333,7 @@ public enum EnumInterfaceData {
 	),
 	IMark(new InterfaseData(IMark.class, 
 			null,
-			new Class<?>[] { MarkData.Mark.class },
+			null,
 			"interfase.imark",
 			new MetodData(IAvailability.class, "getAvailability", "method.getavailability"),
 			new MetodData(int.class, "getColor", "method.imark.getcolor"),
@@ -2277,6 +2349,80 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "type", "parameter.imark.type")
 			),
 			new MetodData(void.class, "update", "method.imark.update")
+		)
+	),
+	IMetods(new InterfaseData(IMetods.class, 
+			null,
+			null,
+			"interfase.imetods",
+			new MetodData(String.class, "deleteColor", "method.imetods.deletecolor",
+				new ParameterData(String.class, "str", "parameter.imetods.str")
+			),
+			new MetodData(double.class, "distanceTo", "method.imetods.distanceto",
+				new ParameterData(IEntity.class, "entity", "parameter.entity"),
+				new ParameterData(IEntity.class, "target", "parameter.entity")
+			),
+			new MetodData(double.class, "distanceTo", "method.imetods.distanceto",
+				new ParameterData(double.class, "x0", "parameter.imetods.x0"),
+				new ParameterData(double.class, "y0", "parameter.imetods.y0"),
+				new ParameterData(double.class, "z0", "parameter.imetods.z0"),
+				new ParameterData(double.class, "x1", "parameter.imetods.x1"),
+				new ParameterData(double.class, "y1", "parameter.imetods.y1"),
+				new ParameterData(double.class, "z1", "parameter.imetods.z1")
+			),
+			new MetodData(double[].class, "getAngles3D", "method.imetods.getangles3d",
+				new ParameterData(IEntity.class, "entity", "parameter.entity"),
+				new ParameterData(IEntity.class, "target", "parameter.entity")
+			),
+			new MetodData(double[].class, "getAngles3D", "method.imetods.getangles3d",
+				new ParameterData(double.class, "dx", "parameter.imetods.dx"),
+				new ParameterData(double.class, "dy", "parameter.imetods.dy"),
+				new ParameterData(double.class, "dz", "parameter.imetods.dz"),
+				new ParameterData(double.class, "mx", "parameter.imetods.mx"),
+				new ParameterData(double.class, "my", "parameter.imetods.my"),
+				new ParameterData(double.class, "mz", "parameter.imetods.mz")
+			),
+			new MetodData(double[].class, "getPosition", "method.imetods.getposition",
+				new ParameterData(IEntity.class, "entity", "parameter.entity"),
+				new ParameterData(double.class, "yaw", "parameter.imetods.yaw"),
+				new ParameterData(double.class, "pitch", "parameter.imetods.pitch"),
+				new ParameterData(double.class, "radius", "parameter.imetods.radius")
+			),
+			new MetodData(double[].class, "getPosition", "method.imetods.getposition",
+				new ParameterData(double.class, "cx", "parameter.imetods.cx"),
+				new ParameterData(double.class, "cy", "parameter.imetods.cy"),
+				new ParameterData(double.class, "cz", "parameter.imetods.cz"),
+				new ParameterData(double.class, "yaw", "parameter.imetods.yaw"),
+				new ParameterData(double.class, "pitch", "parameter.imetods.pitch"),
+				new ParameterData(double.class, "radius", "parameter.imetods.radius")
+			),
+			new MetodData(double[].class, "getVector3D", "method.imetods.getvector3d",
+				new ParameterData(IEntity.class, "entity", "parameter.entity"),
+				new ParameterData(IEntity.class, "target", "parameter.entity")
+			),
+			new MetodData(double[].class, "getVector3D", "method.imetods.getvector3d",
+				new ParameterData(IEntity.class, "entity", "parameter.entity"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(double[].class, "getVector3D", "method.imetods.getvector3d",
+				new ParameterData(double.class, "dx", "parameter.imetods.dx"),
+				new ParameterData(double.class, "dy", "parameter.imetods.dy"),
+				new ParameterData(double.class, "dz", "parameter.imetods.dz"),
+				new ParameterData(double.class, "mx", "parameter.imetods.mx"),
+				new ParameterData(double.class, "my", "parameter.imetods.my"),
+				new ParameterData(double.class, "mz", "parameter.imetods.mz")
+			),
+			new MetodData(IEntity.class, "transferEntity", "method.imetods.transferentity",
+				new ParameterData(IEntity.class, "entity", "parameter.entity"),
+				new ParameterData(int.class, "dimension", "parameter.imetods.dimension"),
+				new ParameterData(IPos.class, "pos", "parameter.pos")
+			),
+			new MetodData(NBTBase.class, "writeObjectToNbt", "method.imetods.writeobjecttonbt",
+				new ParameterData(Object.class, "value", "parameter.imetods.value")
+			),
+			new MetodData(Object.class, "readObjectFromNbt", "method.imetods.readobjectfromnbt",
+				new ParameterData(NBTBase.class, "tag", "parameter.imetods.tag")
+			)
 		)
 	),
 	IMonster(new InterfaseData(IMonster.class, 
@@ -2711,7 +2857,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "size", "parameter.size")
 			),
 			new MetodData(void.class, "setSound", "method.inpcranged.setsound",
-				new ParameterData(int.class, "type", "parameter.inpcranged.type"),
+				new ParameterData(int.class, "type", "parameter.sound.type"),
 				new ParameterData(String.class, "sound", "parameter.sound.name")
 			),
 			new MetodData(void.class, "setSpeed", "method.inpcranged.setspeed",
@@ -2918,6 +3064,16 @@ public enum EnumInterfaceData {
 			new MetodData(String.class, "toJsonString", "method.inbt.tojsonstring")
 		)
 	),
+	INbtHandler(new InterfaseData(INbtHandler.class, 
+			null,
+			new Class<?>[] { ItemStackWrapper.class, MarkData.class, WrapperEntityData.class, PlayerData.class },
+			"interfase.inbthandler",
+			new MetodData(NBTTagCompound.class, "getCapabilityNBT", "method.inbthandler.getcapabilitynbt"),
+			new MetodData(void.class, "setCapabilityNBT", "method.inbthandler.setcapabilitynbt",
+				new ParameterData(NBTTagCompound.class, "compound", "parameter.inbthandler.compound")
+			)
+		)
+	),
 	INpcRecipe(new InterfaseData(INpcRecipe.class, 
 			null,
 			new Class<?>[] { NpcShapelessRecipes.class, NpcShapedRecipes.class },
@@ -3078,7 +3234,7 @@ public enum EnumInterfaceData {
 	),
 	IPermission(new InterfaseData(IPermission.class, 
 			null,
-			new Class<?>[] { BlockScripted.class, ItemNpcScripter.class, BlockCopy.class, ItemBuilder.class, ItemScripted.class, CustomItem.class, ItemNbtBook.class, ItemScriptedDoor.class, BlockScriptedDoor.class, BlockWaypoint.class, ItemTeleporter.class, CustomBlock.class, ItemMounter.class, ItemNpcCloner.class, ItemNpcWand.class, BlockNpcRedstone.class, BlockBorder.class, BlockBuilder.class, ItemNpcMovingPath.class, ItemBoundary.class },
+			new Class<?>[] { ItemNbtBook.class, BlockScriptedDoor.class, CustomBlock.class, BlockScripted.class, ItemBuilder.class, BlockBuilder.class, BlockWaypoint.class, ItemBoundary.class, ItemNpcWand.class, ItemNpcMovingPath.class, ItemScriptedDoor.class, ItemNpcCloner.class, ItemNpcScripter.class, CustomItem.class, BlockNpcRedstone.class, ItemTeleporter.class, ItemMounter.class, BlockCopy.class, ItemScripted.class, BlockBorder.class },
 			"interfase.ipermission",
 			new MetodData(boolean.class, "isAllowed", "method.ipermission.isallowed",
 				new ParameterData(EnumPacketServer.class, "enumPacket", "parameter.ipermission.enumpacket")
@@ -3210,6 +3366,9 @@ public enum EnumInterfaceData {
 			new MetodData(void.class, "sendMail", "method.iplayer.sendmail",
 				new ParameterData(IPlayerMail.class, "mail", "parameter.mail")
 			),
+			new MetodData(void.class, "sendTo", "method.iplayer.sendto",
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
+			),
 			new MetodData(void.class, "sendNotification", "method.iplayer.sendnotification",
 				new ParameterData(String.class, "title", "parameter.title"),
 				new ParameterData(String.class, "message", "parameter.message"),
@@ -3274,10 +3433,6 @@ public enum EnumInterfaceData {
 				new ParameterData(Object[].class, "arguments", "parameter.trigger.arguments")
 			),
 			new MetodData(String.class, "getLanguage", "method.iplayer.getlanguage"),
-			new MetodData(void.class, "sendTo", "method.iplayer.sendto",
-				new ParameterData(INbt.class, "nbt", "parameter.nbt")
-			),
-			new MetodData(boolean.class, "isMoved", "method.iplayer.ismoved"),
 			new MetodData(double[].class, "getWindowSize", "method.iplayer.getwindowsize")
 		)
 	),
@@ -3320,11 +3475,11 @@ public enum EnumInterfaceData {
 				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(IPos.class, "down", "method.ipos.down.0"),
-			new MetodData(IPos.class, "down", "method.ipos.down.1",
+			new MetodData(IPos.class, "down", "method.ipos.down.0",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "east", "method.ipos.east.0"),
-			new MetodData(IPos.class, "east", "method.ipos.east.1",
+			new MetodData(IPos.class, "east", "method.ipos.east.0",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(BlockPos.class, "getMCBlockPos", "method.ipos.getmcblockpos"),
@@ -3333,18 +3488,18 @@ public enum EnumInterfaceData {
 			new MetodData(int.class, "getZ", "method.getz"),
 			new MetodData(double[].class, "normalize", "method.ipos.normalize"),
 			new MetodData(IPos.class, "north", "method.ipos.north.0"),
-			new MetodData(IPos.class, "north", "method.ipos.north.1",
+			new MetodData(IPos.class, "north", "method.ipos.north.0",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "offset", "method.ipos.offset.0",
 				new ParameterData(int.class, "direction", "parameter.direction")
 			),
-			new MetodData(IPos.class, "offset", "method.ipos.offset.1",
+			new MetodData(IPos.class, "offset", "method.ipos.offset.0",
 				new ParameterData(int.class, "direction", "parameter.direction"),
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "south", "method.ipos.south.0"),
-			new MetodData(IPos.class, "south", "method.ipos.south.1",
+			new MetodData(IPos.class, "south", "method.ipos.south.0",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "subtract", "method.ipos.subtract",
@@ -3356,11 +3511,11 @@ public enum EnumInterfaceData {
 				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(IPos.class, "up", "method.ipos.up.0"),
-			new MetodData(IPos.class, "up", "method.ipos.up.1",
+			new MetodData(IPos.class, "up", "method.ipos.up.0",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			),
 			new MetodData(IPos.class, "west", "method.ipos.west.0"),
-			new MetodData(IPos.class, "west", "method.ipos.west.1",
+			new MetodData(IPos.class, "west", "method.ipos.west.0",
 				new ParameterData(int.class, "n", "parameter.blocks")
 			)
 		)
@@ -3707,7 +3862,10 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "pos", "parameter.ischematic.pos")
 			),
 			new MetodData(int.class, "getTileEntitySize", "method.ischematic.gettileentitysize"),
-			new MetodData(short.class, "getWidth", "method.ischematic.getwidth")
+			new MetodData(short.class, "getWidth", "method.ischematic.getwidth"),
+			new MetodData(boolean.class, "hasEntitys", "method.ischematic.hasentitys"),
+			new MetodData(NBTTagList.class, "getEntitys", "method.ischematic.getentitys"),
+			new MetodData(BlockPos.class, "getOffset", "method.ischematic.getoffset")
 		)
 	),
 	IScoreboard(new InterfaseData(IScoreboard.class, 
@@ -3844,7 +4002,7 @@ public enum EnumInterfaceData {
 	),
 	IScriptBlockHandler(new InterfaseData(IScriptBlockHandler.class, 
 			IScriptHandler.class,
-			new Class<?>[] { TileScriptedDoor.class, TileScripted.class },
+			new Class<?>[] { TileScripted.class, TileScriptedDoor.class },
 			"interfase.iscriptblockhandler",
 			new MetodData(IBlock.class, "getBlock", "method.iscriptblockhandler.getblock")
 		)
@@ -3865,10 +4023,10 @@ public enum EnumInterfaceData {
 	),
 	IScriptHandler(new InterfaseData(IScriptHandler.class, 
 			null,
-			new Class<?>[] { ForgeScriptData.class, ItemScriptedWrapper.class, DataScript.class, PlayerScriptData.class, ClientScriptData.class },
+			new Class<?>[] { ClientScriptData.class, ItemScriptedWrapper.class, ForgeScriptData.class, DataScript.class, PlayerScriptData.class },
 			"interfase.iscripthandler",
 			new MetodData(void.class, "clearConsole", "method.iscripthandler.clearconsole"),
-			new MetodData(Map.class, "getConsoleText", "method.iscripthandler.getconsoletext"),
+			new MetodData(Map.class, "String>getConsoleText", "method.iscripthandler.string>getconsoletext"),
 			new MetodData(boolean.class, "getEnabled", "method.iscripthandler.getenabled"),
 			new MetodData(String.class, "getLanguage", "method.iscripthandler.getlanguage"),
 			new MetodData(List.class, "getScripts", "method.iscripthandler.getscripts"),
@@ -4040,7 +4198,7 @@ public enum EnumInterfaceData {
 	),
 	ITransportLocation(new InterfaseData(ITransportLocation.class, 
 			null,
-			new Class<?>[] { TransportLocation.class },
+			null,
 			"interfase.itransportlocation",
 			new MetodData(int.class, "getDimension", "method.itransportlocation.getdimension"),
 			new MetodData(int.class, "getId", "method.itransportlocation.getid"),
@@ -4111,6 +4269,9 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "x", "parameter.posx"),
 				new ParameterData(int.class, "y", "parameter.posy"),
 				new ParameterData(int.class, "z", "parameter.posz")
+			).setDeprecated(),
+			new MetodData(IBlock.class, "getBlock", "method.iworld.getblock",
+				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(IEntity.class, "getClone", "method.iworld.getclone",
 				new ParameterData(int.class, "tab", "parameter.clone.tab"),
@@ -4142,7 +4303,7 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "y", "parameter.posy"),
 				new ParameterData(int.class, "z", "parameter.posz")
 			),
-			new MetodData(WorldServer.class, "getMCWorld", "method.iworld.getmcworld"),
+			new MetodData(World.class, "getMCWorld", "method.iworld.getmcworld"),
 			new MetodData(String.class, "getName", "method.iworld.getname"),
 			new MetodData(IEntity.class, "getNearbyEntities", "method.iworld.getnearbyEntities",
 				new ParameterData(int.class, "x", "parameter.posx"),
@@ -4182,6 +4343,9 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "x", "parameter.posx"),
 				new ParameterData(int.class, "y", "parameter.posy"),
 				new ParameterData(int.class, "z", "parameter.posz")
+			).setDeprecated(),
+			new MetodData(void.class, "removeBlock", "method.iworld.removeblock",
+				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(void.class, "setBlock", "method.iworld.setblock",
 				new ParameterData(int.class, "x", "parameter.posx"),
@@ -4189,6 +4353,11 @@ public enum EnumInterfaceData {
 				new ParameterData(int.class, "z", "parameter.posz"),
 				new ParameterData(String.class, "name", "parameter.iblock.setblock.1"),
 				new ParameterData(int.class, "meta", "parameter.block.metadata")
+			).setDeprecated(),
+			new MetodData(void.class, "setBlock", "method.iworld.setblock",
+				new ParameterData(IPos.class, "pos", "parameter.pos"),
+				new ParameterData(String.class, "name", "parameter.iworld.name"),
+				new ParameterData(int.class, "meta", "parameter.iworld.meta")
 			),
 			new MetodData(void.class, "setRaining", "method.iworld.setraining",
 				new ParameterData(boolean.class, "bo", "parameter.boolean")
@@ -4231,6 +4400,12 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(IEntity.class, "getEntitys", "method.iworld.getentitys",
 				new ParameterData(int.class, "type", "parameter.entitytype")
+			),
+			new MetodData(void.class, "forcePlaySoundAt", "method.iworld.forceplaysoundat",
+				new ParameterData(IPos.class, "pos", "parameter.pos"),
+				new ParameterData(String.class, "sound", "parameter.iworld.sound"),
+				new ParameterData(float.class, "volume", "parameter.iworld.volume"),
+				new ParameterData(float.class, "pitch", "parameter.iworld.pitch")
 			)
 		)
 	),
