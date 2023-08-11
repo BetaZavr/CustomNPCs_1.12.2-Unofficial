@@ -23,6 +23,7 @@ import java.util.zip.ZipFile;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
@@ -54,6 +55,19 @@ import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagByte;
+import net.minecraft.nbt.NBTTagByteArray;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagFloat;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLong;
+import net.minecraft.nbt.NBTTagLongArray;
+import net.minecraft.nbt.NBTTagShort;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.RecipeBook;
@@ -170,6 +184,7 @@ import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
 import noppes.npcs.containers.SlotNpcCrafting;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
@@ -599,11 +614,8 @@ implements IMetods {
 
 	/**
 	 * 1234567890.9 to 1,2G
-	 * 
-	 * @param value
-	 *			- any number
-	 * @param color
-	 *			- need set color
+	 * @param value - any number
+	 * @param color - need set color
 	 * @return string
 	 */
 	public static String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx) {
@@ -956,16 +968,11 @@ implements IMetods {
 	}
 
 	/**
-	 * @param ticks
-	 *			- time
-	 * @param isMilliSeconds
-	 *			= true - milliseconds (1 sec = 1000 ms)
-	 * @param isMilliSeconds
-	 *			= false - minecraft time (1 sec = 20 tick)
-	 * @param colored
-	 *			- added color
-	 * @param upped
-	 *			- only the maximum period (years or months or days, etc.)
+	 * @param ticks - time
+	 * @param isMilliSeconds = true - milliseconds (1 sec = 1000 ms)
+	 * @param isMilliSeconds = false - minecraft time (1 sec = 20 tick)
+	 * @param colored - added color
+	 * @param upped - only the maximum period (years or months or days, etc.)
 	 * @return
 	 */
 	public static String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped) {
@@ -1464,6 +1471,181 @@ implements IMetods {
 			
 		} catch (Exception e) { }
 		return map;
+	}
+	
+	@Override
+	public NBTBase writeObjectToNbt(Object value) {
+		if (value.getClass().isArray()) {
+			Object[] vs = (Object[]) value;
+			if (vs.length==0) {
+				return new NBTTagList();
+			}
+			if (vs[0] instanceof Byte) {
+				List<Byte> l = Lists.<Byte>newArrayList();
+				for (Object v : vs) { if (v instanceof Byte) { l.add((Byte) v); } }
+				byte[] arr = new byte[l.size()];
+				int i = 0;
+				for (byte d : l) { arr[i] = d; i++; }
+				return new NBTTagByteArray(arr);
+			}
+			else if (vs[0] instanceof Integer) {
+				List<Integer> l = Lists.<Integer>newArrayList();
+				for (Object v : vs) { if (v instanceof Integer) { l.add((Integer) v); } }
+				int[] arr = new int[l.size()];
+				int i = 0;
+				for (int d : l) { arr[i] = d; i++; }
+				return new NBTTagIntArray(arr);
+			}
+			else if (vs[0] instanceof Long) {
+				List<Long> l = Lists.<Long>newArrayList();
+				for (Object v : vs) { if (v instanceof Long) { l.add((Long) v); } }
+				long[] arr = new long[l.size()];
+				int i = 0;
+				for (long d : l) { arr[i] = d; i++; }
+				return new NBTTagLongArray(arr);
+			}
+			else if (vs[0] instanceof Short || vs[0] instanceof Float || vs[0] instanceof Double) {
+				NBTTagList list = new NBTTagList();
+				for (Object v : vs) {
+					double d;
+					if (v instanceof Short) { d = (double) (Short) v; }
+					else if (v instanceof Float) { d = (double) (Float) v; }
+					else if (v instanceof Double) { d = (Double) v; }
+					else { continue; }
+					list.appendTag(new NBTTagDouble(d));
+				}
+				return list;
+			}
+		}
+		else if (value instanceof Byte) { return new NBTTagByte((Byte) value); }
+		else if (value instanceof Short) { return new NBTTagShort((Short) value); }
+		else if (value instanceof Integer) { return new NBTTagInt((Integer) value); }
+		else if (value instanceof Long) { return new NBTTagLong((Long) value); }
+		else if (value instanceof Float) { return new NBTTagFloat((Float) value); }
+		else if (value instanceof Double) { return new NBTTagDouble((Double) value); }
+		else if (value instanceof String) { return new NBTTagString((String) value); }
+		else if (value instanceof Bindings) {
+			String clazz = value.toString();
+			if (!clazz.equals("[object Array]") && !clazz.equals("[object Object]")) { return null; }
+			boolean isArray = clazz.equals("[object Array]");
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setBoolean("IsArray", isArray);
+			for (Map.Entry<String, Object> scopeEntry : ((Bindings) value).entrySet()) {
+				Object v = scopeEntry.getValue();
+				if (v.getClass().isArray()) {
+					Object[] vs = (Object[]) v;
+					if (vs.length==0) {
+						nbt.setTag(scopeEntry.getKey(), new NBTTagList());
+						continue;
+					}
+					if (vs[0] instanceof Byte) {
+						List<Byte> l = Lists.<Byte>newArrayList();
+						for (Object va : vs) { if (va instanceof Byte) { l.add((Byte) va); } }
+						byte[] arr = new byte[l.size()];
+						int i = 0;
+						for (byte d : l) { arr[i] = d; i++; }
+						nbt.setByteArray(scopeEntry.getKey(), arr);
+					}
+					else if (vs[0] instanceof Integer) {
+						List<Integer> l = Lists.<Integer>newArrayList();
+						for (Object va : vs) { if (va instanceof Integer) { l.add((Integer) va); } }
+						int[] arr = new int[l.size()];
+						int i = 0;
+						for (int d : l) { arr[i] = d; i++; }
+						nbt.setIntArray(scopeEntry.getKey(), arr);
+					}
+					else if (vs[0] instanceof Long) {
+						List<Long> l = Lists.<Long>newArrayList();
+						for (Object va : vs) { if (va instanceof Long) { l.add((Long) va); } }
+						long[] arr = new long[l.size()];
+						int i = 0;
+						for (long d : l) { arr[i] = d; i++; }
+						nbt.setTag(scopeEntry.getKey(), new NBTTagLongArray(arr));
+					}
+					else if (vs[0] instanceof Short || vs[0] instanceof Float || vs[0] instanceof Double) {
+						NBTTagList list = new NBTTagList();
+						for (Object va : vs) {
+							double d;
+							if (va instanceof Short) { d = (double) (Short) va; }
+							else if (va instanceof Float) { d = (double) (Float) va; }
+							else if (va instanceof Double) { d = (Double) va; }
+							else { continue; }
+							list.appendTag(new NBTTagDouble(d));
+						}
+						nbt.setTag(scopeEntry.getKey(), list);
+					}
+				}
+				else if (v instanceof Byte) { nbt.setByte(scopeEntry.getKey(), (Byte) v); }
+				else if (v instanceof Short) { nbt.setShort(scopeEntry.getKey(), (Short) v); }
+				else if (v instanceof Integer) { nbt.setInteger(scopeEntry.getKey(), (Integer) v); }
+				else if (v instanceof Long) { nbt.setLong(scopeEntry.getKey(), (Long) v); }
+				else if (v instanceof Float) { nbt.setFloat(scopeEntry.getKey(), (Float) v); }
+				else if (v instanceof Double) { nbt.setDouble(scopeEntry.getKey(), (Double) v); }
+				else if (v instanceof String) { nbt.setString(scopeEntry.getKey(), (String) v); }
+				else {
+					NBTBase n = this.writeObjectToNbt(v);
+					if (n != null) {
+						nbt.setTag(scopeEntry.getKey(), n);
+					}
+				}
+			}
+			return nbt;
+		}
+		return null;
+	}
+
+	@Override
+	public Object readObjectFromNbt(NBTBase tag) {
+		if (tag instanceof NBTTagByte) { return ((NBTTagByte) tag).getByte(); }
+		else if (tag instanceof NBTTagShort) { return ((NBTTagShort) tag).getShort(); }
+		else if (tag instanceof NBTTagInt) { return ((NBTTagInt) tag).getInt(); }
+		else if (tag instanceof NBTTagLong) { return ((NBTTagLong) tag).getLong(); }
+		else if (tag instanceof NBTTagFloat) { return ((NBTTagFloat) tag).getFloat(); }
+		else if (tag instanceof NBTTagDouble) { return ((NBTTagDouble) tag).getDouble(); }
+		else if (tag instanceof NBTTagString) { return ((NBTTagString) tag).getString(); }
+		else if (tag instanceof NBTTagByteArray) { return ((NBTTagByteArray) tag).getByteArray(); }
+		else if (tag instanceof NBTTagIntArray) { return ((NBTTagIntArray) tag).getIntArray(); }
+		else if (tag instanceof NBTTagLongArray) { return ObfuscationHelper.getValue(NBTTagLongArray.class, (NBTTagLongArray) tag, 0); }
+		else if (tag instanceof NBTTagCompound && ((NBTTagCompound) tag).hasKey("IsArray", 1)) {
+			boolean isArray = ((NBTTagCompound) tag).getBoolean("IsArray");
+			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
+			if (engine==null) { return null; }
+			try {
+				String str = "JSON.parse('"+(isArray ? "[" : "{");
+				Set<String> sets = ((NBTTagCompound) tag).getKeySet();
+				Map<String, Object> map = Maps.<String, Object>newTreeMap();
+				for (String k : sets) {
+					if (k.equals("IsArray")) { continue; }
+					Object v = this.readObjectFromNbt(((NBTTagCompound) tag).getTag(k));
+					if (v!=null) { map.put(k, v); }
+				}
+				for (String k : map.keySet()) {
+					Object value = map.get(k);
+					String s = value.toString();
+					if (value instanceof String) { s = "\""+map.get(k)+"\""; }
+					else if (value instanceof Bindings) {
+						engine.put("temp", value);
+						s = (String) engine.eval("JSON.stringify(temp)");
+					}
+					if (isArray) { str += s+", "; }
+					else { str += "\""+k+"\":"+s+", "; }
+				}
+				if (!map.isEmpty()) { str = str.substring(0, str.length()-2); }
+				str += (isArray ? "]" : "}")+"')";
+				return engine.eval(str);
+			}
+			catch (Exception e) {}
+		}
+		else if (tag instanceof NBTTagList) {
+			Object[] arr = new Object[((NBTTagList) tag).tagCount()];
+			int i = 0;
+			for (NBTBase listTag : (NBTTagList) tag) {
+				arr[i] = this.readObjectFromNbt(listTag);
+				i++;
+			}
+			return arr;
+		}
+		return null;
 	}
 	
 }

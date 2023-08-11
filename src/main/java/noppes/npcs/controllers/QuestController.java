@@ -196,7 +196,6 @@ implements IQuestHandler {
 
 	public void saveCategory(QuestCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
-		System.out.println("selectedCategory: "+category.title);
 		if (this.categories.containsKey(category.id)) {
 			QuestCategory currentCategory = this.categories.get(category.id);
 			File newdir = new File(this.getDir(), category.title);

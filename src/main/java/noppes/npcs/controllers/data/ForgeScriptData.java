@@ -74,8 +74,6 @@ implements IScriptHandler {
 
 	@Override
 	public boolean isClient() {
-		//System.out.println("Dedicated Server: "+(CustomNpcs.Server != null && !CustomNpcs.Server.isDedicatedServer()));
-		//System.out.println("Player: "+(CustomNpcs.proxy.getPlayer()!=null && !CustomNpcs.proxy.getPlayer().isServerWorld()));
 		return CustomNpcs.Server == null || (CustomNpcs.Server != null && !CustomNpcs.Server.isDedicatedServer()) || (CustomNpcs.proxy.getPlayer()!=null && !CustomNpcs.proxy.getPlayer().isServerWorld());
 	}
 

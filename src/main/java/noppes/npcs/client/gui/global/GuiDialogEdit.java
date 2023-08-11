@@ -249,7 +249,6 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 			GuiTextureSelection gts = (GuiTextureSelection) subgui;
 			if (gts.resource==null) { return; }
 			this.dialog.texture = gts.resource.toString();
-			System.out.println("CNPCs: "+this.dialog.texture);
 			this.initGui();
 		}
 	}

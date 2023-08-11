@@ -1,5 +1,6 @@
 package noppes.npcs.api;
 
+import net.minecraft.nbt.NBTBase;
 import noppes.npcs.api.entity.IEntity;
 
 public interface IMetods {
@@ -25,5 +26,9 @@ public interface IMetods {
 	double[] getVector3D(double dx, double dy, double dz, double mx, double my, double mz);
 
 	IEntity<?> transferEntity(IEntity<?> entity, int dimension, IPos pos);
+
+	NBTBase writeObjectToNbt(Object value);
+
+	Object readObjectFromNbt(NBTBase tag);
 	
 }

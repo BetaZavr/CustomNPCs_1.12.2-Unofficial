@@ -82,7 +82,6 @@ public class ForgeEvent extends CustomNPCsEvent {
 						f.setAccessible(true);
 						this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayer) f.get(event));
 					} catch (Exception e) { }
-					if (event instanceof ArrowLooseEvent) { System.out.println("Field: "+f.getName()+" - "+this.player); }
 				}
 				sp = sp.getSuperclass();
 			}
@@ -95,7 +94,6 @@ public class ForgeEvent extends CustomNPCsEvent {
 							m.setAccessible(true);
 							this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
 						} catch (Exception e) { }
-						if (event instanceof ArrowLooseEvent) { System.out.println("Method: "+m.getName()+" - "+this.player); }
 					}
 					sp = sp.getSuperclass();
 				}

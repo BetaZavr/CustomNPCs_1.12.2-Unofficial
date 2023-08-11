@@ -131,7 +131,6 @@ extends RenderNPCInterface<T> {
 	}
 
 	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
-		//System.out.println("entity: "+this.entity + " == " + this.renderEntity);
 		if (this.entity != null && this.renderEntity != null) {
 			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {

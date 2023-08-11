@@ -83,7 +83,6 @@ implements ICustomElement
 		}
 		if (this.texture==null) { return; }
 		Minecraft.getMinecraft().getTextureManager().bindTexture(this.texture);
-		//System.out.println("CNPCs: "+this.particleTextureIndexX+" : "+this.particleTextureIndexY+" - "+this.texture);
 		
 		float f = (float)this.particleTextureIndexX / 16.0F;
 		float f1 = f + 0.0624375F;

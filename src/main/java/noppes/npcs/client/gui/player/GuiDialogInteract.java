@@ -246,7 +246,6 @@ implements IGuiClose {
 		int line = this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3;
 		if (height+12 > line) { return; }
 		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height, color);
-		//System.out.println("text: "+(this.guiLeft + left)+", "+(this.guiTop + height)+"; \""+text+"\"");
 		if (this.textures.containsKey(count) && this.texturesSize.containsKey(count)) {
 			Integer[] size = this.texturesSize.get(count);
 			if (height+size[1]/2 > line) { return; }
