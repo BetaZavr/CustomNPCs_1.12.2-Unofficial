@@ -72,7 +72,8 @@ public enum EnumScriptType
 	PACKEGE_RECEIVED("packageReceived"), 	
 	PACKEGE_FROM("packageFrom"),
 	CUSTOM_TELEPORT("customTeleport"),
-	KEY_ACTIVE("keyActive");
+	KEY_ACTIVE("keyActive"),
+	STOP_ANIMATION("stopAnimation");
 	
 	public String function;
 	

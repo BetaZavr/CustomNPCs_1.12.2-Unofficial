@@ -39,19 +39,19 @@ implements ICompatibilty, IAvailability {
 	private boolean hasOptions;
 	// New
 	public int max = 10;
-	public int minPlayerLevel;
+	public int minPlayerLevel, health, healthType;
 	public Map<Integer, EnumAvailabilityQuest> quests; // ID, Availability
 	public Map<String, AvailabilityScoreboardData> scoreboards; // Objective, [Value, Availability]
 	public int version;
-	public int health = 100;
-	public int healthType = 0;
 
 	public Availability() {
 		this.version = VersionCompatibility.ModRev;
+		this.hasOptions = false;
+		
 		this.daytime = new int[] { 0, 0 };
 		this.minPlayerLevel = 0;
-		this.hasOptions = false;
-		// New
+		this.health = 100;
+		this.healthType = 0;
 		this.dialogues = new HashMap<Integer, EnumAvailabilityDialog>();
 		this.quests = new HashMap<Integer, EnumAvailabilityQuest>();
 		this.factions = new HashMap<Integer, AvailabilityFactionData>();
@@ -499,7 +499,7 @@ implements ICompatibilty, IAvailability {
 		if (this.quests.size() >= this.max) {
 			throw new CustomNPCsException("The maximum number is already set to " + this.max);
 		}
-		this.quests.put(id, EnumAvailabilityQuest.values()[ValueUtil.correctInt(type, 0, 2)]);
+		this.quests.put(id, EnumAvailabilityQuest.values()[ValueUtil.correctInt(type, 0, 6)]);
 		this.hasOptions = this.checkHasOptions();
 	}
 
@@ -583,6 +583,19 @@ implements ICompatibilty, IAvailability {
 		compound.setInteger("AvailabilityHealth", this.health);
 		compound.setInteger("AvailabilityHealthType", this.healthType);
 		return compound;
+	}
+
+	public void clear() {
+		this.hasOptions = false;
+		this.daytime[0] = 0;
+		this.daytime[1] = 0;
+		this.minPlayerLevel = 0;
+		this.health = 100;
+		this.healthType = 0;
+		this.dialogues.clear();
+		this.quests.clear();
+		this.factions.clear();
+		this.scoreboards.clear();
 	}
 	
 	public String toString() {

@@ -43,8 +43,9 @@ implements IEmotion {
 	
 	private float calcValue(float value_0, float value1, int speed, float ticks, float partialTicks) {
 		if (ticks >= speed - 1) { ticks = speed - 1; }
-		this.val = -0.5f * MathHelper.cos((float) ticks / (float) speed * AnimationConfig.PI) + 0.5f;
-		this.valNext = -0.5f * MathHelper.cos((float) (ticks+1) / (float) speed * AnimationConfig.PI) + 0.5f;
+		float pi = (float) Math.PI;
+		this.val = -0.5f * MathHelper.cos((float) ticks / (float) speed * pi) + 0.5f;
+		this.valNext = -0.5f * MathHelper.cos((float) (ticks+1) / (float) speed * pi) + 0.5f;
 		float f = this.val + (this.valNext - this.val) * partialTicks;
 		float value = (value_0 + (value1 - value_0) * f);
 		return value;

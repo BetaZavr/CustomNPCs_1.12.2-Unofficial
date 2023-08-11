@@ -28,7 +28,6 @@ public class NBTJsonUtil {
 	
 	public static class JsonException extends Exception {
 		private static final long serialVersionUID = 1L;
-
 		public JsonException(String message, JsonFile json) {
 			super(message + ": " + json.getCurrentPos());
 		}

@@ -5,21 +5,19 @@ import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.api.entity.data.IAnimationPart;
-import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
 public class AnimationFrameConfig
 implements IAnimationFrame {
+	
 	
 	public class PartConfig implements IAnimationPart {
 		
 		public float[] rotation, offset, scale;
 		public int part;
 		public boolean disable;
-		private EntityNPCInterface npc;
 
-		public PartConfig(EntityNPCInterface npc) {
-			this.npc = npc;
+		public PartConfig() {
 			this.part = 0;
 			this.disable = false;
 			this.clear();
@@ -52,7 +50,6 @@ implements IAnimationFrame {
 			this.rotation[0] = ValueUtil.correctFloat(x / 360.0f, 0.0f, 1.0f);
 			this.rotation[1] = ValueUtil.correctFloat(y / 360.0f, 0.0f, 1.0f);
 			this.rotation[2] = ValueUtil.correctFloat(z / 360.0f, 0.0f, 1.0f);
-			this.updateClient();
 		}
 		
 		@Override
@@ -63,7 +60,6 @@ implements IAnimationFrame {
 			this.offset[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
 			this.offset[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
 			this.offset[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
-			this.updateClient();
 		}
 		
 		@Override
@@ -74,7 +70,6 @@ implements IAnimationFrame {
 			this.scale[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
 			this.scale[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
 			this.scale[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
-			this.updateClient();
 		}
 
 		@Override
@@ -82,12 +77,6 @@ implements IAnimationFrame {
 
 		@Override
 		public void setDisable(boolean bo) { this.disable = bo; }
-
-		private void updateClient() {
-			if (this.npc!=null) {
-				this.npc.updateClient = true;
-			} 
-		}
 
 		public void readNBT(NBTTagCompound compound) {
 			for (int i=0; i<3; i++) {
@@ -113,24 +102,22 @@ implements IAnimationFrame {
 			compound.setTag("Offset", listOff);
 			compound.setTag("Scale", listSc);
 			compound.setInteger("Part", this.part);
+			compound.setBoolean("Disabled", this.disable);
 			return compound;
 		}
 		
-		public void setNpc(EntityNPCInterface npc) { this.npc = npc; }
-		
 	}
 
+	public static final AnimationFrameConfig EMPTY_PART = new AnimationFrameConfig();
 	public boolean smooth;
 	public int speed, delay;
 	public final PartConfig[] parts; // 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg
-
-	public EntityNPCInterface npc;
 	public int id;
 
 	public AnimationFrameConfig() {
 		this.parts = new PartConfig[6];
 		for (int i=0; i<6; i++) {
-			this.parts[i] = new PartConfig(this.npc);
+			this.parts[i] = new PartConfig();
 			this.parts[i].part = i;
 		}
 		this.id = 0;
@@ -139,14 +126,8 @@ implements IAnimationFrame {
 
 	public void clear() {
 		this.smooth = false;
-		this.speed = 20;
+		this.speed = 10;
 		this.delay = 0;
-	}
-	
-	private void updateClient() {
-		if (this.npc!=null) {
-			this.npc.updateClient = true;
-		} 
 	}
 	
 	public void readNBT(NBTTagCompound compound) {
@@ -180,7 +161,6 @@ implements IAnimationFrame {
 	@Override
 	public void setSmooth(boolean isSmooth) {
 		this.smooth = isSmooth;
-		this.updateClient();
 	}
 
 	@Override
@@ -195,7 +175,6 @@ implements IAnimationFrame {
 		if (ticks<0) { ticks *= -1; }
 		if (ticks>1200) { ticks = 1200; }
 		this.speed = ticks;
-		this.updateClient();
 	}
 	
 	@Override
@@ -210,12 +189,6 @@ implements IAnimationFrame {
 		if (ticks<0) { ticks *= -1; }
 		if (ticks>1200) { ticks = 1200; }
 		this.delay = ticks;
-		this.updateClient();
-	}
-
-	public void setNpc(EntityNPCInterface npc) {
-		this.npc = npc;
-		for (PartConfig pc : this.parts) { pc.setNpc(npc); }
 	}
 
 	public AnimationFrameConfig copy() {

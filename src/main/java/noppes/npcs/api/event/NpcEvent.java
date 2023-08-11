@@ -16,12 +16,27 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IProjectile;
+import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.ILine;
 import noppes.npcs.api.item.IItemStack;
 
 public class NpcEvent
 extends CustomNPCsEvent {
 
+	public static class StopAnimation extends NpcEvent {
+		
+		public int type, variant;
+		public IAnimation animation;
+
+		public StopAnimation(ICustomNpc<?> npc, int type, int variant) {
+			super(npc);
+			this.type = type;
+			this.variant = variant;
+			this.animation = npc.getAnimations().getAnimation(type, variant);
+		}
+		
+	}
+	
 	@Cancelable
 	public static class CustomNpcTeleport extends NpcEvent {
 		

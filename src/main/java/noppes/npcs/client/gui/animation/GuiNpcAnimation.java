@@ -115,6 +115,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				this.dataAnim.put(key, ac);
 				if (first == null) { first= ac; }
 				if (!this.selectAnim.isEmpty() && this.selectAnim.equals(key) && ac.type==GuiNpcAnimation.type) { anim = ac; }
+				id++;
 			}
 		}
 		if (anim==null && first!=null) {
@@ -286,7 +287,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.addButton(button);
 			this.addButton(new GuiNpcButton(17, u, v - 26, 10, 10, new String[] { "b", "w" }, GuiNpcAnimation.backColor==0xFF000000 ? 0 : 1));
 			
-			if (GuiNpcAnimation.type.isCyclical()) {
+			if (GuiNpcAnimation.type == AnimationKind.DIES) {
 				this.addLabel(new GuiNpcLabel(16, "gui.repeat", (u += 60) + 2, v -= 5));
 				if (anim.repeatLast < 0) { anim.repeatLast *= -1; }
 				if (anim.repeatLast > anim.frames.size()) { anim.repeatLast = anim.frames.size(); }
@@ -946,7 +947,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			}
 			this.initGui();
 		}
-		if (subgui.id == 2) { // load
+		else if (subgui.id == 2) { // load
 			if (((SubGuiLoadAnimation) subgui).animation==null) { return; }
 			AnimationConfig ac = ((SubGuiLoadAnimation) subgui).animation.copy();
 			ac.type = GuiNpcAnimation.type;
@@ -961,6 +962,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
+		if (this.hasSubGui()) { return; }
 		AnimationConfig anim = null;
 		AnimationFrameConfig frame = null;
 		PartConfig part = null;
@@ -1096,6 +1098,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			return;
 		}
 		AnimationConfig ac = anim.copy();
+		ac.isEdit = true;
 		ac.disable = false;
 		ac.type = AnimationKind.STANDING;
 		NBTTagCompound npcNbt = new NBTTagCompound();
@@ -1117,9 +1120,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		for (int p=1; p<4; p++) {
 			int frameID = frame.id;
 			if (p==1) { frameID -= 1; } else if (p==2) { frameID += 1; }
-			if (!ac.frames.containsKey(frameID) && GuiNpcAnimation.type.isCyclical()) {
-				if (frameID==-1 || frameID == ac.frames.size()) { frameID = 0; }
-			}
 			if (!ac.frames.containsKey(frameID) || (p!=3 && frameID == frame.id)) {
 				this.npcs[p] = null;
 				continue;

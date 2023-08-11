@@ -53,6 +53,7 @@ public enum EnumPlayerPacket
 	GetTileData,
 	ScriptPackage,
 	MovingPathGet,
-	KeyActive;
+	KeyActive,
+	StopNPCAnimation;
 	
 }

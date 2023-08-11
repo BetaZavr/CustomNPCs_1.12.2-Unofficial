@@ -294,7 +294,7 @@ implements ICustomNpc {
 	
 	@Override
 	public void trigger(int id, Object[] arguments) {
-		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), null, arguments);
+		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), this, arguments);
 	}
 
 	@Override

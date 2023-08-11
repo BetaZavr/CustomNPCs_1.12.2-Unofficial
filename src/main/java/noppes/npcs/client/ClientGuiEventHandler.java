@@ -749,7 +749,7 @@ extends Gui
 	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
 		if (this.mc==null) { this.mc = Minecraft.getMinecraft(); return; }
 		if (this.sw==null) { this.sw = new ScaledResolution(this.mc); return; }
-		if (this.bData==null) { this.bData = BorderController.getInstance(); return; }
+		this.bData = BorderController.getInstance();
 		if (this.mc.player.world==null) { return; }
 
 		//if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
@@ -795,7 +795,7 @@ extends Gui
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 			ClientGuiEventHandler.result = this.mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			Zone3D reg = (Zone3D) BorderController.getInstance().getRegion(id);
+			Zone3D reg = (Zone3D) this.bData.getRegion(id);
 			if (reg == null && ClientGuiEventHandler.result!=null && ClientGuiEventHandler.result.getBlockPos()!=null) {
 				int x = ClientGuiEventHandler.result.getBlockPos().getX();
 				int y = ClientGuiEventHandler.result.getBlockPos().getY();
@@ -1328,13 +1328,13 @@ extends Gui
 	
 	private void drawNpcMovingPath(EntityCustomNpc npc) {
 		Client.sendDataDelayCheck(EnumPlayerPacket.MovingPathGet, npc, 5000, npc.getEntityId());
-		if (npc.ais.getMovingType()!=2 || npc.ais.getMovingPathSize()<=1) {
+		List<int[]> list = npc.ais.getMovingPath();
+		if (list.size()<1) {
 			this.listMovingPath = null;
 			this.listPath.clear();
 			return;
 		}
 		boolean type = npc.ais.getMovingPathType()==0;
-		List<int[]> list = npc.ais.getMovingPath();
 		boolean bo = this.listMovingPath!=null && list==this.listMovingPath;
 		if (this.listMovingPath==null) { this.listMovingPath = list; }
 		else if (!bo && this.mc.world.getTotalWorldTime()%100 == 0) {
@@ -1423,7 +1423,7 @@ extends Gui
 		}
 		
 		double[] pre = null;
-		float r, g, b;
+		float r, g, b, ag = 15.0f;
 		// Can Way
 		if (this.listPath.size()>1) {
 			GlStateManager.pushMatrix();
@@ -1466,6 +1466,7 @@ extends Gui
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 		r = 1.0f; g = 0.0f; b = 0.0f;
+		pre = null;
 		for (int i = 0; i < list.size(); i++) {
 			int[] pos = list.get(i);
 			double yo = 0.0d;
@@ -1475,6 +1476,22 @@ extends Gui
 			if (pre!=null) {
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+				if (i!=0) {
+					double[] d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
+					for (int h = 0; h < 4; h++) {
+						double[] p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d-d[0]+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d[1]+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
+						buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+						buffer.pos(p[0], p[1], p[2]).color(r, g, b, 1.0f).endVertex();
+					}
+					if (!type) {
+						d = AdditionalMethods.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1], pre[2]);
+						for (int h = 0; h < 4; h++) {
+							double[] p = AdditionalMethods.instance.getPosition(pre[0], pre[1], pre[2], 360.0d-d[0]+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d[1]+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
+							buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
+							buffer.pos(p[0], p[1], p[2]).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
+						}
+					}
+				}
 			}
 			pre = newPre;
 			if (type && i == list.size()-1) {
@@ -1482,6 +1499,12 @@ extends Gui
 				newPre = new double[] { pos[0]+0.5d, pos[1]+0.5d+yo, pos[2]+0.5d };
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+				double[] d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
+				for (int h = 0; h < 4; h++) {
+					double[] p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d-d[0]+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d[1]+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
+					buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+					buffer.pos(p[0], p[1], p[2]).color(r, g, b, 1.0f).endVertex();
+				}
 			}
 		}
 		tessellator.draw();

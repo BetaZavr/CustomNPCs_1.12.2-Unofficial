@@ -23,10 +23,6 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
@@ -51,6 +47,8 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.data.StoredData;
+import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.ScriptController;
@@ -75,85 +73,8 @@ implements IWorld {
 	public World world;
 
 	private WorldWrapper(World world) {
-		this.tempdata = new IData() {
-			@Override
-			public void clear() {
-				WorldWrapper.tempData.clear();
-			}
-
-			@Override
-			public Object get(String key) {
-				return WorldWrapper.tempData.get(key);
-			}
-
-			@Override
-			public String[] getKeys() {
-				return WorldWrapper.tempData.keySet().toArray(new String[WorldWrapper.tempData.size()]);
-			}
-
-			@Override
-			public boolean has(String key) {
-				return WorldWrapper.tempData.containsKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				WorldWrapper.tempData.put(key, value);
-			}
-
-			@Override
-			public void remove(String key) {
-				WorldWrapper.tempData.remove(key);
-			}
-		};
-		this.storeddata = new IData() {
-			@Override
-			public void clear() {
-				ScriptController.Instance.compound = new NBTTagCompound();
-				ScriptController.Instance.shouldSave = true;
-			}
-
-			@Override
-			public Object get(String key) {
-				NBTTagCompound compound = ScriptController.Instance.compound;
-				if (!compound.hasKey(key)) {
-					return null;
-				}
-				NBTBase base = compound.getTag(key);
-				if (base instanceof NBTPrimitive) {
-					return ((NBTPrimitive) base).getDouble();
-				}
-				return ((NBTTagString) base).getString();
-			}
-
-			@Override
-			public String[] getKeys() {
-				return ScriptController.Instance.compound.getKeySet()
-						.toArray(new String[ScriptController.Instance.compound.getKeySet().size()]);
-			}
-
-			@Override
-			public boolean has(String key) {
-				return ScriptController.Instance.compound.hasKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				NBTTagCompound compound = ScriptController.Instance.compound;
-				if (value instanceof Number) {
-					compound.setDouble(key, ((Number) value).doubleValue());
-				} else if (value instanceof String) {
-					compound.setString(key, (String) value);
-				}
-				ScriptController.Instance.shouldSave = true;
-			}
-
-			@Override
-			public void remove(String key) {
-				ScriptController.Instance.compound.removeTag(key);
-				ScriptController.Instance.shouldSave = true;
-			}
-		};
+		this.tempdata = new TempData();
+		this.storeddata = new StoredData(ScriptController.Instance);
 		this.world = world;
 		this.dimension = new DimensionWrapper(world.provider.getDimension(), world.provider.getDimensionType());
 	}

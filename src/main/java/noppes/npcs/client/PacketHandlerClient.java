@@ -1,5 +1,6 @@
 package noppes.npcs.client;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -96,6 +97,16 @@ import noppes.npcs.util.BuilderData;
 public class PacketHandlerClient
 extends PacketHandlerServer {
 
+	private static List<EnumPacketClient> list;
+	
+	static {
+		PacketHandlerClient.list = new ArrayList<EnumPacketClient>();
+		PacketHandlerClient.list.add(EnumPacketClient.EYE_BLINK);
+		PacketHandlerClient.list.add(EnumPacketClient.NPC_VISUAL_DATA);
+		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC);
+		PacketHandlerClient.list.add(EnumPacketClient.SET_TILE_DATA);
+	}
+	
 	@SubscribeEvent
 	public void onPacketData(FMLNetworkEvent.ClientCustomPacketEvent event) {
 		EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().player;
@@ -107,7 +118,7 @@ extends PacketHandlerServer {
 			EnumPacketClient type = null;
 			try {
 				type = EnumPacketClient.values()[buffer.readInt()];
-				if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.NPC_VISUAL_DATA && type != EnumPacketClient.UPDATE_NPC) {
+				if (!PacketHandlerClient.list.contains(type)) {
 					LogWriter.debug("Received: " + type);
 				} // Changed
 				this.client(buffer, player, type);

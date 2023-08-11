@@ -1,7 +1,6 @@
 package noppes.npcs.api.wrapper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemWritableBook;
 import net.minecraft.item.ItemWrittenBook;
 import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -51,6 +49,8 @@ import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.data.StoredData;
+import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemScripted;
 
@@ -62,8 +62,7 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 	@CapabilityInject(ItemStackWrapper.class)
 	public static Capability<ItemStackWrapper> ITEMSCRIPTEDDATA_CAPABILITY = null;
 	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "itemscripteddata");
-	private static EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD,
-			EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
+	private static EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
 
 	public ItemStackWrapper() { }
 	
@@ -101,92 +100,13 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 	}
 
 	public ItemStack item;
-	private IData storeddata;
-
-	private NBTTagCompound storedData;
-
 	private IData tempdata;
-
-	private Map<String, Object> tempData;
+	private IData storeddata;
+	public NBTTagCompound storedData;
 
 	protected ItemStackWrapper(ItemStack item) {
-		this.tempData = new HashMap<String, Object>();
-		this.storedData = new NBTTagCompound();
-		this.tempdata = new IData() {
-			@Override
-			public void clear() {
-				ItemStackWrapper.this.tempData.clear();
-			}
-
-			@Override
-			public Object get(String key) {
-				return ItemStackWrapper.this.tempData.get(key);
-			}
-
-			@Override
-			public String[] getKeys() {
-				return (String[]) ItemStackWrapper.this.tempData.keySet()
-						.toArray(new String[ItemStackWrapper.this.tempData.size()]);
-			}
-
-			@Override
-			public boolean has(String key) {
-				return ItemStackWrapper.this.tempData.containsKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				ItemStackWrapper.this.tempData.put(key, value);
-			}
-
-			@Override
-			public void remove(String key) {
-				ItemStackWrapper.this.tempData.remove(key);
-			}
-		};
-		this.storeddata = new IData() {
-			@Override
-			public void clear() {
-				ItemStackWrapper.this.storedData = new NBTTagCompound();
-			}
-
-			@Override
-			public Object get(String key) {
-				if (!ItemStackWrapper.this.storedData.hasKey(key)) {
-					return null;
-				}
-				NBTBase base = ItemStackWrapper.this.storedData.getTag(key);
-				if (base instanceof NBTPrimitive) {
-					return ((NBTPrimitive) base).getDouble();
-				}
-				return ((NBTTagString) base).getString();
-			}
-
-			@Override
-			public String[] getKeys() {
-				return ItemStackWrapper.this.storedData.getKeySet()
-						.toArray(new String[ItemStackWrapper.this.storedData.getKeySet().size()]);
-			}
-
-			@Override
-			public boolean has(String key) {
-				return ItemStackWrapper.this.storedData.hasKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				if (value instanceof Number) {
-					ItemStackWrapper.this.storedData.setDouble(key, ((Number) value).doubleValue());
-				} else if (value instanceof String) {
-					ItemStackWrapper.this.storedData.setString(key, (String) value);
-				}
-			}
-
-			@Override
-			public void remove(String key) {
-				ItemStackWrapper.this.storedData.removeTag(key);
-			}
-		};
+		this.tempdata = new TempData();
+		this.storeddata = new StoredData(this);
 		this.item = item;
 	}
 

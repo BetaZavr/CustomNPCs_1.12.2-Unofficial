@@ -73,21 +73,27 @@ import noppes.npcs.util.ServerNpcRecipeBookHelper;
 
 public class PacketHandlerPlayer {
 
+	private static List<EnumPlayerPacket> list;
+	
+	static {
+		PacketHandlerPlayer.list = new ArrayList<EnumPlayerPacket>();
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.NpcVisualData);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.IsMoved);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.KeyPressed);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.LeftClick);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.MousesPressed);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopNPCAnimation);
+	}
+	
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
 		ByteBuf buffer = event.getPacket().payload();
 		player.getServer().addScheduledTask(() -> {
 			EnumPlayerPacket type = null;
-			List<EnumPlayerPacket> list = new ArrayList<EnumPlayerPacket>();
-			list.add(EnumPlayerPacket.NpcVisualData);
-			list.add(EnumPlayerPacket.KeyPressed);
-			list.add(EnumPlayerPacket.IsMoved);
-			list.add(EnumPlayerPacket.LeftClick);
-			list.add(EnumPlayerPacket.MousesPressed);
 			try {
 				type = EnumPlayerPacket.values()[buffer.readInt()];
-				if (!list.contains(type)) {
+				if (!PacketHandlerPlayer.list.contains(type)) {
 					LogWriter.debug("Received: " + type);
 				}
 				this.player(buffer, player, type);
@@ -585,6 +591,12 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.KeyActive) {
 			EventHooks.onPlayerKeyActive(player, buffer.readInt());
+		} else if (type == EnumPlayerPacket.StopNPCAnimation) {
+			Entity entity = player.world.getEntityByID(buffer.readInt());
+			if (entity instanceof EntityNPCInterface) {
+				((EntityNPCInterface) entity).animation.activeAnim = null;
+				EventHooks.onNPCStopAnimation((EntityNPCInterface) entity, buffer.readInt(), buffer.readInt());
+			}
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

@@ -108,6 +108,14 @@ import noppes.npcs.util.IPermission;
 
 public class PacketHandlerServer {
 	
+	private static List<EnumPacketServer> list;
+	
+	static {
+		PacketHandlerServer.list = new ArrayList<EnumPacketServer>();
+		PacketHandlerServer.list.add(EnumPacketServer.StopSound);
+		PacketHandlerServer.list.add(EnumPacketServer.PlaySound);
+	}
+	
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
@@ -130,6 +138,9 @@ public class PacketHandlerServer {
 						if (!notHasPerm.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
 							this.warn(player, "tried to use custom npcs without a tool in hand, possibly a hacker");
 						} else {
+							if (!PacketHandlerServer.list.contains(type)) {
+								LogWriter.debug("Received: " + type);
+							}
 							this.handlePacket(type, buffer, player, npc);
 						}
 					}

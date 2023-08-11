@@ -6,10 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -27,6 +24,8 @@ import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.data.IData;
+import noppes.npcs.api.wrapper.data.StoredData;
+import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.blocks.BlockScripted;
 import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.blocks.tiles.TileNpcEntity;
@@ -45,133 +44,17 @@ implements IBlock {
 	protected Block block;
 	protected BlockPosWrapper bPos;
 	protected BlockPos pos;
-	protected TileNpcEntity storage;
+	public TileNpcEntity storage;
 	private IData storeddata;
 	private IData tempdata;
 
-	protected TileEntity tile;
+	public TileEntity tile;
 	protected IWorld world;
 
 	@SuppressWarnings("deprecation")
 	protected BlockWrapper(World world, Block block, BlockPos pos) {
-		this.tempdata = new IData() {
-			@Override
-			public void clear() {
-				if (BlockWrapper.this.storage == null) {
-					return;
-				}
-				BlockWrapper.this.storage.tempData.clear();
-			}
-
-			@Override
-			public Object get(String key) {
-				if (BlockWrapper.this.storage == null) {
-					return null;
-				}
-				return BlockWrapper.this.storage.tempData.get(key);
-			}
-
-			@Override
-			public String[] getKeys() {
-				return BlockWrapper.this.storage.tempData.keySet()
-						.toArray(new String[BlockWrapper.this.storage.tempData.size()]);
-			}
-
-			@Override
-			public boolean has(String key) {
-				return BlockWrapper.this.storage != null && BlockWrapper.this.storage.tempData.containsKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				if (BlockWrapper.this.storage == null) {
-					return;
-				}
-				BlockWrapper.this.storage.tempData.put(key, value);
-			}
-
-			@Override
-			public void remove(String key) {
-				if (BlockWrapper.this.storage == null) {
-					return;
-				}
-				BlockWrapper.this.storage.tempData.remove(key);
-			}
-		};
-		this.storeddata = new IData() {
-			@Override
-			public void clear() {
-				if (BlockWrapper.this.tile == null) {
-					return;
-				}
-				BlockWrapper.this.tile.getTileData().setTag("CustomNPCsData", new NBTTagCompound());
-			}
-
-			@Override
-			public Object get(String key) {
-				NBTTagCompound compound = this.getNBT();
-				if (compound == null) {
-					return null;
-				}
-				if (!compound.hasKey(key)) {
-					return null;
-				}
-				NBTBase base = compound.getTag(key);
-				if (base instanceof NBTPrimitive) {
-					return ((NBTPrimitive) base).getDouble();
-				}
-				return ((NBTTagString) base).getString();
-			}
-
-			@Override
-			public String[] getKeys() {
-				NBTTagCompound compound = this.getNBT();
-				if (compound == null) {
-					return new String[0];
-				}
-				return compound.getKeySet().toArray(new String[compound.getKeySet().size()]);
-			}
-
-			private NBTTagCompound getNBT() {
-				if (BlockWrapper.this.tile == null) {
-					return null;
-				}
-				NBTTagCompound compound = BlockWrapper.this.tile.getTileData().getCompoundTag("CustomNPCsData");
-				if (compound.getKeySet().size() == 0
-						&& !BlockWrapper.this.tile.getTileData().hasKey("CustomNPCsData")) {
-					BlockWrapper.this.tile.getTileData().setTag("CustomNPCsData", compound);
-				}
-				return compound;
-			}
-
-			@Override
-			public boolean has(String key) {
-				NBTTagCompound compound = this.getNBT();
-				return compound != null && compound.hasKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				NBTTagCompound compound = this.getNBT();
-				if (compound == null) {
-					return;
-				}
-				if (value instanceof Number) {
-					compound.setDouble(key, ((Number) value).doubleValue());
-				} else if (value instanceof String) {
-					compound.setString(key, (String) value);
-				}
-			}
-
-			@Override
-			public void remove(String key) {
-				NBTTagCompound compound = this.getNBT();
-				if (compound == null) {
-					return;
-				}
-				compound.removeTag(key);
-			}
-		};
+		this.tempdata = new TempData(this);
+		this.storeddata = new StoredData(this);
 
 		if (world instanceof WorldServer) {
 			this.world = NpcAPI.Instance().getIWorld((WorldServer) world);

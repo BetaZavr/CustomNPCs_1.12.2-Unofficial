@@ -1,9 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.block.material.Material;
@@ -12,10 +10,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.play.server.SPacketAnimation;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
@@ -37,6 +32,8 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.data.StoredData;
+import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.controllers.ServerCloneController;
 
 @SuppressWarnings("rawtypes")
@@ -46,106 +43,14 @@ implements IEntity {
 	protected T entity;
 	private IData storeddata;
 	private IData tempdata;
-	private Map<String, Object> tempData;
 	private IWorld worldWrapper;
 
 	@SuppressWarnings("deprecation")
 	public EntityWrapper(T entity) {
-		this.tempData = new HashMap<String, Object>();
-		this.tempdata = new IData() {
-			@Override
-			public void clear() {
-				EntityWrapper.this.tempData.clear();
-			}
-
-			@Override
-			public Object get(String key) {
-				return EntityWrapper.this.tempData.get(key);
-			}
-
-			@Override
-			public String[] getKeys() {
-				return (String[]) EntityWrapper.this.tempData.keySet()
-						.toArray(new String[EntityWrapper.this.tempData.size()]);
-			}
-
-			@Override
-			public boolean has(String key) {
-				return EntityWrapper.this.tempData.containsKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				EntityWrapper.this.tempData.put(key, value);
-			}
-
-			@Override
-			public void remove(String key) {
-				EntityWrapper.this.tempData.remove(key);
-			}
-		};
-		this.storeddata = new IData() {
-			@Override
-			public void clear() {
-				EntityWrapper.this.entity.getEntityData().removeTag("CNPCStoredData");
-			}
-
-			@Override
-			public Object get(String key) {
-				NBTTagCompound compound = this.getStoredCompound();
-				if (!compound.hasKey(key)) {
-					return null;
-				}
-				NBTBase base = compound.getTag(key);
-				if (base instanceof NBTPrimitive) {
-					return ((NBTPrimitive) base).getDouble();
-				}
-				return ((NBTTagString) base).getString();
-			}
-
-			@Override
-			public String[] getKeys() {
-				NBTTagCompound compound = this.getStoredCompound();
-				return compound.getKeySet().toArray(new String[compound.getKeySet().size()]);
-			}
-
-			private NBTTagCompound getStoredCompound() {
-				NBTTagCompound compound = EntityWrapper.this.entity.getEntityData().getCompoundTag("CNPCStoredData");
-				if (compound == null) {
-					EntityWrapper.this.entity.getEntityData().setTag("CNPCStoredData",
-							(compound = new NBTTagCompound()));
-				}
-				return compound;
-			}
-
-			@Override
-			public boolean has(String key) {
-				return this.getStoredCompound().hasKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				NBTTagCompound compound = this.getStoredCompound();
-				if (value instanceof Number) {
-					compound.setDouble(key, ((Number) value).doubleValue());
-				} else if (value instanceof String) {
-					compound.setString(key, (String) value);
-				}
-				this.saveStoredCompound(compound);
-			}
-
-			@Override
-			public void remove(String key) {
-				NBTTagCompound compound = this.getStoredCompound();
-				compound.removeTag(key);
-				this.saveStoredCompound(compound);
-			}
-
-			private void saveStoredCompound(NBTTagCompound compound) {
-				EntityWrapper.this.entity.getEntityData().setTag("CNPCStoredData", compound);
-			}
-		};
 		this.entity = entity;
+		this.tempdata = new TempData();
+		this.storeddata = new StoredData(this);
+		
 		if (entity.world instanceof WorldServer) {
 			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) entity.world);
 		} else if (entity.world != null) {

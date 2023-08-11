@@ -694,7 +694,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			}
 			case 1: { // Point List
 				if (this.region==null || this.point==null) { return; }
-				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, this.point.x, (this.region.y[1]-this.region.y[0])/2, this.point.y });
+				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.region.dimensionID, this.point.x, this.region.y[0] + (this.region.y[1]-this.region.y[0])/2, this.point.y });
 				Client.sendData(EnumPacketServer.RegionData, 0, this.region.getId());
 				this.close();
 				break;

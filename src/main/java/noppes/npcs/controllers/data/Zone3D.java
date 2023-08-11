@@ -46,7 +46,8 @@ implements IBorder, Predicate<Entity> {
 	private List<Entity> entitiesWithinRegion;
 	private Map<Entity, AntiLagTime> playerAntiLag;
 	public IPos homePos;
-	public boolean keepOut = false, showInClient = false;
+	public boolean keepOut, showInClient;
+	private boolean update;
 	
 	public Zone3D () {
 		this.color = (new Random()).nextInt(0xFFFFFF);
@@ -54,6 +55,9 @@ implements IBorder, Predicate<Entity> {
 		this.message = "availability.areaNotAvailble";
 		this.playerAntiLag = Maps.<Entity, AntiLagTime>newHashMap();
 		this.entitiesWithinRegion = Lists.<Entity>newArrayList();
+		this.keepOut = false;
+		this.showInClient = false;
+		this.update = true;
 	}
 	
 	public Zone3D (int id, int dimensionID, int x, int y, int z) {
@@ -91,6 +95,7 @@ implements IBorder, Predicate<Entity> {
 			if (y<this.y[0]) { this.y[0] = y; }
 			if (y>this.y[1]) { this.y[1] = y; }
 		}
+		this.update = true;
 		return point;
 	}
 
@@ -103,6 +108,7 @@ implements IBorder, Predicate<Entity> {
 	public Point setPoint(int index, Point point) {
 		if (!this.points.containsKey(index) && index!=this.points.size()) { return null; }
 		this.points.put(index, point);
+		this.update = true;
 		return point;
 	}
 	
@@ -118,6 +124,7 @@ implements IBorder, Predicate<Entity> {
 		Point point = new Point();
 		point.x = x;
 		point.y = z;
+		this.update = true;
 		return this.setPoint(index, point, y);
 	}
 
@@ -141,6 +148,7 @@ implements IBorder, Predicate<Entity> {
 		if (y<0) { y=0; } else if (y>255) { y = 255; }
 		if (y<this.y[0]) { this.y[0] = y; }
 		else if (y>this.y[1]) { this.y[1] = y; }
+		this.update = true;
 		return point;
 	}
 	
@@ -182,6 +190,7 @@ implements IBorder, Predicate<Entity> {
 			if (i==n) { j=1; temp.put(i+j, point); }
 		}
 		this.points = temp;
+		this.update = true;
 		return true;
 	}
 	
@@ -229,6 +238,7 @@ implements IBorder, Predicate<Entity> {
 			Point p = this.points.get(key);
 			this.points.get(key).move(p.x+x, p.y+z);
 		}
+		this.update = true;
 	}
 
 	/**
@@ -244,6 +254,7 @@ implements IBorder, Predicate<Entity> {
 	public void centerOffsetTo(IPos position, boolean type) {
 		this.centerOffsetTo(position.getMCBlockPos(), type);
 	}
+	
 	/**
 	 * Offsets the position of the zone
 	 * @param point
@@ -279,6 +290,7 @@ implements IBorder, Predicate<Entity> {
 			Point p = this.points.get(key);
 			this.points.get(key).move(x+p.x-ctr.getX(), z+p.y-ctr.getZ());
 		}
+		this.update = true;
 	}
 
 	/**
@@ -299,6 +311,7 @@ implements IBorder, Predicate<Entity> {
 			double[] newPoint = AdditionalMethods.instance.getPosition(pos.getX(), 0, pos.getZ(), data[0], data[1], radius + data[2]);
 			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
 		}
+		this.update = true;
 	}
 	
 	/**
@@ -320,6 +333,7 @@ implements IBorder, Predicate<Entity> {
 			if (this.y[0] > (int) newPoint[2]) { this.y[0] = (int) newPoint[1]; }
 			if (this.y[1] < (int) newPoint[2]) { this.y[1] = (int) newPoint[1]; }
 		}
+		this.update = true;
 	}
 
 	@Override
@@ -385,7 +399,7 @@ implements IBorder, Predicate<Entity> {
 			x /= (double) this.points.size();
 			z /= (double) this.points.size();
 		}
-		return NpcAPI.Instance().getIPos(x, ((double) this.y[1] - (double) this.y[0]) / 2.0d, z);
+		return NpcAPI.Instance().getIPos(x, (double) this.y[0] + ((double) this.y[1] - (double) this.y[0]) / 2.0d, z);
 	}
 	
 	/**
@@ -409,9 +423,16 @@ implements IBorder, Predicate<Entity> {
 
 	@Override
 	public void clear() {
-		this.points = Maps.<Integer, Point>newTreeMap();
+		this.points.clear();
+		this.availability.clear();
+		this.playerAntiLag.clear();
+		this.entitiesWithinRegion.clear();
 		this.y[0] = 255;
 		this.y[1] = 0;
+		this.message = "availability.areaNotAvailble";
+		this.keepOut = false;
+		this.showInClient = false;
+		this.update = true;
 	}
 
 	@Override
@@ -445,6 +466,7 @@ implements IBorder, Predicate<Entity> {
 			if (this.points.get(key).x==x && this.points.get(key).y==z) {
 				this.points.remove(key);
 				this.fix();
+				this.update = true;
 				return true;
 			}
 		}
@@ -566,10 +588,14 @@ implements IBorder, Predicate<Entity> {
 		this.keepOut = nbtRegion.getBoolean("IsKeepOut");
 		this.showInClient = nbtRegion.getBoolean("ShowInClient");
 		this.fix();
+		this.update = false;
 	}
 	
 	@Override
-	public void setNbt(INbt nbt) { this.writeToNBT(nbt.getMCNBT()); }
+	public void setNbt(INbt nbt) {
+		this.writeToNBT(nbt.getMCNBT());
+		this.update = true;
+	}
 	
 	public void writeToNBT(NBTTagCompound nbtRegion) {
 		nbtRegion.setInteger("ID", this.id);
@@ -621,7 +647,14 @@ implements IBorder, Predicate<Entity> {
 	}
 
 	public void update(WorldServer worldsworld) {
-		if (this.points.size()==0) { return; }
+		if (this.update) {
+			this.entitiesWithinRegion.clear();
+			this.playerAntiLag.clear();
+			BorderController.getInstance().update(this.id);
+			this.update = false;
+			return;
+		}
+		if (this.points.size()==0 || this.dimensionID!=worldsworld.provider.getDimension()) { return; }
 		List<Entity> listEntitiesInside = worldsworld.getEntities(Entity.class, this);
 		for (Entity entity : listEntitiesInside) {
 			if (this.keepOut) {
@@ -744,6 +777,7 @@ implements IBorder, Predicate<Entity> {
 	public void setHomePos(int x, int y, int z) {
 		if (this.homePos==null  || this.keepOut!=this.contains(x+0.5d, y, z+0.5d, 0.0d)) { return; }
 		this.homePos = NpcAPI.Instance().getIPos(x, y, z);
+		this.update = true;
 	}
 
 	@Override
@@ -779,19 +813,26 @@ implements IBorder, Predicate<Entity> {
 	public void setName(String name) {
 		if (name==null || name.isEmpty()) { name = "Default Region"; }
 		this.name = name;
+		this.update = true;
 	}
 	
 	@Override
 	public int getDimensionId() { return this.dimensionID; }
 	
 	@Override
-	public void setDimensionId(int dimID) { this.dimensionID = dimID; }
+	public void setDimensionId(int dimID) {
+		this.dimensionID = dimID;
+		this.update = true;
+	}
 	
 	@Override
 	public int getColor() { return this.color; }
 	
 	@Override
-	public void setColor(int color) { this.color = color; }
+	public void setColor(int color) {
+		this.color = color;
+		this.update = true;
+	}
 	
 	private class AntiLagTime {
 		private int count;
@@ -827,7 +868,10 @@ implements IBorder, Predicate<Entity> {
 	public String getMessage() { return this.message; }
 	
 	@Override
-	public void setMessage(String message) { this.message = message; }
+	public void setMessage(String message) {
+		this.message = message;
+		this.update = true;
+	}
 
 	@Override
 	public int getMaxY() { return this.y[0]>this.y[1] ? this.y[0] : this.y[1]; }
@@ -837,7 +881,16 @@ implements IBorder, Predicate<Entity> {
 	
 	@Override
 	public void update() {
-		BorderController.getInstance().update(this.id);
+		this.update = true;
+	}
+
+	@Override
+	public boolean isShowToPlayers() { return this.showInClient; }
+
+	@Override
+	public void setShowToPlayers(boolean show) {
+		this.showInClient = show;
+		this.update = true;
 	}
 	
 }

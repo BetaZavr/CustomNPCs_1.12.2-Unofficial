@@ -310,7 +310,9 @@ public class ServerEventsHandler {
 		CustomNpcs.debugData.startDebug(side, event.getObject(), "ServerEventsHandler_npcEntityCapabilities");
 		if (event.getObject() instanceof EntityPlayer) { PlayerData.register(event); }
 		if (event.getObject() instanceof EntityLivingBase) { MarkData.register(event); }
-		if (event.getObject().world!=null) { WrapperEntityData.register(event); }
+		if (event.getObject().world!=null) {
+			try { WrapperEntityData.register(event); } catch (Exception e) {}
+		}
 		CustomNpcs.debugData.endDebug(side, event.getObject(), "ServerEventsHandler_npcEntityCapabilities");
 	}
 

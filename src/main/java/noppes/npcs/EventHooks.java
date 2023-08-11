@@ -832,5 +832,14 @@ public class EventHooks {
 		handler.runScript(EnumScriptType.KEY_ACTIVE, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
+
+	public static void onNPCStopAnimation(EntityNPCInterface npc, int type, int variant) {
+		if (npc.script.isClient()) {
+			return;
+		}
+		NpcEvent.StopAnimation event = new NpcEvent.StopAnimation(npc.wrappedNPC, type, variant);
+		npc.script.runScript(EnumScriptType.STOP_ANIMATION, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
 	
 }

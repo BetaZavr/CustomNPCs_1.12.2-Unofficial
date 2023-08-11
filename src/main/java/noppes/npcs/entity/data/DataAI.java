@@ -86,6 +86,7 @@ implements INPCAi {
 		this.movingPattern = 0;
 		this.movingPause = true;
 		this.npc = npc;
+		//this.setStandingType(type);
 	}
 
 	public void appendMovingPath(int[] pos) {

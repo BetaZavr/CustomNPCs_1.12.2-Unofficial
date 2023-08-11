@@ -107,6 +107,10 @@ public interface IBorder {
 	String getMessage();
 
 	void setMessage(String message);
+	
+	boolean isShowToPlayers();
+
+	void setShowToPlayers(boolean show);
 
 	void update();
 

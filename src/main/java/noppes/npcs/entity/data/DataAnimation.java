@@ -7,8 +7,11 @@ import java.util.Random;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
@@ -18,11 +21,14 @@ import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.wrapper.NPCWrapper;
+import noppes.npcs.client.Client;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.AnimationController;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class DataAnimation
@@ -34,6 +40,11 @@ implements INPCAnimation {
 	public final List<EmotionConfig> emotion;
 	private EntityNPCInterface npc;
 	private Random rnd = new Random();
+
+	private AnimationConfig oldAnim;
+	private int frame;
+	private long startFrameTick;
+	private float val, valNext;
 	
 	public DataAnimation(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -106,14 +117,14 @@ implements INPCAnimation {
 				int t = nbtCategory.getInteger("Category");
 				if (t<0) { t *= -1; }
 				t %= AnimationKind.values().length;
-				AnimationKind eat = AnimationKind.values()[t];
+				AnimationKind type = AnimationKind.get(t);
 				List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
 				for (int i=0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
 					AnimationConfig ac = new AnimationConfig(t);
 					ac.readFromNBT(nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i));
 					list.add(ac);
 				}
-				this.data.put(eat, list);
+				this.data.put(type, list);
 			}
 		}
 		for (AnimationKind eat : AnimationKind.values()) {
@@ -156,8 +167,20 @@ implements INPCAnimation {
 	}
 	
 	public AnimationConfig getActiveAnimation(AnimationKind type) {
-		if (this.activeAnim!=null && this.activeAnim.type==type) { return this.activeAnim; }
+		if (this.activeAnim!=null && this.activeAnim.type==type) {
+			if (this.frame < this.activeAnim.frames.size() || this.activeAnim.isEdit) {
+				if (this.frame >= this.activeAnim.frames.size() && this.activeAnim.isEdit) {
+					this.frame = -1;
+				}
+				return this.activeAnim;
+			}
+		}
+		if (this.activeAnim!=null) { this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id); }
 		this.activeAnim = null;
+		this.frame = -1;
+		this.val = 0.0f;
+		this.valNext = 0.0f;
+		this.startFrameTick = 0;
 		List<AnimationConfig> list = this.data.get(type);
 		if (list==null) { this.data.put(type, list = Lists.<AnimationConfig>newArrayList()); }
 
@@ -177,12 +200,14 @@ implements INPCAnimation {
 				this.activeAnim = selectList.get(this.rnd.nextInt(selectList.size()));
 			}
 		}
-		if (this.activeAnim!=null) { this.activeAnim.reset(); }
 		return this.activeAnim;
 	}
 
 	private void updateClient(int type, int ... var) {
-		if (this.npc.world==null || this.npc.world.isRemote) { return; }
+		if (this.npc.world==null || this.npc.world.isRemote) {
+			if (type==1) { Client.sendDataDelayCheck(EnumPlayerPacket.StopNPCAnimation, this, 0, this.npc.getEntityId(), var[0], var[1]); }
+			return;
+		}
 		NBTTagCompound compound = this.writeToNBT(new NBTTagCompound());
 		compound.setInteger("EntityId", this.npc.getEntityId());
 		if (var!=null && var.length>0) { compound.setIntArray("Vars", var); }
@@ -212,10 +237,14 @@ implements INPCAnimation {
 	@Override
 	public void stopAnimation() {
 		if (this.activeAnim!=null) {
-			this.activeAnim.reset();
+			this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id);
 			this.activeAnim = null;
-			this.updateClient(1);
 		}
+		this.oldAnim = null;
+		this.frame = -1;
+		this.val = 0.0f;
+		this.valNext = 0.0f;
+		this.startFrameTick = 0;
 	}
 
 	@Override
@@ -232,7 +261,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.values()[animationType]);
+		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
 		return list.toArray(new IAnimation[list.size()]);
 	}
 
@@ -241,7 +270,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.values()[animationType]);
+		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
 		if (variant>=list.size()) {
 			throw new CustomNPCsException("Variant must be between 0 and " + list.size() + " You have: "+variant);
 		}
@@ -253,13 +282,11 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.values()[animationType]);
+		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
 		if (list.size()==0) { return; }
-		if (this.npc.world==null || this.npc.world.isRemote) {
-			this.activeAnim = list.get(this.rnd.nextInt(list.size()));
-		} else {
-			this.updateClient(2, animationType, this.rnd.nextInt(list.size()));
-		}
+		int variant = this.rnd.nextInt(list.size());
+		if (this.npc.world==null || this.npc.world.isRemote) { this.activeAnim = list.get(variant); }
+		else { this.updateClient(2, animationType, variant); }
 	}
 
 	@Override
@@ -271,7 +298,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.values()[animationType]);
+		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
 		if (variant>=list.size()) {
 			throw new CustomNPCsException("Variant must be between 0 and " + list.size() + " You have: "+variant);
 		}
@@ -305,7 +332,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		AnimationKind t = AnimationKind.values()[animationType];
+		AnimationKind t = AnimationKind.get(animationType);
 		for (AnimationConfig ac : this.data.get(t)) {
 			if (ac.name.equalsIgnoreCase(animationName)) {
 				this.data.get(t).remove(ac);
@@ -320,7 +347,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		this.data.get(AnimationKind.values()[animationType]).clear();
+		this.data.get(AnimationKind.get(animationType)).clear();
 	}
 
 	@Override
@@ -332,6 +359,123 @@ implements INPCAnimation {
 		ac.id = this.data.get(ac.type).size();
 		this.data.get(ac.type).add(ac);
 		return ac;
+	}
+	
+	public Map<Integer, Float[]> getValues(EntityCustomNpc npc, AnimationConfig anim) {
+		if (anim==null || anim.frames.isEmpty()) {
+			return null;
+		}
+		if (this.startFrameTick<=0) { this.startFrameTick = npc.world.getTotalWorldTime(); }
+		int ticks = (int) (npc.world.getTotalWorldTime() - this.startFrameTick);
+		AnimationFrameConfig frame_0 = null, frame_1 = null;
+		if (this.frame==-1) { // start
+			if (this.oldAnim!=null && !this.oldAnim.frames.isEmpty()) {
+				frame_0 = this.oldAnim.frames.get(this.oldAnim.frames.size()-1);
+			} else {
+				frame_0 = AnimationFrameConfig.EMPTY_PART;
+				this.oldAnim = anim;
+			}
+			frame_1 = anim.frames.get(0);
+		}
+		else if (anim.frames.size()==1) { // simple
+			frame_0 = anim.frames.get(0);
+			frame_1 = anim.frames.get(0);
+			if (this.oldAnim==null) { this.oldAnim = anim; }
+		}
+		else if (anim.frames.containsKey(this.frame+1)) { // next
+			if (anim.frames.containsKey(this.frame)) { frame_0 = anim.frames.get(this.frame); }
+			else { frame_0 = AnimationFrameConfig.EMPTY_PART; }
+			frame_1 = anim.frames.get(this.frame + 1);
+		}
+		else if (anim.isEdit) {
+			this.frame = 0;
+			frame_0 = anim.frames.get(anim.frames.size()-1);
+			frame_1 = anim.frames.get(this.frame);
+		}
+		else if (anim.repeatLast>0) { // repeat end
+			this.frame = anim.frames.size() - anim.repeatLast;
+			if (this.frame<0) { this.frame = 0; }
+			frame_0 = anim.frames.get(anim.frames.size()-1);
+			frame_1 = anim.frames.get(this.frame);
+		}
+		if (frame_0 == null || frame_1 == null) {
+			if (this.activeAnim!=null) { this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id); }
+			this.activeAnim = null;
+			this.frame = -1;
+			this.startFrameTick = 0;
+			return null;
+		} // end
+		
+		int speed = frame_0.getSpeed();
+		if (anim.type.isMoving()) {
+			double sp = npc.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue();
+			speed = (int) ((double) speed * 0.25d / sp);
+		}
+		
+		Map<Integer, Float[]> map = Maps.<Integer, Float[]>newTreeMap();
+		for (int part=0; part<6; part++) { // 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg
+			Float[] values = new Float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f }; // rotX, rotY, rotZ, ofsX, ofsY, ofsZ, scX, scY, scZ
+			if (frame_0.parts[part].isDisable()) {
+				map.put(part, null);
+				continue;
+			}
+			for (int t=0; t<3; t++) { // 0:rotations, 1:offsets, 2:scales
+				for (int a=0; a<3; a++) { // x, y, z
+					float value_0;
+					float value_1;
+					switch(t) {
+						case 1: {
+							value_0 = 10.0f * frame_0.parts[part].offset[a] - 5.0f;
+							value_1 = 10.0f * frame_1.parts[part].offset[a] - 5.0f;
+							break;
+						}
+						case 2: {
+							value_0 = frame_0.parts[part].scale[a] * 5.0f;
+							value_1 = frame_1.parts[part].scale[a] * 5.0f;
+							break;
+						}
+						default: {
+							value_0 = frame_0.parts[part].rotation[a];
+							value_1 = frame_1.parts[part].rotation[a];
+							if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
+								value_0 += 1.0f;
+							}
+							else if (value_1 < 0.5f && Math.abs(value_1 + 1.0f - value_0) < Math.abs(value_0 - value_1)) {
+								value_1 += 1.0f;
+							}
+							value_0 -= 0.5f;
+							value_1 -= 0.5f;
+							break;
+						}
+					}
+					values[t * 3 + a] = this.calcValue(value_0, value_1, speed, frame_0.isSmooth(), ticks);
+					if (t!=0) { values[t * 3 + a] /= 2 * (float) Math.PI; } // offsets, scales - correction
+				}
+			}
+			map.put(part, values);
+		}
+		if (ticks >= speed + frame_1.getEndDelay()) {
+			this.frame++;
+			this.startFrameTick = npc.world.getTotalWorldTime();
+			this.oldAnim = anim;
+		}
+		return map;
+	}
+	
+	private float calcValue(float value_0, float value_1, int speed, boolean isSmooth, float ticks) {
+		float pt = Minecraft.getMinecraft().getRenderPartialTicks();
+		if (ticks > speed) { ticks = speed; pt = 1.0f; }
+		float pi = (float) Math.PI;
+		if (isSmooth) {
+			this.val = -0.5f * MathHelper.cos((float) ticks / (float) speed * pi) + 0.5f;
+			this.valNext = -0.5f * MathHelper.cos((float) (ticks+1) / (float) speed * pi) + 0.5f;
+		} else {
+			this.val = (float) ticks / (float) speed;
+			this.valNext = (float) (ticks + 1) / (float) speed;
+		}
+		float f = this.val + (this.valNext - this.val) * pt;
+		float value = (value_0 + (value_1 - value_0) * f) * 2.0f * pi;
+		return value;
 	}
 	
 }

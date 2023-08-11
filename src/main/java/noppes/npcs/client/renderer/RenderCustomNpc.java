@@ -164,13 +164,11 @@ extends RenderNPCInterface<T> {
 				}
 			}
 			model.swingProgress = this.mainModel.swingProgress;
-			model.isRiding = (this.entity.isRiding() && this.entity.getRidingEntity() != null
-					&& this.entity.getRidingEntity().shouldRiderSit());
+			model.isRiding = (this.entity.isRiding() && this.entity.getRidingEntity() != null && this.entity.getRidingEntity().shouldRiderSit());
 			model.setLivingAnimations(this.entity, par2, par3, this.partialTicks);
 			model.setRotationAngles(par2, par3, par4, par5, par6, par7, this.entity);
 			model.isChild = this.entity.isChild();
-			NPCRendererHelper.renderModel(this.entity, par2, par3, par4, par5, par6, par7, this.renderEntity, model,
-					this.getEntityTexture(npc));
+			NPCRendererHelper.renderModel(this.entity, par2, par3, par4, par5, par6, par7, this.renderEntity, model, this.getEntityTexture(npc));
 			if (!npc.display.getOverlayTexture().isEmpty()) {
 				GlStateManager.depthFunc(515);
 				if (npc.textureGlowLocation == null) {

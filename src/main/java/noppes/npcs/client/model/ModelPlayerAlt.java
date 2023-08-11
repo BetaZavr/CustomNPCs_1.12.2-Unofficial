@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
@@ -20,7 +19,6 @@ import net.minecraft.util.math.MathHelper;
 import noppes.npcs.ModelData;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.api.constants.AnimationKind;
-import noppes.npcs.client.gui.animation.GuiNpcAnimation;
 import noppes.npcs.client.model.animation.AniBow;
 import noppes.npcs.client.model.animation.AniCrawling;
 import noppes.npcs.client.model.animation.AniDancing;
@@ -37,7 +35,7 @@ import noppes.npcs.util.ObfuscationHelper;
 /** Render npc Model */
 public class ModelPlayerAlt
 extends ModelPlayer {
-	
+
 	private ModelRenderer body;
 	private ModelRenderer head;
 	private Map<EnumParts, List<ModelScaleRenderer>> map;
@@ -196,8 +194,9 @@ extends ModelPlayer {
 			this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleBase[1];
 		}
 		
-		AnimationConfig anim = npc.animation.activeAnim;
-		if (!(Minecraft.getMinecraft().currentScreen instanceof GuiNpcAnimation)) {
+		AnimationConfig anim = npc.animation.activeAnim != null  ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
+			
+		if (anim==null || !anim.isEdit) {
 			// Dies
 			if (npc.isDead && (anim==null || anim.type!=AnimationKind.DIES)) {
 				anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
@@ -213,10 +212,9 @@ extends ModelPlayer {
 					(anim==null || anim.type!=AnimationKind.INIT)) {
 				anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
 			}
-			// Init animation starts in EntityNPCInterface.class
 			
 			// Moving/Standing
-			if (anim==null || (anim.type.isCyclical() && anim.type != AnimationKind.DIES)) {
+			if (anim==null || anim.type != AnimationKind.DIES) {
 				boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
 				if (npc.isInWater() || npc.isInLava()) {
 					if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
@@ -242,85 +240,81 @@ extends ModelPlayer {
 				}
 			}
 		}
-		if (anim!=null) {
-			float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-			Map<Integer, Float[]> animData = anim.getValues(partialTicks, npc);
-			if (animData == null) { npc.animation.stopAnimation(); }
-			else {
-				// Head
-				Float[] head = animData.get(0);
-				if (head!=null) {
-					//System.out.println("HEAD: ["+head[0]+", "+head[1]+", "+head[2]+", "+head[3]+", "+head[4]+", "+head[5]+", "+head[6]+", "+head[7]+", "+head[8]+"]");
-					if (anim.type.isMoving()) {
-						((ModelScaleRenderer) this.bipedHead).clearRotation();
-						((ModelScaleRenderer) this.bipedHeadwear).clearRotation();
-					}
-					((ModelScaleRenderer) this.bipedHead).setAnim(head);
-					((ModelScaleRenderer) this.bipedHeadwear).setAnim(head);
+		Map<Integer, Float[]> animData = npc.animation.getValues(npc, anim);
+		if (animData != null) {
+			// Head
+			Float[] head = animData.get(0);
+			if (head!=null) {
+				if (anim.type.isMoving()) {
+					((ModelScaleRenderer) this.bipedHead).clearRotation();
+					((ModelScaleRenderer) this.bipedHeadwear).clearRotation();
 				}
-				
-				// Left Arm
-				Float[] leftArm = animData.get(1);
-				if (leftArm!=null) {
-					if (anim.type.isMoving()) {
-						((ModelScaleRenderer) this.bipedLeftArm).clearRotation();
-						((ModelScaleRenderer) this.bipedLeftArmwear).clearRotation();
-					}
-					((ModelScaleRenderer) this.bipedLeftArm).setAnim(leftArm);
-					((ModelScaleRenderer) this.bipedLeftArmwear).setAnim(leftArm);
-					if (npc.display.getHasLivingAnimation() && (anim.type==AnimationKind.STANDING || anim.type==AnimationKind.FLY_STAND || anim.type==AnimationKind.WATER_STAND)) {
-						this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-						this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
-					}
+				((ModelScaleRenderer) this.bipedHead).setAnim(head);
+				((ModelScaleRenderer) this.bipedHeadwear).setAnim(head);
+			}
+			
+			// Left Arm
+			Float[] leftArm = animData.get(1);
+			if (leftArm!=null) {
+				if (anim.type.isMoving()) {
+					((ModelScaleRenderer) this.bipedLeftArm).clearRotation();
+					((ModelScaleRenderer) this.bipedLeftArmwear).clearRotation();
 				}
-				
-				// Right Arm
-				Float[] rightArm = animData.get(2);
-				if (rightArm!=null) {
-					if (anim.type.isMoving()) {
-						((ModelScaleRenderer) this.bipedRightArm).clearRotation();
-						((ModelScaleRenderer) this.bipedRightArmwear).clearRotation();
-					}
-					((ModelScaleRenderer) this.bipedRightArm).setAnim(rightArm);
-					((ModelScaleRenderer) this.bipedRightArmwear).setAnim(rightArm);
-					if (npc.display.getHasLivingAnimation()) {
-						this.bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-						this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
-					}
-				}
-				// Body
-				Float[] body = animData.get(3);
-				if (body!=null) {
-					if (anim.type.isMoving()) {
-						((ModelScaleRenderer) this.bipedBody).clearRotation();
-						((ModelScaleRenderer) this.bipedBodyWear).clearRotation();
-					}
-					((ModelScaleRenderer) this.bipedBody).setAnim(body);
-					((ModelScaleRenderer) this.bipedBodyWear).setAnim(body);
-				}
-				// Left Leg
-				Float[] leftLeg = animData.get(4);
-				if (body!=null) {
-					if (anim.type.isMoving()) {
-						((ModelScaleRenderer) this.bipedLeftLeg).clearRotation();
-						((ModelScaleRenderer) this.bipedLeftLegwear).clearRotation();
-					}
-					((ModelScaleRenderer) this.bipedLeftLeg).setAnim(leftLeg);
-					((ModelScaleRenderer) this.bipedLeftLegwear).setAnim(leftLeg);
-				}
-
-				// Right Leg
-				Float[] rightLeg = animData.get(5);
-				if (body!=null) {
-					if (anim.type.isMoving()) {
-						((ModelScaleRenderer) this.bipedRightLeg).clearRotation();
-						((ModelScaleRenderer) this.bipedRightLegwear).clearRotation();
-					}
-					((ModelScaleRenderer) this.bipedRightLeg).setAnim(rightLeg);
-					((ModelScaleRenderer) this.bipedRightLegwear).setAnim(rightLeg);
+				((ModelScaleRenderer) this.bipedLeftArm).setAnim(leftArm);
+				((ModelScaleRenderer) this.bipedLeftArmwear).setAnim(leftArm);
+				if (npc.display.getHasLivingAnimation() && (anim.type==AnimationKind.STANDING || anim.type==AnimationKind.FLY_STAND || anim.type==AnimationKind.WATER_STAND)) {
+					this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
+					this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
 				}
 			}
-		} else {
+			
+			// Right Arm
+			Float[] rightArm = animData.get(2);
+			if (rightArm!=null) {
+				if (anim.type.isMoving()) {
+					((ModelScaleRenderer) this.bipedRightArm).clearRotation();
+					((ModelScaleRenderer) this.bipedRightArmwear).clearRotation();
+				}
+				((ModelScaleRenderer) this.bipedRightArm).setAnim(rightArm);
+				((ModelScaleRenderer) this.bipedRightArmwear).setAnim(rightArm);
+				if (npc.display.getHasLivingAnimation()) {
+					this.bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
+					this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+				}
+			}
+			// Body
+			Float[] body = animData.get(3);
+			if (body!=null) {
+				if (anim.type.isMoving()) {
+					((ModelScaleRenderer) this.bipedBody).clearRotation();
+					((ModelScaleRenderer) this.bipedBodyWear).clearRotation();
+				}
+				((ModelScaleRenderer) this.bipedBody).setAnim(body);
+				((ModelScaleRenderer) this.bipedBodyWear).setAnim(body);
+			}
+			// Left Leg
+			Float[] leftLeg = animData.get(4);
+			if (body!=null) {
+				if (anim.type.isMoving()) {
+					((ModelScaleRenderer) this.bipedLeftLeg).clearRotation();
+					((ModelScaleRenderer) this.bipedLeftLegwear).clearRotation();
+				}
+				((ModelScaleRenderer) this.bipedLeftLeg).setAnim(leftLeg);
+				((ModelScaleRenderer) this.bipedLeftLegwear).setAnim(leftLeg);
+			}
+
+			// Right Leg
+			Float[] rightLeg = animData.get(5);
+			if (body!=null) {
+				if (anim.type.isMoving()) {
+					((ModelScaleRenderer) this.bipedRightLeg).clearRotation();
+					((ModelScaleRenderer) this.bipedRightLegwear).clearRotation();
+				}
+				((ModelScaleRenderer) this.bipedRightLeg).setAnim(rightLeg);
+				((ModelScaleRenderer) this.bipedRightLegwear).setAnim(rightLeg);
+			}
+		}
+		else if (anim==null) {
 			((ModelScaleRenderer) this.bipedHead).setAnim(null);
 			((ModelScaleRenderer) this.bipedLeftArm).setAnim(null);
 			((ModelScaleRenderer) this.bipedRightArm).setAnim(null);

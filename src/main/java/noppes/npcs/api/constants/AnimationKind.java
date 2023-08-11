@@ -6,23 +6,22 @@ import com.google.common.collect.Lists;
 
 public enum AnimationKind {
 
-	ATTACKING(0, false, true),
-	DIES(1, true, false),
-	FLY_STAND(2, true, false),
-	FLY_WALK(3, true, true),
-	INIT(4, false, false),
-	JUMP(5, false, false),
-	STANDING(6, true, false),
-	WALKING(7, true, true),
-	WATER_STAND(8, true, false),
-	WATER_WALK(9, true, true);
+	ATTACKING(0, false),
+	DIES(1, false),
+	FLY_STAND(2, false),
+	FLY_WALK(3, true),
+	INIT(4, false),
+	JUMP(5, false),
+	STANDING(6, false),
+	WALKING(7, true),
+	WATER_STAND(8, false),
+	WATER_WALK(9, true);
 	
-	boolean cyclical, moving;
+	boolean isMoving;
 	int type;
 	
-	AnimationKind(int i, boolean c, boolean m) {
-		this.cyclical = c;
-		this.moving = m;
+	AnimationKind(int i, boolean m) {
+		this.isMoving = m;
 		this.type = i;
 	}
 
@@ -33,9 +32,14 @@ public enum AnimationKind {
 	}
 	
 	public int get() { return this.type; }
-	
-	public boolean isCyclical() { return this.cyclical; }
 
-	public boolean isMoving() { return this.moving; }
+	public boolean isMoving() { return this.isMoving; }
+
+	public static AnimationKind get(int type) {
+		for (AnimationKind ak : AnimationKind.values()) {
+			if (ak.type==type) { return ak; }
+		}
+		return AnimationKind.STANDING;
+	}
 	
 }

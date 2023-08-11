@@ -16,6 +16,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.IPos;
@@ -183,6 +184,15 @@ implements IBorderHandler {
 		Server.sendDataDelayed(player, EnumPacketClient.BORDER_DATA, 10, -2);
 	}
 
+	public void update() {
+		if (CustomNpcs.Server==null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length==0 || this.regions.size()==0) { return; }
+		for (Zone3D reg : this.regions.values()) {
+			for (WorldServer w : CustomNpcs.Server.worlds) {
+				reg.update(w);
+			}
+		}
+	}
+	
 	public void update(int id) {
 		if (CustomNpcs.Server==null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length==0) { return; }
 		if (id<0) {
@@ -214,15 +224,6 @@ implements IBorderHandler {
 		Zone3D reg = new Zone3D(this.getUnusedId(), imensionID, pos.getX(), pos.getY(), pos.getZ());
 		this.regions.put(reg.getId(), reg);
 		return reg;
-	}
-
-	public void update() { // <- ServerTickHandler.onServerTick(event)
-		if (CustomNpcs.Server==null || this.regions.size()==0) { return; }
-		for (int i = 0; i < CustomNpcs.Server.worlds.length; ++i) {
-			for (Zone3D reg : this.regions.values()) {
-				if (reg.dimensionID==CustomNpcs.Server.worlds[i].provider.getDimension()) { reg.update(CustomNpcs.Server.worlds[i]); }
-			}
-		}
 	}
 	
 }

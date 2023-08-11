@@ -1326,10 +1326,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.setAttackTarget(null);
 		this.setRevengeTarget(null);
 		this.deathTime = 0;
-		if (this.ais.returnToStart && !this.hasOwner() && !this.isRemote() && !this.isRiding()) {
-			this.setLocationAndAngles(this.getStartXPos(), this.getStartYPos(), this.getStartZPos(), this.rotationYaw,
-					this.rotationPitch);
-		}
+		if (this.ais.returnToStart && !this.hasOwner() && !this.isRemote() && !this.isRiding()) { this.setLocationAndAngles(this.getStartXPos(), this.getStartYPos(), this.getStartZPos(), this.rotationYaw, this.rotationPitch); }
 		this.killedtime = 0L;
 		this.extinguish();
 		this.clearActivePotions();

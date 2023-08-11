@@ -1,5 +1,8 @@
 package noppes.npcs.api.entity.data;
 
+import net.minecraft.command.CommandException;
+import noppes.npcs.api.INbt;
+
 public interface IData {
 	
 	void clear();
@@ -10,7 +13,12 @@ public interface IData {
 
 	boolean has(String key);
 
-	void put(String key, Object value);
+	void put(String key, Object value) throws CommandException;
 
-	void remove(String key);
+	boolean remove(String key);
+	
+	INbt getNbt();
+	
+	void setNbt(INbt nbt);
+	
 }

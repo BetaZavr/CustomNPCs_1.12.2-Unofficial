@@ -9,10 +9,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
@@ -42,6 +39,7 @@ import noppes.npcs.api.gui.IOverlayHUD;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
@@ -83,58 +81,7 @@ implements IPlayer {
 
 	public PlayerWrapper(T player) {
 		super(player);
-		this.storeddata = new IData() {
-			@Override
-			public void clear() {
-				PlayerData data = PlayerData.get((EntityPlayer) PlayerWrapper.this.entity);
-				data.scriptStoreddata = new NBTTagCompound();
-			}
-
-			@Override
-			public Object get(String key) {
-				NBTTagCompound compound = this.getStoredCompound();
-				if (!compound.hasKey(key)) {
-					return null;
-				}
-				NBTBase base = compound.getTag(key);
-				if (base instanceof NBTPrimitive) {
-					return ((NBTPrimitive) base).getDouble();
-				}
-				return ((NBTTagString) base).getString();
-			}
-
-			@Override
-			public String[] getKeys() {
-				NBTTagCompound compound = this.getStoredCompound();
-				return compound.getKeySet().toArray(new String[compound.getKeySet().size()]);
-			}
-
-			private NBTTagCompound getStoredCompound() {
-				PlayerData data = PlayerData.get((EntityPlayer) PlayerWrapper.this.entity);
-				return data.scriptStoreddata;
-			}
-
-			@Override
-			public boolean has(String key) {
-				return this.getStoredCompound().hasKey(key);
-			}
-
-			@Override
-			public void put(String key, Object value) {
-				NBTTagCompound compound = this.getStoredCompound();
-				if (value instanceof Number) {
-					compound.setDouble(key, ((Number) value).doubleValue());
-				} else if (value instanceof String) {
-					compound.setString(key, (String) value);
-				}
-			}
-
-			@Override
-			public void remove(String key) {
-				NBTTagCompound compound = this.getStoredCompound();
-				compound.removeTag(key);
-			}
-		};
+		this.storeddata = new StoredData(this);
 	}
 
 	@Override
@@ -724,7 +671,7 @@ implements IPlayer {
 	
 	@Override
 	public void trigger(int id, Object[] arguments) {
-		EventHooks.onScriptTriggerEvent(this.getData().scriptData, id, this.getWorld(), this.getPos(), null, arguments);
+		EventHooks.onScriptTriggerEvent(this.getData().scriptData, id, this.getWorld(), this.getPos(), this, arguments);
 	}
 
 	@Override
