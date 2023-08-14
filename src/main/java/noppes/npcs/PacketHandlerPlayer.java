@@ -597,6 +597,8 @@ public class PacketHandlerPlayer {
 				((EntityNPCInterface) entity).animation.activeAnim = null;
 				EventHooks.onNPCStopAnimation((EntityNPCInterface) entity, buffer.readInt(), buffer.readInt());
 			}
+		} else if (type == EnumPlayerPacket.OpenGui) {
+			EventHooks.onPlayerOpenGui(player, Server.readString(buffer), Server.readString(buffer));
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

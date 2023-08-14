@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,8 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,26 +39,28 @@ public class ScriptController {
 	public static boolean HasStart = false;
 	public static ScriptController Instance;
 
+	private ScriptEngineManager manager;
+	
 	public boolean shouldSave;
 	public long lastLoaded, lastPlayerUpdate;
 	public NBTTagCompound compound;
 	public NBTTagCompound constants;
-	public File dir;
+	public File dir, clientDir;
 	public Map<String, ScriptEngineFactory> factories;
 	public ForgeScriptData forgeScripts;
 	public ClientScriptData clientScripts;
 	public Map<String, String> languages;
-	private ScriptEngineManager manager;
 	public PlayerScriptData playerScripts;
-	public Map<String, String> scripts;
+	public Map<String, String> scripts, clients;
 	public PotionScriptData potionScripts;
 	
 	private ScriptEngine graalEngine;
 	
 	public ScriptController() {
-		this.languages = new HashMap<String, String>();
-		this.factories = new HashMap<String, ScriptEngineFactory>();
-		this.scripts = new HashMap<String, String>();
+		this.languages = Maps.<String, String>newTreeMap();
+		this.factories = Maps.<String, ScriptEngineFactory>newTreeMap();
+		this.scripts = Maps.<String, String>newTreeMap();
+		this.clients = Maps.<String, String>newTreeMap();
 		this.playerScripts = new PlayerScriptData(null);
 		this.forgeScripts = new ForgeScriptData();
 		this.clientScripts = new ClientScriptData();
@@ -189,50 +192,49 @@ public class ScriptController {
 		return fac.getScriptEngine();
 	}
 
-	private List<String> getScripts(String language) {
+	private List<String> getScripts(String language, boolean isClient) {
 		List<String> list = new ArrayList<String>();
 		String ext = this.languages.get(language);
-		if (ext == null) {
-			return list;
-		}
-		for (String script : this.scripts.keySet()) {
-			if (script.endsWith(ext)) {
-				list.add(script);
-			}
+		if (ext == null) { return list; }
+		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
+			if (script.endsWith(ext)) { list.add(script); }
 		}
 		return list;
 	}
 
 	public void loadCategories() {
 		this.dir = new File(CustomNpcs.getWorldSaveDirectory(), "scripts");
-		if (!this.dir.exists()) {
-			this.dir.mkdirs();
-		}
-		if (!this.worldDataFile().exists()) {
-			this.shouldSave = true;
-		}
+		if (!this.dir.exists()) { this.dir.mkdirs(); }
+		
+		this.clientDir = new File(CustomNpcs.Dir, "client scripts");
+		if (!this.clientDir.exists()) { this.clientDir.mkdirs(); }
+		
+		if (!this.worldDataFile().exists()) { this.shouldSave = true; }
 		WorldWrapper.tempData.clear();
 		this.scripts.clear();
+		this.clients.clear();
 		for (String language : this.languages.keySet()) {
 			String ext = this.languages.get(language);
 			File scriptDir = new File(this.dir, language.toLowerCase());
-			if (!scriptDir.exists()) {
-				scriptDir.mkdir();
-			} else {
-				this.loadDir(scriptDir, "", ext);
-			}
+			if (!scriptDir.exists()) { scriptDir.mkdir(); }
+			else { this.loadDir(scriptDir, "", ext, false); }
+
+			scriptDir = new File(this.clientDir, language.toLowerCase());
+			if (!scriptDir.exists()) { scriptDir.mkdir(); }
+			else { this.loadDir(scriptDir, "", ext, true); }
 		}
 		this.lastLoaded = System.currentTimeMillis();
 	}
 
-	private void loadDir(File dir, String name, String ext) {
+	private void loadDir(File dir, String name, String ext, boolean isClient) {
 		for (File file : dir.listFiles()) {
 			String filename = name + file.getName().toLowerCase();
 			if (file.isDirectory()) {
-				this.loadDir(file, filename + "/", ext);
+				this.loadDir(file, filename + "/", ext, isClient);
 			} else if (filename.endsWith(ext)) {
 				try {
-					this.scripts.put(filename, this.readFile(file));
+					String code = this.readFile(file);
+					if (isClient) { this.clients.put(filename, code); } else { this.scripts.put(filename, code); }
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -285,7 +287,7 @@ public class ScriptController {
 		return true;
 	}
 
-	public boolean loadStoredData() { // New
+	public boolean loadStoredData() {
 		this.compound = new NBTTagCompound();
 		File file = this.worldDataFile();
 		boolean isLoad = true;
@@ -302,7 +304,7 @@ public class ScriptController {
 		return isLoad;
 	}
 	
-	public boolean loadConstantData() { // New
+	public boolean loadConstantData() {
 		this.constants = new NBTTagCompound();
 		File file = this.constantScriptsFile();
 		boolean isLoad = true;
@@ -385,12 +387,12 @@ public class ScriptController {
 		return isLoad;
 	}
 
-	public NBTTagList nbtLanguages() {
+	public NBTTagList nbtLanguages(boolean isClient) {
 		NBTTagList list = new NBTTagList();
 		for (String language : this.languages.keySet()) {
 			NBTTagCompound compound = new NBTTagCompound();
 			NBTTagList scripts = new NBTTagList();
-			for (String script : this.getScripts(language)) {
+			for (String script : this.getScripts(language, isClient)) {
 				scripts.appendTag(new NBTTagString(script));
 			}
 			compound.setTag("Scripts", scripts);

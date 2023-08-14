@@ -83,7 +83,8 @@ public class PlayerScriptData implements IScriptHandler {
 
 	@Override
 	public boolean isClient() {
-		return !this.player.isServerWorld();
+		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
+		//return !this.player.isServerWorld();
 	}
 
 	public boolean isEnabled() {
@@ -102,7 +103,7 @@ public class PlayerScriptData implements IScriptHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		PlayerScriptData.console = NBTTags.GetLongStringMap(compound.getTagList("ScriptConsole", 10));
@@ -117,7 +118,7 @@ public class PlayerScriptData implements IScriptHandler {
 			if (this.player != null) {
 				this.scripts.clear();
 				for (ScriptContainer script : ScriptController.Instance.playerScripts.scripts) {
-					ScriptContainer s = new ScriptContainer(this);
+					ScriptContainer s = new ScriptContainer(this, false);
 					s.readFromNBT(script.writeToNBT(new NBTTagCompound()));
 					this.scripts.add(s);
 				}

@@ -76,6 +76,7 @@ public class ScriptContainer {
 	public String script;
 	public List<String> scripts;
 	private HashSet<String> unknownFunctions;
+	public boolean isClient;
 	
 	static {
 		FillMap(AnimationKind.class);
@@ -156,7 +157,7 @@ public class ScriptContainer {
 		return value;
 	}
 
-	public ScriptContainer(IScriptHandler handler) {
+	public ScriptContainer(IScriptHandler handler, boolean isClient) {
 		this.fullscript = "";
 		this.script = "";
 		this.console = new TreeMap<Long, String>();
@@ -165,9 +166,9 @@ public class ScriptContainer {
 		this.unknownFunctions = new HashSet<String>();
 		this.lastCreated = 0L;
 		this.engine = null;
-		this.handler = null;
 		this.init = false;
 		this.handler = handler;
+		this.isClient = isClient;
 	}
 
 	public void appandConsole(String message) {
@@ -183,23 +184,30 @@ public class ScriptContainer {
 			this.console.remove(this.console.firstKey());
 		}
 	}
-
+	
+	public boolean isInit() { return this.init; }
+	
 	public String getFullCode() {
 		if (!this.init) {
 			this.fullscript = this.script;
 			if (!this.fullscript.isEmpty()) {
 				this.fullscript += "\n";
 			}
+			Map<String, String> map = this.isClient ? ScriptController.Instance.clients: ScriptController.Instance.scripts;
 			for (String loc : this.scripts) {
-				String code = ScriptController.Instance.scripts.get(loc);
+				String code = map.get(loc);
 				if (code != null && !code.isEmpty()) {
 					this.fullscript = this.fullscript + code + "\n";
 				}
 			}
-			if (ScriptController.Instance.scripts.containsKey("all.js")){
-				this.fullscript = ScriptController.Instance.scripts.get("all.js") + "\n"+this.fullscript;
+			if (map.containsKey("all.js")){
+				this.fullscript = map.get("all.js") + "\n"+this.fullscript;
 			}
 			this.unknownFunctions = new HashSet<String>();
+			if (this.isClient) {
+				this.init = true;
+				this.errored = false;
+			}
 		}
 		return this.fullscript;
 	}
@@ -216,7 +224,10 @@ public class ScriptContainer {
 		this.script = compound.getString("Script");
 		this.console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
 		this.scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
+		this.isClient = compound.getBoolean("isClient");
+		if (this.isClient) { this.errored = false; }
 		this.lastCreated = 0L;
+		this.init = false;
 	}
 
 	public void run(EnumScriptType type, Event event, boolean side) {
@@ -331,6 +342,7 @@ public class ScriptContainer {
 		compound.setString("Script", this.script);
 		compound.setTag("Console", NBTTags.NBTLongStringMap(this.console));
 		compound.setTag("ScriptList", NBTTags.nbtStringList(this.scripts));
+		compound.setBoolean("isClient", this.isClient);
 		return compound;
 	}
 	

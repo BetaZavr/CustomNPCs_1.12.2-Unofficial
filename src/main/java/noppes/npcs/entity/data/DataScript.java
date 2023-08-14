@@ -72,7 +72,7 @@ implements IScriptHandler {
 
 	@Override
 	public boolean isClient() {
-		return this.npc.isRemote();
+		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
 	}
 
 	public boolean isEnabled() {
@@ -87,7 +87,7 @@ implements IScriptHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}

@@ -24,7 +24,19 @@ import noppes.npcs.api.item.IItemStack;
 
 public class PlayerEvent
 extends CustomNPCsEvent {
+	
+	public static class OpenGUI extends PlayerEvent {
+		
+		public String newGUI, oldGUI;
 
+		public OpenGUI(IPlayer<?> player, String n, String o) {
+			super(player);
+			this.newGUI = n;
+			this.oldGUI = o;
+		}
+		
+	}
+	
 	public static class KeyActive extends PlayerEvent {
 		
 		public IKeySetting key;

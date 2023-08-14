@@ -95,6 +95,9 @@ public class SyncController {
 				}
 				if (compound.hasKey("ShowLR")) { CustomNpcs.showLR = compound.getBoolean("ShowLR"); }
 				if (compound.hasKey("ShowMoney")) { CustomNpcs.showMoney = compound.getBoolean("ShowMoney"); }
+
+				if (CustomNpcs.showQuestCompass) { CustomNpcs.showQuestCompass = compound.getBoolean("ShowQuestCompass"); }
+				
 				CustomNpcs.recalculateLR = compound.getBoolean("RecalculateLR");
 				CustomNpcs.charCurrencies = compound.getString("CharCurrencies");
 				CustomNpcs.maxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
@@ -294,9 +297,11 @@ public class SyncController {
 			compound.setBoolean("ShowMoney", CustomNpcs.showMoney);
 		}
 		compound.setBoolean("RecalculateLR", CustomNpcs.recalculateLR);
+		compound.setBoolean("ShowQuestCompass", CustomNpcs.showQuestCompass);
 		compound.setString("CharCurrencies", CustomNpcs.charCurrencies);
 		compound.setInteger("MaxBuilderBlocks", CustomNpcs.maxBuilderBlocks);
 		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.maxItemInDropsNPC);
+		
 		
 		list = new NBTTagList();
 		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {

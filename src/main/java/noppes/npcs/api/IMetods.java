@@ -30,5 +30,7 @@ public interface IMetods {
 	NBTBase writeObjectToNbt(Object value);
 
 	Object readObjectFromNbt(NBTBase tag);
+
+	String getJSONStringFromObject(Object obj);
 	
 }

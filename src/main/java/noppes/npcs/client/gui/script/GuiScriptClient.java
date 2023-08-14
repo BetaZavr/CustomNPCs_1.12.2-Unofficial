@@ -14,7 +14,7 @@ extends GuiScriptInterface {
 	public GuiScriptClient() {
 		this.script = new ClientScriptData();
 		this.handler = this.script;
-		Client.sendData(EnumPacketServer.ScriptClientGet, new Object[0]);
+		Client.sendData(EnumPacketServer.ScriptClientGet);
 		for (Class<?> cls : CustomNpcs.forgeClientEventNames.keySet()) {
 			this.baseFuncNames.put(CustomNpcs.forgeClientEventNames.get(cls), cls);
 		}

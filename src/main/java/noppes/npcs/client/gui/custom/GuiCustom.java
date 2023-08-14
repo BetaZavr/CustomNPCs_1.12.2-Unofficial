@@ -51,19 +51,20 @@ public class GuiCustom
 extends GuiContainer
 implements ICustomScrollListener, IGuiData {
 	
-	public static int guiLeft;
-	public static int guiTop;
 	ResourceLocation background;
-	List<IClickListener> clickListeners;
 	Map<Integer, IGuiComponent> components;
-	List<IDataHolder> dataHolders;
 	CustomGuiWrapper gui;
-	public String[] hoverText;
+	
+	List<IClickListener> clickListeners;
 	List<ICustomKeyListener> keyListeners;
-	public ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png"); // New
-	int xSize;
-	int ySize;
+	List<IDataHolder> dataHolders;
+	
+	protected int xSize, ySize;
 	private int stretched, bgW, bgH, bgTx, bgTy;
+
+	public static int guiLeft, guiTop;
+	public String[] hoverText;
+	public ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 
 	public GuiCustom(ContainerCustomGui container) {
 		super((Container) container);

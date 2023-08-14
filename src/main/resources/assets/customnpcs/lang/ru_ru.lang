@@ -2895,6 +2895,27 @@ method.setx=Установить значение по оси X
 method.sety=Установить значение по оси Y
 method.setz=Установить значение по оси Z
 method.trigger=Активировать скриптовый триггер
+method.ikeybinding.getkeysetting=Возвращает настроенную клавишу для своего действия
+method.ikeybinding.getkeysettings=Возвращает список настроенных клавиш для своего действия
+method.ikeybinding.removekeysetting=Удалить настроенную клавишу для своего действия
+method.ikeysetting.getname=Возвращает имя настройки
+method.ikeysetting.setname=Установить имя настройки
+method.ikeysetting.getcategory=Возвращает имя категории настройки
+method.ikeysetting.setcategory=Установить имя категории настройки
+method.ikeysetting.getid=Возвращает порядковый ID этой настройки
+method.ikeysetting.getkeyid=Возвращает ID главной клавиши
+method.ikeysetting.getmodifertype=Возвращает тип дополнительной клавиши<br>§60§7-Нет, §61§7-Shift, §62§7-Ctrl, §63§7-Alt
+method.ikeysetting.setkeyid=Установить ID главной клавиши
+method.ikeysetting.setmodifertype=Установить тип дополнительной клавиши
+method.ikeysetting.getnbt=Возвращает набор тегов, в которые записаны эти настройки
+method.ikeysetting.setnbt=Переписать эти настройки через набор тегов
+parameter.ikeysetting.name=имя настройки
+parameter.ikeysetting.catname=имя категории настройки
+parameter.ikeysetting.type=тип дополнительной клавиши<br>§60§7-Нет, §61§7-Shift, §62§7-Ctrl, §63§7-Alt
+
+method.idata.getnbt=Возвращает набор тегов, в которые записаны данные даты
+method.idata.setnbt=Переписать данные в дате через набор тегов
+
 
 model.arms=Руки
 model.body=Торс

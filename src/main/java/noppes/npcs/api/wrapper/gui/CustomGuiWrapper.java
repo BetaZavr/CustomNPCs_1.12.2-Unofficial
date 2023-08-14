@@ -36,10 +36,9 @@ implements ICustomGui {
 	boolean pauseGame;
 	// New
 	private EntityPlayer player;
-	int playerInvX;
-	int playerInvY;
+	int playerInvX, playerInvY;
 	ScriptContainer scriptHandler;
-	boolean showPlayerInv;
+	boolean showPlayerInv, isIndependent;
 	List<IItemSlot> slots;
 	int width;
 	public int stretched, bgW, bgH, bgTx, bgTy;
@@ -48,7 +47,7 @@ implements ICustomGui {
 		this.backgroundTexture = "";
 		this.components = new ArrayList<ICustomGuiComponent>();
 		this.slots = new ArrayList<IItemSlot>();
-		// New
+		this.isIndependent = false;
 		this.player = player;
 		this.stretched = 0;
 		this.bgW = 0;
@@ -66,7 +65,7 @@ implements ICustomGui {
 		this.height = height;
 		this.pauseGame = pauseGame;
 		this.scriptHandler = ScriptContainer.Current;
-		// New
+		this.isIndependent = false;
 		this.player = player;
 		this.stretched = 0;
 		this.bgW = 0;
@@ -168,6 +167,7 @@ implements ICustomGui {
 		this.bgH = tag.getInteger("bgHeight");
 		this.bgTx = tag.getInteger("bgTextureX");
 		this.bgTy = tag.getInteger("bgTextureY");
+		this.isIndependent = tag.getBoolean("isIndependent");
 		List<ICustomGuiComponent> components = new ArrayList<ICustomGuiComponent>();
 		NBTTagList list = tag.getTagList("components", 10);
 		for (NBTBase b : list) {
@@ -324,6 +324,7 @@ implements ICustomGui {
 		tag.setInteger("bgHeight", this.bgH);
 		tag.setInteger("bgTextureX", this.bgTx);
 		tag.setInteger("bgTextureY", this.bgTy);
+		tag.setBoolean("isIndependent", this.isIndependent);
 		NBTTagList list = new NBTTagList();
 		for (ICustomGuiComponent c : this.components) {
 			list.appendTag(((CustomGuiComponentWrapper) c).toNBT(new NBTTagCompound()));

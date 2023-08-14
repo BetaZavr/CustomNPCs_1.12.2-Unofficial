@@ -261,7 +261,7 @@ implements IItemScripted, IScriptHandler {
 		if (!compound.hasKey("Scripts")) {
 			return;
 		}
-		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this);
+		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}

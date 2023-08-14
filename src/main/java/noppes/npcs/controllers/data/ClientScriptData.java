@@ -77,13 +77,13 @@ implements IScriptHandler {
 
 	private void createScript() {
 		if (this.script==null) {
-			this.script = new ScriptContainer(this);
+			this.script = new ScriptContainer(this, true);
 		}
 	}
 
 	@Override
 	public boolean isClient() {
-		return CustomNpcs.Server == null || (CustomNpcs.Server != null && !CustomNpcs.Server.isDedicatedServer()) || (CustomNpcs.proxy.getPlayer()!=null && !CustomNpcs.proxy.getPlayer().isServerWorld());
+		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
 	}
 
 	public boolean isEnabled() {
@@ -108,9 +108,7 @@ implements IScriptHandler {
 	}
 
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
+		if (!this.isEnabled()) { return; }
 		CustomNpcs.Server.addScheduledTask(() -> {
 			if (ScriptController.Instance.lastLoaded > this.lastInited) {
 				this.lastInited = ScriptController.Instance.lastLoaded;

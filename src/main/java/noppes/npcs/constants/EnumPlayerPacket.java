@@ -54,6 +54,7 @@ public enum EnumPlayerPacket
 	ScriptPackage,
 	MovingPathGet,
 	KeyActive,
-	StopNPCAnimation;
+	StopNPCAnimation,
+	OpenGui;
 	
 }

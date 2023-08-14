@@ -203,26 +203,22 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			if (this instanceof GuiScriptClient) {
 				this.activeTab = 1;
 			} else {
-				this.handler.getScripts().add(new ScriptContainer(this.handler));
+				this.handler.getScripts().add(new ScriptContainer(this.handler, this instanceof GuiScriptClient));
 				this.activeTab = this.handler.getScripts().size();
 			}
 			this.initGui();
 		}
 		if (guibutton.id == 109) {
-			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this,
-					"http://www.kodevelopment.nl/minecraft/customnpcs/scripting", 0, true));
+			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.kodevelopment.nl/minecraft/customnpcs/scripting", 0, true));
 		}
 		if (guibutton.id == 110) {
-			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this,
-					"http://www.kodevelopment.nl/customnpcs/api/", 1, true));
+			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.kodevelopment.nl/customnpcs/api/", 1, true));
 		}
 		if (guibutton.id == 111) {
-			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this,
-					"https://github.com/Noppes/CustomNPCsAPI", 2, true));
+			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "https://github.com/Noppes/CustomNPCsAPI", 2, true));
 		}
 		if (guibutton.id == 112) {
-			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this,
-					"http://www.minecraftforge.net/forum/index.php/board,122.0.html", 3, true));
+			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.minecraftforge.net/forum/index.php/board,122.0.html", 3, true));
 		}
 		if (guibutton.id == 100) {
 			NoppesStringUtils.setClipboardContents(((GuiTextArea) this.get(2)).getText());
@@ -246,8 +242,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			this.handler.setEnabled(((GuiNpcButton) guibutton).getValue() == 1);
 		}
 		if (guibutton.id == 105) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 10);
+			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 10);
 			this.displayGuiScreen((GuiScreen) guiyesno);
 		}
 		if (guibutton.id == 106) {
@@ -256,7 +251,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (guibutton.id == 107) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
-				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
+				this.handler.getScripts().add(container = new ScriptContainer(this.handler, this instanceof GuiScriptClient));
 			}
 			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
 		}
@@ -479,7 +474,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (text != null && !text.isEmpty()) {
 				if (container == null) {
-					this.handler.getScripts().add(container = new ScriptContainer(this.handler));
+					this.handler.getScripts().add(container = new ScriptContainer(this.handler, this instanceof GuiScriptClient));
 				}
 				String newText = text;
 				newText = newText.replace("\r\n", "\n");
@@ -857,12 +852,27 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (this.activeTab > 0) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
-				this.handler.getScripts().add(container = new ScriptContainer(this.handler));
+				this.handler.getScripts().add(container = new ScriptContainer(this.handler, this instanceof GuiScriptClient));
 			}
 			String text = ((GuiTextArea) this.get(2)).getText();
 			text = text.replace("\r\n", "\n");
 			text = text.replace("\r", "\n");
 			container.script = text;
+			if (this instanceof GuiScriptClient) {
+				container.isClient = true;
+				container.fullscript = container.script;
+				if (!container.fullscript.isEmpty()) { container.fullscript += "\n"; }
+				Map<String, String> map = ScriptController.Instance.clients;
+				for (String loc : container.scripts) {
+					String code = map.get(loc);
+					if (code != null && !code.isEmpty()) {
+						container.fullscript = container.fullscript + code + "\n";
+					}
+				}
+				if (map.containsKey("all.js")){
+					container.fullscript = map.get("all.js") + "\n"+container.fullscript;
+				}
+			}
 		}
 	}
 

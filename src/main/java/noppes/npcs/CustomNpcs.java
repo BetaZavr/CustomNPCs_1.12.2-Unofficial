@@ -188,6 +188,8 @@ public class CustomNpcs {
 	public static boolean showLR = true;
 	@ConfigProp(info = "Display player balance in inventory")
 	public static boolean showMoney = true;
+	@ConfigProp(info = "Display player Quest Compass")
+	public static boolean showQuestCompass = true;
 	@ConfigProp(info = "Normal players can use soulstone on animals")
 	public static boolean SoulStoneAnimals = true;
 	@ConfigProp(info = "Normal players can use soulstone on all npcs")

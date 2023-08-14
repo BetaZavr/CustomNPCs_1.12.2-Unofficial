@@ -95,15 +95,13 @@ public class VersionCompatibility {
 		if (npc.npcVersion == 15) {
 			NBTTagList list = compound.getTagList("ScriptsContainers", 10);
 			if (list.tagCount() > 0) {
-				ScriptContainer script = new ScriptContainer(npc.script);
+				ScriptContainer script = new ScriptContainer(npc.script, false);
 				for (int i = 0; i < list.tagCount(); ++i) {
 					NBTTagCompound scriptOld = list.getCompoundTagAt(i);
 					EnumScriptType type = EnumScriptType.values()[scriptOld.getInteger("Type")];
 					StringBuilder sb = new StringBuilder();
 					ScriptContainer scriptContainer = script;
-					scriptContainer.script = sb.append(scriptContainer.script).append("\nfunction ")
-							.append(type.function).append("(event) {\n").append(scriptOld.getString("Script"))
-							.append("\n}").toString();
+					scriptContainer.script = sb.append(scriptContainer.script).append("\nfunction ").append(type.function).append("(event) {\n").append(scriptOld.getString("Script")) .append("\n}").toString();
 					for (String s : NBTTags.getStringList(compound.getTagList("ScriptList", 10))) {
 						if (!script.scripts.contains(s)) {
 							script.scripts.add(s);

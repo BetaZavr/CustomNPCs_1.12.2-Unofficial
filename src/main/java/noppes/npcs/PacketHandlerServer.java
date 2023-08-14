@@ -399,7 +399,6 @@ public class PacketHandlerServer {
 			}
 			npc.dialogs = newIDs;
 			NoppesUtilServer.sendNpcDialogs(player);
-			//npc.dialogs.remove(buffer.readInt());
 		} else if (type == EnumPacketServer.DialogNpcMove) {
 			NoppesUtilServer.moveNpcDialogs(player, buffer.readInt(), buffer.readBoolean());
 		} else if (type == EnumPacketServer.SpawnerNpcMove) {
@@ -450,7 +449,7 @@ public class PacketHandlerServer {
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setInteger("MinimumID", id);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-		} else if (type == EnumPacketServer.QuestDialogGetTitle) { // Changed
+		} else if (type == EnumPacketServer.QuestDialogGetTitle) {
 			Dialog dialog = DialogController.instance.dialogs.get(buffer.readInt());
 			if (dialog == null) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
@@ -551,7 +550,6 @@ public class PacketHandlerServer {
 					} else {
 						playerdata = PlayerData.get(pl);
 					}
-					// EnumPlayerData.Players
 					File file = new File(CustomNpcs.getWorldSaveDirectory("playerdata"), playerdata.uuid + ".json");
 					if (file.exists()) { file.delete(); }
 					if (pl != null) {
@@ -591,7 +589,7 @@ public class PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			IItemStack stack = NpcAPI.Instance().getIItemStack(new ItemStack(compound.getCompoundTag("Item")));
 			DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
-			if (stack.isEmpty()) { // delete
+			if (stack.isEmpty()) {
 				if (dropType==1) {
 					if (template!=null) {
 						if (slot<0) { template.removeGroup(groupId); }
@@ -599,7 +597,7 @@ public class PacketHandlerServer {
 					}
 				}
 				else { npc.inventory.removeDrop(slot); }
-			} else if (slot == -1) { // add new
+			} else if (slot == -1) {
 				DropSet drop = null;
 				if (dropType==1) {
 					if (template!=null) {
@@ -609,13 +607,13 @@ public class PacketHandlerServer {
 				else { drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d); }
 				if (drop!=null) { drop.load(compound); }
 			}
-			else { // resave
+			else {
 				if (dropType==1) {
 					if (template!=null && template.groups.containsKey(groupId) && template.groups.get(groupId).containsKey(slot)) {
 						template.groups.get(groupId).get(slot).load(compound);
 					}
 				}
-				else if (npc.inventory.drops.containsKey(slot)) { // resave
+				else if (npc.inventory.drops.containsKey(slot)) {
 					npc.inventory.drops.get(slot).load(compound);
 				}
 			}
@@ -885,7 +883,7 @@ public class PacketHandlerServer {
 			npc.script.lastInited = -1L;
 		} else if (type == EnumPacketServer.ScriptDataGet) {
 			NBTTagCompound compound = npc.script.writeToNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.DimensionSettings) {
 			int id = buffer.readInt();
@@ -923,20 +921,18 @@ public class PacketHandlerServer {
 			}
 			NoppesUtilPlayer.teleportPlayer(player, coords.getX(), coords.getY(), coords.getZ(), dimension);
 		} else if (type == EnumPacketServer.ScriptBlockDataGet) {
-			TileEntity tile = player.world
-					.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+			TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
 			if (!(tile instanceof TileScripted)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			NBTTagCompound compound = ((TileScripted) tile).getNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptItemDataGet) {
-			ItemScriptedWrapper iw = (ItemScriptedWrapper) NpcAPI.Instance()
-					.getIItemStack(player.getHeldItemMainhand());
+			ItemScriptedWrapper iw = (ItemScriptedWrapper) NpcAPI.Instance().getIItemStack(player.getHeldItemMainhand());
 			NBTTagCompound compound = iw.getMCNbt();
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptItemDataSave) {
 			if (!player.isCreative()) {
@@ -954,20 +950,20 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.ScriptForgeGet) {
 			ForgeScriptData data = ScriptController.Instance.forgeScripts;
 			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptForgeSave) {
 			ScriptController.Instance.setForgeScripts(Server.readNBT(buffer));
 		} else if (type == EnumPacketServer.ScriptClientGet) {
 			ClientScriptData data = ScriptController.Instance.clientScripts;
 			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(true));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptClientSave) {
 			ScriptController.Instance.setClientScripts(Server.readNBT(buffer));
 		} else if (type == EnumPacketServer.ScriptPlayerGet) {
 			NBTTagCompound compound = ScriptController.Instance.playerScripts.writeToNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptPlayerSave) {
 			ScriptController.Instance.setPlayerScripts(Server.readNBT(buffer));
@@ -1014,7 +1010,7 @@ public class PacketHandlerServer {
 				return;
 			}
 			NBTTagCompound compound = ((TileScriptedDoor) tile).getNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.SchematicsTile) {
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
@@ -1039,13 +1035,13 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.SchematicsBuild) {
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 			TileEntity t = player.world.getTileEntity(pos);
-			if (t instanceof TileBuilder) { // Builder Block
+			if (t instanceof TileBuilder) {
 				TileBuilder tile = (TileBuilder) t;
 				SchematicWrapper schem = tile.getSchematic();
 				schem.init(pos.add(1, tile.yOffest, 1), player.world, tile.rotation * 90);
 				SchematicController.Instance.build(tile.getSchematic(), player);
 				player.world.setBlockToAir(pos);
-			} else { // Builder Item
+			} else {
 				int rotaion = buffer.readInt();
 				NBTTagCompound compound = Server.readNBT(buffer);
 				Schematic schema = new Schematic("");
@@ -1083,7 +1079,6 @@ public class PacketHandlerServer {
 				entity.readFromNBT(compound);
 			}
 		}
-		// New
 		else if (type == EnumPacketServer.NbtBookSaveItem) {
 			NBTTagCompound stackNBT = Server.readNBT(buffer);
 			ItemStack stack = new ItemStack(stackNBT);
@@ -1216,12 +1211,8 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.TraderMarketNew) {
 			MarcetController mData = MarcetController.getInstance();
 			Marcet marcet = mData.getMarcet(buffer.readInt());
-			if (marcet == null) {
-				marcet = mData.addMarcet();
-			} // New Marcet
-			else {
-				marcet.addDeal();
-			} // New Deal
+			if (marcet == null) { marcet = mData.addMarcet(); }
+			else { marcet.addDeal(); }
 			MarcetController.getInstance().saveMarcet(marcet);
 			Server.sendData(player, EnumPacketClient.SET_MARCETS, mData.getNBT());
 		} else if (type == EnumPacketServer.TraderMarketDel) {
@@ -1232,7 +1223,7 @@ public class PacketHandlerServer {
 				return;
 			}
 			Deal deal = marcet.data.get(buffer.readInt());
-			if (deal == null) { // Remove Marcet
+			if (deal == null) {
 				for (EntityPlayer listener : marcet.listeners) {
 					Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_CLOSE, marcet.id);
 				}
@@ -1246,7 +1237,7 @@ public class PacketHandlerServer {
 		}
 		else if (type == EnumPacketServer.GetClone) {
 			NBTTagCompound npcNbt = null;
-			if (buffer.readBoolean()) { // is Job Spawner
+			if (buffer.readBoolean()) {
 				if (npc!=null && npc.advanced.jobInterface instanceof JobSpawner) {
 					SpawnNPCData sd = ((JobSpawner) npc.advanced.jobInterface).get(buffer.readInt(), buffer.readBoolean());
 					if (sd!=null && sd.compound!=null) {
@@ -1257,7 +1248,7 @@ public class PacketHandlerServer {
 					}
 				}
 			}
-			else { // get Server Clone
+			else {
 				npcNbt = ServerCloneController.Instance.getCloneData(player, Server.readString(buffer), buffer.readInt());
 			}
 			if (npcNbt!=null) {
@@ -1266,16 +1257,16 @@ public class PacketHandlerServer {
 				Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 			}
 		}
-		else if (type == EnumPacketServer.ScriptPotionGet) { // New
+		else if (type == EnumPacketServer.ScriptPotionGet) {
 			PotionScriptData data = ScriptController.Instance.potionScripts;
 			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
-			compound.setTag("Languages", ScriptController.Instance.nbtLanguages());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		}
-		else if (type == EnumPacketServer.ScriptPotionSave) { // New
+		else if (type == EnumPacketServer.ScriptPotionSave) {
 			ScriptController.Instance.setPotionScripts(Server.readNBT(buffer));
 		}
-		else if (type == EnumPacketServer.TeleportTo) { // New
+		else if (type == EnumPacketServer.TeleportTo) {
 			int dimensionId = buffer.readInt();
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 			if (player.world.provider.getDimension()==dimensionId) {
@@ -1284,10 +1275,10 @@ public class PacketHandlerServer {
 			}
 			try { AdditionalMethods.teleportEntity(CustomNpcs.Server, player, dimensionId, pos); } catch (Exception e) { }
 		}
-		else if (type == EnumPacketServer.RegionData) { // New
+		else if (type == EnumPacketServer.RegionData) {
 			int t = buffer.readInt();
 			BorderController bData = BorderController.getInstance();
-			if (t==0) { // set reg id to item
+			if (t==0) {
 				int regId = buffer.readInt();
 				if (!bData.regions.containsKey(regId)) {
 					bData.sendTo(player);
@@ -1299,7 +1290,7 @@ public class PacketHandlerServer {
 					compound.setInteger("RegionID", regId);
 				}
 			}
-			else if (t==1) { // remove region
+			else if (t==1) {
 				int regId = buffer.readInt();
 				if (!bData.regions.containsKey(regId)) {
 					bData.sendTo(player);
@@ -1314,7 +1305,7 @@ public class PacketHandlerServer {
 					for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) { bData.sendTo(p); }
 				}
 			}
-			if (t==2) { // save region
+			if (t==2) {
 				Zone3D reg = bData.loadRegion(Server.readNBT(buffer));
 				if (reg!=null) {
 					bData.saveRegions();
@@ -1322,7 +1313,7 @@ public class PacketHandlerServer {
 				}
 			}
 		}
-		else if (type == EnumPacketServer.OpenBuilder) { // New
+		else if (type == EnumPacketServer.OpenBuilder) {
 			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
 			int id = player.getHeldItemMainhand().getTagCompound().getInteger("ID");
 			NBTTagCompound compound = Server.readNBT(buffer);

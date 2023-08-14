@@ -138,6 +138,7 @@ extends Gui
 				component.onRender(this.mc, -1, -1, 0, 0);
 			}
 		}
+		
 		TreeMap<Integer, TreeMap<Integer, IItemSlot>> mapS = hud.getGuiSlots();
 		for (int type : mapS.keySet()) {
 			int[] os = this.getOffset(type);
@@ -162,151 +163,138 @@ extends Gui
 			}
 		}
 		
-		String name = "", title = "";
-		double[] p = null;
-		int type = 0, range = 5;
-		String n = "";
-		if (hud.compassData.show) {
-			p = new double[] { hud.compassData.pos.getX()-0.5d, hud.compassData.pos.getY()+0.5d, hud.compassData.pos.getZ()+0.5d };
-			name = hud.compassData.name;
-			title = hud.compassData.title;
-			type = hud.compassData.getType();
-			if (this.mc.world.provider.getDimension()!=hud.compassData.getDimensionID()) { type = 7; }
-			range = hud.compassData.getRange();
-			if (hud.compassData.getNPCName().isEmpty()) {
-				n = new TextComponentTranslation("entity."+hud.compassData.getNPCName()+".name").getFormattedText();
-				n = n.substring(0, n.length()-2);
-				if (n.equals("entity."+hud.compassData.getNPCName()+".name")) { n = hud.compassData.getNPCName(); 	}
-			}
-		} else {
-			if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || (hud.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
-				for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
-					if (id!=hud.questID && id>0) {
-						hud.questID = id;
+		if (CustomNpcs.showQuestCompass) {
+			String name = "", title = "";
+			double[] p = null;
+			int type = 0, range = 5;
+			String n = "";
+			if (hud.compassData.show) {
+				p = new double[] { hud.compassData.pos.getX()-0.5d, hud.compassData.pos.getY()+0.5d, hud.compassData.pos.getZ()+0.5d };
+				name = hud.compassData.name;
+				title = hud.compassData.title;
+				type = hud.compassData.getType();
+				if (this.mc.world.provider.getDimension()!=hud.compassData.getDimensionID()) { type = 7; }
+				range = hud.compassData.getRange();
+				if (hud.compassData.getNPCName().isEmpty()) {
+					n = new TextComponentTranslation("entity."+hud.compassData.getNPCName()+".name").getFormattedText();
+					n = n.substring(0, n.length()-2);
+					if (n.equals("entity."+hud.compassData.getNPCName()+".name")) { n = hud.compassData.getNPCName(); 	}
+				}
+			} else {
+				if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || (hud.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
+					for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
+						if (id!=hud.questID && id>0) {
+							hud.questID = id;
+							break;
+						}
+					}
+				}
+				QuestData qData = ClientProxy.playerData.questData.activeQuests.get(hud.questID);
+				if (qData!=null) {
+					double minD = Double.MAX_VALUE;
+					QuestObjective select = null;
+					for (IQuestObjective io : qData.quest.questInterface.getObjectives(this.mc.player)) {
+						QuestObjective o = (QuestObjective) io;
+						if (o.isCompleted()) { continue; }
+						if (qData.quest.step!=1) {
+							if (o.rangeCompass==0 && select==null) {
+								select = o;
+							} else if (o.rangeCompass!=0) {
+								double d = AdditionalMethods.instance.distanceTo(o.pos.getX()+0.5d, o.pos.getY(), o.pos.getZ()+0.5d, this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ);
+								if (d <= minD) {
+									minD = d;
+									select = o;
+								}
+							}
+							continue;
+						}
+						select = o;
 						break;
 					}
-				}
-			}
-			QuestData qData = ClientProxy.playerData.questData.activeQuests.get(hud.questID);
-			if (qData!=null) {
-				double minD = Double.MAX_VALUE;
-				QuestObjective select = null;
-				for (IQuestObjective io : qData.quest.questInterface.getObjectives(this.mc.player)) {
-					QuestObjective o = (QuestObjective) io;
-					if (o.isCompleted()) { continue; }
-					if (qData.quest.step!=1) {
-						if (o.rangeCompass==0 && select==null) {
-							select = o;
-						} else if (o.rangeCompass!=0) {
-							double d = AdditionalMethods.instance.distanceTo(o.pos.getX()+0.5d, o.pos.getY(), o.pos.getZ()+0.5d, this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ);
-							if (d <= minD) {
-								minD = d;
-								select = o;
-							}
-						}
-						continue;
-					}
-					select = o;
-					break;
-				}
-				if (select!=null) {
-					name = qData.quest.getTitle();
-					type = select.getType();
-					if (!select.getOrientationEntityName().isEmpty()) {
-						n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
-						n = n.substring(0, n.length()-2);
-						if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
-					}
-					if (this.mc.world.provider.getDimension()!=select.dimensionID) { type = 7; }
-					if (type!=EnumQuestTask.KILL.ordinal() && type!=EnumQuestTask.AREAKILL.ordinal()) { range = 1; }
-					if (select.rangeCompass>0) {
-						range = select.rangeCompass;
-						EnumQuestTask t = EnumQuestTask.values()[select.getType()];
-						p = new double[] { select.pos.getX()-0.5d, select.pos.getY()+0.5d, select.pos.getZ()+0.5d };
-						if (t == EnumQuestTask.ITEM) {
-							title = new TextComponentTranslation("gui.get").getFormattedText()+": "+select.getItem().getDisplayName() + ": " + select.getProgress() + "/" + select.getMaxProgress();
-						}
-						else if (t == EnumQuestTask.CRAFT) {
-							title = new TextComponentTranslation("gui.get").getFormattedText()+": "+select.getItem().getDisplayName() + ": " + select.getProgress() + "/" + select.getMaxProgress();
-						}
-						else if (t == EnumQuestTask.DIALOG) {
-							title = new TextComponentTranslation("gui.read").getFormattedText()+": ";
-							Dialog dialog = DialogController.instance.dialogs.get(select.getTargetID());
-							if (dialog != null) { title += new TextComponentTranslation(dialog.title).getFormattedText(); }
-							else { title = "Dialog"; }
-						}
-						else if (t == EnumQuestTask.LOCATION) {
-							title = new TextComponentTranslation("gui.found").getFormattedText()+": "+select.getTargetName();
-						}
-						else if (EnumQuestTask.values()[select.getType()] == EnumQuestTask.MANUAL) {
-							title = new TextComponentTranslation("gui.do").getFormattedText()+": "+select.getTargetName();
-						}
-						if (t == EnumQuestTask.KILL || t == EnumQuestTask.AREAKILL) {
-							n = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
+					if (select!=null) {
+						name = qData.quest.getTitle();
+						type = select.getType();
+						if (!select.getOrientationEntityName().isEmpty()) {
+							n = new TextComponentTranslation("entity."+select.getOrientationEntityName()+".name").getFormattedText();
 							n = n.substring(0, n.length()-2);
-							if (n.equals("entity."+select.getTargetName()+".name")) { n = select.getTargetName(); 	}
-							title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+n+ ": " + select.getProgress() + "/" + select.getMaxProgress();
+							if (n.equals("entity."+select.getOrientationEntityName()+".name")) { n = select.getOrientationEntityName(); 	}
 						}
-					}
-				} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && !qData.quest.completerNpc.isEmpty()){
-					p = new double[] { qData.quest.completerPos[0]-0.5d, qData.quest.completerPos[1]+0.5d, qData.quest.completerPos[2]+0.5d };
-					type = EnumQuestTask.DIALOG.ordinal();
-					if (this.mc.world.provider.getDimension()!=qData.quest.completerPos[3]) { type = 7; }
-					else {
-						AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(64.0d, 128.0d, 64.0d);
-						List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
-						double d = 65535.0d;
-						Vec3i v = new Vec3i(p[0], p[1], p[2]);
-						EntityLivingBase et = null;
-						for (EntityLivingBase el : ents) {
-							if (!el.getName().equals(qData.quest.completerNpc)) { continue; }
-							double r = v.distanceSq((Vec3i) el.getPosition());
-							if (et == null) { d = r; et = el; }
-							else {
-								if (r >= d) { continue; }
-								d = r;
-								et = el;
+						if (this.mc.world.provider.getDimension()!=select.dimensionID) { type = 7; }
+						if (type!=EnumQuestTask.KILL.ordinal() && type!=EnumQuestTask.AREAKILL.ordinal()) { range = 1; }
+						if (select.rangeCompass>0) {
+							range = select.rangeCompass;
+							EnumQuestTask t = EnumQuestTask.values()[select.getType()];
+							p = new double[] { select.pos.getX()-0.5d, select.pos.getY()+0.5d, select.pos.getZ()+0.5d };
+							if (t == EnumQuestTask.ITEM) {
+								title = new TextComponentTranslation("gui.get").getFormattedText()+": "+select.getItem().getDisplayName() + ": " + select.getProgress() + "/" + select.getMaxProgress();
+							}
+							else if (t == EnumQuestTask.CRAFT) {
+								title = new TextComponentTranslation("gui.get").getFormattedText()+": "+select.getItem().getDisplayName() + ": " + select.getProgress() + "/" + select.getMaxProgress();
+							}
+							else if (t == EnumQuestTask.DIALOG) {
+								title = new TextComponentTranslation("gui.read").getFormattedText()+": ";
+								Dialog dialog = DialogController.instance.dialogs.get(select.getTargetID());
+								if (dialog != null) { title += new TextComponentTranslation(dialog.title).getFormattedText(); }
+								else { title = "Dialog"; }
+							}
+							else if (t == EnumQuestTask.LOCATION) {
+								title = new TextComponentTranslation("gui.found").getFormattedText()+": "+select.getTargetName();
+							}
+							else if (EnumQuestTask.values()[select.getType()] == EnumQuestTask.MANUAL) {
+								title = new TextComponentTranslation("gui.do").getFormattedText()+": "+select.getTargetName();
+							}
+							if (t == EnumQuestTask.KILL || t == EnumQuestTask.AREAKILL) {
+								n = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
+								n = n.substring(0, n.length()-2);
+								if (n.equals("entity."+select.getTargetName()+".name")) { n = select.getTargetName(); 	}
+								title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+n+ ": " + select.getProgress() + "/" + select.getMaxProgress();
 							}
 						}
-						if (et!=null) {
-							p[0] = et.posX;
-							p[1] = et.posY;
-							p[2] = et.posZ;
-							range = 1;
+					} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && !qData.quest.completerNpc.isEmpty()){
+						p = new double[] { qData.quest.completerPos[0]-0.5d, qData.quest.completerPos[1]+0.5d, qData.quest.completerPos[2]+0.5d };
+						type = EnumQuestTask.DIALOG.ordinal();
+						if (this.mc.world.provider.getDimension()!=qData.quest.completerPos[3]) { type = 7; }
+						else {
+							AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(64.0d, 128.0d, 64.0d);
+							List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityNPCInterface.class, bb);
+							double d = 65535.0d;
+							Vec3i v = new Vec3i(p[0], p[1], p[2]);
+							EntityLivingBase et = null;
+							for (EntityLivingBase el : ents) {
+								if (!el.getName().equals(qData.quest.completerNpc)) { continue; }
+								double r = v.distanceSq((Vec3i) el.getPosition());
+								if (et == null) { d = r; et = el; }
+								else {
+									if (r >= d) { continue; }
+									d = r;
+									et = el;
+								}
+							}
+							if (et!=null) {
+								p[0] = et.posX;
+								p[1] = et.posY;
+								p[2] = et.posZ;
+								range = 1;
+							}
 						}
 					}
 				}
 			}
-		}
-		if (!n.isEmpty() && p!=null) {
-			EntityLivingBase e = null;
-			AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, 1.5d, range);
-			List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
-			if (n.equals("Player")) {
-				EntityPlayer pl = this.mc.world.getClosestPlayerToEntity(this.mc.player, 32.0d);
-				if (pl!=null && pl.getActivePotionEffect(Potion.getPotionFromResourceLocation("minecraft:invisibility"))==null) {
-					e = pl;
-					range = 1;
-				}
-			}
-			if (e==null) {
-				double d = range * range * range;
-				EntityLivingBase et = null;
-				Vec3i v = new Vec3i(p[0], p[1], p[2]);
-				for (EntityLivingBase el : ents) {
-					if (!el.getName().equals(n)) { continue; }
-					double r = v.distanceSq((Vec3i) el.getPosition());
-					if (et == null) { d = r; et = el; }
-					else {
-						if (r >= d) { continue; }
-						d = r;
-						et = el;
+			if (!n.isEmpty() && p!=null) {
+				EntityLivingBase e = null;
+				AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, 1.5d, range);
+				List<EntityLivingBase> ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+				if (n.equals("Player")) {
+					EntityPlayer pl = this.mc.world.getClosestPlayerToEntity(this.mc.player, 32.0d);
+					if (pl!=null && pl.getActivePotionEffect(Potion.getPotionFromResourceLocation("minecraft:invisibility"))==null) {
+						e = pl;
+						range = 1;
 					}
 				}
-				if (et==null) {
-					bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, range, range);
-					ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
-					d = range * range * range;
+				if (e==null) {
+					double d = range * range * range;
+					EntityLivingBase et = null;
+					Vec3i v = new Vec3i(p[0], p[1], p[2]);
 					for (EntityLivingBase el : ents) {
 						if (!el.getName().equals(n)) { continue; }
 						double r = v.distanceSq((Vec3i) el.getPosition());
@@ -317,129 +305,144 @@ extends Gui
 							et = el;
 						}
 					}
+					if (et==null) {
+						bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(p[0], p[1], p[2]).grow(range, range, range);
+						ents = this.mc.world.getEntitiesWithinAABB(EntityLivingBase.class, bb);
+						d = range * range * range;
+						for (EntityLivingBase el : ents) {
+							if (!el.getName().equals(n)) { continue; }
+							double r = v.distanceSq((Vec3i) el.getPosition());
+							if (et == null) { d = r; et = el; }
+							else {
+								if (r >= d) { continue; }
+								d = r;
+								et = el;
+							}
+						}
+					}
+					e = et;
+					range = 1;
 				}
-				e = et;
-				range = 1;
-			}
-			if (e!=null) {
-				p[0] = e.posX;
-				p[1] = e.posY;
-				p[2] = e.posZ;
-			}
-		}
-		
-		if (p!=null && p.length>=3) {
-			double[] angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
-			float scale = -30.0f * hud.compassData.scale;
-			float incline = -45.0f + hud.compassData.incline;
-			double[] uvPos = new double[] { this.sw.getScaledWidth_double() * hud.compassData.screenPos[0], this.sw.getScaledHeight_double() * hud.compassData.screenPos[1] };
-
-			GlStateManager.pushMatrix();
-			
-			if (this.qt<40) {
-				
-				this.qt++;
-			}
-			else if (this.qt>0 && p==null) {
-				
-				this.qt--;
-			}
-			
-			GlStateManager.translate(uvPos[0], uvPos[1], 0.0d);
-			
-			// Named
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(0.0d, 33.0f, 0.0d);
-			int i = 0;
-			if (hud.compassData.showQuestName) {
-				this.drawCenteredString(this.mc.fontRenderer, name, 0, 0, 0xFFFFFFFF);
-				i = 12;
-			}
-			if (hud.compassData.showTaskProgress) { this.drawCenteredString(this.mc.fontRenderer, title, 0, i, 0xFFFFFFFF); }
-			GlStateManager.popMatrix();
-
-			this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-			GlStateManager.translate(0.0f, -31.42857f * hud.compassData.scale + 30.71429f, 0.0f);
-			GlStateManager.scale(scale, scale, scale);
-			GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
-			if (hud.compassData.rot!=0.0f)  { GlStateManager.rotate(hud.compassData.rot, 0.0f, 1.0f, 0.0f); }
-			GlStateManager.enableDepth();
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.enableRescaleNormal();
-			GlStateManager.enableLighting();
-			RenderHelper.enableStandardItemLighting();
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
-			
-			//ClientGuiEventHandler.compasRes = new ResourceLocation(CustomNpcs.MODID+":models/util/compass2.obj");
-			
-			// Body
-			GlStateManager.pushMatrix();
-			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("body"), null));
-			GlStateManager.popMatrix();
-			
-			// Dial
-			GlStateManager.pushMatrix();
-			GlStateManager.rotate(-1.0f * this.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
-			GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("dial"), null));
-			GlStateManager.popMatrix();
-			
-			// Arrow_0
-			GlStateManager.pushMatrix();
-			if (angles!=null && (range==1 || angles[3]>range)) {
-				float yaw = this.mc.player.rotationYaw % 360.0f;
-				if (yaw<0) { yaw += 360.0f; }
-				GlStateManager.rotate(180.0f + yaw - (float) angles[0], 0.0f, 1.0f, 0.0f);
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_0"), null));
-			} else {
-				double t = System.currentTimeMillis()%4000.0d;
-				double f0 = t<2000.0d ? -0.00033d * t + 1.0d : 0.00033 * t - 0.30033d; 
-				GlStateManager.scale(f0, f0, f0);
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_3"), null));
-			}
-			GlStateManager.popMatrix();
-
-			// Arrow_1 upper
-			double yP = 0.0d;
-			if (p!=null) {
-				yP = -0.25d * (this.mc.player.posY - p[1]) / (double) range;
-				GlStateManager.pushMatrix();
-				if (yP >= -0.25d && yP <= 0.25d) { GlStateManager.translate(0.0d, yP, 0.0d); }
-				else {
-					if (yP > 0.25d) { GlStateManager.translate(0.0d, 0.275d, 0.0d); }
-					else if (yP < -0.25d) { GlStateManager.translate(0.0d, -0.275d, 0.0d); }
-					double t = System.currentTimeMillis()%1000.0d;
-					double f0 = t<500.0d ? -0.025d + 0.05d * (t % 500.0d)/500.0d : 0.025d - 0.05d * (t % 500.0d)/500.0d; 
-					GlStateManager.translate(0.0d, f0, 0.0d);
+				if (e!=null) {
+					p[0] = e.posX;
+					p[1] = e.posY;
+					p[2] = e.posZ;
 				}
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_1"), null));
-				GlStateManager.popMatrix();
 			}
 			
-			// Arrow_2
-			if (p!=null) {
+			if (p!=null && p.length>=3) {
+				double[] angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
+				float scale = -30.0f * hud.compassData.scale;
+				float incline = -45.0f + hud.compassData.incline;
+				double[] uvPos = new double[] { this.sw.getScaledWidth_double() * hud.compassData.screenPos[0], this.sw.getScaledHeight_double() * hud.compassData.screenPos[1] };
+	
 				GlStateManager.pushMatrix();
-				if (yP > 0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_21"), null)); }
-				else if (yP < -0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_22"), null)); }
-				else { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_20"), null)); }
-				GlStateManager.popMatrix();
-			}
-			
-			if (type>=0 && type<=EnumQuestTask.values().length) {
-				Map<String, String> m = Maps.<String, String>newHashMap();
-				//type = 0;
-				m.put("customnpcs:util/task_0", "customnpcs:util/task_"+type);
+				
+				if (this.qt<40) {
+					
+					this.qt++;
+				}
+				else if (this.qt>0 && p==null) {
+					
+					this.qt--;
+				}
+				
+				GlStateManager.translate(uvPos[0], uvPos[1], 0.0d);
+				
+				// Named
 				GlStateManager.pushMatrix();
-				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("fase"), m));
+				GlStateManager.translate(0.0d, 33.0f, 0.0d);
+				int i = 0;
+				if (hud.compassData.showQuestName) {
+					this.drawCenteredString(this.mc.fontRenderer, name, 0, 0, 0xFFFFFFFF);
+					i = 12;
+				}
+				if (hud.compassData.showTaskProgress) { this.drawCenteredString(this.mc.fontRenderer, title, 0, i, 0xFFFFFFFF); }
+				GlStateManager.popMatrix();
+	
+				this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+				GlStateManager.translate(0.0f, -31.42857f * hud.compassData.scale + 30.71429f, 0.0f);
+				GlStateManager.scale(scale, scale, scale);
+				GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
+				if (hud.compassData.rot!=0.0f)  { GlStateManager.rotate(hud.compassData.rot, 0.0f, 1.0f, 0.0f); }
+				GlStateManager.enableDepth();
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				GlStateManager.enableRescaleNormal();
+				GlStateManager.enableLighting();
+				RenderHelper.enableStandardItemLighting();
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+				
+				//ClientGuiEventHandler.compasRes = new ResourceLocation(CustomNpcs.MODID+":models/util/compass2.obj");
+				
+				// Body
+				GlStateManager.pushMatrix();
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("body"), null));
+				GlStateManager.popMatrix();
+				
+				// Dial
+				GlStateManager.pushMatrix();
+				GlStateManager.rotate(-1.0f * this.mc.player.rotationYaw, 0.0f, 1.0f, 0.0f);
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("dial"), null));
+				GlStateManager.popMatrix();
+				
+				// Arrow_0
+				GlStateManager.pushMatrix();
+				if (angles!=null && (range==1 || angles[3]>range)) {
+					float yaw = this.mc.player.rotationYaw % 360.0f;
+					if (yaw<0) { yaw += 360.0f; }
+					GlStateManager.rotate(180.0f + yaw - (float) angles[0], 0.0f, 1.0f, 0.0f);
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_0"), null));
+				} else {
+					double t = System.currentTimeMillis()%4000.0d;
+					double f0 = t<2000.0d ? -0.00033d * t + 1.0d : 0.00033 * t - 0.30033d; 
+					GlStateManager.scale(f0, f0, f0);
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_3"), null));
+				}
+				GlStateManager.popMatrix();
+	
+				// Arrow_1 upper
+				double yP = 0.0d;
+				if (p!=null) {
+					yP = -0.25d * (this.mc.player.posY - p[1]) / (double) range;
+					GlStateManager.pushMatrix();
+					if (yP >= -0.25d && yP <= 0.25d) { GlStateManager.translate(0.0d, yP, 0.0d); }
+					else {
+						if (yP > 0.25d) { GlStateManager.translate(0.0d, 0.275d, 0.0d); }
+						else if (yP < -0.25d) { GlStateManager.translate(0.0d, -0.275d, 0.0d); }
+						double t = System.currentTimeMillis()%1000.0d;
+						double f0 = t<500.0d ? -0.025d + 0.05d * (t % 500.0d)/500.0d : 0.025d - 0.05d * (t % 500.0d)/500.0d; 
+						GlStateManager.translate(0.0d, f0, 0.0d);
+					}
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_1"), null));
+					GlStateManager.popMatrix();
+				}
+				
+				// Arrow_2
+				if (p!=null) {
+					GlStateManager.pushMatrix();
+					if (yP > 0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_21"), null)); }
+					else if (yP < -0.25d) { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_22"), null)); }
+					else { GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_20"), null)); }
+					GlStateManager.popMatrix();
+				}
+				
+				if (type>=0 && type<=EnumQuestTask.values().length) {
+					Map<String, String> m = Maps.<String, String>newHashMap();
+					//type = 0;
+					m.put("customnpcs:util/task_0", "customnpcs:util/task_"+type);
+					GlStateManager.pushMatrix();
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("fase"), m));
+					GlStateManager.popMatrix();
+				}
+	
+				GlStateManager.disableRescaleNormal();
+				GlStateManager.disableLighting();
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				GlStateManager.enableBlend();
+				GlStateManager.disableDepth();
+				
 				GlStateManager.popMatrix();
 			}
-
-			GlStateManager.disableRescaleNormal();
-			GlStateManager.disableLighting();
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.enableBlend();
-			GlStateManager.disableDepth();
-			
-			GlStateManager.popMatrix();
 		}
 		
 		String rayName = "", rayTitle = "";

@@ -193,13 +193,16 @@ public class ClientTickHandler {
 	@SubscribeEvent
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
+		if (!(entity instanceof EntityPlayer)) { return; }
 		
 		if (entity instanceof EntityPlayerMP) {
 			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
+			//System.out.println("Server: "+entity);
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
+		//System.out.println("Client: "+entity);
 		
-		//TempClass.run((EntityPlayerSP) entity);
+		//TempClass.run((EntityPlayerSP) entity, 3);
 		//System.out.println("Test: ");
 		
 		/*for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {

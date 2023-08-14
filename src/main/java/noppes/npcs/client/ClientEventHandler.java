@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiLanguage;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiOptions;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -73,9 +74,11 @@ import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
-	
-	public static Map<ISchematic, Integer> displayMap;
+
 	private boolean inGame;
+	
+	public static GuiScreen gui;
+	public static Map<ISchematic, Integer> displayMap;
 	public static BlockPos schemaPos;
 	public static Schematic schema;
 	public static int rotaion;
@@ -99,8 +102,9 @@ public class ClientEventHandler {
 	public void onOpenGUIEvent(GuiOpenEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 		CustomNpcs.debugData.startDebug("Client", mc.player, "ClientEventHandler_onOpenGUIEvent");
-		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass())
-				+ "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
+		ClientEventHandler.gui = event.getGui();
+		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
+		Client.sendDataDelayCheck(EnumPlayerPacket.OpenGui, this, 0, event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(), mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 		} else if (event.getGui() instanceof GuiInventory && !mc.player.capabilities.isCreativeMode) {

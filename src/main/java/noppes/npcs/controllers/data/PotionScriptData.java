@@ -60,7 +60,7 @@ extends ForgeScriptData {
 		super.readFromNBT(compound);
 		PotionScriptData.console = NBTTags.GetLongStringMap(compound.getTagList("ScriptConsole", 10));
 		if (this.scripts.isEmpty() || this.scripts.get(0).script.isEmpty()) {
-			ScriptContainer script = new ScriptContainer(this);
+			ScriptContainer script = new ScriptContainer(this, false);
 			char chr = Character.toChars(0x000A)[0];
 			script.script = "// IPotion.getCustomName() - String (custom potion name)" + chr +
 					"// IPotion.getNbt() - INbt (nbt data)" + chr +

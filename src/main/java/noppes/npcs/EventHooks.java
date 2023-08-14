@@ -1,6 +1,10 @@
 package noppes.npcs;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -38,6 +42,7 @@ import noppes.npcs.api.event.PackageReceived;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
 import noppes.npcs.api.event.PlayerEvent.KeyActive;
+import noppes.npcs.api.event.PlayerEvent.OpenGUI;
 import noppes.npcs.api.event.PlayerEvent.PlayerPackage;
 import noppes.npcs.api.event.PlayerEvent.PlayerSound;
 import noppes.npcs.api.event.ProjectileEvent;
@@ -80,6 +85,8 @@ import noppes.npcs.entity.data.DataScript;
 
 public class EventHooks {
 	
+	private static Map<String, Long> clientMap = Maps.<String, Long>newHashMap();
+
 	public static void onCustomChestClicked(CustomContainerEvent.SlotClickedEvent event) {
 		ContainerCustomChestWrapper container = (ContainerCustomChestWrapper) event.container;
 		if (!container.script.isValid()) {
@@ -121,8 +128,7 @@ public class EventHooks {
 		CustomGuiController.onSlotChange(event);
 	}
 
-	public static boolean onCustomGuiSlotClicked(PlayerWrapper<?> player, ICustomGui gui, int slotId, int dragType,
-			String clickType, IItemStack heldItem) { // Changed
+	public static boolean onCustomGuiSlotClicked(PlayerWrapper<?> player, ICustomGui gui, int slotId, int dragType, String clickType, IItemStack heldItem) { // Changed
 		CustomGuiEvent.SlotClickEvent event = new CustomGuiEvent.SlotClickEvent(player, gui, slotId,
 				player.getOpenContainer().getSlot(slotId), dragType, clickType, heldItem);
 		return CustomGuiController.onSlotClick(event);
@@ -133,6 +139,12 @@ public class EventHooks {
 		String eventName;
 		if (!handler.isClient() && handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
 			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
+/*if (eventName.toLowerCase().indexOf("player")!=-1 &&
+		!eventName.equals("playerSPPushOutOfBlocksEvent") &&
+		!eventName.equals("tickEventPlayerTickEvent"))
+{
+	System.out.println("eventName Server: "+eventName);
+}*/
 			try { // Changed
 				handler.runScript(eventName, event);
 				if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
@@ -142,9 +154,9 @@ public class EventHooks {
 			catch (Exception e) { }
 		}
 		
-		if(handler.isClient()) {
+		if (handler.isClient()) {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
-			if(!handlerClient.isClient()) { return; }
+			if (!handlerClient.isClient()) { return; }
 			
 			if (handlerClient.isEnabled()) {
 				if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
@@ -155,7 +167,16 @@ public class EventHooks {
 				} else {
 					eventName = CustomNpcs.forgeClientEventNames.get(event.event.getClass());
 				}
-				if (eventName.isEmpty()) { return; }
+
+				if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName)==System.currentTimeMillis())) { return; }
+				
+/*if (eventName.toLowerCase().indexOf("player")!=-1 &&
+		!eventName.equals("playerSPPushOutOfBlocksEvent") &&
+		!eventName.equals("tickEventPlayerTickEvent"))
+{
+	System.out.println("eventName Client: "+eventName);
+}*/
+				EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 				try { // Changed
 					handlerClient.runScript(eventName, event);
 					if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
@@ -790,9 +811,10 @@ public class EventHooks {
 
 	public static void onScriptPackage(EntityPlayer player, NBTTagCompound nbt) {
 		IScriptHandler handler;
-		if (player==null || player.world.isRemote) { handler = ScriptController.Instance.clientScripts; }
+		if (Thread.currentThread().getName().toLowerCase().indexOf("client")!=-1) { handler = ScriptController.Instance.clientScripts; }
 		else { handler = PlayerData.get(player).scriptData; }
 		if (!handler.getEnabled()) { return; }
+		if (player==null) { player = CustomNpcs.proxy.getPlayer(); }
 		PlayerPackage event = new PlayerPackage((IPlayer<?>) NpcAPI.Instance().getIEntity(player), NpcAPI.Instance().getINbt(nbt));
 		handler.runScript(EnumScriptType.PACKEGE_FROM, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -826,9 +848,8 @@ public class EventHooks {
 		IKeySetting kb = NpcAPI.Instance().getIKeyBinding().getKeySetting(id);
 		if (kb==null) { return; }
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		NpcAPI api = NpcAPI.Instance();
-		KeyActive event = new PlayerEvent.KeyActive((IPlayer<?>) api.getIEntity(player), kb);
 		if (!handler.getEnabled()) { return; }
+		KeyActive event = new PlayerEvent.KeyActive((IPlayer<?>) NpcAPI.Instance().getIEntity(player), kb);
 		handler.runScript(EnumScriptType.KEY_ACTIVE, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
@@ -839,6 +860,15 @@ public class EventHooks {
 		}
 		NpcEvent.StopAnimation event = new NpcEvent.StopAnimation(npc.wrappedNPC, type, variant);
 		npc.script.runScript(EnumScriptType.STOP_ANIMATION, event);
+		WrapperNpcAPI.EVENT_BUS.post((Event) event);
+	}
+
+	public static void onPlayerOpenGui(EntityPlayerMP player, String newGUI, String oldGUI) {
+		if (player==null) { return; }
+		PlayerScriptData handler = PlayerData.get(player).scriptData;
+		if (!handler.getEnabled()) { return; }
+		OpenGUI event = new PlayerEvent.OpenGUI((IPlayer<?>) NpcAPI.Instance().getIEntity(player), newGUI, oldGUI);
+		handler.runScript(EnumScriptType.GUI_OPEN, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
 	}
 	

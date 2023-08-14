@@ -1047,7 +1047,7 @@ implements IMetods {
 
 	public static void updatePlayerInventory(EntityPlayerMP player) {
 		PlayerQuestData playerdata = PlayerData.get(player).questData;
-		for (QuestData data : playerdata.activeQuests.values()) { // Changed
+		for (QuestData data : playerdata.activeQuests.values()) {
 			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
 				if (obj.getType() != 0) {
 					continue;
@@ -1223,7 +1223,7 @@ implements IMetods {
 		return AdditionalMethods.instance.getVector3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
 	}
 
-	// Teleport Entity to Spawn next Dimensions
+	/* Teleport Entity to Spawn next Dimensions */
 	public static Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
 		World world = server.getWorld(dimension);
 		if (world == null) { throw new CommandException("Couldn't find dimension " + dimension); }
@@ -1234,7 +1234,7 @@ implements IMetods {
 		else { return travelEntity(server, entity, dimension); }
 	}
 	
-	// [Teleport] Copy and Place Entity to Spawn next Dimensions
+	/* [Teleport] Copy and Place Entity to Spawn next Dimensions */
 	public static Entity travelEntity(MinecraftServer server, Entity entity, int dimensionId) {
 		if (!entity.world.isRemote && !entity.isDead) {
 			entity.world.profiler.startSection("changeDimension");
@@ -1293,7 +1293,7 @@ implements IMetods {
 		catch (NumberInvalidException e) { }
 	}
 	
-	// Vanila Teleport in world
+	/* Vanila Teleport in world */
 	public static void teleportEntity(Entity entityIn, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch) {
 		if (entityIn instanceof EntityPlayerMP)
 		{
@@ -1620,13 +1620,7 @@ implements IMetods {
 					if (v!=null) { map.put(k, v); }
 				}
 				for (String k : map.keySet()) {
-					Object value = map.get(k);
-					String s = value.toString();
-					if (value instanceof String) { s = "\""+map.get(k)+"\""; }
-					else if (value instanceof Bindings) {
-						engine.put("temp", value);
-						s = (String) engine.eval("JSON.stringify(temp)");
-					}
+					String s = this.getJSONStringFromObject(map.get(k));
 					if (isArray) { str += s+", "; }
 					else { str += "\""+k+"\":"+s+", "; }
 				}
@@ -1648,4 +1642,31 @@ implements IMetods {
 		return null;
 	}
 	
+	@Override
+	public String getJSONStringFromObject(Object obj) {
+		String str = "";
+		if (obj.getClass().isArray()) {
+			str = "[";
+			for (Object value : (Object[]) obj) {
+				String s = this.getJSONStringFromObject(value);
+				if (!str.isEmpty()) { str += ", "; }
+				str += s;
+			}
+			str += "]";
+		}
+		else if (obj instanceof Number) { str = obj.toString(); }
+		else if (obj instanceof String) { str = "'"+obj.toString()+"'"; }
+		else if (obj instanceof Bindings) {
+			ScriptEngine engine = ScriptController.Instance.getEngineByName("ECMAScript");
+			if (engine!=null) {
+				engine.put("temp", obj);
+				try {
+					str = (String) engine.eval("JSON.stringify(temp)");
+				}
+				catch (ScriptException e) {}
+			}
+		}
+		return str;
+	}
+
 }

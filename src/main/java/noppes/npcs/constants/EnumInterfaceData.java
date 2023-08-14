@@ -1404,7 +1404,7 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(INbt.class, "getNbt", "method.idata.getnbt"),
 			new MetodData(void.class, "setNbt", "method.idata.setnbt",
-				new ParameterData(INbt.class, "nbt", "parameter.idata.nbt")
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
 			)
 		)
 	),
@@ -2195,11 +2195,11 @@ public enum EnumInterfaceData {
 			"interfase.ikeybinding",
 			new MetodData(IKeySetting.class, "createKeySetting", "method.ikeybinding.createkeysetting"),
 			new MetodData(IKeySetting.class, "getKeySetting", "method.ikeybinding.getkeysetting",
-				new ParameterData(int.class, "id", "parameter.ikeybinding.id")
+				new ParameterData(int.class, "id", "parameter.keyboard.key")
 			),
 			new MetodData(IKeySetting[].class, "getKeySettings", "method.ikeybinding.getkeysettings"),
 			new MetodData(boolean.class, "removeKeySetting", "method.ikeybinding.removekeysetting",
-				new ParameterData(int.class, "id", "parameter.ikeybinding.id")
+				new ParameterData(int.class, "id", "parameter.keyboard.key")
 			)
 		)
 	),
@@ -2213,20 +2213,20 @@ public enum EnumInterfaceData {
 			),
 			new MetodData(String.class, "getCategory", "method.ikeysetting.getcategory"),
 			new MetodData(void.class, "setCategory", "method.ikeysetting.setcategory",
-				new ParameterData(String.class, "name", "parameter.ikeysetting.name")
+				new ParameterData(String.class, "name", "parameter.ikeysetting.catname")
 			),
 			new MetodData(int.class, "getId", "method.ikeysetting.getid"),
 			new MetodData(int.class, "getKeyId", "method.ikeysetting.getkeyid"),
 			new MetodData(int.class, "getModiferType", "method.ikeysetting.getmodifertype"),
 			new MetodData(void.class, "setKeyId", "method.ikeysetting.setkeyid",
-				new ParameterData(int.class, "keyId", "parameter.ikeysetting.keyid")
+				new ParameterData(int.class, "keyId", "parameter.keyboard.key")
 			),
 			new MetodData(void.class, "setModiferType", "method.ikeysetting.setmodifertype",
 				new ParameterData(int.class, "type", "parameter.ikeysetting.type")
 			),
 			new MetodData(INbt.class, "getNbt", "method.ikeysetting.getnbt"),
 			new MetodData(void.class, "setNbt", "method.ikeysetting.setnbt",
-				new ParameterData(INbt.class, "nbt", "parameter.ikeysetting.nbt")
+				new ParameterData(INbt.class, "nbt", "parameter.nbt")
 			)
 		)
 	),
@@ -2356,45 +2356,45 @@ public enum EnumInterfaceData {
 			null,
 			"interfase.imetods",
 			new MetodData(String.class, "deleteColor", "method.imetods.deletecolor",
-				new ParameterData(String.class, "str", "parameter.imetods.str")
+				new ParameterData(String.class, "str", "parameter.color")
 			),
 			new MetodData(double.class, "distanceTo", "method.imetods.distanceto",
 				new ParameterData(IEntity.class, "entity", "parameter.entity"),
 				new ParameterData(IEntity.class, "target", "parameter.entity")
 			),
 			new MetodData(double.class, "distanceTo", "method.imetods.distanceto",
-				new ParameterData(double.class, "x0", "parameter.imetods.x0"),
-				new ParameterData(double.class, "y0", "parameter.imetods.y0"),
-				new ParameterData(double.class, "z0", "parameter.imetods.z0"),
-				new ParameterData(double.class, "x1", "parameter.imetods.x1"),
-				new ParameterData(double.class, "y1", "parameter.imetods.y1"),
-				new ParameterData(double.class, "z1", "parameter.imetods.z1")
+				new ParameterData(double.class, "x0", "parameter.posx"),
+				new ParameterData(double.class, "y0", "parameter.posy"),
+				new ParameterData(double.class, "z0", "parameter.posz"),
+				new ParameterData(double.class, "x1", "parameter.posx"),
+				new ParameterData(double.class, "y1", "parameter.posy"),
+				new ParameterData(double.class, "z1", "parameter.posz")
 			),
 			new MetodData(double[].class, "getAngles3D", "method.imetods.getangles3d",
 				new ParameterData(IEntity.class, "entity", "parameter.entity"),
 				new ParameterData(IEntity.class, "target", "parameter.entity")
 			),
 			new MetodData(double[].class, "getAngles3D", "method.imetods.getangles3d",
-				new ParameterData(double.class, "dx", "parameter.imetods.dx"),
-				new ParameterData(double.class, "dy", "parameter.imetods.dy"),
-				new ParameterData(double.class, "dz", "parameter.imetods.dz"),
-				new ParameterData(double.class, "mx", "parameter.imetods.mx"),
-				new ParameterData(double.class, "my", "parameter.imetods.my"),
-				new ParameterData(double.class, "mz", "parameter.imetods.mz")
+				new ParameterData(double.class, "dx", "parameter.posx"),
+				new ParameterData(double.class, "dy", "parameter.posy"),
+				new ParameterData(double.class, "dz", "parameter.posz"),
+				new ParameterData(double.class, "mx", "parameter.posx"),
+				new ParameterData(double.class, "my", "parameter.posy"),
+				new ParameterData(double.class, "mz", "parameter.posz")
 			),
 			new MetodData(double[].class, "getPosition", "method.imetods.getposition",
 				new ParameterData(IEntity.class, "entity", "parameter.entity"),
-				new ParameterData(double.class, "yaw", "parameter.imetods.yaw"),
-				new ParameterData(double.class, "pitch", "parameter.imetods.pitch"),
-				new ParameterData(double.class, "radius", "parameter.imetods.radius")
+				new ParameterData(double.class, "yaw", "parameter.yaw"),
+				new ParameterData(double.class, "pitch", "parameter.pitch"),
+				new ParameterData(double.class, "radius", "parameter.range")
 			),
 			new MetodData(double[].class, "getPosition", "method.imetods.getposition",
-				new ParameterData(double.class, "cx", "parameter.imetods.cx"),
-				new ParameterData(double.class, "cy", "parameter.imetods.cy"),
-				new ParameterData(double.class, "cz", "parameter.imetods.cz"),
-				new ParameterData(double.class, "yaw", "parameter.imetods.yaw"),
-				new ParameterData(double.class, "pitch", "parameter.imetods.pitch"),
-				new ParameterData(double.class, "radius", "parameter.imetods.radius")
+				new ParameterData(double.class, "cx", "parameter.posx"),
+				new ParameterData(double.class, "cy", "parameter.posy"),
+				new ParameterData(double.class, "cz", "parameter.posz"),
+				new ParameterData(double.class, "yaw", "parameter.yaw"),
+				new ParameterData(double.class, "pitch", "parameter..pitch"),
+				new ParameterData(double.class, "radius", "parameter.range")
 			),
 			new MetodData(double[].class, "getVector3D", "method.imetods.getvector3d",
 				new ParameterData(IEntity.class, "entity", "parameter.entity"),
@@ -2405,23 +2405,23 @@ public enum EnumInterfaceData {
 				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(double[].class, "getVector3D", "method.imetods.getvector3d",
-				new ParameterData(double.class, "dx", "parameter.imetods.dx"),
-				new ParameterData(double.class, "dy", "parameter.imetods.dy"),
-				new ParameterData(double.class, "dz", "parameter.imetods.dz"),
-				new ParameterData(double.class, "mx", "parameter.imetods.mx"),
-				new ParameterData(double.class, "my", "parameter.imetods.my"),
-				new ParameterData(double.class, "mz", "parameter.imetods.mz")
+				new ParameterData(double.class, "dx", "parameter.posx"),
+				new ParameterData(double.class, "dy", "parameter.posy"),
+				new ParameterData(double.class, "dz", "parameter.posz"),
+				new ParameterData(double.class, "mx", "parameter.posx"),
+				new ParameterData(double.class, "my", "parameter.posy"),
+				new ParameterData(double.class, "mz", "parameter.posz")
 			),
 			new MetodData(IEntity.class, "transferEntity", "method.imetods.transferentity",
 				new ParameterData(IEntity.class, "entity", "parameter.entity"),
-				new ParameterData(int.class, "dimension", "parameter.imetods.dimension"),
+				new ParameterData(int.class, "dimension", "parameter.dimension.id"),
 				new ParameterData(IPos.class, "pos", "parameter.pos")
 			),
 			new MetodData(NBTBase.class, "writeObjectToNbt", "method.imetods.writeobjecttonbt",
-				new ParameterData(Object.class, "value", "parameter.imetods.value")
+				new ParameterData(Object.class, "value", "parameter.value")
 			),
 			new MetodData(Object.class, "readObjectFromNbt", "method.imetods.readobjectfromnbt",
-				new ParameterData(NBTBase.class, "tag", "parameter.imetods.tag")
+				new ParameterData(NBTBase.class, "tag", "parameter.nbt")
 			)
 		)
 	),

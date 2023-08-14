@@ -73,7 +73,8 @@ public enum EnumScriptType
 	PACKEGE_FROM("packageFrom"),
 	CUSTOM_TELEPORT("customTeleport"),
 	KEY_ACTIVE("keyActive"),
-	STOP_ANIMATION("stopAnimation");
+	STOP_ANIMATION("stopAnimation"),
+	GUI_OPEN("openGUI");
 	
 	public String function;
 	
