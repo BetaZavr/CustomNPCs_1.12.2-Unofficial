@@ -96,7 +96,8 @@ public class SyncController {
 				if (compound.hasKey("ShowLR")) { CustomNpcs.showLR = compound.getBoolean("ShowLR"); }
 				if (compound.hasKey("ShowMoney")) { CustomNpcs.showMoney = compound.getBoolean("ShowMoney"); }
 
-				if (CustomNpcs.showQuestCompass) { CustomNpcs.showQuestCompass = compound.getBoolean("ShowQuestCompass"); }
+				CustomNpcs.showServerQuestCompass = compound.getBoolean("ShowQuestCompass");
+				if (CustomNpcs.showQuestCompass && !CustomNpcs.showServerQuestCompass) { CustomNpcs.showQuestCompass = false; }
 				
 				CustomNpcs.recalculateLR = compound.getBoolean("RecalculateLR");
 				CustomNpcs.charCurrencies = compound.getString("CharCurrencies");

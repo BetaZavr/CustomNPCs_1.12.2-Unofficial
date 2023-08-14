@@ -146,7 +146,7 @@ implements ITopButtonListener, ICustomScrollListener, GuiYesNoCallback, IGuiData
 		// New
 		this.addButton(new GuiNpcButton(30, this.guiLeft + 5, this.guiTop + 158, 73, 15, "quest.cancel", this.selectedQuest != null && this.selectedQuest.cancelable));
 		this.addButton(new GuiNpcButton(31, this.guiLeft + 5, this.guiTop + 175, 90, 15, "quest.track", this.selectedQuest != null && this.selectedQuest.id!=ClientProxy.playerData.hud.questID));
-		this.addButton(new GuiNpcButton(32, this.guiLeft + 79, this.guiTop + 158, 60, 15, "gui.settings"));
+		if (CustomNpcs.showServerQuestCompass) { this.addButton(new GuiNpcButton(32, this.guiLeft + 79, this.guiTop + 158, 60, 15, "gui.settings")); }
 	}
 
 	@Override

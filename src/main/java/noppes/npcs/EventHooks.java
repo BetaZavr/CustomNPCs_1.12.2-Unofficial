@@ -818,7 +818,6 @@ public class EventHooks {
 		PlayerPackage event = new PlayerPackage((IPlayer<?>) NpcAPI.Instance().getIEntity(player), NpcAPI.Instance().getINbt(nbt));
 		handler.runScript(EnumScriptType.PACKEGE_FROM, event);
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
-		
 	}
 
 	public static CustomTeleport onPlayerTeleport(EntityPlayerMP player, BlockPos to, BlockPos portal, int dimId) {

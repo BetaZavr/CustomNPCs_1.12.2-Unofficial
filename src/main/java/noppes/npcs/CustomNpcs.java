@@ -234,7 +234,7 @@ public class CustomNpcs {
 	public static DataDebug debugData = new DataDebug();
 	public static final Map<Class<?>, String> forgeEventNames = new HashMap<Class<?>, String>();
 	public static final Map<Class<?>, String> forgeClientEventNames = new HashMap<Class<?>, String>();
-	public static boolean FreezeNPCs = false;
+	public static boolean FreezeNPCs = false, showServerQuestCompass = true;
 	public static File Dir;
 	public static ConfigLoader Config;
 	public static ITextComponent prefix = new TextComponentString(((char) 167)+"e["+((char) 167)+"2CustomNpcs"+((char) 167)+"e]"+((char) 167)+"r: ");
