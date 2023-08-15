@@ -3,6 +3,7 @@ package noppes.npcs.api.entity;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.INbt;
+import noppes.npcs.api.IPos;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.data.IPlayerMail;
@@ -154,5 +155,9 @@ extends IEntityLivingBase<T> {
 	String getLanguage();
 
 	double[] getWindowSize();
+
+	void playSound(int categoryType, IPos pos, String sound, String variant, float volume, float pitch);
+	
+	void stopSound(int categoryType, String sound);
 	
 }

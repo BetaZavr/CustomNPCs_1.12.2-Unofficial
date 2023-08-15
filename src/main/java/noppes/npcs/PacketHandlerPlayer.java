@@ -83,6 +83,7 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.LeftClick);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MousesPressed);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopNPCAnimation);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetTileData);
 	}
 	
 	@SubscribeEvent

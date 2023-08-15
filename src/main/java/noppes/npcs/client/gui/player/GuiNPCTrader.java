@@ -425,7 +425,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		this.wait = false;
-		this.container.marcet.readEntityFromNBT(compound);
+		this.container.marcet.readFromNBT(compound);
 		if (this.selectDeal>=0) {
 			for (Deal d : this.container.marcet.data.values()) {
 				if (d.id==this.selectDeal) {

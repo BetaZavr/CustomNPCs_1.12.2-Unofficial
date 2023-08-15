@@ -65,6 +65,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ValueUtil;
 
@@ -341,8 +342,7 @@ implements IPlayer {
 		}
 		boolean bo = this.entity.inventory.addItemStackToInventory(mcItem.copy());
 		if (bo) {
-			NoppesUtilServer.playSound(this.entity, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f,
-					((this.entity.getRNG().nextFloat() - this.entity.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+			NoppesUtilServer.playSound(this.entity, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((this.entity.getRNG().nextFloat() - this.entity.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 			this.updatePlayerInventory();
 		}
 		return bo;
@@ -445,15 +445,23 @@ implements IPlayer {
 
 	@Override
 	public void message(String message) {
-		this.entity.sendMessage(
-				new TextComponentTranslation(NoppesStringUtils.formatText(message, this.entity), new Object[0]));
+		this.entity.sendMessage(new TextComponentTranslation(NoppesStringUtils.formatText(message, this.entity), new Object[0]));
 	}
 
 	@Override
 	public void playSound(String sound, float volume, float pitch) {
-		if (!(this.entity instanceof EntityPlayerMP)) { return; }
+		if (!(this.entity instanceof EntityPlayerMP) || sound == null || sound.isEmpty()) { return; }
 		BlockPos pos = this.entity.getPosition();
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, true, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+	}
+	
+	@Override
+	public void playSound(int categoryType, IPos pos, String sound, String variant, float volume, float pitch) {
+		if (!(this.entity instanceof EntityPlayerMP) || sound == null || sound.isEmpty()) { return; }
+		if (variant == null) { variant = ""; }
+		BlockPos p = this.entity.getPosition();
+		if (pos != null) { p = pos.getMCBlockPos(); }
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, false, sound, variant, categoryType, p.getX(), p.getY(), p.getZ(), volume, pitch);
 	}
 
 	@Override
@@ -694,11 +702,21 @@ implements IPlayer {
 
 	@Override
 	public void sendTo(INbt nbt) {
-		if (!(this.entity instanceof EntityPlayerMP)) { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 20, nbt.getMCNBT()); }
-		else { Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
+		CustomNPCsScheduler.runTack(() -> {
+			if (this.entity instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
+			else { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 0, nbt.getMCNBT()); }
+		}, 10);
 	}
 
 	@Override
 	public double[] getWindowSize() { return this.data.hud.getWindowSize(); }
+
+	@Override
+	public void stopSound(int categoryType, String sound) {
+		if (!(this.entity instanceof EntityPlayerMP)) { return; }
+		if (sound == null) { sound = ""; }
+		if (categoryType < 0) { categoryType = -1; }
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.STOP_SOUND, sound, categoryType);
+	}
 	
 }

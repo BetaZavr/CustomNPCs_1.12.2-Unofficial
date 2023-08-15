@@ -327,7 +327,7 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 		if (this.container.marcet==null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		this.container.saveMarcet();
-		this.container.marcet.writeEntityToNBT(compound);
+		this.container.marcet.writeToNBT(compound);
 		Client.sendData(EnumPacketServer.TraderMarketSave, compound, false);
 	}
 

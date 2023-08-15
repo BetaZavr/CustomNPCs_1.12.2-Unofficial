@@ -41,6 +41,16 @@ import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class Server {
+
+	private static List<EnumPacketClient> list;
+	
+	static {
+		Server.list = new ArrayList<EnumPacketClient>();
+		Server.list.add(EnumPacketClient.EYE_BLINK);
+		Server.list.add(EnumPacketClient.UPDATE_NPC);
+		Server.list.add(EnumPacketClient.SET_TILE_DATA);
+		Server.list.add(EnumPacketClient.NPC_VISUAL_DATA);
+	}
 	
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {
 		buffer.writeInt(enu.ordinal());
@@ -156,9 +166,9 @@ public class Server {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
 				if (!(!fillBuffer(buffer, type, obs))) {
-					if (type != EnumPacketClient.EYE_BLINK && type != EnumPacketClient.UPDATE_NPC) {
+					if (!Server.list.contains(type)) {
 						LogWriter.debug("SendAssociatedData: " + type);
-					} // Changed
+					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					;
 					while (iterator.hasNext()) {
@@ -184,7 +194,9 @@ public class Server {
 			if (!fillBuffer((ByteBuf) buffer, type, obs)) {
 				return false;
 			}
-			LogWriter.debug("SendDataChecked: " + type);
+			if (!Server.list.contains(type)) {
+				LogWriter.debug("SendDataChecked: " + type);
+			}
 			CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, "CustomNPCs"), player);
 		} catch (IOException e) {
 			LogWriter.error(type + " Errored", e);
@@ -197,8 +209,8 @@ public class Server {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (fillBuffer((ByteBuf) buffer, type, obs)) {
-					if (type != EnumPacketClient.NPC_VISUAL_DATA) {
-						LogWriter.debug("Send: " + type);
+					if (!Server.list.contains(type)) {
+						LogWriter.debug("SendData: " + type);
 					}
 					CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, "CustomNPCs"), player);
 				} else {
@@ -220,7 +232,9 @@ public class Server {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
 				if (!(!fillBuffer(buffer, type, obs))) {
-					LogWriter.debug("sendRangedData: " + type);
+					if (!Server.list.contains(type)) {
+						LogWriter.debug("SendRangedData: " + type);
+					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					while (iterator.hasNext()) {
 						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
@@ -242,7 +256,9 @@ public class Server {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
 				if (!(!fillBuffer(buffer, type, obs))) {
-					LogWriter.debug("sendRangedData: " + type);
+					if (!Server.list.contains(type)) {
+						LogWriter.debug("SendRangedData: " + type);
+					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					while (iterator.hasNext()) {
 						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"), iterator.next());
@@ -263,7 +279,9 @@ public class Server {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
 				if (!(!fillBuffer(buffer, type, obs))) {
-					LogWriter.debug("SendToAll: " + type);
+					if (!Server.list.contains(type)) {
+						LogWriter.debug("SendToAll: " + type);
+					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					while (iterator.hasNext()) {
 						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),

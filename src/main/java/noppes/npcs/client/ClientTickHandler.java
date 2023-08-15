@@ -200,6 +200,35 @@ public class ClientTickHandler {
 			//System.out.println("Server: "+entity);
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
+		
+		/*File dir = CustomNpcs.getWorldSaveDirectory();
+		if (dir.exists()) {
+			dir = dir.getParentFile();
+			File f = new File(dir, "level.dat");
+			try {
+				NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(f));
+				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:blocks").getTagList("ids", 10);
+				NBTTagList newList = new NBTTagList();
+				for (NBTBase tag : list) {
+					if (((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_fasingblockexample") ||
+							((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_flat_lamp_it") ||
+							((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_switch_0") ||
+							((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_mini_free")) {
+						System.out.println("found: "+((NBTTagCompound) tag).getString("K"));
+						continue;
+					}
+					newList.appendTag(tag);
+				}
+				if (list.tagCount()!=newList.tagCount()) {
+					nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:blocks").setTag("ids", newList);
+					System.out.println("list: "+list.toString().length()+" // "+newList.toString().length());
+					CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(f));
+					System.out.println("save:");
+				}
+			}
+			catch (IOException e) { }
+		}*/
+		
 		//System.out.println("Client: "+entity);
 		
 		//TempClass.run((EntityPlayerSP) entity, 3);

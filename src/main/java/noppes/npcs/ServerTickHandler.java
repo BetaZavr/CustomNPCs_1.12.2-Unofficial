@@ -62,7 +62,6 @@ public class ServerTickHandler {
 		if (player.getHealth() > 0 && player.getHealth() < 1.0f) {
 			player.setHealth(1.0f);
 		}
-		// New - Fix setAttackTarget(player)
 		PlayerData data = PlayerData.get(player);
 		long resTime = (long) player.getName().codePointAt(0);
 		if (player.getEntityWorld().getWorldTime() % 100L == resTime % 100L) {

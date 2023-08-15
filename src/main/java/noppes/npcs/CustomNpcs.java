@@ -461,7 +461,7 @@ public class CustomNpcs {
 	public void started(FMLServerStartedEvent event) {
 		new BankController();
 		new MarcetController();
-		new BorderController(); // new
+		new BorderController();
 		DialogController.instance.load();
 		QuestController.instance.load();
 		ScriptController.HasStart = true;
@@ -477,13 +477,11 @@ public class CustomNpcs {
 		AnimationController.getInstance().save();
 		KeyController.getInstance().save();
 		DropController.getInstance().save();
-		// End
 		CustomNpcs.Server = null;
 	}
 
 	public static void showDebugs() {
 		if (!CustomNpcs.VerboseDebug) { return; }
-		// Client datas in ClientEvent.class
 		LogWriter.debug("Debug Server Datas Event: { [Target name, Runs, Average time] }");
 		CustomNpcs.debugData.stopAll();
 		for (String side : CustomNpcs.debugData.data.keySet()) {

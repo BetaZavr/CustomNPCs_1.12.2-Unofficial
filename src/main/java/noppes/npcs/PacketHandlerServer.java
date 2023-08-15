@@ -1202,7 +1202,7 @@ public class PacketHandlerServer {
 				}
 			} else {
 				Marcet marcet = new Marcet();
-				marcet.readEntityFromNBT(compound);
+				marcet.readFromNBT(compound);
 				MarcetController.getInstance().saveMarcet(marcet);
 			}
 		} else if (type == EnumPacketServer.TraderMarketGet) {
