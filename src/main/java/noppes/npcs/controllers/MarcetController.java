@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -15,6 +16,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NpcMiscInventory;
+import noppes.npcs.Server;
+import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -24,21 +27,6 @@ public class MarcetController {
 	private static MarcetController instance;
 	private String filePath;
 	public final Map<Integer, Marcet> marcets;
-
-	public static MarcetController getInstance() {
-		if (newInstance()) {
-			MarcetController.instance = new MarcetController();
-		}
-		return MarcetController.instance;
-	}
-
-	private static boolean newInstance() {
-		if (MarcetController.instance == null) {
-			return true;
-		}
-		File file = CustomNpcs.getWorldSaveDirectory();
-		return file != null && !MarcetController.instance.filePath.equals(file.getAbsolutePath());
-	}
 
 	public MarcetController() {
 		this.filePath = "";
@@ -68,6 +56,21 @@ public class MarcetController {
 
 			this.saveMarcets();
 		}
+	}
+
+	public static MarcetController getInstance() {
+		if (newInstance()) {
+			MarcetController.instance = new MarcetController();
+		}
+		return MarcetController.instance;
+	}
+
+	private static boolean newInstance() {
+		if (MarcetController.instance == null) {
+			return true;
+		}
+		File file = CustomNpcs.getWorldSaveDirectory();
+		return file != null && !MarcetController.instance.filePath.equals(file.getAbsolutePath());
 	}
 
 	public Marcet addMarcet() {
@@ -128,7 +131,7 @@ public class MarcetController {
 		NBTTagList list = new NBTTagList();
 		for (Marcet marcet : this.marcets.values()) {
 			NBTTagCompound nbtfactions = new NBTTagCompound();
-			marcet.writeEntityToNBT(nbtfactions);
+			marcet.writeToNBT(nbtfactions);
 			list.appendTag(nbtfactions);
 		}
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
@@ -179,18 +182,21 @@ public class MarcetController {
 		NBTTagList list = nbtFile.getTagList("Data", 10);
 		if (list != null) {
 			for (int i = 0; i < list.tagCount(); ++i) {
-				NBTTagCompound compound = list.getCompoundTagAt(i);
-				Marcet marcet = new Marcet();
-				marcet.readEntityFromNBT(compound);
-				this.marcets.put(marcet.id, marcet);
+				Marcet marcet = this.loadMarcet(list.getCompoundTagAt(i));
+				if (marcet!=null) { this.marcets.put(marcet.id, marcet); }
 			}
 		}
+	}
+	
+	public Marcet loadMarcet(NBTTagCompound nbtFile) {
+		return null;
+		
 	}
 
 	public int loadOld(NBTTagCompound nbttagcompound) {
 		String marketName = nbttagcompound.getString("TraderMarket");
 		Marcet marcet = null;
-		if (!marketName.isEmpty()) { // Get has
+		if (!marketName.isEmpty()) {
 			for (Marcet m : this.marcets.values()) {
 				if (m.name.equalsIgnoreCase(marketName)) {
 					marcet = m;
@@ -198,7 +204,7 @@ public class MarcetController {
 				}
 			}
 		}
-		if (marcet == null) { // New
+		if (marcet == null) {
 			marcet = new Marcet();
 			if (!marketName.isEmpty()) {
 				marcet.name = marketName;
@@ -257,18 +263,11 @@ public class MarcetController {
 			File file2 = new File(saveDir, "marcet.dat_old");
 			File file3 = new File(saveDir, "marcet.dat");
 			CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(file));
-			if (file2.exists()) {
-				file2.delete();
-			}
+			if (file2.exists()) { file2.delete(); }
 			file3.renameTo(file2);
-			if (file3.exists()) {
-				file3.delete();
-			}
+			if (file3.exists()) { file3.delete(); }
 			file.renameTo(file3);
-			if (file.exists()) {
-				file.delete();
-			}
-			//NBTJsonUtil.SaveFile(new File(saveDir, "marcet.json"), this.getNBT());
+			if (file.exists()) { file.delete(); }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -285,5 +284,16 @@ public class MarcetController {
 			m.updateTime();
 		}
 	}
-
+	
+	public void sendTo(EntityPlayerMP player) {
+		Server.sendData(player, EnumPacketClient.MARCET_DATA, 5, false);
+		for (int id : this.marcets.keySet()) {
+			if (id < 0 || this.marcets.get(id).id < 0) { continue; }
+			if (this.marcets.get(id).id != id) { this.marcets.get(id).id = id; }
+			NBTTagCompound nbtMarcet = new NBTTagCompound();
+			this.marcets.get(id).writeToNBT(nbtMarcet);
+			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 10, true, nbtMarcet);
+		}
+	}
+	
 }

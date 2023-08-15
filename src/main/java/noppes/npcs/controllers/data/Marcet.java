@@ -57,7 +57,7 @@ public class Marcet implements IRoleTrader {
 		this.listeners.add(listener);
 		if (isServer && listener instanceof EntityPlayerMP) {
 			NBTTagCompound compound = new NBTTagCompound();
-			this.writeEntityToNBT(compound);
+			this.writeToNBT(compound);
 			Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_UPDATE, compound);
 			this.detectAndSendChanges();
 		}
@@ -65,7 +65,7 @@ public class Marcet implements IRoleTrader {
 
 	public void detectAndSendChanges() {
 		NBTTagCompound compound = new NBTTagCompound();
-		this.writeEntityToNBT(compound);
+		this.writeToNBT(compound);
 		for (EntityPlayer listener : this.listeners) {
 			if (listener instanceof EntityPlayerMP) {
 				Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_UPDATE, compound);
@@ -157,7 +157,7 @@ public class Marcet implements IRoleTrader {
 		return notProducts;
 	}
 
-	public void readEntityFromNBT(NBTTagCompound compound) {
+	public void readFromNBT(NBTTagCompound compound) {
 		this.id = compound.getInteger("MarcetID");
 		this.name = compound.getString("Name");
 		this.data.clear();
@@ -241,7 +241,7 @@ public class Marcet implements IRoleTrader {
 		}
 	}
 
-	public void writeEntityToNBT(NBTTagCompound compound) {
+	public void writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("MarcetID", this.id);
 		compound.setString("Name", this.name);
 		NBTTagList deals = new NBTTagList();

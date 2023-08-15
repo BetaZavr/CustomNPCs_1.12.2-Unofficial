@@ -303,7 +303,6 @@ public class SyncController {
 		compound.setInteger("MaxBuilderBlocks", CustomNpcs.maxBuilderBlocks);
 		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.maxItemInDropsNPC);
 		
-		
 		list = new NBTTagList();
 		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {
 			NBTTagCompound nbt = new NBTTagCompound();
@@ -324,10 +323,10 @@ public class SyncController {
 		Server.sendData(player, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
 		
 		syncScriptItems(player);
-
 		syncScriptRecipes(player);
 		
 		BorderController.getInstance().sendTo(player);
+		MarcetController.getInstance().sendTo(player);
 	}
 
 	public static void syncScriptItems(EntityPlayerMP player) {
