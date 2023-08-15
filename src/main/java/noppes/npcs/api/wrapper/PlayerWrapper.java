@@ -456,12 +456,11 @@ implements IPlayer {
 	}
 	
 	@Override
-	public void playSound(int categoryType, IPos pos, String sound, String variant, float volume, float pitch) {
+	public void playSound(int categoryType, IPos pos, String sound, float volume, float pitch) {
 		if (!(this.entity instanceof EntityPlayerMP) || sound == null || sound.isEmpty()) { return; }
-		if (variant == null) { variant = ""; }
 		BlockPos p = this.entity.getPosition();
 		if (pos != null) { p = pos.getMCBlockPos(); }
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, false, sound, variant, categoryType, p.getX(), p.getY(), p.getZ(), volume, pitch);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, false, categoryType, sound, p.getX(), p.getY(), p.getZ(), volume, pitch);
 	}
 
 	@Override

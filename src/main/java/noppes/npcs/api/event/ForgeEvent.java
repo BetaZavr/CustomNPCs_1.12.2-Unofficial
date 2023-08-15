@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
@@ -99,6 +100,12 @@ public class ForgeEvent extends CustomNPCsEvent {
 			}
 			if (this.player==null && this.entity!=null && this.entity.getMCEntity() instanceof EntityPlayer) {
 				this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayer) this.entity.getMCEntity());
+			}
+			if (this.player==null) {
+				EntityPlayer p = CustomNpcs.proxy.getPlayer();
+				if (p!=null) {
+					this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(p);
+				}
 			}
 			
 			// NPC

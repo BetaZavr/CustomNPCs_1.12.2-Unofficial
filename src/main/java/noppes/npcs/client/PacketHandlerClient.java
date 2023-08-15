@@ -1,35 +1,19 @@
 package noppes.npcs.client;
 
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.util.internal.ThreadLocalRandom;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.ISoundEventAccessor;
-import net.minecraft.client.audio.ISoundEventListener;
-import net.minecraft.client.audio.ITickableSound;
-import net.minecraft.client.audio.PositionedSound;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundEventAccessor;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.IToast;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,10 +25,8 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
@@ -111,8 +93,6 @@ import noppes.npcs.items.ItemScripted;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.ObfuscationHelper;
-import paulscode.sound.SoundSystem;
 
 public class PacketHandlerClient extends PacketHandlerServer {
 
@@ -338,147 +318,15 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.PLAY_SOUND) {
 			if (buffer.readBoolean()) {
 				MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
-			} else {
-				ResourceLocation soundRes = new ResourceLocation(Server.readString(buffer));
-				String variant = Server.readString(buffer);
-				int categoryType = buffer.readInt();
-				int x = buffer.readInt();
-				int y = buffer.readInt();
-				int z = buffer.readInt();
-				float volume = buffer.readFloat();
-				float pitch = buffer.readFloat();
-				SoundCategory cat = SoundCategory.VOICE;
-				if (categoryType >= 0 && categoryType < SoundCategory.values().length) { cat = SoundCategory.values()[categoryType]; }
-				if (cat == SoundCategory.MUSIC) { Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC); }
-				PositionedSoundRecord rec = new PositionedSoundRecord(soundRes, cat, volume, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y + 0.5f, z + 0.5f);
-				if (variant.isEmpty()) {
-					Minecraft.getMinecraft().getSoundHandler().playSound(rec);
-					return;
-				}
-				SoundManager sndManager = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(), SoundManager.class);
-				boolean loaded = ObfuscationHelper.getValue(SoundManager.class, sndManager, boolean.class);
-				if (!loaded) { return; }
-				ISound isound = net.minecraftforge.client.ForgeHooksClient.playSound(sndManager, rec);
-				if (!(isound instanceof PositionedSoundRecord)) { return; }
-				rec = (PositionedSoundRecord) isound;
-
-				SoundEventAccessor soundEvent = sndManager.sndHandler.getAccessor(soundRes);
-				if (soundEvent == null) {
-					soundEvent = rec.createAccessor(sndManager.sndHandler);
-				}
-				ObfuscationHelper.setValue(PositionedSound.class, rec, soundEvent, SoundEventAccessor.class);
-				Sound sound = null;
-				if (soundEvent == null) {
-					sound = SoundHandler.MISSING_SOUND;
-				} else {
-					ResourceLocation v = new ResourceLocation(variant);
-					List<ISoundEventAccessor<Sound>> accessorList = ObfuscationHelper.getValue(SoundEventAccessor.class, soundEvent, List.class);
-					for (ISoundEventAccessor<Sound> sd : accessorList) {
-						if (sd instanceof Sound && ((Sound) sd).getSoundLocation().equals(v)) {
-							sound = (Sound) sd;
-							break;
-						}
-					}
-					if (sound == null) {
-						sound = soundEvent.cloneEntry();
-					}
-				}
-				ObfuscationHelper.setValue(PositionedSound.class, rec, sound, Sound.class);
-				if (rec.getSound() == null) { return; }
-				ResourceLocation resourcelocation = rec.getSoundLocation();
-				Set<ResourceLocation> UNABLE_TO_PLAY = ObfuscationHelper.getValue(SoundManager.class, sndManager, Set.class);
-				GameSettings options = ObfuscationHelper.getValue(SoundManager.class, sndManager, GameSettings.class);
-				Object sndSystem = ObfuscationHelper.getValue(SoundManager.class, sndManager, 5);
-				int playTime = ObfuscationHelper.getValue(SoundManager.class, sndManager, 7);
-				Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sndManager, 8);
-				Multimap<SoundCategory, String> categorySounds = ObfuscationHelper.getValue(SoundManager.class, sndManager, 10);
-				List<ITickableSound> tickableSounds = ObfuscationHelper.getValue(SoundManager.class, sndManager, 11);
-				Map<String, Integer> playingSoundsStopTime = ObfuscationHelper.getValue(SoundManager.class, sndManager, 13);
-				List<ISoundEventListener> listeners = ObfuscationHelper.getValue(SoundManager.class, sndManager, 14);
-
-				Method getURLForSoundResource = null;
-				for (Method m : sndManager.getClass().getDeclaredMethods()) {
-					if (m.getName().equals("getURLForSoundResource")) {
-						if (!m.isAccessible()) {
-							m.setAccessible(true);
-						}
-						getURLForSoundResource = m;
-					}
-				}
-				Method getMasterVolume = null, newStreamingSource = null, newSource = null, setPitch = null, setVolume = null, play = null;
-				try { getMasterVolume = SoundSystem.class.getDeclaredMethod("getMasterVolume"); } catch (Exception e) {}
-				try { newStreamingSource = SoundSystem.class.getDeclaredMethod("newStreamingSource", boolean.class, String.class, URL.class, String.class, boolean.class, float.class, float.class, float.class, int.class, float.class); } catch (Exception e) {}
-				try { newSource = SoundSystem.class.getDeclaredMethod("newSource", boolean.class, String.class, URL.class, String.class, boolean.class, float.class, float.class, float.class, int.class, float.class); } catch (Exception e) {}
-				try { setPitch = SoundSystem.class.getDeclaredMethod("setPitch", String.class, float.class); } catch (Exception e) {}
-				try { setVolume = SoundSystem.class.getDeclaredMethod("setVolume", String.class, float.class); } catch (Exception e) {}
-				try { play = SoundSystem.class.getDeclaredMethod("play", String.class); } catch (Exception e) {}
-				
-				if (getMasterVolume == null || newStreamingSource == null || newSource == null || setPitch == null || setVolume == null || play == null) { return; }
-				if (!getMasterVolume.isAccessible()) { getMasterVolume.setAccessible(true); }
-				if (!newStreamingSource.isAccessible()) { newStreamingSource.setAccessible(true); }
-				if (!newSource.isAccessible()) { newSource.setAccessible(true); }
-				if (!setPitch.isAccessible()) { setPitch.setAccessible(true); }
-				if (!setVolume.isAccessible()) { setVolume.setAccessible(true); }
-				if (!play.isAccessible()) { play.setAccessible(true); }
-				
-				float masterVolume = (float) getMasterVolume.invoke(sndSystem);
-
-				if (soundEvent == null) {
-					if (UNABLE_TO_PLAY.add(resourcelocation)) {
-						LogWriter.warn("Unable to play unknown soundEvent: \"" + resourcelocation.toString() + "\"");
-					}
-				} else {
-					if (!listeners.isEmpty()) {
-						for (ISoundEventListener isoundeventlistener : listeners) {
-							isoundeventlistener.soundPlay(rec, soundEvent);
-						}
-					}
-					if (masterVolume <= 0.0F) {
-						LogWriter.debug("Skipped playing soundEvent: \"" + resourcelocation.toString() + "\", master volume was zero");
-					} else {
-						sound = rec.getSound();
-						if (sound == SoundHandler.MISSING_SOUND) {
-							if (UNABLE_TO_PLAY.add(resourcelocation)) {
-								LogWriter.warn("Unable to play empty soundEvent: \"" + resourcelocation.toString() + "\"");
-							}
-						} else {
-							float f3 = volume;
-							float f = 16.0F;
-							if (f3 > 1.0F) { f *= f3; }
-							SoundCategory soundcategory = rec.getCategory();
-							float v = cat != null && cat != SoundCategory.MASTER ? options.getSoundLevel(cat) : 1.0F;
-							float f1 = MathHelper.clamp(volume * v, 0.0F, 1.0F);
-							float f2 = MathHelper.clamp(pitch, 0.5F, 2.0F);
-
-							if (f1 == 0.0F) {
-								LogWriter.debug("Skipped playing sound: \"" + sound.getSoundLocation().toString() + "\", volume was zero");
-							} else {
-								boolean flag = rec.canRepeat() && rec.getRepeatDelay() == 0;
-								String s = MathHelper.getRandomUUID(ThreadLocalRandom.current()).toString();
-								ResourceLocation resourcelocation1 = sound.getSoundAsOggLocation();
-								if (sound.isStreaming()) {
-									newStreamingSource.invoke(sndSystem, false, s, getURLForSoundResource.invoke(sndManager, resourcelocation1), resourcelocation1.toString(), flag, rec.getXPosF(), rec.getYPosF(), rec.getZPosF(), rec.getAttenuationType().getTypeInt(), f);
-									net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.sound.PlayStreamingSourceEvent( sndManager, rec, s));
-								} else {
-									newSource.invoke(sndSystem, false, s, getURLForSoundResource.invoke(sndManager, resourcelocation1), resourcelocation1.toString(), flag, rec.getXPosF(), rec.getYPosF(), rec.getZPosF(), rec.getAttenuationType().getTypeInt(), f);
-									net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.sound.PlaySoundSourceEvent(sndManager, rec, s));
-								}
-								LogWriter.debug( "Playing sound: \"" + sound.getSoundLocation().toString() + "\" for event \"" + resourcelocation.toString() + "\" as channel \"" + s + "\"");
-								setPitch.invoke(sndSystem, s, f2);
-								setVolume.invoke(sndSystem, s, f1);
-								play.invoke(sndSystem, s);
-								playingSoundsStopTime.put(s, Integer.valueOf(playTime + 20));
-								playingSounds.put(s, rec);
-								categorySounds.put(soundcategory, s);
-								if (rec instanceof ITickableSound) { tickableSounds.add((ITickableSound) rec); }
-							}
-						}
-					}
-				}
+				return;
 			}
+			int categoryType = buffer.readInt();
+			SoundCategory cat = SoundCategory.PLAYERS;
+			if (categoryType >= 0 && categoryType < SoundCategory.values().length) { cat = SoundCategory.values()[categoryType]; }
+			if (cat == SoundCategory.MUSIC) { Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC); }
+			MusicController.Instance.forcePlaySound(cat, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
 		} else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
-			MusicController.Instance.forcePlaySound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(),
-					buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
+			MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
 		} else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(compound.getInteger("EntityId"));

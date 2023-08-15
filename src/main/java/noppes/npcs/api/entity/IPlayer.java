@@ -156,7 +156,7 @@ extends IEntityLivingBase<T> {
 
 	double[] getWindowSize();
 
-	void playSound(int categoryType, IPos pos, String sound, String variant, float volume, float pitch);
+	void playSound(int categoryType, IPos pos, String sound, float volume, float pitch);
 	
 	void stopSound(int categoryType, String sound);
 	

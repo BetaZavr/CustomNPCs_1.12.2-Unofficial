@@ -24,7 +24,7 @@ implements IDataObject {
 
 	public DataObject(Object obj) {
 		this.object = obj;
-		this.data = AdditionalMethods.getClassData(obj, true, true);
+		this.data = AdditionalMethods.getClassData(obj, false, true);
 	}
 
 	@Override
