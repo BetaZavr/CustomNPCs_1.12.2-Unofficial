@@ -216,7 +216,10 @@ public class ClientEventHandler {
 				}
 			}
 		}
-		if (TileBuilder.DrawPoses.isEmpty()) { return; }
+		if (TileBuilder.DrawPoses.isEmpty()) {
+			CustomNpcs.debugData.endDebug("Client", player, "ClientEventHandler_onRenderTick");
+			return;
+		}
 		for (BlockPos pos : TileBuilder.DrawPoses) {
 			if (pos==null || player == null || pos.distanceSq((Vec3i) player.getPosition()) > 10000.0) { continue; }
 			TileEntity te = player.world.getTileEntity(pos);

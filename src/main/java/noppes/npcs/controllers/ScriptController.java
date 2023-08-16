@@ -18,21 +18,27 @@ import javax.script.ScriptEngineManager;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
+import noppes.npcs.Server;
 import noppes.npcs.api.wrapper.WorldWrapper;
+import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.PotionScriptData;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NBTJsonUtil;
+import noppes.npcs.util.TempFile;
 
 public class ScriptController {
 	
@@ -46,12 +52,13 @@ public class ScriptController {
 	public NBTTagCompound compound;
 	public NBTTagCompound constants;
 	public File dir, clientDir;
-	public Map<String, ScriptEngineFactory> factories;
 	public ForgeScriptData forgeScripts;
 	public ClientScriptData clientScripts;
-	public Map<String, String> languages;
+	public final Map<String, ScriptEngineFactory> factories;
+	public final Map<String, String> languages;
+	public final Map<String, Long> sizes, clientSizes;
+	public final Map<String, String> scripts, clients;
 	public PlayerScriptData playerScripts;
-	public Map<String, String> scripts, clients;
 	public PotionScriptData potionScripts;
 	
 	private ScriptEngine graalEngine;
@@ -61,6 +68,8 @@ public class ScriptController {
 		this.factories = Maps.<String, ScriptEngineFactory>newTreeMap();
 		this.scripts = Maps.<String, String>newTreeMap();
 		this.clients = Maps.<String, String>newTreeMap();
+		this.sizes = Maps.<String, Long>newTreeMap();
+		this.clientSizes = Maps.<String, Long>newTreeMap();
 		this.playerScripts = new PlayerScriptData(null);
 		this.forgeScripts = new ForgeScriptData();
 		this.clientScripts = new ClientScriptData();
@@ -205,14 +214,16 @@ public class ScriptController {
 	public void loadCategories() {
 		this.dir = new File(CustomNpcs.getWorldSaveDirectory(), "scripts");
 		if (!this.dir.exists()) { this.dir.mkdirs(); }
-		
-		this.clientDir = new File(CustomNpcs.Dir, "client scripts");
+		this.clientDir = new File(this.dir, "client");
 		if (!this.clientDir.exists()) { this.clientDir.mkdirs(); }
 		
 		if (!this.worldDataFile().exists()) { this.shouldSave = true; }
 		WorldWrapper.tempData.clear();
 		this.scripts.clear();
+		this.sizes.clear();
+		for (String key : this.clients.keySet()) { CommonProxy.loadFiles.remove(key); }
 		this.clients.clear();
+		this.clientSizes.clear();
 		for (String language : this.languages.keySet()) {
 			String ext = this.languages.get(language);
 			File scriptDir = new File(this.dir, language.toLowerCase());
@@ -234,7 +245,14 @@ public class ScriptController {
 			} else if (filename.endsWith(ext)) {
 				try {
 					String code = this.readFile(file);
-					if (isClient) { this.clients.put(filename, code); } else { this.scripts.put(filename, code); }
+					if (isClient) {
+						this.clients.put(filename, code);
+						this.clientSizes.put(filename, file.length());
+					}
+					else {
+						this.scripts.put(filename, code);
+						this.sizes.put(filename, file.length());
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -397,6 +415,10 @@ public class ScriptController {
 			}
 			compound.setTag("Scripts", scripts);
 			compound.setString("Language", language);
+			long[] sizes = new long[scripts.tagCount()];
+			int i = 0;
+			for (Long l : (isClient ? this.clientSizes : this.sizes).values()) { sizes[i] = l; i++; }
+			compound.setTag("sizes", new NBTTagLongArray(sizes));
 			list.appendTag(compound);
 		}
 		return list;
@@ -520,6 +542,26 @@ public class ScriptController {
 		sData.loadPotionScripts();
 		sData.loadConstantData();
 		ScriptController.HasStart = false;
+	}
+
+	public void sendClientTo(EntityPlayerMP player) {
+		NBTTagCompound compound = new NBTTagCompound();
+		this.clientScripts.writeToNBT(compound);
+		Server.sendData(player, EnumPacketClient.SCRIPT_CLIENT, compound);
+		NBTTagList list = new NBTTagList();
+		for (String key : this.clients.keySet()) {
+			if (!CommonProxy.loadFiles.containsKey(key)) { CommonProxy.loadFiles.put(key, new TempFile(key, 0, 1, this.clientSizes.get(key))); }
+			TempFile file = CommonProxy.loadFiles.get(key);
+			if (!file.isLoad()) {
+				file.size = -1;
+				file.saveType = 1;
+				file.reset(this.clients.get(key));
+			}
+			list.appendTag(file.getTitle());
+		}
+		compound = new NBTTagCompound();
+		compound.setTag("FileList", list);
+		Server.sendData(player, EnumPacketClient.SEND_FILE_LIST, compound);
 	}
 	
 }

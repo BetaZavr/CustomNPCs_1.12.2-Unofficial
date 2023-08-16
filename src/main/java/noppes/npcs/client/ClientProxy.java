@@ -228,6 +228,7 @@ import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.TempFile;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy
@@ -249,6 +250,8 @@ extends CommonProxy {
 	public static KeyBinding Scene3;
 	public static KeyBinding SceneReset;
 	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
+	public static final Map<String, TempFile> loadFiles = Maps.<String, TempFile>newTreeMap();
+	
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.<Integer, KeyBinding>newHashMap();
 	
 	public static class FontContainer {

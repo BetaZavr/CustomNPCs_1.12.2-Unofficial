@@ -82,6 +82,7 @@ import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.TempFile;
 
 public class CommonProxy
 implements IGuiHandler {
@@ -89,6 +90,7 @@ implements IGuiHandler {
 	public boolean newVersionAvailable;
 	public int revision;
 	public static Map<Integer, BuilderData> dataBuilder = Maps.<Integer, BuilderData>newTreeMap();
+	public static Map<String, TempFile> loadFiles = Maps.<String, TempFile>newHashMap();
 
 	public CommonProxy() {
 		this.newVersionAvailable = false;

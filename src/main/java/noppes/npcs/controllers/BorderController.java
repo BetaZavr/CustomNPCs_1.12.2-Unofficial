@@ -92,9 +92,9 @@ implements IBorderHandler {
 				if (file2.exists()) {
 					this.loadRegions(file2);
 				}
-			} catch (Exception ex) {
-			}
+			} catch (Exception ex) { }
 		}
+		CustomNpcs.debugData.endDebug("Common", null, "loadRegions");
 	}
 
 	private void loadRegions(File file) throws IOException {

@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
@@ -37,6 +38,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
 	
@@ -50,7 +52,7 @@ public class ClientTickHandler {
 	}
 
 	@SubscribeEvent
-	public void LivingUpdate(LivingUpdateEvent event) {
+	public void livingUpdate(LivingUpdateEvent event) {
 		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) { return; }
 		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
 		if (ClientProxy.notVisibleNPC.containsKey(dimID) && ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
@@ -128,6 +130,7 @@ public class ClientTickHandler {
 		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
+			ClientTickHandler.loadFiles();
 		}
 		if (mc.currentScreen!=null) {
 			if (ClientProxy.playerData.hud.keyPress.size()>0) {
@@ -188,6 +191,33 @@ public class ClientTickHandler {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnKey");
+	}
+
+	public static void loadFiles() {
+		if (ClientProxy.loadFiles.isEmpty()) { return; }
+		String isDel = "";
+		for (String key : ClientProxy.loadFiles.keySet()) {
+			TempFile file = ClientProxy.loadFiles.get(key);
+			if (file.lastLoad==0) {
+				Client.sendDataDelayCheck(EnumPlayerPacket.GetFilePart, file, 0, file.getNextPatr(), key);
+				file.lastLoad = System.currentTimeMillis(); 
+			}
+			else if (file.lastLoad + 12000L < System.currentTimeMillis()) {
+				file.tryLoads++;
+				if (file.tryLoads > 9) {
+					LogWriter.error("Failed to load file after 10 attempts: \""+key+"\"");
+					isDel = key;
+				} else {
+					Client.sendDataDelayCheck(EnumPlayerPacket.GetFilePart, file, 0, file.getNextPatr(), key);
+					file.lastLoad = System.currentTimeMillis();
+				}
+			}
+			break;
+		}
+		if (!isDel.isEmpty()) {
+			ClientProxy.loadFiles.remove(isDel);
+			ClientTickHandler.loadFiles();
+		}
 	}
 
 	@SubscribeEvent

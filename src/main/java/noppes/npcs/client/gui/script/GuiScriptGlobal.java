@@ -7,7 +7,6 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -119,7 +118,7 @@ extends GuiNPCInterface {
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.potion", new Object[] { this.potionEventsList }).getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.client").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("script.hover.client").getFormattedText());
 		}
 	}
 

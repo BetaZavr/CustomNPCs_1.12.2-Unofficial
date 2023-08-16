@@ -489,4 +489,15 @@ extends GuiScreen {
 			}
 		}
 	}
+
+	public int getColor(int pos) {
+		if (this.colors==null || this.colors.isEmpty()) { return 0; }
+		return this.colors.get(pos);
+	}
+
+	public String getSuffixs(int pos) {
+		if (this.suffixs==null || this.suffixs.isEmpty()) { return null; }
+		return this.suffixs.get(pos);
+	}
+	
 }

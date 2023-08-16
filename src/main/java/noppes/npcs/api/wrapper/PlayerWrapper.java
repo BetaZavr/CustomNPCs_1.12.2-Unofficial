@@ -231,7 +231,10 @@ implements IPlayer {
 
 	@Override
 	public int getGamemode() {
-		if (!(this.entity instanceof EntityPlayerMP)) { return 0; }
+		if (!(this.entity instanceof EntityPlayerMP)) {
+			if (this.entity instanceof EntityPlayer && ((EntityPlayer) this.entity).capabilities.isCreativeMode) { return 1; }
+			return 0;
+		}
 		return ((EntityPlayerMP) this.entity).interactionManager.getGameType().getID();
 	}
 
@@ -288,8 +291,7 @@ implements IPlayer {
 			@Override
 			public Object getParty() {
 				if (PlayerWrapper.this.pixelmonPartyStorage == null) {
-					PlayerWrapper.this.pixelmonPartyStorage = PixelmonHelper
-							.getParty((EntityPlayerMP) PlayerWrapper.this.entity);
+					PlayerWrapper.this.pixelmonPartyStorage = PixelmonHelper.getParty((EntityPlayerMP) PlayerWrapper.this.entity);
 				}
 				return PlayerWrapper.this.pixelmonPartyStorage;
 			}
@@ -297,8 +299,7 @@ implements IPlayer {
 			@Override
 			public Object getPC() {
 				if (PlayerWrapper.this.pixelmonPCStorage == null) {
-					PlayerWrapper.this.pixelmonPCStorage = PixelmonHelper
-							.getPc((EntityPlayerMP) PlayerWrapper.this.entity);
+					PlayerWrapper.this.pixelmonPCStorage = PixelmonHelper.getPc((EntityPlayerMP) PlayerWrapper.this.entity);
 				}
 				return PlayerWrapper.this.pixelmonPCStorage;
 			}

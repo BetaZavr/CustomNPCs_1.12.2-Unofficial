@@ -19,6 +19,7 @@ import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
@@ -39,6 +40,7 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
+import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ScriptData;
 
 //Changed
@@ -51,7 +53,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	private final Map<String, Map<Integer, ScriptData>> data = Maps.newHashMap(); // In Global // Local List
 	private String error = "";
 	public IScriptHandler handler;
-	public Map<String, List<String>> languages;
+	public Map<String, Map<String, Long>> languages;
 	// New
 	private final Map<String, String[]> map = Maps.newHashMap(); // In Help Scroll
 	private final List<String> newFunc = new ArrayList<String>();
@@ -67,7 +69,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 
 	public GuiScriptInterface() {
 		this.activeTab = 0;
-		this.languages = new HashMap<String, List<String>>();
+		this.languages = new HashMap<String, Map<String, Long>>();
 		this.drawDefaultBackground = true;
 		this.closeOnEsc = true;
 		this.xSize = 427;
@@ -539,6 +541,18 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (!this.error.isEmpty() && this.getButton(120).isMouseOver()) {
 			this.hoverText = new String[] { this.error };
 		}
+		if (CustomNpcs.showDescriptions && this.getButton(107)!=null && this.getButton(107).isMouseOver()) {
+			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+			if (!container.scripts.isEmpty()) {
+				if (container.scripts.size()<10) {
+					this.hoverText = container.scripts.toArray(new String[container.scripts.size()]);
+				}
+				else {
+					this.hoverText = new String[10];
+					for (int i = 0; i<10; i++) { this.hoverText[i] = container.scripts.get(i); }
+				}
+			}
+		}
 		if (!CustomNpcs.useScriptHelper || this.helper == null || this.get(2) == null) {
 			return;
 		}
@@ -834,13 +848,15 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		NBTTagList data = compound.getTagList("Languages", 10);
-		Map<String, List<String>> languages = new HashMap<String, List<String>>();
+		Map<String, Map<String, Long>> languages = new HashMap<String, Map<String, Long>>();
 		for (int i = 0; i < data.tagCount(); ++i) {
 			NBTTagCompound comp = data.getCompoundTagAt(i);
-			List<String> scripts = new ArrayList<String>();
+			Map<String, Long> scripts = Maps.<String, Long>newTreeMap();
 			NBTTagList list = comp.getTagList("Scripts", 8);
+			long[] ld = new long[list.tagCount()]; 
+			if (comp.hasKey("sizes", 12)) { ld = ObfuscationHelper.getValue(NBTTagLongArray.class, (NBTTagLongArray) comp.getTag("sizes"), 0); }
 			for (int j = 0; j < list.tagCount(); ++j) {
-				scripts.add(list.getStringTagAt(j));
+				scripts.put(list.getStringTagAt(j), ld[j]);
 			}
 			languages.put(comp.getString("Language"), scripts);
 		}

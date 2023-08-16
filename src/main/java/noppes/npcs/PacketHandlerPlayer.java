@@ -70,6 +70,7 @@ import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ServerNpcRecipeBookHelper;
+import noppes.npcs.util.TempFile;
 
 public class PacketHandlerPlayer {
 
@@ -84,6 +85,7 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MousesPressed);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopNPCAnimation);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetTileData);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetFilePart);
 	}
 	
 	@SubscribeEvent
@@ -123,6 +125,7 @@ public class PacketHandlerPlayer {
 			if (key<0) {
 				for (int k : hud.keyPress) { EventHooks.onPlayerKeyPressed(player, k, false, false, false, false, false); }
 				hud.keyPress.clear();
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
@@ -142,6 +145,7 @@ public class PacketHandlerPlayer {
 			if (key<0) {
 				for (int k : hud.mousePress) { EventHooks.onPlayerMousePressed(player, k, false, false, false, false, false); }
 				hud.mousePress.clear();
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			boolean isDown = buffer.readBoolean();
@@ -556,13 +560,19 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.CurrentLanguage) {
 			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, Server.readString(buffer), String.class);
 		} else if (type == EnumPlayerPacket.GetBuildData) {
-			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
+			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				return;
+			}
 			int id = player.getHeldItemMainhand().getTagCompound().getInteger("ID");
 			BuilderData builder = CommonProxy.dataBuilder.get(id);
 			if (builder==null) {
 				ItemBuilder.cheakStack(player.getHeldItemMainhand());
 				builder = CommonProxy.dataBuilder.get(id);
-				if (builder==null) { return; }
+				if (builder==null) {
+					CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+					return;
+				}
 			}
 			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, builder.getNbt());
 		} else if (type == EnumPlayerPacket.HudTimerEnd) {
@@ -600,6 +610,16 @@ public class PacketHandlerPlayer {
 			}
 		} else if (type == EnumPlayerPacket.OpenGui) {
 			EventHooks.onPlayerOpenGui(player, Server.readString(buffer), Server.readString(buffer));
+		} else if (type == EnumPlayerPacket.GetFilePart) {
+			int part = buffer.readInt();
+			String name = Server.readString(buffer);
+			if (!CommonProxy.loadFiles.containsKey(name)) { 
+				Server.sendData(player, EnumPacketClient.SEND_FILE_PART, true, name);
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				return;
+			}
+			TempFile file = CommonProxy.loadFiles.get(name);
+			Server.sendData(player, EnumPacketClient.SEND_FILE_PART, false, part, name, String.valueOf(file.data.get(part)));
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

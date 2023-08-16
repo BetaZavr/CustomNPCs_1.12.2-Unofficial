@@ -390,7 +390,10 @@ public class PacketHandlerServer {
 			}
 		} else if (type == EnumPacketServer.DialogNpcRemove) {
 			int slot = buffer.readInt();
-			if (slot<0 || slot>=npc.dialogs.length) { return; }
+			if (slot<0 || slot>=npc.dialogs.length) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
+				return;
+			}
 			int[] newIDs = new int[npc.dialogs.length-1];
 			for (int i=0, j=0; i<npc.dialogs.length; i++) {
 				if (i==slot) { continue;}
@@ -532,6 +535,7 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.PlayerDataRemove) {
 			int id = buffer.readInt();
 			if (EnumPlayerData.values().length <= id) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			else if (EnumPlayerData.values()[id]==EnumPlayerData.Wipe) {
@@ -561,6 +565,7 @@ public class PacketHandlerServer {
 					playerdata.save(true);
 				}
 				NoppesUtilServer.sendPlayerData(EnumPlayerData.Players, player, null);
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilServer.removePlayerData(id, buffer, player);
@@ -650,7 +655,10 @@ public class PacketHandlerServer {
 			}
 		}
 		else if (type == EnumPacketServer.JobClear) {
-			if (!(npc.advanced.jobInterface instanceof JobSpawner)) { return; }
+			if (!(npc.advanced.jobInterface instanceof JobSpawner)) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
+				return;
+			}
 			((JobSpawner) npc.advanced.jobInterface).clear(buffer.readBoolean());
 			
 			NBTTagCompound compound = new NBTTagCompound();
@@ -827,6 +835,7 @@ public class PacketHandlerServer {
 						nbtData.setString("Name", entity.getName());
 					}
 					if (nbt.hasKey("Settings") && nbt.getCompoundTag("Settings").getString("Name").equals(nbtData.getString("Name"))) {
+						CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 						return;
 					}
 					nbt.setTag("Settings", nbtData);
@@ -1070,6 +1079,7 @@ public class PacketHandlerServer {
 			if (tile != null) {
 				tile.readFromNBT(compound);
 				tile.markDirty();
+				CustomNpcs.proxy.fixTileEntityData(tile);
 			}
 		} else if (type == EnumPacketServer.NbtBookSaveEntity) {
 			int entityId = buffer.readInt();
@@ -1084,6 +1094,7 @@ public class PacketHandlerServer {
 			ItemStack stack = new ItemStack(stackNBT);
 			if (stack==null || stack.isEmpty()) {
 				player.sendMessage(new TextComponentTranslation("nbt.book.not.correct.nbt"));
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			player.inventory.offHandInventory.set(0, stack);
@@ -1271,6 +1282,7 @@ public class PacketHandlerServer {
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 			if (player.world.provider.getDimension()==dimensionId) {
 				player.setPositionAndUpdate(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d);
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 				return;
 			}
 			try { AdditionalMethods.teleportEntity(CustomNpcs.Server, player, dimensionId, pos); } catch (Exception e) { }
@@ -1282,6 +1294,7 @@ public class PacketHandlerServer {
 				int regId = buffer.readInt();
 				if (!bData.regions.containsKey(regId)) {
 					bData.sendTo(player);
+					CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 					return;
 				}
 				if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
@@ -1294,6 +1307,7 @@ public class PacketHandlerServer {
 				int regId = buffer.readInt();
 				if (!bData.regions.containsKey(regId)) {
 					bData.sendTo(player);
+					CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 					return;
 				}
 				if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
@@ -1314,7 +1328,10 @@ public class PacketHandlerServer {
 			}
 		}
 		else if (type == EnumPacketServer.OpenBuilder) {
-			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
+			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
+				return;
+			}
 			int id = player.getHeldItemMainhand().getTagCompound().getInteger("ID");
 			NBTTagCompound compound = Server.readNBT(buffer);
 			if (id != compound.getInteger("ID")) {
@@ -1330,7 +1347,10 @@ public class PacketHandlerServer {
 			int id = compound.getInteger("ID");
 			if (!CommonProxy.dataBuilder.containsKey(id)) { CommonProxy.dataBuilder.put(id, new BuilderData()); }
 			CommonProxy.dataBuilder.get(id).read(compound);
-			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) { return; }
+			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
+				return;
+			}
 			NBTTagCompound nbtStack = player.getHeldItemMainhand().getTagCompound();
 			if (nbtStack==null) { player.getHeldItemMainhand().setTagCompound(nbtStack = new NBTTagCompound()); }
 			for (String key : compound.getKeySet()) { nbtStack.setTag(key, compound.getTag(key)); }
@@ -1345,10 +1365,16 @@ public class PacketHandlerServer {
 			}
 			Server.sendData(player, EnumPacketClient.SYNC_END, 3, new NBTTagCompound());
 		} else if (type == EnumPacketServer.PlaySound) {
-			if (player==null) { return; }
+			if (player==null) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
+				return;
+			}
 			EventHooks.onPlayerPlaySound(PlayerData.get(player).scriptData, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(player), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat()));
 		} else if (type == EnumPacketServer.StopSound) {
-			if (player==null) { return; }
+			if (player==null) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
+				return;
+			}
 			EventHooks.onPlayerStopSound(PlayerData.get(player).scriptData, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(player), Server.readString(buffer), Server.readString(buffer), Server.readString(buffer), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat(), buffer.readFloat()));
 		} else if (type == EnumPacketServer.AnimationGet) {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.animation.writeToNBT(new NBTTagCompound()));

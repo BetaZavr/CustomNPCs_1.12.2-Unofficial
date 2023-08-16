@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -80,10 +81,20 @@ extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading potion scripts"));
 		}
+		if (ScriptController.Instance.loadClientScripts()) {
+			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
+		} else {
+			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
+		}
 		if (ScriptController.Instance.loadConstantData()) {
 			sender.sendMessage(new TextComponentString("Reload constant data succesfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading constant data"));
+		}
+		if (server!=null) {
+			for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
+				ScriptController.Instance.sendClientTo(player);
+			}
 		}
 		return true;
 	}
