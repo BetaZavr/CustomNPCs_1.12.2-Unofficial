@@ -213,6 +213,8 @@ public class CustomNpcs {
 	public static String[] charCodeColor = new String[] { "6", "9", "7", "2" };
 	@ConfigProp(info = "Maximum number of items in one Drop group")
 	public static int maxItemInDropsNPC = 32;
+	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)")
+	public static boolean simplifiedForgeEvents = false;
 	@ConfigProp
 	public static boolean SceneButtonsEnabled = true;
 	@ConfigProp

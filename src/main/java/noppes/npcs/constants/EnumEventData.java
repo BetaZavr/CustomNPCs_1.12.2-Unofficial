@@ -1042,6 +1042,20 @@ public enum EnumEventData {
 			new MetodData(IItemStack.class, "stack", "parameter.stack"),
 			new MetodData(NpcAPI.class, "API", "event.npcapi")
 		)
+	),
+	SoundTickEvent(new EventData(ForgeEvent.SoundTickEvent.class, 
+			ForgeEvent.class,
+			"event.forge.soundtick",
+			EnumScriptType.SOUND_TICK_EVENT.function,
+			new MetodData(String.class, "name", "event.player.string"),
+			new MetodData(String.class, "resource", "event.player.string"),
+			new MetodData(IPos.class, "pos", "parameter.pos"),
+			new MetodData(float.class, "volume", "event.player.float"),
+			new MetodData(float.class, "pitch", "event.player.float"),
+			new MetodData(int.class, "tick", "parameter.music.tick"),
+			new MetodData(int.class, "ticks", "parameter.music.ticks"),
+			new MetodData(NpcAPI.class, "API", "event.npcapi")
+		)
 	);
 	
 	public EventData ed;

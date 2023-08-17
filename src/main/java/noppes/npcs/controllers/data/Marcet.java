@@ -96,8 +96,7 @@ public class Marcet implements IRoleTrader {
 
 	public String getSettingName() {
 		String str = new String(Character.toChars(0x00A7));
-		return "ID:" + this.id + " " + str + (this.isEmpty() ? "4" : this.hasEmpty() ? "c" : "a")
-				+ new TextComponentTranslation(this.name).getFormattedText();
+		return "ID:" + this.id + " " + str + (this.isEmpty() ? "4" : this.hasEmpty() ? "c" : "a") + new TextComponentTranslation(this.name).getFormattedText();
 	}
 
 	public String getShowName() {

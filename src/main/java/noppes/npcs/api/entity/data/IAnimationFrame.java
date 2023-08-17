@@ -14,4 +14,6 @@ public interface IAnimationFrame {
 
 	int getEndDelay();
 	
+	IAnimationPart getPart(int id);
+	
 }

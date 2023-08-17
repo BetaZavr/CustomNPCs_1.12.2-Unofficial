@@ -1,7 +1,10 @@
 package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EntityTracker;
+import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -9,6 +12,7 @@ import net.minecraft.network.play.server.SPacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.IntHashMap;
 import net.minecraft.world.WorldServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
@@ -18,6 +22,7 @@ import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.data.IMark;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("rawtypes")
 public class EntityLivingBaseWrapper<T extends EntityLivingBase>
@@ -106,6 +111,7 @@ implements IEntityLivingBase {
 	@Override
 	public IMark[] getMarks() {
 		MarkData data = MarkData.get(this.entity);
+		System.out.println("data: "+data);
 		return data.marks.toArray(new IMark[data.marks.size()]);
 	}
 
@@ -258,7 +264,10 @@ implements IEntityLivingBase {
 	}
 	
 	private void swim(EnumHand hand) {
-		//this.entity.swingArm(hand);
+		if (!(this.entity instanceof EntityPlayerMP)) {
+			this.entity.swingArm(hand);
+			return;
+        }
 		ItemStack stack = this.entity.getHeldItem(hand);
 		if (!stack.isEmpty()) {
 			if (stack.getItem().onEntitySwing(this.entity, stack)) { return; }
@@ -267,9 +276,13 @@ implements IEntityLivingBase {
 			this.entity.swingProgressInt = -1;
 			this.entity.isSwingInProgress = true;
 			this.entity.swingingHand = hand;
-			if (this.entity.world instanceof WorldServer) {
-				((WorldServer)this.entity.world).getEntityTracker().sendToTracking(this.entity, new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3));
-			}
+			SPacketAnimation pack = new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3);
+			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ObfuscationHelper.getValue(EntityTracker.class, ((WorldServer)this.entity.world).getEntityTracker(), IntHashMap.class);
+			EntityTrackerEntry entitytrackerentry = trackedEntityHashTable.lookup(this.entity.getEntityId());
+	        if (entitytrackerentry != null) {
+	        	for (EntityPlayerMP entityplayermp : entitytrackerentry.trackingPlayers) { entityplayermp.connection.sendPacket(pack); }
+	        	if (!entitytrackerentry.trackingPlayers.contains(this.entity)) { ((EntityPlayerMP) this.entity).connection.sendPacket(pack); }
+	        }
 		}
 	}
 	

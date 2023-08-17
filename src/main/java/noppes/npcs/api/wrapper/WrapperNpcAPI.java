@@ -205,6 +205,11 @@ extends NpcAPI {
 	}
 
 	@Override
+	public IPos getIPos(BlockPos pos) {
+		return new BlockPosWrapper(pos);
+	}
+
+	@Override
 	public IWorld getIWorld(int dimensionId) {
 		for (WorldServer world : CustomNpcs.Server.worlds) {
 			if (world.provider.getDimension() == dimensionId) {
@@ -216,7 +221,7 @@ extends NpcAPI {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public IWorld getIWorld(WorldServer world) {
+	public IWorld getIWorld(World world) {
 		WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
 		if (w != null) {
 			w.world = world;

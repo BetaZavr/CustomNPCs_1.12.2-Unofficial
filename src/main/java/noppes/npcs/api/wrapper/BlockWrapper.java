@@ -75,8 +75,8 @@ implements IBlock {
 	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
 		Block block = state.getBlock();
 		String key = state.toString() + pos.toString();
-		BlockWrapper b = null;
-		if (!BlockWrapper.blockCache.containsKey(key)) {
+		BlockWrapper b = BlockWrapper.blockCache.get(key);
+		if (b == null) {
 			if (block instanceof BlockScripted) { b = new BlockScriptedWrapper(world, block, pos); }
 			else if (block instanceof BlockScriptedDoor) { b = new BlockScriptedDoorWrapper(world, block, pos); }
 			else if (block instanceof BlockFluidBase) { b = new BlockFluidContainerWrapper(world, block, pos); }

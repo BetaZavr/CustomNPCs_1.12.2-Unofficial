@@ -202,6 +202,13 @@ implements IAnimationFrame {
 		}
 		return newAfc;
 	}
+
+	@Override
+	public IAnimationPart getPart(int id) {
+		if (id < 0) { id *= -1; }
+		if (id > this.parts.length) { id %= this.parts.length; }
+		return this.parts[id];
+	}
 	
 }
 

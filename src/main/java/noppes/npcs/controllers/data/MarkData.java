@@ -114,9 +114,7 @@ implements INbtHandler, ICapabilityProvider {
 		Mark m = new Mark();
 		m.type = type;
 		this.marks.add(m);
-		if (!this.entity.world.isRemote) {
-			this.syncClients();
-		}
+		this.syncClients();
 		return m;
 	}
 
@@ -125,9 +123,7 @@ implements INbtHandler, ICapabilityProvider {
 		m.type = type;
 		m.color = color;
 		this.marks.add(m);
-		if (!this.entity.world.isRemote) {
-			this.syncClients();
-		}
+		this.syncClients();
 		return m;
 	}
 
@@ -191,6 +187,7 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	public void syncClients() {
+		if (this.entity==null || this.entity.world==null || this.entity.world.isRemote) { return; }
 		Server.sendToAll(this.entity.getServer(), EnumPacketClient.MARK_DATA, this.entity.getEntityId(), this.getNBT());
 	}
 }

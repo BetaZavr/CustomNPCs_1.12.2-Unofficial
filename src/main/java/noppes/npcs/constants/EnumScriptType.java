@@ -74,7 +74,8 @@ public enum EnumScriptType
 	CUSTOM_TELEPORT("customTeleport"),
 	KEY_ACTIVE("keyActive"),
 	STOP_ANIMATION("stopAnimation"),
-	GUI_OPEN("openGUI");
+	GUI_OPEN("openGUI"),
+	SOUND_TICK_EVENT("soundTickEvent");
 	
 	public String function;
 	

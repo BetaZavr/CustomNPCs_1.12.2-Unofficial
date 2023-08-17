@@ -1,5 +1,6 @@
 package noppes.npcs.client;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -13,11 +14,13 @@ import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -28,8 +31,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.renderer.RenderNPCInterface;
@@ -45,6 +50,7 @@ public class ClientTickHandler {
 	private boolean otherContainer;
 	private World prevWorld;
 	private Map<String, ISound> nowPlayingSounds;
+	private static ISound music = null;
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
@@ -115,6 +121,9 @@ public class ClientTickHandler {
 		for (String uuid : playingSounds.keySet()) { // is played
 			if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
 				ISound sound = playingSounds.get(uuid);
+				if (sound.getCategory()==SoundCategory.MUSIC) {
+					ClientTickHandler.music = sound;
+				}
 				this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
 				Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
 			}
@@ -127,6 +136,26 @@ public class ClientTickHandler {
 				del.add(uuid);
 			}
 		}
+		if (ClientTickHandler.music!=null && Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(ClientTickHandler.music) ) {
+			Map<ISound, String> invPlayingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 9);
+		    if (invPlayingSounds.containsKey(ClientTickHandler.music)) {
+		    	String s = invPlayingSounds.get(ClientTickHandler.music);
+		    	List<String> pausedChannels = ObfuscationHelper.getValue(SoundManager.class, sm, 15);
+				if (pausedChannels.contains(s)) { return; }
+		    	int playTime = ObfuscationHelper.getValue(SoundManager.class, sm, 7);
+			    Map<String, Integer> playingSoundsStopTime = ObfuscationHelper.getValue(SoundManager.class, sm, 13);
+			    if (playingSoundsStopTime.containsKey(s)) {
+			    	EventHooks.onForgeEvent(new ForgeEvent.SoundTickEvent(ClientTickHandler.music, playTime - playingSoundsStopTime.get(s)));
+			    	/*int t = 0;
+			    	try {
+						IResource res = Minecraft.getMinecraft().getResourceManager().getResource(ClientTickHandler.music.getSound().getSoundAsOggLocation());
+				    	//System.out.println("Ogg: "+ClientTickHandler.music.getSound().getSoundAsOggLocation()+" - "+res);
+					}
+			    	catch (IOException e) { e.printStackTrace(); }*/
+			    	//System.out.println("name: \""+ClientTickHandler.music.getSoundLocation().toString()+"\"; time: "+(playTime - playingSoundsStopTime.get(s))+" / "+t);
+			    }
+		    } else { ClientTickHandler.music = null; }
+		} else { ClientTickHandler.music = null; }
 		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();

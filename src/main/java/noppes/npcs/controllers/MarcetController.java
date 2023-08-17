@@ -33,29 +33,6 @@ public class MarcetController {
 		MarcetController.instance = this;
 		this.marcets = Maps.<Integer, Marcet>newTreeMap();
 		this.loadMarcets();
-		if (this.marcets.isEmpty()) {
-			Marcet marcet = this.addMarcet();
-			marcet.name = "Default Marcet";
-			marcet.updateTime = 120;
-			marcet.lastTime = System.currentTimeMillis();
-
-			Deal d0 = marcet.set(0, new ItemStack(Items.DIAMOND),
-					new ItemStack[] { new ItemStack(Items.GOLD_INGOT, 32, 0), new ItemStack(Items.IRON_INGOT, 48, 0) });
-			d0.type = 2;
-			d0.count = new int[] { 2, 7 };
-			d0.money = 1000;
-			d0.chance = 0.1575f;
-
-			Deal d1 = marcet.set(1, new ItemStack(Items.IRON_INGOT, 4, 0),
-					new ItemStack[] { new ItemStack(Items.GOLD_INGOT) });
-			d1.type = 2;
-			d1.money = 40;
-			d1.chance = 0.955f;
-
-			this.marcets.put(marcet.id, marcet);
-
-			this.saveMarcets();
-		}
 	}
 
 	public static MarcetController getInstance() {
@@ -168,9 +145,29 @@ public class MarcetController {
 			} catch (Exception ex) {
 			}
 		}
+
+		if (this.marcets.isEmpty()) { this.loadDefaultMarcets(); }
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.endDebug("Common", null, "loadMarcets");
 		}
+	}
+
+	private void loadDefaultMarcets() {
+		Marcet marcet = this.addMarcet();
+		marcet.name = "Default Marcet";
+		marcet.updateTime = 120;
+		marcet.lastTime = System.currentTimeMillis();
+		Deal d0 = marcet.set(0, new ItemStack(Items.DIAMOND), new ItemStack[] { new ItemStack(Items.GOLD_INGOT, 32, 0), new ItemStack(Items.IRON_INGOT, 48, 0) });
+		d0.type = 2;
+		d0.count = new int[] { 2, 7 };
+		d0.money = 1000;
+		d0.chance = 0.1575f;
+		Deal d1 = marcet.set(1, new ItemStack(Items.IRON_INGOT, 4, 0), new ItemStack[] { new ItemStack(Items.GOLD_INGOT) });
+		d1.type = 2;
+		d1.money = 40;
+		d1.chance = 0.955f;
+		this.marcets.put(marcet.id, marcet);
+		this.saveMarcets();
 	}
 
 	private void loadMarcets(File file) throws IOException {
@@ -188,9 +185,17 @@ public class MarcetController {
 		}
 	}
 	
-	public Marcet loadMarcet(NBTTagCompound nbtFile) {
-		return null;
-		
+	public Marcet loadMarcet(NBTTagCompound nbtMarcet) {
+		if (nbtMarcet==null || !nbtMarcet.hasKey("MarcetID", 3) || nbtMarcet.getInteger("MarcetID")<0) { return null; }
+		int id = nbtMarcet.getInteger("MarcetID");
+		if (this.marcets.containsKey(id)) {
+			this.marcets.get(id).readFromNBT(nbtMarcet);
+			return this.marcets.get(id);
+		}
+		Marcet marcet = new Marcet();
+		marcet.readFromNBT(nbtMarcet);
+		this.marcets.put(marcet.id, marcet);
+		return this.marcets.get(marcet.id);
 	}
 
 	public int loadOld(NBTTagCompound nbttagcompound) {

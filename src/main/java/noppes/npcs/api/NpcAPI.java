@@ -10,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import noppes.npcs.CustomNpcs;
@@ -83,9 +82,11 @@ public abstract class NpcAPI {
 
 	public abstract IPos getIPos(double x, double y, double z);
 
+	public abstract IPos getIPos(BlockPos pos);
+
 	public abstract IWorld getIWorld(int dimensionId);
 
-	public abstract IWorld getIWorld(WorldServer world);
+	public abstract IWorld getIWorld(World world);
 
 	public abstract IWorld[] getIWorlds();
 

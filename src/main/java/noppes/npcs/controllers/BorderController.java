@@ -113,9 +113,10 @@ implements IBorderHandler {
 
 	public Zone3D loadRegion(NBTTagCompound nbtRegion) {
 		if (nbtRegion==null || !nbtRegion.hasKey("ID", 3) || nbtRegion.getInteger("ID")<0) { return null; }
-		if (this.regions.containsKey(nbtRegion.getInteger("ID"))) {
-			this.regions.get(nbtRegion.getInteger("ID")).readFromNBT(nbtRegion);
-			return this.regions.get(nbtRegion.getInteger("ID"));
+		int id = nbtRegion.getInteger("ID");
+		if (this.regions.containsKey(id)) {
+			this.regions.get(id).readFromNBT(nbtRegion);
+			return this.regions.get(id);
 		}
 		Zone3D region = new Zone3D();
 		region.readFromNBT(nbtRegion);
