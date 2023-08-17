@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ILabel;
 
 public class CustomGuiLabelWrapper
@@ -69,7 +70,7 @@ implements ILabel {
 
 	@Override
 	public int getType() {
-		return 1;
+		return GuiComponentType.LABEL.get();
 	}
 
 	@Override

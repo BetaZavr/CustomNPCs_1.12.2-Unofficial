@@ -2,13 +2,17 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import net.minecraft.world.WorldServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.data.IMark;
@@ -162,7 +166,7 @@ implements IEntityLivingBase {
 
 	@Override
 	public int getType() {
-		return 5;
+		return EntityType.LIVING.get();
 	}
 
 	@Override
@@ -243,17 +247,35 @@ implements IEntityLivingBase {
 	}
 
 	@Override
-	public void swingMainhand() {
-		this.entity.swingArm(EnumHand.MAIN_HAND);
-	}
+	public void swingMainhand() { this.swim(EnumHand.MAIN_HAND); }
 
 	@Override
-	public void swingOffhand() {
-		this.entity.swingArm(EnumHand.OFF_HAND);
-	}
+	public void swingOffhand() { this.swim(EnumHand.OFF_HAND); }
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 5 || super.typeOf(type);
+		return type == EntityType.LIVING.get() || super.typeOf(type);
 	}
+	
+	private void swim(EnumHand hand) {
+		//this.entity.swingArm(hand);
+		ItemStack stack = this.entity.getHeldItem(hand);
+		if (!stack.isEmpty()) {
+			if (stack.getItem().onEntitySwing(this.entity, stack)) { return; }
+		}
+		if (!this.entity.isSwingInProgress || this.entity.swingProgressInt >= this.getArmSwingAnimationEnd() / 2 || this.entity.swingProgressInt < 0) {
+			this.entity.swingProgressInt = -1;
+			this.entity.isSwingInProgress = true;
+			this.entity.swingingHand = hand;
+			if (this.entity.world instanceof WorldServer) {
+				((WorldServer)this.entity.world).getEntityTracker().sendToTracking(this.entity, new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3));
+			}
+		}
+	}
+	
+	private int getArmSwingAnimationEnd() {
+		if (this.entity.isPotionActive(MobEffects.HASTE)) { return 6 - (1 + this.entity.getActivePotionEffect(MobEffects.HASTE).getAmplifier()); }
+		else { return this.entity.isPotionActive(MobEffects.MINING_FATIGUE) ? 6 + (1 + this.entity.getActivePotionEffect(MobEffects.MINING_FATIGUE).getAmplifier()) * 2 : 6; }
+	}
+	
 }

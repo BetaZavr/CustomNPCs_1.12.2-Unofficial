@@ -35,7 +35,7 @@ import noppes.npcs.util.LRUHashMap;
 public class BlockWrapper
 implements IBlock {
 	
-	private static Map<String, BlockWrapper> blockCache = new LRUHashMap<String, BlockWrapper>(400);
+	public static Map<String, BlockWrapper> blockCache = new LRUHashMap<String, BlockWrapper>(400);
 
 	public static void clearCache() {
 		BlockWrapper.blockCache.clear();
@@ -52,7 +52,7 @@ implements IBlock {
 	protected IWorld world;
 
 	@SuppressWarnings("deprecation")
-	protected BlockWrapper(World world, Block block, BlockPos pos) {
+	public BlockWrapper(World world, Block block, BlockPos pos) {
 		this.tempdata = new TempData(this);
 		this.storeddata = new StoredData(this);
 
@@ -69,32 +69,27 @@ implements IBlock {
 		this.bPos = new BlockPosWrapper(pos);
 		this.setTile(world.getTileEntity(pos));
 	}
-
+	
+	/** Need convert to BlockState */
 	@Deprecated
 	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
 		Block block = state.getBlock();
 		String key = state.toString() + pos.toString();
-		BlockWrapper b = BlockWrapper.blockCache.get(key);
-		if (b != null) {
-			b.setTile(world.getTileEntity(pos));
-			return b;
+		BlockWrapper b = null;
+		if (!BlockWrapper.blockCache.containsKey(key)) {
+			if (block instanceof BlockScripted) { b = new BlockScriptedWrapper(world, block, pos); }
+			else if (block instanceof BlockScriptedDoor) { b = new BlockScriptedDoorWrapper(world, block, pos); }
+			else if (block instanceof BlockFluidBase) { b = new BlockFluidContainerWrapper(world, block, pos); }
+			else { b = new BlockWrapper(world, block, pos); }
+			BlockWrapper.blockCache.put(key, b);
 		}
-		if (block instanceof BlockScripted) {
-			b = new BlockScriptedWrapper(world, block, pos);
-		} else if (block instanceof BlockScriptedDoor) {
-			b = new BlockScriptedDoorWrapper(world, block, pos);
-		} else if (block instanceof BlockFluidBase) {
-			b = new BlockFluidContainerWrapper(world, block, pos);
-		} else {
-			b = new BlockWrapper(world, block, pos);
-		}
-		BlockWrapper.blockCache.put(key, b);
+		if (b != null) { b.setTile(world.getTileEntity(pos)); }
 		return b;
 	}
 
 	@Override
 	public void blockEvent(int type, int data) {
-		this.world.getMCWorld().addBlockEvent(this.pos, this.getMCBlock(), type, data);
+		this.world.getMCWorld().addBlockEvent(this.pos, this.block, type, data);
 	}
 
 	@Override
@@ -238,7 +233,7 @@ implements IBlock {
 		this.world.getMCWorld().setBlockState(this.pos, this.block.getStateFromMeta(i), 3);
 	}
 
-	protected void setTile(TileEntity tile) {
+	public void setTile(TileEntity tile) {
 		this.tile = tile;
 		if (tile instanceof TileNpcEntity) {
 			this.storage = (TileNpcEntity) tile;

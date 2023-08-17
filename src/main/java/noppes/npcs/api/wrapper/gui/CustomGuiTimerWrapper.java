@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IGuiTimer;
 import noppes.npcs.api.wrapper.gui.CustomGuiComponentWrapper;
 import noppes.npcs.util.AdditionalMethods;
@@ -76,7 +77,7 @@ implements IGuiTimer {
 	}
 
 	@Override
-	public int getType() { return 6; }
+	public int getType() { return GuiComponentType.TIMER.get(); }
 
 	@Override
 	public int getWidth() { return this.width; }

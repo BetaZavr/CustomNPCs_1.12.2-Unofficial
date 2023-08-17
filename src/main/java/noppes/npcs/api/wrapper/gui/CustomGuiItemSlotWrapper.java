@@ -5,6 +5,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
@@ -48,7 +49,7 @@ implements IItemSlot {
 
 	@Override
 	public int getType() {
-		return 5;
+		return GuiComponentType.ITEM_SLOT.get();
 	}
 
 	@Override

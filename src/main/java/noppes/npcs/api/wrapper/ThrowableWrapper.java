@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.projectile.EntityThrowable;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IThrowable;
 
 @SuppressWarnings("rawtypes")
@@ -14,11 +15,11 @@ implements IThrowable {
 
 	@Override
 	public int getType() {
-		return 11;
+		return EntityType.THROWABLE.get();
 	}
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 11 || super.typeOf(type);
+		return type == EntityType.THROWABLE.get() || super.typeOf(type);
 	}
 }

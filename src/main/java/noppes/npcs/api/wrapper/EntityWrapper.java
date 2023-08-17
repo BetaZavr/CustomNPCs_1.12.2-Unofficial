@@ -28,6 +28,7 @@ import noppes.npcs.api.IPos;
 import noppes.npcs.api.IRayTrace;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.entity.data.IData;
@@ -282,7 +283,7 @@ implements IEntity {
 
 	@Override
 	public int getType() {
-		return 0;
+		return EntityType.UNKNOWN.get();
 	}
 
 	@Override

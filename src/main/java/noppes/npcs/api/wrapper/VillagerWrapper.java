@@ -3,6 +3,7 @@ package noppes.npcs.api.wrapper;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.village.MerchantRecipeList;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IVillager;
 import noppes.npcs.util.ObfuscationHelper;
@@ -34,7 +35,7 @@ implements IVillager {
 
 	@Override
 	public int getType() {
-		return 9;
+		return EntityType.VILLAGER.get();
 	}
 
 	@Override
@@ -44,7 +45,7 @@ implements IVillager {
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 9 || super.typeOf(type);
+		return type == EntityType.VILLAGER.get() || super.typeOf(type);
 	}
 
 }

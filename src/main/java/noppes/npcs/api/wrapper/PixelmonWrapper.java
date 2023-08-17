@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.passive.EntityTameable;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IPixelmon;
 import noppes.npcs.controllers.PixelmonHelper;
 
@@ -20,11 +21,11 @@ implements IPixelmon {
 
 	@Override
 	public int getType() {
-		return 8;
+		return EntityType.PIXELMON.get();
 	}
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 8 || super.typeOf(type);
+		return type == EntityType.PIXELMON.get() || super.typeOf(type);
 	}
 }

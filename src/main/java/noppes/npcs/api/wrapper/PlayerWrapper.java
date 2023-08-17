@@ -30,6 +30,7 @@ import noppes.npcs.api.IPos;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.entity.data.IPixelmonPlayerData;
@@ -332,7 +333,7 @@ implements IPlayer {
 
 	@Override
 	public int getType() {
-		return 1;
+		return EntityType.PLAYER.get();
 	}
 
 	@Override
@@ -659,7 +660,7 @@ implements IPlayer {
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 1 || super.typeOf(type);
+		return type == EntityType.PLAYER.get() || super.typeOf(type);
 	}
 
 	@Override

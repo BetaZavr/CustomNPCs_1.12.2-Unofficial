@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.passive.EntityAnimal;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IAnimal;
 
 @SuppressWarnings("rawtypes")
@@ -14,11 +15,11 @@ implements IAnimal {
 
 	@Override
 	public int getType() {
-		return 4;
+		return EntityType.ANIMAL.get();
 	}
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 4 || super.typeOf(type);
+		return type == EntityType.ANIMAL.get() || super.typeOf(type);
 	}
 }

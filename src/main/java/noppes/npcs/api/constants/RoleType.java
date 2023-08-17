@@ -1,16 +1,18 @@
 package noppes.npcs.api.constants;
 
+import noppes.npcs.constants.EnumNpcRole;
+
 public enum RoleType {
 	
-	BANK(3),
-	COMPANION(6),
-	DIALOG(7),
-	FOLLOWER(2),
-	MAILMAN(5),
-	MAXSIZE(8),
-	NONE(0),
-	TRADER(1),
-	TRANSPORTER(4);
+	BANK(EnumNpcRole.BANK.ordinal()),
+	COMPANION(EnumNpcRole.COMPANION.ordinal()),
+	DIALOG(EnumNpcRole.DIALOG.ordinal()),
+	FOLLOWER(EnumNpcRole.FOLLOWER.ordinal()),
+	MAILMAN(EnumNpcRole.POSTMAN.ordinal()),
+	MAXSIZE(EnumNpcRole.values().length),
+	NONE(EnumNpcRole.DEFAULT.ordinal()),
+	TRADER(EnumNpcRole.TRADER.ordinal()),
+	TRANSPORTER(EnumNpcRole.TRANSPORTER.ordinal());
 	
 	int type = -1;
 	

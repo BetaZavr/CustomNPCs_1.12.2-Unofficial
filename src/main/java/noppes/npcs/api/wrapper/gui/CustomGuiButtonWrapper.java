@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IButton;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 
@@ -103,7 +104,7 @@ implements IButton {
 
 	@Override
 	public int getType() {
-		return 0;
+		return GuiComponentType.BUTTON.get();
 	}
 
 	@Override

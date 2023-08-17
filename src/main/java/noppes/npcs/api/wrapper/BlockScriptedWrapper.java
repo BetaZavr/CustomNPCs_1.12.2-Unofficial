@@ -235,7 +235,7 @@ implements IBlockScripted {
 	}
 
 	@Override
-	protected void setTile(TileEntity tile) {
+	public void setTile(TileEntity tile) {
 		this.tile = (TileScripted) tile;
 		super.setTile(tile);
 	}

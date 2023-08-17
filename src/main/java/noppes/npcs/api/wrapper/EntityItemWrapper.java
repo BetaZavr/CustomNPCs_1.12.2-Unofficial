@@ -3,6 +3,7 @@ package noppes.npcs.api.wrapper;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.util.ObfuscationHelper;
@@ -43,7 +44,7 @@ implements IEntityItem {
 
 	@Override
 	public int getType() {
-		return 6;
+		return EntityType.ITEM.get();
 	}
 
 	@Override
@@ -72,4 +73,10 @@ implements IEntityItem {
 	public void setPickupDelay(int delay) {
 		this.entity.setPickupDelay(delay);
 	}
+
+	@Override
+	public boolean typeOf(int type) {
+		return type == EntityType.ITEM.get() || super.typeOf(type);
+	}
+	
 }

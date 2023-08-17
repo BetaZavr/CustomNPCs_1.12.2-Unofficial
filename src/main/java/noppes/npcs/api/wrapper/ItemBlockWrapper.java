@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemBlock;
 
 public class ItemBlockWrapper
@@ -23,6 +24,6 @@ implements IItemBlock {
 
 	@Override
 	public int getType() {
-		return 2;
+		return ItemType.BLOCK.get();
 	}
 }

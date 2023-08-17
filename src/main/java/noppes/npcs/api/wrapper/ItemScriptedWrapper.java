@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptHandler;
@@ -136,7 +137,7 @@ implements IItemScripted, IScriptHandler {
 
 	@Override
 	public int getType() {
-		return 6;
+		return ItemType.SCRIPTED.get();
 	}
 
 	@Override

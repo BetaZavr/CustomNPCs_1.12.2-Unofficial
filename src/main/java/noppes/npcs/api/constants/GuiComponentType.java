@@ -7,7 +7,8 @@ public enum GuiComponentType {
 	LABEL(1),
 	SCROLL(4),
 	TEXT_FIELD(3),
-	TEXTURED_RECT(2);
+	TEXTURED_RECT(2),
+	TIMER(6);
 	
 	int type = -1;
 	

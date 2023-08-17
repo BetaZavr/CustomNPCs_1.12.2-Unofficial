@@ -1,22 +1,23 @@
 package noppes.npcs.api.constants;
 
+import noppes.npcs.constants.EnumNpcJob;
+
 public enum JobType {
 	
-	BARD(1),
-	BUILDER(10),
-	CHUNKLOADER(8),
-	CONVERSATION(7),
-	FARMER(11),
-	FOLLOWER(5),
-	GUARD(3),
-	HEALER(2),
-	ITEMGIVER(4),
-	MAXSIZE(12),
-	NONE(0),
-	PUPPET(9),
-	SPAWNER(6);
+	BARD(EnumNpcJob.BARD.ordinal()),
+	BUILDER(EnumNpcJob.BUILDER.ordinal()),
+	CHUNKLOADER(EnumNpcJob.CHUNK_LOADER.ordinal()),
+	CONVERSATION(EnumNpcJob.CONVERSATION.ordinal()),
+	FARMER(EnumNpcJob.FARMER.ordinal()),
+	FOLLOWER(EnumNpcJob.FOLLOWER.ordinal()),
+	GUARD(EnumNpcJob.GUARD.ordinal()),
+	HEALER(EnumNpcJob.HEALER.ordinal()),
+	ITEMGIVER(EnumNpcJob.ITEM_GIVER.ordinal()),
+	MAXSIZE(EnumNpcJob.values().length),
+	NONE(EnumNpcJob.DEFAULT.ordinal()),
+	SPAWNER(EnumNpcJob.SPAWNER.ordinal());
 	
-	int type = -1;
+	int type = -1; 
 	
 	JobType(int t) { this.type= t; }
 	

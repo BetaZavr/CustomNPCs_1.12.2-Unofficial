@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper;
 
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemArmor;
 
 public class ItemArmorWrapper
@@ -27,6 +28,6 @@ implements IItemArmor {
 
 	@Override
 	public int getType() {
-		return 3;
+		return ItemType.ARMOR.get();
 	}
 }

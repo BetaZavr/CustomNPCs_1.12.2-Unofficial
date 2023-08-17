@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.monster.EntityMob;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IMonster;
 
 @SuppressWarnings("rawtypes")
@@ -14,11 +15,11 @@ implements IMonster {
 
 	@Override
 	public int getType() {
-		return 3;
+		return EntityType.MONSTER.get();
 	}
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 3 || super.typeOf(type);
+		return type == EntityType.MONSTER.get() || super.typeOf(type);
 	}
 }

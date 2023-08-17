@@ -72,6 +72,7 @@ import noppes.npcs.util.ObfuscationHelper;
 public class ScriptPlayerEventHandler {
 	
 	public class ForgeEventHandler {
+		
 		@SubscribeEvent
 		public void forgeEntity(Event event) {
 			EventHooks.onForgeEvent(new ForgeEvent(event));

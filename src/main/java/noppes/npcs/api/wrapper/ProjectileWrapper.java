@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.item.IItemStack;
@@ -46,7 +47,7 @@ implements IProjectile {
 
 	@Override
 	public int getType() {
-		return 7;
+		return EntityType.PROJECTILE.get();
 	}
 
 	@Override
@@ -102,6 +103,6 @@ implements IProjectile {
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 7 || super.typeOf(type);
+		return type == EntityType.PROJECTILE.get() || super.typeOf(type);
 	}
 }

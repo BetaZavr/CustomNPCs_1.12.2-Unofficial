@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper;
 
 import net.minecraft.entity.projectile.EntityArrow;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IArrow;
 
 @SuppressWarnings("rawtypes")
@@ -14,11 +15,11 @@ implements IArrow {
 
 	@Override
 	public int getType() {
-		return 4;
+		return EntityType.ARROW.get();
 	}
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 4 || super.typeOf(type);
+		return type == EntityType.ARROW.get() || super.typeOf(type);
 	}
 }

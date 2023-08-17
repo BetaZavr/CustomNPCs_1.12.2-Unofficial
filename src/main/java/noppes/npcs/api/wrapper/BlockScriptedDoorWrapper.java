@@ -75,7 +75,7 @@ implements IBlockScriptedDoor {
 	}
 
 	@Override
-	protected void setTile(TileEntity tile) {
+	public void setTile(TileEntity tile) {
 		this.tile = (TileScriptedDoor) tile;
 		super.setTile(tile);
 	}

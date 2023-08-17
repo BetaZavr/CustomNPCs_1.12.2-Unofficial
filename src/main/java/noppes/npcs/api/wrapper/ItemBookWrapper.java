@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemBook;
 
 public class ItemBookWrapper
@@ -47,7 +48,7 @@ implements IItemBook {
 
 	@Override
 	public int getType() {
-		return 1;
+		return ItemType.BOOK.get();
 	}
 
 	@Override

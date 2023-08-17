@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IScroll;
 
 public class CustomGuiScrollWrapper
@@ -64,7 +65,7 @@ implements IScroll {
 
 	@Override
 	public int getType() {
-		return 4;
+		return GuiComponentType.SCROLL.get();
 	}
 
 	@Override

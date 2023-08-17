@@ -148,7 +148,9 @@ extends NpcAPI {
 	@SuppressWarnings("deprecation")
 	@Override
 	public IBlock getIBlock(World world, BlockPos pos) {
-		return BlockWrapper.createNew(world, pos, world.getBlockState(pos));
+		if (world==null) { return null; }
+		try { return BlockWrapper.createNew(world, pos, world.getBlockState(pos)); } catch (Exception e) {}
+		return null;
 	}
 
 	@Override

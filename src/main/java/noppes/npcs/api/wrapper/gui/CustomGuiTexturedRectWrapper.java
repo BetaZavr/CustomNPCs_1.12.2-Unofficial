@@ -2,6 +2,7 @@ package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ITexturedRect;
 
 public class CustomGuiTexturedRectWrapper
@@ -74,7 +75,7 @@ implements ITexturedRect {
 
 	@Override
 	public int getType() {
-		return 2;
+		return GuiComponentType.TEXTURED_RECT.get();
 	}
 
 	@Override

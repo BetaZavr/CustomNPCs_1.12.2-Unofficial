@@ -45,6 +45,7 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.capability.INbtHandler;
@@ -299,12 +300,12 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 	@Override
 	public int getType() {
 		if (this.item.getItem() instanceof IPlantable) {
-			return 5;
+			return ItemType.SEEDS.get();
 		}
 		if (this.item.getItem() instanceof ItemSword) {
-			return 4;
+			return ItemType.SWORD.get();
 		}
-		return 0;
+		return ItemType.NORMAL.get();
 	}
 
 	@Override

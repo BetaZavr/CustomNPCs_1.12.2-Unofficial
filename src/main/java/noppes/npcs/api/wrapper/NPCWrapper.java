@@ -12,6 +12,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.IPlayer;
@@ -162,7 +163,7 @@ implements ICustomNpc {
 
 	@Override
 	public int getType() {
-		return 2;
+		return EntityType.NPC.get();
 	}
 
 	@Override
@@ -284,7 +285,7 @@ implements ICustomNpc {
 
 	@Override
 	public boolean typeOf(int type) {
-		return type == 2 || super.typeOf(type);
+		return type == EntityType.NPC.get() || super.typeOf(type);
 	}
 
 	@Override

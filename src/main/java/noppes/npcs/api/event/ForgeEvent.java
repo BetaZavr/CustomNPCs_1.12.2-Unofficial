@@ -3,6 +3,7 @@ package noppes.npcs.api.event;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
@@ -22,6 +24,12 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.BlockFluidContainerWrapper;
+import noppes.npcs.api.wrapper.BlockScriptedDoorWrapper;
+import noppes.npcs.api.wrapper.BlockScriptedWrapper;
+import noppes.npcs.api.wrapper.BlockWrapper;
+import noppes.npcs.blocks.BlockScripted;
+import noppes.npcs.blocks.BlockScriptedDoor;
 import noppes.npcs.entity.EntityNPCInterface;
 
 @Cancelable
@@ -224,9 +232,30 @@ public class ForgeEvent extends CustomNPCsEvent {
 					sp = sp.getSuperclass();
 				}
 			}
-			
 			// block
-			if (this.world!=null && this.pos!=null) { this.block = NpcAPI.Instance().getIBlock(this.world.getMCWorld(), this.pos.getMCBlockPos()); }
+			sp = event.getClass();
+			while(this.world!=null && this.world.getMCWorld()!=null && this.pos!=null && this.pos.getMCBlockPos()!=null && sp.getSuperclass()!=null && sp.getSuperclass()!=Event.class) {
+				for (Field f : sp.getDeclaredFields()) {
+					if (f.getType() != Block.class) { continue; }
+					try {
+						f.setAccessible(true);
+						Block block = (Block) f.get(event);
+						String key = block.getDefaultState().toString() + pos.toString();
+						BlockWrapper b = null;
+						BlockPos p = this.pos.getMCBlockPos();
+						World w = this.world.getMCWorld();
+						if (!BlockWrapper.blockCache.containsKey(key)) {
+							if (block instanceof BlockScripted) { b = new BlockScriptedWrapper(w, block, p); }
+							else if (block instanceof BlockScriptedDoor) { b = new BlockScriptedDoorWrapper(w, block, p); }
+							else if (block instanceof BlockFluidBase) { b = new BlockFluidContainerWrapper(w, block, p); }
+							else { b = new BlockWrapper(this.world.getMCWorld(), block, p); }
+							BlockWrapper.blockCache.put(key, b);
+						}
+						if (b != null) { b.setTile(w.getTileEntity(p)); }
+					} catch (Exception e) { }
+				}
+				sp = sp.getSuperclass();
+			}
 		}
 	}
 
