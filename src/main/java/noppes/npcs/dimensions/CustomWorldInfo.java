@@ -101,7 +101,7 @@ implements IWorldInfo
 	public boolean isDifficultyLocked() { return superInfo.isDifficultyLocked(); }
 
 	@Override
-	public int getID() { return this.id; }
+	public int getId() { return this.id; }
 
 	@Override
 	public INbt getNbt() {

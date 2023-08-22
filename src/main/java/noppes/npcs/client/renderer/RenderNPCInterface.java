@@ -10,6 +10,7 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
+import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ImageDownloadAlt;
@@ -51,12 +53,14 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	public void doRender(T npc, double d, double d1, double d2, float f, float f1) {
-		if (npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) {
-			return;
+		if (!CustomNpcs.EnableInvisibleNpcs && npc.display.getVisible()==1) {
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
+			if (!player.capabilities.isCreativeMode && player.getHeldItemMainhand().getItem()!=CustomItems.wand) { return; }
 		}
-		if ((npc.display.getBossbar() != 1 && (npc.display.getBossbar() != 2 || !npc.isAttacking())) || npc.isKilled()
-				|| npc.deathTime > 20 || npc.canSee(Minecraft.getMinecraft().player)) {
-		}
+		if (npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
+		/*if ((npc.display.getBossbar() != 1 && (npc.display.getBossbar() != 2 || !npc.isAttacking())) || npc.isKilled() || npc.deathTime > 20 || npc.canSee(Minecraft.getMinecraft().player)) {
+			// old dead animation
+		}*/
 		if (npc.ais.getStandingType() == 3 && !npc.isWalking() && !npc.isInteracting()) {
 			float n = npc.ais.orientation;
 			npc.renderYawOffset = n;
@@ -66,8 +70,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 			super.doRender(npc, d, d1, d2, f, f1);
 			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
-		} catch (Throwable t) {
-		}
+		} catch (Throwable t) { }
 	}
 
 	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8,

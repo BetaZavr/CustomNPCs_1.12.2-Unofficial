@@ -94,14 +94,14 @@ implements ICustomScrollListener, IGuiData {
 			case 0: {
 				CustomGuiButton button = CustomGuiButton.fromComponent((CustomGuiButtonWrapper) component);
 				button.setParent(this);
-				this.components.put(button.getID(), button);
+				this.components.put(button.getId(), button);
 				this.addClickListener(button);
 				break;
 			}
 			case 1: {
 				CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
 				lbl.setParent(this);
-				this.components.put(lbl.getID(), lbl);
+				this.components.put(lbl.getId(), lbl);
 				break;
 			}
 			case 3: {
@@ -116,15 +116,15 @@ implements ICustomScrollListener, IGuiData {
 			case 2: {
 				CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
 				rect.setParent(this);
-				this.components.put(rect.getID(), rect);
+				this.components.put(rect.getId(), rect);
 				break;
 			}
 			case 4: {
-				CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, (GuiScreen) this, component.getID(),
+				CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, (GuiScreen) this, component.getId(),
 						(CustomGuiScrollWrapper) component);
 				scroll.fromComponent((CustomGuiScrollWrapper) component);
 				scroll.setParent(this);
-				this.components.put(scroll.getID(), scroll);
+				this.components.put(scroll.getId(), scroll);
 				this.addDataHolder(scroll);
 				this.addClickListener(scroll);
 				break;

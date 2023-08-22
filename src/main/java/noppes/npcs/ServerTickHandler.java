@@ -2,10 +2,11 @@ package noppes.npcs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
@@ -20,6 +21,7 @@ import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.NonNullList;
+import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -34,7 +36,6 @@ import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.VisibilityController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.PlayerData;
@@ -46,29 +47,30 @@ import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.util.BuilderData;
 
 public class ServerTickHandler {
+
+	private static Map<EntityPlayerMP, GameType> visibleData = Maps.<EntityPlayerMP, GameType>newHashMap();
 	public int ticks;
 
-	public ServerTickHandler() {
-		this.ticks = 0;
-	}
+	public ServerTickHandler() { this.ticks = 0; }
 	
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) {
-			return;
-		}
+		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) { return; }
 		CustomNpcs.debugData.startDebug("Server", event.player, "ServerTickHandler_onPlayerTick");
-		EntityPlayer player = event.player;
-		if (player.getHealth() > 0 && player.getHealth() < 1.0f) {
-			player.setHealth(1.0f);
-		}
+		EntityPlayerMP player = (EntityPlayerMP) event.player;
+		if (player.getHealth() > 0 && player.getHealth() < 1.0f) { player.setHealth(1.0f); }
 		PlayerData data = PlayerData.get(player);
 		long resTime = (long) player.getName().codePointAt(0);
-		if (player.getEntityWorld().getWorldTime() % 100L == resTime % 100L) {
-			VisibilityController.onUpdate((EntityPlayerMP) player); // any 5 sec.
+		if (data.updateClient || !ServerTickHandler.visibleData.containsKey(player) || ServerTickHandler.visibleData.get(player) != player.interactionManager.getGameType() || player.world.getTotalWorldTime() % 100L == resTime % 100L || (data.prevHeldItem != player.getHeldItemMainhand() && (data.prevHeldItem.getItem() == CustomItems.wand || player.getHeldItemMainhand().getItem() == CustomItems.wand))) {
+			ServerTickHandler.visibleData.put(player, player.interactionManager.getGameType());
+			if (data.updateClient) {
+				Server.sendData(player, EnumPacketClient.SYNC_END, 8, data.getSyncNBT());
+				data.updateClient = false;
+			}
+			VisibilityController.onUpdate(player);
 		}
 		if (player.world.getTotalWorldTime() % 20L == resTime % 20L) {
-			data.hud.updateHud((EntityPlayerMP) player);
+			data.hud.updateHud(player);
 			if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
 				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
 				if (data.game.op!=opn) {
@@ -77,17 +79,9 @@ public class ServerTickHandler {
 				}
 			}
 		}
-		if (data.updateClient) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.SYNC_END, 8, data.getSyncNBT());
-			VisibilityController.onUpdate((EntityPlayerMP) player);
-			data.updateClient = false;
-		}
 		if (data.game.update) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.SYNC_UPDATE, 9, data.game.saveNBTData(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 9, data.game.saveNBTData(new NBTTagCompound()));
 			data.game.update = false;
-		}
-		if (data.prevHeldItem != player.getHeldItemMainhand() && (data.prevHeldItem.getItem() == CustomItems.wand || player.getHeldItemMainhand().getItem() == CustomItems.wand)) {
-			VisibilityController.onUpdate((EntityPlayerMP) player); // Wand Item
 		}
 		data.prevHeldItem = player.getHeldItemMainhand();
 		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_onPlayerTick");
@@ -207,7 +201,7 @@ public class ServerTickHandler {
 			}
 			AnalyticsTracking.sendData(event.player, "join", serverName);
 		}
-		SyncController.syncPlayer(player);
+		//SyncController.syncPlayer(player);
 		Server.sendData(player, EnumPacketClient.DIMENSIOS_IDS, DimensionHandler.getInstance().getAllIDs());
 		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_playerLogin");
 	}

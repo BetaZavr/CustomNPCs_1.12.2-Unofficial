@@ -34,27 +34,17 @@ import noppes.npcs.util.ValueUtil;
 
 public class DataDisplay
 implements INPCDisplay {
+
+	EntityNPCInterface npc;
+	public GameProfile playerProfile;
+	public byte skinType;
 	
 	private Availability availability;
 	private BossInfo.Color bossColor;
-	private String cloakTexture;
-	private boolean disableLivingAnimation;
-	private String glowTexture;
-	private int markovGender;
-	private int markovGeneratorId;
-	private int modelSize;
-	private String name;
-	private boolean noHitbox;
-	EntityNPCInterface npc;
-	public GameProfile playerProfile;
+	private boolean disableLivingAnimation, noHitbox;
 	private byte showBossBar;
-	private int showName;
-	private int skinColor;
-	public byte skinType;
-	private String texture;
-	private String title;
-	private String url;
-	private int visible;
+	private int markovGender, markovGeneratorId, modelSize, showName, skinColor, visible;
+	private String cloakTexture, texture, title, url, glowTexture, name;
 
 	public DataDisplay(EntityNPCInterface npc) {
 		this.title = "";

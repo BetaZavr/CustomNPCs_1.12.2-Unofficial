@@ -20,10 +20,10 @@ implements IClickListener {
 	public static CustomGuiButton fromComponent(CustomGuiButtonWrapper component) {
 		CustomGuiButton btn;
 		if (component.getWidth() >= 0 && component.getHeight() >= 0) {
-			btn = new CustomGuiButton(component.getID(), component.getLabel(), component.getPosX(), component.getPosY(),
+			btn = new CustomGuiButton(component.getId(), component.getLabel(), component.getPosX(), component.getPosY(),
 					component.getWidth(), component.getHeight(), component);
 		} else {
-			btn = new CustomGuiButton(component.getID(), component.getLabel(), component.getPosX(), component.getPosY(),
+			btn = new CustomGuiButton(component.getId(), component.getLabel(), component.getPosX(), component.getPosY(),
 					200, 20, component);
 		}
 		if (component.hasHoverText()) {
@@ -55,7 +55,7 @@ implements IClickListener {
         this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 

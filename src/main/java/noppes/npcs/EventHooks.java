@@ -124,7 +124,7 @@ public class EventHooks {
 	}
 
 	public static void onCustomGuiSlot(PlayerWrapper<?> player, ICustomGui gui, int slotId, IItemStack stack,
-			IItemStack heldItem) { // Changed
+			IItemStack heldItem) {
 		CustomGuiEvent.SlotEvent event = new CustomGuiEvent.SlotEvent(player, gui, slotId, stack, heldItem);
 		CustomGuiController.onSlotChange(event);
 	}
@@ -140,7 +140,7 @@ public class EventHooks {
 		String eventName;
 		if (!handler.isClient() && handler.isEnabled() && CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
 			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
-			try { // Changed
+			try {
 				handler.runScript(eventName, event);
 				if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
 				WrapperNpcAPI.EVENT_BUS.post(event.event);
@@ -169,7 +169,7 @@ public class EventHooks {
 				}
 				if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName)==System.currentTimeMillis())) { return; }
 				EventHooks.clientMap.put(eventName, System.currentTimeMillis());
-				try { // Changed
+				try {
 					handlerClient.runScript(eventName, event);
 					if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
 					WrapperNpcAPI.EVENT_BUS.post(event.event);

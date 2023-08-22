@@ -1376,8 +1376,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		if (!line.getSound().isEmpty()) {
 			BlockPos pos = this.getPosition();
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.PLAY_SOUND, line.getSound(), pos.getX(),
-					pos.getY(), pos.getZ(), this.getSoundVolume(), this.getSoundPitch());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.PLAY_SOUND, line.getSound(), pos.getX(), pos.getY(), pos.getZ(), this.getSoundVolume(), this.getSoundPitch());
 		}
 		if (!line.getText().isEmpty()) {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHATBUBBLE, this.getEntityId(), line.getText(),

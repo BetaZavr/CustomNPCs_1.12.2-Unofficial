@@ -201,7 +201,7 @@ implements ICustomGui {
 	@Override
 	public ICustomGuiComponent getComponent(int componentID) {
 		for (ICustomGuiComponent component : this.components) {
-			if (component.getID() == componentID) {
+			if (component.getId() == componentID) {
 				return component;
 			}
 		}
@@ -223,7 +223,7 @@ implements ICustomGui {
 	}
 
 	@Override
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 
@@ -247,7 +247,7 @@ implements ICustomGui {
 	public IItemSlot[] getSlots() {
 		if (this.player instanceof EntityPlayerMP) {
 			this.setPlayer((EntityPlayerMP) this.player);
-		} // New
+		}
 		return this.slots.toArray(new IItemSlot[this.slots.size()]);
 	}
 
@@ -259,7 +259,7 @@ implements ICustomGui {
 	@Override
 	public void removeComponent(int componentID) {
 		for (int i = 0; i < this.components.size(); ++i) {
-			if (this.components.get(i).getID() == componentID) {
+			if (this.components.get(i).getId() == componentID) {
 				this.components.remove(i);
 				if (this.player instanceof EntityPlayerMP) { // New
 					this.update((IPlayer<?>) NpcAPI.Instance().getIEntity(this.player));
@@ -352,7 +352,7 @@ implements ICustomGui {
 	public void updateComponent(ICustomGuiComponent component) {
 		for (int i = 0; i < this.components.size(); ++i) {
 			ICustomGuiComponent c = this.components.get(i);
-			if (c.getID() == component.getID()) {
+			if (c.getId() == component.getId()) {
 				this.components.set(i, component);
 				if (this.player instanceof EntityPlayerMP) { // New
 					this.update((IPlayer<?>) NpcAPI.Instance().getIEntity(this.player));

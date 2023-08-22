@@ -35,7 +35,7 @@ public interface ICustomGui {
 
 	int getHeight();
 
-	int getID();
+	int getId();
 
 	IItemSlot[] getSlots();
 

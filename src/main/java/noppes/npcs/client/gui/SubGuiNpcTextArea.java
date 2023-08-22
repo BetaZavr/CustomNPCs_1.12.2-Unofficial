@@ -61,7 +61,7 @@ public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeLis
 		return this;
 	}
 
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 

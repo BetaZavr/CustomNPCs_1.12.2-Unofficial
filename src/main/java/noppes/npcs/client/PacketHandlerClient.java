@@ -321,18 +321,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 		}
 		else if (type == EnumPacketClient.PLAY_SOUND) {
-			if (buffer.readBoolean()) {
-				MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
-				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
-				return;
-			}
+			MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
+		} else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
 			int categoryType = buffer.readInt();
 			SoundCategory cat = SoundCategory.PLAYERS;
 			if (categoryType >= 0 && categoryType < SoundCategory.values().length) { cat = SoundCategory.values()[categoryType]; }
-			if (cat == SoundCategory.MUSIC) { Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC); }
 			MusicController.Instance.forcePlaySound(cat, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
-		} else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
-			MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
 		} else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(compound.getInteger("EntityId"));
@@ -687,6 +681,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		} else if (type == EnumPacketClient.SCRIPT_CLIENT) {
+			ScriptController.HasStart = true;
 			ScriptController.Instance.setClientScripts(Server.readNBT(buffer));
 		} else if (type == EnumPacketClient.SEND_FILE_LIST) {
 			NBTTagCompound compound = Server.readNBT(buffer);

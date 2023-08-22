@@ -26,7 +26,7 @@ implements ILabel {
 		this.color = 16777215;
 		this.scale = 1.0f;
 		this.showShedow = true;
-		this.setID(id);
+		this.setId(id);
 		this.setText(label);
 		this.setPos(x, y);
 		this.setSize(width, height);

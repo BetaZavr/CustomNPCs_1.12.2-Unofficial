@@ -8,12 +8,13 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 public class ParameterData {
 	
-	public String typename;
+	public String typename, name;
 	public String comment;
 	public String clazz;
 	
 	public ParameterData(Class<?> clazz, String name, String comment) {
 		char chr = Character.toChars(0x00A7)[0];
+		this.name = name;
 		this.clazz = clazz.getSimpleName();
 		String type = "c"+ this.clazz;
 		if (clazz.isInterface()) { type = "9"+ this.clazz; }
@@ -21,7 +22,7 @@ public class ParameterData {
 		this.typename = chr + type  + chr + "f " + name;
 		this.comment = comment;
 	}
-	
+
 	public List<String> getComment() {
 		List<String> comment = Lists.<String>newArrayList();
 		String tr = this.typename + ((char) 167)+"7 - "+new TextComponentTranslation(this.comment).getFormattedText();
@@ -29,6 +30,11 @@ public class ParameterData {
 			for (String t : tr.split("<br>")) { comment.add(t); }
 		} else { comment.add(tr); }
 		return comment;
+	}
+
+	public String getEnumCode() {
+		String tab = "	";
+		return tab + tab + tab + tab + "new ParameterData("+this.clazz+".class, "+ "\""+this.name+"\", \""+this.comment+"\")";
 	}
 	
 }

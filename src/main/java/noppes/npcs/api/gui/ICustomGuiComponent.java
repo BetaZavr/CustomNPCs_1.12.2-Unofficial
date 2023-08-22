@@ -4,7 +4,7 @@ public interface ICustomGuiComponent {
 	
 	String[] getHoverText();
 
-	int getID();
+	int getId();
 
 	int getPosX();
 
@@ -16,7 +16,7 @@ public interface ICustomGuiComponent {
 
 	ICustomGuiComponent setHoverText(String[] hovers);
 
-	ICustomGuiComponent setID(int id);
+	ICustomGuiComponent setId(int id);
 
 	ICustomGuiComponent setPos(int x, int y);
 	

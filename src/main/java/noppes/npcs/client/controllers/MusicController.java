@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.MusicTicker;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
@@ -40,6 +41,10 @@ public class MusicController {
 	
 	public void forcePlaySound(SoundCategory cat, String sound, int x, int y, int z, float volumne, float pitch) {
 		if (cat == null || sound==null || sound.isEmpty()) { return; }
+		if (cat==SoundCategory.MUSIC) {
+			Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC);
+			ObfuscationHelper.setValue(MusicTicker.class, Minecraft.getMinecraft().getMusicTicker(), null, ISound.class);
+		}
 		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(sound), cat, volumne, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);
 		Minecraft.getMinecraft().getSoundHandler().playSound(rec);
 	}

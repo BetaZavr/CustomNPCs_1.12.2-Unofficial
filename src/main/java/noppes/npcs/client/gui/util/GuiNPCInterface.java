@@ -308,7 +308,7 @@ extends GuiScreen {
 
 	public IGui get(int id) {
 		for (IGui comp : this.components) {
-			if (comp.getID() == id) {
+			if (comp.getId() == id) {
 				return comp;
 			}
 		}

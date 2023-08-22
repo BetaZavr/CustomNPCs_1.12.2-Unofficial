@@ -46,6 +46,7 @@ import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
@@ -620,6 +621,8 @@ public class PacketHandlerPlayer {
 			}
 			TempFile file = CommonProxy.loadFiles.get(name);
 			Server.sendData(player, EnumPacketClient.SEND_FILE_PART, false, part, name, String.valueOf(file.data.get(part)));
+		} else if (type == EnumPlayerPacket.GetSyncData) {
+			SyncController.syncPlayer(player);
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}

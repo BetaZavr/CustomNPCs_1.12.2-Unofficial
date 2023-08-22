@@ -1669,4 +1669,60 @@ implements IMetods {
 		return str;
 	}
 
+	/*@Override
+	public File getFile(String resourceLocation) {
+		return AdditionalMethods.getFile(new ResourceLocation(resourceLocation));
+	}
+
+	public static File getFile(ResourceLocation resourceLocation) {
+		File file = null;
+		SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
+		Map<String, FallbackResourceManager> map = ObfuscationHelper.getValue(SimpleReloadableResourceManager.class, simplemanager, 2);
+		for (String name : map.keySet()) {
+			FallbackResourceManager manager = map.get(name);
+			List<IResourcePack> list = ObfuscationHelper.getValue(FallbackResourceManager.class, manager, 1);
+			for (IResourcePack pack : list) {
+				if (pack instanceof DefaultResourcePack) {
+					ResourceIndex resourceIndex = ObfuscationHelper.getValue(DefaultResourcePack.class, (DefaultResourcePack) pack, ResourceIndex.class);
+					@SuppressWarnings("unchecked")
+					Map<String, File> resourceMap = ObfuscationHelper.getValue(ResourceIndex.class, resourceIndex, Map.class);
+					if (resourceMap!=null) {
+						for (File f : resourceMap.values()) {
+							//this.addFile(f.getAbsolutePath(), f.length());
+						}
+					}
+					continue;
+				}
+				if (pack instanceof AbstractResourcePack) {
+					AbstractResourcePack p = (AbstractResourcePack) pack;
+					File directory = ObfuscationHelper.getValue(AbstractResourcePack.class, p, 1);
+					if (directory == null || !directory.isDirectory()) { continue; }
+					File dir = new File(directory, "assets");
+					if (dir == null || !dir.exists() || !dir.isDirectory()) { continue; }
+					AdditionalMethods.checkFolder(dir, resourceLocation);
+				}
+			}
+		}
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getSource().exists()) {
+				//AdditionalMethods.progressFile(mod.getSource());
+			}
+		}
+		ResourcePackRepository repos = Minecraft.getMinecraft().getResourcePackRepository();
+		List<ResourcePackRepository.Entry> list2 = (List<ResourcePackRepository.Entry>) repos.getRepositoryEntries();
+		for (ResourcePackRepository.Entry entry : list2) {
+			File f = new File(repos.getDirResourcepacks(), entry.getResourcePackName());
+			if (f.exists()) {
+				//AdditionalMethods.progressFile(file);
+			}
+		}
+		AdditionalMethods.checkFolder(new File(CustomNpcs.Dir, "assets"), resourceLocation);
+		return null;
+	}
+
+	private static void checkFolder(File dir, ResourceLocation resourceLocation) {
+		// TODO Auto-generated method stub
+		
+	}*/
+	
 }

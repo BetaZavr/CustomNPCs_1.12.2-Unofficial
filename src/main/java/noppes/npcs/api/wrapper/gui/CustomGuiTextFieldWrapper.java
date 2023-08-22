@@ -17,7 +17,7 @@ implements ITextField {
 	}
 
 	public CustomGuiTextFieldWrapper(int id, int x, int y, int width, int height) {
-		this.setID(id);
+		this.setId(id);
 		this.setPos(x, y);
 		this.setSize(width, height);
 	}

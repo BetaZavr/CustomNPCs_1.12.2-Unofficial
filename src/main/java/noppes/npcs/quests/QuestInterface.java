@@ -124,7 +124,7 @@ public class QuestInterface {
 		return isFound;
 	}
 
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 

@@ -27,7 +27,7 @@ implements IGuiTimer {
 
 	public CustomGuiTimerWrapper(int id, long start, long end, int x, int y, int width, int height) {
 		this();
-		this.setID(id);
+		this.setId(id);
 		this.setPos(x, y);
 		this.setSize(width, height);
 		this.setTime(start, end);

@@ -17,7 +17,7 @@ extends GuiLabel
 implements IGuiComponent {
 	
 	public static CustomGuiLabel fromComponent(CustomGuiLabelWrapper component) {
-		CustomGuiLabel lbl = new CustomGuiLabel(component.getText(), component.getID(), component.getPosX(), component.getPosY(), component.getWidth(), component.getHeight(), component.getColor());
+		CustomGuiLabel lbl = new CustomGuiLabel(component.getText(), component.getId(), component.getPosX(), component.getPosY(), component.getWidth(), component.getHeight(), component.getColor());
 		lbl.showShedow = component.isShedow();
 		lbl.setScale(component.getScale());
 		if (component.hasHoverText()) { lbl.hoverText = component.getHoverText(); }
@@ -50,7 +50,7 @@ implements IGuiComponent {
         this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 

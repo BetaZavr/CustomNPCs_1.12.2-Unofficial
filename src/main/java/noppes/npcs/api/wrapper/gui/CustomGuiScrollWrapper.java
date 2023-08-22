@@ -25,7 +25,7 @@ implements IScroll {
 	public CustomGuiScrollWrapper(int id, int x, int y, int width, int height, String[] list) {
 		this.defaultSelection = -1;
 		this.multiSelect = false;
-		this.setID(id);
+		this.setId(id);
 		this.setPos(x, y);
 		this.setSize(width, height);
 		this.setList(list);

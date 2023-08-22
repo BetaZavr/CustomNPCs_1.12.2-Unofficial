@@ -48,7 +48,7 @@ implements IDataHolder, IClickListener {
 		}
 	}
 
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 

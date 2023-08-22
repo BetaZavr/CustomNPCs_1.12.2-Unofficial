@@ -59,13 +59,12 @@ import noppes.npcs.util.ObfuscationHelper;
 public class WorldWrapper
 implements IWorld {
 	
-	public static Map<String, Object> tempData = new HashMap<String, Object>();
-
 	@Deprecated
 	public static WorldWrapper createNew(World world) {
 		return new WorldWrapper(world);
 	}
 
+	public static Map<String, Object> tempData = new HashMap<String, Object>();
 	public IDimension dimension;
 	private IData storeddata;
 	private IData tempdata;
@@ -364,12 +363,12 @@ implements IWorld {
 
 	@Override
 	public void playSoundAt(IPos pos, String sound, float volume, float pitch) {
-		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.PLAY_SOUND, true, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 
 	@Override
-	public void forcePlaySoundAt(IPos pos, String sound, float volume, float pitch) {
-		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+	public void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch) {
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, categoryType, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 
 	@Override

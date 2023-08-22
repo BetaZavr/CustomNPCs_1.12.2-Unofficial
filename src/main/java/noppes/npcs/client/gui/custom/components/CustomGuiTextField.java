@@ -16,7 +16,7 @@ extends GuiTextField
 implements IDataHolder, IClickListener, ICustomKeyListener {
 	
 	public static CustomGuiTextField fromComponent(CustomGuiTextFieldWrapper component) {
-		CustomGuiTextField txt = new CustomGuiTextField(component.getID(), component.getPosX(), component.getPosY(),
+		CustomGuiTextField txt = new CustomGuiTextField(component.getId(), component.getPosX(), component.getPosY(),
 				component.getWidth(), component.getHeight());
 		if (component.hasHoverText()) {
 			txt.hoverText = component.getHoverText();
@@ -39,7 +39,7 @@ implements IDataHolder, IClickListener, ICustomKeyListener {
         this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() { return this.id; }
+	public int getId() { return this.id; }
 
 	public void keyTyped(char typedChar, int keyCode) {
 		this.textboxKeyTyped(typedChar, keyCode);

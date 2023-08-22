@@ -71,6 +71,7 @@ import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
@@ -129,11 +130,16 @@ public class ClientEventHandler {
 			ClientProxy.playerData.hud.clearGuiComponents();
 		}
 		if (event.getGui() instanceof GuiIngameMenu) {
-			if (!this.inGame) { // Login
+			if (!this.inGame) {
 				this.inGame = true;
+				CustomNPCsScheduler.runTack(() -> {
+					LogWriter.debug("Login: Get Server Data");
+					Client.sendDataDelayCheck(EnumPlayerPacket.GetSyncData, this, 0);
+				}, 1000);
 			}
 		} else if (event.getGui() instanceof GuiMainMenu) {
-			if (this.inGame) { // Logout
+			if (this.inGame) {
+				LogWriter.debug("Logout: Exit game");
 				this.inGame = false;
 				CustomNpcs.showDebugs();
 			}

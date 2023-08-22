@@ -159,5 +159,7 @@ extends IEntityLivingBase<T> {
 	void playSound(int categoryType, IPos pos, String sound, float volume, float pitch);
 	
 	void stopSound(int categoryType, String sound);
+
+	IContainer getBubblesInventory();
 	
 }

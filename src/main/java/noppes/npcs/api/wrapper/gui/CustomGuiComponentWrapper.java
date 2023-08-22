@@ -25,7 +25,7 @@ implements ICustomGuiComponent {
 	}
 
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
-		this.setID(nbt.getInteger("id"));
+		this.setId(nbt.getInteger("id"));
 		this.setPos(nbt.getIntArray("pos")[0], nbt.getIntArray("pos")[1]);
 		if (nbt.hasKey("hover")) {
 			NBTTagList list = nbt.getTagList("hover", 8);
@@ -44,7 +44,7 @@ implements ICustomGuiComponent {
 	}
 
 	@Override
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 
@@ -78,7 +78,7 @@ implements ICustomGuiComponent {
 	}
 
 	@Override
-	public ICustomGuiComponent setID(int id) {
+	public ICustomGuiComponent setId(int id) {
 		this.id = id;
 		return this;
 	}

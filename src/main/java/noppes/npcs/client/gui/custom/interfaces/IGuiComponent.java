@@ -6,7 +6,7 @@ import noppes.npcs.client.gui.custom.GuiCustom;
 
 public interface IGuiComponent {
 	
-	int getID();
+	int getId();
 
 	void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks);
 

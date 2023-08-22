@@ -32,5 +32,7 @@ public interface IMetods {
 	Object readObjectFromNbt(NBTBase tag);
 
 	String getJSONStringFromObject(Object obj);
+
+	//File getFile(String resourceLocation);
 	
 }

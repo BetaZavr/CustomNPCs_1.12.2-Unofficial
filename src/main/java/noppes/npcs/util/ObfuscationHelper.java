@@ -12,9 +12,9 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindFieldExcep
 
 public class ObfuscationHelper {
 
-	private static Method checkMethod(Method method, Object[] args) {
+	private static boolean checkMethod(Method method, Object[] args) {
 		if (args == null || args.length <= 0) {
-			return method;
+			return true;
 		}
 		if (args.length == method.getParameters().length) {
 			Parameter[] ps = method.getParameters();
@@ -29,59 +29,59 @@ public class ObfuscationHelper {
 				if (ps[i].getType() != clazz) {
 					switch(ps[i].getType().toString().toLowerCase()) {
 						case "boolean":
-							if (clazz!=Boolean.class) { return null; }
+							if (clazz!=Boolean.class) { return false; }
 							break;
 						case "byte":
-							if (clazz!=Byte.class) { return null; }
+							if (clazz!=Byte.class) { return false; }
 							break;
 						case "short":
-							if (clazz!=Short.class) { return null; }
+							if (clazz!=Short.class) { return false; }
 							break;
 						case "int":
-							if (clazz!=Integer.class) { return null; }
+							if (clazz!=Integer.class) { return false; }
 							break;
 						case "float":
-							if (clazz!=Float.class) { return null; }
+							if (clazz!=Float.class) { return false; }
 							break;
 						case "double":
-							if (clazz!=Double.class) { return null; }
+							if (clazz!=Double.class) { return false; }
 							break;
 						case "long":
-							if (clazz!=Long.class) { return null; }
+							if (clazz!=Long.class) { return false; }
 							break;
 						default:
-							return null;
+							return false;
 					}
 					
 				}
 			}
-			return method;
+			return true;
 		}
-		return null;
+		return false;
 	}
 
 	public static Field getField(Class<?> clazz, Object type) {
 		if (type instanceof Class) {
+			Class<?> sc;
 			Class<?> cl = (Class<?>) type;
 			for (Field t : clazz.getDeclaredFields()) {
-				if (t.getType() == cl) {
-					return t;
+				if (t.getType() == cl) { return t; }
+				sc = t.getType().getSuperclass();
+				if (sc!=null && sc!=t.getType()) {
+					while (sc!=null) {
+						if (sc == cl) { return t; }
+						sc = sc.getSuperclass();
+					}
 				}
 			}
 		} else if (type instanceof Integer) {
 			int pos = (int) type;
-			if (pos >= 0 && pos < clazz.getDeclaredFields().length) {
-				return clazz.getDeclaredFields()[pos];
-			}
+			if (pos >= 0 && pos < clazz.getDeclaredFields().length) { return clazz.getDeclaredFields()[pos]; }
 		} else if (type instanceof String) {
 			String name = (String) type;
-			if (name.isEmpty()) {
-				return null;
-			}
+			if (name.isEmpty()) { return null; }
 			for (Field t : clazz.getDeclaredFields()) {
-				if (t.getName().equals(name)) {
-					return t;
-				}
+				if (t.getName().equals(name)) { return t; }
 			}
 		}
 		return null;
@@ -89,29 +89,28 @@ public class ObfuscationHelper {
 
 	public static Method getMethod(Class<?> clazz, Object type, Object... args) {
 		if (type instanceof Class) {
+			Class<?> sc;
 			Class<?> cl = (Class<?>) type;
 			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getReturnType() == cl) {
-					return ObfuscationHelper.checkMethod(m, args);
+				if (m.getReturnType() == cl && ObfuscationHelper.checkMethod(m, args)) { return m; }
+				sc = m.getReturnType().getSuperclass();
+				if (sc!=null && sc!=m.getReturnType() && ObfuscationHelper.checkMethod(m, args)) {
+					while (sc!=null) {
+						if (sc == cl) { return m; }
+						sc = sc.getSuperclass();
+					}
 				}
 			}
 		} else if (type instanceof Integer) {
 			int pos = (int) type;
-			if (pos >= 0 && pos < clazz.getDeclaredMethods().length) {
-				return ObfuscationHelper.checkMethod(clazz.getDeclaredMethods()[pos], args);
+			if (pos >= 0 && pos < clazz.getDeclaredMethods().length && ObfuscationHelper.checkMethod(clazz.getDeclaredMethods()[pos], args)) {
+				return clazz.getDeclaredMethods()[pos];
 			}
 		} else if (type instanceof String) {
 			String name = (String) type;
-			if (name.isEmpty()) {
-				return null;
-			}
+			if (name.isEmpty()) { return null; }
 			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getName().equals(name)) {
-					Method temp = ObfuscationHelper.checkMethod(m, args);
-					if (temp != null) {
-						return m;
-					}
-				}
+				if (m.getName().equals(name) && ObfuscationHelper.checkMethod(m, args)) { return m; }
 			}
 		}
 		return null;

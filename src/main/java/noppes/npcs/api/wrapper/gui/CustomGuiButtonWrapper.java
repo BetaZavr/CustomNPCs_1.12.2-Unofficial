@@ -25,7 +25,7 @@ implements IButton {
 	public CustomGuiButtonWrapper(int id, String label, int x, int y) {
 		this.height = -1;
 		this.textureY = -1;
-		this.setID(id);
+		this.setId(id);
 		this.setLabel(label);
 		this.setPos(x, y);
 	}
@@ -68,7 +68,7 @@ implements IButton {
 	}
 
 	@Override
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 
@@ -118,7 +118,7 @@ implements IButton {
 	}
 
 	@Override
-	public ICustomGuiComponent setID(int id) {
+	public ICustomGuiComponent setId(int id) {
 		this.id = id;
 		return this;
 	}

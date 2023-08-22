@@ -24,7 +24,7 @@ implements ITexturedRect {
 	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height) {
 		this.textureY = -1;
 		this.scale = 1.0f;
-		this.setID(id);
+		this.setId(id);
 		this.setTexture(texture);
 		this.setPos(x, y);
 		this.setSize(width, height);

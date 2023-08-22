@@ -109,6 +109,6 @@ public interface IWorld {
 
 	IEntity<?>[] getEntitys(int type);
 
-	void forcePlaySoundAt(IPos pos, String sound, float volume, float pitch);
+	void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch);
 	
 }

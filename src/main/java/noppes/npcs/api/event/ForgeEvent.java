@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.audio.ISound;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -38,37 +37,30 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class ForgeEvent extends CustomNPCsEvent {
 	
 	public static class InitEvent extends ForgeEvent {
+		
 		public InitEvent() {
 			super(null);
 		}
+		
 	}
 	
 	public static class SoundTickEvent extends ForgeEvent {
 		
-		public int tick, ticks;
+		public float milliSeconds, totalSecond;
 		public String name, resource;
-		public IPos pos;
 		public float volume, pitch;
-		public ISound music;
 
-		public SoundTickEvent(ISound music, int tick) {
+		public SoundTickEvent(IPlayer<?> player, String name, String resource, IPos pos, float volume, float pitch, float milliSeconds, float totalSecond) {
 			super(null);
-			this.tick = tick;
-			this.music = music;
-			if (music!=null) {
-				this.ticks = 0;
-				this.name = music.getSoundLocation().toString();
-				this.volume = music.getVolume();
-				this.pitch = music.getPitch();
-				this.pos = NpcAPI.Instance().getIPos(music.getXPosF(), music.getYPosF(), music.getZPosF());
-				if (music.getSound()!=null) { this.resource = music.getSound().getSoundLocation().toString(); }
-			} else {
-				this.ticks = 0;
-				this.name = "null";
-				this.volume = 1.0f;
-				this.pitch = 1.0f;
-				this.pos = NpcAPI.Instance().getIPos(0, 0, 0);
-			}
+			this.milliSeconds = milliSeconds;
+			this.totalSecond = totalSecond;
+			this.name = name;
+			this.resource = resource;
+			this.volume = volume;
+			this.pitch = pitch;
+			
+			this.pos = pos;
+			this.player = player;
 		}
 	}
 	

@@ -17,7 +17,7 @@ extends GuiLabel
 implements IGuiComponent {
 	
 	public static CustomGuiTimer fromComponent(CustomGuiTimerWrapper component) {
-		CustomGuiTimer tirem = new CustomGuiTimer(component.start, component.end, component.reverse, component.getID(), component.getPosX(),
+		CustomGuiTimer tirem = new CustomGuiTimer(component.start, component.end, component.reverse, component.getId(), component.getPosX(),
 				component.getPosY(), component.getWidth(), component.getHeight(), component.getColor());
 		tirem.setScale(component.getScale());
 		if (component.hasHoverText()) { tirem.hoverText = component.getHoverText(); }
@@ -54,7 +54,7 @@ implements IGuiComponent {
         this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() { return this.id; }
+	public int getId() { return this.id; }
 	
 	public String getText() {
 		long time = System.currentTimeMillis() - this.now;

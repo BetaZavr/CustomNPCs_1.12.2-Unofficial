@@ -17,11 +17,11 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 	public static CustomGuiTexturedRect fromComponent(CustomGuiTexturedRectWrapper component) {
 		CustomGuiTexturedRect rect;
 		if (component.getTextureX() >= 0 && component.getTextureY() >= 0) {
-			rect = new CustomGuiTexturedRect(component.getID(), component.getTexture(), component.getPosX(),
+			rect = new CustomGuiTexturedRect(component.getId(), component.getTexture(), component.getPosX(),
 					component.getPosY(), component.getWidth(), component.getHeight(), component.getTextureX(),
 					component.getTextureY());
 		} else {
-			rect = new CustomGuiTexturedRect(component.getID(), component.getTexture(), component.getPosX(),
+			rect = new CustomGuiTexturedRect(component.getId(), component.getTexture(), component.getPosX(),
 					component.getPosY(), component.getWidth(), component.getHeight());
 		}
 		rect.scale = component.getScale();
@@ -61,7 +61,7 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
         this.offsets = new int [] { 0, 0 };
 	}
 
-	public int getID() { return this.id; }
+	public int getId() { return this.id; }
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
 		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;

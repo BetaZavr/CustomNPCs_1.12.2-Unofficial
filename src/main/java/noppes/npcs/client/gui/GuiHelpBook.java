@@ -35,7 +35,7 @@ import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.client.util.EventData;
 import noppes.npcs.client.util.InterfaseData;
-import noppes.npcs.client.util.MetodData;
+import noppes.npcs.client.util.MethodData;
 import noppes.npcs.client.util.ParameterData;
 import noppes.npcs.constants.EnumEventData;
 import noppes.npcs.constants.EnumInterfaceData;
@@ -54,7 +54,7 @@ implements ICustomScrollListener, ITextChangeListener {
 			"script.main", "", "", "", "", "", "", "", "" };
 	private GuiCustomScroll scroll;
 	private String curentLang = "";
-	private Map<String, MetodData> data = Maps.<String, MetodData>newHashMap();
+	private Map<String, MethodData> data = Maps.<String, MethodData>newHashMap();
 	private char chr = ((char) 167);
 	
 	public GuiHelpBook() {
@@ -237,9 +237,9 @@ implements ICustomScrollListener, ITextChangeListener {
 				return;
 			}
 			InterfaseData intf = EnumInterfaceData.get(this.scroll.getSelected());
-			List<MetodData> list = intf.getAllMetods(Lists.<MetodData>newArrayList());
-			TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
-			for (MetodData md : list) {
+			List<MethodData> list = intf.getAllMetods(Lists.<MethodData>newArrayList());
+			TreeMap<String, MethodData> m = Maps.<String, MethodData>newTreeMap();
+			for (MethodData md : list) {
 				String name = md.name;
 				while (m.containsKey(name)) { name += "_"; }
 				m.put(name, md);
@@ -248,9 +248,9 @@ implements ICustomScrollListener, ITextChangeListener {
 			InterfaseData intfEx = intf;
 			List<Class<?>> lc = Lists.newArrayList();
 			while(true) {
-				lc.add(0, intfEx.interF);
-				if (intfEx.extend!=null) {
-					intfEx = EnumInterfaceData.get(intfEx.extend.getSimpleName());
+				lc.add(0, intfEx.interfaseClass);
+				if (intfEx.extendClass!=null) {
+					intfEx = EnumInterfaceData.get(intfEx.extendClass.getSimpleName());
 					if (intfEx==null) { break; }
 				}
 				else { break; }
@@ -261,9 +261,9 @@ implements ICustomScrollListener, ITextChangeListener {
 				while(ofs>0) { text += "  "; ofs--; }
 				text += chr + ((c == lc.size()-1) ? "6" : "7") + lc.get(c).getName() + (""+((char) 10));
 			}
-			if (intf.wraper!=null && intf.wraper.length>0) {
+			if (intf.wraperClass!=null && intf.wraperClass.length>0) {
 				text += (""+((char) 10)) + new TextComponentTranslation("interfase.classes").getFormattedText() + (""+((char) 10));
-				for (Class<?> c : intf.wraper) {
+				for (Class<?> c : intf.wraperClass) {
 					text += "  " + chr + "e" + c.getName() + (""+((char) 10));
 				}
 			}
@@ -282,9 +282,9 @@ implements ICustomScrollListener, ITextChangeListener {
 				return;
 			}
 			EventData evd = EnumEventData.get(this.scroll.getSelected());
-			List<MetodData> list = evd.getAllMetods(Lists.<MetodData>newArrayList());
-			TreeMap<String, MetodData> m = Maps.<String, MetodData>newTreeMap();
-			for (MetodData md : list) {
+			List<MethodData> list = evd.getAllMetods(Lists.<MethodData>newArrayList());
+			TreeMap<String, MethodData> m = Maps.<String, MethodData>newTreeMap();
+			for (MethodData md : list) {
 				String name = md.name;
 				md.isVarielble = true;
 				while (m.containsKey(name)) { name += "_"; }
@@ -316,7 +316,7 @@ implements ICustomScrollListener, ITextChangeListener {
 					chr + "9function " + chr + "f" + evdEx.func + chr + "9(" + chr + "eevent" + chr + "9) {" + (""+((char) 10));
 			
 			for (String name : m.keySet()) {
-				MetodData md = m.get(name);
+				MethodData md = m.get(name);
 				String ret = md.returnType.getName();
 				if (ret.indexOf("[L")==0) { ret = ret.replace("[L", "").replace(";", "") + "[]"; }
 				else if (ret.indexOf("[B")==0) { ret = ret.replace("[B", "").replace(";", "") + "[]"; }
@@ -327,14 +327,14 @@ implements ICustomScrollListener, ITextChangeListener {
 			text += chr + "9}" + ((char) 10);
 			if (evd.event.getMethods().length>0) {
 				text += (""+((char) 10)) + new TextComponentTranslation("event.methods").getFormattedText() + (""+((char) 10));
-				TreeMap<String, MetodData> md = Maps.<String, MetodData>newTreeMap();
+				TreeMap<String, MethodData> md = Maps.<String, MethodData>newTreeMap();
 				for (Method mtd : evd.event.getMethods()) {
-					MetodData mdata = new MetodData(mtd.getReturnType(), mtd.getName(), "method.event."+mtd.getName().toLowerCase());
+					MethodData mdata = new MethodData(mtd.getReturnType(), mtd.getName(), "method.event."+mtd.getName().toLowerCase());
+					mdata.parameters = new ParameterData[mtd.getParameterCount()];
 					if (mtd.getParameterCount()>0) {
-						int g = 0;
-						for (Parameter p : mtd.getParameters()) {
-							mdata.parameters.add(new ParameterData(p.getType(), p.getType().getSimpleName().toLowerCase() + g, "parameter.event."+mtd.getName().toLowerCase()+"."+p.getType().getName().toLowerCase() + g));
-							g++;
+						Parameter[] ps = mtd.getParameters();
+						for (int g = 0; g < ps.length; g++) {
+							mdata.parameters[g] = new ParameterData(ps[g].getType(), ps[g].getType().getSimpleName().toLowerCase() + g, "parameter.event."+mtd.getName().toLowerCase()+"."+ps[g].getType().getName().toLowerCase());
 						}
 					}
 					//mdata.isVarielble = true;

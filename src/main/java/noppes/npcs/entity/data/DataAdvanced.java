@@ -138,8 +138,7 @@ implements INPCAdvanced {
 			return;
 		}
 		BlockPos pos = this.npc.getPosition();
-		Server.sendRangedData(this.npc, 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(),
-				volume, pitch);
+		Server.sendRangedData(this.npc, 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 
 	public void setJob(int i) {

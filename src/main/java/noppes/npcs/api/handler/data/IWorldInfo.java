@@ -4,7 +4,7 @@ import noppes.npcs.api.INbt;
 
 public interface IWorldInfo {
 	
-	int getID();
+	int getId();
 	
 	INbt getNbt();
 

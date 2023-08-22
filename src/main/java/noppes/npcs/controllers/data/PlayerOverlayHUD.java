@@ -151,7 +151,7 @@ implements IOverlayHUD {
 					ids.add(id);
 					boolean has = false;
 					for (ICustomGuiComponent c : this.components.get(type)) {
-						if (c.getID()==id) {
+						if (c.getId()==id) {
 							if ((c.getClass()==CustomGuiLabelWrapper.class && compList.getCompoundTagAt(j).getInteger("type")!=1) ||
 								(c.getClass()==CustomGuiTexturedRectWrapper.class && compList.getCompoundTagAt(j).getInteger("type")!=2) ||
 								(c.getClass()==CustomGuiTimerWrapper.class && compList.getCompoundTagAt(j).getInteger("type")!=6)) {
@@ -169,7 +169,7 @@ implements IOverlayHUD {
 				}
 				List<ICustomGuiComponent> del = Lists.<ICustomGuiComponent>newArrayList();
 				for (ICustomGuiComponent c : this.components.get(type)) {
-					if (!ids.contains((Integer) c.getID())) { del.add(c); }
+					if (!ids.contains((Integer) c.getId())) { del.add(c); }
 				}
 				for (ICustomGuiComponent c : del) { this.components.get(type).remove(c); }
 			}
@@ -191,7 +191,7 @@ implements IOverlayHUD {
 					ids.add(id);
 					boolean has = false;
 					for (IItemSlot s : this.slots.get(type)) {
-						if (s.getID()==id) {
+						if (s.getId()==id) {
 							if (s.getClass()!=CustomGuiItemSlotWrapper.class) { this.slots.get(type).remove(s); }
 							else {
 								((CustomGuiComponentWrapper) s).fromNBT(compList.getCompoundTagAt(j));
@@ -206,7 +206,7 @@ implements IOverlayHUD {
 				}
 				List<ICustomGuiComponent> del = Lists.<ICustomGuiComponent>newArrayList();
 				for (ICustomGuiComponent c : this.slots.get(type)) {
-					if (!ids.contains((Integer) c.getID())) { del.add(c); }
+					if (!ids.contains((Integer) c.getId())) { del.add(c); }
 				}
 				for (ICustomGuiComponent c : del) { this.slots.get(type).remove(c); }
 			}
@@ -436,7 +436,7 @@ implements IOverlayHUD {
 	public ICustomGuiComponent getComponent(int orientationType, int componentID) {
 		if (!this.components.containsKey(orientationType)) { return null; }
 		for (ICustomGuiComponent component : this.components.get(orientationType)) {
-			if (component.getID() == componentID) {
+			if (component.getId() == componentID) {
 				return component;
 			}
 		}
@@ -468,7 +468,7 @@ implements IOverlayHUD {
 	public boolean removeComponent(int orientationType, int componentID) {
 		if (!this.components.containsKey(orientationType)) { return false; }
 		for (ICustomGuiComponent comp : this.components.get(orientationType)) {
-			if (comp.getID() == componentID) {
+			if (comp.getId() == componentID) {
 				this.components.get(orientationType).remove(comp);
 				this.update = true;
 				return true;
@@ -481,7 +481,7 @@ implements IOverlayHUD {
 	public boolean removeSlot(int orientationType, int componentID) {
 		if (!this.slots.containsKey(orientationType)) { return false; }
 		for (IItemSlot comp : this.slots.get(orientationType)) {
-			if (comp.getID() == componentID) {
+			if (comp.getId() == componentID) {
 				this.slots.get(orientationType).remove(comp);
 				this.update = true;
 				return true;
@@ -526,16 +526,16 @@ implements IOverlayHUD {
 				for (ICustomGuiComponent component : this.components.get(type)) {
 					if (component instanceof CustomGuiLabelWrapper) {
 						CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
-						this.guiComponents.get(type).put(lbl.getID(), lbl);
+						this.guiComponents.get(type).put(lbl.getId(), lbl);
 					}
 					else if (component instanceof CustomGuiTexturedRectWrapper) {
 						CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
 						rect.id += -200;
-						this.guiComponents.get(type).put(rect.getID(), rect);
+						this.guiComponents.get(type).put(rect.getId(), rect);
 					}
 					else if (component instanceof CustomGuiTimerWrapper) {
 						CustomGuiTimer time = CustomGuiTimer.fromComponent((CustomGuiTimerWrapper) component);
-						this.guiComponents.get(type).put(time.getID(), time);
+						this.guiComponents.get(type).put(time.getId(), time);
 					}
 				}
 			}
@@ -560,7 +560,7 @@ implements IOverlayHUD {
 			for (int type : this.components.keySet()) {
 				if (!ids.containsKey(type)) { ids.put(type, 0); }
 				for (ICustomGuiComponent component : this.components.get(type)) {
-					if (ids.get(type) < component.getID()) { ids.put(type, component.getID()); }
+					if (ids.get(type) < component.getId()) { ids.put(type, component.getId()); }
 				}
 			}
 			for (int type : this.slots.keySet()) {

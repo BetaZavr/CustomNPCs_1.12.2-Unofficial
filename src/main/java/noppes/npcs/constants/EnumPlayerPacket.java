@@ -56,6 +56,7 @@ public enum EnumPlayerPacket
 	KeyActive,
 	StopNPCAnimation,
 	OpenGui,
-	GetFilePart;
+	GetFilePart,
+	GetSyncData;
 	
 }

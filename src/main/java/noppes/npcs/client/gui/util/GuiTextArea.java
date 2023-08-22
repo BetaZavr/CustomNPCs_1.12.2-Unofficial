@@ -290,7 +290,7 @@ implements IGui, IKeyListener, IMouseListener {
 		return this.cursorPosition;
 	}
 
-	public int getID() {
+	public int getId() {
 		return this.id;
 	}
 

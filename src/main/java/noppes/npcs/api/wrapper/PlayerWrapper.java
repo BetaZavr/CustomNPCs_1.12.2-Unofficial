@@ -1,5 +1,6 @@
 package noppes.npcs.api.wrapper;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import net.minecraft.world.WorldSettings;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
@@ -253,6 +255,22 @@ implements IPlayer {
 	}
 
 	@Override
+	public IContainer getBubblesInventory() {
+		IContainer invBubbles = null;
+		try {
+			Class<?> apiBubbles = Class.forName("baubles.api.BaublesApi");
+			for (Method m : apiBubbles.getDeclaredMethods()) {
+				if (m.getName().equals("getBaubles")) {
+					if (!m.isAccessible()) { m.setAccessible(true); }
+					invBubbles = new ContainerWrapper((IInventory) m.invoke(apiBubbles, (EntityPlayer) this.entity));
+					break;
+				}
+			}
+		} catch (Exception e) { LogWriter.warn("Mod \"Bubbles\" - not found");}
+		return invBubbles;
+	}
+
+	@Override
 	public IItemStack getInventoryHeldItem() {
 		return NpcAPI.Instance().getIItemStack(this.entity.inventory.getItemStack());
 	}
@@ -454,7 +472,7 @@ implements IPlayer {
 	public void playSound(String sound, float volume, float pitch) {
 		if (!(this.entity instanceof EntityPlayerMP) || sound == null || sound.isEmpty()) { return; }
 		BlockPos pos = this.entity.getPosition();
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, true, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 	
 	@Override
@@ -462,7 +480,7 @@ implements IPlayer {
 		if (!(this.entity instanceof EntityPlayerMP) || sound == null || sound.isEmpty()) { return; }
 		BlockPos p = this.entity.getPosition();
 		if (pos != null) { p = pos.getMCBlockPos(); }
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_SOUND, false, categoryType, sound, p.getX(), p.getY(), p.getZ(), volume, pitch);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.FORCE_PLAY_SOUND, categoryType, sound, p.getX(), p.getY(), p.getZ(), volume, pitch);
 	}
 
 	@Override

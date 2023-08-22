@@ -1,6 +1,5 @@
 package noppes.npcs.client;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -34,10 +32,10 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.renderer.RenderNPCInterface;
+import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.MarcetController;
@@ -50,7 +48,7 @@ public class ClientTickHandler {
 	private boolean otherContainer;
 	private World prevWorld;
 	private Map<String, ISound> nowPlayingSounds;
-	private static ISound music = null;
+	private static MusicData music = null;
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
@@ -122,7 +120,7 @@ public class ClientTickHandler {
 			if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
 				ISound sound = playingSounds.get(uuid);
 				if (sound.getCategory()==SoundCategory.MUSIC) {
-					ClientTickHandler.music = sound;
+					ClientTickHandler.music = new MusicData(sound, uuid, sm);
 				}
 				this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
 				Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
@@ -132,30 +130,16 @@ public class ClientTickHandler {
 		for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
 			if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
 				ISound sound = this.nowPlayingSounds.get(uuid);
+				if (ClientTickHandler.music!=null && (ClientTickHandler.music.sound.equals(sound) || ClientTickHandler.music.uuid.equals(uuid))) {
+					ClientTickHandler.music = null;
+				}
 				Client.sendData(EnumPacketServer.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
 				del.add(uuid);
 			}
 		}
-		if (ClientTickHandler.music!=null && Minecraft.getMinecraft().getSoundHandler().isSoundPlaying(ClientTickHandler.music) ) {
-			Map<ISound, String> invPlayingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 9);
-		    if (invPlayingSounds.containsKey(ClientTickHandler.music)) {
-		    	String s = invPlayingSounds.get(ClientTickHandler.music);
-		    	List<String> pausedChannels = ObfuscationHelper.getValue(SoundManager.class, sm, 15);
-				if (pausedChannels.contains(s)) { return; }
-		    	int playTime = ObfuscationHelper.getValue(SoundManager.class, sm, 7);
-			    Map<String, Integer> playingSoundsStopTime = ObfuscationHelper.getValue(SoundManager.class, sm, 13);
-			    if (playingSoundsStopTime.containsKey(s)) {
-			    	EventHooks.onForgeEvent(new ForgeEvent.SoundTickEvent(ClientTickHandler.music, playTime - playingSoundsStopTime.get(s)));
-			    	/*int t = 0;
-			    	try {
-						IResource res = Minecraft.getMinecraft().getResourceManager().getResource(ClientTickHandler.music.getSound().getSoundAsOggLocation());
-				    	//System.out.println("Ogg: "+ClientTickHandler.music.getSound().getSoundAsOggLocation()+" - "+res);
-					}
-			    	catch (IOException e) { e.printStackTrace(); }*/
-			    	//System.out.println("name: \""+ClientTickHandler.music.getSoundLocation().toString()+"\"; time: "+(playTime - playingSoundsStopTime.get(s))+" / "+t);
-			    }
-		    } else { ClientTickHandler.music = null; }
-		} else { ClientTickHandler.music = null; }
+		if (ClientTickHandler.music!=null && ClientTickHandler.music.sound!=null && ClientTickHandler.music.source!=null && !ClientTickHandler.music.source.paused()) {
+			EventHooks.onForgeEvent(ClientTickHandler.music.createEvent(CustomNpcs.proxy.getPlayer()));
+		}
 		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
@@ -253,12 +237,23 @@ public class ClientTickHandler {
 	public void testingCode(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
 		if (!(entity instanceof EntityPlayer)) { return; }
-		
+		//System.out.println("Client: "+entity);
 		if (entity instanceof EntityPlayerMP) {
 			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
 			//System.out.println("Server: "+entity);
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
+		//TempClass.createAPIs(true);
+
+		/*if (ClientTickHandler.music==null) { return; }
+		String name = ClientTickHandler.music.sound.getSound().getSoundAsOggLocation().toString();
+		System.out.println("name: "+name+"; uuid: "+ClientTickHandler.music.uuid);
+		System.out.println("length: "+ClientTickHandler.music.source.soundBuffer.audioData.length);
+
+		AudioFormat format = ClientTickHandler.music.source.soundBuffer.audioFormat;
+		System.out.println("length: "+ClientTickHandler.music.source.soundBuffer.audioData.length);
+		System.out.println("format: "+format);
+		System.out.println("delay: "+ClientTickHandler.music.millitotal);*/
 		
 		/*File dir = CustomNpcs.getWorldSaveDirectory();
 		if (dir.exists()) {
@@ -287,11 +282,6 @@ public class ClientTickHandler {
 			}
 			catch (IOException e) { }
 		}*/
-		
-		//System.out.println("Client: "+entity);
-		
-		//TempClass.run((EntityPlayerSP) entity, 3);
-		//System.out.println("Test: ");
 		
 		/*for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
 			System.out.println("key: "+kb.getDisplayName()+" _ "+kb.getKeyCategory()+" = "+kb.getKeyCode()+" // "+kb.getKeyModifier()+" /// "+kb.getKeyConflictContext().getClass()+"["+kb.getKeyConflictContext()+"]");
@@ -335,7 +325,6 @@ public class ClientTickHandler {
 						break;
 					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

@@ -474,11 +474,11 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea gui = (SubGuiNpcTextArea) subgui;
-			if (gui.getID() == 0) {
+			if (gui.getId() == 0) {
 				this.quest.completeText = gui.text;
-			} else if (gui.getID() == 1) {
+			} else if (gui.getId() == 1) {
 				this.quest.logText = gui.text;
-			} else if (gui.getID() == 2) {
+			} else if (gui.getId() == 2) {
 				this.quest.rewardText = gui.text;
 			}
 		} else if (subgui instanceof SubGuiNpcCommand) {

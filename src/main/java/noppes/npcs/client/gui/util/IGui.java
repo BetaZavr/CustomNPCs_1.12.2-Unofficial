@@ -4,7 +4,7 @@ public interface IGui {
 	
 	void drawScreen(int x, int y);
 
-	int getID();
+	int getId();
 
 	boolean isActive();
 

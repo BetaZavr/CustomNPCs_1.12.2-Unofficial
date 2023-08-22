@@ -135,9 +135,9 @@ public class NpcRecipeBookPage {
 	}
 
 	public void renderTooltip(int mouseButton, int p_193721_2_) {
-		if (this.minecraft.currentScreen != null && this.hoveredButton != null && !this.overlay.isVisible()) {
-			this.minecraft.currentScreen.drawHoveringText(
-					this.hoveredButton.getToolTipText(this.minecraft.currentScreen), mouseButton, p_193721_2_);
+		if (this.minecraft == null) { this.minecraft = Minecraft.getMinecraft(); }
+		if (this.minecraft.currentScreen != null && this.hoveredButton != null && this.overlay!=null && !this.overlay.isVisible()) {
+			this.minecraft.currentScreen.drawHoveringText(this.hoveredButton.getToolTipText(this.minecraft.currentScreen), mouseButton, p_193721_2_);
 		}
 	}
 

@@ -331,9 +331,9 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
-		CustomNpcs.debugData.startDebug("Common", null, "ServerEventsHandler_npcEntityCapabilities");
+		CustomNpcs.debugData.startDebug("Common", null, "ServerEventsHandler_npcItemCapabilities");
 		ItemStackWrapper.register(event);
-		CustomNpcs.debugData.endDebug("Common", null, "ServerEventsHandler_npcEntityCapabilities");
+		CustomNpcs.debugData.endDebug("Common", null, "ServerEventsHandler_npcItemCapabilities");
 	}
 
 	@SubscribeEvent

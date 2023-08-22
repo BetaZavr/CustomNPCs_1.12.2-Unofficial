@@ -26,7 +26,7 @@ public class CustomGuiController {
 	static boolean checkGui(CustomGuiEvent event) {
 		EntityPlayer player = event.player.getMCEntity();
 		return player.openContainer instanceof ContainerCustomGui
-				&& ((ContainerCustomGui) player.openContainer).customGui.getID() == event.gui.getID();
+				&& ((ContainerCustomGui) player.openContainer).customGui.getId() == event.gui.getId();
 	}
 
 	public static CustomGuiWrapper getOpenGui(EntityPlayer player) {

@@ -204,10 +204,6 @@ public class ScriptContainer {
 				this.fullscript = map.get("all.js") + "\n"+this.fullscript;
 			}
 			this.unknownFunctions = new HashSet<String>();
-			if (this.isClient) {
-				this.init = true;
-				this.errored = false;
-			}
 		}
 		return this.fullscript;
 	}
@@ -228,6 +224,7 @@ public class ScriptContainer {
 		if (this.isClient) { this.errored = false; }
 		this.lastCreated = 0L;
 		this.init = false;
+		this.unknownFunctions.clear();
 	}
 
 	public void run(EnumScriptType type, Event event, boolean side) {
@@ -240,7 +237,7 @@ public class ScriptContainer {
 		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type.function, "ScriptContainer_run");
 	}
 
-	public void run(String type, Object event) {
+	private void run(String type, Object event) {
 		if (this.engine==null) { this.setEngine(this.handler.getLanguage()); }
 		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || this.engine == null) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastCreated) {

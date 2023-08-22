@@ -29,29 +29,25 @@ public class VisibilityController {
 	
 	public static void onUpdate(EntityPlayerMP playerMP) { // cheak Visible to Player
 		if (!CustomNpcs.EnableInvisibleNpcs) { return; }
-		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) {
-			VisibilityController.invisibleNPCsTable.put(playerMP, Lists.<EntityNPCInterface>newArrayList());
-		}
+		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) { VisibilityController.invisibleNPCsTable.put(playerMP, Lists.<EntityNPCInterface>newArrayList()); }
 		for (EntityNPCInterface npc : VisibilityController.trackedEntityHashTable) {
 			if (!npc.display.hasVisibleOptions()) { continue; }
-			if (npc==null || npc.world.provider.getDimension()!=playerMP.world.provider.getDimension()) {
-				continue;
-			}
+			if (npc==null || npc.world.provider.getDimension()!=playerMP.world.provider.getDimension()) { continue; }
 			checkIsVisible(npc, playerMP);
 		}
 	}
 	
 	public static void checkIsVisible(EntityNPCInterface npc, EntityPlayerMP playerMP) {
 		if (!CustomNpcs.EnableInvisibleNpcs) { return; }
-		boolean isVisible = playerMP.capabilities.isCreativeMode || npc.display.isVisibleTo(playerMP) || playerMP.getHeldItemMainhand().getItem() == CustomItems.wand;
-		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) {
-			VisibilityController.invisibleNPCsTable.put(playerMP, Lists.<EntityNPCInterface>newArrayList());
-		}
-		if (isVisible && VisibilityController.invisibleNPCsTable.get(playerMP).contains(npc)) {
-			VisibilityController.invisibleNPCsTable.get(playerMP).remove(npc);
-			EntityRegistry.EntityRegistration er = EntityRegistry.instance().lookupModSpawn(npc.getClass(), false);
-			FMLMessage.EntitySpawnMessage message = new FMLMessage.EntitySpawnMessage(er, npc, er.getContainer());
-			Server.sendData(playerMP, EnumPacketClient.VISIBLE_TRUE, npc.getUniqueID(), npc.getEntityId(), message);
+		boolean anyVisible = playerMP.capabilities.isCreativeMode || playerMP.getHeldItemMainhand().getItem()==CustomItems.wand;
+		boolean isVisible = npc.display.isVisibleTo(playerMP);
+		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) { VisibilityController.invisibleNPCsTable.put(playerMP, Lists.<EntityNPCInterface>newArrayList()); }
+		if (anyVisible || (isVisible && VisibilityController.invisibleNPCsTable.get(playerMP).contains(npc))) {
+			if (VisibilityController.invisibleNPCsTable.get(playerMP).remove(npc)) {
+				EntityRegistry.EntityRegistration er = EntityRegistry.instance().lookupModSpawn(npc.getClass(), false);
+				FMLMessage.EntitySpawnMessage message = new FMLMessage.EntitySpawnMessage(er, npc, er.getContainer());
+				Server.sendData(playerMP, EnumPacketClient.VISIBLE_TRUE, npc.getUniqueID(), npc.getEntityId(), message);
+			}
 		}
 		else if (!isVisible && !VisibilityController.invisibleNPCsTable.get(playerMP).contains(npc)) {
 			VisibilityController.invisibleNPCsTable.get(playerMP).add(npc);
