@@ -30,12 +30,12 @@ import net.minecraft.util.math.Vec3d;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumCompanionJobs;
 import noppes.npcs.constants.EnumCompanionStage;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -88,7 +88,7 @@ extends RoleInterface {
 		this.eatingDelay = 0;
 		this.currentExp = 0;
 		this.inventory = new NpcMiscInventory(12);
-		this.type = EnumNpcRole.COMPANION;
+		this.type = RoleType.COMPANION;
 	}
 
 	public void addExp(int exp) {
@@ -651,7 +651,7 @@ extends RoleInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = RoleType.COMPANION;
 		this.inventory.setFromNBT(compound.getCompoundTag("CompanionInventory"));
 		this.uuid = compound.getString("CompanionOwner");
 		this.ownerName = compound.getString("CompanionOwnerName");
@@ -680,7 +680,7 @@ extends RoleInterface {
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", RoleType.COMPANION.get());
 		compound.setTag("CompanionInventory", this.inventory.getToNBT());
 		compound.setString("CompanionOwner", this.uuid);
 		compound.setString("CompanionOwnerName", this.ownerName);

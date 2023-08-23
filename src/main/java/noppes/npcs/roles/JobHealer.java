@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import noppes.npcs.NBTTags;
-import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
@@ -33,7 +33,7 @@ extends JobInterface {
 		this.speed = 20;
 		this.effects = new HashMap<Integer, Integer>();
 		this.affected = new ArrayList<EntityLivingBase>();
-		this.type = EnumNpcJob.HEALER;
+		this.type = JobType.HEALER;
 	}
 
 	@Override
@@ -81,7 +81,7 @@ extends JobInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.HEALER;
 		this.range = compound.getInteger("HealerRange");
 		this.healerType = compound.getByte("HealerType");
 		this.effects = NBTTags.getIntegerIntegerMap(compound.getTagList("BeaconEffects", 10));
@@ -90,7 +90,7 @@ extends JobInterface {
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.HEALER.get());
 		compound.setInteger("HealerRange", this.range);
 		compound.setByte("HealerType", this.healerType);
 		compound.setTag("BeaconEffects", NBTTags.nbtIntegerIntegerMap(this.effects));

@@ -17,10 +17,12 @@ public class MusicController {
 	
 	public static MusicController Instance;
 	public Entity playingEntity = null;
+	private String currentMusic = "";
 
 	public MusicController() { MusicController.Instance = this; }
 
 	public boolean isPlaying(String music) {
+		if (music==null || music.isEmpty()) { return false; }
 		ResourceLocation resource = new ResourceLocation(music);
 		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(), SoundManager.class);
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
@@ -29,41 +31,40 @@ public class MusicController {
 		}
 		return false;
 	}
-
-	public void playMusic(String music, SoundCategory category, Entity entity) {
-		if (this.isPlaying(music)) { return; }
-		this.stopMusic();
-		this.playingEntity = entity;
-		ResourceLocation resource = new ResourceLocation(music);
-		SoundHandler handler = Minecraft.getMinecraft().getSoundHandler();
-		handler.playSound(new PositionedSoundRecord(resource, category, 1.0f, 1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f));
-	}
 	
 	public void forcePlaySound(SoundCategory cat, String sound, int x, int y, int z, float volumne, float pitch) {
 		if (cat == null || sound==null || sound.isEmpty()) { return; }
+		ISound.AttenuationType aType = ISound.AttenuationType.LINEAR;
 		if (cat==SoundCategory.MUSIC) {
 			Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC);
 			ObfuscationHelper.setValue(MusicTicker.class, Minecraft.getMinecraft().getMusicTicker(), null, ISound.class);
+			aType = ISound.AttenuationType.NONE;
+			x = 0;
+			y = 0;
+			z = 0;
 		}
-		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(sound), cat, volumne, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);
-		Minecraft.getMinecraft().getSoundHandler().playSound(rec);
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), cat, volumne, pitch, false, 0, aType, x, y, z));
 	}
 	
 	public void playSound(SoundCategory cat, String music, int x, int y, int z, float volume, float pitch) {
 		if (this.isPlaying(music)) { return; }
-		PositionedSoundRecord rec = new PositionedSoundRecord(new ResourceLocation(music), cat, volume, pitch, false, 0, ISound.AttenuationType.LINEAR, x + 0.5f, y, z + 0.5f);
-		Minecraft.getMinecraft().getSoundHandler().playSound(rec);
+		ISound.AttenuationType aType = ISound.AttenuationType.LINEAR;
+		if (cat == SoundCategory.MUSIC) {
+			aType = ISound.AttenuationType.NONE;
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(music), cat, volume, pitch, false, 0, aType, x, y, z));
 	}
 
-	public void playStreaming(String music, Entity entity) {
-		try {
-			if (music==null || music.isEmpty() || this.isPlaying(music)) { return; }
-			this.stopMusic();
-			this.playingEntity = entity;
-			ResourceLocation resource = new ResourceLocation(music);
-			Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(resource, SoundCategory.RECORDS, 4.0f, 1.0f, false, 0, ISound.AttenuationType.LINEAR, (float) entity.posX+0.5f, (float) entity.posY+0.5f, (float) entity.posZ+0.5f));
-		}
-		catch (Exception e) { }
+	public void playMusic(String music, SoundCategory category, Entity entity) {
+		if (this.isPlaying(music)) { return; }
+		if (this.isPlaying(this.currentMusic) && this.playingEntity!=null) { return; }
+		this.stopMusic(category);
+		this.playingEntity = entity;
+		this.currentMusic  = music;
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(music), category, 1.0f, 1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f));
 	}
 
 	public void stopMusic() {
@@ -72,7 +73,14 @@ public class MusicController {
 		handler.stop("", SoundCategory.PLAYERS);
 		handler.stop("", SoundCategory.AMBIENT);
 		handler.stop("", SoundCategory.RECORDS);
+		this.currentMusic = "";
+	}
+
+
+	public void stopMusic(SoundCategory category) {
+		Minecraft.getMinecraft().getSoundHandler().stop("", category);
 		this.playingEntity = null;
+		this.currentMusic = "";
 	}
 	
 }

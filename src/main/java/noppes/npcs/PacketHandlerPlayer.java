@@ -24,6 +24,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.RoleEvent;
@@ -35,7 +36,6 @@ import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
@@ -216,14 +216,14 @@ public class PacketHandlerPlayer {
 			NoppesUtilServer.sendOpenGui((EntityPlayer) player, EnumGuiType.CompanionInv, npc);
 		} else if (type == EnumPlayerPacket.FollowerHire) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.FOLLOWER) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.hireFollower(player, npc);
 		} else if (type == EnumPlayerPacket.FollowerExtend) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.FOLLOWER) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
@@ -231,7 +231,7 @@ public class PacketHandlerPlayer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.FollowerState) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.FOLLOWER) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
@@ -253,21 +253,21 @@ public class PacketHandlerPlayer {
 			((RoleTransporter) npc.advanced.roleInterface).transport(player, Server.readString(buffer));
 		} else if (type == EnumPlayerPacket.BankUpgrade) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.bankUpgrade(player, npc);
 		} else if (type == EnumPlayerPacket.BankUnlock) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			NoppesUtilPlayer.bankUnlock(player, npc);
 		} else if (type == EnumPlayerPacket.BankSlotOpen) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
+			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}

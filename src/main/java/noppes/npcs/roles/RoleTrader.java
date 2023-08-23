@@ -8,9 +8,9 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -23,7 +23,7 @@ extends RoleInterface {
 	public RoleTrader(EntityNPCInterface npc) {
 		super(npc);
 		this.marcet = -1;
-		this.type = EnumNpcRole.TRADER;
+		this.type = RoleType.TRADER;
 	}
 
 	@Deprecated
@@ -135,14 +135,14 @@ extends RoleInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = RoleType.TRADER;
 		if (compound.hasKey("MarketID", 3)) { this.marcet = compound.getInteger("MarketID"); }
 		else if (CustomNpcs.FixUpdateFromPre_1_12){ this.marcet = MarcetController.getInstance().loadOld(compound); } // Old
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", RoleType.TRADER.get());
 		compound.setInteger("MarketID", this.marcet);
 		return compound;
 	}

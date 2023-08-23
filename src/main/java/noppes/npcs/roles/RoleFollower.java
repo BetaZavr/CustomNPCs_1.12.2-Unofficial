@@ -12,12 +12,12 @@ import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.role.IRoleFollower;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumNpcJob;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RoleFollower
@@ -49,7 +49,7 @@ implements IRoleFollower {
 		this.owner = null;
 		this.inventory = new NpcMiscInventory(3);
 		this.rates = new HashMap<Integer, Integer>();
-		this.type = EnumNpcRole.FOLLOWER;
+		this.type = RoleType.FOLLOWER;
 	}
 
 	@Override
@@ -74,7 +74,7 @@ implements IRoleFollower {
 
 	@Override
 	public boolean defendOwner() {
-		return this.isFollowing() && this.npc.advanced.jobInterface.getEnumType() == EnumNpcJob.GUARD;
+		return this.isFollowing() && this.npc.advanced.jobInterface.getEnumType() == JobType.GUARD;
 	}
 
 	@Override
@@ -198,7 +198,7 @@ implements IRoleFollower {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = RoleType.FOLLOWER;
 		this.ownerUUID = compound.getString("MercenaryOwner");
 		this.daysHired = compound.getInteger("MercenaryDaysHired");
 		this.hiredTime = compound.getLong("MercenaryHiredTime");
@@ -214,7 +214,7 @@ implements IRoleFollower {
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", RoleType.FOLLOWER.get());
 		compound.setInteger("MercenaryDaysHired", this.daysHired);
 		compound.setLong("MercenaryHiredTime", this.hiredTime);
 		compound.setString("MercenaryDialogHired", this.dialogHire);

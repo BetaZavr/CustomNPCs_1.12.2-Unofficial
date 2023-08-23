@@ -2,7 +2,7 @@ package noppes.npcs.roles;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.constants.EnumNpcRole;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.Bank;
@@ -17,7 +17,7 @@ extends RoleInterface {
 	public RoleBank(EntityNPCInterface npc) {
 		super(npc);
 		this.bankId = -1;
-		this.type = EnumNpcRole.BANK;
+		this.type = RoleType.BANK;
 	}
 
 	public Bank getBank() {
@@ -37,13 +37,13 @@ extends RoleInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = RoleType.BANK;
 		this.bankId = compound.getInteger("RoleBankID");
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", RoleType.BANK.get());
 		compound.setInteger("RoleBankID", this.bankId);
 		return compound;
 	}

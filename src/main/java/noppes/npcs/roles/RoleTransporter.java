@@ -9,10 +9,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.role.IRoleTransporter;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerTransportData;
@@ -31,7 +31,7 @@ implements IRoleTransporter {
 		super(npc);
 		this.transportId = -1;
 		this.ticks = 10;
-		this.type = EnumNpcRole.TRANSPORTER;
+		this.type = RoleType.TRANSPORTER;
 	}
 
 	@Override
@@ -118,7 +118,7 @@ implements IRoleTransporter {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = RoleType.TRANSPORTER;
 		this.transportId = compound.getInteger("TransporterId");
 		TransportLocation loc = this.getLocation();
 		if (loc != null) {
@@ -128,7 +128,7 @@ implements IRoleTransporter {
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", RoleType.TRANSPORTER.get());
 		compound.setInteger("TransporterId", this.transportId);
 		return compound;
 	}

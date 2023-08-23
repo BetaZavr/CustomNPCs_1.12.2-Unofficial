@@ -10,7 +10,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeChunkManager;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class ChunkController implements ForgeChunkManager.LoadingCallback {
@@ -64,7 +64,7 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 				continue;
 			}
 			EntityNPCInterface npc = (EntityNPCInterface) ticket.getEntity();
-			if (npc.advanced.jobInterface.getEnumType() != EnumNpcJob.CHUNK_LOADER || tickets.contains(npc)) {
+			if (npc.advanced.jobInterface.getEnumType() != JobType.CHUNK_LOADER || tickets.contains(npc)) {
 				continue;
 			}
 			this.tickets.put(npc, ticket);

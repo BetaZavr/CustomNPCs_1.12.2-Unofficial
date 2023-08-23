@@ -24,9 +24,9 @@ import net.minecraft.world.EnumDifficulty;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.data.role.IJobSpawner;
-import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.SpawnNPCData;
@@ -74,7 +74,7 @@ implements IJobSpawner {
 		
 		this.exact = false;
 		this.resetUpdate = true;
-		this.type = EnumNpcJob.SPAWNER;
+		this.type = JobType.SPAWNER;
 	}
 
 	@Override
@@ -488,7 +488,7 @@ implements IJobSpawner {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.SPAWNER;
 		this.id = compound.getString("SpawnerId");
 		this.dataEntitys = new SpawnNPCData[2][];
 		this.offset = new int[2][];
@@ -536,7 +536,6 @@ implements IJobSpawner {
 			}
 			return;
 		}
-		// New
 		this.spawnType[0] = compound.getInteger("SpawnerWhenAlive");
 		this.spawnType[1] = compound.getInteger("SpawnerWhenDead");
 		this.cooldownSet = compound.getLong("SpawnerCooldownSetting");
@@ -546,7 +545,6 @@ implements IJobSpawner {
 		this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLostWhenDead");
 		this.exact = compound.getBoolean("IsExactOffsetSpawn");
 		this.resetUpdate = compound.getBoolean("DespawnInReset");
-		
 		for (int i=0; i<2; i++) {
 			NBTTagList nbt = compound.getTagList("DataEntitysWhen"+(i==0 ? "Alive" : "Dead"), 10);
 			this.dataEntitys[i] = new SpawnNPCData[nbt.tagCount()];
@@ -558,9 +556,8 @@ implements IJobSpawner {
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.SPAWNER.get());
 		compound.setString("SpawnerId", this.id);
-
 		compound.setInteger("SpawnerWhenAlive", this.spawnType[0]);
 		compound.setInteger("SpawnerWhenDead", this.spawnType[1]);
 		compound.setLong("SpawnerCooldownSetting", this.cooldownSet);
@@ -570,13 +567,11 @@ implements IJobSpawner {
 		compound.setBoolean("DespawnOnTargetLostWhenDead", this.desTargetLost[1]);
 		compound.setBoolean("IsExactOffsetSpawn", this.exact);
 		compound.setBoolean("DespawnInReset", this.resetUpdate);
-
 		for (int i=0; i<2; i++) {
 			NBTTagList list = new NBTTagList();
 			for (SpawnNPCData sd : this.dataEntitys[i]) { list.appendTag(sd.writeToNBT()); }
 			compound.setTag("DataEntitysWhen"+(i==0 ? "Alive" : "Dead"), list);
 		}
-		
 		return compound;
 	}
 }

@@ -32,13 +32,18 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
@@ -124,6 +129,7 @@ public class ClientTickHandler {
 				}
 				this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
 				Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
 			}
 		}
 		List<String> del = Lists.newArrayList();

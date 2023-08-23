@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.ForgeChunkManager;
-import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -24,7 +24,7 @@ extends JobInterface {
 		this.chunks = new ArrayList<ChunkPos>();
 		this.ticks = 20;
 		this.playerLastSeen = 0L;
-		this.type = EnumNpcJob.CHUNK_LOADER;
+		this.type = JobType.CHUNK_LOADER;
 	}
 
 	@Override
@@ -89,13 +89,13 @@ extends JobInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.CHUNK_LOADER;
 		this.playerLastSeen = compound.getLong("ChunkPlayerLastSeen");
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.CHUNK_LOADER.get());
 		compound.setLong("ChunkPlayerLastSeen", this.playerLastSeen);
 		return compound;
 	}

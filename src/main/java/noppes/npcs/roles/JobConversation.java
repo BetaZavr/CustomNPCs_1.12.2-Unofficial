@@ -7,7 +7,7 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Availability;
@@ -76,7 +76,7 @@ extends JobInterface {
 		this.hasStarted = false;
 		this.startedTicks = 20;
 		this.mode = 0;
-		this.type = EnumNpcJob.CONVERSATION;
+		this.type = JobType.CONVERSATION;
 	}
 
 	@Override
@@ -233,7 +233,7 @@ extends JobInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.CONVERSATION;
 		this.names.clear();
 		this.availability.readFromNBT(compound.getCompoundTag("ConversationAvailability"));
 		this.quest = compound.getInteger("ConversationQuest");
@@ -258,7 +258,7 @@ extends JobInterface {
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.CONVERSATION.get());
 		compound.setTag("ConversationAvailability", this.availability.writeToNBT(new NBTTagCompound()));
 		compound.setInteger("ConversationQuest", this.quest);
 		compound.setInteger("ConversationDelay", this.generalDelay);

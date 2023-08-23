@@ -4,9 +4,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.INPCJob;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobInterface
@@ -15,13 +15,13 @@ implements INPCJob {
 	public EntityNPCInterface npc;
 	public boolean overrideMainHand;
 	public boolean overrideOffHand;
-	public EnumNpcJob type;
+	public JobType type;
 
 	public JobInterface(EntityNPCInterface npc) {
 		this.overrideMainHand = false;
 		this.overrideOffHand = false;
 		this.npc = npc;
-		this.type = EnumNpcJob.DEFAULT;
+		this.type = JobType.DEFAULT;
 	}
 
 	public boolean aiContinueExecute() {
@@ -57,7 +57,7 @@ implements INPCJob {
 	}
 
 	@Override
-	public int getType() { return this.type.ordinal(); }
+	public int getType() { return this.type.get(); }
 
 	public boolean isFollowing() {
 		return false;
@@ -101,14 +101,14 @@ implements INPCJob {
 		return new ItemStack(item, 1, damage);
 	}
 
-	public EnumNpcJob getEnumType() { return this.type; }
+	public JobType getEnumType() { return this.type; }
 	
 	public void readFromNBT(NBTTagCompound compound) {
-		this.type = EnumNpcJob.values()[compound.getInteger("Type")];
+		this.type = JobType.get(compound.getInteger("Type"));
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", this.type.ordinal());
+		compound.setInteger("Type", this.type.get());
 		return compound;
 	}
 }

@@ -4,9 +4,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
+import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.INPCAdvanced;
-import noppes.npcs.constants.EnumNpcJob;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.FactionOptions;
 import noppes.npcs.controllers.data.Line;
@@ -142,21 +142,12 @@ implements INPCAdvanced {
 	}
 
 	public void setJob(int i) {
-		i %= EnumNpcJob.values().length;
-		if (i < EnumNpcJob.values().length && !EnumNpcJob.values()[i].isClass(this.jobInterface)) {
-			//if (i==9) { i = 0; } // chunkloader
-			//else if (i>9) { i--; } // builder or farmer
-			EnumNpcJob.values()[i].setToNpc(this.npc);
-		}
+		JobType.get(i).setToNpc(this.npc);
 		if (!this.npc.world.isRemote) { this.jobInterface.reset(); }
 	}
 	
 	public void setRole(int i) {
-		if (8 <= i) { i -= 2; }
-		i %= EnumNpcRole.values().length;
-		if (i < EnumNpcRole.values().length && !EnumNpcRole.values()[i].isClass(this.roleInterface)) {
-			EnumNpcRole.values()[i].setToNpc(this.npc);
-		}
+		RoleType.get(i).setToNpc(this.npc);
 	}
 
 	@Override
@@ -208,14 +199,14 @@ implements INPCAdvanced {
 		this.disablePitch = compound.getBoolean("DisablePitch");
 		this.factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
 		this.scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
-		// New
-		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+		
+		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3) && CustomNpcs.FixUpdateFromPre_1_12) {
 			this.setRole(compound.getInteger("Role"));
 			this.setJob(compound.getInteger("NpcJob"));
 			this.roleInterface.readFromNBT(compound);
 			this.jobInterface.readFromNBT(compound);
 		}
-		if (compound.hasKey("Role", 10) && compound.hasKey("Job", 10)) { // New
+		if (compound.hasKey("Role", 10) && compound.hasKey("Job", 10)) {
 			this.setRole(compound.getCompoundTag("Role").getInteger("Type"));
 			this.setJob(compound.getCompoundTag("Job").getInteger("Type"));
 			this.roleInterface.readFromNBT(compound.getCompoundTag("Role"));

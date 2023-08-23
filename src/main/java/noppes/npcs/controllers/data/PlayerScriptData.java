@@ -84,7 +84,6 @@ public class PlayerScriptData implements IScriptHandler {
 	@Override
 	public boolean isClient() {
 		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
-		//return !this.player.isServerWorld();
 	}
 
 	public boolean isEnabled() {

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.INPCRole;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RoleInterface
@@ -14,12 +14,12 @@ implements INPCRole {
 	
 	public HashMap<String, String> dataString;
 	public EntityNPCInterface npc;
-	public EnumNpcRole type;
+	public RoleType type;
 
 	public RoleInterface(EntityNPCInterface npc) {
 		this.dataString = new HashMap<String, String>();
 		this.npc = npc;
-		this.type = EnumNpcRole.DEFAULT;
+		this.type = RoleType.DEFAULT;
 	}
 
 	public boolean aiContinueExecute() { return false; }
@@ -39,7 +39,7 @@ implements INPCRole {
 	public void delete() { }
 
 	@Override
-	public int getType() { return this.type.ordinal(); }
+	public int getType() { return this.type.get(); }
 
 	public void interact(EntityPlayer player) { };
 
@@ -47,14 +47,14 @@ implements INPCRole {
 
 	public void killed() { }
 
-	public EnumNpcRole getEnumType() { return this.type; }
+	public RoleType getEnumType() { return this.type; }
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.type = EnumNpcRole.values()[compound.getInteger("Type")];
+		this.type = RoleType.get(compound.getInteger("Type"));
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", this.type.ordinal());
+		compound.setInteger("Type", this.type.get());
 		return compound;
 	}
 

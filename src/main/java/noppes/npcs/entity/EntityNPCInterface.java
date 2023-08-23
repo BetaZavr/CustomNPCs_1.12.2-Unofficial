@@ -116,7 +116,9 @@ import noppes.npcs.ai.target.EntityAIOwnerHurtByTarget;
 import noppes.npcs.ai.target.EntityAIOwnerHurtTarget;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.AnimationKind;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.constants.PotionEffectType;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.event.NpcEvent;
@@ -124,8 +126,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.client.EntityUtil;
-import noppes.npcs.constants.EnumNpcJob;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
@@ -467,8 +467,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						}
 					}
 				}
-				projectile1.playSound(this.stats.ranged.getSoundEvent((entity1 != null) ? 1 : 2), 1.0f,
-						1.2f / (this.getRNG().nextFloat() * 0.2f + 0.9f));
+				projectile1.playSound(this.stats.ranged.getSoundEvent((entity1 != null) ? 1 : 2), 1.0f, 1.2f / (this.getRNG().nextFloat() * 0.2f + 0.9f));
 				return false;
 			});
 			this.playSound(this.stats.ranged.getSoundEvent(0), 2.0f, 1.0f);
@@ -651,9 +650,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public int followRange() {
 		if (this.advanced.scenes.getOwner() != null) { return 4; }
-		if (this.advanced.roleInterface.getEnumType() == EnumNpcRole.FOLLOWER && this.advanced.roleInterface.isFollowing()) { return 6; }
-		if (this.advanced.roleInterface.getEnumType() == EnumNpcRole.COMPANION && this.advanced.roleInterface.isFollowing()) { return 4; }
-		if (this.advanced.jobInterface.getEnumType() == EnumNpcJob.FOLLOWER && this.advanced.jobInterface.isFollowing()) { return 4; }
+		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing()) { return 6; }
+		if (this.advanced.roleInterface.getEnumType() == RoleType.COMPANION && this.advanced.roleInterface.isFollowing()) { return 4; }
+		if (this.advanced.jobInterface.getEnumType() == JobType.FOLLOWER && this.advanced.jobInterface.isFollowing()) { return 4; }
 		return 15;
 	}
 
@@ -878,9 +877,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.world.spawnEntity(entityitem);
 		int i = item.getCount();
 		if (player.inventory.addItemStackToInventory(item)) {
-			this.world.playSound((EntityPlayer) null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ITEM_PICKUP,
-					SoundCategory.PLAYERS, 0.2f,
-					((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7f + 1.0f) * 2.0f);
+			this.world.playSound((EntityPlayer) null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7f + 1.0f) * 2.0f);
 			player.onItemPickup(entityitem, i);
 			if (item.getCount() <= 0) {
 				entityitem.setDead();
@@ -1281,8 +1278,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.script.readFromNBT(compound);
 		this.timers.readFromNBT(compound);
 		this.advanced.readToNBT(compound);
-		//this.advanced.roleInterface.readFromNBT(compound);
-		//this.advanced.jobInterface.readFromNBT(compound);
 		this.animation.readFromNBT(compound);
 		this.inventory.readEntityFromNBT(compound);
 		this.transform.readToNBT(compound);
@@ -1379,8 +1374,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.PLAY_SOUND, line.getSound(), pos.getX(), pos.getY(), pos.getZ(), this.getSoundVolume(), this.getSoundPitch());
 		}
 		if (!line.getText().isEmpty()) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHATBUBBLE, this.getEntityId(), line.getText(),
-					line.getShowText());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHATBUBBLE, this.getEntityId(), line.getText(), line.getShowText());
 		}
 	}
 

@@ -24,11 +24,11 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.oredict.OreDictionary;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.event.QuestEvent.QuestTurnedInEvent;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCBankInterface;
@@ -59,7 +59,7 @@ public class NoppesUtilPlayer {
 	private static Map<Object, Long> delaySendMap = new HashMap<Object, Long>();
 
 	public static void bankUnlock(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
+		if (npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 			return;
 		}
 		Container con = player.openContainer;
@@ -95,7 +95,7 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void bankUpgrade(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.roleInterface.getEnumType() != EnumNpcRole.BANK) {
+		if (npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 			return;
 		}
 		Container con = player.openContainer;

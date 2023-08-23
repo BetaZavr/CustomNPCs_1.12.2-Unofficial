@@ -4,9 +4,9 @@ import java.util.List;
 
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.role.IJobFollower;
-import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobFollower
@@ -24,7 +24,7 @@ implements IJobFollower {
 		this.ticks = 40;
 		this.range = 20;
 		this.name = "";
-		this.type = EnumNpcJob.FOLLOWER;
+		this.type = JobType.FOLLOWER;
 	}
 
 	@Override
@@ -100,13 +100,13 @@ implements IJobFollower {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.FOLLOWER;
 		this.name = compound.getString("FollowingEntityName");
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.FOLLOWER.get());
 		compound.setString("FollowingEntityName", this.name);
 		return compound;
 	}

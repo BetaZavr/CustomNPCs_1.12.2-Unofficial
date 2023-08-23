@@ -13,10 +13,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobBuilder;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.blocks.tiles.TileBuilder;
-import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -40,7 +40,7 @@ implements IJobBuilder {
 		this.tryTicks = 0;
 		this.ticks = 0;
 		this.overrideMainHand = true;
-		this.type = EnumNpcJob.BUILDER;
+		this.type = JobType.BUILDER;
 	}
 
 	@Override
@@ -153,10 +153,9 @@ implements IJobBuilder {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.BUILDER;
 		if (compound.hasKey("BuildX")) {
-			this.possibleBuildPos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"),
-					compound.getInteger("BuildZ"));
+			this.possibleBuildPos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"), compound.getInteger("BuildZ"));
 		}
 		if (this.possibleBuildPos != null && compound.hasKey("Placing")) {
 			Stack<BlockData> placing = new Stack<BlockData>();
@@ -174,7 +173,7 @@ implements IJobBuilder {
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.BUILDER.get());
 		if (this.build != null) {
 			compound.setInteger("BuildX", this.build.getPos().getX());
 			compound.setInteger("BuildY", this.build.getPos().getY());

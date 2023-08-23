@@ -13,7 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.NBTTags;
-import noppes.npcs.constants.EnumNpcJob;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobGuard
@@ -24,7 +24,7 @@ extends JobInterface {
 	public JobGuard(EntityNPCInterface npc) {
 		super(npc);
 		this.targets = new ArrayList<String>();
-		this.type = EnumNpcJob.GUARD;
+		this.type = JobType.GUARD;
 	}
 
 	public boolean isEntityApplicable(Entity entity) {
@@ -34,7 +34,7 @@ extends JobInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.GUARD;
 		this.targets = NBTTags.getStringList(compound.getTagList("GuardTargets", 10));
 		if (compound.getBoolean("GuardAttackAnimals")) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
@@ -68,7 +68,7 @@ extends JobInterface {
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.GUARD.get());
 		compound.setTag("GuardTargets", NBTTags.nbtStringList(this.targets));
 		return compound;
 	}

@@ -8,8 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NpcMiscInventory;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumNpcRole;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -24,7 +24,7 @@ extends RoleInterface {
 		super(npc);
 		this.inventory = new NpcMiscInventory(1);
 		this.recentlyChecked = new ArrayList<EntityPlayer>();
-		this.type = EnumNpcRole.POSTMAN;
+		this.type = RoleType.POSTMAN;
 	}
 
 	@Override
@@ -58,13 +58,13 @@ extends RoleInterface {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = RoleType.POSTMAN;
 		this.inventory.setFromNBT(compound.getCompoundTag("PostInv"));
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", RoleType.POSTMAN.get());
 		compound.setTag("PostInv", this.inventory.getToNBT());
 		return compound;
 	}

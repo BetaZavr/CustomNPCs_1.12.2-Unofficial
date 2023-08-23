@@ -8,9 +8,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobBard;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.constants.EnumNpcJob;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -31,7 +31,7 @@ implements IJobBard {
 		this.isStreamer = true;
 		this.hasOffRange = true;
 		this.song = "";
-		this.type = EnumNpcJob.BARD;
+		this.type = JobType.BARD;
 	}
 
 	@Override
@@ -56,16 +56,11 @@ implements IJobBard {
 			return;
 		}
 		if (!MusicController.Instance.isPlaying(this.song)) {
-			List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
-					this.npc.getEntityBoundingBox().grow(this.minRange, (this.minRange / 2), this.minRange));
+			List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, this.npc.getEntityBoundingBox().grow(this.minRange, (this.minRange / 2), this.minRange));
 			if (!list.contains(CustomNpcs.proxy.getPlayer())) {
 				return;
 			}
-			if (this.isStreamer) {
-				MusicController.Instance.playStreaming(this.song, this.npc);
-			} else {
-				MusicController.Instance.playMusic(this.song, SoundCategory.MUSIC, this.npc);
-			}
+			MusicController.Instance.playMusic(this.song, this.isStreamer ? SoundCategory.PLAYERS : SoundCategory.MUSIC, this.npc);
 		} else if (MusicController.Instance.playingEntity != this.npc) {
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();
 			if (MusicController.Instance.playingEntity==null || this.npc.getDistance(player) < MusicController.Instance.playingEntity.getDistance(player)) {
@@ -91,7 +86,7 @@ implements IJobBard {
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
+		this.type = JobType.BARD;
 		this.song = compound.getString("BardSong");
 		this.minRange = compound.getInteger("BardMinRange");
 		this.maxRange = compound.getInteger("BardMaxRange");
@@ -101,12 +96,13 @@ implements IJobBard {
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
+		compound.setInteger("Type", JobType.BARD.get());
 		compound.setString("BardSong", this.song);
 		compound.setInteger("BardMinRange", this.minRange);
 		compound.setInteger("BardMaxRange", this.maxRange);
 		compound.setBoolean("BardStreamer", this.isStreamer);
 		compound.setBoolean("BardHasOff", this.hasOffRange);
+		System.out.println(this.npc.getName()+"; Type: "+this.type+"; compound: "+compound);
 		return compound;
 	}
 }
