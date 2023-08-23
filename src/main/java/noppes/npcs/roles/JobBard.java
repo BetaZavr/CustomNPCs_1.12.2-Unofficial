@@ -102,7 +102,6 @@ implements IJobBard {
 		compound.setInteger("BardMaxRange", this.maxRange);
 		compound.setBoolean("BardStreamer", this.isStreamer);
 		compound.setBoolean("BardHasOff", this.hasOffRange);
-		System.out.println(this.npc.getName()+"; Type: "+this.type+"; compound: "+compound);
 		return compound;
 	}
 }

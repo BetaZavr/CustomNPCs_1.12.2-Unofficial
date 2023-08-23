@@ -111,7 +111,6 @@ implements IEntityLivingBase {
 	@Override
 	public IMark[] getMarks() {
 		MarkData data = MarkData.get(this.entity);
-		System.out.println("data: "+data);
 		return data.marks.toArray(new IMark[data.marks.size()]);
 	}
 
