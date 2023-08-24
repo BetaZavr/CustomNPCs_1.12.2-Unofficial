@@ -53,7 +53,7 @@ public class ClientTickHandler {
 	private boolean otherContainer;
 	private World prevWorld;
 	private Map<String, ISound> nowPlayingSounds;
-	private static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
+	public static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
@@ -254,7 +254,7 @@ public class ClientTickHandler {
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
 		//TempClass.createAPIs(true);
-
+		
 		/*if (ClientTickHandler.music==null) { return; }
 		String name = ClientTickHandler.music.sound.getSound().getSoundAsOggLocation().toString();
 		System.out.println("name: "+name+"; uuid: "+ClientTickHandler.music.uuid);

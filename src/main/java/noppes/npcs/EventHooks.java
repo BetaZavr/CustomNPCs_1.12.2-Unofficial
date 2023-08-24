@@ -150,8 +150,7 @@ public class EventHooks {
 					falseList.add("tickEventPlayerTickEvent");
 					falseList.add("playerSPPushOutOfBlocksEvent");
 					List<String> trueList = Lists.<String>newArrayList();
-					trueList.add("playSoundEvent");
-					if (trueList.contains(eventName) || (eventName.toLowerCase().indexOf("player")!=-1 && !falseList.contains(eventName))) {
+					if (trueList.contains(eventName) || eventName.toLowerCase().indexOf("init")!=-1 || (eventName.toLowerCase().indexOf("player")!=-1 && !falseList.contains(eventName))) {
 						System.out.println("Run Client Event: \""+eventName+"\"");
 					}*/
 					handlerClient.runScript(eventName, event);

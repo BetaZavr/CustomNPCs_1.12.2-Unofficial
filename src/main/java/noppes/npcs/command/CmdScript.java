@@ -71,25 +71,25 @@ extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading forge scripts"));
 		}
-		if (ScriptController.Instance.loadStoredData()) {
-			sender.sendMessage(new TextComponentString("Reload stored data succesfully"));
+		if (ScriptController.Instance.loadClientScripts()) {
+			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
 		} else {
-			sender.sendMessage(new TextComponentString("Failed reloading stored data"));
+			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
 		}
 		if (ScriptController.Instance.loadPotionScripts()) {
 			sender.sendMessage(new TextComponentString("Reload potion scripts succesfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading potion scripts"));
 		}
-		if (ScriptController.Instance.loadClientScripts()) {
-			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
-		} else {
-			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
-		}
 		if (ScriptController.Instance.loadConstantData()) {
 			sender.sendMessage(new TextComponentString("Reload constant data succesfully"));
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading constant data"));
+		}
+		if (ScriptController.Instance.loadStoredData()) {
+			sender.sendMessage(new TextComponentString("Reload stored data succesfully"));
+		} else {
+			sender.sendMessage(new TextComponentString("Failed reloading stored data"));
 		}
 		if (server!=null) {
 			for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {

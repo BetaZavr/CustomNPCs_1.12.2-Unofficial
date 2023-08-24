@@ -32,7 +32,7 @@ public class MusicController {
 		return false;
 	}
 	
-	public void forcePlaySound(SoundCategory cat, String sound, int x, int y, int z, float volumne, float pitch) {
+	public void forcePlaySound(SoundCategory cat, String sound, int x, int y, int z, float volume, float pitch) {
 		if (cat == null || sound==null || sound.isEmpty()) { return; }
 		ISound.AttenuationType aType = ISound.AttenuationType.LINEAR;
 		if (cat==SoundCategory.MUSIC) {
@@ -43,7 +43,7 @@ public class MusicController {
 			y = 0;
 			z = 0;
 		}
-		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), cat, volumne, pitch, false, 0, aType, x, y, z));
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(sound), cat, volume, pitch, false, 0, aType, x, y, z));
 	}
 	
 	public void playSound(SoundCategory cat, String music, int x, int y, int z, float volume, float pitch) {

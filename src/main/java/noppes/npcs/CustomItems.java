@@ -344,7 +344,7 @@ public class CustomItems {
 	}
 	
 	@SubscribeEvent
-	public void registerBlocks(RegistryEvent.Register<Block> event) { // Changed
+	public void registerBlocks(RegistryEvent.Register<Block> event) {
 		GameRegistry.registerTileEntity(TileRedstoneBlock.class, new ResourceLocation("minecraft", "TileRedstoneBlock"));
 		GameRegistry.registerTileEntity(TileBlockAnvil.class, new ResourceLocation("minecraft", "TileBlockAnvil"));
 		GameRegistry.registerTileEntity(TileMailbox.class, new ResourceLocation("minecraft", "TileMailbox"));

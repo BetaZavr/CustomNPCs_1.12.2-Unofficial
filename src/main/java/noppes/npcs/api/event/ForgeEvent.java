@@ -43,7 +43,8 @@ public class ForgeEvent extends CustomNPCsEvent {
 		}
 		
 	}
-	
+
+	@Cancelable
 	public static class SoundTickEvent extends ForgeEvent {
 		
 		public float milliSeconds, totalSecond;

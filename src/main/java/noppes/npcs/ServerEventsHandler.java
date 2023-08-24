@@ -1,9 +1,20 @@
 package noppes.npcs;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.apache.commons.io.IOUtils;
+
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
 import net.minecraft.command.CommandBase;
@@ -19,6 +30,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ClassInheritanceMultiMap;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -35,6 +48,8 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
@@ -61,12 +76,17 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
+import scala.Option;
+import scala.util.parsing.json.JSON;
+import scala.util.parsing.json.JSONObject;
+import scala.util.parsing.json.JSONType;
 
+@SuppressWarnings("deprecation")
 public class ServerEventsHandler {
 	public static EntityVillager Merchant;
 	public static Entity mounted;
 
-	private void doCraftQuest(ItemCraftedEvent event) { // Only Server
+	private void doCraftQuest(ItemCraftedEvent event) {
 		EntityPlayer player = event.player;
 		PlayerData pdata = PlayerData.get(player);
 		PlayerQuestData playerdata = pdata.questData;
@@ -210,7 +230,7 @@ public class ServerEventsHandler {
 	}
 
 	@SubscribeEvent
-	public void npcCommands(CommandEvent event) { // Changed
+	public void npcCommands(CommandEvent event) {
 		CustomNpcs.debugData.startDebug(event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
 		if (event.getCommand() instanceof CommandGive) {
 			if (!(event.getSender().getEntityWorld() instanceof WorldServer)) {
@@ -223,7 +243,7 @@ public class ServerEventsHandler {
 						event.getSender(), event.getParameters()[0]);
 				player.getServer().futureTaskQueue.add(ListenableFutureTask.create(Executors.callable(() -> {
 					PlayerQuestData playerdata = PlayerData.get(player).questData;
-					for (QuestData data : playerdata.activeQuests.values()) { // Changed
+					for (QuestData data : playerdata.activeQuests.values()) {
 						for (IQuestObjective obj : data.quest
 								.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
 							if (obj.getType() != EnumQuestTask.ITEM.ordinal()) {
@@ -249,7 +269,6 @@ public class ServerEventsHandler {
 					event.getSender(), "ServerEventsHandler_npcCommands");
 	}
 
-	// New
 	@SubscribeEvent
 	public void npcCraftedItem(ItemCraftedEvent event) {
 		if (event.player.world.isRemote) {
@@ -477,8 +496,58 @@ public class ServerEventsHandler {
 	}
 
 	@SubscribeEvent
-	public void registryItems(RegistryEvent.Register<IRecipe> event) {
+	public void registryRecipes(RegistryEvent.Register<IRecipe> event) {
 		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
+	}
+
+	@SubscribeEvent
+	public void registrySounds(RegistryEvent.Register<SoundEvent> event) {
+		List<String> list = Lists.<String>newArrayList();
+		Option<JSONType> mainSounds = null, customSounds = null;
+		try { customSounds = JSON.parseRaw(IOUtils.toString(new FileInputStream( new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID+"/sounds.json")),  StandardCharsets.UTF_8)); }
+		catch (IOException e1) {}
+				
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mainSounds!=null) { break; }
+			if (mod.getSource().exists()) {
+				try {
+					if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
+						ZipFile zip = new ZipFile(mod.getSource());
+						ZipEntry entry = zip.getEntry("assets/customnpcs/sounds.json");
+					    if (entry == null) { entry = zip.getEntry("assets\\customnpcs\\sounds.json"); }
+					    try (InputStream is = zip.getInputStream(entry)) {
+					        try (@SuppressWarnings("resource")
+							Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A")) {
+					            Object fileAsString = s.hasNext() ? s.next() : "";
+					            mainSounds = JSON.parseRaw(fileAsString.toString());
+					        }
+					    }
+						zip.close();
+					} else if (mod.getSource().isDirectory()) {
+						File file = new File(mod.getSource(), "assets/customnpcs/sounds.json");
+						if (file.exists()) {
+							try { mainSounds = JSON.parseRaw(IOUtils.toString(new FileInputStream(file),  StandardCharsets.UTF_8)); }
+							catch (IOException e1) {}
+						}
+					}
+				}
+				catch (Exception e) { }
+			}
+		}
+		if (mainSounds!=null) {
+			String keys = ((JSONObject) mainSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")", "");
+			for (String key : keys.split(", ")) { list.add(key); }
+		}
+		if (customSounds!=null) {
+			String keys = ((JSONObject) customSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")", "");
+			for (String key : keys.split(", ")) { list.add(key); }
+		}
+		for (String str : list) {
+			ResourceLocation name = new ResourceLocation(CustomNpcs.MODID, str);
+			SoundEvent se = new SoundEvent(name);
+			se.setRegistryName(name);
+			event.getRegistry().register(se);
+		}
 	}
 	
 	@SubscribeEvent
