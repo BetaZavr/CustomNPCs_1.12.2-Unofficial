@@ -109,7 +109,7 @@ public class PlayerScriptData implements IScriptHandler {
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
+	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited || ScriptController.Instance.lastPlayerUpdate > this.lastPlayerUpdate) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
@@ -123,9 +123,7 @@ public class PlayerScriptData implements IScriptHandler {
 				}
 			}
 			this.lastPlayerUpdate = ScriptController.Instance.lastPlayerUpdate;
-			if (type != EnumScriptType.INIT) {
-				EventHooks.onPlayerInit(this);
-			}
+			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPlayerInit(this); }
 		}
 		for (int i = 0; i < this.scripts.size(); ++i) {
 			ScriptContainer script = this.scripts.get(i);

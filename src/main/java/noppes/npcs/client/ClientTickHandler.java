@@ -53,7 +53,7 @@ public class ClientTickHandler {
 	private boolean otherContainer;
 	private World prevWorld;
 	private Map<String, ISound> nowPlayingSounds;
-	private static MusicData music = null;
+	private static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
@@ -119,34 +119,38 @@ public class ClientTickHandler {
 			this.prevWorld = mc.world;
 			MusicController.Instance.stopMusic();
 		}
-		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, Minecraft.getMinecraft().getSoundHandler(), SoundManager.class);
+		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, mc.getSoundHandler(), SoundManager.class);
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
+		List<String> del = Lists.newArrayList();
 		for (String uuid : playingSounds.keySet()) { // is played
 			if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
 				ISound sound = playingSounds.get(uuid);
-				if (sound.getCategory()==SoundCategory.MUSIC) {
-					ClientTickHandler.music = new MusicData(sound, uuid, sm);
+				if (sound.getCategory()==SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
+					ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
 				}
 				this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
 				Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
 				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
 			}
 		}
-		List<String> del = Lists.newArrayList();
 		for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
 			if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
 				ISound sound = this.nowPlayingSounds.get(uuid);
-				if (ClientTickHandler.music!=null && (ClientTickHandler.music.sound.equals(sound) || ClientTickHandler.music.uuid.equals(uuid))) {
-					ClientTickHandler.music = null;
+				if (ClientTickHandler.musics.containsKey(sound)) {
+					ClientTickHandler.musics.remove(sound);
 				}
 				Client.sendData(EnumPacketServer.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
 				del.add(uuid);
 			}
 		}
-		if (ClientTickHandler.music!=null && ClientTickHandler.music.sound!=null && ClientTickHandler.music.source!=null && !ClientTickHandler.music.source.paused()) {
-			EventHooks.onForgeEvent(ClientTickHandler.music.createEvent(CustomNpcs.proxy.getPlayer()));
-		}
 		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
+		for (MusicData md : ClientTickHandler.musics.values()) {
+			if (md.sound!=null && md.source!=null && !md.source.paused()) {
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_TICK_EVENT, md.createEvent(CustomNpcs.proxy.getPlayer()));
+			}
+		}
+		
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
 			ClientTickHandler.loadFiles();

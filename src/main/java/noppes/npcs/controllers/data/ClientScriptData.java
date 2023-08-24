@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
@@ -98,18 +99,20 @@ implements IScriptHandler {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		if (this.script==null) { this.createScript(); }
+		this.script.clear();
 		this.script.readFromNBT(compound.getCompoundTag("Scripts"));
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
+	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) { return; }
 		if (CustomNpcs.Server==null) {
 			CustomNPCsScheduler.runTack(() -> {
 				if (ScriptController.Instance.lastLoaded > this.lastInited) {
 					this.lastInited = ScriptController.Instance.lastLoaded;
+					if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onClientInit(this); }
 				}
 				if (this.script==null) { this.createScript(); }
 				this.script.run(type, event, false);
@@ -118,17 +121,12 @@ implements IScriptHandler {
 			CustomNpcs.Server.addScheduledTask(() -> {
 				if (ScriptController.Instance.lastLoaded > this.lastInited) {
 					this.lastInited = ScriptController.Instance.lastLoaded;
+					if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onClientInit(this); }
 				}
 				if (this.script==null) { this.createScript(); }
 				this.script.run(type, event, !this.isClient());
 			});
 		}
-	}
-
-	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
-		EnumScriptType.CHANGEABLE.function = type;
-		this.runScript(EnumScriptType.CHANGEABLE, event);
 	}
 
 	@Override

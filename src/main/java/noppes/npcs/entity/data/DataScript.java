@@ -93,15 +93,11 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
+	public void runScript(String type, Event event) {
+		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (type != EnumScriptType.INIT) {
-				EventHooks.onNPCInit(this.npc);
-			}
+			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onNPCInit(this.npc); }
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());

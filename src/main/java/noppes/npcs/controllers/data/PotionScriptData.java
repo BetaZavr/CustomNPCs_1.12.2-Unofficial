@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
@@ -34,10 +35,11 @@ extends ForgeScriptData {
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
+	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
+			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPotoinInit(this); }
 		}
 		for (int i = 0; i < this.scripts.size(); ++i) {
 			ScriptContainer script = this.scripts.get(i);

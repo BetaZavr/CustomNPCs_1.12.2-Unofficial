@@ -168,7 +168,7 @@ implements IItemScripted, IScriptHandler {
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
+	public void runScript(String type, Event event) {
 		if (!this.loaded) {
 			this.loadScriptData();
 			this.loaded = true;
@@ -178,9 +178,7 @@ implements IItemScripted, IScriptHandler {
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (type != EnumScriptType.INIT) {
-				EventHooks.onScriptItemInit(this);
-			}
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onScriptItemInit(this); }
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());

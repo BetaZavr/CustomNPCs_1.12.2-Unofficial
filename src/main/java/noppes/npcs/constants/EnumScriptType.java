@@ -75,8 +75,7 @@ public enum EnumScriptType
 	KEY_ACTIVE("keyActive"),
 	STOP_ANIMATION("stopAnimation"),
 	GUI_OPEN("openGUI"),
-	SOUND_TICK_EVENT("soundTickEvent"),
-	CHANGEABLE("any");
+	SOUND_TICK_EVENT("soundTickEvent");
 	
 	public String function;
 	

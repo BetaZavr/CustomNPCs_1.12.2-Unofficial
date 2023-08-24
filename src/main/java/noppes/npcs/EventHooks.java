@@ -34,7 +34,6 @@ import noppes.npcs.api.event.CustomContainerEvent;
 import noppes.npcs.api.event.CustomGuiEvent;
 import noppes.npcs.api.event.DialogEvent;
 import noppes.npcs.api.event.ForgeEvent;
-import noppes.npcs.api.event.ForgeEvent.SoundTickEvent;
 import noppes.npcs.api.event.HandlerEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.NpcEvent;
@@ -125,7 +124,7 @@ public class EventHooks {
 			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
 			try {
 				handler.runScript(eventName, event);
-				if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
+				if (event.isCanceled() && event.event.isCancelable()) { event.event.setCanceled(true); }
 				WrapperNpcAPI.EVENT_BUS.post(event.event);
 				if (event.isCancelable()) { event.setCanceled(event.event.isCanceled()); }
 			}
@@ -136,13 +135,7 @@ public class EventHooks {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
 			if (!handlerClient.isClient()) { return; }
 			if (handlerClient.isEnabled()) {
-				if (event instanceof SoundTickEvent) {
-					eventName = EnumScriptType.SOUND_TICK_EVENT.function;
-					if (!CustomNpcs.forgeClientEventNames.containsKey(SoundTickEvent.class)) {
-						CustomNpcs.forgeClientEventNames.put(SoundTickEvent.class, eventName);
-					}
-				}
-				else if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
+				if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
 					eventName = event.getClass().getName();
 					int i = eventName.lastIndexOf(".");
 					eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
@@ -153,10 +146,17 @@ public class EventHooks {
 				if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName)==System.currentTimeMillis())) { return; }
 				EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 				try {
+					/*List<String> falseList = Lists.<String>newArrayList();
+					falseList.add("tickEventPlayerTickEvent");
+					falseList.add("playerSPPushOutOfBlocksEvent");
+					List<String> trueList = Lists.<String>newArrayList();
+					trueList.add("playSoundEvent");
+					if (trueList.contains(eventName) || (eventName.toLowerCase().indexOf("player")!=-1 && !falseList.contains(eventName))) {
+						System.out.println("Run Client Event: \""+eventName+"\"");
+					}*/
 					handlerClient.runScript(eventName, event);
-					if (event.event.isCancelable()) { event.event.setCanceled(event.isCanceled()); }
+					if (event.isCanceled() && event.event.isCancelable()) { event.event.setCanceled(true); }
 					WrapperNpcAPI.EVENT_BUS.post(event.event);
-					if (event.isCancelable()) { event.setCanceled(event.event.isCanceled()); }
 				}
 				catch (Exception e) { }
 			}
@@ -203,7 +203,6 @@ public class EventHooks {
 		DialogEvent.CloseEvent event = new DialogEvent.CloseEvent(npc.wrappedNPC, (EntityPlayer) player, dialog);
 		if (!(npc instanceof EntityDialogNpc)) {
 			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG, event);
-			npc.script.runScript(EnumScriptType.DIALOG_CLOSE, event);
 		}
 		EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG_CLOSE, event);
 	}
@@ -324,6 +323,10 @@ public class EventHooks {
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new PlayerEvent.InitEvent(handler.getPlayer()));
 	}
 
+	public static void onPotoinInit(PotionScriptData handler) {
+		EventHooks.onEvent(handler, EnumScriptType.INIT, new ForgeEvent.InitEvent());
+	}
+
 	public static boolean onPlayerInteract(PlayerScriptData handler, PlayerEvent.InteractEvent event) {
 		return EventHooks.onEvent(handler, EnumScriptType.INTERACT, event);
 	}
@@ -383,7 +386,7 @@ public class EventHooks {
 	public static void onProjectileImpact(EntityProjectile projectile, ProjectileEvent.ImpactEvent event) {
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_IMPACT, event, projectile!=null && !projectile.world.isRemote);
+				script.run(EnumScriptType.PROJECTILE_IMPACT.function, event, projectile!=null && !projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -393,7 +396,7 @@ public class EventHooks {
 		ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent((IProjectile<?>) NpcAPI.Instance().getIEntity(projectile));
 		for (ScriptContainer script : projectile.scripts) {
 			if (script.isValid()) {
-				script.run(EnumScriptType.PROJECTILE_TICK, event, projectile!=null && !projectile.world.isRemote);
+				script.run(EnumScriptType.PROJECTILE_TICK.function, event, projectile!=null && !projectile.world.isRemote);
 			}
 		}
 		WrapperNpcAPI.EVENT_BUS.post((Event) event);
@@ -508,6 +511,10 @@ public class EventHooks {
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new ItemEvent.InitEvent(handler));
 	}
 
+	public static void onClientInit(ClientScriptData handler) {
+		if (!handler.isClient()) { return; }
+		EventHooks.onEvent(handler, EnumScriptType.INIT, new PlayerEvent.InitEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(CustomNpcs.proxy.getPlayer())));
+	}
 	public static boolean onScriptItemInteract(ItemScriptedWrapper handler, ItemEvent.InteractEvent event) {
 		if (handler.isClient()) { return false; }
 		return EventHooks.onEvent(handler, EnumScriptType.INTERACT, new ItemEvent.InitEvent(handler));
@@ -655,15 +662,15 @@ public class EventHooks {
 		EventHooks.onEvent(handler, EnumScriptType.GUI_OPEN, new PlayerEvent.OpenGUI((IPlayer<?>) NpcAPI.Instance().getIEntity(player), newGUI, oldGUI));
 	}
 	
-	public static boolean onEvent(IScriptHandler handler, EnumScriptType function, Event event) {
-		if (handler == null || !handler.getEnabled() || event == null || function==null) { return false; }
-		handler.runScript(function, event);
+	public static boolean onEvent(IScriptHandler handler, EnumScriptType enumFunction, Event event) {
+		if (handler == null || !handler.getEnabled() || event == null || enumFunction==null) { return false; }
+		handler.runScript(enumFunction.function, event);
 		return WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
-	private static boolean onEvent(ScriptContainer script, EnumScriptType function, Event event) {
-		if (script == null || event == null || function==null) { return false; }
-		script.run(function, event, true);
+	private static boolean onEvent(ScriptContainer script, EnumScriptType enumFunction, Event event) {
+		if (script == null || event == null || enumFunction==null) { return false; }
+		script.run(enumFunction.function, event, true);
 		return WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 	

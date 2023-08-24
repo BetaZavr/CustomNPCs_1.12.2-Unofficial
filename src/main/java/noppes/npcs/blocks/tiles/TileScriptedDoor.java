@@ -15,7 +15,6 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.wrapper.BlockScriptedDoorWrapper;
-import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
@@ -118,15 +117,14 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		this.timers.readFromNBT(compound);
 	}
 
-	public void runScript(EnumScriptType type, Event event) {
+	@Override
+	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) {
 			return;
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (type != EnumScriptType.INIT) {
-				EventHooks.onScriptBlockInit(this);
-			}
+			if (!type.equalsIgnoreCase("init")) { EventHooks.onScriptBlockInit(this); }
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());

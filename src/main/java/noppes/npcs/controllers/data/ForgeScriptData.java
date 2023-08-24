@@ -93,15 +93,13 @@ implements IScriptHandler {
 	}
 
 	@Override
-	public void runScript(EnumScriptType type, Event event) {
+	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) { return; }
 		try {
 			CustomNpcs.Server.addScheduledTask(() -> {
 				if (ScriptController.Instance.lastLoaded > this.lastInited) {
 					this.lastInited = ScriptController.Instance.lastLoaded;
-					if (!type.function.equals("init")) {
-						EventHooks.onForgeInit(this);
-					}
+					if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
 				}
 				Iterator<ScriptContainer> iterator = this.scripts.iterator();
 				while (iterator.hasNext()) {
@@ -109,12 +107,6 @@ implements IScriptHandler {
 				}
 			});
 		} catch (Exception e) {}
-	}
-
-	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
-		EnumScriptType.CHANGEABLE.function = type;
-		this.runScript(EnumScriptType.CHANGEABLE, event);
 	}
 
 	@Override

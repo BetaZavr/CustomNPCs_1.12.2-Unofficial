@@ -717,7 +717,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (file.isLoad()) {
 				if (file.saveType==1) {
 					LogWriter.debug("Script Client file was received from the Server: \""+name+"\"");
-					if (ClientProxy.playerData.game.op) {
+					if (player.capabilities.isCreativeMode || ClientProxy.playerData.game.op) {
 						char c = ((char) 167);
 						String s = ""+file.size;
 						if (file.size > 999) { s = AdditionalMethods.getTextReducedNumber(file.size, false, false, false); }

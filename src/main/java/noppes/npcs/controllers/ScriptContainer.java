@@ -57,7 +57,6 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
-import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptContainer {
@@ -227,14 +226,14 @@ public class ScriptContainer {
 		this.unknownFunctions.clear();
 	}
 
-	public void run(EnumScriptType type, Event event, boolean side) {
+	public void run(String type, Event event, boolean side) {
 		Object key = event instanceof BlockEvent ? "Block"
 				: event instanceof PlayerEvent ? "Player"
 						: event instanceof ItemEvent ? "Item"
 								: event instanceof NpcEvent ? "Npc" : null;
-		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type.function, "ScriptContainer_run");
-		this.run(type.function, event);
-		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type.function, "ScriptContainer_run");
+		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type, "ScriptContainer_run");
+		this.run(type, event);
+		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run"+key+"Script_"+type, "ScriptContainer_run");
 	}
 
 	private void run(String type, Object event) {
@@ -415,5 +414,11 @@ public class ScriptContainer {
 	}
 	
 	public static void reloadConstants() { ScriptContainer.Data.remove("dump"); }
+
+	public void clear() {
+		this.script = "";
+		this.fullscript = "";
+		this.scripts.clear();
+	}
 
 }

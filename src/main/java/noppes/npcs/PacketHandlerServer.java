@@ -970,10 +970,8 @@ public class PacketHandlerServer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptClientSave) {
 			ScriptController.Instance.setClientScripts(Server.readNBT(buffer));
-			if (CustomNpcs.Server!=null) {
-				for (EntityPlayerMP pl : CustomNpcs.Server.getPlayerList().getPlayers()) {
-					ScriptController.Instance.sendClientTo(pl);
-				}
+			for (EntityPlayerMP pl : player.mcServer.getPlayerList().getPlayers()) {
+				ScriptController.Instance.sendClientTo(pl);
 			}
 		} else if (type == EnumPacketServer.ScriptPlayerGet) {
 			NBTTagCompound compound = ScriptController.Instance.playerScripts.writeToNBT(new NBTTagCompound());
