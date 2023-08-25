@@ -46,7 +46,6 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
-import noppes.npcs.util.TempClass;
 import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
