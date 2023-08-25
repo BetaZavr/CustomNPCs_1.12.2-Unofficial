@@ -32,8 +32,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISoundEventAccessor;
 import net.minecraft.client.audio.Sound;
 import net.minecraft.client.audio.SoundEventAccessor;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -233,10 +231,8 @@ import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
-import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
-import paulscode.sound.SoundSystem;
 
 @SuppressWarnings("deprecation")
 public class ClientProxy

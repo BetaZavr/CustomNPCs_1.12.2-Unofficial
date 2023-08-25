@@ -3,6 +3,7 @@ package noppes.npcs.api;
 import java.io.File;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -17,6 +18,7 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.IAnimationHandler;
@@ -121,5 +123,7 @@ public abstract class NpcAPI {
 	public abstract IMetods getMetods();
 
 	public abstract IKeyBinding getIKeyBinding();
+
+	public abstract INpcAttribute getIAttribute(IAttributeInstance mcattribute);
 	
 }

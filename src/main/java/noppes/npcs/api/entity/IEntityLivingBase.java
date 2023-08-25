@@ -2,6 +2,7 @@ package noppes.npcs.api.entity;
 
 import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.api.entity.data.IMark;
+import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IEntityLivingBase<T extends EntityLivingBase>
@@ -70,5 +71,23 @@ extends IEntity<T> {
 	void swingMainhand();
 
 	void swingOffhand();
+	
+	INpcAttribute[] getIAttributes();
+	
+	String[] getIAttributeNames();
+	
+	INpcAttribute getIAttribute(String attributeName);
+	
+	boolean hasAttribute(INpcAttribute attribute);
+	
+	boolean hasAttribute(String attributeName);
+	
+	boolean removeAttribute(INpcAttribute attribute);
+	
+	boolean removeAttribute(String attributeName);
+	
+	INpcAttribute addAttribute(INpcAttribute attribute);
+	
+	INpcAttribute addAttribute(String attributeName, String displayName, double baseValue, double minValue, double maxValue);
 	
 }

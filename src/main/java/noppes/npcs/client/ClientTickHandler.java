@@ -46,6 +46,7 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.TempClass;
 import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
@@ -254,6 +255,7 @@ public class ClientTickHandler {
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
 		//TempClass.createAPIs(true);
+		//TempClass.deobfucation();
 		
 		/*if (ClientTickHandler.music==null) { return; }
 		String name = ClientTickHandler.music.sound.getSound().getSoundAsOggLocation().toString();

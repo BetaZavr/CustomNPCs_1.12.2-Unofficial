@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -37,6 +38,7 @@ import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.IAnimationHandler;
@@ -48,6 +50,7 @@ import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.containers.ContainerNpcInterface;
 import noppes.npcs.controllers.AnimationController;
@@ -356,5 +359,8 @@ extends NpcAPI {
 	
 	@Override
 	public IKeyBinding getIKeyBinding() { return KeyController.getInstance(); }
+
+	@Override
+	public INpcAttribute getIAttribute(IAttributeInstance mcattribute) { return new AttributeWrapper(mcattribute); }
 	
 }
