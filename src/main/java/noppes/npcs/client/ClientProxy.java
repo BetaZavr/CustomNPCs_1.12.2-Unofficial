@@ -29,9 +29,6 @@ import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISoundEventAccessor;
-import net.minecraft.client.audio.Sound;
-import net.minecraft.client.audio.SoundEventAccessor;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -70,7 +67,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
@@ -603,22 +599,7 @@ extends CommonProxy {
 	
 	@Override
 	public void postload() {
-		Minecraft mc = Minecraft.getMinecraft();for (SoundEvent se : SoundEvent.REGISTRY) {
-			SoundEventAccessor soundEvent = mc.getSoundHandler().getAccessor(se.getRegistryName());
-			if (soundEvent!=null) {
-				List<ISoundEventAccessor<Sound>> accessorList = ObfuscationHelper.getValue(SoundEventAccessor.class, soundEvent, 0);
-				for (ISoundEventAccessor<Sound> sea : accessorList) {
-					if (sea instanceof Sound) {
-						ResourceLocation soundFile = ((Sound) sea).getSoundAsOggLocation();
-						IResource rec = null;
-						try { rec = mc.getResourceManager().getResource(soundFile); }
-						catch (Exception e) { rec = null; }
-						if (rec!=null) { LogWriter.debug("Load sound: "+soundFile.toString()); }
-						else { LogWriter.error("Error Load sound: "+soundFile.toString()); }
-					}
-				}
-			}
-		}
+		
 	}
 
 	@Override
