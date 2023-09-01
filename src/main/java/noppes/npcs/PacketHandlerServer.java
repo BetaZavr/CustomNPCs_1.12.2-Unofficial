@@ -138,9 +138,6 @@ public class PacketHandlerServer {
 						if (!notHasPerm.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
 							this.warn(player, "tried to use custom npcs without a tool in hand, possibly a hacker");
 						} else {
-							if (!PacketHandlerServer.list.contains(type)) {
-								LogWriter.debug("Received: " + type);
-							}
 							this.handlePacket(type, buffer, player, npc);
 						}
 					}
@@ -173,8 +170,7 @@ public class PacketHandlerServer {
 		return permission != null && permission.isAllowed(type);
 	}
 
-	private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc)
-			throws Exception {
+	private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc) throws Exception {
 		CustomNpcs.debugData.startDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
 		if (type == EnumPacketServer.Delete) {
 			npc.delete();
@@ -463,6 +459,7 @@ public class PacketHandlerServer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.QuestRemove) {
 			Quest quest = QuestController.instance.quests.get(buffer.readInt());
+			System.out.println("quest: "+quest);
 			if (quest != null) {
 				QuestController.instance.removeQuest(quest);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE, new Object[0]);

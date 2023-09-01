@@ -188,7 +188,7 @@ public class ClientTickHandler {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (ClientProxy.QuestLog.isPressed()) {
 			if (mc.currentScreen == null) {
-				NoppesUtil.openGUI((EntityPlayer) mc.player, new GuiQuestLog((EntityPlayer) mc.player));
+				NoppesUtil.openGUI((EntityPlayer) mc.player, new GuiQuestLog());
 			} else if (mc.currentScreen instanceof GuiQuestLog) {
 				mc.setIngameFocus();
 			}

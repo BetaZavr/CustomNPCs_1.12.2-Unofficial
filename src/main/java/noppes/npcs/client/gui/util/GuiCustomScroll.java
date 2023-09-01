@@ -32,7 +32,6 @@ extends GuiScreen {
 	private int hover;
 	public boolean hovered;
 	public String[][] hoversTexts;
-	// New
 	public String[] hoverText;
 	public int id;
 	private boolean isScrolling;
@@ -357,15 +356,15 @@ extends GuiScreen {
 		return i >= l - 1 && i < l + this.width - 11 && j >= i2 - 1 && j < i2 + 8;
 	}
 
-	public void replace(String old, String name) {
+	public void replace(String oldName, String newName) {
+		if (!this.list.contains(oldName)) { return; }
 		String select = this.getSelected();
-		this.list.remove(old);
-		this.list.add(name);
-		if (this.isSorted) {
-			Collections.sort(this.list, new NaturalOrderComparator());
-		}
-		if (old.equals(select)) {
-			select = name;
+		int i = this.list.indexOf(oldName);
+		this.list.remove(oldName);
+		this.list.add(i, newName);
+		if (this.isSorted) { Collections.sort(this.list, new NaturalOrderComparator()); }
+		if (oldName.equals(select)) {
+			select = newName;
 		}
 		this.selected = this.list.indexOf(select);
 		this.setSize(this.width, this.height);
@@ -400,15 +399,13 @@ extends GuiScreen {
 		this.setSize(this.width, this.height);
 	}
 
-	// New
 	public void setListNotSorted(List<String> list) {
-		if (this.isSameList(list)) {
-			return;
-		}
+		if (this.isSameList(list)) { return; }
 		this.isSorted = true;
 		this.scrollY = 0;
 		this.list = list;
 		this.setSize(this.width, this.height);
+		this.isSorted = false;
 	}
 
 	public void setSelected(String name) {

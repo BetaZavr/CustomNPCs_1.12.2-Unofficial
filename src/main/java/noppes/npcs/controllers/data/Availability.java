@@ -21,6 +21,7 @@ import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.constants.EnumAvailabilityDialog;
 import noppes.npcs.constants.EnumAvailabilityFaction;
 import noppes.npcs.constants.EnumAvailabilityFactionType;
+import noppes.npcs.constants.EnumAvailabilityPlayerName;
 import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.constants.EnumAvailabilityScoreboard;
 import noppes.npcs.constants.EnumDayTime;
@@ -37,11 +38,12 @@ implements ICompatibilty, IAvailability {
 	public Map<Integer, EnumAvailabilityDialog> dialogues; // ID, Availability
 	public Map<Integer, AvailabilityFactionData> factions; // ID, [Stance, Availability]
 	private boolean hasOptions;
-	// New
+	
 	public int max = 10;
 	public int minPlayerLevel, health, healthType;
 	public Map<Integer, EnumAvailabilityQuest> quests; // ID, Availability
 	public Map<String, AvailabilityScoreboardData> scoreboards; // Objective, [Value, Availability]
+	public Map<String, EnumAvailabilityPlayerName> playerNames;
 	public int version;
 
 	public Availability() {
@@ -56,9 +58,10 @@ implements ICompatibilty, IAvailability {
 		this.quests = new HashMap<Integer, EnumAvailabilityQuest>();
 		this.factions = new HashMap<Integer, AvailabilityFactionData>();
 		this.scoreboards = new HashMap<String, AvailabilityScoreboardData>();
+		this.playerNames = new HashMap<String, EnumAvailabilityPlayerName>();
 	}
 
-	private boolean checkHasOptions() { // Changed
+	private boolean checkHasOptions() {
 		for (EnumAvailabilityDialog ead : this.dialogues.values()) {
 			if (ead != EnumAvailabilityDialog.Always) {
 				return true;
@@ -79,6 +82,7 @@ implements ICompatibilty, IAvailability {
 				return true;
 			}
 		}
+		if (!this.playerNames.isEmpty()) { return true; }
 		if (this.healthType!=0) { return true; }
 		return this.daytime[0] != -1 || this.daytime[1] != -1 || this.minPlayerLevel > 0;
 	}
@@ -109,8 +113,7 @@ implements ICompatibilty, IAvailability {
 		if (points >= faction.friendlyPoints) {
 			current = EnumAvailabilityFaction.Friendly;
 		}
-		return (available == EnumAvailabilityFactionType.Is && stance == current)
-				|| (available == EnumAvailabilityFactionType.IsNot && stance != current);
+		return (available == EnumAvailabilityFactionType.Is && stance == current) || (available == EnumAvailabilityFactionType.IsNot && stance != current);
 	}
 
 	@Override
@@ -150,6 +153,11 @@ implements ICompatibilty, IAvailability {
 	public boolean hasQuest(int id) {
 		return this.quests.containsKey(id);
 	}
+	
+	@Override
+	public boolean hasPlayerName(String name) {
+		return this.playerNames.containsKey(name);
+	}
 
 	@Override
 	public boolean hasScoreboard(String objective) {
@@ -184,7 +192,7 @@ implements ICompatibilty, IAvailability {
 		}
 	}
 
-	public boolean isAvailable(EntityPlayer player) { // Changed
+	public boolean isAvailable(EntityPlayer player) {
 		if (!this.hasOptions) {
 			return true;
 		}
@@ -216,6 +224,31 @@ implements ICompatibilty, IAvailability {
 				return false;
 			}
 		}
+		boolean returnName = false;
+		boolean hasOnly = false;
+		for (String name : this.playerNames.keySet()) {
+			boolean exit = false;
+			switch(this.playerNames.get(name)) {
+				case Only: {
+					hasOnly = true;
+					if (player.getName().equals(name)) {
+						hasOnly = false;
+						returnName = false;
+						exit = true;
+					}
+					break;
+				}
+				case Except: {
+					if (player.getName().equals(name)) {
+						returnName = true;
+						exit = true;
+					}
+					break;
+				}
+			}
+			if (exit) { break; }
+		}
+		if (returnName || (!returnName && hasOnly)) { return false; }
 		if (this.healthType!=0) {
 			int h = (int) (player.getHealth() / player.getMaxHealth()*100);
 			if ((this.healthType==1 && h<this.health) || (this.healthType==2 && h>this.health)) {
@@ -248,7 +281,7 @@ implements ICompatibilty, IAvailability {
 		this.version = compound.getInteger("ModRev");
 		VersionCompatibility.CheckAvailabilityCompatibility(this, compound);
 		this.minPlayerLevel = compound.getInteger("AvailabilityMinPlayerLevel");
-		// New
+		
 		if (compound.hasKey("AvailabilityDayTime", 11)) {
 			this.daytime = compound.getIntArray("AvailabilityDayTime");
 		} else if (CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
@@ -375,7 +408,16 @@ implements ICompatibilty, IAvailability {
 				}
 			}
 		}
-		this.hasOptions = this.checkHasOptions();
+		this.playerNames.clear();
+		if (compound.hasKey("AvailabilityPlayerNames", 9)) {
+			for (int s = 0; s < compound.getTagList("AvailabilityPlayerNames", 10).tagCount(); s++) {
+				NBTTagCompound nbtName = compound.getTagList("AvailabilityPlayerNames", 10).getCompoundTagAt(s);
+				int v = compound.getInteger("Availability");
+				if (v<0) { v *= -1; }
+				if (v>=EnumAvailabilityPlayerName.values().length) { v %= EnumAvailabilityPlayerName.values().length; }
+				this.playerNames.put(nbtName.getString("Name"), EnumAvailabilityPlayerName.values()[v]);
+			}
+		}
 		
 		if (compound.hasKey("AvailabilityHealth", 3)) {
 			this.health = compound.getInteger("AvailabilityHealth");
@@ -385,22 +427,24 @@ implements ICompatibilty, IAvailability {
 			if (this.healthType<0) { this.healthType *= -1; }
 			if (this.healthType>2) { this.healthType = this.healthType%3; }
 		}
+		
+		this.hasOptions = this.checkHasOptions();
 	}
 
 	@Override
-	public void removeDialog(int id) { // Changed
+	public void removeDialog(int id) {
 		this.dialogues.remove(id);
 		this.hasOptions = this.checkHasOptions();
 	}
 
 	@Override
-	public void removeFaction(int id) { // Changed
+	public void removeFaction(int id) {
 		this.factions.remove(id);
 		this.hasOptions = this.checkHasOptions();
 	}
 
 	@Override
-	public void removeQuest(int id) { // Changed
+	public void removeQuest(int id) {
 		this.quests.remove(id);
 		this.hasOptions = this.checkHasOptions();
 	}
@@ -416,6 +460,12 @@ implements ICompatibilty, IAvailability {
 				return;
 			}
 		}
+	}
+	
+	@Override
+	public void removePlayerName(String name) {
+		this.playerNames.remove(name);
+		this.hasOptions = this.checkHasOptions();
 	}
 
 	private boolean scoreboardAvailable(EntityPlayer player, String objective, EnumAvailabilityScoreboard type,
@@ -515,6 +565,14 @@ implements ICompatibilty, IAvailability {
 				EnumAvailabilityScoreboard.values()[ValueUtil.correctInt(type, 0, 2)], value));
 		this.hasOptions = this.checkHasOptions();
 	}
+	
+	@Override
+	public void setPlayerName(String name, int type) {
+		if (type<0) { type *= -1; }
+		if (type>=EnumAvailabilityPlayerName.values().length) { type %= EnumAvailabilityPlayerName.values().length; }
+		this.playerNames.put(name, EnumAvailabilityPlayerName.values()[type]);
+		this.hasOptions = this.checkHasOptions();
+	}
 
 	@Override
 	public void setVersion(int version) {
@@ -543,7 +601,7 @@ implements ICompatibilty, IAvailability {
 		compound.setInteger("ModRev", this.version);
 		compound.setIntArray("AvailabilityDayTime", this.daytime);
 		compound.setInteger("AvailabilityMinPlayerLevel", this.minPlayerLevel);
-		// New
+		
 		NBTTagList listD = new NBTTagList();
 		for (int id : this.dialogues.keySet()) {
 			NBTTagCompound nbtDialog = new NBTTagCompound();
@@ -552,6 +610,7 @@ implements ICompatibilty, IAvailability {
 			listD.appendTag(nbtDialog);
 		}
 		compound.setTag("AvailabilityDialogs", listD);
+		
 		NBTTagList listQ = new NBTTagList();
 		for (int id : this.quests.keySet()) {
 			NBTTagCompound nbtQuest = new NBTTagCompound();
@@ -560,6 +619,7 @@ implements ICompatibilty, IAvailability {
 			listQ.appendTag(nbtQuest);
 		}
 		compound.setTag("AvailabilityQuests", listQ);
+		
 		NBTTagList listF = new NBTTagList();
 		for (int id : this.factions.keySet()) {
 			NBTTagCompound nbtFaction = new NBTTagCompound();
@@ -569,7 +629,7 @@ implements ICompatibilty, IAvailability {
 			listF.appendTag(nbtFaction);
 		}
 		compound.setTag("AvailabilityFactions", listF);
-
+		
 		NBTTagList listS = new NBTTagList();
 		for (String obj : this.scoreboards.keySet()) {
 			NBTTagCompound nbtScoreboard = new NBTTagCompound();
@@ -579,6 +639,15 @@ implements ICompatibilty, IAvailability {
 			listS.appendTag(nbtScoreboard);
 		}
 		compound.setTag("AvailabilityScoreboards", listS);
+		
+		NBTTagList listPN = new NBTTagList();
+		for (String name : this.playerNames.keySet()) {
+			NBTTagCompound nbtName = new NBTTagCompound();
+			nbtName.setString("Name", name);
+			nbtName.setInteger("Availability", this.playerNames.get(name).ordinal());
+			listPN.appendTag(nbtName);
+		}
+		compound.setTag("AvailabilityPlayerNames", listPN);
 		
 		compound.setInteger("AvailabilityHealth", this.health);
 		compound.setInteger("AvailabilityHealthType", this.healthType);
@@ -596,6 +665,7 @@ implements ICompatibilty, IAvailability {
 		this.quests.clear();
 		this.factions.clear();
 		this.scoreboards.clear();
+		this.playerNames.clear();
 	}
 	
 	public String toString() {
@@ -606,8 +676,14 @@ implements ICompatibilty, IAvailability {
 				", quests:" + this.quests.size() +
 				", factions:" + this.factions.size() +
 				", time[min:" + this.daytime[0] + ", max:" + this.daytime[0] + "]" +
-				", player[Lv:" + this.minPlayerLevel + ", H:" + this.health + ", HT:" + this.healthType + "] }"
+				", playerNames:" + this.playerNames.size() +
+				", playerData[Lv:" + this.minPlayerLevel + ", H:" + this.health + ", HT:" + this.healthType + "] }"
 		;
+	}
+
+	@Override
+	public String[] getPlayerNames() {
+		return this.playerNames.keySet().toArray(new String[this.playerNames.size()]);
 	}
 	
 }

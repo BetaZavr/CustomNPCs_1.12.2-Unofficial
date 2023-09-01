@@ -83,9 +83,17 @@ implements IScrollData, ICustomScrollListener {
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
 		this.addScroll(this.scroll);
+		if (this.scroll.selected==-1) {
+			for (String key : this.data.keySet()) {
+				if (this.data.get(key)==this.mc.player.world.provider.getDimension()) {
+					this.scroll.setSelected(key);
+				}
+			}
+		}
 		if (this.data.containsKey(this.scroll.getSelected())) {
 			id = this.data.get(this.scroll.getSelected());
 		}
+		
 		String title = new TextComponentTranslation("gui.dimensions").getFormattedText();
 		int x = (this.xSize - this.fontRenderer.getStringWidth(title)) / 2;
 		this.addLabel(new GuiNpcLabel(0, title, this.guiLeft + x, this.guiTop + 4));

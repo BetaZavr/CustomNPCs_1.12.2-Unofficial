@@ -60,8 +60,7 @@ public abstract class AbstractTab extends GuiButton {
 	}
 
 	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		boolean inWindow = this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y
-				&& mouseX < this.x + this.width && mouseY < this.y + this.height;
+		boolean inWindow = this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 		if (inWindow) {
 			this.onTabClicked();
 		}

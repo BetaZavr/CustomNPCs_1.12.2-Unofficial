@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,37 +38,22 @@ public class Quest
 implements ICompatibilty, IQuest {
 	
 	public boolean cancelable = false;
+	public int id, level, nextQuestid, rewardExp, step, version;
+	public int[] forgetDialogues, forgetQuests, completerPos;
+	public String command, completerNpc, completeText, logText, nextQuestTitle, rewardText, title;
 	public QuestCategory category;
-	public String command;
-	public String completerNpc;
-	public String completeText;
 	public EnumQuestCompletion completion;
 	public FactionOptions factionOptions;
-	public int[] forgetDialogues;
-	public int[] forgetQuests;
-	public int id;
-	// New
-	public int level;
-	public String logText;
+	public ResourceLocation icon;
 	public PlayerMail mail;
-	public int nextQuestid;
-	public String nextQuestTitle;
 	public QuestInterface questInterface;
-	// public int type; Changed
 	public EnumQuestRepeat repeat;
-	public int rewardExp;
-	public NpcMiscInventory rewardItems = new NpcMiscInventory(9); // Changed
-	public String rewardText;
-	public EnumRewardType rewardType; // Changed randomReward
-	public int step;
-	private String title; // Changed
-	public int version;
-	public int[] completerPos; // [ x, y, z, dimID ]
+	public NpcMiscInventory rewardItems = new NpcMiscInventory(9);
+	public EnumRewardType rewardType;
 
 	public Quest(QuestCategory category) {
 		this.version = VersionCompatibility.ModRev;
 		this.id = -1;
-		// this.type = 0; Changed
 		this.repeat = EnumQuestRepeat.NONE;
 		this.completion = EnumQuestCompletion.Npc;
 		this.title = "default";
@@ -78,13 +64,13 @@ implements ICompatibilty, IQuest {
 		this.nextQuestTitle = "";
 		this.mail = new PlayerMail();
 		this.command = "";
+		this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
 		this.questInterface = new QuestInterface();
 		this.rewardExp = 0;
 		this.rewardItems = new NpcMiscInventory(9);
 		this.rewardType = EnumRewardType.RANDOM_ONE;
 		this.factionOptions = new FactionOptions();
 		this.category = category;
-		// New
 		this.level = 1;
 		this.cancelable = false;
 		this.rewardText = "";
@@ -143,7 +129,6 @@ implements ICompatibilty, IQuest {
 		return this.repeat != EnumQuestRepeat.NONE;
 	}
 
-	// New
 	@Override
 	public int getLevel() {
 		return this.level;
@@ -151,12 +136,8 @@ implements ICompatibilty, IQuest {
 
 	@Override
 	public String getLogText() {
-		// return this.logText; Changed
-		String allTextLogs = this.logText; // Base Text
-
-		// New
+		String allTextLogs = this.logText;
 		String chr = new String(Character.toChars(0x000A));
-
 		List<String> rewardist = new ArrayList<String>();
 		for (int i = 0, j = 1; i < this.rewardItems.getSizeInventory(); i++) {
 			ItemStack item = this.rewardItems.getStackInSlot(i);
@@ -171,8 +152,7 @@ implements ICompatibilty, IQuest {
 		}
 
 		if (rewardist.size() > 0 || this.rewardExp > 0 || !this.rewardText.isEmpty()) {
-			allTextLogs += chr + chr + new TextComponentTranslation("questlog.reward").getFormattedText(); // Main Text
-																											// Reward
+			allTextLogs += chr + chr + new TextComponentTranslation("questlog.reward").getFormattedText();
 		}
 
 		if (rewardist.size() > 0) {
@@ -206,10 +186,6 @@ implements ICompatibilty, IQuest {
 	public Quest getNextQuest() {
 		return (QuestController.instance == null) ? null : QuestController.instance.quests.get(this.nextQuestid);
 	}
-
-	/*
-	 * @Override public int getType() { return this.type; } Changed
-	 */
 
 	@Override
 	public String getNpcName() {
@@ -293,12 +269,12 @@ implements ICompatibilty, IQuest {
 	public void readNBTPartial(NBTTagCompound compound) {
 		this.version = compound.getInteger("ModRev");
 		VersionCompatibility.CheckAvailabilityCompatibility(this, compound);
-		// this.setType(compound.getInteger("Type")); Changed
 		this.title = compound.getString("Title");
 		this.logText = compound.getString("Text");
 		this.completeText = compound.getString("CompleteText");
 		this.completerNpc = compound.getString("CompleterNpc");
 		this.command = compound.getString("QuestCommand");
+		this.icon = new ResourceLocation(compound.getString("QuestIcon"));
 		this.nextQuestid = compound.getInteger("NextQuestId");
 		this.nextQuestTitle = compound.getString("NextQuestTitle");
 		if (this.hasNewQuest()) {
@@ -306,7 +282,7 @@ implements ICompatibilty, IQuest {
 		} else {
 			this.nextQuestTitle = "";
 		}
-		this.rewardType = EnumRewardType.values()[compound.getInteger("RewardType")]; // Changed
+		this.rewardType = EnumRewardType.values()[compound.getInteger("RewardType")];
 		this.rewardExp = compound.getInteger("RewardExp");
 		this.rewardItems.setFromNBT(compound.getCompoundTag("Rewards"));
 		this.completion = EnumQuestCompletion.values()[compound.getInteger("QuestCompletion")];
@@ -314,7 +290,6 @@ implements ICompatibilty, IQuest {
 		this.questInterface.readEntityFromNBT(compound);
 		this.factionOptions.readFromNBT(compound.getCompoundTag("QuestFactionPoints"));
 		this.mail.readNBT(compound.getCompoundTag("QuestMail"));
-		// New
 		this.level = compound.getInteger("QuestLevel");
 		this.cancelable = compound.getBoolean("Cancelable");
 		this.rewardText = compound.getString("AddRewardText");
@@ -322,17 +297,6 @@ implements ICompatibilty, IQuest {
 		this.forgetDialogues = compound.getIntArray("ForgetDialogues");
 		this.forgetQuests = compound.getIntArray("ForgetQuests");
 	}
-	/*
-	 * Changed
-	 * 
-	 * @Override public void setType(int questType) { this.type = questType; if
-	 * (this.type == 0) { this.questInterface = new QuestItem(); } else if
-	 * (this.type == 1) { this.questInterface = new QuestDialog(); } else if
-	 * (this.type == 2 || this.type == 4) { this.questInterface = new QuestKill(); }
-	 * else if (this.type == 3) { this.questInterface = new QuestLocation(); } else
-	 * if (this.type == 5) { this.questInterface = new QuestManual(); } if
-	 * (this.questInterface != null) { this.questInterface.questId = this.id; } }
-	 */
 
 	@Override
 	public boolean removeTask(IQuestObjective task) {
@@ -425,14 +389,12 @@ implements ICompatibilty, IQuest {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Id", this.id);
-		// New
 		compound.setInteger("Level", this.level);
 		return this.writeToNBTPartial(compound);
 	}
 
 	public NBTTagCompound writeToNBTPartial(NBTTagCompound compound) {
 		compound.setInteger("ModRev", this.version);
-		// compound.setInteger("Type", this.type); Changed
 		compound.setString("Title", this.title);
 		compound.setString("Text", this.logText);
 		compound.setString("CompleteText", this.completeText);
@@ -442,13 +404,16 @@ implements ICompatibilty, IQuest {
 		compound.setInteger("RewardExp", this.rewardExp);
 		compound.setTag("Rewards", this.rewardItems.getToNBT());
 		compound.setString("QuestCommand", this.command);
-		compound.setInteger("RewardType", this.rewardType.ordinal()); // Changed
+		if (compound.hasKey("QuestIcon", 8)) { compound.setString("QuestIcon", this.icon.toString()); }
+		if (this.icon==null || this.icon.getResourcePath().isEmpty()) {
+			this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
+		}
+		compound.setInteger("RewardType", this.rewardType.ordinal());
 		compound.setInteger("QuestCompletion", this.completion.ordinal());
 		compound.setInteger("QuestRepeat", this.repeat.ordinal());
 		this.questInterface.writeEntityToNBT(compound);
 		compound.setTag("QuestFactionPoints", this.factionOptions.writeToNBT(new NBTTagCompound()));
 		compound.setTag("QuestMail", this.mail.writeNBT());
-		// New
 		compound.setInteger("QuestLevel", this.level);
 		compound.setBoolean("Cancelable", this.cancelable);
 		compound.setString("AddRewardText", this.rewardText);

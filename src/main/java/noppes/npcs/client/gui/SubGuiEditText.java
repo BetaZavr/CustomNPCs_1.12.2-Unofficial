@@ -11,20 +11,20 @@ public class SubGuiEditText
 extends SubGuiInterface {
 	
 	public boolean cancelled;
-	public String[] hovers = new String[1]; // New
-	public String[] text = new String[1]; // New
+	public String[] hovers = new String[1];
+	public String[] text = new String[1];
 
 	public SubGuiEditText(int id, String text) {
-		this(new String[] { text }); // Changed
+		this(new String[] { text });
 		this.id = id;
 	}
 
-	public SubGuiEditText(int id, String[] texts) { // New
+	public SubGuiEditText(int id, String[] texts) {
 		this(texts);
 		this.id = id;
 	}
 
-	public SubGuiEditText(String[] texts) { // Changed
+	public SubGuiEditText(String[] texts) {
 		this.cancelled = true;
 		this.text = new String[texts.length > 5 ? 5 : texts.length];
 		this.hovers = new String[texts.length > 5 ? 5 : texts.length];

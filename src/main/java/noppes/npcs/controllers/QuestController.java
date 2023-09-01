@@ -186,9 +186,7 @@ implements IQuestHandler {
 
 	public void removeQuest(Quest quest) {
 		File file = new File(new File(this.getDir(), quest.category.title), quest.id + ".json");
-		if (!file.delete()) {
-			return;
-		}
+		if (file.exists()) { file.delete(); }
 		this.quests.remove(quest.id);
 		quest.category.quests.remove(quest.id);
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 2, quest.id);

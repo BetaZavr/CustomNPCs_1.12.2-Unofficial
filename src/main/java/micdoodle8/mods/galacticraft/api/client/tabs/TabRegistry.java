@@ -97,8 +97,7 @@ public class TabRegistry {
 	}
 
 	public static void openInventoryGui() {
-		TabRegistry.mc.player.connection
-				.sendPacket(new CPacketCloseWindow(TabRegistry.mc.player.openContainer.windowId));
+		TabRegistry.mc.player.connection .sendPacket(new CPacketCloseWindow(TabRegistry.mc.player.openContainer.windowId));
 		GuiInventory inventory = new GuiInventory((EntityPlayer) TabRegistry.mc.player);
 		TabRegistry.mc.displayGuiScreen((GuiScreen) inventory);
 	}

@@ -145,6 +145,8 @@ public class CustomNpcs {
 	public static int notEnableColor = 0xFFA0A0A0;
 	@ConfigProp(info = "Text color of elements in modification GUI when the element is held down by the mouse cursor")
 	public static int hoverColor = 0xFFFFFFA0;
+	@ConfigProp(info = "Text Color for GUI Quest Log")
+	public static int questLogColor = 0xFF404060;
 	
 	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC")
 	public static String FontType = "Default";

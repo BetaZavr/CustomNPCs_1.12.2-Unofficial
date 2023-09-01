@@ -1,20 +1,9 @@
 package noppes.npcs;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
-import org.apache.commons.io.IOUtils;
-
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFutureTask;
 
 import net.minecraft.command.CommandBase;
@@ -30,8 +19,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ClassInheritanceMultiMap;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -48,8 +35,6 @@ import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
@@ -76,12 +61,7 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
-import scala.Option;
-import scala.util.parsing.json.JSON;
-import scala.util.parsing.json.JSONObject;
-import scala.util.parsing.json.JSONType;
 
-@SuppressWarnings("deprecation")
 public class ServerEventsHandler {
 	public static EntityVillager Merchant;
 	public static Entity mounted;
@@ -488,11 +468,9 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcSavePlayer(PlayerEvent.SaveToFile event) {
-		CustomNpcs.debugData.startDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client",
-					event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
+		CustomNpcs.debugData.startDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
 		PlayerData.get(event.getEntityPlayer()).save(false);
-		CustomNpcs.debugData.endDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client",
-					event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
+		CustomNpcs.debugData.endDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
 	}
 
 	@SubscribeEvent
@@ -500,7 +478,7 @@ public class ServerEventsHandler {
 		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
 	}
 
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void registrySounds(RegistryEvent.Register<SoundEvent> event) {
 		List<String> list = Lists.<String>newArrayList();
 		Option<JSONType> mainSounds = null, customSounds = null;
@@ -548,7 +526,7 @@ public class ServerEventsHandler {
 			se.setRegistryName(name);
 			event.getRegistry().register(se);
 		}
-	}
+	}*/
 	
 	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {

@@ -28,7 +28,7 @@ public class SubGuiNpcFactionOptions
 extends SubGuiInterface
 implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	
-	private Map<String, Integer> data; // All Factions
+	private Map<String, Integer> data;
 	private FactionOptions options;
 	private GuiCustomScroll scroll;
 

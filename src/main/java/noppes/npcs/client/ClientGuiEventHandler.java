@@ -110,9 +110,8 @@ extends Gui
 	private int qt=0;
 	private List<int[]> listMovingPath;
 	private List<double[]> listPath = Lists.<double[]>newArrayList();
-	
-	
 	public static RayTraceResult result;
+	
 
 	/** HUD Bar Interfase Canceled */
 	@SubscribeEvent
@@ -740,7 +739,7 @@ extends Gui
 					break;
 				}
 				case 151: {
-					this.mc.displayGuiScreen(new GuiQuestLog(this.mc.player));
+					this.mc.displayGuiScreen(new GuiQuestLog());
 					break;
 				}
 			}

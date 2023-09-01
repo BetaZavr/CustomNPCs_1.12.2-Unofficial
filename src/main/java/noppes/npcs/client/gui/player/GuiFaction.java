@@ -10,8 +10,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiButtonNextPage;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IGuiData;
@@ -70,9 +70,7 @@ public class GuiFaction extends GuiNPCInterface implements IGuiData {
 		this.drawTexturedModalRect(this.guiLeft + 4, this.guiTop + 8, 56, 0, 200, this.ySize);
 		if (this.playerFactions.isEmpty()) {
 			String noFaction = new TextComponentTranslation("faction.nostanding").getFormattedText();
-			this.fontRenderer.drawString(noFaction,
-					this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(noFaction)) / 2, this.guiTop + 80,
-					CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(noFaction, this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(noFaction)) / 2, this.guiTop + 80, CustomNpcs.mainColor);
 		} else {
 			this.renderScreen();
 		}
@@ -106,10 +104,9 @@ public class GuiFaction extends GuiNPCInterface implements IGuiData {
 			size = this.playerFactions.size() % 5;
 		}
 		for (int id = 0; id < size; ++id) {
-			this.drawHorizontalLine(this.guiLeft + 2, this.guiLeft + this.xSize, this.guiTop + 14 + id * 30,
-					-16777216 + CustomNpcResourceListener.DefaultTextColor);
+			this.drawHorizontalLine(this.guiLeft + 2, this.guiLeft + this.xSize, this.guiTop + 14 + id * 30, CustomNpcs.mainColor);
 			Faction faction = this.playerFactions.get((this.page - 1) * 5 + id);
-			String name = faction.name;
+			String name = ((char) 167)+"l"+faction.name;
 			String points = " : " + faction.defaultPoints;
 			String standing = new TextComponentTranslation("faction.friendly").getFormattedText();
 			int color = 65280;
@@ -124,19 +121,23 @@ public class GuiFaction extends GuiNPCInterface implements IGuiData {
 			} else {
 				points += "/-";
 			}
-			this.fontRenderer.drawString(name, this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(name)) / 2,
-					this.guiTop + 19 + id * 30, faction.color);
-			this.fontRenderer.drawString(standing, this.width / 2 - this.fontRenderer.getStringWidth(standing) - 1,
-					this.guiTop + 33 + id * 30, color);
-			this.fontRenderer.drawString(points, this.width / 2, this.guiTop + 33 + id * 30,
-					CustomNpcResourceListener.DefaultTextColor);
+			int s = 0x50000000 +
+					((255 - (faction.color >> 16 & 255)) << 16) +
+					((255 - (faction.color >> 8 & 255)) << 8) +
+					(255 - (faction.color & 255));
+			int e = 0xA0000000 +
+					((255 - (color >> 16 & 255)) << 16) +
+					((255 - (color >> 8 & 255)) << 8) +
+					(255 - (color & 255));
+			this.drawGradientRect(this.guiLeft + 3, this.guiTop + 15 + id * 30, this.guiLeft + this.xSize+1, this.guiTop + 15 + size * 30, s, e);
+			this.fontRenderer.drawString(name, this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(name)) / 2, this.guiTop + 19 + id * 30, faction.color);
+			this.fontRenderer.drawString(standing, this.width / 2 - this.fontRenderer.getStringWidth(standing) - 1, this.guiTop + 33 + id * 30, color);
+			this.fontRenderer.drawString(points, this.width / 2, this.guiTop + 33 + id * 30, CustomNpcs.mainColor);
 		}
-		this.drawHorizontalLine(this.guiLeft + 2, this.guiLeft + this.xSize, this.guiTop + 14 + size * 30,
-				-16777216 + CustomNpcResourceListener.DefaultTextColor);
+		this.drawHorizontalLine(this.guiLeft + 2, this.guiLeft + this.xSize, this.guiTop + 14 + size * 30, CustomNpcs.mainColor);
 		if (this.pages > 1) {
 			String s = this.page + "/" + this.pages;
-			this.fontRenderer.drawString(s, this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(s)) / 2,
-					this.guiTop + 203, CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(s, this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(s)) / 2, this.guiTop + 203, CustomNpcs.mainColor);
 		}
 	}
 

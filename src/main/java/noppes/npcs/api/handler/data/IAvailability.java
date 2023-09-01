@@ -45,5 +45,13 @@ public interface IAvailability {
 	int getHealthType();
 
 	void setHealth(int value, int type);
+	
+	String[] getPlayerNames();
 
+	boolean hasPlayerName(String name);
+
+	void removePlayerName(String name);
+
+	void setPlayerName(String name, int type);
+	
 }

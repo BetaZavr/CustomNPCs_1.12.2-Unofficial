@@ -9,6 +9,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcFactionOptions;
+import noppes.npcs.client.gui.SubGuiNpcFactionSelect;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -34,14 +35,27 @@ implements IScrollData, ICustomScrollListener {
 	@Override
 	public void buttonEvent(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
-		if (button.id == 0) {
-			this.npc.advanced.attackOtherFactions = (button.getValue() == 1);
-		}
-		if (button.id == 1) {
-			this.npc.advanced.defendFaction = (button.getValue() == 1);
-		}
-		if (button.id == 12) {
-			this.setSubGui(new SubGuiNpcFactionOptions(this.npc.advanced.factions));
+		switch(button.id) {
+			case 0: {
+				this.npc.advanced.attackOtherFactions = (button.getValue() == 1);
+				break;
+			}
+			case 1: {
+				this.npc.advanced.defendFaction = (button.getValue() == 1);
+				break;
+			}
+			case 2: {
+				this.setSubGui(new SubGuiNpcFactionSelect(this.npc.faction.name, this.npc.faction.attackFactions, this.data));
+				break;
+			}
+			case 3: {
+				this.setSubGui(new SubGuiNpcFactionSelect(this.npc.faction.name, this.npc.faction.attackFactions, this.data));
+				break;
+			}
+			case 12: {
+				this.setSubGui(new SubGuiNpcFactionOptions(this.npc.advanced.factions));
+				break;
+			}
 		}
 	}
 
@@ -116,7 +130,6 @@ implements IScrollData, ICustomScrollListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		// New
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.replace").getFormattedText());

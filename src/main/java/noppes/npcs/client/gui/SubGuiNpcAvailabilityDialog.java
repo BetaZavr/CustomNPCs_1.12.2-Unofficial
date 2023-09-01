@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -21,23 +22,23 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Dialog;
 
-public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener {
+public class SubGuiNpcAvailabilityDialog
+extends SubGuiInterface
+implements ICustomScrollListener, ISubGuiListener {
+	
 	private Availability availabitily;
 	private String chr = new String(Character.toChars(0x00A7));
 	private Map<String, EnumAvailabilityDialog> dataEnum;
 	private Map<String, Integer> dataIDs;
-	// New
 	private GuiCustomScroll scroll;
 	private String select;
 
 	public SubGuiNpcAvailabilityDialog(Availability availabitily) {
-		// this.slot = 0;
 		this.availabitily = availabitily;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
 		this.ySize = 217;
 		this.closeOnEsc = true;
-		// New
 		this.dataIDs = new HashMap<String, Integer>();
 		this.dataEnum = new HashMap<String, EnumAvailabilityDialog>();
 		this.select = "";
@@ -73,7 +74,7 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 			this.select = "";
 			this.initGui();
 		}
-		if (button.id == 3) { // More
+		if (button.id == 3) {
 			this.save();
 			this.initGui();
 		}
@@ -82,7 +83,6 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 		}
 	}
 
-	// New
 	@Override
 	public void close() {
 		super.close();
@@ -100,15 +100,16 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 46, 50, 20)) {
+		if (!CustomNpcs.showDescriptions) { return; }
+		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 58, this.guiTop + this.ySize - 46, 170, 20)) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.dialog").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 230, this.guiTop + this.ySize - 46, 20, 20)) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + this.xSize - 76, this.guiTop + 192, 70, 20)) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
-		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + 192, 70, 20)) {
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 	}
@@ -119,7 +120,7 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
 		this.getLabel(1).center(this.xSize);
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 6, this.guiTop + 192, 70, 20, "gui.done"));
-		// New
+
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 6)).setSize(this.xSize - 12, this.ySize - 66);
 		}

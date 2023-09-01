@@ -264,17 +264,19 @@ implements IQuestObjective {
 		if (this.type == EnumQuestTask.ITEM) {
 			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT, this.maxProgress);
 		}
-		PlayerData data = PlayerData.get(this.player);
-		QuestData questData = data.questData.activeQuests.get(this.parentID);
-		if (this.type == EnumQuestTask.DIALOG) {
-			return data.dialogData.dialogsRead.contains(this.id);
-		} else if (this.type == EnumQuestTask.LOCATION) {
-			for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
-				if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
-					return ((NBTTagCompound) dataNBT).getBoolean("Found");
+		try {
+			PlayerData data = PlayerData.get(this.player);
+			QuestData questData = data.questData.activeQuests.get(this.parentID);
+			if (this.type == EnumQuestTask.DIALOG) {
+				return data.dialogData.dialogsRead.contains(this.id);
+			} else if (this.type == EnumQuestTask.LOCATION) {
+				for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
+					if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
+						return ((NBTTagCompound) dataNBT).getBoolean("Found");
+					}
 				}
 			}
-		}
+		} catch (Exception e) { return false; }
 		return this.getProgress() >= this.maxProgress;
 	}
 

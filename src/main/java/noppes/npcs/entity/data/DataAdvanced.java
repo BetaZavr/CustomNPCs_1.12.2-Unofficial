@@ -1,8 +1,13 @@
 package noppes.npcs.entity.data;
 
+import java.util.HashSet;
+
+import com.google.common.collect.Sets;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.constants.RoleType;
@@ -29,6 +34,8 @@ implements INPCAdvanced {
 	public FactionOptions factions;
 	public EntityNPCInterface spawner;
 	public DataScenes scenes;
+	
+	public HashSet<Integer> attackFactions, frendFactions;
 
 	public DataAdvanced(EntityNPCInterface npc) {
 		this.interactLines = new Lines();
@@ -51,6 +58,8 @@ implements INPCAdvanced {
 		this.disablePitch = false;
 		this.npc = npc;
 		this.scenes = new DataScenes(npc);
+		this.attackFactions = Sets.<Integer>newHashSet();
+		this.frendFactions = Sets.<Integer>newHashSet();
 	}
 
 	public Line getAttackLine() {
@@ -225,6 +234,8 @@ implements INPCAdvanced {
 				this.npc.dialogs[i] = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i).getCompoundTag("NPCDialog").getInteger("Dialog");
 			}
 		}
+		this.attackFactions = NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10));
+		this.frendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -254,6 +265,9 @@ implements INPCAdvanced {
 		this.roleInterface.writeToNBT(roleNbt);
 		compound.setTag("Role", roleNbt);
 		compound.setTag("Job", jobNbt);
+		compound.setTag("AttackFactions", NBTTags.nbtIntegerCollection(this.attackFactions));
+		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(this.frendFactions));
+		
 		return compound;
 	}
 }

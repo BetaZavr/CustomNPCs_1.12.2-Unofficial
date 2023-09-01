@@ -17,7 +17,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -32,35 +31,30 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface
 extends GuiScreen {
+
+	public boolean closeOnEsc, drawDefaultBackground;
+	public int guiLeft, guiTop, mouseX, mouseY, xSize, ySize;
+	public float bgScale;
+	public String title;
+	public String[] hoverText;
 	
 	public ResourceLocation background;
-	public float bgScale;
-	private Map<Integer, GuiNpcButton> buttons;
-	public boolean closeOnEsc;
-	private List<IGui> components;
-	public boolean drawDefaultBackground;
-	private Map<Integer, GuiScreen> extra;
-	public int guiLeft;
-	public int guiTop;
-	// New
-	public String[] hoverText;
-	private Map<Integer, GuiNpcLabel> labels;
-	public int mouseX;
-	public int mouseY;
 	public EntityNPCInterface npc;
 	public EntityPlayerSP player;
-	private Map<Integer, GuiCustomScroll> scrolls;
 	private GuiButton selectedButton;
+	public SubGuiInterface subgui;
+	
+	private List<IGui> components;
+	private Map<Integer, GuiNpcButton> buttons;
+	private Map<Integer, GuiScreen> extra;
+	private Map<Integer, GuiNpcLabel> labels;
+	private Map<Integer, GuiCustomScroll> scrolls;
 	private Map<Integer, GuiMenuSideButton> sidebuttons;
 	private Map<Integer, GuiNpcSlider> sliders;
-	public SubGuiInterface subgui; // Changed
 	private Map<Integer, GuiNpcTextField> textfields;
-	public String title;
 	private Map<Integer, GuiMenuTopButton> topbuttons;
 	private Map<Integer, GuiMenuLeftButton> leftbuttons;
-	public int xSize;
-	public int ySize;
-	public ScaledResolution sw;
+
 
 	public GuiNPCInterface() {
 		this(null);
@@ -89,7 +83,6 @@ extends GuiScreen {
 		this.mc = Minecraft.getMinecraft();
 		this.itemRender = this.mc.getRenderItem();
 		this.fontRenderer = this.mc.fontRenderer;
-		this.sw = new ScaledResolution(this.mc);
 	}
 
 	protected void actionPerformed(GuiButton guibutton) {
@@ -247,7 +240,6 @@ extends GuiScreen {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		//this.close();
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
 		int x = mouseX;
@@ -293,7 +285,6 @@ extends GuiScreen {
 		if (this.subgui != null) {
 			this.subgui.drawScreen(mouseX, mouseY, partialTicks);
 		}
-		// New
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
 			this.hoverText = null;
@@ -386,7 +377,6 @@ extends GuiScreen {
 		this.sliders = new ConcurrentHashMap<Integer, GuiNpcSlider>();
 		this.extra = new ConcurrentHashMap<Integer, GuiScreen>();
 		this.components = new ArrayList<IGui>();
-		this.sw = new ScaledResolution(this.mc);
 	}
 
 	public void initPacket() {
@@ -396,7 +386,6 @@ extends GuiScreen {
 		return i == this.mc.gameSettings.keyBindInventory.getKeyCode();
 	}
 
-	// New
 	public boolean isMouseHover(int mX, int mY, int px, int py, int pwidth, int pheight) {
 		return mX >= px && mY >= py && mX < (px + pwidth) && mY < (py + pheight);
 	}
@@ -415,10 +404,10 @@ extends GuiScreen {
 		}
 		active = (active || GuiNpcTextField.isActive());
 		boolean helpButtons = false;
-		if (i==56 || i==29 || i==184) { // Alt
-			helpButtons = Keyboard.isKeyDown(35); // + H
-		} else if (i==35) { // H
-			helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184); // + Alt
+		if (i==56 || i==29 || i==184) {
+			helpButtons = Keyboard.isKeyDown(35);
+		} else if (i==35) {
+			helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184);
 		}
 		if (helpButtons) {
 			CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions;
@@ -441,7 +430,7 @@ extends GuiScreen {
 		}
 	}
 
-	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) { // Changed
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		if (this.subgui != null) {
 			this.subgui.mouseClicked(mouseX, mouseY, mouseBottom);
 			return;

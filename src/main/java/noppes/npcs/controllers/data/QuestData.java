@@ -1,5 +1,9 @@
 package noppes.npcs.controllers.data;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.constants.EnumQuestTask;
@@ -7,7 +11,7 @@ import noppes.npcs.quests.QuestObjective;
 
 public class QuestData {
 	
-	public NBTTagCompound extraData = new NBTTagCompound();
+	public final NBTTagCompound extraData = new NBTTagCompound();
 	public boolean isCompleted = false;
 	public Quest quest = null;
 
@@ -44,7 +48,12 @@ public class QuestData {
 
 	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {
 		this.isCompleted = nbttagcompound.getBoolean("QuestCompleted");
-		this.extraData = nbttagcompound.getCompoundTag("ExtraData");
+		List<String> list = Lists.newArrayList(this.extraData.getKeySet());
+		for (String key : list) { this.extraData.removeTag(key); }
+		list = Lists.newArrayList(nbttagcompound.getCompoundTag("ExtraData").getKeySet());
+		for (String key : list) {
+			this.extraData.setTag(key, nbttagcompound.getCompoundTag("ExtraData").getTag(key));
+		}
 	}
 
 	public void writeEntityToNBT(NBTTagCompound nbttagcompound) {

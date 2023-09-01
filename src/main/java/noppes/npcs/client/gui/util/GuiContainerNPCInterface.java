@@ -14,7 +14,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -30,25 +29,23 @@ public abstract class GuiContainerNPCInterface
 extends GuiContainer {
 	
 	public static ResourceLocation ball = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
-	private HashMap<Integer, GuiNpcButton> buttons;
-	public boolean closeOnEsc;
-	public boolean drawDefaultBackground;
-	public int guiLeft;
-	public int guiTop;
-	// New
+	
+	public boolean closeOnEsc, drawDefaultBackground;
+	public int guiLeft, guiTop, mouseX, mouseY;
+	public String title;
 	public String[] hoverText;
-	private HashMap<Integer, GuiNpcLabel> labels;
-	public int mouseX;
-	public int mouseY;
+
 	public EntityNPCInterface npc;
 	public EntityPlayerSP player;
+	public SubGuiInterface subgui;
+
 	private Poses[] ps;
+	private HashMap<Integer, GuiNpcLabel> labels;
 	private HashMap<Integer, GuiCustomScroll> scrolls;
 	private HashMap<Integer, GuiNpcSlider> sliders;
-	public SubGuiInterface subgui; // Changed
 	private HashMap<Integer, GuiNpcTextField> textfields;
-	public String title;
 	private HashMap<Integer, GuiMenuTopButton> topbuttons;
+	private HashMap<Integer, GuiNpcButton> buttons;
 
 	public GuiContainerNPCInterface(EntityNPCInterface npc, Container cont) {
 		super(cont);
@@ -221,8 +218,7 @@ extends GuiContainer {
 	}
 
 	public void drawWait(int mouseX, int mouseY, float partialTicks) {
-		ScaledResolution scaleW = new ScaledResolution(this.mc);
-		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(), scaleW.getScaledWidth() / 2, scaleW.getScaledHeight() / 2, CustomNpcs.mainColor);
+		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(), this.mc.displayWidth / 2, this.mc.displayHeight / 2, CustomNpcs.mainColor);
 		int pos_0 = (int) Math.floor((double) (this.player.world.getTotalWorldTime() % 16) / 2.0d);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
