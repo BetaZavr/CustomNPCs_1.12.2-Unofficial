@@ -215,11 +215,8 @@ implements INpcAttribute {
 			UUID uuid = UUID.fromString(uuidOrName);
 			has = this.attribute.getModifier(uuid) != null;
 		} catch (Exception e) {}
-		System.out.println("has: "+has);
 		if (has) { return true; }
-		System.out.println("Modifiers: "+this.attribute.getModifiers().size());
 		for (AttributeModifier am : this.attribute.getModifiers()) {
-			System.out.println("Name: \""+am.getName()+"\" equals \""+uuidOrName+"\" == "+am.getName().equals(uuidOrName));
 			if (am.getName().equals(uuidOrName)) { return true; }
 		}
 		return false;

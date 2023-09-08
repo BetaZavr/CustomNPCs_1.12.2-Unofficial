@@ -377,13 +377,11 @@ implements IEntityLivingBase {
 	@Override
 	public INpcAttribute addAttribute(INpcAttribute attribute) {
 		if (attribute==null || this.hasAttribute(attribute)) { return null; }
-		System.out.println("try attr : "+attribute);
 		IAttribute attr = null;
 		if (attribute.getMCAttribute() instanceof IAttribute) { attr = (IAttribute) attribute.getMCAttribute(); }
 		else if (attribute.getMCBaseAttribute() instanceof IAttribute) { attr = (IAttribute) attribute.getMCBaseAttribute(); }
 		if (attr==null) { return null; }
 		this.entity.getAttributeMap().registerAttribute(attr);
-		System.out.println("attr: "+attr);
 		INpcAttribute npcAttr = this.getIAttribute(attribute.getName());
 		if (npcAttr !=null) { ObfuscationHelper.setValue(AttributeWrapper.class, (AttributeWrapper) npcAttr, true, boolean.class); }
 		return npcAttr;

@@ -379,9 +379,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setName(String name) {
-		if (this.name.equals(name)) {
-			return;
-		}
+		if (this.name.equals(name)) { return; }
 		this.name = name;
 		this.npc.bossInfo.setName(this.npc.getDisplayName());
 		this.npc.updateClient = true;

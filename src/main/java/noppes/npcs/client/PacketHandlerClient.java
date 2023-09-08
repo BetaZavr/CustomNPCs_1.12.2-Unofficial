@@ -2,7 +2,6 @@ package noppes.npcs.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
@@ -13,12 +12,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.IToast;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -31,12 +28,10 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.village.MerchantRecipeList;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
 import noppes.npcs.CommonProxy;
-import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
@@ -60,6 +55,7 @@ import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.player.GuiCustomChest;
 import noppes.npcs.client.gui.player.GuiNPCTrader;
 import noppes.npcs.client.gui.player.GuiQuestCompletion;
+import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.gui.script.GuiScriptInterface;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -170,7 +166,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.MESSAGE) {
 			TextComponentTranslation title = new TextComponentTranslation(Server.readString(buffer), new Object[0]);
 			TextComponentTranslation message = new TextComponentTranslation(Server.readString(buffer), new Object[0]);
-			int btype = buffer.readInt();
+			int btype = buffer.readInt() % 3;
 			Minecraft.getMinecraft().getToastGui().add((IToast) new GuiAchievement(title, message, btype));
 		} else if (type == EnumPacketClient.UPDATE_ITEM) {
 			int id = buffer.readInt();
@@ -231,11 +227,11 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int synctype = buffer.readInt();
 			NBTTagCompound compound = Server.readNBT(buffer);
 			SyncController.clientSync(synctype, compound, type == EnumPacketClient.SYNC_END, player);
-
 			if (synctype == 3) { // Quest
 				if (Minecraft.getMinecraft().currentScreen instanceof GuiNPCManageQuest) {
 					((GuiNPCManageQuest) Minecraft.getMinecraft().currentScreen).initGui();
 				}
+				GuiQuestLog.activeQuest = null;
 			} else if (synctype == 5) { // Dialogs
 				if (Minecraft.getMinecraft().currentScreen instanceof GuiNPCManageDialogs) {
 					((GuiNPCManageDialogs) Minecraft.getMinecraft().currentScreen).initGui();
@@ -246,11 +242,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (player.getServer() == null) {
 					ItemScripted.Resources = NBTTags.getIntegerStringMap(compound.getTagList("List", 10));
 				}
-				for (Map.Entry<Integer, String> entry : ItemScripted.Resources.entrySet()) {
-					ModelResourceLocation mrl = new ModelResourceLocation((String) entry.getValue(), "inventory");
-					Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register((Item) CustomItems.scripted_item, entry.getKey(), mrl);
-					ModelLoader.setCustomModelResourceLocation((Item) CustomItems.scripted_item, entry.getKey(), mrl);
-				}
+				CustomNpcs.proxy.reloadItemTextures();
 			}
 		} else if (type == EnumPacketClient.SYNC_UPDATE) {
 			int synctype = buffer.readInt();

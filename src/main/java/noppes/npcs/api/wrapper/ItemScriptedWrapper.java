@@ -271,9 +271,7 @@ implements IItemScripted, IScriptHandler {
 			throw new CustomNPCsException("Can't set texture for 0", new Object[0]);
 		}
 		String old = ItemScripted.Resources.get(damage);
-		if (old == texture || (old != null && texture != null && old.equals(texture))) {
-			return;
-		}
+		if (old == texture || (old != null && texture != null && old.equals(texture))) { return; }
 		ItemScripted.Resources.put(damage, texture);
 		SyncController.syncScriptItemsEverybody();
 	}

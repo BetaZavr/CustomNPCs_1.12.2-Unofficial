@@ -25,8 +25,9 @@ import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.items.ItemScripted;
 
 public class SyncController {
-
-	public static void clientSync(int synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) { // SYNC_ADD or SYNC_END
+	
+	// SYNC_ADD or SYNC_END
+	public static void clientSync(int synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
 		switch (synctype) {
 			case 1: {
 				NBTTagList list = compound.getTagList("Data", 10);
@@ -123,8 +124,9 @@ public class SyncController {
 			}
 		}
 	}
-
-	public static void clientSyncRemove(int synctype, int id, EntityPlayer player) { // SYNC_REMOVE
+	
+	// SYNC_REMOVE
+	public static void clientSyncRemove(int synctype, int id, EntityPlayer player) {
 		switch (synctype) {
 			case 1: {
 				FactionController.instance.factions.remove(id);
@@ -169,8 +171,9 @@ public class SyncController {
 			}
 		}
 	}
-
-	public static void clientSyncUpdate(int synctype, NBTTagCompound compound, ByteBuf buffer, EntityPlayer player) { // SYNC_UPDATE
+	
+	// SYNC_UPDATE
+	public static void clientSyncUpdate(int synctype, NBTTagCompound compound, ByteBuf buffer, EntityPlayer player) {
 		switch (synctype) {
 			case 1: {
 				Faction faction = new Faction();

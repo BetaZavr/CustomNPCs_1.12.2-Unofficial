@@ -249,10 +249,12 @@ public class ClientTickHandler {
 		if (!(entity instanceof EntityPlayer)) { return; }
 		//System.out.println("Client: "+entity);
 		if (entity instanceof EntityPlayerMP) {
+			//EntityPlayerMP player = (EntityPlayerMP) entity;
 			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
 			//System.out.println("Server: "+entity);
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
+		//EntityPlayerSP player = (EntityPlayerSP) entity;
 		//TempClass.createAPIs(true);
 		//TempClass.deobfucation();
 		

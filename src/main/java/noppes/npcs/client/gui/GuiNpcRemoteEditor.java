@@ -41,7 +41,6 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	
 	private HashMap<String, Integer> dataIDs;
 	private GuiCustomScroll scroll;
-	// New
 	private String search = "";
 	private List<String> list;
 	public EntityLivingBase selectEntity;
@@ -271,26 +270,19 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.edit").getFormattedText());
-		}
-		else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.del").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.reset").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.freeze").getFormattedText());
-		}
-		else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.tp").getFormattedText());
-		}
-		else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.resetall").getFormattedText());
-		}
-		else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.showall").getFormattedText());
-		}
-		else if (isMouseHover(i, j, this.guiLeft + 191, this.guiTop + 85, 61, 86)) {
+		} else if (isMouseHover(i, j, this.guiLeft + 191, this.guiTop + 85, 61, 86)) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.entity").getFormattedText());
 		}
 	}

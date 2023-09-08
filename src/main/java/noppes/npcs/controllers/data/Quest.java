@@ -3,6 +3,10 @@ package noppes.npcs.controllers.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.authlib.GameProfile;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -10,6 +14,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
@@ -20,6 +26,7 @@ import noppes.npcs.VersionCompatibility;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
@@ -31,6 +38,7 @@ import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.QuestController;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
 
@@ -40,16 +48,19 @@ implements ICompatibilty, IQuest {
 	public boolean cancelable = false;
 	public int id, level, nextQuestid, rewardExp, step, version;
 	public int[] forgetDialogues, forgetQuests, completerPos;
-	public String command, completerNpc, completeText, logText, nextQuestTitle, rewardText, title;
+	public String command, completeText, logText, nextQuestTitle, rewardText, title;
 	public QuestCategory category;
-	public EnumQuestCompletion completion;
 	public FactionOptions factionOptions;
-	public ResourceLocation icon;
+	public ResourceLocation icon, texture;
 	public PlayerMail mail;
 	public QuestInterface questInterface;
-	public EnumQuestRepeat repeat;
 	public NpcMiscInventory rewardItems = new NpcMiscInventory(9);
+	public GameProfile playerProfile;
+	public EnumQuestRepeat repeat;
+	public EnumQuestCompletion completion;
 	public EnumRewardType rewardType;
+	public EntityNPCInterface completer;
+	public World world;
 
 	public Quest(QuestCategory category) {
 		this.version = VersionCompatibility.ModRev;
@@ -59,12 +70,12 @@ implements ICompatibilty, IQuest {
 		this.title = "default";
 		this.logText = "";
 		this.completeText = "";
-		this.completerNpc = "";
 		this.nextQuestid = -1;
 		this.nextQuestTitle = "";
 		this.mail = new PlayerMail();
 		this.command = "";
 		this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
+		this.texture = null;
 		this.questInterface = new QuestInterface();
 		this.rewardExp = 0;
 		this.rewardItems = new NpcMiscInventory(9);
@@ -78,6 +89,10 @@ implements ICompatibilty, IQuest {
 		this.forgetDialogues = new int[0];
 		this.forgetQuests = new int[0];
 		this.completerPos = new int[] { 0, 0, 0, 0 };
+		this.completer = null;
+		this.world = null;
+		if (CustomNpcs.Server!=null) { this.world = CustomNpcs.Server.getEntityWorld(); }
+		else if (CustomNpcs.proxy.getPlayer()!=null) { this.world = CustomNpcs.proxy.getPlayer().world; }
 	}
 
 	@Override
@@ -136,8 +151,8 @@ implements ICompatibilty, IQuest {
 
 	@Override
 	public String getLogText() {
-		String allTextLogs = this.logText;
-		String chr = new String(Character.toChars(0x000A));
+		String allTextLogs = "";
+		String ent = ""+((char) 10);
 		List<String> rewardist = new ArrayList<String>();
 		for (int i = 0, j = 1; i < this.rewardItems.getSizeInventory(); i++) {
 			ItemStack item = this.rewardItems.getStackInSlot(i);
@@ -150,30 +165,24 @@ implements ICompatibilty, IQuest {
 				j++;
 			}
 		}
-
 		if (rewardist.size() > 0 || this.rewardExp > 0 || !this.rewardText.isEmpty()) {
-			allTextLogs += chr + chr + new TextComponentTranslation("questlog.reward").getFormattedText();
+			allTextLogs += ent + ent + new TextComponentTranslation("questlog.reward").getFormattedText();
 		}
-
 		if (rewardist.size() > 0) {
-			allTextLogs += chr
-					+ new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one"
-							: this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText();
+			allTextLogs += ent + new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one" : this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText();
 			for (String itemText : rewardist) {
-				allTextLogs += chr + itemText;
+				allTextLogs += ent + itemText;
 			}
 		}
-
 		if (this.rewardExp > 0) {
-			allTextLogs += chr
-					+ new TextComponentTranslation("questlog.rewardexp", new Object[] { "" + this.rewardExp })
-							.getFormattedText();
+			allTextLogs += ent + new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText();
 		}
-
 		if (!this.rewardText.isEmpty()) {
-			allTextLogs += chr + this.rewardText;
+			allTextLogs += ent + new TextComponentTranslation(this.rewardText).getFormattedText();
 		}
-
+		if (!this.logText.isEmpty()) {
+			allTextLogs += ent + ent + ((char) 167) + "l" + new TextComponentTranslation("gui.description").getFormattedText() + ent + new TextComponentTranslation(this.logText).getFormattedText();
+		}
 		return allTextLogs;
 	}
 
@@ -188,16 +197,18 @@ implements ICompatibilty, IQuest {
 	}
 
 	@Override
-	public String getNpcName() {
-		return this.completerNpc;
-	}
-
-	@Override
 	public IQuestObjective[] getObjectives(IPlayer<?> player) {
 		if (!player.hasActiveQuest(this.id)) {
 			throw new CustomNPCsException("Player doesnt have this quest active.");
 		}
 		return this.questInterface.getObjectives(player.getMCEntity());
+	}
+	
+	public IQuestObjective[] getObjectives(EntityPlayer player) {
+		if (player==null) { return new IQuestObjective[0]; }
+		PlayerData data = PlayerData.get(player);
+		if (data==null || !data.questData.activeQuests.containsKey(this.id)) { return new IQuestObjective[0]; }
+		return this.questInterface.getObjectives(player);
 	}
 
 	@Override
@@ -272,9 +283,11 @@ implements ICompatibilty, IQuest {
 		this.title = compound.getString("Title");
 		this.logText = compound.getString("Text");
 		this.completeText = compound.getString("CompleteText");
-		this.completerNpc = compound.getString("CompleterNpc");
 		this.command = compound.getString("QuestCommand");
-		this.icon = new ResourceLocation(compound.getString("QuestIcon"));
+		if (compound.hasKey("QuestIcon", 8)) { this.icon = new ResourceLocation(compound.getString("QuestIcon")); }
+		else { this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png"); }
+		if (compound.hasKey("QuestTexture", 8)) { this.texture = new ResourceLocation(compound.getString("QuestTexture")); }
+		else { this.texture = null; }
 		this.nextQuestid = compound.getInteger("NextQuestId");
 		this.nextQuestTitle = compound.getString("NextQuestTitle");
 		if (this.hasNewQuest()) {
@@ -293,9 +306,50 @@ implements ICompatibilty, IQuest {
 		this.level = compound.getInteger("QuestLevel");
 		this.cancelable = compound.getBoolean("Cancelable");
 		this.rewardText = compound.getString("AddRewardText");
-		this.step = compound.getInteger("Step");
+		this.step = compound.getInteger("Step") % 3;
+		if (this.step<0) { this.step *= -1; }
 		this.forgetDialogues = compound.getIntArray("ForgetDialogues");
 		this.forgetQuests = compound.getIntArray("ForgetQuests");
+		this.completer = null;
+		try {
+			if (compound.hasKey("CompleterNpc", 10)) {
+				if (compound.getCompoundTag("CompleterNpc").hasKey("UUIDMost", 4) && compound.getCompoundTag("CompleterNpc").hasKey("UUIDLeast", 4)) {
+					Entity e = this.world.getPlayerEntityByUUID(compound.getCompoundTag("CompleterNpc").getUniqueId("UUID"));
+					if (e instanceof EntityNPCInterface) { this.completer = (EntityNPCInterface) e; }
+				}
+				if (this.completer == null) {
+					Entity e = EntityList.createEntityFromNBT(compound.getCompoundTag("CompleterNpc"), this.world);
+					if (e instanceof EntityNPCInterface) { this.completer = (EntityNPCInterface) e; }
+				}
+			}
+			else if (compound.hasKey("CompleterNpc", 8) && CustomNpcs.FixUpdateFromPre_1_12) {
+				String name = compound.getString("CompleterNpc");
+				this.completer = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), this.world);
+				this.completer.display.setName(name);
+				if (CustomNpcs.Server!=null) {
+					for (WorldServer w : CustomNpcs.Server.worlds) {
+						boolean found = false;
+						for (Entity e : w.getLoadedEntityList()) {
+							if (e instanceof EntityNPCInterface && e.getName().equals(name)) {
+								this.completer = (EntityNPCInterface) e;
+								found = true;
+								break;
+							}
+						}
+						if (found) { break; }
+					}
+				}
+			}
+		} catch (Exception e) {}
+		if (CustomNpcs.Server!=null && this.completer!=null) {
+			for (WorldServer w : CustomNpcs.Server.worlds) {
+				Entity e = w.getEntityFromUuid(this.completer.getUniqueID());
+				if (e instanceof EntityNPCInterface) {
+					this.completer = (EntityNPCInterface) e;
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
@@ -362,10 +416,10 @@ implements ICompatibilty, IQuest {
 			this.nextQuestTitle = quest.getTitle();
 		}
 	}
-
+	
 	@Override
-	public void setNpcName(String name) {
-		this.completerNpc = name;
+	public void setCompleterNpc(ICustomNpc<?> npc) {
+		this.completer = (EntityNPCInterface) npc.getMCEntity();
 	}
 
 	@Override
@@ -398,16 +452,13 @@ implements ICompatibilty, IQuest {
 		compound.setString("Title", this.title);
 		compound.setString("Text", this.logText);
 		compound.setString("CompleteText", this.completeText);
-		compound.setString("CompleterNpc", this.completerNpc);
 		compound.setInteger("NextQuestId", this.nextQuestid);
 		compound.setString("NextQuestTitle", this.nextQuestTitle);
 		compound.setInteger("RewardExp", this.rewardExp);
 		compound.setTag("Rewards", this.rewardItems.getToNBT());
 		compound.setString("QuestCommand", this.command);
-		if (compound.hasKey("QuestIcon", 8)) { compound.setString("QuestIcon", this.icon.toString()); }
-		if (this.icon==null || this.icon.getResourcePath().isEmpty()) {
-			this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
-		}
+		compound.setString("QuestIcon", this.icon.toString());
+		if (this.texture!=null) { compound.setString("QuestTexture", this.texture.toString()); }
 		compound.setInteger("RewardType", this.rewardType.ordinal());
 		compound.setInteger("QuestCompletion", this.completion.ordinal());
 		compound.setInteger("QuestRepeat", this.repeat.ordinal());
@@ -420,12 +471,34 @@ implements ICompatibilty, IQuest {
 		compound.setInteger("Step", this.step);
 		compound.setIntArray("ForgetDialogues", this.forgetDialogues);
 		compound.setIntArray("ForgetQuests", this.forgetQuests);
+		
+		if (this.completer!=null) {
+			NBTTagCompound npcNbt = new NBTTagCompound();
+			this.completer.writeToNBTOptional(npcNbt);
+			compound.setTag("CompleterNpc", npcNbt);
+		}
+		
 		return compound;
 	}
 
 	public String getKey() {
 		char c = ((char) 167);
 		return c + "7ID:" + this.id + c + "8" + this.category.title+"/" + c + "7 \"" + c + "5" + this.getTitle() + c + "7\"";
+	}
+
+	public boolean hasCompassSettings() {
+		for (QuestObjective task : this.questInterface.tasks) {
+			if (task.rangeCompass>3 && task.pos.getX()!=0 && task.pos.getY()!=0 && task.pos.getZ()!=0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public ICustomNpc<?> getCompleterNpc() {
+		if (this.completer==null) { return null; }
+		return (ICustomNpc<?>) NpcAPI.Instance().getIEntity(this.completer);
 	}
 
 }

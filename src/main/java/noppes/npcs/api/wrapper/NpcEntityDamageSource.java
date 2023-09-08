@@ -37,6 +37,7 @@ implements IEntityDamageSource
 		super(damageType, damageSourceEntityIn.getMCEntity());
 		if (damageType.isEmpty()) { damageType = "npcCustomDamage"; }
 		this.damageType = damageType;
+		this.damageSourceEntity = damageSourceEntityIn.getMCEntity();
 		this.deadMessage = "";
 	}
 	

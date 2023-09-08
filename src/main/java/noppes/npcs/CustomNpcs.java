@@ -41,7 +41,9 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -244,6 +246,7 @@ public class CustomNpcs {
 	public static ITextComponent prefix = new TextComponentString(((char) 167)+"e["+((char) 167)+"2CustomNpcs"+((char) 167)+"e]"+((char) 167)+"r: ");
 	private static String preSound = "";
 	public static DimensionType customDimensionType;
+	public static ModContainer mod;
 	
 	static { FluidRegistry.enableUniversalBucket(); }
 
@@ -272,7 +275,6 @@ public class CustomNpcs {
 			return null;
 		}
 	}
-
 
 	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
 	@Mod.EventHandler
@@ -360,7 +362,7 @@ public class CustomNpcs {
 	}
 	
 	@Mod.EventHandler
-	public static void postload(FMLPostInitializationEvent event) { // New
+	public static void postload(FMLPostInitializationEvent ev) { // New
 		if (CustomNpcs.maxLv < 1) { CustomNpcs.maxLv = 1; }
 		else if (CustomNpcs.maxLv > 999) { CustomNpcs.maxLv = 999; }
 		if (CustomNpcs.maxBuilderBlocks < 20) { CustomNpcs.maxBuilderBlocks = 20; }
@@ -373,12 +375,17 @@ public class CustomNpcs {
 		}
 		CustomNpcs.proxy.postload();
 		new AdditionalMethods();
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getModId().equals(CustomNpcs.MODID)) {
+				CustomNpcs.mod = mod;
+				break;
+			}
+		}
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
 	}
 
-	// New
 	@SideOnly(Side.CLIENT)
-	public static void stopPreviousSound(String newSound) { // GuiDialogInteract --> appendDialog()
+	public static void stopPreviousSound(String newSound) {
 		if (CustomNpcs.preSound != null && !CustomNpcs.preSound.isEmpty()) {
 			Minecraft.getMinecraft().getSoundHandler().stop(CustomNpcs.preSound, SoundCategory.VOICE);
 		}
@@ -470,17 +477,19 @@ public class CustomNpcs {
 		QuestController.instance.load();
 		ScriptController.HasStart = true;
 		ServerCloneController.Instance = new ServerCloneController();
+		ScriptController.Instance.loadItemTextures();
 	}
 
 	@Mod.EventHandler
 	public void stopped(FMLServerStoppedEvent event) {
 		ServerCloneController.Instance = null;
-		ItemScripted.Resources.clear();
 		MarcetController.getInstance().saveMarcets();
 		RecipeController.getInstance().save();
 		AnimationController.getInstance().save();
 		KeyController.getInstance().save();
 		DropController.getInstance().save();
+		ScriptController.Instance.saveItemTextures();
+		ItemScripted.Resources.clear();
 		CustomNpcs.Server = null;
 	}
 

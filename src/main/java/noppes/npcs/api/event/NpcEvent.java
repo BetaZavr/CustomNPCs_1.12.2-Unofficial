@@ -186,4 +186,5 @@ extends CustomNPCsEvent {
 	public NpcEvent(ICustomNpc<?> npc) {
 		this.npc = npc;
 	}
+
 }

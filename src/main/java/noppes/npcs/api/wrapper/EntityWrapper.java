@@ -94,6 +94,7 @@ implements IEntity {
 				((EntityLivingBase) this.entity).setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
 			}
 		}
+		else { this.damage(amount); }
 	}
 
 	@Override

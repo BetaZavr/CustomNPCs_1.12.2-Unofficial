@@ -1,6 +1,7 @@
 package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 
 public interface IQuest {
@@ -26,8 +27,6 @@ public interface IQuest {
 	String getName();
 
 	IQuest getNextQuest();
-
-	String getNpcName();
 
 	IQuestObjective[] getObjectives(IPlayer<?> player);
 
@@ -63,10 +62,12 @@ public interface IQuest {
 
 	void setNextQuest(IQuest quest);
 
-	void setNpcName(String name);
-
 	void setRewardText(String text);
 
 	void setRewardType(int type);
 
+	void setCompleterNpc(ICustomNpc<?> npc);
+
+	ICustomNpc<?> getCompleterNpc();
+	
 }

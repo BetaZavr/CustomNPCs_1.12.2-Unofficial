@@ -20,7 +20,7 @@ implements IFaction {
 		return name.substring(0, 1).toUpperCase() + name.substring(1);
 	}
 
-	public HashSet<Integer> attackFactions;
+	public HashSet<Integer> attackFactions, frendFactions;
 	public int color;
 	public int defaultPoints;
 	public int friendlyPoints;
@@ -42,6 +42,7 @@ implements IFaction {
 		this.hideFaction = false;
 		this.getsAttacked = false;
 		this.attackFactions = new HashSet<Integer>();
+		this.frendFactions = new HashSet<Integer>();
 		this.factions = new FactionOptions();
 	}
 
@@ -162,6 +163,7 @@ implements IFaction {
 		this.hideFaction = compound.getBoolean("HideFaction");
 		this.getsAttacked = compound.getBoolean("GetsAttacked");
 		this.attackFactions = NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10));
+		this.frendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
 		this.factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
 	}
 
@@ -200,6 +202,7 @@ implements IFaction {
 		compound.setBoolean("HideFaction", this.hideFaction);
 		compound.setBoolean("GetsAttacked", this.getsAttacked);
 		compound.setTag("AttackFactions", NBTTags.nbtIntegerCollection(this.attackFactions));
+		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(this.frendFactions));
 		compound.setTag("FactionPoints", this.factions.writeToNBT(new NBTTagCompound()));
 		return compound;
 	}

@@ -41,6 +41,7 @@ import net.minecraft.client.particle.ParticleFlame;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.SimpleTexture;
@@ -72,6 +73,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
@@ -225,6 +227,7 @@ import noppes.npcs.items.CustomFood;
 import noppes.npcs.items.CustomShield;
 import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
+import noppes.npcs.items.ItemScripted;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.util.ObfuscationHelper;
@@ -1544,6 +1547,15 @@ extends CommonProxy {
 			if (kb.isActiveAndMatches(keyCode)) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyActive, id);
 			}
+		}
+	}
+	
+	@Override
+	public void reloadItemTextures() {
+		for (Map.Entry<Integer, String> entry : ItemScripted.Resources.entrySet()) {
+			ModelResourceLocation mrl = new ModelResourceLocation(entry.getValue(), "inventory");
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(CustomItems.scripted_item, entry.getKey(), mrl);
+			ModelLoader.setCustomModelResourceLocation(CustomItems.scripted_item, entry.getKey(), mrl);
 		}
 	}
 	

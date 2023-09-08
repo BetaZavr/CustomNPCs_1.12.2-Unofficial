@@ -215,4 +215,5 @@ public class ServerTickHandler {
 		}
 		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_playerLogout");
 	}
+	
 }

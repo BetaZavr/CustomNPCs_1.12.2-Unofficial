@@ -62,15 +62,11 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 		}
 		if (entity instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP) entity;
-			return this.npc.faction.isAggressiveToPlayer((EntityPlayer) player) && !player.capabilities.disableDamage;
+			return this.npc.advanced.isAggressiveToPlayer((EntityPlayer) entity) && !player.capabilities.disableDamage;
 		}
 		if (entity instanceof EntityNPCInterface) {
-			if (((EntityNPCInterface) entity).isKilled()) {
-				return false;
-			}
-			if (this.npc.advanced.attackOtherFactions) {
-				return this.npc.faction.isAggressiveToNpc((EntityNPCInterface) entity);
-			}
+			if (((EntityNPCInterface) entity).isKilled()) { return false; }
+			return this.npc.advanced.isAggressiveToNpc((EntityNPCInterface) entity);
 		}
 		return false;
 	}

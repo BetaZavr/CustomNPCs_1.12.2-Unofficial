@@ -424,15 +424,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
 						this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
 				for (EntityNPCInterface npc2 : inRange) {
-					if (!npc2.isKilled() && npc2.advanced.defendFaction) {
-						if (npc2.faction.id != this.faction.id) {
-							continue;
-						}
-						if (!npc2.canSee(this) && !npc2.ais.directLOS && !npc2.canSee(attackingEntity)) {
-							continue;
-						}
-						npc2.onAttack(attackingEntity);
-					}
+					npc2.advanced.tryDefendFaction(this.faction.id, this, attackingEntity);
 				}
 				this.setAttackTarget(attackingEntity);
 			}

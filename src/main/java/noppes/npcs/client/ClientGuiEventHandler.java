@@ -182,7 +182,7 @@ extends Gui
 			} else {
 				if (!ClientProxy.playerData.questData.activeQuests.containsKey(hud.questID) || (hud.questID<=0 && ClientProxy.playerData.questData.activeQuests.size()>0)) {
 					for (int id : ClientProxy.playerData.questData.activeQuests.keySet()) {
-						if (id!=hud.questID && id>0) {
+						if (ClientProxy.playerData.questData.activeQuests.get(id).quest.hasCompassSettings() && id!=hud.questID && id>0) {
 							hud.questID = id;
 							break;
 						}
@@ -249,7 +249,7 @@ extends Gui
 								title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+n+ ": " + select.getProgress() + "/" + select.getMaxProgress();
 							}
 						}
-					} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && !qData.quest.completerNpc.isEmpty()){
+					} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && qData.quest.getCompleterNpc()!=null){
 						p = new double[] { qData.quest.completerPos[0]-0.5d, qData.quest.completerPos[1]+0.5d, qData.quest.completerPos[2]+0.5d };
 						type = EnumQuestTask.DIALOG.ordinal();
 						if (this.mc.world.provider.getDimension()!=qData.quest.completerPos[3]) { type = 7; }
@@ -260,7 +260,7 @@ extends Gui
 							Vec3i v = new Vec3i(p[0], p[1], p[2]);
 							EntityLivingBase et = null;
 							for (EntityLivingBase el : ents) {
-								if (!el.getName().equals(qData.quest.completerNpc)) { continue; }
+								if (!el.getName().equals(qData.quest.getCompleterNpc().getName())) { continue; }
 								double r = v.distanceSq((Vec3i) el.getPosition());
 								if (et == null) { d = r; et = el; }
 								else {

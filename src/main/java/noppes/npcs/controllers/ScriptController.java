@@ -3,6 +3,7 @@ package noppes.npcs.controllers;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +21,8 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLongArray;
@@ -36,6 +39,7 @@ import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.PotionScriptData;
+import noppes.npcs.items.ItemScripted;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.TempFile;
@@ -179,7 +183,7 @@ public class ScriptController {
 			}
 		}
 	}
-	
+
 	public boolean hasGraalLib() { return this.graalEngine!=null; }
 
 	private File constantScriptsFile() {
@@ -562,6 +566,40 @@ public class ScriptController {
 		compound = new NBTTagCompound();
 		compound.setTag("FileList", list);
 		Server.sendData(player, EnumPacketClient.SEND_FILE_LIST, compound);
+	}
+
+	public void loadItemTextures() {
+		ItemScripted.Resources.clear();
+		File file = new File (this.dir, "item_models.dat");
+		if (!file.exists()) { return; }
+		try {
+			NBTTagCompound compound = CompressedStreamTools.readCompressed(new FileInputStream(file));
+			for (NBTBase nbt : compound.getTagList("Models", 10)) {
+				ItemScripted.Resources.put(((NBTTagCompound) nbt).getInteger("meta"), ((NBTTagCompound) nbt).getString("model"));
+			}
+			CustomNpcs.proxy.reloadItemTextures();
+		}
+		catch (Exception e) {}
+	}
+
+	public void saveItemTextures() {
+		File file = new File (this.dir, "item_models.dat");
+		if (!file.exists()) {
+			try { file.createNewFile(); }
+			catch (Exception e) { }
+		}
+		if (!file.exists()) { return; }
+		NBTTagCompound compound = new NBTTagCompound();
+		NBTTagList list = new NBTTagList();
+		for (int meta : ItemScripted.Resources.keySet()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("meta", meta);
+			nbt.setString("model", ItemScripted.Resources.get(meta));
+			list.appendTag(nbt);
+		}
+		compound.setTag("Models", list);
+		try { CompressedStreamTools.writeCompressed(compound, new FileOutputStream(file)); }
+		catch (Exception e) {}
 	}
 	
 }

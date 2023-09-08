@@ -146,13 +146,6 @@ public class EventHooks {
 				if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName)==System.currentTimeMillis())) { return; }
 				EventHooks.clientMap.put(eventName, System.currentTimeMillis());
 				try {
-					/*List<String> falseList = Lists.<String>newArrayList();
-					falseList.add("tickEventPlayerTickEvent");
-					falseList.add("playerSPPushOutOfBlocksEvent");
-					List<String> trueList = Lists.<String>newArrayList();
-					if (trueList.contains(eventName) || eventName.toLowerCase().indexOf("init")!=-1 || (eventName.toLowerCase().indexOf("player")!=-1 && !falseList.contains(eventName))) {
-						System.out.println("Run Client Event: \""+eventName+"\"");
-					}*/
 					handlerClient.runScript(eventName, event);
 					if (event.isCanceled() && event.event.isCancelable()) { event.event.setCanceled(true); }
 					WrapperNpcAPI.EVENT_BUS.post(event.event);
@@ -516,7 +509,7 @@ public class EventHooks {
 	}
 	public static boolean onScriptItemInteract(ItemScriptedWrapper handler, ItemEvent.InteractEvent event) {
 		if (handler.isClient()) { return false; }
-		return EventHooks.onEvent(handler, EnumScriptType.INTERACT, new ItemEvent.InitEvent(handler));
+		return EventHooks.onEvent(handler, EnumScriptType.INTERACT, event);
 	}
 
 	public static boolean onScriptItemPickedUp(ItemScriptedWrapper handler, EntityPlayer player, EntityItem entity) {

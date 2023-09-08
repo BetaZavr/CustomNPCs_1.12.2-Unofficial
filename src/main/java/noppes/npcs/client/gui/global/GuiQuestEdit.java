@@ -19,6 +19,7 @@ import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.SubGuiMailmanSendSetup;
 import noppes.npcs.client.gui.SubGuiNpcCommand;
 import noppes.npcs.client.gui.SubGuiNpcFactionOptions;
+import noppes.npcs.client.gui.SubGuiNpcQuestExtra;
 import noppes.npcs.client.gui.SubGuiNpcTextArea;
 import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeDialog;
 import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeKill;
@@ -38,7 +39,6 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.DialogController;
@@ -54,14 +54,11 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	
 	private String[] isGet = new String[] { "2", "", "" };
 	private Quest quest;
-	// private boolean questlogTA; Change
-	// New
 	private GuiCustomScroll scrollTasks;
 	private String task = "";
 	private Map<String, QuestObjective> tasksData;
 
 	public GuiQuestEdit(Quest quest) {
-		// this.questlogTA = false; Change
 		this.quest = quest;
 		this.setBackground("menubg.png");
 		this.xSize = 386;
@@ -73,7 +70,6 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	@Override
 	public void initGui() {
 		super.initGui();
-		// New
 		this.quest = NoppesUtilServer.getEditingQuest(this.player);
 		this.quest.questInterface.fix();
 		this.tasksData = this.quest.questInterface.getKeys();
@@ -93,8 +89,6 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		this.addLabel(new GuiNpcLabel(5, "quest.reward", this.guiLeft + 4, this.guiTop + 79));
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, this.guiTop + 74, 50, 20, this.quest.rewardItems.isEmpty() && this.quest.rewardExp <= 0 ? "selectServer.edit" : "advanced.editingmode"));
 		// tasks
-		// this.addLabel(new GuiNpcLabel(7, "gui.type", this.guiLeft + 174, this.guiTop
-		// + 62));
 		String chr = new String(Character.toChars(0x00A7));
 		this.isGet = new String[] { "2", "", "" };
 		TreeMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
@@ -114,8 +108,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				}
 			}
 		}
-		this.addLabel(
-				new GuiNpcLabel(6, new TextComponentTranslation("gui.tasks", chr + (this.isGet[0].equals("2") ? "4" : "2") + chr + "l[?]").getFormattedText(), this.guiLeft + 174, this.guiTop + 84));
+		this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.tasks", chr + (this.isGet[0].equals("2") ? "4" : "2") + chr + "l[?]").getFormattedText(), this.guiLeft + 174, this.guiTop + 84));
 		if (this.scrollTasks == null) {
 			(this.scrollTasks = new GuiCustomScroll(this, 6)).setSize(209, 94);
 		}
@@ -136,17 +129,13 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		// task settings
 		this.addButton(new GuiNpcButton(19, this.guiLeft + 225, this.guiTop + 192, 50, 20, "gui.add", this.tasksData.size() < 9));
 		this.addButton(new GuiNpcButton(20, this.guiLeft + 278, this.guiTop + 192, 50, 20, "gui.remove", this.scrollTasks.getSelected() != null));
-		this.addButton(new GuiNpcButton(21, this.guiLeft + 331, this.guiTop + 192, 50, 20, "selectServer.edit",
-				!this.task.isEmpty()));
+		this.addButton(new GuiNpcButton(21, this.guiLeft + 331, this.guiTop + 192, 50, 20, "selectServer.edit", !this.task.isEmpty()));
 		// repeat
-		this.addButton(new GuiButtonBiDirectional( 8, this.guiLeft + 4, this.guiTop + 148, 166, 20, new String[] { "gui.no", "gui.yes", "quest.mcdaily", "quest.mcweekly", "quest.rldaily", "quest.rlweekly" }, this.quest.repeat.ordinal()));
+		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 4, this.guiTop + 148, 166, 20, new String[] { "gui.no", "gui.yes", "quest.mcdaily", "quest.mcweekly", "quest.rldaily", "quest.rlweekly" }, this.quest.repeat.ordinal()));
 		// completion
-		this.addButton(new GuiNpcButton(9, this.guiLeft + 172, this.guiTop + 30, 90, 20, new String[] { "quest.npc", "quest.instant" }, this.quest.completion.ordinal()));
-		if (this.quest.completerNpc.isEmpty()) {
-			this.quest.completerNpc = this.npc.display.getName();
-		}
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 264, this.guiTop + 30, 117, 20, this.quest.completerNpc));
-		this.getTextField(2).enabled = (this.quest.completion == EnumQuestCompletion.Npc);
+		this.addButton(new GuiNpcButton(9, this.guiLeft + 172, this.guiTop + 30, 90, 20, "gui.extraoptions"));
+		this.getButton(9).layerColor = 0xFF00FFF0;
+		if (this.quest.completer==null) { this.quest.completer = this.npc; }
 		// faction
 		this.addLabel(new GuiNpcLabel(10, "faction.options", this.guiLeft + 4, this.guiTop + 101));
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 120, this.guiTop + 96, 50, 20, this.quest.factionOptions.hasOptions() ? "advanced.editingmode" : "selectServer.edit"));
@@ -179,16 +168,12 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		this.addButton(new GuiButtonBiDirectional(23, this.guiLeft + 269, this.guiTop + 5, 50, 20, lvls, this.quest.level));
 		// reset ID
 		this.addButton(new GuiNpcButton(24, this.guiLeft + 217, this.guiTop + 5, 50, 20, "quest.reset"));
-		// rewardText
-		this.addButton(new GuiNpcButton(25, this.guiLeft + this.xSize - 55, this.guiTop + 52, 50, 20, this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editingmode"));
 		// exit
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 361, this.guiTop + 5, 20, 20, "X"));
 	}
 
 	@Override
 	public void buttonEvent(GuiButton guibutton) {
-		// Changed
-		// New
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
 			case 3: { // end text
@@ -202,8 +187,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				break;
 			}
 			case 5: { // reward
-				Client.sendData(EnumPacketServer.QuestOpenGui, EnumGuiType.QuestReward,
-						this.quest.writeToNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestOpenGui, EnumGuiType.QuestReward, this.quest.writeToNBT(new NBTTagCompound()));
 				break;
 			}
 			case 8: { // reiteration
@@ -211,8 +195,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				break;
 			}
 			case 9: { // NPC to End
-				this.quest.completion = EnumQuestCompletion.values()[button.getValue()];
-				this.getTextField(2).enabled = (this.quest.completion == EnumQuestCompletion.Npc);
+				this.setSubGui(new SubGuiNpcQuestExtra(0, this.quest));
 				break;
 			}
 			case 10: { // faction
@@ -343,10 +326,6 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				Client.sendData(EnumPacketServer.QuestMinID, this.quest.id);
 				break;
 			}
-			case 25: { // reward text
-				this.setSubGui(new SubGuiNpcTextArea(2, this.quest.rewardText));
-				break;
-			}
 			case 66: { // exit
 				this.close();
 				break;
@@ -354,61 +333,56 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		}
 	}
 
-	// New
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		if (this.subgui!=null || !CustomNpcs.showDescriptions) { return; }
-		if (isMouseHover(i, j, this.guiLeft + 47, this.guiTop + 7, 123, 16)) {
+		if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.name").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 122, this.guiTop + 32, 46, 16)) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.completedtext").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 122, this.guiTop + 54, 46, 16)) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.questlogtext").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 122, this.guiTop + 76, 46, 16)) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.reward").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 174, this.guiTop + 84, 50, 10)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.tasks",
-					new TextComponentTranslation("quest.hover.edit.is.get." + this.isGet[0], this.isGet[1],
-							this.isGet[2]).getFormattedText()).getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 348, this.guiTop + 76, 31, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.up").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 310, this.guiTop + 76, 31, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.down").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 174, this.guiTop + 194, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.step").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 227, this.guiTop + 194, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.add").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 280, this.guiTop + 194, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.del").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 333, this.guiTop + 194, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.edit").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 162, 16)) {
+		} else if (this.getLabel(6)!=null && this.getLabel(6).hovered) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.tasks", new TextComponentTranslation("quest.hover.edit.is.get." + this.isGet[0], this.isGet[1], this.isGet[2]).getFormattedText()).getFormattedText());
+		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.repeat").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 174, this.guiTop + 32, 86, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.completion").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 174, this.guiTop + 32, 86, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.completion.npc").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 122, this.guiTop + 98, 46, 16)) {
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.extra").getFormattedText());
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.faction").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 194, 140, 16)) {
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.next").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 152, this.guiTop + 194, 16, 16)) {
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.del.next").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 172, 140, 16)) {
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.mail").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 152, this.guiTop + 172, 16, 16)) {
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.del.mail").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 122, this.guiTop + 120, 46, 16)) {
+		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.command").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 174, this.guiTop + 54, 86, 16)) {
+		} else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.up").getFormattedText());
+		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.down").getFormattedText());
+		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.step").getFormattedText());
+		} else if (this.getButton(19)!=null && this.getButton(19).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.add").getFormattedText());
+		} else if (this.getButton(20)!=null && this.getButton(20).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.del").getFormattedText());
+		} else if (this.getButton(21)!=null && this.getButton(21).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.edit").getFormattedText());
+		} else if (this.getButton(22)!=null && this.getButton(22).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.cancelable").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 269, this.guiTop + 7, 46, 16)) {
+		} else if (this.getButton(23)!=null && this.getButton(23).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.level").getFormattedText());
-		} else if (this.getButton(24).isMouseOver()) {
+		} else if (this.getButton(24)!=null && this.getButton(24).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.reset").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + this.xSize - 53, this.guiTop + 54, 46, 16)) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.reward.text").getFormattedText());
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("gui.back").getFormattedText());
 		}
 	}
 
@@ -478,8 +452,6 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				this.quest.completeText = gui.text;
 			} else if (gui.getId() == 1) {
 				this.quest.logText = gui.text;
-			} else if (gui.getId() == 2) {
-				this.quest.rewardText = gui.text;
 			}
 		} else if (subgui instanceof SubGuiNpcCommand) {
 			SubGuiNpcCommand sub = (SubGuiNpcCommand) subgui;
@@ -539,9 +511,6 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				Quest quest = this.quest;
 				quest.setName(sb.append(quest.getName()).append("_").toString());
 			}
-		}
-		if (guiNpcTextField.getId() == 2) {
-			this.quest.completerNpc = guiNpcTextField.getText();
 		}
 		this.initGui();
 	}

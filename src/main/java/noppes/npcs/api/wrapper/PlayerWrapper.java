@@ -654,14 +654,13 @@ implements IPlayer {
 	public void startQuest(int id) {
 		if (!(this.entity instanceof EntityPlayerMP)) { return; }
 		Quest quest = QuestController.instance.quests.get(id);
-		if (quest == null) {
-			return;
-		}
+		if (quest == null) { return; }
 		QuestData questdata = new QuestData(quest);
 		PlayerData data = this.getData();
+		boolean has = data.questData.activeQuests.containsKey(id);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, "quest."+(has ? "updatequest": "newquest"), quest.getTitle(), has ? 0 : 2);
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.CHAT, "quest."+(has ? "updatequest": "newquest"), ": ", quest.getTitle());
 		data.questData.activeQuests.put(id, questdata);
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, "quest.newquest", quest.getTitle(), 2);
-		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.CHAT, "quest.newquest", ": ", quest.getTitle());
 		data.updateClient = true;
 	}
 

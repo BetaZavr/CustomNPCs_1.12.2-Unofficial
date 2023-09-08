@@ -4,6 +4,8 @@ import java.util.HashSet;
 
 import com.google.common.collect.Sets;
 
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
@@ -12,10 +14,15 @@ import noppes.npcs.Server;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.INPCAdvanced;
+import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.controllers.FactionController;
+import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.FactionOptions;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.Lines;
+import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.PlayerFactionData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobInterface;
 import noppes.npcs.roles.RoleInterface;
@@ -25,7 +32,7 @@ import noppes.npcs.util.ValueUtil;
 public class DataAdvanced
 implements INPCAdvanced {
 	
-	public boolean attackOtherFactions,  defendFaction, disablePitch, orderedLines;
+	public boolean attackOtherFactions, defendFaction, disablePitch, orderedLines;
 	public JobInterface jobInterface;
 	public RoleInterface roleInterface;
 	private String angrySound, deathSound, hurtSound, idleSound, stepSound;
@@ -270,4 +277,36 @@ implements INPCAdvanced {
 		
 		return compound;
 	}
+
+	public boolean isAggressiveToNpc(EntityNPCInterface entity) {
+		if (this.attackOtherFactions) {
+			if (this.npc.faction.isAggressiveToNpc(entity)) { return true; }
+			if (this.attackFactions.contains(entity.faction.id)) { return true; }
+		}
+		return false;
+	}
+
+	public boolean isAggressiveToPlayer(EntityPlayer player) {
+		if (player.capabilities.isCreativeMode) { return false; }
+		PlayerFactionData data = PlayerData.get(player).factionData;
+		if(this.isAggressive(data, player, this.npc.faction)) { return true; }
+		FactionController fData = FactionController.instance;
+		for (int id : this.attackFactions) {
+			IFaction faction = fData.get(id);
+			if (faction==null) { continue; }
+			if(this.isAggressive(data, player, (Faction) faction)) { return true; }
+		}
+		return false;
+	}
+
+	private boolean isAggressive(PlayerFactionData data, EntityPlayer player, Faction faction) {
+		return data.getFactionPoints(player, faction.id) < faction.neutralPoints;
+	}
+
+	public void tryDefendFaction(int id, EntityLivingBase possibleÀriend, EntityLivingBase attacked) {
+		if (this.npc.isKilled() || !this.defendFaction) { return; }
+		if (!(this.npc.faction.id==id || this.npc.faction.frendFactions.contains(id) || this.frendFactions.contains(id)) || !this.npc.canSee(possibleÀriend)) { return; }
+		this.npc.onAttack(attacked);
+	}
+	
 }

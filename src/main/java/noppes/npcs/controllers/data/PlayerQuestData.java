@@ -40,7 +40,7 @@ public class PlayerQuestData {
 	public QuestData getQuestCompletion(EntityPlayer player, EntityNPCInterface npc) {
 		for (QuestData data : this.activeQuests.values()) {
 			Quest quest = data.quest;
-			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completerNpc.equals(npc.getName())
+			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completer.getName().equals(npc.getName())
 					&& quest.questInterface.isCompleted(player)) {
 				return data;
 			}

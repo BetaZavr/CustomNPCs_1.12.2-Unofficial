@@ -3,6 +3,8 @@ package noppes.npcs.client.gui.advanced;
 import java.util.HashMap;
 import java.util.Vector;
 
+import com.google.common.collect.Maps;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -16,13 +18,15 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IScrollData;
+import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCFactionSetup
 extends GuiNPCInterface2
-implements IScrollData, ICustomScrollListener {
+implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	
 	private HashMap<String, Integer> data;
 	private GuiCustomScroll scrollFactions;
@@ -45,14 +49,26 @@ implements IScrollData, ICustomScrollListener {
 				break;
 			}
 			case 2: {
-				this.setSubGui(new SubGuiNpcFactionSelect(this.npc.faction.name, this.npc.faction.attackFactions, this.data));
+				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+				for (String name : this.data.keySet()) {
+					int id = this.data.get(name);
+					if (this.npc.faction.id==id || this.npc.faction.attackFactions.contains(id) || this.npc.faction.frendFactions.contains(id) || this.npc.advanced.attackFactions.contains(id)) { continue; }
+					corData.put(name, id);
+				}
+				this.setSubGui(new SubGuiNpcFactionSelect(0, "faction.friends", this.npc.advanced.frendFactions, corData));
 				break;
 			}
 			case 3: {
-				this.setSubGui(new SubGuiNpcFactionSelect(this.npc.faction.name, this.npc.faction.attackFactions, this.data));
+				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+				for (String name : this.data.keySet()) {
+					int id = this.data.get(name);
+					if (this.npc.faction.id==id || this.npc.faction.attackFactions.contains(id) || this.npc.faction.frendFactions.contains(id) || this.npc.advanced.frendFactions.contains(id)) { continue; }
+					corData.put(name, id);
+				}
+				this.setSubGui(new SubGuiNpcFactionSelect(1, "faction.hostiles", this.npc.advanced.attackFactions, corData));
 				break;
 			}
-			case 12: {
+			case 4: {
 				this.setSubGui(new SubGuiNpcFactionOptions(this.npc.advanced.factions));
 				break;
 			}
@@ -62,14 +78,22 @@ implements IScrollData, ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(0, "faction.attackHostile", this.guiLeft + 4, this.guiTop + 25));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 144, this.guiTop + 20, 40, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.npc.advanced.attackOtherFactions ? 1 : 0)));
-		this.addLabel(new GuiNpcLabel(1, "faction.defend", this.guiLeft + 4, this.guiTop + 47));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 144, this.guiTop + 42, 40, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.npc.advanced.defendFaction ? 1 : 0)));
-		this.addLabel(new GuiNpcLabel(12, "faction.ondeath", this.guiLeft + 4, this.guiTop + 69));
-		this.addButton(new GuiNpcButton(12, this.guiLeft + 90, this.guiTop + 64, 80, 20, "faction.points"));
+		int y = 20;
+		this.addLabel(new GuiNpcLabel(0, "faction.attackHostile", this.guiLeft + 4, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 124, this.guiTop + y, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.advanced.attackOtherFactions ? 1 : 0)));
+		y += 22;
+		this.addLabel(new GuiNpcLabel(1, "faction.defend", this.guiLeft + 4, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 124, this.guiTop + y, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.advanced.defendFaction ? 1 : 0)));
+		y += 32;
+		this.addLabel(new GuiNpcLabel(2, "faction.friends", this.guiLeft + 4, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(2, this.guiLeft + 124, this.guiTop + y, 60, 20, "selectServer.edit"));
+		y += 22;
+		this.addLabel(new GuiNpcLabel(3, "faction.hostiles", this.guiLeft + 4, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 124, this.guiTop + y, 60, 20, "selectServer.edit"));
+		y += 32;
+		this.addLabel(new GuiNpcLabel(4, "faction.ondeath", this.guiLeft + 4, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 124, this.guiTop + y, 60, 20, "faction.points"));
+		
 		if (this.scrollFactions == null) {
 			(this.scrollFactions = new GuiCustomScroll(this, 0)).setSize(180, 200);
 		}
@@ -131,8 +155,29 @@ implements IScrollData, ICustomScrollListener {
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		if (!CustomNpcs.showDescriptions) { return; }
-		if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+		if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("faction.hover.addfrends").getFormattedText());
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("faction.hover.addhostiles").getFormattedText());
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.replace").getFormattedText());
 		}
 	}
+
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) {
+		SubGuiNpcFactionSelect gui = (SubGuiNpcFactionSelect) subgui;
+		if (gui.id==0) {
+			for (int id : gui.selectFactions) {
+				this.npc.advanced.attackFactions.remove(id);
+				this.npc.advanced.frendFactions.add(id);
+			}
+		} else if (gui.id==1) {
+			for (int id : gui.selectFactions) {
+				this.npc.advanced.frendFactions.remove(id);
+				this.npc.advanced.attackFactions.add(id);
+			}
+		}
+	}
+	
 }

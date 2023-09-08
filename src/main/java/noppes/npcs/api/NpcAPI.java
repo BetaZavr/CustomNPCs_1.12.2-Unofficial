@@ -74,7 +74,7 @@ public abstract class NpcAPI {
 
 	public abstract IDamageSource getIDamageSource(DamageSource source);
 	
-	public abstract IEntityDamageSource getIDamageSource(String name, IEntity<?> entity); // New
+	public abstract IEntityDamageSource getIDamageSource(String name, IEntity<?> entity);
 
 	public abstract IEntity<?> getIEntity(Entity entity);
 

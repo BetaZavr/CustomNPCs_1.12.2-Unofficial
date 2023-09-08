@@ -1257,5 +1257,6 @@ implements IGuiHandler {
 
 	public void updateKeys() { }
 
+	public void reloadItemTextures() { }
 
 }

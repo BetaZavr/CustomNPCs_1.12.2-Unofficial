@@ -209,7 +209,6 @@ extends GuiScreen {
 			GlStateManager.rotate(vertical, 1.0f, 0.0f, 0.0f);
 		}
 		
-		
 		this.mc.getRenderManager().renderEntity(entity, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
 		float n = f2;
 		entity.renderYawOffset = n;

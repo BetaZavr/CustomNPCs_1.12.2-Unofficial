@@ -418,6 +418,26 @@ public class PacketHandlerServer {
 			}
 			Quest quest = new Quest(category);
 			quest.readNBT(Server.readNBT(buffer));
+			if (npc!=null && quest.completer.getName().equals(npc.getName())) {
+				NBTTagCompound compound = new NBTTagCompound();
+				npc.writeEntityToNBT(compound);
+				quest.completer.readEntityFromNBT(compound);
+			} else if (CustomNpcs.Server!=null) {
+				for (WorldServer w : CustomNpcs.Server.worlds) {
+					boolean found = false;
+					for (Entity e : w.getLoadedEntityList()) {
+						if (e instanceof EntityNPCInterface && e.getName().equals(quest.completer.getName())) {
+							NBTTagCompound nbtNPC = new NBTTagCompound();
+							((EntityNPCInterface) e).writeEntityToNBT(nbtNPC );
+							quest.completer.readEntityFromNBT(nbtNPC);
+							found = true;
+							break;
+						}
+					}
+					if (found) { break; }
+				}
+			}
+			else { quest.completer.display.setName(npc.getName()); }
 			QuestController.instance.saveQuest(category, quest);
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE, new Object[0]);
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 3, category.writeNBT(new NBTTagCompound()));
@@ -459,7 +479,6 @@ public class PacketHandlerServer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.QuestRemove) {
 			Quest quest = QuestController.instance.quests.get(buffer.readInt());
-			System.out.println("quest: "+quest);
 			if (quest != null) {
 				QuestController.instance.removeQuest(quest);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE, new Object[0]);

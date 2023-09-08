@@ -70,9 +70,7 @@ public class PlayerScriptData implements IScriptHandler {
 	}
 
 	public IPlayer<?> getPlayer() {
-		if (this.playerAPI == null) {
-			this.playerAPI = (IPlayer<?>) NpcAPI.Instance().getIEntity(this.player);
-		}
+		if (this.playerAPI == null) { this.playerAPI = (IPlayer<?>) NpcAPI.Instance().getIEntity(this.player); }
 		return this.playerAPI;
 	}
 

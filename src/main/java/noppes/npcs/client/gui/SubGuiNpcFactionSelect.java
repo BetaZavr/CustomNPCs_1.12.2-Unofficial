@@ -28,11 +28,12 @@ implements ICustomScrollListener {
 	private GuiCustomScroll scrollHostileFactions;
 	public HashSet<Integer> selectFactions;
 
-	public SubGuiNpcFactionSelect(String name, HashSet<Integer> setFactions, Map<String, Integer> data) {
+	public SubGuiNpcFactionSelect(int id, String name, HashSet<Integer> setFactions, Map<String, Integer> data) {
 		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 		this.xSize = 171;
 		this.ySize = 217;
 		this.closeOnEsc = true;
+		this.id = id;
 		this.name = name;
 		this.selectFactions = setFactions;
 		this.data = Maps.<Integer, String>newTreeMap();

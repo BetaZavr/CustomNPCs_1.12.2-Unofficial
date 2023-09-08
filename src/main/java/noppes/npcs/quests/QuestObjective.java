@@ -244,7 +244,7 @@ implements IQuestObjective {
 		if (this.type == EnumQuestTask.LOCATION) { // Location
 			done = new TextComponentTranslation("quest.task.location." + (!this.isCompleted() ? "1" : "0"))
 					.getFormattedText();
-			return this.name + ": " + done;
+			return this.name + ":" + done;
 		}
 		if (this.type == EnumQuestTask.MANUAL) { // Manual
 			done = new TextComponentTranslation("quest.task.manual." + (!this.isCompleted() ? "1" : "0"))

@@ -89,7 +89,23 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				break;
 			}
 			case 6: {
-				this.setSubGui(new SubGuiNpcFactionSelect(this.selected, this.faction.attackFactions, this.data));
+				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+				for (String name : this.data.keySet()) {
+					int id = this.data.get(name);
+					if (this.npc.faction.id==id || this.npc.faction.frendFactions.contains(id)) { continue; }
+					corData.put(name, id);
+				}
+				this.setSubGui(new SubGuiNpcFactionSelect(6, this.selected, this.faction.attackFactions, corData));
+				break;
+			}
+			case 7: {
+				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
+				for (String name : this.data.keySet()) {
+					int id = this.data.get(name);
+					if (this.npc.faction.id==id || this.npc.faction.attackFactions.contains(id)) { continue; }
+					corData.put(name, id);
+				}
+				this.setSubGui(new SubGuiNpcFactionSelect(7, this.selected, this.faction.attackFactions, corData));
 				break;
 			}
 			case 10: {
@@ -125,21 +141,24 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		
 		this.addLabel(new GuiNpcLabel(1, "gui.color", this.guiLeft + 8, this.guiTop + 31));
 		this.getButton(10).setTextColor(this.faction.color);
-		
-		this.addLabel(new GuiNpcLabel(2, "faction.points", this.guiLeft + 8, this.guiTop + 53));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + 48, 45, 20, "selectServer.edit"));
-		
-		this.addLabel(new GuiNpcLabel(3, "faction.hidden", this.guiLeft + 8, this.guiTop + 75));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + 70, 45, 20, new String[] { "gui.no", "gui.yes" }, (this.faction.hideFaction ? 1 : 0)));
-		
-		this.addLabel(new GuiNpcLabel(4, "faction.attacked", this.guiLeft + 8, this.guiTop + 97));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 170, this.guiTop + 92, 45, 20, new String[] { "gui.no", "gui.yes" }, (this.faction.getsAttacked ? 1 : 0)));
-		
-		this.addLabel(new GuiNpcLabel(6, "faction.hostiles", this.guiLeft + 8, this.guiTop + 141));
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 170, this.guiTop + 136, 45, 20, "selectServer.edit"));
-		
-		this.addLabel(new GuiNpcLabel(7, "faction.ondeath", this.guiLeft + 8, this.guiTop + 119));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 170, this.guiTop + 114, 45, 20, "faction.points"));
+		int y = 48;
+		this.addLabel(new GuiNpcLabel(2, "faction.points", this.guiLeft + 8, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(2, this.guiLeft + 170, this.guiTop + y, 45, 20, "selectServer.edit"));
+		y += 22;
+		this.addLabel(new GuiNpcLabel(3, "faction.hidden", this.guiLeft + 8, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 170, this.guiTop + y, 45, 20, new String[] { "gui.no", "gui.yes" }, (this.faction.hideFaction ? 1 : 0)));
+		y += 22;
+		this.addLabel(new GuiNpcLabel(4, "faction.attacked", this.guiLeft + 8, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 170, this.guiTop + y, 45, 20, new String[] { "gui.no", "gui.yes" }, (this.faction.getsAttacked ? 1 : 0)));
+		y += 22;
+		this.addLabel(new GuiNpcLabel(5, "faction.ondeath", this.guiLeft + 8, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 170, this.guiTop + y, 45, 20, "faction.points"));
+		y += 32;
+		this.addLabel(new GuiNpcLabel(6, "faction.hostiles", this.guiLeft + 8, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(6, this.guiLeft + 170, this.guiTop + y, 45, 20, "selectServer.edit"));
+		y += 22;
+		this.addLabel(new GuiNpcLabel(7, "faction.friends", this.guiLeft + 8, this.guiTop + y + 5));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 170, this.guiTop + y, 45, 20, "selectServer.edit"));
 	}
 
 	@Override
@@ -160,6 +179,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			this.setHoverText(new TextComponentTranslation("faction.hover.dead.points").getFormattedText());
 		} else if (this.getButton(6)!=null && this.getButton(6).visible && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.hostiles").getFormattedText());
+		} else if (this.getButton(7)!=null && this.getButton(7).visible && this.getButton(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("faction.hover.addfrends").getFormattedText());
 		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.color").getFormattedText());
 		}
@@ -233,7 +254,18 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			this.initGui();
 		}
 		else if (subgui instanceof SubGuiNpcFactionSelect) {
-			this.faction.attackFactions = ((SubGuiNpcFactionSelect) subgui).selectFactions;
+			SubGuiNpcFactionSelect gui = (SubGuiNpcFactionSelect) subgui;
+			if (subgui.id==6) {
+				for (int id : gui.selectFactions) {
+					this.npc.faction.frendFactions.remove(id);
+					this.npc.faction.attackFactions.add(id);
+				}
+			} else if (gui.id==7) {
+				for (int id : gui.selectFactions) {
+					this.npc.advanced.attackFactions.remove(id);
+					this.npc.advanced.frendFactions.add(id);
+				}
+			}
 			this.save();
 		}
 	}
