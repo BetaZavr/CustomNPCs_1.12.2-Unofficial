@@ -418,11 +418,21 @@ public class PacketHandlerServer {
 			}
 			Quest quest = new Quest(category);
 			quest.readNBT(Server.readNBT(buffer));
-			if (npc!=null && quest.completer.getName().equals(npc.getName())) {
+			
+			if (quest.completer==null) {
+				if (npc!=null) {
+					NBTTagCompound compound = new NBTTagCompound();
+					npc.writeEntityToNBT(compound);
+					Entity e = EntityList.createEntityFromNBT(compound, npc.world);
+					if (e instanceof EntityNPCInterface) { quest.completer = (EntityNPCInterface) e; }
+				}
+			}
+			else if (npc!=null && quest.completer.getName().equals(npc.getName())) {
 				NBTTagCompound compound = new NBTTagCompound();
 				npc.writeEntityToNBT(compound);
 				quest.completer.readEntityFromNBT(compound);
-			} else if (CustomNpcs.Server!=null) {
+			}
+			else if (CustomNpcs.Server!=null) {
 				for (WorldServer w : CustomNpcs.Server.worlds) {
 					boolean found = false;
 					for (Entity e : w.getLoadedEntityList()) {
@@ -438,6 +448,7 @@ public class PacketHandlerServer {
 				}
 			}
 			else { quest.completer.display.setName(npc.getName()); }
+			
 			QuestController.instance.saveQuest(category, quest);
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE, new Object[0]);
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 3, category.writeNBT(new NBTTagCompound()));
@@ -478,11 +489,13 @@ public class PacketHandlerServer {
 			compound.setString("Title", dialog.title);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.QuestRemove) {
-			Quest quest = QuestController.instance.quests.get(buffer.readInt());
-			if (quest != null) {
-				QuestController.instance.removeQuest(quest);
-				Server.sendData(player, EnumPacketClient.GUI_UPDATE, new Object[0]);
+			int id = buffer.readInt();
+			System.out.println("id: "+id);
+			if (QuestController.instance.quests.containsKey(id)) { QuestController.instance.removeQuest(QuestController.instance.quests.get(id)); }
+			for (QuestCategory cat : QuestController.instance.categories.values()) {
+				if (cat.quests.containsKey(id)) { cat.quests.remove(id); }
 			}
+			Server.sendData(player, EnumPacketClient.GUI_UPDATE, new Object[0]);
 		} else if (type == EnumPacketServer.TransportCategoriesGet) {
 			NoppesUtilServer.sendTransportCategoryData(player);
 		} else if (type == EnumPacketServer.TransportCategorySave) {

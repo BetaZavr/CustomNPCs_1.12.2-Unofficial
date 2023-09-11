@@ -1,4 +1,12 @@
 {
+  "book.down": {
+    "category": "player",
+    "sounds": ["customnpcs:book/down"]
+  },
+  "book.sheet": {
+    "category": "player",
+    "sounds": ["customnpcs:book/sheet"]
+  },
   "gun.empty": {
     "category": "player",
     "sounds": ["customnpcs:gun/empty"]

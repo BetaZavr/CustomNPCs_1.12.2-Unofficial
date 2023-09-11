@@ -149,6 +149,7 @@ import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.player.GuiNpcFollower;
 import noppes.npcs.client.gui.player.GuiNpcFollowerHire;
 import noppes.npcs.client.gui.player.GuiNpcQuestRewardItem;
+import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.gui.player.GuiTransportSelection;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionInv;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionStats;
@@ -1430,6 +1431,7 @@ extends CommonProxy {
 	}
 
 	public static void checkLocalization() {
+		GuiQuestLog.activeQuest = null;
 		File langDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/lang");
 		if (!langDir.exists() || !langDir.isDirectory()) { return; }
 		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();

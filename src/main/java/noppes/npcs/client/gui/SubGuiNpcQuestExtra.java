@@ -55,7 +55,6 @@ implements ITextfieldListener, ISubGuiListener {
 		y += 48;
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 5, y, 100, 20, new String[] { "quest.npc", "quest.instant" }, this.quest.completion.ordinal()));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 110, y, 60, 20, "availability.select"));
-		this.getButton(2).visible = this.quest.completion==EnumQuestCompletion.Npc;
 		y += 38;
 		this.addLabel(new GuiNpcLabel(2, "quest.questrewardtext", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 110, y, 60, 20, this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editingmode"));
@@ -90,8 +89,6 @@ implements ITextfieldListener, ISubGuiListener {
 			}
 			case 1: { // completion type
 				this.quest.completion = EnumQuestCompletion.values()[button.getValue()];
-				if (this.getButton(2)!=null) { this.getButton(2).visible = this.quest.completion==EnumQuestCompletion.Npc; }
-				if (this.getLabel(1)!=null) { this.getLabel(1).enabled = this.quest.completion==EnumQuestCompletion.Npc; }
 				break;
 			}
 			case 2: { // select npc
@@ -146,7 +143,7 @@ implements ITextfieldListener, ISubGuiListener {
 		this.hoverText = null;
 		super.drawScreen(i, j, f);
 		int u, v;
-		if (this.showEntity!=null && this.quest.completion==EnumQuestCompletion.Npc) {
+		if (this.showEntity!=null) {
 			GlStateManager.pushMatrix();
 			float size = (float) this.showEntity.display.getSize() * 0.38f;
 			int h = 0;

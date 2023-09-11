@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -15,6 +16,7 @@ import javax.imageio.ImageIO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -32,6 +34,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -43,6 +46,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.GuiCompassSetings;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IGuiData;
@@ -85,6 +89,7 @@ implements GuiYesNoCallback, IGuiData {
 	final Map<Integer, ResourceLocation> categorys;
 	final Map<Integer, ResourceLocation> questLists;
 	final Map<Integer, ResourceLocation> scrolling;
+	private final Random rnd = new Random();
 	QuestMiniInfo currentQuestList;
 
 	public GuiQuestLog() {
@@ -196,14 +201,17 @@ implements GuiYesNoCallback, IGuiData {
 		if (this.aType>-1) { return; }
 		switch(id) {
 			case 0: {
+				this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				this.mc.displayGuiScreen(new GuiInventory(this.mc.player));
 				break;
 			}
 			case 1: {
+				this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				this.mc.displayGuiScreen(new GuiFaction());
 				break;
 			}
 			case 2: {
+				this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				this.displayGuiScreen(new GuiCompassSetings(this));
 				break;
 			}
@@ -367,7 +375,6 @@ implements GuiYesNoCallback, IGuiData {
 							i++;
 							if (pos > 9 || i >= this.totalActiveQuest) {
 								BufferedImage buffer = ImageIO.read(this.mc.getResourceManager().getResource(GuiQuestLog.ql.get(3)).getInputStream());
-								
 								Graphics g = buffer.getGraphics();
 								if (this.currentList==listCat) { this.currentQuestList = new QuestMiniInfo(quests); }
 								for (int p : quests.keySet()) {
@@ -472,6 +479,7 @@ implements GuiYesNoCallback, IGuiData {
 								step = 1;
 								tick = 20;
 								mtick = 20;
+								MusicController.Instance.forcePlaySound(CustomNpcs.MODID+":book.down", 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
 								GlStateManager.disableBlend();
 								GlStateManager.popMatrix();
 								return;
@@ -552,10 +560,8 @@ implements GuiYesNoCallback, IGuiData {
 					this.mc.renderEngine.bindTexture(next); // right
 					this.drawTexturedModalRect(0, 0, 127, 37, 129, 175);
 					GlStateManager.popMatrix();
-
 					boolean up = (tick >= mtick / 2);
 					part = (up ? (float) tick - (float) mtick / 2.0f: (float) tick) + pTicks;
-					
 					cos = (float) Math.cos(90.0d * part / (double) mtick * Math.PI / 90.0d);
 					GlStateManager.pushMatrix();
 					double h = up ? 174.0f : 175.0d, p = 0.00390625d;
@@ -566,22 +572,17 @@ implements GuiYesNoCallback, IGuiData {
 					double suH = up ? 0.0d : (part / (double) mtick * 2.0d) * 30.0d;
 					double sdH = up ? 0.0d : (part / (double) mtick * 2.0d) * -30.0d;
 					GlStateManager.translate(uC/this.scale - (up ? 0.0d : w), vC/this.scale, 0.0f);
-					
 					Tessellator tessellator = Tessellator.getInstance();
 					BufferBuilder buffer = tessellator.getBuffer();
 					buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-					
 					buffer.pos(0.0d, h + suH, this.zLevel).tex(tx * p, (ty + h) * p).endVertex();
 					buffer.pos(w, h + dH, this.zLevel).tex((tx + (up ? 130.0d : 127.0d)) * p, (ty + h) * p).endVertex();
 					buffer.pos(w, uH, this.zLevel).tex((tx + (up ? 130.0d : 127.0d)) * p, ty * p).endVertex();
 					buffer.pos(0.0d, sdH, this.zLevel).tex(tx * p, ty * p).endVertex();
-
 					this.mc.renderEngine.bindTexture(up ? nowl : next);
-					
 					tessellator.draw();
-					
 					GlStateManager.popMatrix();
-					
+					if (tick==mtick) { MusicController.Instance.forcePlaySound(CustomNpcs.MODID+":book.sheet", 1.0f, 0.8f + 0.4f * this.rnd.nextFloat()); }
 					if (tick==0) {
 						step++;
 						tick = mtick;
@@ -671,17 +672,13 @@ implements GuiYesNoCallback, IGuiData {
 					this.mc.renderEngine.bindTexture(nowl); // right
 					this.drawTexturedModalRect(0, 0, 127, 37, 129, 175);
 					GlStateManager.popMatrix();
-
 					boolean up = (tick > mtick / 2);
 					part = (up ? (float) tick - (float) mtick / 2.0f: (float) tick) + pTicks;
-					
 					cos = (float) Math.cos(90.0d * part / (double) mtick * Math.PI / 90.0d);
 					GlStateManager.pushMatrix();
 					double h = up ? 174.0f : 175.0d, p = 0.00390625d;
 					double tx = up ? 0.0d : 127.0d, ty = 37.0d;
-					
 					double w = (up ? (1 - cos) * 127.0d : cos * 130.0d);
-					
 					double uH = up ? 0.0d : (part / (double) mtick * 2.0d) * -30.0d;
 					double dH = up ? 0.0d : (part / (double) mtick * 2.0d) * 30.0d;
 					double suH = up ? (((double) mtick - part) / (double) mtick * 2.0d) * 30.0d : 0.0d;
@@ -697,6 +694,7 @@ implements GuiYesNoCallback, IGuiData {
 					this.mc.renderEngine.bindTexture(up ? nowl : next);
 					tessellator.draw();
 					GlStateManager.popMatrix();
+					if (tick==mtick) { MusicController.Instance.forcePlaySound(CustomNpcs.MODID+":book.sheet", 1.0f, 0.8f + 0.4f * this.rnd.nextFloat()); }
 					if (tick==0) {
 						step++;
 						tick = mtick;
@@ -728,7 +726,6 @@ implements GuiYesNoCallback, IGuiData {
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
-		
 		this.hoverQuestID = -1;
 		this.hoverButton = -1;
 		if (this.aType<0 && !this.activeQuests.isEmpty()) {
@@ -813,11 +810,11 @@ implements GuiYesNoCallback, IGuiData {
 			}
 		}
 		if (this.tick<0) {
+			int u0 = (int) ((float) uC - 101.0f * this.scale);
+			int u1 = (int) ((float) uC + 7.0f * this.scale);
+			int v = (int) ((float) vC + 10.0f * this.scale);
 			if (this.listType) {
-				int u0 = (int) ((float) uC - 101.0f * this.scale);
-				int u1 = (int) ((float) uC + 7.0f * this.scale);
 				int vc = GuiQuestLog.activeQuest.npc!=null ? (int) (43.0f * this.scale) : 0;
-				int v = (int) ((float) vC + 10.0f * this.scale);
 				if (GuiQuestLog.activeQuest.q.texture!=null) {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
@@ -870,6 +867,7 @@ implements GuiYesNoCallback, IGuiData {
 						this.mc.fontRenderer.drawString(str, u0, v + (this.currentList==0 && GuiQuestLog.activeQuest.npc!=null ? vc : 0) + d * 10, CustomNpcs.questLogColor);
 						d++;
 					}
+					this.mc.fontRenderer.drawString(""+((this.currentList * 2) + 1), (int) ((float) u0 + 5.0f * this.scale), (int) ((float) v + 151.0f * this.scale), CustomNpcs.notEnableColor);
 				}
 				if (texts.containsKey((this.currentList * 2) + 1)) {
 					int d = 0;
@@ -880,6 +878,10 @@ implements GuiYesNoCallback, IGuiData {
 				}
 				GlStateManager.disableBlend();
 				GlStateManager.popMatrix();
+			}
+			if (this.totalActiveQuest>0) {
+				this.mc.fontRenderer.drawString(""+((this.currentList * 2) + 1), (int) ((float) u0 + 5.0f * this.scale), (int) ((float) v + 151.0f * this.scale), CustomNpcs.notEnableColor);
+				this.mc.fontRenderer.drawString(""+((this.currentList * 2) + 2), (int) ((float) u1 + 93.0f * this.scale), (int) ((float) v + 151.0f * this.scale), CustomNpcs.notEnableColor);
 			}
 			for (int id : this.buttons.keySet()) {
 				Integer[] b = this.buttons.get(id);
@@ -1136,13 +1138,14 @@ implements GuiYesNoCallback, IGuiData {
 			this.q = q;
 			this.npc = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), q.world);
 			this.map = Maps.<String, Map<Integer, List<String>>>newHashMap();
+			NBTTagCompound compound = new NBTTagCompound();
 			if (q.completer!=null) {
-				NBTTagCompound compound = new NBTTagCompound();
-				q.completer.writeEntityToNBT(compound);
+				this.q.completer.writeEntityToNBT(compound);
 				this.npc.readEntityFromNBT(compound);
-				this.npc.display.setShowName(1);
-				this.npc.animation.clear();
 			}
+			else { this.q.completer = this.npc; }
+			this.npc.display.setShowName(1);
+			this.npc.animation.clear();
 		}
 
 		public Map<Integer, List<String>> getText(int width, int height, int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2, lable texts]
@@ -1150,9 +1153,9 @@ implements GuiYesNoCallback, IGuiData {
 			if (this.map.containsKey(key)) { return this.map.get(key); }
 			this.map.clear();
 			String ent = ""+((char) 10);
-			String text = "";
+			String text = new TextComponentTranslation("gui.storyline", ": "+((char) 167)+"l"+new TextComponentTranslation(this.q.category.title).getFormattedText()).getFormattedText() + ent;
 			if (this.q.completion==EnumQuestCompletion.Npc && this.q.completer!=null) {
-				text = new TextComponentTranslation("quest.completewith", ((char) 167)+"l"+this.q.completer.getName()).getFormattedText() + ent;
+				text += new TextComponentTranslation("quest.completewith", ((char) 167)+"l"+this.q.completer.getName()).getFormattedText() + ent;
 			}
 			IQuestObjective[] allObj = this.q.getObjectives(player);
 			if (allObj.length>0) {

@@ -35,7 +35,6 @@ import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-//Changed
 public class GuiNPCManageQuest
 extends GuiNPCInterface2
 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
@@ -61,6 +60,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void initGui() {
 		super.initGui();
+		System.out.println("CNPCs: ");
 		this.categoryData.clear();
 		this.questData.clear();
 		QuestController qData = QuestController.instance;

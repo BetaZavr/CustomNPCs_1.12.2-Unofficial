@@ -189,6 +189,9 @@ implements IQuestHandler {
 		if (file.exists()) { file.delete(); }
 		this.quests.remove(quest.id);
 		quest.category.quests.remove(quest.id);
+		for (QuestCategory cat : this.categories.values()) {
+			if (cat.quests.containsKey(quest.id)) { cat.quests.remove(quest.id); }
+		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 2, quest.id);
 	}
 
