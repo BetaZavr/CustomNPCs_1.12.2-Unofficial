@@ -58,9 +58,6 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 			if (!player.capabilities.isCreativeMode && player.getHeldItemMainhand().getItem()!=CustomItems.wand) { return; }
 		}
 		if (npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
-		/*if ((npc.display.getBossbar() != 1 && (npc.display.getBossbar() != 2 || !npc.isAttacking())) || npc.isKilled() || npc.deathTime > 20 || npc.canSee(Minecraft.getMinecraft().player)) {
-			// old dead animation
-		}*/
 		if (npc.ais.getStandingType() == 3 && !npc.isWalking() && !npc.isInteracting()) {
 			float n = npc.ais.orientation;
 			npc.renderYawOffset = n;

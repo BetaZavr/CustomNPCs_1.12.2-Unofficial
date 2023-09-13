@@ -55,7 +55,6 @@ extends RenderNPCInterface<T> {
 		this.layerRenderers.add(new LayerNpcCloak(this));
 		this.addLayer(new LayerCustomHeldItem(this));
 		this.addLayer(new LayerCustomHead(this.npcmodel.bipedHead));
-		//this.addLayer(new LayerCustomArmor(this));
 		LayerBipedArmor armor = new LayerBipedArmor(this);
 		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(0.5f), 1);
 		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(1.0f), 2);
@@ -67,6 +66,10 @@ extends RenderNPCInterface<T> {
 	public void doRender(T npc, double d, double d1, double d2, float f, float partialTicks) {
 		this.partialTicks = partialTicks;
 		this.entity = npc.modelData.getEntity(npc);
+		List<LayerRenderer<T>> list = (List<LayerRenderer<T>>) this.layerRenderers;
+		for (LayerRenderer<T> layer : list) {
+			if (layer instanceof LayerPreRender) { ((LayerPreRender) layer).preRender(npc); }
+		}
 		if (this.entity != null) {
 			Render<?> render = this.renderManager.getEntityRenderObject(this.entity);
 			if (render instanceof RenderLivingBase) {
@@ -77,12 +80,6 @@ extends RenderNPCInterface<T> {
 			}
 		} else {
 			this.renderEntity = null;
-			List<LayerRenderer<T>> list = (List<LayerRenderer<T>>) this.layerRenderers;
-			for (LayerRenderer<T> layer : list) {
-				if (layer instanceof LayerPreRender) {
-					((LayerPreRender) layer).preRender(npc);
-				}
-			}
 		}
 		this.npcmodel.rightArmPose = this.getPose(npc, npc.getHeldItemMainhand());
 		this.npcmodel.leftArmPose = this.getPose(npc, npc.getHeldItemOffhand());

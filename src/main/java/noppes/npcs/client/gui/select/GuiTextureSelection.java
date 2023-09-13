@@ -169,8 +169,11 @@ implements ICustomScrollListener {
 			GlStateManager.translate(x, y, 0.0f);
 			GlStateManager.scale(scale, scale, 1.0f);
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-			this.mc.renderEngine.bindTexture(this.resource);
-			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256); // texture
+			try {
+				this.mc.renderEngine.bindTexture(this.resource);
+				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			}
+			catch (Exception e) { }
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();

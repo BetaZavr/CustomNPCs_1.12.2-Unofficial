@@ -115,7 +115,6 @@ implements ICustomScrollListener {
 			if (button.id != 11) {
 				return;
 			}
-			// int breed = ((GuiNpcButton)button).getValue();
 			EntityLivingBase entity = GuiCreationExtra.this.playerdata.getEntity(GuiCreationExtra.this.npc);
 			GuiCreationExtra.this.playerdata.setExtra(entity, "breed", ((GuiNpcButton) button).getValue() + "");
 			GuiCreationExtra.this.updateTexture();

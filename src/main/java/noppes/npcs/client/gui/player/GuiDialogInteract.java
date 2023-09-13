@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
@@ -31,7 +32,9 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.controllers.MusicController;
+import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
+import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiClose;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Dialog;
@@ -41,25 +44,20 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiDialogInteract
 extends GuiNPCInterface
-implements IGuiClose {
+implements IGuiClose, ICustomScrollListener {
 	
 	private Dialog dialog;
-	private int dialogHeight;
-	private ResourceLocation indicator;
 	private boolean isGrabbed;
+	private int dialogHeight, rowStart, rowTotal, selected, selectedX, selectedY, currentList;
+	private long wait;
+	private ResourceLocation wheel;
+	private ScaledResolution sw;
+	private GuiCustomScroll scroll;
 	private List<TextBlockClient> lines;
 	private List<Integer> options;
-	private int rowStart;
-	private int rowTotal;
-	private int selected;
-	private int selectedX;
-	private int selectedY;
-	private ResourceLocation wheel;
-	private ResourceLocation[] wheelparts;
-	private long wait;
-	private ScaledResolution sw;
 	private Map<Integer, ResourceLocation> textures = Maps.<Integer, ResourceLocation>newHashMap();
 	private Map<Integer, Integer[]> texturesSize = Maps.<Integer, Integer[]>newHashMap();
+	private final Map<String, Integer> dataIDs = Maps.<String, Integer>newHashMap();
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
@@ -72,14 +70,47 @@ implements IGuiClose {
 		this.isGrabbed = false;
 		this.selectedX = 0;
 		this.selectedY = 0;
+		this.currentList = 0;
 		this.appendDialog(this.dialog = dialog);
 		this.ySize = 238;
 		this.wheel = this.getResource("wheel.png");
-		this.indicator = this.getResource("indicator.png");
-		this.wheelparts = new ResourceLocation[] { this.getResource("wheel1.png"), this.getResource("wheel2.png"), this.getResource("wheel3.png"), this.getResource("wheel4.png"), this.getResource("wheel5.png"), this.getResource("wheel6.png") };
 		this.wait = this.dialog!=null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
 	}
 
+	@Override
+	public void initGui() {
+		super.initGui();
+		this.sw = new ScaledResolution(this.mc);
+		this.isGrabbed = false;
+		this.grabMouse(this.dialog.showWheel);
+		this.guiTop = this.height - this.ySize;
+		this.calculateRowHeight();
+		System.out.println("CNPCs: "+this.dialog.showWheel+" / "+this.dialog.options.isEmpty());
+		if (this.dialog.showWheel || this.dialog.options.isEmpty() || this.wait > System.currentTimeMillis()) {
+			this.scroll = null;
+			return;
+		}
+		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
+		this.dataIDs.clear();
+		List<String> list = Lists.<String>newArrayList();
+		List<Integer> colors = Lists.<Integer>newArrayList();
+		for (int p : this.dialog.options.keySet()) {
+			DialogOption option = this.dialog.options.get(p);
+			if (option==null || option.optionType==2) { continue; }
+			String key = (p<9 ? (p+1)+"-" : "") + NoppesStringUtils.formatText(option.title, this.player, this.npc);
+			this.dataIDs.put(key, p);
+			list.add(key);
+			colors.add(option.optionColor);
+		}
+		this.scroll.setListNotSorted(list);
+		this.scroll.setColors(colors);
+		this.scroll.guiLeft = this.guiLeft - 30;
+		this.scroll.guiTop = this.guiTop + this.dialogHeight;
+		System.out.println("CNPCs: "+this.guiLeft+" / "+this.sw.getScaledWidth_double());
+		this.scroll.setSize((int) (this.sw.getScaledWidth_double() + 88.0d - (double) this.scroll.guiLeft * 2.0d), 14 + (this.dataIDs.size() > 6 ? 6 : this.dataIDs.size()) * ClientProxy.Font.height(null));
+		this.addScroll(this.scroll);
+	}
+	
 	public void appendDialog(Dialog dialog) {
 		this.closeOnEsc = !dialog.disableEsc;
 		this.dialog = dialog;
@@ -158,20 +189,15 @@ implements IGuiClose {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 	}
 
-	private void drawLinedOptions(int j) {
+	private void drawLinedOptions(int i, int j, float f) {
 		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
-		int offset = this.dialogHeight;
+		//this.scroll.drawScreen(i, j, f, this.scroll.isMouseOver(i, j) ? Mouse.getDWheel() : 0);
+		/*int offset = this.dialogHeight;
 		if (j >= this.guiTop + offset) {
 			int selected = (j - (this.guiTop + offset)) / ClientProxy.Font.height(null);
 			if (selected < this.options.size()) {
 				this.selected = selected;
 			}
-		}
-		if (this.selected >= this.options.size()) {
-			this.selected = 0;
-		}
-		if (this.selected < 0) {
-			this.selected = 0;
 		}
 		for (int k = 0; k < this.options.size(); ++k) {
 			int id = this.options.get(k);
@@ -181,7 +207,7 @@ implements IGuiClose {
 				this.drawString(this.fontRenderer, ">", this.guiLeft - 38, y, 14737632);
 			}
 			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc), this.guiLeft - 30, y, option.optionColor);
-		}
+		}*/
 	}
 
 	@Override
@@ -211,13 +237,17 @@ implements IGuiClose {
 		}
 		int maxRows = this.dialogHeight / ClientProxy.Font.height(null);
 		if (!this.options.isEmpty()) {
+			if (this.wait!=0 && this.wait < System.currentTimeMillis()) {
+				this.wait = 0;
+				this.initGui();
+			}
 			if (this.wait>System.currentTimeMillis()) {
 				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
 				int offset = this.dialogHeight;
 				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.wait - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
 			}
 			else if (!this.dialog.showWheel) {
-				this.drawLinedOptions(j);
+				this.drawLinedOptions(i, j, f);
 			} else {
 				this.drawWheel();
 			}
@@ -263,35 +293,28 @@ implements IGuiClose {
 	private void drawWheel() {
 		int yoffset = this.guiTop + this.dialogHeight + 14;
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		// base
 		this.mc.renderEngine.bindTexture(this.wheel);
 		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, 0, 0, 63, 40);
 		this.selectedX += Mouse.getDX();
 		this.selectedY += Mouse.getDY();
 		int limit = 80;
-		if (this.selectedX > limit) {
-			this.selectedX = limit;
-		}
-		if (this.selectedX < -limit) {
-			this.selectedX = -limit;
-		}
-		if (this.selectedY > limit) {
-			this.selectedY = limit;
-		}
-		if (this.selectedY < -limit) {
-			this.selectedY = -limit;
-		}
+		if (this.selectedX > limit) { this.selectedX = limit; }
+		if (this.selectedX < -limit) { this.selectedX = -limit; }
+		if (this.selectedY > limit) { this.selectedY = limit; }
+		if (this.selectedY < -limit) { this.selectedY = -limit; }
 		this.selected = 1;
-		if (this.selectedY < -20) {
-			++this.selected;
-		}
-		if (this.selectedY > 54) {
-			--this.selected;
-		}
-		if (this.selectedX < 0) {
-			this.selected += 3;
-		}
-		this.mc.renderEngine.bindTexture(this.wheelparts[this.selected]);
-		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, 0, 0, 85, 55);
+		if (this.selectedY < -20) { ++this.selected; }
+		if (this.selectedY > 54) { --this.selected; }
+		if (this.selectedX < 0) { this.selected += 3; }
+		// more
+		this.mc.renderEngine.bindTexture(this.wheel);
+		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, 0, 40, 63, 40);
+		// select
+		this.mc.renderEngine.bindTexture(this.wheel);
+		int u = 63 + 63 * (this.selected % 3);
+		int v = (int) (40.0d * Math.floor((double) this.selected / 3.0d));
+		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, u, v, 63, 40);
 		for (int slot : this.dialog.options.keySet()) {
 			DialogOption option = this.dialog.options.get(slot);
 			if (option != null && option.optionType != 2) {
@@ -325,8 +348,9 @@ implements IGuiClose {
 				this.drawString(this.fontRenderer, option.title, this.width / 2 - 27 - ClientProxy.Font.width(option.title), yoffset + 27, color);
 			}
 		}
-		this.mc.renderEngine.bindTexture(this.indicator);
-		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 0, 0, 8, 8);
+		// indicator
+		this.mc.renderEngine.bindTexture(this.wheel);
+		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 63, 80, 8, 8);
 	}
 
 	public int getSelected() {
@@ -352,7 +376,7 @@ implements IGuiClose {
 	private void handleDialogSelection() {
 		int optionId = -1;
 		if (this.dialog.showWheel) {
-			optionId = this.selected;
+			optionId = this.selected + (this.currentList * 6);
 		} else if (!this.options.isEmpty()) {
 			optionId = this.options.get(this.selected);
 		}
@@ -375,29 +399,19 @@ implements IGuiClose {
 		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, new Object[] { this.player, this.npc }));
 		this.calculateRowHeight();
 		NoppesUtil.clickSound();
-	}
-
-	@Override
-	public void initGui() {
-		super.initGui();
-		this.sw = new ScaledResolution(this.mc);
-		this.isGrabbed = false;
-		this.grabMouse(this.dialog.showWheel);
-		this.guiTop = this.height - this.ySize;
-		this.calculateRowHeight();
+		this.initGui();
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i!=1 && this.wait>System.currentTimeMillis()) { return; }
-		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
-			--this.selected;
-		}
-		if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) {
-			++this.selected;
-		}
-		if (i == 28) {
+		if (i!=1 && this.wait > System.currentTimeMillis()) { return; }
+		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) { --this.selected; }
+		if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) { ++this.selected; }
+		if (i == 28) { this.handleDialogSelection(); }
+		if ((i>=2 || i<=10) && this.dataIDs.containsValue(i-2)) {
+			this.selected = i-2;
 			this.handleDialogSelection();
+			return;
 		}
 		if (this.closeOnEsc && (i == 1 || this.isInventoryKey(i))) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, this.dialog.id, -1);
@@ -409,10 +423,10 @@ implements IGuiClose {
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
-		if (this.wait>System.currentTimeMillis()) { return; }
-		if (((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
+		if (this.wait > System.currentTimeMillis()) { return; }
+		if (this.dialog.showWheel && ((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
 			this.handleDialogSelection();
-		}
+		} else { super.mouseClicked(i, j, k); }
 	}
 
 	@Override
@@ -420,5 +434,14 @@ implements IGuiClose {
 
 	@Override
 	public void setClose(int i, NBTTagCompound data) { this.grabMouse(false); }
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+		if (!this.dataIDs.containsKey(scroll.getSelected())) { return; }
+		this.selected = this.dataIDs.get(scroll.getSelected());
+	}
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { this.handleDialogSelection(); }
 	
 }

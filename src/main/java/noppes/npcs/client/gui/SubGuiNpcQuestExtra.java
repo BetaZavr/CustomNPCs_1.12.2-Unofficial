@@ -1,9 +1,11 @@
 package noppes.npcs.client.gui;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -18,6 +20,7 @@ import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumQuestCompletion;
+import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -28,7 +31,6 @@ implements ITextfieldListener, ISubGuiListener {
 	private static ResourceLocation sheet = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_3.png");
 	private static ResourceLocation tabs = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_4.png");
 	public Quest quest;
-	private EntityNPCInterface showEntity;
 	
 	public SubGuiNpcQuestExtra(int id, Quest q) {
 		this.quest = q;
@@ -60,21 +62,6 @@ implements ITextfieldListener, ISubGuiListener {
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 110, y, 60, 20, this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editingmode"));
 		
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 5, this.guiTop + this.ySize - 25, 60, 20, "gui.done"));
-		this.resetNPC();
-	}
-
-	private void resetNPC() {
-		if (this.quest.completer!=null) {
-			if (this.showEntity==null) {
-				this.showEntity = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), this.quest.completer.world);
-			}
-			NBTTagCompound compound = new NBTTagCompound();
-			this.quest.completer.writeEntityToNBT(compound );
-			this.showEntity.readEntityFromNBT(compound);
-			this.showEntity.display.setShowName(1);
-			this.showEntity.animation.clear();
-		}
-		else { this.showEntity = null; }
 	}
 
 	@Override
@@ -143,14 +130,14 @@ implements ITextfieldListener, ISubGuiListener {
 		this.hoverText = null;
 		super.drawScreen(i, j, f);
 		int u, v;
-		if (this.showEntity!=null) {
+		if (this.quest.completer!=null) {
 			GlStateManager.pushMatrix();
-			float size = (float) this.showEntity.display.getSize() * 0.38f;
+			float size = (float) this.quest.completer.display.getSize() * 0.38f;
 			int h = 0;
-			if (this.showEntity.height != size || this.showEntity.height < 1.9f) {
-				h = (int) (24.76190f * this.showEntity.height - 47.04762f);
+			if (this.quest.completer.height != size || this.quest.completer.height < 1.9f) {
+				h = (int) (24.76190f * this.quest.completer.height - 47.04762f);
 			}
-			this.drawNpc(this.showEntity, 212, 168 + h, 1.0f, 30, 15, false);
+			this.drawNpc(this.quest.completer, 212, 168 + h, 1.0f, 30, 15, false);
 			GlStateManager.popMatrix();
 			
 			u = this.guiLeft + 182;
@@ -172,7 +159,7 @@ implements ITextfieldListener, ISubGuiListener {
 			this.drawTexturedModalRect(-5, 7, 34, 66, 10, 29);
 			this.drawTexturedModalRect(50, 5, 34, 64, 10, 31);
 			this.drawTexturedModalRect(-5, 36, 34, 83, 65, 44);
-			String name = ((char) 167)+"l"+this.showEntity.getName();
+			String name = ((char) 167)+"l"+this.quest.completer.getName();
 			this.mc.fontRenderer.drawString(name, 61 - this.mc.fontRenderer.getStringWidth(name), 44, CustomNpcs.questLogColor, false);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
@@ -216,8 +203,10 @@ implements ITextfieldListener, ISubGuiListener {
 			GlStateManager.enableBlend();
 			GlStateManager.translate(u + 1.0f, v + 1.0f, 0.0f);
 			GlStateManager.scale(0.125f, 0.125f, 1.0f);
-			this.mc.renderEngine.bindTexture(this.quest.texture);
-			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			try {
+				this.mc.renderEngine.bindTexture(this.quest.texture);
+				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			} catch (Exception e) {}
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
@@ -245,12 +234,14 @@ implements ITextfieldListener, ISubGuiListener {
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		if (textField.getId()==0) {
-			this.quest.icon = new ResourceLocation(textField.getText());
+			if (textField.getText().isEmpty()) { this.quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png"); }
+			else { this.quest.icon = new ResourceLocation(textField.getText()); }
 			textField.setText(this.quest.icon.toString());
 		}
 		else if (textField.getId()==1) {
-			this.quest.texture = new ResourceLocation(textField.getText());
-			textField.setText(this.quest.texture.toString());
+			if (textField.getText().isEmpty()) { this.quest.texture = null; }
+			else { this.quest.texture = new ResourceLocation(textField.getText()); }
+			textField.setText(this.quest.texture==null ? "" : this.quest.texture.toString());
 		}
 	}
 
@@ -259,14 +250,27 @@ implements ITextfieldListener, ISubGuiListener {
 		if (subgui instanceof GuiTextureSelection) {
 			if (((GuiTextureSelection) subgui).id==0) {
 				this.quest.icon = ((GuiTextureSelection) subgui).resource;
+				if (this.quest.icon == null) { this.quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png"); }
 			} else {
 				this.quest.texture = ((GuiTextureSelection) subgui).resource;
 			}
+			this.initGui();
 		}
 		if (subgui instanceof GuiNPCSelection) {
 			if (((GuiNPCSelection) subgui).selectEntity==null) { return; }
-			this.quest.completer = ((GuiNPCSelection) subgui).selectEntity;
-			this.resetNPC();
+			Entity entity = this.mc.world.getEntityByID(((GuiNPCSelection) subgui).selectEntity.getEntityId());
+			if (entity==null) { return; }
+			NBTTagCompound compound = new NBTTagCompound();
+			entity.writeToNBTOptional(compound);
+			compound.setUniqueId("UUID", UUID.randomUUID());
+			Entity e = EntityList.createEntityFromNBT(compound, this.mc.world);
+			if (e instanceof EntityNPCInterface) {
+				this.quest.completer = (EntityNPCInterface) e;
+			}
+			MarkData data = MarkData.get(this.quest.completer);
+			if(data!=null) { data.marks.clear(); }
+			this.quest.completer.display.setShowName(1);
+			this.quest.completer.animation.clear();
 		}
 		if (subgui instanceof SubGuiNpcTextArea) {
 			this.quest.rewardText = ((SubGuiNpcTextArea) subgui).text;

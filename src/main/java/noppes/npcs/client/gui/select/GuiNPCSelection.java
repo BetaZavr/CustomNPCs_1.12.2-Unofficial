@@ -185,7 +185,7 @@ implements IGuiData, ICustomScrollListener {
 	private void resetEntity() {
 		this.selectEntity = null;
 		if (this.dataIDs.containsKey(this.scroll.getSelected())) {
-			Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
+			Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
 			if (!(entity instanceof EntityNPCInterface)) { return; }
 			this.selectEntity = (EntityNPCInterface) entity;
 		}

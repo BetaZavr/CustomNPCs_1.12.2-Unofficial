@@ -60,7 +60,6 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void initGui() {
 		super.initGui();
-		System.out.println("CNPCs: ");
 		this.categoryData.clear();
 		this.questData.clear();
 		QuestController qData = QuestController.instance;

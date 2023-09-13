@@ -106,6 +106,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.SET_TILE_DATA);
 		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_LIST);
 		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_PART);
+		PacketHandlerClient.list.add(EnumPacketClient.PLAY_SOUND);
 	}
 
 	@SubscribeEvent

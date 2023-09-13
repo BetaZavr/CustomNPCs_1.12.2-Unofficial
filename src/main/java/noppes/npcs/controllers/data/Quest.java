@@ -1,8 +1,8 @@
 package noppes.npcs.controllers.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.entity.Entity;
@@ -153,25 +153,33 @@ implements ICompatibilty, IQuest {
 	public String getLogText() {
 		String allTextLogs = "";
 		String ent = ""+((char) 10);
-		List<String> rewardist = new ArrayList<String>();
-		for (int i = 0, j = 1; i < this.rewardItems.getSizeInventory(); i++) {
+		Map<ItemStack, Integer> rewardist = Maps.<ItemStack, Integer>newHashMap();
+		for (int i = 0; i < this.rewardItems.getSizeInventory(); i++) {
 			ItemStack item = this.rewardItems.getStackInSlot(i);
-			if (item != null && !item.isEmpty()) {
-				String name = "" + j + " - " + item.getDisplayName();
-				if (item.getMaxStackSize() != 1) {
-					name += " x" + item.getCount();
+			if (item == null || item.isEmpty()) { continue; }
+			boolean has = false;
+			if (this.rewardType == EnumRewardType.ALL) {
+				for (ItemStack it : rewardist.keySet()) {
+					if (item.isItemEqual(it) && ItemStack.areItemStackShareTagsEqual(item, it)) {
+						int c = rewardist.get(it);
+						rewardist.put(it, c + item.getCount());
+						has = true;
+						break;
+					}
 				}
-				rewardist.add(name);
-				j++;
 			}
+			if (!has) { rewardist.put(item, item.getCount()); }
 		}
 		if (rewardist.size() > 0 || this.rewardExp > 0 || !this.rewardText.isEmpty()) {
 			allTextLogs += ent + ent + new TextComponentTranslation("questlog.reward").getFormattedText();
 		}
 		if (rewardist.size() > 0) {
 			allTextLogs += ent + new TextComponentTranslation("questlog." + (this.rewardType == EnumRewardType.ONE_SELECT ? "one" : this.rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText();
-			for (String itemText : rewardist) {
-				allTextLogs += ent + itemText;
+			int j = 1;
+			for (ItemStack item : rewardist.keySet()) {
+				int c = rewardist.get(item);
+				allTextLogs += ent + (rewardist.size() > 1 ? "" + j + " - " : "") + item.getDisplayName()+(c>1 ? " x"+c : "");
+				j++;
 			}
 		}
 		if (this.rewardExp > 0) {

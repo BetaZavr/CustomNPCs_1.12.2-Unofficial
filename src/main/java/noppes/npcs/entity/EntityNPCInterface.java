@@ -395,8 +395,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (npc.getOwner() instanceof EntityPlayer) {
 				this.recentlyHit = 100;
 			}
-		} else if (attackingEntity instanceof EntityPlayer
-				&& this.faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
+		} else if (attackingEntity instanceof EntityPlayer && this.faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
 			ForgeHooks.onLivingAttack(this, damagesource, i);
 			return false;
 		}
@@ -413,21 +412,19 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			return super.attackEntityFrom(damagesource, i);
 		}
 		try {
+			if (i > 0.0f) {
+				List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
+				for (EntityNPCInterface npc2 : inRange) {
+					npc2.advanced.tryDefendFaction(this.faction.id, this, attackingEntity);
+				}
+			}
 			if (this.isAttacking()) {
-				if (this.getAttackTarget() != null && attackingEntity != null
-						&& this.getDistance(this.getAttackTarget()) > this.getDistance(attackingEntity)) {
+				if (this.getAttackTarget() != null && attackingEntity != null && this.getDistance(this.getAttackTarget()) > this.getDistance(attackingEntity)) {
 					this.setAttackTarget(attackingEntity);
 				}
 				return super.attackEntityFrom(damagesource, i);
 			}
-			if (i > 0.0f) {
-				List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-						this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
-				for (EntityNPCInterface npc2 : inRange) {
-					npc2.advanced.tryDefendFaction(this.faction.id, this, attackingEntity);
-				}
-				this.setAttackTarget(attackingEntity);
-			}
+			if (i > 0.0f) { this.setAttackTarget(attackingEntity); }
 			return super.attackEntityFrom(damagesource, i);
 		} finally {
 			if (event.clearTarget) {

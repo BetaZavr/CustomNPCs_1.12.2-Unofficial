@@ -33,8 +33,10 @@ import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScrollListener, IGuiData {
-	// New
+public class GuiNPCTrader
+extends GuiContainerNPCInterface
+implements ICustomScrollListener, IGuiData {
+
 	private ContainerNPCTrader container;
 	private Map<Integer, Deal> data;
 	int px, py, colorP = 0x01000000;
@@ -52,7 +54,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.ySize = 224;
 		this.xSize = 224;
 		this.title = "role.trader";
-		// New
 		this.container = container;
 		this.selectDeal = -1;
 		this.data = Maps.<Integer, Deal>newTreeMap();
@@ -108,12 +109,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			Gui.drawRect(this.px + 1, this.py + 1, this.px + 24, this.py + 24, this.colorP);
 			GlStateManager.disableRescaleNormal();
 			// Currency Colored
-			if (this.getLabel(4) != null && this.getLabel(4).enabled && this.getButton(0) != null
-					&& this.getButton(0).isMouseOver()) {
+			if (this.getLabel(4) != null && this.getLabel(4).enabled && this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 				int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
-				if (CustomNpcs.proxy.getPlayerData(this.player).game.money >= this.container.deal.money) {
-					color = 0x8000FF00;
-				}
+				if (CustomNpcs.proxy.getPlayerData(this.player).game.money >= this.container.deal.money) { color = 0x8000FF00; }
 				Gui.drawRect(this.guiLeft + 138, this.guiTop + 112, this.guiLeft + 218, this.guiTop + 136, color);
 			}
 			// Items
@@ -131,10 +129,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
 					if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 						int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
-						if (AdditionalMethods.inventoryItemCount(this.player, curr, this.container.deal.availability,
-								this.container.deal.ignoreDamage, this.container.deal.ignoreNBT) >= curr.getCount()) {
-							color = 0x8000FF00;
-						}
+						if (AdditionalMethods.inventoryItemCount(this.player, curr, this.container.deal.availability, this.container.deal.ignoreDamage, this.container.deal.ignoreNBT) >= curr.getCount()) { color = 0x8000FF00; }
 						Gui.drawRect(u + 1, v + 1, u + 17, v + 17, color);
 					}
 					pos++;
@@ -157,7 +152,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 		this.colorP = 0x01000000;
 	}
 
-	// New
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		ItemStack stack = this.container.deal.inventorySold.getStackInSlot(0);
@@ -174,7 +168,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			this.drawString(this.mc.fontRenderer, "" + stack.getCount(), (int) ((17 - (stack.getCount() > 9 ? 9 : 0)) / s), (int) (14 / s), 0xFFFFFFFF);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
-
 			if (isMouseHover(i, j, this.guiLeft + 150, this.guiTop + 14, 25, 25)) {
 				List<String> list = new ArrayList<String>();
 				list.add(new TextComponentTranslation("market.hover.product").getFormattedText());
@@ -188,15 +181,14 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					if (curr.isEmpty()) {
 						continue;
 					}
-					int u = this.px - 10 + (pos % 3) * 18;
+					int u = this.px - 9 + (pos % 3) * 18;
 					int v = this.py + 38 + (pos / 3) * 18;
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
+					RenderHelper.enableGUIStandardItemLighting();
 					this.mc.getRenderItem().renderItemAndEffectIntoGUI(curr, 0, 0);
-					// this.mc.getRenderItem().renderItemOverlayIntoGUI(this.mc.fontRenderer, stack,
-					// 0, 0, (String)null);
 					GlStateManager.translate(0.0f, 0.0f, 200.0f);
-					this.drawString(this.mc.fontRenderer, "" + curr.getCount(), (12 - (curr.getCount() > 9 ? 6 : 0)), 10, 0xFFFFFFFF);
+					this.drawString(this.mc.fontRenderer, "" + curr.getCount(), (13 - (curr.getCount() > 9 ? 6 : 0)), 10, 0xFFFFFFFF);
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(i, j, u, v, 18, 18)) {

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -30,6 +31,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -54,6 +56,7 @@ import noppes.npcs.client.renderer.TempTexture;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.controllers.PlayerQuestController;
+import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
@@ -1138,12 +1141,17 @@ implements GuiYesNoCallback, IGuiData {
 			this.q = q;
 			this.npc = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), q.world);
 			this.map = Maps.<String, Map<Integer, List<String>>>newHashMap();
-			NBTTagCompound compound = new NBTTagCompound();
 			if (q.completer!=null) {
-				this.q.completer.writeEntityToNBT(compound);
-				this.npc.readEntityFromNBT(compound);
+				NBTTagCompound compound = new NBTTagCompound();
+				q.completer.writeToNBTOptional(compound);
+				compound.setUniqueId("UUID", UUID.randomUUID());
+				Entity e = EntityList.createEntityFromNBT(compound, q.completer.world);
+				if (e instanceof EntityNPCInterface) { this.npc = (EntityNPCInterface) e; }
+				else { this.npc.readEntityFromNBT(compound); }
 			}
 			else { this.q.completer = this.npc; }
+			MarkData data = MarkData.get(this.npc);
+			if(data!=null) { data.marks.clear(); }
 			this.npc.display.setShowName(1);
 			this.npc.animation.clear();
 		}
