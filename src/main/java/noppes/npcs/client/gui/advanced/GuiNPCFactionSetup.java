@@ -169,11 +169,13 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 		if (!(subgui instanceof SubGuiNpcFactionSelect)) { return; }
 		SubGuiNpcFactionSelect gui = (SubGuiNpcFactionSelect) subgui;
 		if (gui.id==0) {
+			this.npc.advanced.frendFactions.clear();
 			for (int id : gui.selectFactions) {
 				this.npc.advanced.attackFactions.remove(id);
 				this.npc.advanced.frendFactions.add(id);
 			}
 		} else if (gui.id==1) {
+			this.npc.advanced.attackFactions.clear();
 			for (int id : gui.selectFactions) {
 				this.npc.advanced.frendFactions.remove(id);
 				this.npc.advanced.attackFactions.add(id);

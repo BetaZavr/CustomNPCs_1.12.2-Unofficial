@@ -368,15 +368,15 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		return var4;
 	}
 
-	public boolean attackEntityFrom(DamageSource damagesource, float i) {
+	public boolean attackEntityFrom(DamageSource damagesource, float damage) {
 		if (this.world.isRemote || CustomNpcs.FreezeNPCs || damagesource.damageType.equals("inWall")) {
 			return false;
 		}
 		if (damagesource.damageType.equals("outOfWorld") && this.isKilled()) {
 			this.reset();
 		}
-		i = this.stats.resistances.applyResistance(damagesource, i);
-		if (this.hurtResistantTime > this.maxHurtResistantTime / 2.0f && i <= this.lastDamage) {
+		damage = this.stats.resistances.applyResistance(damagesource, damage);
+		if (this.hurtResistantTime > this.maxHurtResistantTime / 2.0f && damage <= this.lastDamage) {
 			return false;
 		}
 		Entity entity = NoppesUtilServer.GetDamageSourcee(damagesource);
@@ -396,23 +396,23 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				this.recentlyHit = 100;
 			}
 		} else if (attackingEntity instanceof EntityPlayer && this.faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
-			ForgeHooks.onLivingAttack(this, damagesource, i);
+			ForgeHooks.onLivingAttack(this, damagesource, damage);
 			return false;
 		}
-		NpcEvent.DamagedEvent event = new NpcEvent.DamagedEvent(this.wrappedNPC, entity, i, damagesource);
+		NpcEvent.DamagedEvent event = new NpcEvent.DamagedEvent(this.wrappedNPC, entity, damage, damagesource);
 		if (EventHooks.onNPCDamaged(this, event)) {
-			ForgeHooks.onLivingAttack(this, damagesource, i);
+			ForgeHooks.onLivingAttack(this, damagesource, damage);
 			return false;
 		}
-		i = event.damage;
+		damage = event.damage;
 		if (this.isKilled()) {
 			return false;
 		}
 		if (attackingEntity == null) {
-			return super.attackEntityFrom(damagesource, i);
+			return super.attackEntityFrom(damagesource, damage);
 		}
 		try {
-			if (i > 0.0f) {
+			if (damage > 0.0f) {
 				List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
 				for (EntityNPCInterface npc2 : inRange) {
 					npc2.advanced.tryDefendFaction(this.faction.id, this, attackingEntity);
@@ -422,10 +422,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				if (this.getAttackTarget() != null && attackingEntity != null && this.getDistance(this.getAttackTarget()) > this.getDistance(attackingEntity)) {
 					this.setAttackTarget(attackingEntity);
 				}
-				return super.attackEntityFrom(damagesource, i);
+				return super.attackEntityFrom(damagesource, damage);
 			}
-			if (i > 0.0f) { this.setAttackTarget(attackingEntity); }
-			return super.attackEntityFrom(damagesource, i);
+			if (damage > 0.0f) { this.setAttackTarget(attackingEntity); }
+			return super.attackEntityFrom(damagesource, damage);
 		} finally {
 			if (event.clearTarget) {
 				this.setAttackTarget(null);
@@ -1402,9 +1402,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void setAttackTarget(EntityLivingBase entity) {
-		if ((entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.disableDamage)
-				|| (entity != null && entity == this.getOwner()) || this.getAttackTarget() == entity) {
+		if ((entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.disableDamage) || (entity != null && entity == this.getOwner()) || this.getAttackTarget() == entity) {
 			return;
+		}
+		if (entity instanceof EntityNPCInterface) {
+			EntityNPCInterface npc = (EntityNPCInterface) entity;
+			if (this.faction.id==npc.faction.id || this.faction.frendFactions.contains(npc.faction.id)) {
+				return;
+			}
 		}
 		if (this.isRunHome) {
 			return;

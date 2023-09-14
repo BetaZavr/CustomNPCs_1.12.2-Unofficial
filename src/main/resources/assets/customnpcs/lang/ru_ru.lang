@@ -1097,7 +1097,6 @@ gui.solid=Твёрдый
 gui.start=Нач.
 gui.started=Запустить
 gui.stop=Остановить
-gui.storyline=Сюжет%s
 gui.sunlight=Днем
 gui.tab=Вкладка
 gui.take=Забрать

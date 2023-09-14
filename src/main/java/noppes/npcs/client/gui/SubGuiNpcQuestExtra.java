@@ -30,6 +30,7 @@ implements ITextfieldListener, ISubGuiListener {
 
 	private static ResourceLocation sheet = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_3.png");
 	private static ResourceLocation tabs = new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_4.png");
+	private EntityNPCInterface npc;
 	public Quest quest;
 	
 	public SubGuiNpcQuestExtra(int id, Quest q) {
@@ -62,6 +63,21 @@ implements ITextfieldListener, ISubGuiListener {
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 110, y, 60, 20, this.quest.rewardText.isEmpty() ? "selectServer.edit" : "advanced.editingmode"));
 		
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 5, this.guiTop + this.ySize - 25, 60, 20, "gui.done"));
+		
+		this.npc = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), this.mc.world);
+		if (this.quest.completer!=null) {
+			NBTTagCompound compound = new NBTTagCompound();
+			this.quest.completer.writeToNBTOptional(compound);
+			compound.setUniqueId("UUID", UUID.randomUUID());
+			Entity e = EntityList.createEntityFromNBT(compound, this.quest.completer.world);
+			if (e instanceof EntityNPCInterface) { this.npc = (EntityNPCInterface) e; }
+			else { this.npc.readEntityFromNBT(compound); }
+		}
+		else { this.quest.completer = this.npc; }
+		MarkData data = MarkData.get(this.npc);
+		if(data!=null) { data.marks.clear(); }
+		this.npc.display.setShowName(1);
+		this.npc.animation.clear();
 	}
 
 	@Override
@@ -130,14 +146,14 @@ implements ITextfieldListener, ISubGuiListener {
 		this.hoverText = null;
 		super.drawScreen(i, j, f);
 		int u, v;
-		if (this.quest.completer!=null) {
+		if (this.npc!=null) {
 			GlStateManager.pushMatrix();
-			float size = (float) this.quest.completer.display.getSize() * 0.38f;
+			float size = (float) this.npc.display.getSize() * 0.38f;
 			int h = 0;
-			if (this.quest.completer.height != size || this.quest.completer.height < 1.9f) {
-				h = (int) (24.76190f * this.quest.completer.height - 47.04762f);
+			if (this.npc.height != size || this.npc.height < 1.9f) {
+				h = (int) (24.76190f * this.npc.height - 47.04762f);
 			}
-			this.drawNpc(this.quest.completer, 212, 168 + h, 1.0f, 30, 15, false);
+			this.drawNpc(this.npc, 212, 168 + h, 1.0f, 30, 15, false);
 			GlStateManager.popMatrix();
 			
 			u = this.guiLeft + 182;
@@ -271,6 +287,7 @@ implements ITextfieldListener, ISubGuiListener {
 			if(data!=null) { data.marks.clear(); }
 			this.quest.completer.display.setShowName(1);
 			this.quest.completer.animation.clear();
+			this.initGui();
 		}
 		if (subgui instanceof SubGuiNpcTextArea) {
 			this.quest.rewardText = ((SubGuiNpcTextArea) subgui).text;

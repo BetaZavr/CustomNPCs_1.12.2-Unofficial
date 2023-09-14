@@ -1096,7 +1096,6 @@ gui.solid=Solid
 gui.start=Start
 gui.started=Started
 gui.stop=Stop
-gui.storyline=Storyline%s
 gui.sunlight=Sunlight
 gui.tab=Tab
 gui.take=Take

@@ -120,19 +120,19 @@ extends RenderNPCInterface<T> {
 			}
 			NPCRendererHelper.preRenderCallback(this.entity, f, this.renderEntity);
 			npc.display.setSize(size);
-			GlStateManager.scale(0.2f * npc.display.getSize(), 0.2f * npc.display.getSize(),
-					0.2f * npc.display.getSize());
+			GlStateManager.scale(0.2f * npc.display.getSize(), 0.2f * npc.display.getSize(), 0.2f * npc.display.getSize());
 		} else {
 			super.preRenderCallback(npc, f);
 		}
 	}
 
 	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
-		if (this.entity != null && this.renderEntity != null) {
+		/*if (this.entity!=null && this.renderEntity != null) {
+			System.out.println(this.entity.getName()+" = "+this.renderEntity);
 			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
-		} else {
+		} else {*/
 			super.renderLayers(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
-		}
+		//}
 	}
 
 	@Override

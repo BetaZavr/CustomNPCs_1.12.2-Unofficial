@@ -92,7 +92,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
 				for (String name : this.data.keySet()) {
 					int id = this.data.get(name);
-					if (this.npc.faction.id==id || this.npc.faction.frendFactions.contains(id)) { continue; }
+					if (this.faction.id==id || this.faction.frendFactions.contains(id)) { continue; }
 					corData.put(name, id);
 				}
 				this.setSubGui(new SubGuiNpcFactionSelect(6, this.selected, this.faction.attackFactions, corData));
@@ -102,10 +102,10 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
 				for (String name : this.data.keySet()) {
 					int id = this.data.get(name);
-					if (this.npc.faction.id==id || this.npc.faction.attackFactions.contains(id)) { continue; }
+					if (this.faction.id==id || this.faction.attackFactions.contains(id)) { continue; }
 					corData.put(name, id);
 				}
-				this.setSubGui(new SubGuiNpcFactionSelect(7, this.selected, this.faction.attackFactions, corData));
+				this.setSubGui(new SubGuiNpcFactionSelect(7, this.selected, this.faction.frendFactions, corData));
 				break;
 			}
 			case 10: {
@@ -256,14 +256,16 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		else if (subgui instanceof SubGuiNpcFactionSelect) {
 			SubGuiNpcFactionSelect gui = (SubGuiNpcFactionSelect) subgui;
 			if (subgui.id==6) {
+				this.faction.attackFactions.clear();
 				for (int id : gui.selectFactions) {
-					this.npc.faction.frendFactions.remove(id);
-					this.npc.faction.attackFactions.add(id);
+					this.faction.frendFactions.remove(id);
+					this.faction.attackFactions.add(id);
 				}
 			} else if (gui.id==7) {
+				this.faction.frendFactions.clear();
 				for (int id : gui.selectFactions) {
-					this.npc.advanced.attackFactions.remove(id);
-					this.npc.advanced.frendFactions.add(id);
+					this.faction.attackFactions.remove(id);
+					this.faction.frendFactions.add(id);
 				}
 			}
 			this.save();

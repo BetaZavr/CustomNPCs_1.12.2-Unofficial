@@ -759,7 +759,7 @@ implements GuiYesNoCallback, IGuiData {
 							progress = i + " / " + q.questInterface.tasks.length;
 						}
 						this.hoverText = new String[] {
-								new TextComponentTranslation("gui.storyline", ": " + new TextComponentTranslation(q.category.title).getFormattedText()).getFormattedText(),
+								new TextComponentTranslation(q.category.title).getFormattedText(),
 								new TextComponentTranslation("gui.quest", ": " + q.getTitle()).getFormattedText(),
 								new TextComponentTranslation("gui.progress", ": " + progress).getFormattedText()
 						};
@@ -835,7 +835,10 @@ implements GuiYesNoCallback, IGuiData {
 					GlStateManager.popMatrix();
 				}
 				if (this.currentList==0 && GuiQuestLog.activeQuest.npc!=null) {
-					this.drawNpc(GuiQuestLog.activeQuest.npc, (int) (-52.5f * this.scale), (int) (1.9f - 4.6f * Math.pow(this.scale, 3)), 1.0f, 30, 15, false);
+					float size = 0.6f / GuiQuestLog.activeQuest.npc.width;
+					int vH = (int) (1.9f - 4.6f * Math.pow(this.scale, 3));
+					vH = (int) ((float) vH * (-13.5f * size + 14.5f));
+					this.drawNpc(GuiQuestLog.activeQuest.npc, (int) (-52.5f * this.scale), vH, size, 30, 15, false);
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
 					GlStateManager.scale(this.scale, this.scale, 1.0f);
@@ -1154,6 +1157,7 @@ implements GuiYesNoCallback, IGuiData {
 			if(data!=null) { data.marks.clear(); }
 			this.npc.display.setShowName(1);
 			this.npc.animation.clear();
+			System.out.println("NPC: "+this.npc.display.getModel()+"; size: ["+this.npc.height+", "+this.npc.width+"]");
 		}
 
 		public Map<Integer, List<String>> getText(int width, int height, int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2, lable texts]
@@ -1161,7 +1165,7 @@ implements GuiYesNoCallback, IGuiData {
 			if (this.map.containsKey(key)) { return this.map.get(key); }
 			this.map.clear();
 			String ent = ""+((char) 10);
-			String text = new TextComponentTranslation("gui.storyline", ": "+((char) 167)+"l"+new TextComponentTranslation(this.q.category.title).getFormattedText()).getFormattedText() + ent;
+			String text = ((char) 167)+"l"+new TextComponentTranslation(this.q.category.title).getFormattedText() + ent;
 			if (this.q.completion==EnumQuestCompletion.Npc && this.q.completer!=null) {
 				text += new TextComponentTranslation("quest.completewith", ((char) 167)+"l"+this.q.completer.getName()).getFormattedText() + ent;
 			}

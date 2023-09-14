@@ -90,8 +90,12 @@ implements IEntity {
 		if (source instanceof EntityDamageSource) {
 			this.entity.attackEntityFrom((EntityDamageSource) source, amount);
 			if (((EntityDamageSource) source).getTrueSource() instanceof EntityLivingBase) {
-				((EntityLiving) this.entity).setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
-				((EntityLivingBase) this.entity).setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+				if (this.entity instanceof EntityLiving) {
+					((EntityLiving) this.entity).setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+				}
+				if (this.entity instanceof EntityLivingBase) {
+					((EntityLivingBase) this.entity).setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+				}
 			}
 		}
 		else { this.damage(amount); }
