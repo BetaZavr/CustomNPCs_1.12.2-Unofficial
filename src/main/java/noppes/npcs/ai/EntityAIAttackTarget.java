@@ -8,7 +8,9 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class EntityAIAttackTarget extends EntityAIBase {
+public class EntityAIAttackTarget
+extends EntityAIBase {
+	
 	private int attackTick;
 	private int delayCounter;
 	private Path entityPathEntity;
@@ -74,17 +76,16 @@ public class EntityAIAttackTarget extends EntityAIBase {
 
 	public void updateTask() {
 		this.npc.getLookHelper().setLookPositionWithEntity(this.entityTarget, 30.0f, 30.0f);
-		if (!this.navOverride && --this.delayCounter <= 0) {
-			this.delayCounter = 4 + this.npc.getRNG().nextInt(7);
-			this.npc.getNavigator().tryMoveToEntityLiving(this.entityTarget, 1.2999999523162842);
-		}
-		this.attackTick = Math.max(this.attackTick - 1, 0);
 		double y = this.entityTarget.posY;
-		if (this.entityTarget.getEntityBoundingBox() != null) {
-			y = this.entityTarget.getEntityBoundingBox().minY;
-		}
+		if (this.entityTarget.getEntityBoundingBox() != null) { y = this.entityTarget.getEntityBoundingBox().minY; }
 		double distance = this.npc.getDistanceSq(this.entityTarget.posX, y, this.entityTarget.posZ);
 		double range = this.npc.stats.melee.getRange() * this.npc.stats.melee.getRange() + this.entityTarget.width;
+		if (!this.navOverride && --this.delayCounter <= 0) {
+			this.delayCounter = 4 + this.npc.getRNG().nextInt(7);
+			if (distance > range / 2.0d) { this.npc.getNavigator().tryMoveToEntityLiving(this.entityTarget, 1.3); }
+			else if (this.npc.getNavigator().getPath()!=null) { this.npc.getNavigator().clearPath(); }
+		}
+		this.attackTick = Math.max(this.attackTick - 1, 0);
 		double minRange = this.npc.width * 2.0f * this.npc.width * 2.0f + this.entityTarget.width;
 		if (minRange > range) {
 			range = minRange;

@@ -1,23 +1,13 @@
 package noppes.npcs.client.gui.player;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import org.lwjgl.input.Mouse;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -32,9 +22,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiClose;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Dialog;
@@ -44,20 +32,20 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiDialogInteract
 extends GuiNPCInterface
-implements IGuiClose, ICustomScrollListener {
+implements IGuiClose {
 	
 	private Dialog dialog;
+	private int dialogHeight;
 	private boolean isGrabbed;
-	private int dialogHeight, rowStart, rowTotal, selected, selectedX, selectedY, currentList;
-	private long wait;
-	private ResourceLocation wheel;
-	private ScaledResolution sw;
-	private GuiCustomScroll scroll;
 	private List<TextBlockClient> lines;
 	private List<Integer> options;
-	private Map<Integer, ResourceLocation> textures = Maps.<Integer, ResourceLocation>newHashMap();
-	private Map<Integer, Integer[]> texturesSize = Maps.<Integer, Integer[]>newHashMap();
-	private final Map<String, Integer> dataIDs = Maps.<String, Integer>newHashMap();
+	private int rowStart;
+	private int rowTotal;
+	private int selected;
+	private int selectedX;
+	private int selectedY;
+	private ResourceLocation wheel;
+	private long wait;
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
@@ -70,47 +58,12 @@ implements IGuiClose, ICustomScrollListener {
 		this.isGrabbed = false;
 		this.selectedX = 0;
 		this.selectedY = 0;
-		this.currentList = 0;
 		this.appendDialog(this.dialog = dialog);
 		this.ySize = 238;
 		this.wheel = this.getResource("wheel.png");
 		this.wait = this.dialog!=null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
 	}
 
-	@Override
-	public void initGui() {
-		super.initGui();
-		this.sw = new ScaledResolution(this.mc);
-		this.isGrabbed = false;
-		this.grabMouse(this.dialog.showWheel);
-		this.guiTop = this.height - this.ySize;
-		this.calculateRowHeight();
-		System.out.println("CNPCs: "+this.dialog.showWheel+" / "+this.dialog.options.isEmpty());
-		if (this.dialog.showWheel || this.dialog.options.isEmpty() || this.wait > System.currentTimeMillis()) {
-			this.scroll = null;
-			return;
-		}
-		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
-		this.dataIDs.clear();
-		List<String> list = Lists.<String>newArrayList();
-		List<Integer> colors = Lists.<Integer>newArrayList();
-		for (int p : this.dialog.options.keySet()) {
-			DialogOption option = this.dialog.options.get(p);
-			if (option==null || option.optionType==2) { continue; }
-			String key = (p<9 ? (p+1)+"-" : "") + NoppesStringUtils.formatText(option.title, this.player, this.npc);
-			this.dataIDs.put(key, p);
-			list.add(key);
-			colors.add(option.optionColor);
-		}
-		this.scroll.setListNotSorted(list);
-		this.scroll.setColors(colors);
-		this.scroll.guiLeft = this.guiLeft - 30;
-		this.scroll.guiTop = this.guiTop + this.dialogHeight;
-		System.out.println("CNPCs: "+this.guiLeft+" / "+this.sw.getScaledWidth_double());
-		this.scroll.setSize((int) (this.sw.getScaledWidth_double() + 88.0d - (double) this.scroll.guiLeft * 2.0d), 14 + (this.dataIDs.size() > 6 ? 6 : this.dataIDs.size()) * ClientProxy.Font.height(null));
-		this.addScroll(this.scroll);
-	}
-	
 	public void appendDialog(Dialog dialog) {
 		this.closeOnEsc = !dialog.disableEsc;
 		this.dialog = dialog;
@@ -119,38 +72,11 @@ implements IGuiClose, ICustomScrollListener {
 		if (dialog.sound != null && !dialog.sound.isEmpty()) {
 			MusicController.Instance.stopMusic();
 			BlockPos pos = this.npc.getPosition();
-			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(),
+					1.0f, 1.0f);
 		}
-		String dText = dialog.text;
-		int h = 0;
-		ResourceLocation txtr = null;
-		Integer[] txtrSize = null;
-		if (!dialog.texture.isEmpty()) {
-			txtr = new ResourceLocation(dialog.texture);
-			this.mc.getTextureManager().bindTexture(txtr);
-			try {
-				IResource res = this.mc.getResourceManager().getResource(new ResourceLocation(dialog.texture));
-				BufferedImage buffer = ImageIO.read(res.getInputStream());
-				txtrSize = new Integer[] { buffer.getWidth(), buffer.getHeight() };
-				h = buffer.getHeight() / ClientProxy.Font.height(null) / 2;
-			}
-			catch (IOException e) {}
-		}
-		for (int i=0; i<h; i++) { dText += ""+((char) 10); }
-		this.lines.add(new TextBlockClient(this.npc, dText, 280, 14737632, new Object[] { this.player, this.npc }));
-		if (h>0 && txtr!=null && txtrSize!=null) {
-			int c = 0, s = 0;
-			for (TextBlockClient t : this.lines) {
-				c += t.lines.size();
-				if (s==this.lines.size()-1) {
-					c -= h;
-					this.textures.put(c, txtr);
-					this.texturesSize.put(c, txtrSize);
-					break;
-				}
-				s++;
-			}
-		}
+		this.lines
+				.add(new TextBlockClient(this.npc, dialog.text, 280, 14737632, new Object[] { this.player, this.npc }));
 		for (int slot : dialog.options.keySet()) {
 			DialogOption option = dialog.options.get(slot);
 			if (option != null) {
@@ -189,25 +115,30 @@ implements IGuiClose, ICustomScrollListener {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 	}
 
-	private void drawLinedOptions(int i, int j, float f) {
+	private void drawLinedOptions(int j) {
 		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
-		//this.scroll.drawScreen(i, j, f, this.scroll.isMouseOver(i, j) ? Mouse.getDWheel() : 0);
-		/*int offset = this.dialogHeight;
+		int offset = this.dialogHeight;
 		if (j >= this.guiTop + offset) {
 			int selected = (j - (this.guiTop + offset)) / ClientProxy.Font.height(null);
 			if (selected < this.options.size()) {
 				this.selected = selected;
 			}
 		}
+		if (this.selected >= this.options.size()) {
+			this.selected = 0;
+		}
+		if (this.selected < 0) {
+			this.selected = 0;
+		}
 		for (int k = 0; k < this.options.size(); ++k) {
 			int id = this.options.get(k);
 			DialogOption option = this.dialog.options.get(id);
 			int y = this.guiTop + offset + k * ClientProxy.Font.height(null);
 			if (this.selected == k) {
-				this.drawString(this.fontRenderer, ">", this.guiLeft - 38, y, 14737632);
+				this.drawString(this.fontRenderer, ">", this.guiLeft - 60, y, 14737632);
 			}
 			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc), this.guiLeft - 30, y, option.optionColor);
-		}*/
+		}
 	}
 
 	@Override
@@ -235,59 +166,26 @@ implements IGuiClose, ICustomScrollListener {
 			}
 			++count;
 		}
-		int maxRows = this.dialogHeight / ClientProxy.Font.height(null);
 		if (!this.options.isEmpty()) {
-			if (this.wait!=0 && this.wait < System.currentTimeMillis()) {
-				this.wait = 0;
-				this.initGui();
-			}
 			if (this.wait>System.currentTimeMillis()) {
 				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
 				int offset = this.dialogHeight;
 				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.wait - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
 			}
 			else if (!this.dialog.showWheel) {
-				this.drawLinedOptions(i, j, f);
+				this.drawLinedOptions(j);
 			} else {
 				this.drawWheel();
 			}
 		}
-		if (this.rowTotal > maxRows) {
-			int x = (int) this.sw.getScaledWidth_double() - 10;
-			int y = this.guiTop + 9;
-			int sHeight = (int) ((float) maxRows / (float) this.rowTotal * (float) this.dialogHeight);
-			y += this.rowStart * ClientProxy.Font.height(null) / 2;
-			this.drawGradientRect(x, y, x+7, y+sHeight, 0xFFFFFFFF, 0xFFFFFFFF);
-		}
 		GlStateManager.popMatrix();
-		int drag = Mouse.getDWheel() / 120;
-		if (drag!=0) {
-			this.rowStart -= drag;
-			if (this.rowStart>this.rowTotal-2) { this.rowStart = this.rowTotal-2; }
-			if (this.rowStart<0) { this.rowStart = 0; }
-			if (this.rowTotal - this.rowStart < maxRows) { this.rowStart = this.rowTotal - maxRows; }
-		}
 	}
 
 	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) { ClientProxy.Font.drawString(text, x, y, color); }
 
 	private void drawString(String text, int left, int color, int count) {
-		int height = (count - this.rowStart) * ClientProxy.Font.height(null);
-		int line = this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3;
-		if (height+12 > line) { return; }
-		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height, color);
-		if (this.textures.containsKey(count) && this.texturesSize.containsKey(count)) {
-			Integer[] size = this.texturesSize.get(count);
-			if (height+size[1]/2 > line) { return; }
-			GlStateManager.pushMatrix();
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.enableBlend();
-			this.mc.renderEngine.bindTexture(this.textures.get(count));
-			GlStateManager.translate(this.guiLeft + left, this.guiTop + height, 0.0f);
-			GlStateManager.scale(0.5f, 0.5f, 0.5f);
-			this.drawTexturedModalRect(0, 0, 0, 0, size[0], size[1]);
-			GlStateManager.popMatrix();
-		}
+		int height = count - this.rowStart;
+		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height * ClientProxy.Font.height(null), color);
 	}
 
 	private void drawWheel() {
@@ -376,7 +274,7 @@ implements IGuiClose, ICustomScrollListener {
 	private void handleDialogSelection() {
 		int optionId = -1;
 		if (this.dialog.showWheel) {
-			optionId = this.selected + (this.currentList * 6);
+			optionId = this.selected;
 		} else if (!this.options.isEmpty()) {
 			optionId = this.options.get(this.selected);
 		}
@@ -396,22 +294,37 @@ implements IGuiClose, ICustomScrollListener {
 			}
 			return;
 		}
-		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, new Object[] { this.player, this.npc }));
+		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor,
+				new Object[] { this.player, this.npc }));
 		this.calculateRowHeight();
 		NoppesUtil.clickSound();
-		this.initGui();
+	}
+
+	@Override
+	public void initGui() {
+		super.initGui();
+		this.isGrabbed = false;
+		this.grabMouse(this.dialog.showWheel);
+		this.guiTop = this.height - this.ySize;
+		this.calculateRowHeight();
 	}
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i!=1 && this.wait > System.currentTimeMillis()) { return; }
-		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) { --this.selected; }
-		if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) { ++this.selected; }
-		if (i == 28) { this.handleDialogSelection(); }
-		if ((i>=2 || i<=10) && this.dataIDs.containsValue(i-2)) {
+		if (i!=1 && this.wait>System.currentTimeMillis()) { return; }
+		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
+			--this.selected;
+		}
+		if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) {
+			++this.selected;
+		}
+		if ((i>=2 || i<=10) && this.options.contains(i-2)) {
 			this.selected = i-2;
 			this.handleDialogSelection();
 			return;
+		}
+		if (i == 28) {
+			this.handleDialogSelection();
 		}
 		if (this.closeOnEsc && (i == 1 || this.isInventoryKey(i))) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, this.dialog.id, -1);
@@ -423,10 +336,10 @@ implements IGuiClose, ICustomScrollListener {
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
-		if (this.wait > System.currentTimeMillis()) { return; }
-		if (this.dialog.showWheel && ((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
+		if (this.wait>System.currentTimeMillis()) { return; }
+		if (((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
 			this.handleDialogSelection();
-		} else { super.mouseClicked(i, j, k); }
+		}
 	}
 
 	@Override
@@ -434,14 +347,5 @@ implements IGuiClose, ICustomScrollListener {
 
 	@Override
 	public void setClose(int i, NBTTagCompound data) { this.grabMouse(false); }
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		if (!this.dataIDs.containsKey(scroll.getSelected())) { return; }
-		this.selected = this.dataIDs.get(scroll.getSelected());
-	}
-
-	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { this.handleDialogSelection(); }
 	
 }

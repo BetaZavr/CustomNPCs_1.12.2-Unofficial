@@ -1157,7 +1157,6 @@ implements GuiYesNoCallback, IGuiData {
 			if(data!=null) { data.marks.clear(); }
 			this.npc.display.setShowName(1);
 			this.npc.animation.clear();
-			System.out.println("NPC: "+this.npc.display.getModel()+"; size: ["+this.npc.height+", "+this.npc.width+"]");
 		}
 
 		public Map<Integer, List<String>> getText(int width, int height, int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2, lable texts]

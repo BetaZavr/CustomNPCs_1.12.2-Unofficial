@@ -97,9 +97,9 @@ public class MarkRenderer {
 		        GlStateManager.glLightModel(2899, setColorBuffer(red, green, blue, 1.0F));
 			}
 			GlStateManager.callList(list);
-			RenderHelper.enableStandardItemLighting();
 		}
 		GlStateManager.popMatrix();
+		RenderHelper.enableStandardItemLighting();
 	}
 
 	private static FloatBuffer setColorBuffer(float red, float green, float blue, float alpha) {

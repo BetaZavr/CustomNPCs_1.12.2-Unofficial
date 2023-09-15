@@ -75,7 +75,6 @@ implements IPermission {
 			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
 				ItemStack stack = player.getHeldItem(hand);
 				EntityNPCInterface npc = this.getNpc(stack, world);
-				
 				if (npc == null) {
 					return EnumActionResult.PASS;
 				}

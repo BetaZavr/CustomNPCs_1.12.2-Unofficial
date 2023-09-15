@@ -1,10 +1,8 @@
 package noppes.npcs.client.layer;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
@@ -15,21 +13,17 @@ extends LayerInterface<T>
 implements LayerPreRender {
 	
 	private ModelHeadwear headwear;
-	private ResourceLocation textureLocation;
 	public EntityCustomNpc npc;
 
 	public LayerHeadwear(RenderLiving<?> render) {
 		super(render);
-		this.headwear = new ModelHeadwear((ModelBase) this.model);
+		this.headwear = new ModelHeadwear(this.model);
 	}
 
 	@Override
 	public void preRender(EntityCustomNpc player) {
 		this.model.bipedHeadwear.isHidden = (CustomNpcs.HeadWearType == 1);
-		if (player!=null) {
-			this.npc  = player;
-			this.textureLocation = player.textureLocation;
-		}
+		if (player!=null) { this.npc  = player; }
 	}
 
 	@Override
@@ -42,8 +36,7 @@ implements LayerPreRender {
 			float blue = (color & 0xFF) / 255.0f;
 			GlStateManager.color(red, green, blue, 1.0f);
 		}
-		if (this.textureLocation!=null) { ClientProxy.bindTexture(this.textureLocation); }
-		else { ClientProxy.bindTexture(this.npc.textureLocation); }
+		ClientProxy.bindTexture(this.npc.textureLocation);
 		this.model.bipedHead.postRender(scale);
 		GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 		this.headwear.render(scale);

@@ -1407,13 +1407,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			if (this.faction.id==npc.faction.id || this.faction.frendFactions.contains(npc.faction.id)) {
+			if (this.faction.id==npc.faction.id || npc.faction.frendFactions.contains(this.faction.id) || npc.advanced.frendFactions.contains(this.faction.id)) {
 				return;
 			}
 		}
-		if (this.isRunHome) {
-			return;
-		}
+		if (this.isRunHome) { return; }
 		if (entity != null) {
 			NpcEvent.TargetEvent event = new NpcEvent.TargetEvent(this.wrappedNPC, entity);
 			if (EventHooks.onNPCTarget(this, event)) {
@@ -1528,68 +1526,69 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.aiRange = entityAIRangedAttack;
 		this.aiAttackTarget = entityAIRangedAttack;
 		if (this.ais.canSprint) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAISprintToTarget(this));
+			this.tasks.addTask(this.taskCount++,  new EntityAISprintToTarget(this));
 		}
 		if (this.ais.onAttack == 1) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIPanic(this, 1.2f));
-		} else if (this.ais.onAttack == 2) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
+			this.tasks.addTask(this.taskCount++, new EntityAIPanic(this, 1.2f));
+		}
+		else if (this.ais.onAttack == 2) {
+			this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
 		} else if (this.ais.onAttack == 0) {
 			if (this.ais.canLeap) {
-				this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIPounceTarget(this));
+				this.tasks.addTask(this.taskCount++, new EntityAIPounceTarget(this));
 			}
-			if (this.inventory.getProjectile() == null) {
+			if (this.inventory.getProjectile() == null) { // melee
 				switch (this.ais.tacticalVariant) {
-				case 1: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIZigZagTarget(this, 1.3));
-					break;
+					case 1: {
+						this.tasks.addTask(this.taskCount++, new EntityAIZigZagTarget(this, 1.3));
+						break;
+					}
+					case 2: {
+						this.tasks.addTask(this.taskCount++, new EntityAIOrbitTarget(this, 1.3, true));
+						break;
+					}
+					case 3: {
+						this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
+						break;
+					}
+					case 4: {
+						this.tasks.addTask(this.taskCount++, new EntityAIAmbushTarget(this, 1.2));
+						break;
+					}
+					case 5: {
+						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
+						break;
+					}
 				}
-				case 2: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIOrbitTarget(this, 1.3, true));
-					break;
-				}
-				case 3: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
-					break;
-				}
-				case 4: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAmbushTarget(this, 1.2));
-					break;
-				}
-				case 5: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIStalkTarget(this));
-					break;
-				}
-				}
-			} else {
-				switch (this.ais.tacticalVariant) {
-				case 1: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIDodgeShoot(this));
-					break;
-				}
-				case 2: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIOrbitTarget(this, 1.3, false));
-					break;
-				}
-				case 3: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
-					break;
-				}
-				case 4: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAmbushTarget(this, 1.3));
-					break;
-				}
-				case 5: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIStalkTarget(this));
-					break;
-				}
-				}
+				this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
+				((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
 			}
-			this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
-			((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
-			if (this.inventory.getProjectile() != null) {
-				this.tasks.addTask(this.taskCount++,
-						(EntityAIBase) (this.aiRange = new EntityAIRangedAttack((IRangedAttackMob) this)));
+			else { // ranged
+				switch (this.ais.tacticalVariant) {
+					case 1: {
+						this.tasks.addTask(this.taskCount++, new EntityAIDodgeShoot(this));
+						break;
+					}
+					case 2: {
+						this.tasks.addTask(this.taskCount++, new EntityAIOrbitTarget(this, 1.3, false));
+						break;
+					}
+					case 3: {
+						this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
+						break;
+					}
+					case 4: {
+						this.tasks.addTask(this.taskCount++, new EntityAIAmbushTarget(this, 1.3));
+						break;
+					}
+					case 5: {
+						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
+						break;
+					}
+				}
+				this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
+				((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
+				this.tasks.addTask(this.taskCount++, (this.aiRange = new EntityAIRangedAttack(this)));
 				this.aiRange.navOverride(this.ais.tacticalVariant == 6);
 			}
 		} else if (this.ais.onAttack == 3) {
@@ -1695,9 +1694,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	private void updateTasks() {
-		if (this.world == null || this.world.isRemote) {
-			return;
-		}
+		if (this.world == null || this.world.isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", this, "NPCUpdate");
 		this.clearTasks(this.tasks);
 		this.clearTasks(this.targetTasks);
@@ -1705,14 +1702,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			CustomNpcs.debugData.endDebug("Server", this, "NPCUpdate");
 			return;
 		}
-		Predicate<EntityLivingBase> attackEntitySelector = (Predicate<EntityLivingBase>) new NPCAttackSelector(this);
-		this.targetTasks.addTask(0, (EntityAIBase) new EntityAIClearTarget(this));
-		this.targetTasks.addTask(1,
-				(EntityAIBase) new EntityAIHurtByTarget((EntityCreature) this, false, new Class[0]));
-		this.targetTasks.addTask(2, (EntityAIBase) new EntityAIClosestTarget(this, EntityLivingBase.class, 4,
-				this.ais.directLOS, false, (Predicate<EntityLivingBase>) attackEntitySelector));
-		this.targetTasks.addTask(3, (EntityAIBase) new EntityAIOwnerHurtByTarget(this));
-		this.targetTasks.addTask(4, (EntityAIBase) new EntityAIOwnerHurtTarget(this));
+		Predicate<EntityLivingBase> attackEntitySelector = new NPCAttackSelector(this);
+		this.targetTasks.addTask(0, new EntityAIClearTarget(this));
+		this.targetTasks.addTask(1, new EntityAIHurtByTarget((EntityCreature) this, false, new Class[0]));
+		this.targetTasks.addTask(2, new EntityAIClosestTarget(this, EntityLivingBase.class, 4, this.ais.directLOS, false, attackEntitySelector));
+		this.targetTasks.addTask(3, new EntityAIOwnerHurtByTarget(this));
+		this.targetTasks.addTask(4, new EntityAIOwnerHurtTarget(this));
 		PathWorldListener pwl = ObfuscationHelper.getValue(World.class, this.world, 23);
 		pwl.onEntityRemoved(this);
 		if (this.ais.movementType == 1) {

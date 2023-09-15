@@ -1,11 +1,10 @@
 package noppes.npcs.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
@@ -22,8 +21,15 @@ public class Client {
 
 	// Clear in
 	public static Map<Object, Long> delayPackets = new HashMap<Object, Long>();
-	public static List<EnumPacketServer> notDebugShow = Lists.newArrayList(EnumPacketServer.StopSound, EnumPacketServer.PlaySound);
+	public static List<EnumPacketServer> notDebugShow;
 
+	static {
+		Client.notDebugShow = new ArrayList<EnumPacketServer>();
+		Client.notDebugShow.add(EnumPacketServer.StopSound);
+		Client.notDebugShow.add(EnumPacketServer.PlaySound);
+		Client.notDebugShow.add(EnumPacketServer.RemoteReset);
+	}
+	
 	public static void sendData(EnumPacketServer type, Object... obs) {
 		CustomNPCsScheduler.runTack(() -> {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());

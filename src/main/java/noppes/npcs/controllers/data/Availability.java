@@ -173,13 +173,9 @@ implements ICompatibilty, IAvailability {
 	}
 
 	private void initScore(String objective) {
-		if (objective == null || objective.isEmpty()) {
-			return;
-		}
-		if (CustomNpcs.Server == null) {
-			return;
-		}
+		if (objective == null || objective.isEmpty()) { return; }
 		Availability.scores.add(objective);
+		if (CustomNpcs.Server == null) { return; }
 		for (WorldServer world : CustomNpcs.Server.worlds) {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
 			ScoreObjective so = board.getObjective(objective);

@@ -114,6 +114,7 @@ public class PacketHandlerServer {
 		PacketHandlerServer.list = new ArrayList<EnumPacketServer>();
 		PacketHandlerServer.list.add(EnumPacketServer.StopSound);
 		PacketHandlerServer.list.add(EnumPacketServer.PlaySound);
+		PacketHandlerServer.list.add(EnumPacketServer.RemoteReset);
 	}
 	
 	@SubscribeEvent

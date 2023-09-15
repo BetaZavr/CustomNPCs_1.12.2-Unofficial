@@ -15,7 +15,10 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAI;
 
-public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
+public class GuiNpcPather
+extends GuiNPCInterface
+implements IGuiData {
+	
 	private DataAI ai;
 	private GuiCustomScroll scroll;
 

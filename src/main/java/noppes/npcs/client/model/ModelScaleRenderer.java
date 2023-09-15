@@ -55,12 +55,6 @@ extends ModelRenderer {
 		}
 	}
 
-	/*public void postRenderNoScale(float scale) {
-		GlStateManager.translate(this.config.offsetBase[0], this.config.offsetBase[1], this.config.offsetBase[2]);
-		GlStateManager.translate(this.config.offsetAnimation[0], this.config.offsetAnimation[1], this.config.offsetAnimation[2]);
-		this.postRenderAnimRotate(scale);
-	}*/
-
 	public void postRenderAnimRotate(float scale) {
 		if (this.isHidden || !this.showModel) { return; }
 		if (!this.isCompiled) { this.compile(scale); }
@@ -82,10 +76,12 @@ extends ModelRenderer {
 
 	public void render(float scale) {
 		if (!this.showModel || this.isHidden) { return; }
-		if (!this.isCompiled) { this.compile(scale); }
+		if (!this.isCompiled) {
+			this.compile(scale);
+		}
 		GlStateManager.pushMatrix();
 		this.postRender(scale);
-		GlStateManager.callList(this.displayList);
+		GlStateManager.callList(this.displayList); // main
 		if (this.childModels != null) {
 			for (int i = 0; i < this.childModels.size(); ++i) {
 				this.childModels.get(i).render(scale);

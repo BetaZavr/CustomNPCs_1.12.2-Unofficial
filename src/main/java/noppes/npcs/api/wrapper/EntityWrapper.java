@@ -518,17 +518,19 @@ implements IEntity {
 	@Override
 	public void spawn() {
 		Entity el = null;
-		for (Entity e : this.worldWrapper.getMCWorld().getLoadedEntityList()) {
-			if (e.getUniqueID().equals(this.entity.getUniqueID())) {
-				el = e;
-				break;
+		try {
+			for (Entity e : this.worldWrapper.getMCWorld().getLoadedEntityList()) {
+				if (e.getUniqueID().equals(this.entity.getUniqueID())) {
+					el = e;
+					break;
+				}
 			}
-		}
+		} catch (Exception e) {}
 		if (el != null) {
 			throw new CustomNPCsException("Entity is already spawned", new Object[0]);
 		}
 		this.entity.isDead = false;
-		this.worldWrapper.getMCWorld().spawnEntity(this.entity);
+		try { this.worldWrapper.getMCWorld().spawnEntity(this.entity); } catch (Exception e) {}
 	}
 
 	@Override
