@@ -149,11 +149,13 @@ implements ITextfieldListener, ISubGuiListener {
 		if (this.npc!=null) {
 			GlStateManager.pushMatrix();
 			float size = (float) this.npc.display.getSize() * 0.38f;
+			float s = 0.6f / this.npc.width;
 			int h = 0;
 			if (this.npc.height != size || this.npc.height < 1.9f) {
 				h = (int) (24.76190f * this.npc.height - 47.04762f);
 			}
-			this.drawNpc(this.npc, 212, 168 + h, 1.0f, 30, 15, false);
+			h -= (int) (-36.0f * s + 36.0f);
+			this.drawNpc(this.npc, 212, 168 + h, s, 30, 15, false);
 			GlStateManager.popMatrix();
 			
 			u = this.guiLeft + 182;

@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
-import noppes.npcs.entity.EntityCustomNpc;
 
 public class LayerEyes<T extends EntityLivingBase>
 extends LayerInterface<T> {
@@ -181,7 +180,7 @@ extends LayerInterface<T> {
 			GlStateManager.enableTexture2D();
 			return;
 		}*/
-		if (!this.playerdata.eyes.isEnabled() || !(this.npc instanceof EntityCustomNpc)) {
+		if (!this.playerdata.eyes.isEnabled() || this.npc.display.getModel()!=null || !this.npc.getClass().getSimpleName().equals("EntityCustomNpc")) {
 			return;
 		}
 		GlStateManager.pushMatrix();

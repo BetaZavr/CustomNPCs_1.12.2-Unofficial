@@ -31,9 +31,7 @@ import noppes.npcs.client.layer.LayerPreRender;
 import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityCustomNpc;
-import noppes.npcs.entity.EntityNPC64x32;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.entity.EntityNpcAlex;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class RenderCustomNpc<T extends EntityCustomNpc>
@@ -128,18 +126,8 @@ extends RenderNPCInterface<T> {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
 	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
 		if (this.entity!=null && this.renderEntity != null) {
-			if (this.entity instanceof EntityNpcAlex || this.entity instanceof EntityNPC64x32) {
-				List<LayerRenderer<T>> layerRenderers = ObfuscationHelper.getValue(RenderLivingBase.class, this.renderEntity, List.class);
-				for ( LayerRenderer lm : layerRenderers) {
-					if (lm instanceof LayerEyes) {
-						layerRenderers.remove(lm);
-						break;
-					}
-				}
-			}
 			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {
 			super.renderLayers(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
