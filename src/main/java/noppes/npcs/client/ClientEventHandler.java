@@ -61,6 +61,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.SchematicController;
@@ -77,8 +78,10 @@ import noppes.npcs.util.ObfuscationHelper;
 public class ClientEventHandler {
 
 	private boolean inGame;
+	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = Maps.<EntityPlayer, RenderChatMessages>newHashMap();
 	
 	public static GuiScreen gui;
+	public static SubGuiInterface subgui;
 	public static Map<ISchematic, Integer> displayMap;
 	public static BlockPos schemaPos;
 	public static Schematic schema;
@@ -100,10 +103,11 @@ public class ClientEventHandler {
 	}
 	
 	@SubscribeEvent
-	public void onOpenGUIEvent(GuiOpenEvent event) {
+	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 		CustomNpcs.debugData.startDebug("Client", mc.player, "ClientEventHandler_onOpenGUIEvent");
 		ClientEventHandler.gui = event.getGui();
+		ClientEventHandler.subgui = null;
 		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
 		Client.sendDataDelayCheck(EnumPlayerPacket.OpenGui, this, 0, event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(), mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
@@ -148,7 +152,7 @@ public class ClientEventHandler {
 	}
 
 	@SubscribeEvent
-	public void onRenderTick(RenderWorldLastEvent event) {
+	public void cnpcRenderTick(RenderWorldLastEvent event) {
 		EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().player;
 		CustomNpcs.debugData.startDebug("Client", player, "ClientEventHandler_onRenderTick");
 		ClientEventHandler.schema = null;
@@ -336,7 +340,7 @@ public class ClientEventHandler {
 	}
 
 	@SubscribeEvent
-	public void post(RenderLivingEvent.Post<EntityLivingBase> event) {
+	public void cnpcPostLivingEvent(RenderLivingEvent.Post<EntityLivingBase> event) {
 		CustomNpcs.debugData.startDebug("Client", event.getEntity(), "ClientEventHandler_postRenderLivingEvent");
 		MarkData data = MarkData.get(event.getEntity());
 		for (MarkData.Mark m : data.marks) {
@@ -345,17 +349,29 @@ public class ClientEventHandler {
 				break;
 			}
 		}
+		if (event.getEntity() instanceof EntityPlayer && ClientEventHandler.chatMessages.containsKey((EntityPlayer) event.getEntity())) {
+			float height = event.getEntity().height + 0.9f;
+			ClientEventHandler.chatMessages.get(event.getEntity()).renderPlayerMessages(event.getX(), event.getY() + height, event.getZ(), 0.666667f * height, this.isInRange(Minecraft.getMinecraft().player, event.getX(), event.getY() + 1.2d, event.getZ(), 16.0f));
+		}
 		CustomNpcs.debugData.endDebug("Client", event.getEntity(), "ClientEventHandler_postRenderLivingEvent");
 	}
 	
 	@SubscribeEvent
-    public void joinServer(ClientConnectedToServerEvent event) {
+    public void cnpcJoinServer(ClientConnectedToServerEvent event) {
 		event.getManager().channel().pipeline().addBefore("fml:packet_handler", CustomNpcs.MODID + ":custom_packet_handler_client", new CustomPacketHandler());
 	}
 
 	@SubscribeEvent
-	public void clientDisconnect(ClientDisconnectionFromServerEvent event) {
+	public void cnpcClientDisconnect(ClientDisconnectionFromServerEvent event) {
 		if (!event.getManager().isLocalChannel()) { ClientHandler.getInstance().cleanUp(); }
+	}
+	
+	private boolean isInRange(EntityPlayer player, double posX, double posY, double posZ, double range) {
+		double y = Math.abs(player.posY - posY);
+		if (posY >= 0.0 && y > range) { return false; }
+		double x = Math.abs(player.posX - posX);
+		double z = Math.abs(player.posZ - posZ);
+		return x <= range && z <= range;
 	}
 	
 }

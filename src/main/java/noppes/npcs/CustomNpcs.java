@@ -126,8 +126,10 @@ public class CustomNpcs {
 	public static String DefaultInteractLine = "Hello @p";
 	@ConfigProp(info = "If you are running sponge and you want to disable the permissions set this to true")
 	public static boolean DisablePermissions = false;
-	@ConfigProp(info = "Disable Chat Bubbles")
+	@ConfigProp(info = "Enable Chat Bubbles from npcs")
 	public static boolean EnableChatBubbles = true;
+	@ConfigProp(info = "Enable chat bubbles from players")
+	public static boolean EnablePlayerChatBubbles = true;
 	@ConfigProp(info = "For some it works, for others it doesnt, so Im disabling by default")
 	public static boolean EnableInvisibleNpcs = false;
 	@ConfigProp(info = "Whether scripting is enabled or not")
@@ -149,6 +151,10 @@ public class CustomNpcs {
 	public static int hoverColor = 0xFFFFFFA0;
 	@ConfigProp(info = "Text Color for GUI Quest Log")
 	public static int questLogColor = 0xFF404060;
+	@ConfigProp(info = "Color of message bubbles above NPC head [text, frame, base]")
+	public static int[] chatNpcColors = new int[] { 0x000000, 0x000000, 0xFFFFFF };
+	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]")
+	public static int[] chatPlayerColors = new int[] { 0x000000, 0x2C4C00, 0xE0FFB0 };
 	
 	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC")
 	public static String FontType = "Default";

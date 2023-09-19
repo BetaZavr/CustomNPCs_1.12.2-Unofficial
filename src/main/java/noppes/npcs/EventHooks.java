@@ -541,28 +541,27 @@ public class EventHooks {
 
 	public static void onCustomPotionIsReady(IsReadyEvent event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
+		if (!data.isEnabled()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_IS_READY, event);
 	}
 
 	public static void onCustomPotionPerformEffect(PerformEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
+		if (!data.isEnabled()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_PERFORM, event);
 	}
 
 	public static void onCustomPotionAffectEntity(AffectEntity event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
+		if (!data.isEnabled()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_AFFECT, event);
 	}
 
 	public static void onCustomPotionEndEffect(EndEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || CustomNpcs.proxy.hasClient()) { return; }
+		if (!data.isEnabled()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_END, event);
 	}
-
 	
 	public static void onScriptTriggerEvent(int id, IWorld level, IPos pos, IEntity<?> entity, Object[] arguments) {
 		ScriptTriggerEvent event = new ScriptTriggerEvent(id, level, pos, entity, arguments);

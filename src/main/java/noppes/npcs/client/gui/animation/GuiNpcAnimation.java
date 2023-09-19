@@ -303,7 +303,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		super.actionPerformed(button);
 		if (!(button instanceof GuiNpcButton)) { return; }
 		GuiNpcButton npcButton = (GuiNpcButton) button;
 		AnimationConfig anim = null;

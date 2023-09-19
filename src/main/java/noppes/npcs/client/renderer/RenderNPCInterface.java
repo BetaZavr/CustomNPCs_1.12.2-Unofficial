@@ -262,10 +262,8 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		if (npc.messages != null) {
 			float height = npc.baseHeight / 5.0f * npc.display.getSize();
-			float offset = npc.height
-					* (1.2f + (npc.display.showName() ? (npc.display.getTitle().isEmpty() ? 0.15f : 0.25f) : 0.0f));
-			npc.messages.renderMessages(d, d1 + offset, d2, 0.666667f * height,
-					npc.isInRange(this.renderManager.renderViewEntity, 4.0));
+			float offset = npc.height * (1.2f + (npc.display.showName() ? (npc.display.getTitle().isEmpty() ? 0.15f : 0.25f) : 0.0f));
+			npc.messages.renderMessages(d, d1 + offset, d2, 0.666667f * height, npc.isInRange(this.renderManager.renderViewEntity, 4.0));
 		}
 		float scale = npc.baseHeight / 5.0f * npc.display.getSize();
 		if (npc.display.showName()) {

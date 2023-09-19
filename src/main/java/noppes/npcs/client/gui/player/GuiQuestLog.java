@@ -83,8 +83,9 @@ implements GuiYesNoCallback, IGuiData {
 	boolean isStart, needCreateSheets;
 	boolean listType; // false-category; true-quest
 	int aType, step, tick, mtick;
-	int currentList, totalActiveQuest, hoverQuestID, hoverButton;
+	int currentList, currentCat, totalActiveQuest, hoverQuestID, hoverButton;
 	float scale;
+	String currentCategory;
 	
 	final Map<Integer, Integer[]> buttons; // 0-main inv; 1-factions; 2-compass; 3-tab quest list; 4-tab quest info; 5-to right; 6-to left
 	final Map<String, Map<Integer, Quest>> activeQuests; // { category, [id, quest]}
@@ -121,6 +122,8 @@ implements GuiYesNoCallback, IGuiData {
 			this.buttons.clear();
 			if (!this.isStart) {
 				this.currentList = 0;
+				this.currentCat = 0;
+				this.currentCategory = "";
 				this.scrolling.put(0, GuiQuestLog.ql.get(1));
 				for (int i = 0; i < 4 ; i++) { this.scrolling.put(i, GuiQuestLog.ql.get(3)); }
 			}

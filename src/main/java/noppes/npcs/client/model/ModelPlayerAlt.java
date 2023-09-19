@@ -1,10 +1,11 @@
 package noppes.npcs.client.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
@@ -35,14 +36,18 @@ import noppes.npcs.util.ObfuscationHelper;
 /** Render npc Model */
 public class ModelPlayerAlt
 extends ModelPlayer {
-
+	
 	private ModelRenderer body;
 	private ModelRenderer head;
 	private Map<EnumParts, List<ModelScaleRenderer>> map;
+	private Map<EntityCustomNpc, Boolean> isAttaking;
+	private Map<EntityCustomNpc, Boolean> isJump;
 
 	public ModelPlayerAlt(float scale, boolean arms) {
 		super(scale, arms);
-		this.map = new HashMap<EnumParts, List<ModelScaleRenderer>>();
+		this.map = Maps.<EnumParts, List<ModelScaleRenderer>>newHashMap();
+		this.isAttaking = Maps.<EntityCustomNpc, Boolean>newHashMap();
+		this.isJump = Maps.<EntityCustomNpc, Boolean>newHashMap();
 		(this.head = new ModelScaleRenderer((ModelBase) this, 24, 0, EnumParts.HEAD)).addBox(-3.0f, -6.0f, -1.0f, 6, 6, 1, scale);
 		(this.body = new ModelScaleRenderer((ModelBase) this, 0, 0, EnumParts.BODY)).setTextureSize(64, 32);
 		this.body.addBox(-5.0f, 0.0f, -1.0f, 10, 16, 1, scale);
@@ -195,51 +200,71 @@ extends ModelPlayer {
 		}
 		
 		AnimationConfig anim = npc.animation.activeAnim != null  ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
-			
-		if (anim==null || !anim.isEdit) {
-			// Dies
-			if (npc.isDead && (anim==null || anim.type!=AnimationKind.DIES)) {
+		// Dies
+		if (npc.getHealth()==0.0f) {
+			if (anim==null || anim.type!=AnimationKind.DIES) {
 				anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
 			}
-			// Swing
-			if (this.swingProgress>0 && (anim==null || anim.type!=AnimationKind.ATTACKING) &&
-					(anim==null || anim.type!=AnimationKind.INIT)) {
-				anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
-			}
-			// Jump
-			if ((boolean) ObfuscationHelper.getValue(EntityLivingBase.class, npc, 49)/*npc.isJumping*/ &&
-					(anim==null || anim.type!=AnimationKind.JUMP) &&
-					(anim==null || anim.type!=AnimationKind.INIT)) {
-				anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
-			}
-			
-			// Moving/Standing
-			if (anim==null || anim.type != AnimationKind.DIES) {
-				boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
-				if (npc.isInWater() || npc.isInLava()) {
-					if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
-						anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
-					} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
-						anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
+		} else {
+			// INIT started in EntityNPCInterface.reset()
+			if (anim==null || !anim.isEdit) {
+				if (!this.isAttaking.containsKey(npc)) { this.isAttaking.put(npc, false); }
+				if (!this.isJump.containsKey(npc)) { this.isJump.put(npc, false); }
+				
+				if (this.isAttaking.get(npc) && this.swingProgress>0) {
+					npc.swingProgress = 0.0f;
+					npc.swingProgressInt = 5;
+				}
+				if (anim==null) {
+					this.isAttaking.put(npc, false);
+					// Swing
+					if (this.swingProgress>0) {
+						anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
+						if (anim!=null) {
+							npc.swingProgress = 0.0f;
+							npc.swingProgressInt = 5;
+							this.isAttaking.put(npc, true);
+						}
+					}
+					// Jump in ClientTickHandler.cnpcLivingJumpEvent(event)
+					if (!this.isJump.get(npc) && !(npc.isInWater() || npc.isInLava())) {
+						if (!npc.onGround && npc.motionY > 0.0d) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
+							if (anim!=null) { this.isJump.put(npc, true); }
+						}
+					} else if (npc.onGround) {
+						this.isJump.put(npc, false);
 					}
 				}
-				else {
-					if (!npc.onGround && npc.ais.getNavigationType()==1) {
-						if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
-						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
+				// Moving or Standing
+				if (anim==null) {
+					boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
+					if (npc.isInWater() || npc.isInLava()) {
+						if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
+						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
 						}
-					} else {
-						if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
-						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
+					}
+					else {
+						if (!npc.onGround && npc.ais.getNavigationType()==1) {
+							if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
+							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
+							}
+						} else {
+							if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
+							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
+							}
 						}
 					}
 				}
 			}
 		}
+		
 		Map<Integer, Float[]> animData = npc.animation.getValues(npc, anim);
 		if (animData != null) {
 			// Head

@@ -107,8 +107,15 @@ implements ICustomScrollListener {
 	@Override
 	public void buttonEvent(GuiButton button) {
 		switch(button.id) {
-			case 0: this.cancelled = false; break;
-			case 1: this.close(); break;
+			case 0:
+				this.cancelled = false;
+				this.close();
+				break;
+			case 1:
+				this.animation = null;
+				this.cancelled = true;
+				this.close();
+				break;
 			case 2:
 				if (!this.data.containsKey(this.selected)) { return; }
 				if (AnimationController.getInstance().removeAnimation(this.data.get(this.selected))) { this.initGui(); }

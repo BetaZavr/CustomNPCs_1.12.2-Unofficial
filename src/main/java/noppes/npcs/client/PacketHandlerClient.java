@@ -107,6 +107,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_LIST);
 		PacketHandlerClient.list.add(EnumPacketClient.SEND_FILE_PART);
 		PacketHandlerClient.list.add(EnumPacketClient.PLAY_SOUND);
+		PacketHandlerClient.list.add(EnumPacketClient.NPC_MOVINGPATH);
+		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
 	}
 
 	@SubscribeEvent
@@ -136,19 +138,27 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		CustomNpcs.debugData.startDebug("Client", player, "PackageReceived_" + type.toString());
 		if (type == EnumPacketClient.CHATBUBBLE) {
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(buffer.readInt());
-			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+			if (entity == null || !(entity instanceof EntityNPCInterface || entity instanceof EntityPlayer)) {
 				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
 				return;
 			}
-			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			if (npc.messages == null) {
-				npc.messages = new RenderChatMessages();
+			if (entity instanceof EntityNPCInterface) {
+				EntityNPCInterface npc = (EntityNPCInterface) entity;
+				if (npc.messages == null) {
+					npc.messages = new RenderChatMessages();
+				}
+				String text = NoppesStringUtils.formatText(Server.readString(buffer), player, npc);
+				npc.messages.addMessage(text, npc);
+				if (buffer.readBoolean()) {
+					player.sendMessage(new TextComponentString(npc.getName() + ": " + text));
+				}
+				return;
 			}
-			String text = NoppesStringUtils.formatText(Server.readString(buffer), player, npc);
-			npc.messages.addMessage(text, npc);
-			if (buffer.readBoolean()) {
-				player.sendMessage(new TextComponentTranslation(npc.getName() + ": " + text, new Object[0]));
-			}
+			if (!CustomNpcs.EnableChatBubbles || !CustomNpcs.EnablePlayerChatBubbles) { return; }
+			EntityPlayer pl = (EntityPlayer) entity;
+			System.out.println("player: "+pl);
+			if (!ClientEventHandler.chatMessages.containsKey(pl)) { ClientEventHandler.chatMessages.put(pl, new RenderChatMessages()); }
+			ClientEventHandler.chatMessages.get(pl).addMessage(Server.readString(buffer), pl);
 		} else if (type == EnumPacketClient.CHAT) {
 			String message = "";
 			String str;

@@ -64,8 +64,7 @@ public class PlayerFactionData {
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		PlayerWrapper<?> wrapper = (PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player);
 		if (!this.factionData.containsKey(factionId)) {
-			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction,
-					faction.defaultPoints, true);
+			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction, faction.defaultPoints, true);
 			EventHooks.OnPlayerFactionChange(handler, event);
 			this.factionData.put(factionId, event.points);
 		}

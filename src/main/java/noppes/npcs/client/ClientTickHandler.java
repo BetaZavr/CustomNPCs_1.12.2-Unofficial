@@ -37,6 +37,9 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiQuestLog;
+import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumPacketServer;
@@ -59,9 +62,9 @@ public class ClientTickHandler {
 		this.otherContainer = false;
 		this.nowPlayingSounds = Maps.<String, ISound>newHashMap();
 	}
-
+	
 	@SubscribeEvent
-	public void livingUpdate(LivingUpdateEvent event) {
+	public void cnpcLivingUpdate(LivingUpdateEvent event) {
 		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) { return; }
 		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
 		if (ClientProxy.notVisibleNPC.containsKey(dimID) && ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
@@ -93,16 +96,14 @@ public class ClientTickHandler {
 	}
 
 	@SubscribeEvent
-	public void npcOnLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+	public void cnpcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
 		if (event.getHand() != EnumHand.MAIN_HAND) { return; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick, new Object[0]);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void npcOnClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) {
-			return;
-		}
+	public void cnpcClientTick(TickEvent.ClientTickEvent event) {
+		if (event.phase == TickEvent.Phase.END) { return; }
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && mc.player.openContainer instanceof ContainerPlayer) {
@@ -165,11 +166,23 @@ public class ClientTickHandler {
 				ClientProxy.playerData.hud.mousePress.clear();
 			}
 		}
+		if (mc.currentScreen instanceof GuiNPCInterface || mc.currentScreen instanceof GuiContainerNPCInterface) {
+			SubGuiInterface subGui = null;
+			if (mc.currentScreen instanceof GuiNPCInterface) { subGui = ((GuiNPCInterface) mc.currentScreen).getSubGui(); }
+			else if (mc.currentScreen instanceof GuiContainerNPCInterface) { subGui = ((GuiContainerNPCInterface) mc.currentScreen).getSubGui(); }
+			if (subGui!=null && subGui.getSubGui()!=null) {
+				while (subGui.getSubGui()!=null) { subGui = subGui.getSubGui(); }
+			}
+			if (ClientEventHandler.subgui != subGui) {
+				LogWriter.debug(((subGui == null ? "Cloce SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - " + (ClientEventHandler.subgui == null ? "null" : ClientEventHandler.subgui.getClass().getSimpleName())));
+				ClientEventHandler.subgui = subGui;
+			}
+		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
 	}
 
 	@SubscribeEvent
-	public void npcOnKey(InputEvent.KeyInputEvent event) {
+	public void cnpcKeyInputEvent(InputEvent.KeyInputEvent event) {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcOnKey");
 		if (CustomNpcs.SceneButtonsEnabled) {
 			if (ClientProxy.Scene1.isPressed()) {
@@ -244,8 +257,14 @@ public class ClientTickHandler {
 	}
 
 	@SubscribeEvent
-	public void testingCode(LivingEvent.LivingJumpEvent event) {
+	public void cnpcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
+		/*if (entity instanceof EntityCustomNpc) { // on sever side
+			AnimationConfig anim = ((EntityCustomNpc) entity).animation.getActiveAnimation(AnimationKind.JUMP);
+			if (anim!=null) {
+				anim.startToNpc((EntityCustomNpc) entity);
+			}
+		}*/
 		if (!(entity instanceof EntityPlayer)) { return; }
 		//System.out.println("Client: "+entity);
 		if (entity instanceof EntityPlayerMP) {

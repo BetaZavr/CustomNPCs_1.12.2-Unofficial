@@ -80,7 +80,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(ArrowLooseEvent event) {
+	public void cnpcArrowLooseEvent(ArrowLooseEvent event) {
 		if (event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
@@ -90,7 +90,7 @@ public class ScriptPlayerEventHandler {
 	}
 	
 	@SubscribeEvent
-	public void invoke(BlockEvent.PlaceEvent event) {
+	public void cnpcBlockPlaceEvent(BlockEvent.PlaceEvent event) {
 		if (event.getPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
@@ -107,7 +107,7 @@ public class ScriptPlayerEventHandler {
 	}
 	
 	@SubscribeEvent
-	public void invoke(BlockEvent.BreakEvent event) {
+	public void cnpcBlockBreakEvent(BlockEvent.BreakEvent event) {
 		if (event.getPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
@@ -119,7 +119,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(EntityItemPickupEvent event) {
+	public void cnpcItemPickupEvent(EntityItemPickupEvent event) {
 		if (!(event.getEntityPlayer().world instanceof WorldServer)) {
 			return;
 		}
@@ -128,7 +128,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(ItemCraftedEvent event) {
+	public void cnpcItemCraftedEvent(ItemCraftedEvent event) {
 		if (!(event.player.world instanceof WorldServer)) {
 			return;
 		}
@@ -137,7 +137,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(ItemFishedEvent event) {
+	public void cnpcItemFishedEvent(ItemFishedEvent event) {
 		if (!(event.getEntityPlayer().world instanceof WorldServer)) {
 			return;
 		}
@@ -146,7 +146,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(ItemTossEvent event) {
+	public void cnpcItemTossEvent(ItemTossEvent event) {
 		if (!(event.getPlayer().world instanceof WorldServer)) {
 			return;
 		}
@@ -155,7 +155,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(LivingAttackEvent event) {
+	public void cnpcLivingAttackEvent(LivingAttackEvent event) {
 		if (!(event.getEntityLiving().world instanceof WorldServer)) {
 			return;
 		}
@@ -179,7 +179,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(LivingDeathEvent event) {
+	public void cnpcLivingDeathEvent(LivingDeathEvent event) {
 		if (!(event.getEntityLiving().world instanceof WorldServer)) {
 			return;
 		}
@@ -195,7 +195,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(LivingHurtEvent event) {
+	public void cnpcLivingHurtEvent(LivingHurtEvent event) {
 		if (!(event.getEntityLiving().world instanceof WorldServer)) {
 			return;
 		}
@@ -217,7 +217,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
+	public void cnpcPlayerLoginEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
 		if (!(event.player.world instanceof WorldServer)) {
 			return;
 		}
@@ -226,7 +226,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
+	public void cnpcPlayerLogoutEvent(net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
 		if (!(event.player.world instanceof WorldServer)) {
 			return;
 		}
@@ -235,7 +235,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(PlayerContainerEvent.Close event) {
+	public void cnpcPlayerContainerCloseEvent(PlayerContainerEvent.Close event) {
 		if (!(event.getEntityPlayer().world instanceof WorldServer)) {
 			return;
 		}
@@ -244,7 +244,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(PlayerContainerEvent.Open event) {
+	public void cnpcPlayerContainerOpenEvent(PlayerContainerEvent.Open event) {
 		if (!(event.getEntityPlayer().world instanceof WorldServer)) {
 			return;
 		}
@@ -253,7 +253,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(PlayerInteractEvent.EntityInteract event) {
+	public void cnpcPlayerEntityInteractEvent(PlayerInteractEvent.EntityInteract event) {
 		if (event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
 				|| !(event.getWorld() instanceof WorldServer)) {
 			return;
@@ -274,7 +274,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(PlayerInteractEvent.LeftClickBlock event) {
+	public void cnpcPlayerLeftClickBlockEvent(PlayerInteractEvent.LeftClickBlock event) {
 		if (event.getHand()!=EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
@@ -302,7 +302,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(PlayerInteractEvent.RightClickBlock event) {
+	public void cnpcPlayerRightClickBlockEvent(PlayerInteractEvent.RightClickBlock event) {
 		if (event.getHand()!=EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || event.getHand() != EnumHand.MAIN_HAND
 				|| !(event.getWorld() instanceof WorldServer)) {
 			return;
@@ -334,7 +334,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void invoke(PlayerInteractEvent.RightClickItem event) {
+	public void cnpcPlayerRightClickItemEvent(PlayerInteractEvent.RightClickItem event) {
 		if (event.getHand()!=EnumHand.MAIN_HAND || event.getEntityPlayer().world.isRemote || !(event.getWorld() instanceof WorldServer)) {
 			return;
 		}
@@ -383,7 +383,7 @@ public class ScriptPlayerEventHandler {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public void invoke(ServerChatEvent event) {
+	public void cnpcServerChatEvent(ServerChatEvent event) {
 		if (!(event.getPlayer().world instanceof WorldServer)
 				|| event.getPlayer() == EntityNPCInterface.ChatEventPlayer) {
 			return;
@@ -394,14 +394,15 @@ public class ScriptPlayerEventHandler {
 		EventHooks.onPlayerChat(handler, ev);
 		event.setCanceled(ev.isCanceled());
 		if (!message.equals(ev.message)) {
-			TextComponentTranslation chat = new TextComponentTranslation("", new Object[0]);
+			TextComponentTranslation chat = new TextComponentTranslation("");
 			chat.appendSibling(ForgeHooks.newChatWithLinks(ev.message));
 			event.setComponent(chat);
 		}
+		Server.sendRangedData(event.getPlayer().world, event.getPlayer().getPosition(), 32, EnumPacketClient.CHATBUBBLE, event.getPlayer().getEntityId(), event.getMessage(), true);
 	}
 
 	@SubscribeEvent
-	public void onServerTick(TickEvent.PlayerTickEvent event) {
+	public void cnpcServerTick(TickEvent.PlayerTickEvent event) {
 		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) {
 			return;
 		}

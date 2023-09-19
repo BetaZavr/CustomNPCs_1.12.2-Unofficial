@@ -122,9 +122,11 @@ import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.event.NpcEvent;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
+import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.DialogController;
@@ -493,8 +495,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		return pos;
 	}
-
-	public boolean canAttackClass(@SuppressWarnings("rawtypes") Class par1Class) {
+	
+	@SuppressWarnings("rawtypes")
+	public boolean canAttackClass(Class par1Class) {
 		return EntityBat.class != par1Class;
 	}
 
@@ -1244,7 +1247,13 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		this.addInteract(player);
 		Dialog dialog = this.getDialog(player);
-		QuestData data = PlayerData.get(player).questData.getQuestCompletion(player, this);
+		PlayerData pd = PlayerData.get(player);
+		if (!this.faction.getIsHidden() && !pd.factionData.factionData.containsKey(this.faction.id)) {
+			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent((PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player), this.faction, this.faction.defaultPoints, true);
+			EventHooks.OnPlayerFactionChange(PlayerData.get(player).scriptData, event);
+			pd.factionData.factionData.put(this.faction.id, event.points);
+		}
+		QuestData data = pd.questData.getQuestCompletion(player, this);
 		if (data != null) {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.QUEST_COMPLETION, data.quest.id);
 		} else if (dialog != null) {
@@ -1310,7 +1319,31 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.setAttackTarget(null);
 		this.setRevengeTarget(null);
 		this.deathTime = 0;
-		if (this.ais.returnToStart && !this.hasOwner() && !this.isRemote() && !this.isRiding()) { this.setLocationAndAngles(this.getStartXPos(), this.getStartYPos(), this.getStartZPos(), this.rotationYaw, this.rotationPitch); }
+		if (this.ais.returnToStart && !this.hasOwner() && !this.isRemote() && !this.isRiding()) {
+			double x = this.getStartXPos();
+			double y = this.getStartYPos();
+			double z = this.getStartZPos();
+			if (this.world!=null) {
+				BlockPos pos = new BlockPos(x, y, z);
+				IBlockState state = this.world.getBlockState(pos);
+				if (state.getBlock().isPassable(this.world, pos)) { // possibly high
+					for (int i = (int) y; i >=0; i--) {
+						pos = pos.down();
+						state = this.world.getBlockState(pos);
+						if (!state.getBlock().isPassable(this.world, pos)) {
+							pos = pos.up();
+							if (y - pos.getY() < 3) {
+								x = (double) pos.getX() + (double) (this.ais.bodyOffsetX / 10.0f);
+								y = (double) pos.getY() + (double) (this.ais.movementType==0 ? 0 : this.ais.bodyOffsetY / 10.0f);
+								z = (double) pos.getZ() + (double) (this.ais.bodyOffsetZ / 10.0f);
+							}
+							break;
+						}
+					}
+				}
+			}
+			this.setLocationAndAngles(x, y, z, this.rotationYaw, this.rotationPitch);
+		}
 		this.killedtime = 0L;
 		this.extinguish();
 		this.clearActivePotions();
@@ -1407,7 +1440,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
-			if (this.faction.id==npc.faction.id || npc.faction.frendFactions.contains(this.faction.id) || npc.advanced.frendFactions.contains(this.faction.id)) {
+			if (this.faction.id==npc.faction.id ||
+					npc.faction.frendFactions.contains(this.faction.id) ||
+					npc.advanced.frendFactions.contains(this.faction.id) ||
+					this.faction.frendFactions.contains(npc.faction.id) ||
+					this.advanced.frendFactions.contains(npc.faction.id)) {
 				return;
 			}
 		}
@@ -1585,9 +1622,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
 						break;
 					}
+					case 6: {
+						this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
+						((EntityAIAttackTarget) this.aiAttackTarget).navOverride(true);
+						break;
+					}
 				}
-				this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
-				((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
 				this.tasks.addTask(this.taskCount++, (this.aiRange = new EntityAIRangedAttack(this)));
 				this.aiRange.navOverride(this.ais.tacticalVariant == 6);
 			}

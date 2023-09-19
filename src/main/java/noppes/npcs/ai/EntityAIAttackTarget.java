@@ -58,8 +58,7 @@ extends EntityAIBase {
 			return false;
 		}
 		int melee = this.npc.stats.ranged.getMeleeRange();
-		if (this.npc.inventory.getProjectile() != null
-				&& (melee <= 0 || !this.npc.isInRange(entitylivingbase, melee))) {
+		if (this.npc.inventory.getProjectile() != null && (melee <= 0 || !this.npc.isInRange(entitylivingbase, melee))) {
 			return false;
 		}
 		this.entityTarget = entitylivingbase;
@@ -68,9 +67,7 @@ extends EntityAIBase {
 	}
 
 	public void startExecuting() {
-		if (!this.navOverride) {
-			this.npc.getNavigator().setPath(this.entityPathEntity, 1.3);
-		}
+		if (!this.navOverride) { this.npc.getNavigator().setPath(this.entityPathEntity, 1.3); }
 		this.delayCounter = 0;
 	}
 

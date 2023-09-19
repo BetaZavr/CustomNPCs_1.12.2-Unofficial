@@ -183,7 +183,6 @@ implements INPCAnimation {
 		this.startFrameTick = 0;
 		List<AnimationConfig> list = this.data.get(type);
 		if (list==null) { this.data.put(type, list = Lists.<AnimationConfig>newArrayList()); }
-
 		if (list.size()==0 && (type==AnimationKind.FLY_STAND || type==AnimationKind.WATER_STAND)) {
 			list = this.data.get(AnimationKind.STANDING);
 		}
@@ -368,6 +367,12 @@ implements INPCAnimation {
 		if (this.startFrameTick<=0) { this.startFrameTick = npc.world.getTotalWorldTime(); }
 		int ticks = (int) (npc.world.getTotalWorldTime() - this.startFrameTick);
 		AnimationFrameConfig frame_0 = null, frame_1 = null;
+		if (this.frame==-1 && (anim.type==AnimationKind.ATTACKING ||
+				anim.type==AnimationKind.DIES ||
+				anim.type==AnimationKind.JUMP ||
+				anim.type==AnimationKind.INIT)) {
+			this.frame = 0;
+		}
 		if (this.frame==-1) { // start
 			if (this.oldAnim!=null && !this.oldAnim.frames.isEmpty()) {
 				frame_0 = this.oldAnim.frames.get(this.oldAnim.frames.size()-1);
@@ -392,11 +397,12 @@ implements INPCAnimation {
 			frame_0 = anim.frames.get(anim.frames.size()-1);
 			frame_1 = anim.frames.get(this.frame);
 		}
-		else if (anim.repeatLast>0) { // repeat end
-			this.frame = anim.frames.size() - anim.repeatLast;
+		else if (anim.repeatLast>0 || anim.type==AnimationKind.DIES) { // repeat end
+			int f = anim.repeatLast<=0 ? 1 : anim.repeatLast;
+			this.frame = anim.frames.size() - f;
 			if (this.frame<0) { this.frame = 0; }
-			frame_0 = anim.frames.get(anim.frames.size()-1);
-			frame_1 = anim.frames.get(this.frame);
+			frame_0 = anim.frames.get(this.frame);
+			frame_1 = anim.frames.containsKey(this.frame + 1) ? anim.frames.get(this.frame + 1) : frame_0;
 		}
 		if (frame_0 == null || frame_1 == null) {
 			if (this.activeAnim!=null) { this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id); }
@@ -458,6 +464,11 @@ implements INPCAnimation {
 			this.frame++;
 			this.startFrameTick = npc.world.getTotalWorldTime();
 			this.oldAnim = anim;
+			if (this.frame>=anim.frames.size()-1 && (anim.repeatLast>0 || anim.type==AnimationKind.DIES)) {
+				int f = anim.repeatLast<=0 ? 1 : anim.repeatLast;
+				this.frame = anim.frames.size() - f;
+				if (this.frame<0) { this.frame = 0; }
+			}
 		}
 		return map;
 	}

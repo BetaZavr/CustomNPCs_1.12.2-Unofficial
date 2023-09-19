@@ -163,8 +163,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	
 				this.cheakVariables(50, null);
 			} else {
-				GuiTextArea ta2 = new GuiTextArea(2, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset,
-						this.xSize - 160 - yoffset, (int) ((this.ySize * 0.92f) - yoffset * 2), this.getConsoleText());
+				GuiTextArea ta2 = new GuiTextArea(2, this.guiLeft + 4 + yoffset, this.guiTop + 6 + yoffset, this.xSize - 160 - yoffset, (int) ((this.ySize * 0.92f) - yoffset * 2), this.getConsoleText());
 				ta2.enabled = false;
 				this.add(ta2);
 				int left2 = this.guiLeft + this.xSize - 150;

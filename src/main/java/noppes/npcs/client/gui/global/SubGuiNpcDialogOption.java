@@ -67,7 +67,9 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			DialogController dData = DialogController.instance;
 			List<String> keys = Lists.newArrayList();
 			int pos = -1, i = 0;
+			OptionDialogID del = null;
 			for (OptionDialogID od : this.option.dialogs) {
+				if (od.dialogId<=0) { del = od; }
 				String key;
 				Dialog d = (Dialog) dData.get(od.dialogId);
 				if (d == null) { key = c + "7ID: " + od.dialogId + c + "c Dialog Not Found!"; }
@@ -77,6 +79,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				if (key.equals(this.select)) { pos = i; }
 				i++;
 			}
+			if (del!=null) { this.option.dialogs.remove(del); }
 			if (!this.data.containsKey(this.select)) { this.select = ""; }
 			
 			this.addLabel(new GuiNpcLabel(4, "gui.options", this.guiLeft + 4, this.guiTop + 84));

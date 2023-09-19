@@ -18,7 +18,7 @@ extends GuiScriptInterface {
 	public GuiScriptPotion() {
 		this.script = new PotionScriptData();
 		this.handler = this.script;
-		Client.sendData(EnumPacketServer.ScriptPotionGet, new Object[0]);
+		Client.sendData(EnumPacketServer.ScriptPotionGet);
 		this.baseFuncNames.put("isReady", IsReadyEvent.class);
 		this.baseFuncNames.put("performEffect", PerformEffect.class);
 		this.baseFuncNames.put("affectEntity", AffectEntity.class);

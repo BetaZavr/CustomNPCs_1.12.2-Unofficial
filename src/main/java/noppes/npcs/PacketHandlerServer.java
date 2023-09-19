@@ -1417,8 +1417,14 @@ public class PacketHandlerServer {
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.AnimationGlobalSave) {
 			AnimationController aData = AnimationController.getInstance();
-			AnimationConfig ac = (AnimationConfig) aData.createNew(0);
-			ac.readFromNBT(Server.readNBT(buffer));
+			NBTTagCompound compound = Server.readNBT(buffer);
+			AnimationConfig ac;
+			if (compound.hasKey("ID", 3) && aData.animations.containsKey(compound.getInteger("ID"))) {
+				ac = (AnimationConfig) aData.animations.get(compound.getInteger("ID"));
+			} else {
+				ac = (AnimationConfig) aData.createNew(0);
+			}
+			ac.readFromNBT(compound);
 			aData.save();
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());

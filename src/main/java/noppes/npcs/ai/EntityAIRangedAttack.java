@@ -58,8 +58,7 @@ public class EntityAIRangedAttack extends EntityAIBase {
 
 	public void updateTask() {
 		this.npc.getLookHelper().setLookPositionWithEntity(this.attackTarget, 30.0f, 30.0f);
-		double var1 = this.npc.getDistanceSq(this.attackTarget.posX, this.attackTarget.getEntityBoundingBox().minY,
-				this.attackTarget.posZ);
+		double distance = this.npc.getDistanceSq(this.attackTarget.posX, this.attackTarget.getEntityBoundingBox().minY, this.attackTarget.posZ);
 		float range = (this.npc.stats.ranged.getRange() * this.npc.stats.ranged.getRange());
 		if (!this.navOverride && this.npc.ais.directLOS) {
 			if (this.npc.getEntitySenses().canSee(this.attackTarget)) {
@@ -68,14 +67,10 @@ public class EntityAIRangedAttack extends EntityAIBase {
 				this.moveTries = 0;
 			}
 			int v = (this.npc.ais.tacticalVariant == 0) ? 20 : 5;
-			if (var1 <= range && this.moveTries >= v) {
-				this.npc.getNavigator().clearPath();
-			} else {
-				this.npc.getNavigator().tryMoveToEntityLiving(this.attackTarget, 1.0);
-			}
+			if (distance <= range && this.moveTries >= v) { this.npc.getNavigator().clearPath(); }
+			else { this.npc.getNavigator().tryMoveToEntityLiving(this.attackTarget, 1.0); }
 		}
-		if (this.rangedAttackTime-- <= 0 && var1 <= range
-				&& (this.npc.getEntitySenses().canSee(this.attackTarget) || this.npc.stats.ranged.getFireType() == 2)) {
+		if (this.rangedAttackTime-- <= 0 && distance <= range && (this.npc.getEntitySenses().canSee(this.attackTarget) || this.npc.stats.ranged.getFireType() == 2)) {
 			if (this.burstCount++ <= this.npc.stats.ranged.getBurst()) {
 				this.rangedAttackTime = this.npc.stats.ranged.getBurstDelay();
 			} else {
@@ -87,7 +82,7 @@ public class EntityAIRangedAttack extends EntityAIBase {
 				boolean indirect = false;
 				switch (this.npc.stats.ranged.getFireType()) {
 				case 1: {
-					indirect = (var1 > range / 2.0);
+					indirect = (distance > range / 2.0);
 					break;
 				}
 				case 2: {

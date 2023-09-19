@@ -87,6 +87,7 @@ implements IScriptHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
+		this.scripts.clear();
 		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");

@@ -64,7 +64,7 @@ implements IAnimationHandler {
 	
 	public int getUnusedId() {
 		int id = 0;
-		for (int i : this.animations.keySet()) { if (i>id) { id = i + 1; } }
+		for (int i : this.animations.keySet()) { if (i>=id) { id = i + 1; } }
 		return id;
 	}
 	

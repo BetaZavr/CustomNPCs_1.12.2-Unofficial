@@ -76,6 +76,7 @@ implements IAnimation {
 		int t = compound.getInteger("Type");
 		if (t<0) { t *= -1; }
 		t %= AnimationKind.values().length;
+		this.id = compound.getInteger("ID");
 		this.type = AnimationKind.get(t);
 		this.name = compound.getString("Name");
 		this.disable = compound.getBoolean("IsDisable");
@@ -85,7 +86,8 @@ implements IAnimation {
 		NBTTagList list = new NBTTagList();
 		for (AnimationFrameConfig afc : this.frames.values()) { list.appendTag(afc.writeNBT()); }
 		compound.setTag("FrameConfigs", list);
-		
+
+		compound.setInteger("ID", this.id);
 		compound.setInteger("Type", this.type.get());
 		compound.setString("Name", this.name);
 		compound.setBoolean("IsDisable", this.disable);
@@ -172,18 +174,20 @@ implements IAnimation {
 
 	@Override
 	public void startToNpc(ICustomNpc<?> npc) {
-		if (npc==null || (npc.getMCEntity() instanceof EntityCustomNpc)) {
+		if (npc==null || !(npc.getMCEntity() instanceof EntityCustomNpc)) {
 			throw new CustomNPCsException("NPC must not be null");
 		}
-		EntityCustomNpc npcEntity = (EntityCustomNpc) npc.getMCEntity();
-		if (npcEntity.modelData instanceof ModelDataShared && ((ModelDataShared) npcEntity.modelData).entityClass==null) {
-			((EntityNPCInterface) npcEntity).animation.activeAnim = this;
-			if (((EntityNPCInterface) npcEntity).world==null || ((EntityNPCInterface) npcEntity).world.isRemote) { return; }
-			NBTTagCompound compound = this.writeToNBT(new NBTTagCompound());
-			compound.setInteger("EntityId", npc.getMCEntity().getEntityId());
-			compound.setTag("CustomAnim", this.writeToNBT(new NBTTagCompound()));
-			Server.sendAssociatedData((EntityNPCInterface) npcEntity, EnumPacketClient.UPDATE_NPC_ANIMATION, 3, compound);
-		}
+		this.startToNpc((EntityCustomNpc) npc.getMCEntity());
+	}
+	
+	public void startToNpc(EntityCustomNpc npcEntity) {
+		if (npcEntity==null || !(npcEntity.modelData instanceof ModelDataShared) || ((ModelDataShared) npcEntity.modelData).entityClass!=null) { return; }
+		((EntityNPCInterface) npcEntity).animation.activeAnim = this;
+		if (((EntityNPCInterface) npcEntity).world==null || ((EntityNPCInterface) npcEntity).world.isRemote) { return; }
+		NBTTagCompound compound = this.writeToNBT(new NBTTagCompound());
+		compound.setInteger("EntityId", npcEntity.getEntityId());
+		compound.setTag("CustomAnim", this.writeToNBT(new NBTTagCompound()));
+		Server.sendAssociatedData((EntityNPCInterface) npcEntity, EnumPacketClient.UPDATE_NPC_ANIMATION, 3, compound);
 	}
 
 	@Override
