@@ -30,7 +30,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
@@ -70,7 +70,7 @@ implements ICustomElement {
 		this.setResistance(6000000.0F);
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
 		
-		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
 	}
 
 	@Override
@@ -111,7 +111,7 @@ implements ICustomElement {
 			if (entityIn instanceof EntityPlayerMP) {
 				CustomTeleport event = EventHooks.onPlayerTeleport((EntityPlayerMP) entityIn, p, pos, isHome ? homeId : id);
 				if (!event.isCanceled()) {
-					NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entityIn, event.pos.getX()+0.5d, event.pos.getY(), event.pos.getZ()+0.5d, event.dimension);
+					NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) entityIn, event.pos.getX()+0.5d, event.pos.getY(), event.pos.getZ()+0.5d, event.dimension, entityIn.rotationYaw, entityIn.rotationPitch);
 				}
 			} else {
 				if (entityIn instanceof EntityNPCInterface) {

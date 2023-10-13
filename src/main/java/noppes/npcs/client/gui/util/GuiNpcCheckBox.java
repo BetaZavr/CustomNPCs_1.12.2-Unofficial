@@ -44,7 +44,7 @@ extends GuiNpcButton
         this.centered = false;
         this.labels = Lists.<String>newArrayList();
         this.showShadow = false;
-        this.textColor = CustomNpcs.mainColor;
+        this.textColor = CustomNpcs.lableColor;
         this.setText(label);
     }
     

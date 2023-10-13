@@ -145,11 +145,8 @@ public class TrueTypeFont {
 				if (gl.type == GlyphType.RESET) {
 					GlStateManager.color(r, g, b, 1.0f);
 				} else {
-					if (gl.type != GlyphType.COLOR) {
-						continue;
-					}
-					GlStateManager.color((gl.color >> 16 & 0xFF) / 255.0f, (gl.color >> 8 & 0xFF) / 255.0f,
-							(gl.color & 0xFF) / 255.0f, 1.0f);
+					if (gl.type != GlyphType.COLOR) { continue; }
+					GlStateManager.color((gl.color >> 16 & 0xFF) / 255.0f, (gl.color >> 8 & 0xFF) / 255.0f, (gl.color & 0xFF) / 255.0f, 1.0f);
 				}
 			} else {
 				GlStateManager.bindTexture(gl.texture);

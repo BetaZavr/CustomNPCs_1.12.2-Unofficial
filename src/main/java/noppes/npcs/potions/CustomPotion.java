@@ -27,6 +27,7 @@ import noppes.npcs.api.event.potion.AffectEntity;
 import noppes.npcs.api.event.potion.EndEffect;
 import noppes.npcs.api.event.potion.IsReadyEvent;
 import noppes.npcs.api.event.potion.PerformEffect;
+import noppes.npcs.controllers.ScriptController;
 
 public class CustomPotion
 extends Potion
@@ -57,6 +58,7 @@ implements ICustomElement {
 		if (isReady || duration%10==0) {
 			IsReadyEvent event = new IsReadyEvent(this, isReady, duration, amplifier);
 			EventHooks.onCustomPotionIsReady(event);
+			EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionIsReady", event);
 			isReady = event.ready;
 		}
 		return isReady;
@@ -64,12 +66,16 @@ implements ICustomElement {
 
 	@Override
 	public void performEffect(EntityLivingBase entityLivingBaseIn, int amplifier) {
-		EventHooks.onCustomPotionPerformEffect(new PerformEffect(this, entityLivingBaseIn, amplifier));
+		PerformEffect event = new PerformEffect(this, entityLivingBaseIn, amplifier);
+		EventHooks.onCustomPotionPerformEffect(event);
+		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionPerformEffect", event);
 	}
 
 	@Override
 	public void affectEntity(@Nullable Entity source, @Nullable Entity indirectSource, EntityLivingBase entityLivingBaseIn, int amplifier, double health) {
-		EventHooks.onCustomPotionAffectEntity(new AffectEntity(this, source, indirectSource, entityLivingBaseIn, amplifier, health));
+		AffectEntity event = new AffectEntity(this, source, indirectSource, entityLivingBaseIn, amplifier, health);
+		EventHooks.onCustomPotionAffectEntity(event);
+		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionAffectEntity", event);
 	}
 	
 	@Override
@@ -94,7 +100,9 @@ implements ICustomElement {
 	@Override
 	public void removeAttributesModifiersFromEntity(EntityLivingBase entityLivingBaseIn, AbstractAttributeMap attributeMapIn, int amplifier) {
 		super.removeAttributesModifiersFromEntity(entityLivingBaseIn, attributeMapIn, amplifier);
-		EventHooks.onCustomPotionEndEffect(new EndEffect(this, entityLivingBaseIn, amplifier));
+		EndEffect event = new EndEffect(this, entityLivingBaseIn, amplifier);
+		EventHooks.onCustomPotionEndEffect(event);
+		EventHooks.onEvent(ScriptController.Instance.potionScripts, "customPotionEndEffect", event);
 	}
 
 	@Override

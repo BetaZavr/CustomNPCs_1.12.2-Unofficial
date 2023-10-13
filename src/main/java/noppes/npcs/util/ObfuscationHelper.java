@@ -7,8 +7,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 
 import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindFieldException;
 
 public class ObfuscationHelper {
 
@@ -140,10 +138,6 @@ public class ObfuscationHelper {
 				f.setAccessible(true);
 				return (T) f.get(instance);
 			}
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("There was a problem getting field type {} from {}", fieldType.getSimpleName(),
-					clazz.getSimpleName(), e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", fieldType.getSimpleName(), f.getType().getSimpleName(),
@@ -174,10 +168,6 @@ public class ObfuscationHelper {
 				f.setAccessible(true);
 				return (T) f.get(instance);
 			}
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("There was a problem getting field type {} from {}", fieldType.getSimpleName(),
-					clazz.getSimpleName(), e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", fieldType.getSimpleName(), f.getType().getSimpleName(),
@@ -205,10 +195,6 @@ public class ObfuscationHelper {
 				f.setAccessible(true);
 				return (T) f.get(instance);
 			}
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("There was a problem getting field index {} from {}", "Index:" + index,
-					clazz.getSimpleName(), e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
@@ -247,10 +233,6 @@ public class ObfuscationHelper {
 				f.setAccessible(true);
 				return (T) f.get(instance);
 			}
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("There was a problem getting field index {} from {}", "Index:" + index,
-					clazz.getSimpleName(), e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
@@ -292,10 +274,6 @@ public class ObfuscationHelper {
 				f.setAccessible(true);
 				return (T) f.get(instance);
 			}
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("There was a problem getting field {} from {}", "Name:" + fieldName, clazz.getSimpleName(),
-					e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", "Name:" + fieldName, f.getType().getSimpleName(), e);
@@ -487,14 +465,6 @@ public class ObfuscationHelper {
 		f.setAccessible(true);
 		try {
 			f.set(instance, value);
-		} catch (UnableToFindFieldException e) {
-			FMLLog.log.error("Unable to locate any field {} on type {}", "Type:" + fieldType.getSimpleName(),
-					clazz.getSimpleName(), e);
-			throw e;
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("Unable to access any field type {} on type {}", "Type:" + fieldType.getSimpleName(),
-					clazz.getSimpleName(), e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", "Type:" + fieldType.getSimpleName(),
@@ -537,13 +507,6 @@ public class ObfuscationHelper {
 		f.setAccessible(true);
 		try {
 			f.set(instance, value);
-		} catch (UnableToFindFieldException e) {
-			FMLLog.log.error("Unable to locate any field {} on type {}", "Index:" + index, clazz.getSimpleName(), e);
-			throw e;
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("There was a problem getting field {} from {}", "Index:" + index, clazz.getSimpleName(),
-					e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getType().getSimpleName(), e);
@@ -585,12 +548,6 @@ public class ObfuscationHelper {
 		f.setAccessible(true);
 		try {
 			f.set(instance, value);
-		} catch (UnableToFindFieldException e) {
-			FMLLog.log.error("Unable to locate any field {} on type {}", "Name:" + fieldName, clazz.getSimpleName(), e);
-			throw e;
-		} catch (UnableToAccessFieldException e) {
-			FMLLog.log.error("Unable to access any field {} on type {}", "Name:" + fieldName, clazz.getSimpleName(), e);
-			throw e;
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}", "Name:" + fieldName, f.getType().getSimpleName(), e);

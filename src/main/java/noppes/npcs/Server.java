@@ -53,6 +53,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.SEND_FILE_PART);
 		Server.list.add(EnumPacketClient.PLAY_SOUND);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
+		Server.list.add(EnumPacketClient.CHATBUBBLE);
 	}
 	
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {

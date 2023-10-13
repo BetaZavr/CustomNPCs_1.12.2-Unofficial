@@ -8,7 +8,7 @@ import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 
 public class CustomItemLingeringPotion
 extends ItemLingeringPotion {
@@ -24,8 +24,8 @@ extends ItemLingeringPotion {
     	for (PotionType potiontype : PotionType.REGISTRY) {
             if (potiontype == PotionTypes.EMPTY) { continue; }
             if (tab == CreativeTabs.SEARCH ||
-            		(tab == this.getCreativeTab() && !CustomItems.custompotiontypes.contains(potiontype)) ||
-            		(tab == CustomItems.tabItems && CustomItems.custompotiontypes.contains(potiontype))) {
+            		(tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.contains(potiontype)) ||
+            		(tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.contains(potiontype))) {
             	items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
             }
         }

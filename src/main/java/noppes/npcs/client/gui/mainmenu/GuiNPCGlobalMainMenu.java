@@ -24,48 +24,48 @@ extends GuiNPCInterface2 {
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		switch (guibutton.id) {
-		case 2: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
-			break;
-		}
-		case 3: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
-			break;
-		}
-		case 4: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
-			break;
-		}
-		case 11: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
-			break;
-		}
-		case 12: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport);
-			break;
-		}
-		case 13: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc, this));
-			break;
-		}
-		case 14: { // Changed
-			ClientProxy.recipeGroup = "";
-			ClientProxy.recipeName = "";
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 4, 0, 0);
-			break;
-		}
-		case 15: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcNaturalSpawns(this.npc));
-			break;
-		}
-		case 16: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
-			break;
-		}
-		case 17: {
-			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, 0, 0, 0);
-			break;
-		}
+			case 2: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
+				break;
+			}
+			case 3: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
+				break;
+			}
+			case 4: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
+				break;
+			}
+			case 11: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
+				break;
+			}
+			case 12: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0);
+				break;
+			}
+			case 13: {
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc, this));
+				break;
+			}
+			case 14: { // Changed
+				ClientProxy.recipeGroup = "";
+				ClientProxy.recipeName = "";
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 4, 0, 0);
+				break;
+			}
+			case 15: {
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcNaturalSpawns(this.npc));
+				break;
+			}
+			case 16: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
+				break;
+			}
+			case 17: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, 0, 0, 0);
+				break;
+			}
 		}
 	}
 

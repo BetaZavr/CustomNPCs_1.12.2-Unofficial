@@ -15,13 +15,16 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
 
-public class CommandNoppes extends CommandBase {
+public class CommandNoppes
+extends CommandBase {
+	
 	public CmdHelp help;
 	public Map<String, CommandNoppesBase> map;
 
 	public CommandNoppes() {
 		this.map = new HashMap<String, CommandNoppesBase>();
-		this.registerCommand(this.help = new CmdHelp(this));
+		this.help = new CmdHelp(this);
+		this.registerCommand(this.help);
 		this.registerCommand(new CmdScript());
 		this.registerCommand(new CmdScene());
 		this.registerCommand(new CmdSlay());
@@ -34,6 +37,7 @@ public class CommandNoppes extends CommandBase {
 		this.registerCommand(new CmdConfig());
 		this.registerCommand(new CmdMark());
 		this.registerCommand(new CmdDimensions());
+		this.registerCommand(new CmdPlayers());
 	}
 
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
@@ -95,7 +99,7 @@ public class CommandNoppes extends CommandBase {
 				useArgs = m.getAnnotation(CommandNoppesBase.SubCommand.class).usage().split(" ");
 			}
 		}
-		if (args.length - 3 > -1 && useArgs.length >= args.length - 3) {
+		if (useArgs.length - 3 > -1 && useArgs.length >= args.length - 3) {
 			String usage = useArgs[args.length - 3];
 			if (usage.equals("<player>") || usage.equals("[player]")) {
 				return CommandBase.getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());

@@ -7,7 +7,9 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.controllers.BankController;
 
 public class PlayerBankData {
+	
 	public HashMap<Integer, BankData> banks;
+	public String editPlayer = "";
 
 	public PlayerBankData() {
 		this.banks = new HashMap<Integer, BankData>();
@@ -43,6 +45,9 @@ public class PlayerBankData {
 			banks.put(data.bankId, data);
 		}
 		this.banks = banks;
+		if (compound.hasKey("PlayerName", 8)) {
+			this.editPlayer  = compound.getString("PlayerName");
+		}
 	}
 
 	public void loadNew(int bank) {

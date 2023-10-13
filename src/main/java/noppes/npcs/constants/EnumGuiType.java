@@ -60,7 +60,6 @@ public enum EnumGuiType
 	NbtBook, 
 	CustomChest, 
 	CustomGui,
-	HelpBook,
 	BoundarySetting,
 	BuilderSetting,
 	DimentionSetting,

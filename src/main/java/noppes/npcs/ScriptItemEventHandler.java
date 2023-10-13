@@ -17,7 +17,7 @@ public class ScriptItemEventHandler {
 		}
 		EntityItem entity = event.getItem();
 		ItemStack stack = entity.getItem();
-		if (!stack.isEmpty() && (stack.getItem() == CustomItems.scripted_item)) {
+		if (!stack.isEmpty() && (stack.getItem() == CustomRegisters.scripted_item)) {
 			EventHooks.onScriptItemPickedUp(ItemScripted.GetWrapper(stack), event.getEntityPlayer(), entity);
 		}
 	}
@@ -29,7 +29,7 @@ public class ScriptItemEventHandler {
 		}
 		EntityItem entity = (EntityItem) event.getEntity();
 		ItemStack stack = entity.getItem();
-		if (!stack.isEmpty() && (stack.getItem() == CustomItems.scripted_item)
+		if (!stack.isEmpty() && (stack.getItem() == CustomRegisters.scripted_item)
 				&& EventHooks.onScriptItemSpawn(ItemScripted.GetWrapper(stack), entity)) {
 			event.setCanceled(true);
 		}
@@ -42,7 +42,7 @@ public class ScriptItemEventHandler {
 		}
 		EntityItem entity = event.getEntityItem();
 		ItemStack stack = entity.getItem();
-		if (!stack.isEmpty() && (stack.getItem() == CustomItems.scripted_item)
+		if (!stack.isEmpty() && (stack.getItem() == CustomRegisters.scripted_item)
 				&& EventHooks.onScriptItemTossed(ItemScripted.GetWrapper(stack), event.getPlayer(), entity)) {
 			event.setCanceled(true);
 		}

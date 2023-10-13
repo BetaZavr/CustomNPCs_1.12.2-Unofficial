@@ -29,7 +29,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.SchematicController;
@@ -237,7 +237,7 @@ public class Schematic implements ISchematic {
 			int y = ((i - x) / width - z) / length;
 			IBlockState state = world.getBlockState(pos.add(x, y, z));
 			if (state.getBlock() != Blocks.AIR) {
-				if (state.getBlock() != CustomItems.copy) {
+				if (state.getBlock() != CustomRegisters.copy) {
 					schema.blockIdsArray[i] = (short) Block.REGISTRY.getIDForObject(state.getBlock());
 					schema.blockMetadataArray[i] = (byte) state.getBlock().getMetaFromState(state);
 					if (state.getBlock() instanceof ITileEntityProvider) {

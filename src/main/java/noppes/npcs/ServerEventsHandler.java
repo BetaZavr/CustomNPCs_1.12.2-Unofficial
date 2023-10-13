@@ -351,12 +351,12 @@ public class ServerEventsHandler {
 						"ServerEventsHandler_npcPlayerInteract");
 			return;
 		}
-		if (!isRemote && item.getItem() == CustomItems.soulstoneEmpty
+		if (!isRemote && item.getItem() == CustomRegisters.soulstoneEmpty
 				&& event.getTarget() instanceof EntityLivingBase) {
 			((ItemSoulstoneEmpty) item.getItem()).store((EntityLivingBase) event.getTarget(), item,
 					event.getEntityPlayer());
 		}
-		if (item.getItem() == CustomItems.wand && npcInteracted && !isRemote) {
+		if (item.getItem() == CustomRegisters.wand && npcInteracted && !isRemote) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
 				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
 							"ServerEventsHandler_npcPlayerInteract");
@@ -365,7 +365,7 @@ public class ServerEventsHandler {
 			event.setCanceled(true);
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.MainMenuDisplay,
 					(EntityNPCInterface) event.getTarget());
-		} else if (item.getItem() == CustomItems.cloner && !isRemote && !(event.getTarget() instanceof EntityPlayer)) {
+		} else if (item.getItem() == CustomRegisters.cloner && !isRemote && !(event.getTarget() instanceof EntityPlayer)) {
 			NBTTagCompound compound = new NBTTagCompound();
 			if (!(event.getTarget() instanceof EntityCustomNpc) || !((EntityCustomNpc) event.getTarget()).writeToNBTAtomically(compound)) {
 				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
@@ -382,7 +382,7 @@ public class ServerEventsHandler {
 			}
 			data.cloned = compound;
 			event.setCanceled(true);
-		} else if (item.getItem() == CustomItems.scripter && !isRemote && npcInteracted) {
+		} else if (item.getItem() == CustomRegisters.scripter && !isRemote && npcInteracted) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
 				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
@@ -391,7 +391,7 @@ public class ServerEventsHandler {
 			event.setCanceled(true);
 			Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI,
 					EnumGuiType.Script.ordinal(), 0, 0, 0);
-		} else if (item.getItem() == CustomItems.mount) {
+		} else if (item.getItem() == CustomRegisters.mount) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.TOOL_MOUNTER)) {
 				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
 							"ServerEventsHandler_npcPlayerInteract");
@@ -405,7 +405,7 @@ public class ServerEventsHandler {
 						MathHelper.floor(ServerEventsHandler.mounted.posZ), EnumGuiType.MobSpawnerMounter,
 						event.getEntityPlayer());
 			}
-		} else if (item.getItem() == CustomItems.wand && event.getTarget() instanceof EntityVillager) {
+		} else if (item.getItem() == CustomRegisters.wand && event.getTarget() instanceof EntityVillager) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.EDIT_VILLAGER)) {
 				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
 							"ServerEventsHandler_npcPlayerInteract");

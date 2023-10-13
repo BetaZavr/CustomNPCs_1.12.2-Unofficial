@@ -14,7 +14,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ILayerModel;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.TextBlockClient;
@@ -65,7 +65,7 @@ extends BlockRendererInterface<T> {
 
 	private boolean overrideModel() {
 		ItemStack held = Minecraft.getMinecraft().player.getHeldItemMainhand();
-		return held != null && (held.getItem() == CustomItems.wand || held.getItem() == CustomItems.scripter);
+		return held != null && (held.getItem() == CustomRegisters.wand || held.getItem() == CustomRegisters.scripter);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -77,7 +77,7 @@ extends BlockRendererInterface<T> {
 		GlStateManager.translate(x + 0.5, y, z + 0.5);
 		if (this.overrideModel()) { // Default model
 			GlStateManager.translate(0.0, 0.5, 0.0);
-			this.renderItem(new ItemStack(CustomItems.scripted));
+			this.renderItem(new ItemStack(CustomRegisters.scripted));
 			GlStateManager.popMatrix();
 			return;
 		} else {
@@ -87,7 +87,7 @@ extends BlockRendererInterface<T> {
 			GlStateManager.rotate(tile.rotationZ, 0.0f, 0.0f, 1.0f);
 			GlStateManager.scale(tile.scaleX, tile.scaleY, tile.scaleZ);
 			Block b = tile.blockModel;
-			if (b == null || b == Blocks.AIR || b == CustomItems.scripted) {
+			if (b == null || b == Blocks.AIR || b == CustomRegisters.scripted) {
 				GlStateManager.translate(0.0, 0.5, 0.0);
 				this.renderItem(tile.itemModel); // Default model
 			} else {

@@ -123,16 +123,11 @@ implements IGui, IKeyListener, IMouseListener {
 	}
 
 	public void drawScreen(int xMouse, int yMouse) {
-		if (!this.visible) {
-			return;
-		}
-		this.hovered = xMouse >= this.x && xMouse <= this.x + this.width && yMouse >= this.y
-				&& yMouse <= this.y + this.height;
+		if (!this.visible) { return; }
+		this.hovered = xMouse >= this.x && xMouse <= this.x + this.width && yMouse >= this.y && yMouse <= this.y + this.height;
 		drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFFA0A0A0);
 		drawRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFF000000);
-		if (this.container == null) {
-			return;
-		}
+		if (this.container == null) { return; }
 		this.container.visibleLines = this.height / this.container.lineHeight;
 		if (!this.freeze) {
 			if (this.clicked) {
@@ -156,7 +151,6 @@ implements IGui, IKeyListener, IMouseListener {
 				this.scrolledLine = (int) Math.min(Math.max((1.0f * diff * (yMouse - this.y) / this.height), 0), diff);
 			}
 		}
-
 		int startBracket = 0;
 		int endBracket = 0;
 		if (this.startSelection >= 0 && this.endSelection - this.startSelection == 1
@@ -238,9 +232,15 @@ implements IGui, IKeyListener, IMouseListener {
 				}
 				int yPos = this.y + (j - this.scrolledLine) * this.container.lineHeight + 1;
 				GuiTextArea.font.draw(data.getFormattedString(), (this.x + 1), yPos, 0xFFE0E0E0);
-				if (this.active && this.isEnabled() && this.cursorCounter / 6 % 2 == 0 && this.cursorPosition >= data.start && this.cursorPosition < data.end) {
-					int posX = this.x + GuiTextArea.font.width(line.substring(0, this.cursorPosition - data.start));
-					drawRect(posX + 1, yPos, posX + 2, yPos + 1 + this.container.lineHeight, 0xFFD0D0D0);
+				if (this.active && this.isEnabled() && this.cursorCounter / 10 % 2 == 0) {
+					if (this.cursorPosition >= data.start && this.cursorPosition < data.end) {
+						int posX = this.x + GuiTextArea.font.width(line.substring(0, this.cursorPosition - data.start));
+						drawRect(posX + 1, yPos, posX + 2, yPos + 1 + this.container.lineHeight, 0xFFD0D0D0);
+					}
+					else if (data.start > 0 && j == list.size()-1 && line.isEmpty()) {
+						yPos += (this.cursorPosition - data.end + 1) * this.container.lineHeight;
+						drawRect(this.x + 1, yPos, this.x + 2, yPos + 1 + this.container.lineHeight, 0xFFD0D0D0);
+					}
 				}
 			}
 		}
@@ -286,13 +286,9 @@ implements IGui, IKeyListener, IMouseListener {
 		return 0;
 	}
 
-	public int getCursorPosition() {
-		return this.cursorPosition;
-	}
+	public int getCursorPosition() { return this.cursorPosition; }
 
-	public int getId() {
-		return this.id;
-	}
+	public int getId() { return this.id; }
 
 	private String getIndentCurrentLine() {
 		for (TextContainer.LineData data : this.container.lines) {
@@ -417,9 +413,7 @@ implements IGui, IKeyListener, IMouseListener {
 		return new Object[] { p, select, row };
 	}
 
-	public String getText() {
-		return this.text;
-	}
+	public String getText() { return this.text; }
 
 	public int[] getXYPosition(int pos) {
 		int[] xy = new int[] { this.x, this.y };

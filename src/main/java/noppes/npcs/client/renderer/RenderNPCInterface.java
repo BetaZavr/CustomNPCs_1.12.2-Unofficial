@@ -15,21 +15,27 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.IImageBuffer;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderLiving;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ImageDownloadAlt;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLiving<T> {
+public class RenderNPCInterface<T extends EntityNPCInterface>
+extends RenderLiving<T> {
+	
+	private static final DynamicTexture TEXTURE_BRIGHTNESS = new DynamicTexture(16, 16);
 	public static int LastTextureTick;
 
 	public RenderNPCInterface(ModelBase model, float f) {
@@ -52,10 +58,10 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 	}
 
-	public void doRender(T npc, double d, double d1, double d2, float f, float f1) {
+	public void doRender(T npc, double x, double y, double z, float entityYaw, float partialTicks) {
 		if (!CustomNpcs.EnableInvisibleNpcs && npc.display.getVisible()==1) {
 			EntityPlayerSP player = Minecraft.getMinecraft().player;
-			if (!player.capabilities.isCreativeMode && player.getHeldItemMainhand().getItem()!=CustomItems.wand) { return; }
+			if (!player.capabilities.isCreativeMode && player.getHeldItemMainhand().getItem()!=CustomRegisters.wand) { return; }
 		}
 		if (npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
 		if (npc.ais.getStandingType() == 3 && !npc.isWalking() && !npc.isInteracting()) {
@@ -65,15 +71,13 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		try {
 			GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
-			super.doRender(npc, d, d1, d2, f, f1);
-			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
+			super.doRender(npc, x, y, z, entityYaw, partialTicks);
 		} catch (Throwable t) { }
 	}
 
-	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8,
-			float par9) {
+	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8, float par9) {
 		EntityNPCInterface npc = (EntityNPCInterface) par1Entity;
-		this.shadowSize = npc.width;
+		this.shadowSize = npc.width / 1.25f;
 		if (!npc.isKilled()) {
 			super.doRenderShadowAndFire(par1Entity, par2, par4, par6, par8, par9);
 		}
@@ -129,8 +133,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		if (texturemanager.getTexture(resource) != null) {
 			return;
 		}
-		ITextureObject object = (ITextureObject) new ImageDownloadAlt(file, par1Str,
-				DefaultPlayerSkin.getDefaultSkinLegacy(), (IImageBuffer) new ImageBufferDownloadAlt());
+		ITextureObject object = (ITextureObject) new ImageDownloadAlt(file, par1Str, DefaultPlayerSkin.getDefaultSkinLegacy(), (IImageBuffer) new ImageBufferDownloadAlt());
 		texturemanager.loadTexture(resource, object);
 	}
 
@@ -169,8 +172,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		super.renderLivingAt(npc, d + xOffset, d1 + yOffset, d2 + zOffset);
 	}
 
-	protected void renderLivingLabel(EntityNPCInterface npc, double d, double e, double d2, int i, String name,
-			String title) {
+	protected void renderLivingLabel(EntityNPCInterface npc, double d, double e, double d2, int i, String name, String title) {
 		FontRenderer fontrenderer = this.getFontRendererFromRenderManager();
 		float f1 = npc.baseHeight / 5.0f * npc.display.getSize();
 		float f2 = 0.01666667f * f1;
@@ -223,8 +225,10 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
+		
 		try { super.renderModel(npc, par2, par3, par4, par5, par6, par7); }
 		catch (Exception e) { }
+		
 		if (!npc.display.getOverlayTexture().isEmpty()) {
 			GlStateManager.depthFunc(515);
 			if (npc.textureGlowLocation == null) {
@@ -267,16 +271,84 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 		float scale = npc.baseHeight / 5.0f * npc.display.getSize();
 		if (npc.display.showName()) {
-			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, npc.getName(),
-					npc.display.getTitle());
-			// New
-			if (!CustomNpcs.showLR) {
-				return;
-			}
+			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, npc.getName(), npc.display.getTitle());
+			if (!CustomNpcs.showLR) { return; }
 			Client.sendDataDelayCheck(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
 			if (!npc.stats.getRarityTitle().isEmpty()) {
 				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, "", npc.stats.getRarityTitle());
 			}
 		}
 	}
+	
+	protected boolean setBrightness(T npc, float partialTicks, boolean combineTextures) {
+		float f = npc.getBrightness();
+		int i = this.getColorMultiplier(npc, f, partialTicks);
+		boolean flag = (i >> 24 & 255) > 0;
+		boolean flag1 = npc.hurtTime > 0 || npc.deathTime > 0;
+		if (flag1 && npc.animation.activeAnim!=null && npc.animation.activeAnim.type == AnimationKind.DIES) {
+			flag1 = false; // cancel red death color
+		}
+		if (!flag && !flag1) { return false; }
+		else if (!flag && !combineTextures) { return false; }
+		else {
+			GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+			GlStateManager.enableTexture2D();
+			GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, 8448);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.defaultTexUnit);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.GL_PRIMARY_COLOR);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.defaultTexUnit);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
+			GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+			GlStateManager.enableTexture2D();
+			GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, OpenGlHelper.GL_INTERPOLATE);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.GL_CONSTANT);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.GL_PREVIOUS);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE2_RGB, OpenGlHelper.GL_CONSTANT);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND2_RGB, 770);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.GL_PREVIOUS);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
+			this.brightnessBuffer.position(0);
+			if (flag1) {
+				this.brightnessBuffer.put(1.0F);
+				this.brightnessBuffer.put(0.0F);
+				this.brightnessBuffer.put(0.0F);
+				this.brightnessBuffer.put(0.3F);
+			}
+			else {
+				float f1 = (float)(i >> 24 & 255) / 255.0F;
+				float f2 = (float)(i >> 16 & 255) / 255.0F;
+				float f3 = (float)(i >> 8 & 255) / 255.0F;
+				float f4 = (float)(i & 255) / 255.0F;
+				this.brightnessBuffer.put(f2);
+				this.brightnessBuffer.put(f3);
+				this.brightnessBuffer.put(f4);
+				this.brightnessBuffer.put(1.0F - f1);
+			}
+			this.brightnessBuffer.flip();
+			GlStateManager.glTexEnv(8960, 8705, this.brightnessBuffer);
+			GlStateManager.setActiveTexture(OpenGlHelper.GL_TEXTURE2);
+			GlStateManager.enableTexture2D();
+			GlStateManager.bindTexture(TEXTURE_BRIGHTNESS.getGlTextureId());
+			GlStateManager.glTexEnvi(8960, 8704, OpenGlHelper.GL_COMBINE);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_RGB, 8448);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_RGB, OpenGlHelper.GL_PREVIOUS);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE1_RGB, OpenGlHelper.lightmapTexUnit);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_RGB, 768);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND1_RGB, 768);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_COMBINE_ALPHA, 7681);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_SOURCE0_ALPHA, OpenGlHelper.GL_PREVIOUS);
+			GlStateManager.glTexEnvi(8960, OpenGlHelper.GL_OPERAND0_ALPHA, 770);
+			GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+			return true;
+		}
+	}
+	
 }

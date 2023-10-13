@@ -19,7 +19,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.NoppesUtilServer;
@@ -35,7 +35,7 @@ public class ItemNpcWand extends Item implements IPermission {
 		this.setUnlocalizedName("npcwand");
 		this.setFull3D();
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
 	public int getMaxItemUseDuration(ItemStack par1ItemStack) {

@@ -2,7 +2,9 @@ package noppes.npcs.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -12,6 +14,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,6 +55,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
@@ -81,8 +85,8 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.IContainer;
@@ -442,37 +446,38 @@ implements IMetods {
 			}
 			for (Method m : clazz.getMethods()) {
 				if (m.getName().equals(metodName)) {
-					obj = m.getReturnType();
+					obj = AdditionalMethods.getScriptClass(m.getReturnType());
 					continue;
 				}
 			}
-			if (!CustomNpcs.scriptHelperObfuscations) { continue; }
-			Map<String, Method> methodsMap = Maps.newHashMap();
-			for (Method m : clazz.getMethods()) {
-				methodsMap.put(m.getName(), m);
-			}
-			if (AdditionalMethods.instance.obfuscations.containsValue(key)) {
-				for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
-					if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
-						if (methodsMap.containsKey(s)) {
-							obj = methodsMap.get(s).getReturnType();
+			if (CustomNpcs.scriptHelperObfuscations) {
+				Map<String, Method> methodsMap = Maps.newHashMap();
+				for (Method m : clazz.getMethods()) {
+					methodsMap.put(m.getName(), m);
+				}
+				if (AdditionalMethods.instance.obfuscations.containsValue(key)) {
+					for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
+						if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
+							if (methodsMap.containsKey(s)) {
+								obj = AdditionalMethods.getScriptClass(methodsMap.get(s).getReturnType());
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}
 			if (obj != null) {
-				break;
+				continue;
 			}
 			for (Class<?> c : clazz.getClasses()) {
 				if (c.getSimpleName().equals(key)) {
-					obj = c;
+					obj = AdditionalMethods.getScriptClass(c);
 					continue;
 				}
 			}
 			for (Field f : clazz.getFields()) {
 				if (f.getName().equals(key)) {
-					obj = f.getType();
+					obj = AdditionalMethods.getScriptClass(f.getType());
 					continue;
 				}
 			}
@@ -492,10 +497,10 @@ implements IMetods {
 				for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
 					if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
 						if (classMap.containsKey(s)) {
-							obj = classMap.get(s);
+							obj = AdditionalMethods.getScriptClass(classMap.get(s));
 						}
 						if (fieldMap.containsKey(s)) {
-							obj = fieldMap.get(s).getType();
+							obj = AdditionalMethods.getScriptClass(fieldMap.get(s).getType());
 						}
 						break;
 					}
@@ -507,9 +512,7 @@ implements IMetods {
 		}
 
 		Map<String, Map<String, String[]>> map = Maps.newHashMap();
-		if (obj == null) {
-			return map;
-		}
+		if (obj == null) { return map; }
 
 		char chr = Character.toChars(0x00A7)[0];
 		Class<?> clazz = AdditionalMethods.getScriptClass(obj);
@@ -581,8 +584,7 @@ implements IMetods {
 		return clazz;
 	}
 
-	public static Object[] getScriptData(String language, ScriptContainer container,
-			Map<String, Class<?>> baseFuncNames) {
+	public static Object[] getScriptData(String language, ScriptContainer container, Map<String, Class<?>> baseFuncNames) {
 		if (container == null) {
 			return new Object[] { new ArrayList<IScriptData>(), "Container: null!" };
 		}
@@ -751,8 +753,7 @@ implements IMetods {
 		return sufc + num + type + end;
 	}
 
-	public static int inventoryItemCount(EntityPlayer player, ItemStack stack, Availability availability,
-			boolean ignoreDamage, boolean ignoreNBT) {
+	public static int inventoryItemCount(EntityPlayer player, ItemStack stack, Availability availability, boolean ignoreDamage, boolean ignoreNBT) {
 		if (player == null || (availability != null && !availability.isAvailable(player)) || stack.isEmpty()) {
 			return 0;
 		}
@@ -769,6 +770,75 @@ implements IMetods {
 		return count;
 	}
 
+	public static Map<ItemStack, Boolean> getInventoryItemCount(EntityPlayer player, IInventory inventory) {
+		Map<ItemStack, Integer> counts = Maps.<ItemStack, Integer>newHashMap();
+		Map<ItemStack, ItemStack> base = Maps.<ItemStack, ItemStack>newHashMap();
+		List<ItemStack> list = Lists.<ItemStack>newArrayList();
+		for (int i = 0; i < inventory.getSizeInventory(); i++) {
+			ItemStack stack = inventory.getStackInSlot(i);
+			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
+			boolean has = false;
+			if (stack.getMaxStackSize()>1) {
+				for (ItemStack s : list) {
+					if (NoppesUtilPlayer.compareItems(stack, s, false, false)) {
+						if (s.getCount() != s.getMaxStackSize()) {
+							if (stack.getCount() + s.getCount() > stack.getMaxStackSize()) {
+								ItemStack c = stack.copy();
+								c.setCount((stack.getCount() + s.getCount()) % s.getMaxStackSize());
+								s.setCount(s.getMaxStackSize());
+								list.add(c);
+							} else {
+								s.setCount(stack.getCount() + s.getCount());
+							}
+							has = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!has) { list.add(stack.copy()); }
+		}
+		Collections.sort(list, new Comparator<ItemStack>() {
+	        public int compare(ItemStack st_0, ItemStack st_1) {
+	            return ((Integer) st_1.getCount()).compareTo((Integer) st_0.getCount());
+	        }
+	    });
+		for (ItemStack stack : list) {
+			for (ItemStack s : counts.keySet()) {
+				if (NoppesUtilPlayer.compareItems(stack, s, false, false)) {
+					counts.put(s, counts.get(s) + stack.getCount());
+					base.put(stack, s);
+					stack = s;
+					break;
+				}
+			}
+			if (!counts.containsKey(stack)) {
+				counts.put(stack, stack.getCount());
+				base.put(stack, stack);
+			}
+		}
+		Map<ItemStack, Boolean> map = Maps.<ItemStack, Boolean>newHashMap();
+		for (ItemStack stack : counts.keySet()) {
+			int count = 0;
+			for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
+				ItemStack s = player.inventory.mainInventory.get(i);
+				if (NoppesUtilServer.IsItemStackNull(s)) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, s, false, false)) {
+					count += s.getCount();
+				}
+			}
+			boolean has = count >= counts.get(stack);
+			for (ItemStack inInvStack : base.keySet()) {
+				if (base.get(inInvStack)==stack) {
+					map.put(inInvStack, has);
+				}
+			}
+		}
+		Map<ItemStack, Boolean> total = Maps.<ItemStack, Boolean>newLinkedHashMap();
+		for (ItemStack stack : list) { total.put(stack, map.get(stack)); }
+		return total;
+	}
+
 	public static String match(String text, int pos, String startCharts, String endCharts) {
 		try {
 			int s = 0, e = text.length();
@@ -781,8 +851,8 @@ implements IMetods {
 					}
 					continue;
 				}
-				if (Character.toChars(0x000A)[0]==c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
-					if ( c== '.' || c == '(' || c == Character.toChars(0x000A)[0]) { s = i + 1; }
+				if (((char) 9) == c || ((char) 10) == c || !Character.isAlphabetic(c) && !Character.isDigit(c)) {
+					if ( c== '.' || c == '(' || ((char) 10) == c) { s = i + 1; }
 					else { s = i+1; }
 					break;
 				}
@@ -809,18 +879,11 @@ implements IMetods {
 	}
 
 	/** Correct deletion of folders */
-	public static boolean remove(File directory) {
-		if (!directory.isDirectory()) {
-			return directory.delete();
-		}
+	public static boolean removeFile(File directory) {
+		if (!directory.isDirectory()) { return directory.delete(); }
 		File[] list = directory.listFiles();
 		if (list != null) {
-			for (File tempFile : list) {
-				if (tempFile.isDirectory()) {
-					remove(tempFile);
-				}
-				tempFile.delete();
-			}
+			for (File tempFile : list) { AdditionalMethods.removeFile(tempFile); }
 		}
 		return directory.delete();
 	}
@@ -931,27 +994,27 @@ implements IMetods {
 
 		if (gui instanceof GuiCrafting) {
 			GuiNpcRecipeBook recipeBookGui = new GuiNpcRecipeBook(true);
-			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomItems.tab, true));
+			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, true));
 			ObfuscationHelper.setValue(GuiCrafting.class, (GuiCrafting) gui, recipeBookGui, GuiRecipeBook.class);
 
 			conteiner = (ContainerWorkbench) gui.inventorySlots;
 			slotIn = new SlotNpcCrafting(player, ((ContainerWorkbench) conteiner).craftMatrix,
 					((ContainerWorkbench) conteiner).craftResult, 0, 124, 35);
 			slotIn.slotNumber = 0;
-			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab);
+			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
 		} else if (gui instanceof GuiInventory) {
 			GuiNpcRecipeBook recipeBookGui = new GuiNpcRecipeBook(true);
-			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomItems.tab, true));
+			recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, true));
 			ObfuscationHelper.setValue(GuiInventory.class, (GuiInventory) gui, recipeBookGui, 3);
 
 			conteiner = (ContainerPlayer) gui.inventorySlots;
 			slotIn = new SlotNpcCrafting(player, ((ContainerPlayer) conteiner).craftMatrix,
 					((ContainerPlayer) conteiner).craftResult, 0, 154, 28);
 			slotIn.slotNumber = 0;
-			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab);
+			lists = RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab);
 		}
 		if (gui instanceof GuiNpcCarpentryBench) {
-			lists = ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab);
+			lists = ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
 		}
 		if (slotIn != null && conteiner != null) {
 			conteiner.inventorySlots.remove(slotIn.slotNumber);
@@ -1354,7 +1417,6 @@ implements IMetods {
 				if (var.indexOf("=")!=-1) {
 					String key = var.substring(0, var.indexOf("="));
 					String part = var.substring(var.indexOf("=")+1);
-					
 					if (part.startsWith("Java.type(")) {
 						try { map.put(key, Class.forName(part.substring(11, part.lastIndexOf(")")-1))); }
 						catch (Exception ec) { }
@@ -1376,6 +1438,8 @@ implements IMetods {
 								obj = map.get(k);
 							} else if (data.containsKey(k)) {
 								obj = data.get(k).get(0);
+							} else if (data2.containsKey(k)) {
+								obj = data2.get(k);
 							}
 							start = false;
 							continue;
@@ -1405,18 +1469,19 @@ implements IMetods {
 								continue;
 							}
 						}
-						if (!CustomNpcs.scriptHelperObfuscations) { continue;}
-						Map<String, Method> methodsMap = Maps.newHashMap();
-						for (Method m : clazz.getMethods()) {
-							methodsMap.put(m.getName(), m);
-						}
-						if (AdditionalMethods.instance.obfuscations.containsValue(k)) {
-							for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
-								if (AdditionalMethods.instance.obfuscations.get(s).equals(k)) {
-									if (methodsMap.containsKey(s)) {
-										obj = methodsMap.get(s).getReturnType();
+						if (CustomNpcs.scriptHelperObfuscations) {
+							Map<String, Method> methodsMap = Maps.newHashMap();
+							for (Method m : clazz.getMethods()) {
+								methodsMap.put(m.getName(), m);
+							}
+							if (AdditionalMethods.instance.obfuscations.containsValue(k)) {
+								for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
+									if (AdditionalMethods.instance.obfuscations.get(s).equals(k)) {
+										if (methodsMap.containsKey(s)) {
+											obj = methodsMap.get(s).getReturnType();
+										}
+										break;
 									}
-									break;
 								}
 							}
 						}
@@ -1667,6 +1732,67 @@ implements IMetods {
 			}
 		}
 		return str;
+	}
+
+	public static String getLastColor(String color, String str) {
+		char c = (char) 167;
+		if (str.lastIndexOf(c)!=-1) {
+			if (str.lastIndexOf(c)+1 < str.length()) {
+				int start = str.lastIndexOf(c);
+				int end = start + 2;
+				while (start-2 >= 0 && str.charAt(start - 2)==c) { start -= 2; }
+				color = str.substring(start, end);
+			} else {
+				color = AdditionalMethods.getLastColor(color, str.substring(0, str.length()-1));
+			}
+		}
+		return color;
+	}
+
+	public InputStream getModInputStream(String fileName) {
+		if (fileName==null || fileName.isEmpty() || fileName.lastIndexOf(".")==-1) { return null; }
+		InputStream inputStream = null;
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().endsWith("bin") || mod.getSource().getName().endsWith("main")) {
+				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
+					try {
+						ZipFile zip = new ZipFile(mod.getSource());
+						Enumeration<? extends ZipEntry> entries = zip.entries();
+						while (entries.hasMoreElements()) {
+							ZipEntry zipentry = (ZipEntry) entries.nextElement();
+							if (zipentry.isDirectory() || !zipentry.getName().endsWith(fileName)) { continue; }
+							inputStream = zip.getInputStream(zipentry);
+							break;
+						}
+						zip.close();
+					}
+					catch (Exception e) {  }
+				}
+				else {
+					List<File> list = this.getFiles(mod.getSource(), fileName.substring(fileName.lastIndexOf(".")));
+					for (File file : list) {
+						if (!file.isFile() || !file.getName().equals(fileName)) { continue; }
+						try { inputStream = new FileInputStream(file); } catch (Exception e) { }
+						break;
+					}
+				}
+			}
+		}
+		return inputStream;
+	}
+
+	public List<File> getFiles(File dir, String suffix) {
+		List<File> list = Lists.newArrayList();
+		if (dir==null || !dir.exists() || !dir.isDirectory()) { return list; }
+		for (File f : dir.listFiles()) {
+			if (f.isDirectory()) {
+				list.addAll(this.getFiles(f, suffix));
+				continue;
+			}
+			if (!f.isFile() || !f.getName().endsWith(suffix)) { continue; }
+			list.add(f);
+		}
+		return list;
 	}
 
 	/*@Override

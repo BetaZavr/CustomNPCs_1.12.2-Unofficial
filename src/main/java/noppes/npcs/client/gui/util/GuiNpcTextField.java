@@ -87,24 +87,24 @@ extends GuiTextField {
 		this.drawTextBox();
 	}
 
-	// New
 	public double getDouble() {
-		String t = this.getText().replace(",", ".");
-		return Double.parseDouble(t);
+		double d = 0.0d;
+		try { d = Double.parseDouble(this.getText().replace(",", ".")); } catch (Exception e) {}
+		return d;
 	}
 
 	public int getInteger() {
-		return Integer.parseInt(this.getText());
+		int i = 0;
+		try { i = Integer.parseInt(this.getText()); } catch (Exception e) {}
+		return i;
 	}
 
 	public boolean isDouble() {
-		String t = this.getText().replace(",", ".");
 		try {
-			Double.parseDouble(t);
+			Double.parseDouble(this.getText().replace(",", "."));
 			return true;
-		} catch (NumberFormatException e) {
-			return false;
-		}
+		} catch (NumberFormatException e) { }
+		return false;
 	}
 
 	public boolean isEmpty() {
@@ -115,9 +115,9 @@ extends GuiTextField {
 		try {
 			Integer.parseInt(this.getText());
 			return true;
-		} catch (NumberFormatException e) {
-			return false;
 		}
+		catch (NumberFormatException e) { }
+		return false;
 	}
 
 	public boolean mouseClicked(int i, int j, int k) {
@@ -155,7 +155,7 @@ extends GuiTextField {
 
 	public GuiNpcTextField setNumbersOnly() {
 		this.numbersOnly = true;
-		this.doubleNumbersOnly = false; // New
+		this.doubleNumbersOnly = false;
 		return this;
 	}
 

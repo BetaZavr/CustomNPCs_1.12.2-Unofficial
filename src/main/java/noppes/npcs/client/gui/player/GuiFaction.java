@@ -109,23 +109,23 @@ public class GuiFaction extends GuiNPCInterface implements IGuiData {
 			String name = ((char) 167)+"l"+faction.name;
 			String points = " : " + faction.defaultPoints;
 			String standing = new TextComponentTranslation("faction.friendly").getFormattedText();
-			int color = 65280;
+			int color = 0x00FF00;
 			if (faction.defaultPoints < faction.neutralPoints) {
 				standing = new TextComponentTranslation("faction.unfriendly").getFormattedText();
-				color = 16711680;
+				color = 0xFF0000;
 				points = points + "/" + faction.neutralPoints;
 			} else if (faction.defaultPoints < faction.friendlyPoints) {
 				standing = new TextComponentTranslation("faction.neutral").getFormattedText();
-				color = 15924992;
+				color = 0xF2FF00;
 				points = points + "/" + faction.friendlyPoints;
 			} else {
 				points += "/-";
 			}
-			int s = 0x50000000 +
+			int s = 0x80000000 +
 					((255 - (faction.color >> 16 & 255)) << 16) +
 					((255 - (faction.color >> 8 & 255)) << 8) +
 					(255 - (faction.color & 255));
-			int e = 0xA0000000 +
+			int e = 0x10000000 +
 					((255 - (color >> 16 & 255)) << 16) +
 					((255 - (color >> 8 & 255)) << 8) +
 					(255 - (color & 255));

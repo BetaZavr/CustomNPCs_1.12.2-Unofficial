@@ -137,8 +137,9 @@ extends GuiContainer {
 		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 			tf.drawTextBox(mouseX, mouseY);
 		}
+		int dWheel = Mouse.getDWheel();
 		for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-			scroll.drawScreen(mouseX, mouseY, partialTicks, this.hasSubGui() ? 0 : Mouse.getDWheel());
+			scroll.drawScreen(mouseX, mouseY, partialTicks, (!this.hasSubGui() && scroll.isMouseOver(mouseX, mouseY)) ? dWheel : 0);
 		}
 	}
 

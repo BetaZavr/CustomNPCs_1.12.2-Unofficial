@@ -10,7 +10,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 
 public class ItemNpcInterface extends Item {
@@ -18,7 +18,7 @@ public class ItemNpcInterface extends Item {
 
 	public ItemNpcInterface() {
 		this.damageAble = true;
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
 	public ItemNpcInterface(int par1) {

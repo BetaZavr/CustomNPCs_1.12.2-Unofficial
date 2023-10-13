@@ -19,7 +19,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileRedstoneBlock;
@@ -35,7 +35,7 @@ public class BlockNpcRedstone extends BlockInterface implements IPermission {
 		this.setName("npcredstoneblock");
 		this.setHardness(50.0f);
 		this.setResistance(2000.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
 	public boolean canProvidePower(IBlockState state) {
@@ -81,7 +81,7 @@ public class BlockNpcRedstone extends BlockInterface implements IPermission {
 			return false;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null && currentItem.getItem() == CustomItems.wand
+		if (currentItem != null && currentItem.getItem() == CustomRegisters.wand
 				&& CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.RedstoneBlock, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;

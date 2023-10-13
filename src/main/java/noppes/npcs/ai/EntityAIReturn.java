@@ -12,7 +12,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class EntityAIReturn
 extends EntityAIBase {
 	
-	public static int MaxTotalTicks = 600;
+	public static int MaxTotalTicks = 100;
 	private double endPosX;
 	private double endPosY;
 	private double endPosZ;
@@ -89,16 +89,14 @@ extends EntityAIBase {
 		return !this.npc.isFollower() && !this.npc.isKilled() && !this.npc.isAttacking()
 				&& !this.npc.isVeryNearAssignedPlace() && !this.npc.isInteracting() && !this.npc.isRiding()
 				&& (!this.npc.getNavigator().noPath() || !this.wasAttacked || this.isTooFar())
-				&& this.totalTicks <= 600;
+				&& this.totalTicks <= EntityAIReturn.MaxTotalTicks;
 	}
 
 	public boolean shouldExecute() {
-		if (this.npc.hasOwner() || this.npc.isRiding() || !this.npc.ais.shouldReturnHome() || this.npc.isKilled()
-				|| !this.npc.getNavigator().noPath() || this.npc.isInteracting()) {
+		if (this.npc.hasOwner() || this.npc.isRiding() || !this.npc.ais.shouldReturnHome() || this.npc.isKilled() || !this.npc.getNavigator().noPath() || this.npc.isInteracting()) {
 			return false;
 		}
-		if (this.npc.ais.findShelter == 0 && (!this.npc.world.isDaytime() || this.npc.world.isRaining())
-				&& !this.npc.world.provider.hasSkyLight()) {
+		if (this.npc.ais.findShelter == 0 && (!this.npc.world.isDaytime() || this.npc.world.isRaining()) && !this.npc.world.provider.hasSkyLight()) {
 			BlockPos pos = new BlockPos(this.npc.getStartXPos(), this.npc.getStartYPos(), this.npc.getStartZPos());
 			if (this.npc.world.canSeeSky(pos) || this.npc.world.getLight(pos) <= 8) {
 				return false;
@@ -119,13 +117,10 @@ extends EntityAIBase {
 		if (!this.npc.isAttacking() && this.wasAttacked) {
 			return true;
 		}
-		if (this.npc.ais.getMovingType() == 2
-				&& this.npc.ais.getDistanceSqToPathPoint() < CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange) {
+		if (this.npc.ais.getMovingType() == 2 && this.npc.ais.getDistanceSqToPathPoint() < CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange) {
 			return false;
 		}
-		if (this.npc.ais.getMovingType() == 1) {
-			return !this.npc.isInRange(this.npc.getStartXPos(), -1.0, this.npc.getStartZPos(),
-					this.npc.ais.walkingRange);
+		if (this.npc.ais.getMovingType() == 1) { return !this.npc.isInRange(this.npc.getStartXPos(), -1.0, this.npc.getStartZPos(), this.npc.ais.walkingRange);
 		}
 		return this.npc.ais.getMovingType() == 0 && !this.npc.isVeryNearAssignedPlace();
 	}
@@ -139,10 +134,10 @@ extends EntityAIBase {
 
 	public void updateTask() {
 		++this.totalTicks;
-		if (this.totalTicks > 600) {
+		if (this.totalTicks > EntityAIReturn.MaxTotalTicks) {
 			this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
 			this.npc.getNavigator().clearPath();
-			this.npc.resetBackPos(); // New
+			this.npc.resetBackPos();
 			return;
 		}
 		if (this.stuckTicks > 0) {

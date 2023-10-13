@@ -7,7 +7,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -40,7 +40,7 @@ implements ICustomElement {
 
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
 		
-		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
 	}
 
 	@Override

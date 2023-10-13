@@ -19,6 +19,7 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.PlayerBankData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class PlayerDataController {
@@ -38,10 +39,10 @@ public class PlayerDataController {
 				if (file.getName().endsWith(".json")) {
 					try {
 						NBTTagCompound compound = NBTJsonUtil.LoadFile(file);
-						if (compound.hasKey("PlayerName")) {
-							map.put(compound.getString("PlayerName"),
-									file.getName().substring(0, file.getName().length() - 5));
+						if (compound.hasKey("PlayerName") && !compound.getString("PlayerName").isEmpty()) {
+							map.put(compound.getString("PlayerName"), file.getName().substring(0, file.getName().length() - 5));
 						}
+						else { AdditionalMethods.removeFile(file); }
 					} catch (Exception e) {
 						LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 					}
@@ -61,6 +62,13 @@ public class PlayerDataController {
 		data.save(false);
 	}
 
+
+	public PlayerBankData getBankData(PlayerBankData bankData, int bankId) {
+		Bank bank = BankController.getInstance().getBank(bankId);
+		if (!bankData.hasBank(bank.id)) { return null; }
+		return bankData;
+	}
+	
 	public PlayerBankData getBankData(EntityPlayer player, int bankId) {
 		Bank bank = BankController.getInstance().getBank(bankId);
 		PlayerBankData data = PlayerData.get(player).bankData;
@@ -89,8 +97,7 @@ public class PlayerDataController {
 
 	public List<PlayerData> getPlayersData(ICommandSender sender, String username) throws CommandException {
 		ArrayList<PlayerData> list = new ArrayList<PlayerData>();
-		List<EntityPlayerMP> players = (List<EntityPlayerMP>) EntitySelector.matchEntities(sender, username,
-				EntityPlayerMP.class);
+		List<EntityPlayerMP> players = (List<EntityPlayerMP>) EntitySelector.matchEntities(sender, username, EntityPlayerMP.class);
 		if (players.isEmpty()) {
 			PlayerData data = this.getDataFromUsername(sender.getServer(), username);
 			if (data != null) {

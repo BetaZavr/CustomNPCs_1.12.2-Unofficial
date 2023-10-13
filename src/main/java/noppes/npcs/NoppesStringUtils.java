@@ -44,7 +44,7 @@ public class NoppesStringUtils {
 				text = text.replace("@npc", ((EntityNPCInterface) ob).getName());
 			}
 		}
-		text = text.replace("&", Character.toChars(167)[0] + "");
+		text = text.replace("&", ((char) 167) + "");
 		return text;
 	}
 

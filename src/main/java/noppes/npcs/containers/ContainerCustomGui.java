@@ -13,12 +13,14 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.PlayerWrapper;
+import noppes.npcs.api.wrapper.gui.CustomGuiItemSlotWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.gui.custom.components.CustomGuiSlot;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class ContainerCustomGui extends Container {
-	// New
+public class ContainerCustomGui
+extends Container {
+	
 	public IContainer container;
 	public CustomGuiWrapper customGui;
 	public int cx;
@@ -29,7 +31,6 @@ public class ContainerCustomGui extends Container {
 	public ContainerCustomGui(EntityPlayer player, IInventory inventory) { // Changed
 		this.slotCount = 0;
 		this.guiInventory = inventory;
-		// New
 		this.cx = 0;
 		this.cy = 0;
 		this.container = NpcAPI.Instance().getIContainer(this);
@@ -51,7 +52,6 @@ public class ContainerCustomGui extends Container {
 		return true;
 	}
 
-	// New
 	public Slot getSlot(int slotId) {
 		if (slotId >= this.inventorySlots.size()) {
 			return new Slot(this.guiInventory, 0, 0, 0);
@@ -70,7 +70,9 @@ public class ContainerCustomGui extends Container {
 		this.inventorySlots.clear();
 		for (IItemSlot slot : this.customGui.getSlots()) {
 			int index = this.slotCount++;
-			this.addSlotToContainer((Slot) new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx, this.cy)); // Changed
+			((CustomGuiItemSlotWrapper) slot).slot = new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx, this.cy);
+			((CustomGuiItemSlotWrapper) slot).player = player;
+			this.addSlotToContainer(slot.getMCSlot());
 			this.guiInventory.setInventorySlotContents(index, slot.getStack().getMCItemStack());
 		}
 		if (this.customGui.getShowPlayerInv()) {
@@ -87,7 +89,7 @@ public class ContainerCustomGui extends Container {
 			IItemStack heldItem = NpcAPI.Instance().getIItemStack(player.inventory.getItemStack());
 			if (!EventHooks.onCustomGuiSlotClicked((PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player),
 					((ContainerCustomGui) player.openContainer).customGui, slotId, dragType, clickTypeIn.toString(),
-					heldItem)) {
+					heldItem, this.inventorySlots.get(slotId))) {
 				ItemStack item = super.slotClick(slotId, dragType, clickTypeIn, player);
 				EntityPlayerMP p = (EntityPlayerMP) player;
 				CustomNPCsScheduler.runTack(() -> p.sendContainerToPlayer((Container) this), 10);

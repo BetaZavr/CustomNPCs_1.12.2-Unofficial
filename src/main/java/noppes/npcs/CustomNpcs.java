@@ -28,7 +28,6 @@ import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.DimensionType;
@@ -54,8 +53,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import nikedemos.markovnames.generators.MarkovAncientGreek;
 import nikedemos.markovnames.generators.MarkovAztec;
 import nikedemos.markovnames.generators.MarkovCustomNPCsClassic;
@@ -68,6 +65,10 @@ import nikedemos.markovnames.generators.MarkovSlavic;
 import nikedemos.markovnames.generators.MarkovSpanish;
 import nikedemos.markovnames.generators.MarkovWelsh;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.potion.AffectEntity;
+import noppes.npcs.api.event.potion.EndEffect;
+import noppes.npcs.api.event.potion.IsReadyEvent;
+import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.api.handler.capability.INbtHandler;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperEntityData;
@@ -144,7 +145,7 @@ public class CustomNpcs {
 	@ConfigProp(info = "Main text color of elements in GUI modification")
 	public static int mainColor = 0xFFFFFFFF;
 	@ConfigProp(info = "Name text color in GUI modification")
-	public static int lableColor = 0xFFE0E0E0;
+	public static int lableColor = 0xFF404040;
 	@ConfigProp(info = "Text color for inactive elements in modification GUI")
 	public static int notEnableColor = 0xFFA0A0A0;
 	@ConfigProp(info = "Text color of elements in modification GUI when the element is held down by the mouse cursor")
@@ -250,7 +251,6 @@ public class CustomNpcs {
 	public static File Dir;
 	public static ConfigLoader Config;
 	public static ITextComponent prefix = new TextComponentString(((char) 167)+"e["+((char) 167)+"2CustomNpcs"+((char) 167)+"e]"+((char) 167)+"r: ");
-	private static String preSound = "";
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
 	
@@ -293,7 +293,7 @@ public class CustomNpcs {
 		if (CustomNpcs.NpcNavRange < 16) {
 			CustomNpcs.NpcNavRange = 16;
 		}
-		CustomItems.load();
+		CustomRegisters.load();
 		// OLD Metods Capability
 		CapabilityManager.INSTANCE.register(PlayerData.class, new Capability.IStorage() {
 			public void readNBT(Capability capability, Object instance, EnumFacing side, NBTBase nbt) {
@@ -377,8 +377,11 @@ public class CustomNpcs {
 		try {
 			CustomNpcs.charCurrencies = new String(Character.toChars(Integer.parseInt(CustomNpcs.charCurrencies)));
 		} catch (Exception e) {
-			CustomNpcs.charCurrencies = new String(Character.toChars(0x20AC));
+			if (CustomNpcs.charCurrencies.length()>=1) {
+				CustomNpcs.charCurrencies = new String(Character.toChars(0x20AC));
+			}
 		}
+		
 		CustomNpcs.proxy.postload();
 		new AdditionalMethods();
 		for (ModContainer mod : Loader.instance().getModList()) {
@@ -387,15 +390,11 @@ public class CustomNpcs {
 				break;
 			}
 		}
+		CustomNpcs.forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
+		CustomNpcs.forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
+		CustomNpcs.forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
+		CustomNpcs.forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void stopPreviousSound(String newSound) {
-		if (CustomNpcs.preSound != null && !CustomNpcs.preSound.isEmpty()) {
-			Minecraft.getMinecraft().getSoundHandler().stop(CustomNpcs.preSound, SoundCategory.VOICE);
-		}
-		CustomNpcs.preSound = newSound;
 	}
 
 	@Mod.EventHandler

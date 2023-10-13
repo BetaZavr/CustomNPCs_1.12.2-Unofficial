@@ -9,29 +9,27 @@ public class CustomGuiTexturedRectWrapper
 extends CustomGuiComponentWrapper
 implements ITexturedRect {
 	
-	int height;
 	float scale;
 	String texture;
-	int textureX;
-	int textureY;
-	int width;
+	int textureX, textureY, width, height, color;
 
 	public CustomGuiTexturedRectWrapper() {
 		this.textureY = -1;
 		this.scale = 1.0f;
+		this.color = 0xFFFFFFFF;
 	}
 
 	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height) {
 		this.textureY = -1;
 		this.scale = 1.0f;
+		this.color = 0xFFFFFFFF;
 		this.setId(id);
 		this.setTexture(texture);
 		this.setPos(x, y);
 		this.setSize(width, height);
 	}
 
-	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY) {
+	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
 		this(id, texture, x, y, width, height);
 		this.setTextureOffset(textureX, textureY);
 	}
@@ -117,10 +115,20 @@ implements ITexturedRect {
 		super.toNBT(nbt);
 		nbt.setIntArray("size", new int[] { this.width, this.height });
 		nbt.setFloat("scale", this.scale);
+		nbt.setInteger("color", this.color);
 		nbt.setString("texture", this.texture);
 		if (this.textureX >= 0 && this.textureY >= 0) {
 			nbt.setIntArray("texPos", new int[] { this.textureX, this.textureY });
 		}
 		return nbt;
 	}
+
+	@Override
+	public ITexturedRect setColor(int color) {
+		this.color = color;
+		return this;
+	}
+
+	@Override
+	public int getColor() { return this.color; }
 }

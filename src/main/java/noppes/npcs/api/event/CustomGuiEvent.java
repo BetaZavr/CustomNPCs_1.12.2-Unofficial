@@ -1,5 +1,6 @@
 package noppes.npcs.api.event;
 
+import net.minecraft.inventory.Slot;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.gui.ICustomGui;
@@ -39,21 +40,22 @@ public class CustomGuiEvent extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class SlotClickEvent extends CustomGuiEvent {
+		
 		public String clickType;
 		public int dragType;
-		// New
 		public IItemStack heldItem;
 		public int slotId;
 		public IItemStack stack;
+		public Slot slot;
 
-		public SlotClickEvent(IPlayer<?> player, ICustomGui gui, int slotId, IItemStack stack, int dragType, String clickType, IItemStack heldItem) {
+		public SlotClickEvent(IPlayer<?> player, ICustomGui gui, int slotId, IItemStack stack, int dragType, String clickType, IItemStack heldItem, Slot slot) {
 			super(player, gui);
 			this.slotId = slotId;
 			this.stack = stack;
 			this.dragType = dragType;
 			this.clickType = clickType;
-			// New
 			this.heldItem = heldItem;
+			this.slot = slot;
 		}
 	}
 

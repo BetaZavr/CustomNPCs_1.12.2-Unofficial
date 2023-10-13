@@ -14,7 +14,11 @@ extends ICustomGuiComponent {
 	int getTextureY();
 
 	int getWidth();
+	
+	int getColor();
 
+	ITexturedRect setColor(int color);
+	
 	ITexturedRect setScale(float scale);
 
 	ITexturedRect setSize(int width, int height);

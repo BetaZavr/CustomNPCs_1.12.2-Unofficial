@@ -14,7 +14,9 @@ import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.schematics.SchematicWrapper;
 
-public class CmdSchematics extends CommandNoppesBase {
+public class CmdSchematics
+extends CommandNoppesBase {
+	
 	@SubCommand(desc = "Build the schematic", usage = "<name> [rotation] [[world:]x,y,z]]", permission = 4)
 	public void build(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String name = args[0];

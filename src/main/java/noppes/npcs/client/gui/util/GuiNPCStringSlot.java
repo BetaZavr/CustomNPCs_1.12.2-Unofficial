@@ -10,7 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiSlot;
 import noppes.npcs.util.NaturalOrderComparator;
 
-public class GuiNPCStringSlot extends GuiSlot {
+public class GuiNPCStringSlot
+extends GuiSlot {
+	
 	private List<String> list;
 	private boolean multiSelect;
 	private GuiNPCInterface parent;

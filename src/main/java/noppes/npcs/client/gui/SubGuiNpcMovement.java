@@ -105,16 +105,16 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.addTextField(new GuiNpcTextField(7, this, this.guiLeft + 99, y, 24, 20, this.ai.bodyOffsetX + ""));
 			this.addLabel(new GuiNpcLabel(17, "spawner.posoffset", this.guiLeft + 4, y + 5));
 			this.addLabel(new GuiNpcLabel(7, "X:", this.guiLeft + 115, y + 5));
-			this.getTextField(7).numbersOnly = true;
-			this.getTextField(7).setMinMaxDefault(0, 10, 5);
+			this.getTextField(7).doubleNumbersOnly = true;
+			this.getTextField(7).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			this.addLabel(new GuiNpcLabel(8, "Y:", this.guiLeft + 125, y + 5));
 			this.addTextField(new GuiNpcTextField(8, this, this.guiLeft + 135, y, 24, 20, this.ai.bodyOffsetY + ""));
-			this.getTextField(8).numbersOnly = true;
-			this.getTextField(8).setMinMaxDefault(0, 10, 5);
+			this.getTextField(8).doubleNumbersOnly = true;
+			this.getTextField(8).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			this.addLabel(new GuiNpcLabel(9, "Z:", this.guiLeft + 161, y + 5));
 			this.addTextField(new GuiNpcTextField(9, this, this.guiLeft + 171, y, 24, 20, this.ai.bodyOffsetZ + ""));
-			this.getTextField(9).numbersOnly = true;
-			this.getTextField(9).setMinMaxDefault(0, 10, 5);
+			this.getTextField(9).doubleNumbersOnly = true;
+			this.getTextField(9).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			y += 22;
 			this.addButton(new GuiNpcButton(4, this.guiLeft + 80, y, 100, 20,
 					new String[] { "stats.normal", "movement.sitting", "movement.lying", "movement.hug", "movement.sneaking", "movement.dancing", "movement.aiming", "movement.crawling" },
@@ -174,11 +174,14 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 7) {
-			this.ai.bodyOffsetX = textfield.getInteger();
+			this.ai.bodyOffsetX = (float) (Math.round(textfield.getDouble() * 100.0d) / 100.0d);
+			this.initGui();
 		} else if (textfield.getId() == 8) {
-			this.ai.bodyOffsetY = textfield.getInteger();
+			this.ai.bodyOffsetY = (float) (Math.round(textfield.getDouble() * 100.0d) / 100.0d);
+			this.initGui();
 		} else if (textfield.getId() == 9) {
-			this.ai.bodyOffsetZ = textfield.getInteger();
+			this.ai.bodyOffsetZ = (float) (Math.round(textfield.getDouble() * 100.0d) / 100.0d);
+			this.initGui();
 		} else if (textfield.getId() == 5) {
 			this.ai.orientation = textfield.getInteger();
 		} else if (textfield.getId() == 4) {

@@ -142,6 +142,56 @@ public class ClientEventHandler {
 				}, 1000);
 			}
 		} else if (event.getGui() instanceof GuiMainMenu) {
+			/*if (mc.currentScreen == null && !this.postLoad) {
+				this.postLoad = true;
+				List<String> list = Lists.<String>newArrayList();
+				Option<JSONType> mainSounds = null;
+				scala.Option<JSONType> customSounds = null;
+				try { customSounds = JSON.parseRaw(IOUtils.toString(new FileInputStream( new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID+"/sounds.json")),  StandardCharsets.UTF_8)); }
+				catch (IOException e1) {}
+				for (ModContainer mod : Loader.instance().getModList()) {
+					if (mainSounds!=null) { break; }
+					if (mod.getSource().exists()) {
+						try {
+							if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
+								ZipFile zip = new ZipFile(mod.getSource());
+								ZipEntry entry = zip.getEntry("assets/customnpcs/sounds.json");
+							    if (entry == null) { entry = zip.getEntry("assets\\customnpcs\\sounds.json"); }
+							    try (InputStream is = zip.getInputStream(entry)) {
+							        try (@SuppressWarnings("resource")
+									Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A")) {
+							            Object fileAsString = s.hasNext() ? s.next() : "";
+							            mainSounds = JSON.parseRaw(fileAsString.toString());
+							        }
+							    }
+								zip.close();
+							} else if (mod.getSource().isDirectory()) {
+								File file = new File(mod.getSource(), "assets/customnpcs/sounds.json");
+								if (file.exists()) {
+									try { mainSounds = JSON.parseRaw(IOUtils.toString(new FileInputStream(file),  StandardCharsets.UTF_8)); }
+									catch (IOException e1) {}
+								}
+							}
+						}
+						catch (Exception e) { }
+					}
+				}
+				if (mainSounds!=null) {
+					String keys = ((JSONObject) mainSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")", "");
+					for (String key : keys.split(", ")) { list.add(key); }
+				}
+				if (customSounds!=null) {
+					String keys = ((JSONObject) customSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")", "");
+					for (String key : keys.split(", ")) { list.add(key); }
+				}
+				SoundHandler sh = Minecraft.getMinecraft().getSoundHandler();
+				for (String name : list) {
+					LogWriter.debug("Load Sound: \"" + CustomNpcs.MODID + ":" + name + "\"");
+					ResourceLocation res = new ResourceLocation(CustomNpcs.MODID, name);
+					sh.playSound(new PositionedSoundRecord(res, SoundCategory.MUSIC, 0.00001f, 1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f));
+				}
+				try { sh.stop("", SoundCategory.MUSIC); } catch (Exception e) {}
+			}*/
 			if (this.inGame) {
 				LogWriter.debug("Logout: Exit game");
 				this.inGame = false;

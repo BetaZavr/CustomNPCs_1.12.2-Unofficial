@@ -7,8 +7,10 @@ public enum EnumPlayerPacket
 	Trader, 
 	FollowerState, 
 	Transport, 
-	BankUnlock, 
-	BankUpgrade, 
+	BankUnlock,
+	Banklock,
+	BankUpgrade,
+	BankRegrade,
 	Dialog, 
 	QuestCompletion,
 	CheckQuestCompletion, 
@@ -57,6 +59,7 @@ public enum EnumPlayerPacket
 	StopNPCAnimation,
 	OpenGui,
 	GetFilePart,
-	GetSyncData;
+	GetSyncData,
+	TransportCategoriesGet;
 	
 }

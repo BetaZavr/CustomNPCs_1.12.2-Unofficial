@@ -1,13 +1,22 @@
 package noppes.npcs.client.gui.player;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.Maps;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -15,7 +24,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.ClientProxy;
@@ -33,19 +41,18 @@ import noppes.npcs.util.AdditionalMethods;
 public class GuiDialogInteract
 extends GuiNPCInterface
 implements IGuiClose {
-
+	
 	private Dialog dialog;
 	private int dialogHeight;
 	private boolean isGrabbed;
 	private List<TextBlockClient> lines;
 	private List<Integer> options;
-	private int rowStart;
-	private int rowTotal;
-	private int selected;
-	private int selectedX;
-	private int selectedY;
+	private int rowStart, rowTotal, selected, selectedX, selectedY;
 	private ResourceLocation wheel;
 	private long wait;
+	private ScaledResolution sw;
+	private Map<Integer, ResourceLocation> textures = Maps.<Integer, ResourceLocation>newHashMap();
+	private Map<Integer, Integer[]> texturesSize = Maps.<Integer, Integer[]>newHashMap();
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
@@ -61,22 +68,48 @@ implements IGuiClose {
 		this.appendDialog(this.dialog = dialog);
 		this.ySize = 238;
 		this.wheel = this.getResource("wheel.png");
-		this.wait = this.dialog != null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
+		this.wait = this.dialog!=null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
 	}
 
 	public void appendDialog(Dialog dialog) {
 		this.closeOnEsc = !dialog.disableEsc;
 		this.dialog = dialog;
 		this.options = new ArrayList<Integer>();
-		CustomNpcs.stopPreviousSound(dialog.sound); // New
+		MusicController.Instance.stopSound(null, SoundCategory.VOICE);
 		if (dialog.sound != null && !dialog.sound.isEmpty()) {
-			MusicController.Instance.stopMusic();
 			BlockPos pos = this.npc.getPosition();
-			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(),
-					1.0f, 1.0f);
+			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
 		}
-		this.lines
-				.add(new TextBlockClient(this.npc, dialog.text, 280, 14737632, new Object[] { this.player, this.npc }));
+		String dText = dialog.text;
+		int h = 0;
+		ResourceLocation txtr = null;
+		Integer[] txtrSize = null;
+		if (!dialog.texture.isEmpty()) {
+			txtr = new ResourceLocation(dialog.texture);
+			this.mc.getTextureManager().bindTexture(txtr);
+			try {
+				IResource res = this.mc.getResourceManager().getResource(new ResourceLocation(dialog.texture));
+				BufferedImage buffer = ImageIO.read(res.getInputStream());
+				txtrSize = new Integer[] { buffer.getWidth(), buffer.getHeight() };
+				h = buffer.getHeight() / this.getFontHeight(null) / 2;
+			}
+			catch (IOException e) {}
+		}
+		for (int i=0; i<h; i++) { dText += ""+((char) 10); }
+		this.lines.add(new TextBlockClient(this.npc, dText, 280, 0xE0E0E0, new Object[] { this.player, this.npc }));
+		if (h>0 && txtr!=null && txtrSize!=null) {
+			int c = 0, s = 0;
+			for (TextBlockClient t : this.lines) {
+				c += t.lines.size();
+				if (s==this.lines.size()-1) {
+					c -= h;
+					this.textures.put(c, txtr);
+					this.texturesSize.put(c, txtrSize);
+					break;
+				}
+				s++;
+			}
+		}
 		for (int slot : dialog.options.keySet()) {
 			DialogOption option = dialog.options.get(slot);
 			if (option != null) {
@@ -90,20 +123,25 @@ implements IGuiClose {
 		this.grabMouse(dialog.showWheel);
 	}
 
+	private int getFontHeight(String str) {
+		int h = ClientProxy.Font.height(str);
+		return h<=1 ? 13 : h;
+	}
+
 	private void calculateRowHeight() {
 		if (this.dialog.showWheel) {
 			this.dialogHeight = this.ySize - 58;
 		} else {
-			this.dialogHeight = this.ySize - 3 * ClientProxy.Font.height(null) - 4;
+			this.dialogHeight = this.ySize - 3 * this.getFontHeight(null) - 4;
 			if (this.dialog.options.size() > 3) {
-				this.dialogHeight -= (this.dialog.options.size() - 3) * ClientProxy.Font.height(null);
+				this.dialogHeight -= (this.dialog.options.size() - 3) * this.getFontHeight(null);
 			}
 		}
 		this.rowTotal = 0;
 		for (TextBlockClient block : this.lines) {
 			this.rowTotal += block.lines.size() + 1;
 		}
-		int max = this.dialogHeight / ClientProxy.Font.height(null);
+		int max = this.dialogHeight / this.getFontHeight(null);
 		this.rowStart = this.rowTotal - max;
 		if (this.rowStart < 0) {
 			this.rowStart = 0;
@@ -116,10 +154,10 @@ implements IGuiClose {
 	}
 
 	private void drawLinedOptions(int j) {
-		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
+		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - this.getFontHeight(null) / 3, -1);
 		int offset = this.dialogHeight;
 		if (j >= this.guiTop + offset) {
-			int selected = (j - (this.guiTop + offset)) / ClientProxy.Font.height(null);
+			int selected = (j - (this.guiTop + offset)) / this.getFontHeight(null);
 			if (selected < this.options.size()) {
 				this.selected = selected;
 			}
@@ -130,18 +168,14 @@ implements IGuiClose {
 		if (this.selected < 0) {
 			this.selected = 0;
 		}
-		char c = ((char) 167);
 		for (int k = 0; k < this.options.size(); ++k) {
 			int id = this.options.get(k);
 			DialogOption option = this.dialog.options.get(id);
-			int y = this.guiTop + offset + k * ClientProxy.Font.height(null);
+			int y = this.guiTop + offset + k * this.getFontHeight(null);
 			if (this.selected == k) {
-				this.drawString(this.fontRenderer, ">", this.guiLeft - 40, y, option.optionColor);
+				this.drawString(this.fontRenderer, ">", this.guiLeft - 38, y, 14737632);
 			}
-			this.drawString(this.fontRenderer,
-					c + "7" + (k + 1) + "-" + c + "r"
-							+ NoppesStringUtils.formatText(option.title, this.player, this.npc),
-					this.guiLeft - 30, y, option.optionColor);
+			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc), this.guiLeft - 30, y, option.optionColor);
 		}
 	}
 
@@ -170,35 +204,55 @@ implements IGuiClose {
 			}
 			++count;
 		}
+		int maxRows = this.dialogHeight / this.getFontHeight(null);
 		if (!this.options.isEmpty()) {
-			if (this.wait > System.currentTimeMillis()) {
-				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120,
-						this.guiTop + this.dialogHeight - ClientProxy.Font.height(null) / 3, -1);
+			if (this.wait>System.currentTimeMillis()) {
+				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - this.getFontHeight(null) / 3, -1);
 				int offset = this.dialogHeight;
-				this.drawString(this.fontRenderer,
-						((char) 167) + "e"
-								+ new TextComponentTranslation("gui.wait", ((char) 167) + "e: " + ((char) 167) + "f"
-										+ AdditionalMethods.ticksToElapsedTime(
-												(this.wait - System.currentTimeMillis()) / 50L, false, false, false))
-														.getFormattedText(),
-						this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
-			} else if (!this.dialog.showWheel) {
+				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.wait - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
+			}
+			else if (!this.dialog.showWheel) {
 				this.drawLinedOptions(j);
 			} else {
 				this.drawWheel();
 			}
 		}
+		if (this.rowTotal > maxRows) {
+			int x = (int) this.sw.getScaledWidth_double() - 10;
+			int y = this.guiTop + 9;
+			int sHeight = (int) ((float) maxRows / (float) this.rowTotal * (float) this.dialogHeight);
+			y += this.rowStart * this.getFontHeight(null) / 2;
+			this.drawGradientRect(x, y, x+7, y+sHeight, 0xFFFFFFFF, 0xFFFFFFFF);
+		}
 		GlStateManager.popMatrix();
+		int drag = Mouse.getDWheel() / 120;
+		if (drag!=0) {
+			this.rowStart -= drag;
+			if (this.rowStart>this.rowTotal-2) { this.rowStart = this.rowTotal-2; }
+			if (this.rowStart<0) { this.rowStart = 0; }
+			if (this.rowTotal - this.rowStart < maxRows) { this.rowStart = this.rowTotal - maxRows; }
+		}
 	}
 
-	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) {
-		ClientProxy.Font.drawString(text, x, y, color);
-	}
+	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) { ClientProxy.Font.drawString(text, x, y, color); }
 
 	private void drawString(String text, int left, int color, int count) {
-		int height = count - this.rowStart;
-		this.drawString(this.fontRenderer, text, this.guiLeft + left,
-				this.guiTop + height * ClientProxy.Font.height(null), color);
+		int height = (count - this.rowStart) * this.getFontHeight(null);
+		int line = this.guiTop + this.dialogHeight - this.getFontHeight(null) / 3;
+		if (height+12 > line) { return; }
+		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height, color);
+		if (this.textures.containsKey(count) && this.texturesSize.containsKey(count)) {
+			Integer[] size = this.texturesSize.get(count);
+			if (height+size[1]/2 > line) { return; }
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.enableBlend();
+			this.mc.renderEngine.bindTexture(this.textures.get(count));
+			GlStateManager.translate(this.guiLeft + left, this.guiTop + height, 0.0f);
+			GlStateManager.scale(0.5f, 0.5f, 0.5f);
+			this.drawTexturedModalRect(0, 0, 0, 0, size[0], size[1]);
+			GlStateManager.popMatrix();
+		}
 	}
 
 	private void drawWheel() {
@@ -251,37 +305,31 @@ implements IGuiClose {
 				if (slot == this.selected) {
 					color = 8622040;
 				}
-				int height = ClientProxy.Font.height(option.title);
+				int height = this.getFontHeight(option.title);
 				if (slot == 0) {
 					this.drawString(this.fontRenderer, option.title, this.width / 2 + 13, yoffset - height, color);
 				}
 				if (slot == 1) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 + 33, yoffset - height / 2 + 14,
-							color);
+					this.drawString(this.fontRenderer, option.title, this.width / 2 + 33, yoffset - height / 2 + 14, color);
 				}
 				if (slot == 2) {
 					this.drawString(this.fontRenderer, option.title, this.width / 2 + 27, yoffset + 27, color);
 				}
 				if (slot == 3) {
-					this.drawString(this.fontRenderer, option.title,
-							this.width / 2 - 13 - ClientProxy.Font.width(option.title), yoffset - height, color);
+					this.drawString(this.fontRenderer, option.title, this.width / 2 - 13 - ClientProxy.Font.width(option.title), yoffset - height, color);
 				}
 				if (slot == 4) {
-					this.drawString(this.fontRenderer, option.title,
-							this.width / 2 - 33 - ClientProxy.Font.width(option.title), yoffset - height / 2 + 14,
-							color);
+					this.drawString(this.fontRenderer, option.title, this.width / 2 - 33 - ClientProxy.Font.width(option.title), yoffset - height / 2 + 14, color);
 				}
 				if (slot != 5) {
 					continue;
 				}
-				this.drawString(this.fontRenderer, option.title,
-						this.width / 2 - 27 - ClientProxy.Font.width(option.title), yoffset + 27, color);
+				this.drawString(this.fontRenderer, option.title, this.width / 2 - 27 - ClientProxy.Font.width(option.title), yoffset + 27, color);
 			}
 		}
 		// indicator
 		this.mc.renderEngine.bindTexture(this.wheel);
-		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 63, 80,
-				8, 8);
+		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 63, 80, 8, 8);
 	}
 
 	public int getSelected() {
@@ -330,12 +378,12 @@ implements IGuiClose {
 		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, new Object[] { this.player, this.npc }));
 		this.calculateRowHeight();
 		NoppesUtil.clickSound();
-		this.selected = 0;
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
+		this.sw = new ScaledResolution(this.mc);
 		this.isGrabbed = false;
 		this.grabMouse(this.dialog.showWheel);
 		this.guiTop = this.height - this.ySize;
@@ -344,19 +392,12 @@ implements IGuiClose {
 
 	@Override
 	public void keyTyped(char c, int i) {
-		if (i != 1 && this.wait > System.currentTimeMillis()) {
-			return;
-		}
+		if (i!=1 && this.wait>System.currentTimeMillis()) { return; }
 		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
 			--this.selected;
 		}
 		if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) {
 			++this.selected;
-		}
-		if (i >= 2 && i <= 10 && (this.options.size()==1 || (i - 2) < this.options.size())) {
-			this.selected = this.options.size()==1 ? 0 : i - 2;
-			this.handleDialogSelection();
-			return;
 		}
 		if (i == 28) {
 			this.handleDialogSelection();
@@ -371,21 +412,16 @@ implements IGuiClose {
 
 	@Override
 	public void mouseClicked(int i, int j, int k) {
-		if (this.wait > System.currentTimeMillis()) {
-			return;
-		}
+		if (this.wait>System.currentTimeMillis()) { return; }
 		if (((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
 			this.handleDialogSelection();
 		}
 	}
 
 	@Override
-	public void save() {
-	}
+	public void save() { }
 
 	@Override
-	public void setClose(int i, NBTTagCompound data) {
-		this.grabMouse(false);
-	}
-
+	public void setClose(int i, NBTTagCompound data) { this.grabMouse(false); }
+	
 }

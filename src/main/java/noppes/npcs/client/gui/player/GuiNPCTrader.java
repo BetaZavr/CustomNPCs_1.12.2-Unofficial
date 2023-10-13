@@ -1,9 +1,12 @@
 package noppes.npcs.client.gui.player;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
@@ -47,6 +50,7 @@ implements ICustomScrollListener, IGuiData {
 	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	boolean wait = false;
 	private int canBuy = 0, canSell = 0;
+	private Map<ItemStack, Boolean> barterItems;
 
 	public GuiNPCTrader(EntityNPCInterface npc, ContainerNPCTrader container) {
 		super(npc, container);
@@ -115,26 +119,24 @@ implements ICustomScrollListener, IGuiData {
 				Gui.drawRect(this.guiLeft + 138, this.guiTop + 112, this.guiLeft + 218, this.guiTop + 136, color);
 			}
 			// Items
+			this.barterItems = null;
 			if (!this.container.deal.inventoryCurrency.isEmpty()) {
+				this.barterItems = AdditionalMethods.getInventoryItemCount(this.player, this.container.deal.inventoryCurrency);
 				GlStateManager.pushMatrix();
 				this.mc.renderEngine.bindTexture(this.slot);
-				for (int slot = 0, pos = 0; slot < 9; slot++) {
-					ItemStack curr = this.container.deal.inventoryCurrency.getStackInSlot(slot);
-					if (curr.isEmpty()) {
-						continue;
-					}
-					int u = this.px - 10 + (pos % 3) * 18;
-					int v = this.py + 38 + (pos / 3) * 18;
+				int slot = 0;
+				for (ItemStack curr : this.barterItems.keySet()) {
+					int u = this.px - 10 + (slot % 3) * 18;
+					int v = this.py + 38 + (slot / 3) * 18;
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
 					if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-						int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
-						if (AdditionalMethods.inventoryItemCount(this.player, curr, this.container.deal.availability, this.container.deal.ignoreDamage, this.container.deal.ignoreNBT) >= curr.getCount()) { color = 0x8000FF00; }
-						Gui.drawRect(u + 1, v + 1, u + 17, v + 17, color);
+						Gui.drawRect(u + 1, v + 1, u + 17, v + 17, this.barterItems.get(curr) ? 0x8000FF00 : this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000);
 					}
-					pos++;
+					slot++;
 				}
 				GlStateManager.popMatrix();
+				
 			}
 		}
 		if (this.subgui != null) { return; }
@@ -171,18 +173,14 @@ implements ICustomScrollListener, IGuiData {
 			if (isMouseHover(i, j, this.guiLeft + 150, this.guiTop + 14, 25, 25)) {
 				List<String> list = new ArrayList<String>();
 				list.add(new TextComponentTranslation("market.hover.product").getFormattedText());
-				list.addAll(stack.getTooltip(this.mc.player,
-						this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+				list.addAll(stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
 				this.hoverText = list.toArray(new String[list.size()]);
 			}
-			if (!this.container.deal.inventoryCurrency.isEmpty()) {
-				for (int slot = 0, pos = 0; slot < 9; slot++) {
-					ItemStack curr = this.container.deal.inventoryCurrency.getStackInSlot(slot);
-					if (curr.isEmpty()) {
-						continue;
-					}
-					int u = this.px - 9 + (pos % 3) * 18;
-					int v = this.py + 38 + (pos / 3) * 18;
+			if (this.barterItems!=null) {
+				int slot = 0;
+				for (ItemStack curr : this.barterItems.keySet()) {
+					int u = this.px - 9 + (slot % 3) * 18;
+					int v = this.py + 38 + (slot / 3) * 18;
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
 					RenderHelper.enableGUIStandardItemLighting();
@@ -199,7 +197,9 @@ implements ICustomScrollListener, IGuiData {
 										: TooltipFlags.NORMAL));
 						this.hoverText = list.toArray(new String[list.size()]);
 					}
-					pos++;
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
+					slot++;
 				}
 			}
 		}
@@ -210,9 +210,6 @@ implements ICustomScrollListener, IGuiData {
 		if (this.subgui != null) { return; }
 		if (this.getLabel(3).enabled && isMouseHover(i, j, this.guiLeft + 140, this.guiTop + 113, 80, 24)) {
 			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { this.container.deal.money, CustomNpcs.charCurrencies.charAt(0), "" + CustomNpcs.proxy.getPlayerData(this.player).game.money, CustomNpcs.charCurrencies.charAt(0) });
-			if (this.container.deal.type != 0) {
-				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", new Object[] { AdditionalMethods.getTextReducedNumber(this.container.deal.money / 4, true, true, false), CustomNpcs.charCurrencies.charAt(0) }));
-			}
 			this.setHoverText(text.getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).visible && this.getButton(0).isMouseOver()) {
 			ITextComponent text = new TextComponentTranslation("market.hover.buy", new Object[] { stack.getDisplayName() });
@@ -226,22 +223,43 @@ implements ICustomScrollListener, IGuiData {
 				this.colorP = 0x80FF0000;
 			}
 			TextComponentBase text = new TextComponentTranslation("market.hover.sell.0", stack.getDisplayName());
-			if (!this.container.deal.inventoryCurrency.isEmpty()) {
-				List<ITextComponent> items = new ArrayList<ITextComponent>();
-				for (int slot = 0; slot < 9; slot++) {
-					ItemStack curr = this.container.deal.inventoryCurrency.getStackInSlot(slot);
-					if (curr.isEmpty() || curr.getCount() / 4 == 0) {
-						continue;
+			if (this.barterItems!=null) {
+				Map<ItemStack, Integer> items = Maps.<ItemStack, Integer>newHashMap();
+				for (ItemStack curr : this.barterItems.keySet()) {
+					ItemStack key = curr;
+					for (ItemStack s : items.keySet()) {
+						if (NoppesUtilPlayer.compareItems(key, s, false, false)) {
+							key = s;
+							break;
+						}
 					}
-					items.add(new TextComponentString("<br>" + curr.getDisplayName() + " x" + (curr.getCount() / 4)));
+					if (items.containsKey(key)) { items.put(key, items.get(key) + curr.getCount()); }
+					else { items.put(key, curr.getCount()); }
 				}
-				if (items.size()==0 && !this.container.deal.inventoryCurrency.isEmpty()) {
+				int emptys = 0;
+				for (ItemStack s : items.keySet()) {
+					if (items.get(s) / 4 == 0) { emptys++; }
+				}
+				if (items.size()==emptys && !this.container.deal.inventoryCurrency.isEmpty()) {
 					text.appendSibling(new TextComponentTranslation("market.hover.sell.3"));
 				}
 				if (items.size() > 0) {
 					text.appendSibling(new TextComponentTranslation("market.hover.sell.1"));
-					for (ITextComponent it : items) {
-						text.appendSibling(it);
+					List<String> list = Lists.<String>newArrayList();
+					for (ItemStack s : items.keySet()) {
+						if (items.get(s) / 4 == 0) { continue; }
+						list.add("<br>" + s.getDisplayName() + " x" + (items.get(s) / 4));
+					}
+					Collections.sort(list, new Comparator<String>() {
+				        public int compare(String st_0, String st_1) {
+				        	Integer i0 = 0, i1 = 0;
+				        	try { i0 = (Integer) Integer.parseInt(st_0.substring(st_0.lastIndexOf("x")+1)); } catch (Exception e) {}
+				        	try { i1 = (Integer) Integer.parseInt(st_1.substring(st_1.lastIndexOf("x")+1)); } catch (Exception e) {}
+				            return i1.compareTo(i0);
+				        }
+				    });
+					for (String str : list) {
+						text.appendSibling(new TextComponentString(str));
 					}
 				}
 			}
@@ -346,16 +364,18 @@ implements ICustomScrollListener, IGuiData {
 		} else {
 			this.getLabel(5).setLabel(new String(Character.toChars(0x221E)));
 		}
-		this.addLabel(new GuiNpcLabel(6, "", this.guiLeft + 80, this.guiTop + 5)); // time
-		this.getLabel(6).color = 0xFF202020;
-		this.getLabel(6).enabled = this.container.marcet.updateTime > 0;
+		if (this.container.marcet.updateTime > 0) {
+			this.addLabel(new GuiNpcLabel(6, "", this.guiLeft + 80, this.guiTop + 5)); // time
+			this.getLabel(6).color = 0xFF202020;
+			this.getLabel(6).enabled = this.container.marcet.updateTime > 0;
+		}
 
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 117, 64, 20, "gui.buy"));
 		this.getButton(0).setVisible(this.container.deal.type != 1);
 		this.canBuy = 0;
 		if (this.getButton(0).visible) {
 			if (!this.player.capabilities.isCreativeMode) {
-				if(this.wait || this.container.deal.type == 1 || this.container.deal.count[1] != 0 || this.container.deal.amount <=0) {
+				if (this.wait || this.container.deal.type == 1 || (this.container.deal.count[1] != 0 && this.container.deal.amount <=0)) {
 					this.canBuy = 1;
 				}
 				else if (this.canBuy==0 && !this.container.deal.availability.isAvailable(this.player)) {

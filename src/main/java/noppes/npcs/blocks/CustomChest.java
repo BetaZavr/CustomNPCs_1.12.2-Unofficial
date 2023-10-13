@@ -35,7 +35,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.ICustomElement;
@@ -72,7 +72,7 @@ implements ICustomElement {
 		
 		this.setAABB(nbtBlock.getTagList("AABB", 6));
 		
-		this.setCreativeTab(CustomItems.tabBlocks);
+		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
 	@Override

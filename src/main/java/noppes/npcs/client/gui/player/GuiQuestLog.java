@@ -40,6 +40,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
@@ -485,7 +486,7 @@ implements GuiYesNoCallback, IGuiData {
 								step = 1;
 								tick = 20;
 								mtick = 20;
-								MusicController.Instance.forcePlaySound(CustomNpcs.MODID+":book.down", 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
+								MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID+":book.down", (float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
 								GlStateManager.disableBlend();
 								GlStateManager.popMatrix();
 								return;
@@ -588,7 +589,7 @@ implements GuiYesNoCallback, IGuiData {
 					this.mc.renderEngine.bindTexture(up ? nowl : next);
 					tessellator.draw();
 					GlStateManager.popMatrix();
-					if (tick==mtick) { MusicController.Instance.forcePlaySound(CustomNpcs.MODID+":book.sheet", 1.0f, 0.8f + 0.4f * this.rnd.nextFloat()); }
+					if (tick==mtick) { MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID+":book.sheet", (float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f, 0.8f + 0.4f * this.rnd.nextFloat()); }
 					if (tick==0) {
 						step++;
 						tick = mtick;
@@ -700,7 +701,7 @@ implements GuiYesNoCallback, IGuiData {
 					this.mc.renderEngine.bindTexture(up ? nowl : next);
 					tessellator.draw();
 					GlStateManager.popMatrix();
-					if (tick==mtick) { MusicController.Instance.forcePlaySound(CustomNpcs.MODID+":book.sheet", 1.0f, 0.8f + 0.4f * this.rnd.nextFloat()); }
+					if (tick==mtick) { MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID+":book.sheet", (float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f, 0.8f + 0.4f * this.rnd.nextFloat()); }
 					if (tick==0) {
 						step++;
 						tick = mtick;
@@ -1193,52 +1194,50 @@ implements GuiYesNoCallback, IGuiData {
 			}
 			text += this.q.getLogText();
 			Map<Integer, List<String>> texts = Maps.<Integer, List<String>>newTreeMap();
-			String temp = "";
-			List<String> list = Lists.<String>newArrayList();
+			List<String> lines = Lists.<String>newArrayList();
 			int curentList = 0;
-			Map<Integer, String> color = Maps.newHashMap();
-			color.put(0, ((char) 167) + "r");
-			boolean fc = false;
-			for (int c = 0; c < text.length(); c++) {
-				char ch = text.charAt(c);
-				if (fc) {
-					fc = false;
-					color.put(1, ((char) 167) + "" + ch);
-				}
-				if (ch == ((char) 167)) { fc = true; }
-				if (ch == ((char) 10)) {
-					list.add(color.get(0) + temp);
-					color.put(0, color.get(1));
-					temp = "";
-				}
-				else if (fontRenderer.getStringWidth(temp + ch)>=width || c==text.length()-1) {
-					if (temp.lastIndexOf(" ")!=-1) {
-						if (c==text.length()-1) {
-							list.add(color.get(0) + temp+""+ch);
-							break;
+			String line = "";
+			text = text.replace("\n", " \n ");
+			text = text.replace("\r", " \r ");
+			String[] words = text.split(" ");
+			String color = ((char) 167) + "r";
+			for (String word : words) {
+				Label_0236: {
+					if (!word.isEmpty()) {
+						if (word.length() == 1) {
+							char c = word.charAt(0);
+							if (c == '\r' || c == '\n') {
+								lines.add(color + line);
+								color = AdditionalMethods.getLastColor(color, line);
+								line = "";
+								break Label_0236;
+							}
+						}
+						String newLine;
+						if (line.isEmpty()) { newLine = word; } else { newLine = line + " " + word; }
+						if (fontRenderer.getStringWidth(newLine) > width) {
+							lines.add(color + line);
+							color = AdditionalMethods.getLastColor(color, line);
+							line = word.trim();
 						} else {
-							list.add(color.get(0) + temp.substring(0, temp.lastIndexOf(" ")));
-							color.put(0, color.get(1));
-							temp = temp.substring(temp.lastIndexOf(" ")+1)+""+ch;
+							line = newLine;
 						}
 					}
-					else {
-						if (c==text.length()-1) { temp += ch; break; }
-						list.add(color.get(0) + temp);
-						color.put(0, color.get(1));
-						temp = ""+ch;
-					}
 				}
-				else { temp += ch; }
-				if ((list.size() + 1) * 10 > height - (curentList==0 ? first : 0)) {
+			}
+			if (!line.isEmpty()) {
+				lines.add(color + line);
+			}
+			List<String> list = Lists.<String>newArrayList();
+			for (String l : lines) {
+				if ((list.size() * 10) > height - (curentList==0 ? first : 0)) {
 					texts.put(curentList, list);
 					list = Lists.<String>newArrayList();
 					curentList++;
 				}
+				list.add(l);
 			}
-			texts.put(curentList, list);
-			
-			
+			if (!list.isEmpty()) { texts.put(curentList, list); }
 			this.map.put(key, texts);
 			return texts;
 		}

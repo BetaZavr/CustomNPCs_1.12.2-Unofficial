@@ -83,7 +83,7 @@ implements ICustomScrollListener {
 				default: t = c + "eS"; break; // STANDING or any
 			}
 			this.data.put(c + "8ID:" + c + "7" + id + c + "r " + ac.getName() + c + "7[" + t + c + "7]" , id);
-			hts[i] = new String[] { new TextComponentTranslation("animation.type").appendSibling(new TextComponentTranslation("puppet."+ac.type.name())).getFormattedText() };
+			hts[i] = new String[] { new TextComponentTranslation("animation.type").appendSibling(new TextComponentTranslation("puppet."+ac.type.name().toLowerCase())).getFormattedText() };
 			i++;
 		}
 		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
@@ -161,7 +161,10 @@ implements ICustomScrollListener {
 	private void resetAnim() {
 		if (this.animation==null) { return; }
 		AnimationConfig ac = this.animation.copy();
+		ac.isEdit = true;
+		ac.disable = false;
 		ac.type = AnimationKind.STANDING;
+		
 		if (this.showNpc==null) {
 			NBTTagCompound npcNbt = new NBTTagCompound();
 			this.npc.writeEntityToNBT(npcNbt);

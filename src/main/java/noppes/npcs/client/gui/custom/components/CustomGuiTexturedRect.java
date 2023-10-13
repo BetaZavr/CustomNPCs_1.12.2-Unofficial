@@ -28,21 +28,16 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		if (component.hasHoverText()) {
 			rect.hoverText = component.getHoverText();
 		}
+		rect.color = component.getColor();
 		return rect;
 	}
 
-	int height;
-	String[] hoverText;
-	public int id;
 	GuiCustom parent;
 	float scale;
+	public int id, textureX, textureY, width, height, x, y, color;
 	ResourceLocation texture;
-	int textureX;
-	int textureY;
-	int width;
-	int x;
-	int y;
     private final int[] offsets;
+	String[] hoverText;
 
 	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height) {
 		this(id, texture, x, y, width, height, 0, 0);
@@ -59,6 +54,7 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		this.textureX = textureX;
 		this.textureY = textureY;
         this.offsets = new int [] { 0, 0 };
+        this.color = 0xFFFFFFFF;
 	}
 
 	public int getId() { return this.id; }
@@ -70,7 +66,11 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		GlStateManager.pushMatrix();
 		int pos = this.id < 500 ? this.id : 500;
 		GlStateManager.translate(0, 0, pos);
-		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
+		float a = (float) (this.color >> 24 & 255) / 255.0f;
+		float r = (float) (this.color >> 16 & 255) / 255.0f;
+		float g = (float) (this.color >> 8 & 255) / 255.0f;
+		float b = (float) (this.color & 255) / 255.0f;		
+		GlStateManager.color(r, g, b, a);
 		mc.getTextureManager().bindTexture(this.texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();

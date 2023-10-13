@@ -15,14 +15,7 @@ extends Slot {
 	
 	public EntityPlayer player;
 	public IItemSlot slot;
-	
-	/*
-	 * Changed public CustomGuiSlot(IInventory inventoryIn, int index, IItemSlot
-	 * slot, EntityPlayer player) { super(inventoryIn, index, slot.getPosX(),
-	 * slot.getPosY()); this.player = player; this.slot = slot; }
-	 */
 
-	// New
 	public CustomGuiSlot(IInventory inventoryIn, int index, IItemSlot slot, EntityPlayer player, int cx, int cy) {
 		super(inventoryIn, index, slot.getPosX() + cx, slot.getPosY() + cy);
 		this.player = player;
@@ -30,16 +23,13 @@ extends Slot {
 	}
 
 	public void onSlotChanged() {
-		if (!this.player.world.isRemote /* && this.getStack() != this.slot.getStack().getMCItemStack() */) {
+		if (!this.player.world.isRemote) {
 			this.slot.setStack(NpcAPI.Instance().getIItemStack(this.getStack()));
 			if (this.player.openContainer instanceof ContainerCustomGui) {
 				IItemStack heldItem = NpcAPI.Instance().getIItemStack(this.player.inventory.getItemStack());
 				EventHooks.onCustomGuiSlot((PlayerWrapper<?>) NpcAPI.Instance().getIEntity(this.player),
 						((ContainerCustomGui) this.player.openContainer).customGui, this.getSlotIndex(),
 						this.slot.getStack(), heldItem);
-				// EventHooks.onCustomGuiSlot((PlayerWrapper<?>)NpcAPI.Instance().getIEntity(this.player),
-				// ((ContainerCustomGui)this.player.openContainer).customGui,
-				// this.getSlotIndex()); Changed
 			}
 		}
 		super.onSlotChanged();

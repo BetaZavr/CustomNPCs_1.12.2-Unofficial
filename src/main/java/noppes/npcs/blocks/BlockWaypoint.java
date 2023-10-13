@@ -16,7 +16,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileWaypoint;
@@ -31,7 +31,7 @@ public class BlockWaypoint extends BlockInterface implements IPermission {
 		this.setSoundType(SoundType.METAL);
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
 	public TileEntity createNewTileEntity(World var1, int var2) {
@@ -49,7 +49,7 @@ public class BlockWaypoint extends BlockInterface implements IPermission {
 			return false;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null && currentItem.getItem() == CustomItems.wand
+		if (currentItem != null && currentItem.getItem() == CustomRegisters.wand
 				&& CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.Waypoint, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;

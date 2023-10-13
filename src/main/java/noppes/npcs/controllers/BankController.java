@@ -14,6 +14,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.Bank;
 
 public class BankController {
+	
 	private static BankController instance;
 
 	public static BankController getInstance() {

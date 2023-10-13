@@ -163,4 +163,14 @@ extends GuiContainerNPCInterface {
 	public void setBackground(String texture) {
 		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
 	}
+
+	@Override
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui==null) {
+			this.menu.topButtonPressed(new GuiMenuTopButton(1, 0, 0, ""));
+			return;
+		}
+		super.keyTyped(c, i);
+	}
+	
 }

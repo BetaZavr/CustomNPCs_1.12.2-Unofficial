@@ -22,7 +22,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileBorder;
 import noppes.npcs.constants.EnumGuiType;
@@ -38,7 +38,7 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		this.setSoundType(SoundType.STONE);
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setBlockUnbreakable();
 	}
 
@@ -72,7 +72,7 @@ public class BlockBorder extends BlockInterface implements IPermission {
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
 			EnumFacing side, float hitX, float hitY, float hitZ) {
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (!world.isRemote && currentItem != null && currentItem.getItem() == CustomItems.wand) {
+		if (!world.isRemote && currentItem != null && currentItem.getItem() == CustomRegisters.wand) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.Border, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}

@@ -15,7 +15,10 @@ public enum AnimationKind {
 	STANDING(6, false),
 	WALKING(7, true),
 	WATER_STAND(8, false),
-	WATER_WALK(9, true);
+	WATER_WALK(9, true),
+	REVENGE_STAND(10, false),
+	REVENGE_WALK(11, true),
+	HIT(12, true);
 	
 	boolean isMoving;
 	int type;

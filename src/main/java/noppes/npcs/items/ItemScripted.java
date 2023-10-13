@@ -8,7 +8,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
@@ -28,7 +28,7 @@ public class ItemScripted extends Item implements IPermission {
 		this.setRegistryName(CustomNpcs.MODID, "scripted_item");
 		this.setUnlocalizedName("scripted_item");
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setHasSubtypes(true);
 	}
 

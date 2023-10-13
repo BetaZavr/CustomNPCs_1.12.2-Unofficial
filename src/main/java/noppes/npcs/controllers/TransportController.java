@@ -5,7 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -15,25 +20,30 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTransporter;
 
 public class TransportController {
+	
 	private static TransportController instance;
 
 	public static TransportController getInstance() {
+		if (TransportController.instance==null) { TransportController.instance = new TransportController(); }
 		return TransportController.instance;
 	}
 
-	public HashMap<Integer, TransportCategory> categories;
+	public Map<Integer, TransportCategory> categories;
+	public List<Integer> worldIDs;
 	private int lastUsedID;
 
-	private HashMap<Integer, TransportLocation> locations;
+	private Map<Integer, TransportLocation> locations;
 
 	public TransportController() {
-		this.locations = new HashMap<Integer, TransportLocation>();
-		this.categories = new HashMap<Integer, TransportCategory>();
+		this.locations = Maps.<Integer, TransportLocation>newTreeMap();
+		this.categories = Maps.<Integer, TransportCategory>newTreeMap();
 		this.lastUsedID = 0;
+		this.worldIDs = Lists.<Integer>newArrayList();
 		(TransportController.instance = this).loadCategories();
 		if (this.categories.isEmpty()) {
 			TransportCategory cat = new TransportCategory();
@@ -41,16 +51,6 @@ public class TransportController {
 			cat.title = "Default";
 			this.categories.put(cat.id, cat);
 		}
-	}
-
-	private boolean containsCategoryName(String name) {
-		name = name.toLowerCase();
-		for (TransportCategory cat : this.categories.values()) {
-			if (cat.title.toLowerCase().equals(name)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public boolean containsLocationName(String name) {
@@ -73,6 +73,13 @@ public class TransportController {
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
 		nbttagcompound.setInteger("lastID", this.lastUsedID);
 		nbttagcompound.setTag("NPCTransportCategories", list);
+		
+		Collection<Integer> set = DimensionHandler.getInstance().getMapDimensionsIDs().values();
+		int[] ws = new int[set.size()];
+		int i = 0;
+		for (int id : set) { ws[i] = id; i++; }
+		nbttagcompound.setIntArray("WorldIDs", ws);
+		
 		return nbttagcompound;
 	}
 
@@ -134,25 +141,32 @@ public class TransportController {
 	}
 
 	public void loadCategories(File file) throws IOException {
-		HashMap<Integer, TransportLocation> locations = new HashMap<Integer, TransportLocation>();
-		HashMap<Integer, TransportCategory> categories = new HashMap<Integer, TransportCategory>();
-		NBTTagCompound nbttagcompound1 = CompressedStreamTools.readCompressed(new FileInputStream(file));
-		this.lastUsedID = nbttagcompound1.getInteger("lastID");
-		NBTTagList list = nbttagcompound1.getTagList("NPCTransportCategories", 10);
-		if (list == null) {
-			return;
-		}
-		for (int i = 0; i < list.tagCount(); ++i) {
-			TransportCategory category = new TransportCategory();
-			NBTTagCompound compound = list.getCompoundTagAt(i);
-			category.readNBT(compound);
-			for (TransportLocation location : category.locations.values()) {
-				locations.put(location.id, location);
+		try {
+			this.loadCategories(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+		} catch (Exception e) {}
+	}
+	
+	public void loadCategories(NBTTagCompound compound) {
+		this.locations.clear();
+		this.categories.clear();
+		this.lastUsedID = compound.getInteger("lastID");
+		NBTTagList list = compound.getTagList("NPCTransportCategories", 10);
+		if (list != null) {
+			for (int i = 0; i < list.tagCount(); ++i) {
+				TransportCategory category = new TransportCategory();
+				category.readNBT(list.getCompoundTagAt(i));
+				for (TransportLocation location : category.locations.values()) {
+					this.locations.put(location.id, location);
+				}
+				this.categories.put(category.id, category);
 			}
-			categories.put(category.id, category);
 		}
-		this.locations = locations;
-		this.categories = categories;
+		if (compound.hasKey("WorldIDs", 11)) {
+			this.worldIDs.clear();
+			for (int id : compound.getIntArray("WorldIDs")) {
+				this.worldIDs.add(id);
+			}
+		}
 	}
 
 	public void removeCategory(int id) {
@@ -181,7 +195,7 @@ public class TransportController {
 		return loc;
 	}
 
-	public void saveCategories() {
+	private void saveCategories() {
 		try {
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
 			File file = new File(saveDir, "transport.dat_new");
@@ -204,32 +218,21 @@ public class TransportController {
 		}
 	}
 
-	public void saveCategory(String name, int id) {
-		if (id < 0) {
-			id = this.getUniqueIdCategory();
-		}
+	public void saveCategory(NBTTagCompound compound) {
+		int id = compound.getInteger("CategoryId");
+		if (id < 0) { id = this.getUniqueIdCategory(); }
 		if (this.categories.containsKey(id)) {
-			TransportCategory category = this.categories.get(id);
-			if (!category.title.equals(name)) {
-				while (this.containsCategoryName(name)) {
-					name += "_";
-				}
-				this.categories.get(id).title = name;
-			}
+			this.categories.get(id).readNBT(compound);
 		} else {
-			while (this.containsCategoryName(name)) {
-				name += "_";
-			}
 			TransportCategory category = new TransportCategory();
+			category.readNBT(compound);
 			category.id = id;
-			category.title = name;
 			this.categories.put(id, category);
 		}
 		this.saveCategories();
 	}
 
-	public TransportLocation saveLocation(int categoryId, NBTTagCompound compound, EntityPlayerMP player,
-			EntityNPCInterface npc) {
+	public TransportLocation saveLocation(int categoryId, NBTTagCompound compound, EntityPlayerMP player, EntityNPCInterface npc) {
 		TransportCategory category = this.categories.get(categoryId);
 		if (category == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) { return null; }
 		RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
@@ -264,4 +267,6 @@ public class TransportController {
 		this.locations.put(location.id, location);
 		location.category.locations.put(location.id, location);
 	}
+	
+	public Map<Integer, TransportLocation> getLocations() { return this.locations; }
 }

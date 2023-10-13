@@ -13,5 +13,9 @@ extends ICustomGuiComponent {
 	boolean hasStack();
 
 	IItemSlot setStack(IItemStack stack);
+
+	boolean isShowBack();
+	
+	void setShowBack(boolean bo);
 	
 }

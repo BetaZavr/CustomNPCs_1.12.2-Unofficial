@@ -7,6 +7,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.TextBlock;
+import noppes.npcs.util.AdditionalMethods;
 
 public class TextBlockClient extends TextBlock {
 	public int color;
@@ -21,7 +22,7 @@ public class TextBlockClient extends TextBlock {
 	}
 
 	public TextBlockClient(String text, int lineWidth, boolean mcFont, Object... obs) {
-		this.color = 14737632;
+		this.color = 0xE0E0E0;
 		this.style = new Style();
 		text = NoppesStringUtils.formatText(text, obs);
 		String line = "";
@@ -29,25 +30,24 @@ public class TextBlockClient extends TextBlock {
 		text = text.replace("\r", " \r ");
 		String[] words = text.split(" ");
 		FontRenderer font = Minecraft.getMinecraft().fontRenderer;
+		String color = ((char) 167) + "r";
 		for (String word : words) {
 			Label_0235: {
 				if (!word.isEmpty()) {
 					if (word.length() == 1) {
 						char c = word.charAt(0);
 						if (c == '\r' || c == '\n') {
-							this.addLine(line);
+							this.addLine(color + line);
+							color = AdditionalMethods.getLastColor(color, line);
 							line = "";
 							break Label_0235;
 						}
 					}
 					String newLine;
-					if (line.isEmpty()) {
-						newLine = word;
-					} else {
-						newLine = line + " " + word;
-					}
+					if (line.isEmpty()) { newLine = word; } else { newLine = line + " " + word; }
 					if ((mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine)) > lineWidth) {
-						this.addLine(line);
+						this.addLine(color + line);
+						color = AdditionalMethods.getLastColor(color, line);
 						line = word.trim();
 					} else {
 						line = newLine;
@@ -56,7 +56,7 @@ public class TextBlockClient extends TextBlock {
 			}
 		}
 		if (!line.isEmpty()) {
-			this.addLine(line);
+			this.addLine(color + line);
 		}
 	}
 

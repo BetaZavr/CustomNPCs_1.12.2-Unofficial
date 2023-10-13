@@ -11,7 +11,7 @@ import com.google.common.collect.Sets;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
@@ -39,7 +39,7 @@ public class VisibilityController {
 	
 	public static void checkIsVisible(EntityNPCInterface npc, EntityPlayerMP playerMP) {
 		if (!CustomNpcs.EnableInvisibleNpcs) { return; }
-		boolean anyVisible = playerMP.capabilities.isCreativeMode || playerMP.getHeldItemMainhand().getItem()==CustomItems.wand;
+		boolean anyVisible = playerMP.capabilities.isCreativeMode || playerMP.getHeldItemMainhand().getItem()==CustomRegisters.wand;
 		boolean isVisible = npc.display.isVisibleTo(playerMP);
 		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) { VisibilityController.invisibleNPCsTable.put(playerMP, Lists.<EntityNPCInterface>newArrayList()); }
 		if (anyVisible || (isVisible && VisibilityController.invisibleNPCsTable.get(playerMP).contains(npc))) {

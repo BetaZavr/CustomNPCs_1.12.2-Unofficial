@@ -24,13 +24,15 @@ public class MusicData {
 	public String name, resource;
 	public float millitotal;
 	
-	public MusicData(ISound s, String u, SoundManager manager) {
+	public MusicData(ISound s, String id, SoundManager manager) {
 		this.sound = s;
-		this.uuid = u;
+		this.uuid = id;
+		this.name = "";
+		this.resource = "";
 		SoundSystem sndSystem = ObfuscationHelper.getValue(SoundManager.class, manager, SoundSystem.class);
 		Library soundLibrary = ObfuscationHelper.getValue(SoundSystem.class, sndSystem, 4);
 		HashMap<String, Source> sourceMap = ObfuscationHelper.getValue(Library.class, soundLibrary, 3);
-		this.source = sourceMap.get(u);
+		this.source = sourceMap.get(id);
 		if (s!=null) {
 			this.name = s.getSoundLocation().toString();
 			if (s.getSound()!=null) { this.resource = this.sound.getSound().getSoundLocation().toString(); }

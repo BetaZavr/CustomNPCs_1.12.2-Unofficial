@@ -95,7 +95,7 @@ implements ICustomGui {
 	public IItemSlot addItemSlot(int x, int y, IItemStack stack) {
 		CustomGuiItemSlotWrapper slot = new CustomGuiItemSlotWrapper(x, y, stack);
 		this.slots.add(slot);
-		return this.slots.get(this.slots.size() - 1);
+		return slot;
 	}
 
 	@Override
@@ -178,8 +178,7 @@ implements ICustomGui {
 		List<IItemSlot> slots = new ArrayList<IItemSlot>();
 		list = tag.getTagList("slots", 10);
 		for (NBTBase b2 : list) {
-			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper
-					.createFromNBT((NBTTagCompound) b2);
+			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper.createFromNBT((NBTTagCompound) b2);
 			slots.add(component2);
 		}
 		this.slots = slots;
@@ -332,7 +331,7 @@ implements ICustomGui {
 		tag.setTag("components", list);
 		list = new NBTTagList();
 		for (ICustomGuiComponent c : this.slots) {
-			list.appendTag(((CustomGuiComponentWrapper) c).toNBT(new NBTTagCompound()));
+			list.appendTag(((CustomGuiItemSlotWrapper) c).toNBT(new NBTTagCompound()));
 		}
 		tag.setTag("slots", list);
 		tag.setBoolean("showPlayerInv", this.showPlayerInv);

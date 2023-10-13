@@ -9,4 +9,5 @@ public enum EnumPlayerData
 	Bank, 
 	Factions,
 	Wipe;
+	
 }

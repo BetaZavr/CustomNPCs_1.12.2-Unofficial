@@ -18,7 +18,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.layer.LayerArms;
 import noppes.npcs.client.layer.LayerBody;
 import noppes.npcs.client.layer.LayerCustomHeldItem;
@@ -205,5 +208,25 @@ extends RenderNPCInterface<T> {
 	public void setLightmap(EntityCustomNpc npc) {
 		super.setLightmap((T) npc);
 	}
-
+	
+	@Override
+	protected void applyRotations(T entityLiving, float handleRotation, float rotationYaw, float partialTicks) {
+		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
+        if (entityLiving.deathTime > 0) {
+        	boolean flag = entityLiving.animation.activeAnim!=null ? entityLiving.animation.activeAnim.type == AnimationKind.DIES: entityLiving.animation.getActiveAnimation(AnimationKind.DIES)!=null;
+            if (flag) { return; }
+        	float f = ((float)entityLiving.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
+            f = MathHelper.sqrt(f);
+            if (f > 1.0F) { f = 1.0F; }
+            GlStateManager.rotate(f * this.getDeathMaxRotation(entityLiving), 0.0F, 0.0F, 1.0F);
+        }
+        else {
+            String s = TextFormatting.getTextWithoutFormattingCodes(entityLiving.getName());
+            if (s != null && ("Dinnerbone".equals(s) || "Grumm".equals(s))) {
+                GlStateManager.translate(0.0F, entityLiving.height + 0.1F, 0.0F);
+                GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+            }
+        }
+	}
+	
 }

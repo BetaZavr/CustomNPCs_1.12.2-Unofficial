@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.INpcRecipe;
@@ -51,14 +51,14 @@ public class ContainerCarpentryBench extends Container {
 	}
 
 	public boolean canInteractWith(EntityPlayer playerIn) {
-		if (this.world.getBlockState(this.pos).getBlock() != CustomItems.carpentyBench) {
+		if (this.world.getBlockState(this.pos).getBlock() != CustomRegisters.carpentyBench) {
 			return false;
 		} else {
 			return playerIn.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D,
 					(double) this.pos.getZ() + 0.5D) <= 64.0D;
 		}
 		// return this.world.getBlockState(this.pos).getBlock() ==
-		// CustomItems.carpentyBench && par1EntityPlayer.getDistanceSq(this.pos.getX() +
+		// CustomRegisters.carpentyBench && par1EntityPlayer.getDistanceSq(this.pos.getX() +
 		// 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) <= 64.0;
 	}
 

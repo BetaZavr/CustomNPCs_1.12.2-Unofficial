@@ -9,12 +9,17 @@ import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerBankData;
 
-public class ContainerNPCBankInterface extends ContainerNpcInterface {
+public class ContainerNPCBankInterface
+extends ContainerNpcInterface {
+	
+	public static PlayerBankData editBank = null;
+	
 	public int bankid;
 	public SlotNpcBankCurrency currency;
 	public InventoryNPC currencyMatrix;
 	private PlayerBankData data;
 	public int slot;
+	public NpcMiscInventory items;
 
 	public ContainerNPCBankInterface(EntityPlayer player, int slot, int bankid) {
 		super(player);
@@ -23,19 +28,20 @@ public class ContainerNPCBankInterface extends ContainerNpcInterface {
 		this.slot = slot;
 		this.currencyMatrix = new InventoryNPC("currency", 1, this);
 		if (!this.isAvailable() || this.canBeUpgraded()) {
-			this.addSlotToContainer((Slot) (this.currency = new SlotNpcBankCurrency(this,
-					(IInventory) this.currencyMatrix, 0, 80, 29)));
+			this.addSlotToContainer((Slot) (this.currency = new SlotNpcBankCurrency(this, (IInventory) this.currencyMatrix, 0, 80, 29)));
 		}
-		NpcMiscInventory items = new NpcMiscInventory(54);
+		this.items = new NpcMiscInventory(54);
 		if (!player.world.isRemote) {
-			this.data = PlayerDataController.instance.getBankData(player, bankid);
-			items = this.data.getBankOrDefault(bankid).itemSlots.get(slot);
+			this.data = null;
+			if (ContainerNPCBankInterface.editBank!=null) { this.data = PlayerDataController.instance.getBankData(ContainerNPCBankInterface.editBank, bankid); }
+			if (this.data==null) { this.data = PlayerDataController.instance.getBankData(player, bankid); }
+			this.items = this.data.getBankOrDefault(bankid).itemSlots.get(slot);
 		}
 		int xOffset = this.xOffset();
 		for (int j = 0; j < this.getRowNumber(); ++j) {
 			for (int i1 = 0; i1 < 9; ++i1) {
 				int id = i1 + j * 9;
-				this.addSlotToContainer(new Slot((IInventory) items, id, 8 + i1 * 18, 17 + xOffset + j * 18));
+				this.addSlotToContainer(new Slot((IInventory) this.items, id, 8 + i1 * 18, 17 + xOffset + j * 18));
 			}
 		}
 		if (this.isUpgraded()) {
@@ -43,8 +49,7 @@ public class ContainerNPCBankInterface extends ContainerNpcInterface {
 		}
 		for (int k = 0; k < 3; ++k) {
 			for (int j2 = 0; j2 < 9; ++j2) {
-				this.addSlotToContainer(
-						new Slot((IInventory) player.inventory, j2 + k * 9 + 9, 8 + j2 * 18, 86 + xOffset + k * 18));
+				this.addSlotToContainer(new Slot((IInventory) player.inventory, j2 + k * 9 + 9, 8 + j2 * 18, 86 + xOffset + k * 18));
 			}
 		}
 		for (int l = 0; l < 9; ++l) {

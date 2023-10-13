@@ -4,17 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import com.google.common.collect.Maps;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class Lines {
+	
 	private static Random random = new Random();
 	private int lastLine;
-	public HashMap<Integer, Line> lines;
+	public Map<Integer, Line> lines;
 
 	public Lines() {
 		this.lastLine = -1;
-		this.lines = new HashMap<Integer, Line>();
+		this.lines = Maps.<Integer, Line>newTreeMap();
 	}
 
 	public Line getLine(boolean isRandom) {
@@ -22,9 +25,11 @@ public class Lines {
 			return null;
 		}
 		if (isRandom) {
-			int i = Lines.random.nextInt(this.lines.size());
+			int i = -1;
+			while (i==-1 && i!=this.lastLine) { i = Lines.random.nextInt(this.lines.size()); }
 			for (Map.Entry<Integer, Line> e : this.lines.entrySet()) {
 				if (--i < 0) {
+					this.lastLine = e.getKey();
 					return e.getValue().copy();
 				}
 			}
@@ -44,6 +49,29 @@ public class Lines {
 
 	public boolean isEmpty() {
 		return this.lines.isEmpty();
+	}
+
+	public void remove(int pos) {
+		if (!this.lines.containsKey(pos)) { return; }
+		this.lines.remove(pos);
+		this.correctLines();
+	}
+	
+	public void correctLines() {
+		Map<Integer, Line> newLines = Maps.<Integer, Line>newTreeMap();
+		int i = 0;
+		boolean isChanged = false;
+		for (int pos : this.lines.keySet()) {
+			if (pos!=i) { isChanged = true; }
+			Line line = this.lines.get(pos);
+			if (line.getText().isEmpty()) {
+				isChanged = true;
+				continue;
+			}
+			newLines.put(i, line);
+			i++;
+		}
+		if (isChanged) { this.lines = newLines; }
 	}
 
 	public void readNBT(NBTTagCompound compound) {

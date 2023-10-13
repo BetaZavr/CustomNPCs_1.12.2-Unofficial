@@ -126,7 +126,6 @@ extends ModelPlayer {
 			GlStateManager.popMatrix();
 		}
 		catch (Exception ex) { }
-
 	}
 	
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity) {
@@ -168,178 +167,134 @@ extends ModelPlayer {
 		this.bipedRightArm.rotationPointX = 0.0f;
 		this.bipedRightArm.rotationPointY = 2.0f;
 		this.bipedRightArm.rotationPointZ = 0.0f;
-		try { super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity); }
-		catch (Exception ex) { }
+		try { super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity); } catch (Exception ex) { }
 		
-		if (npc.isPlayerSleeping()) {
-			if (this.bipedHead.rotateAngleX < 0.0f) {
-				this.bipedHead.rotateAngleX = 0.0f;
-				this.bipedHeadwear.rotateAngleX = 0.0f;
-			}
-		} else if (npc.currentAnimation == 9) {
-			this.bipedHeadwear.rotateAngleX = 0.7f;
-			this.bipedHead.rotateAngleX = 0.7f;
-		} else if (npc.currentAnimation == 3) {
-			AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 7) {
-			AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 10) {
-			AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 5) {
-			AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 11) {
-			AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 13) {
-			AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 12) {
-			AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (npc.currentAnimation == 8) {
-			AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
-		} else if (this.isSneak) {
-			this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleBase[1];
+		if (npc.animation.baseAnim!=null && npc.animation.baseAnim.frame >= npc.animation.baseAnim.frames.size()) {
+			npc.animation.baseAnim.frame = 0;
 		}
+		boolean isBaseSet = this.setAnimationRotationAngles(npc, npc.animation.baseAnim, ageInTicks);
 		
-		AnimationConfig anim = npc.animation.activeAnim != null  ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
+		AnimationConfig anim = npc.animation.activeAnim != null ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
 		// Dies
-		if (npc.getHealth()==0.0f) {
+		if (npc.isKilled() && !npc.stats.hideKilledBody) {
 			if (anim==null || anim.type!=AnimationKind.DIES) {
 				anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
 			}
 		} else {
-			// INIT started in EntityNPCInterface.reset()
-			if (anim==null || !anim.isEdit) {
-				if (!this.isAttaking.containsKey(npc)) { this.isAttaking.put(npc, false); }
+			if (anim!=null && anim.type==AnimationKind.DIES && npc.animation.isComplete && !npc.isKilled() || npc.stats.hideKilledBody) {
+				anim = null;
+				npc.animation.isComplete = false;
+			}
+			// Hit
+			if (npc.hurtTime > 0 && npc.hurtTime == npc.maxHurtTime && npc.getHealth()!=0) {
+				anim = npc.animation.getActiveAnimation(AnimationKind.HIT);
+			}
+			if (anim==null || anim.type!=AnimationKind.INIT) {
+				this.isAttaking.put(npc, false);
 				if (!this.isJump.containsKey(npc)) { this.isJump.put(npc, false); }
 				
 				if (this.isAttaking.get(npc) && this.swingProgress>0) {
 					npc.swingProgress = 0.0f;
 					npc.swingProgressInt = 5;
 				}
-				if (anim==null) {
-					this.isAttaking.put(npc, false);
-					// Swing
-					if (this.swingProgress>0) {
-						anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
-						if (anim!=null) {
-							npc.swingProgress = 0.0f;
-							npc.swingProgressInt = 5;
-							this.isAttaking.put(npc, true);
-						}
-					}
-					// Jump in ClientTickHandler.cnpcLivingJumpEvent(event)
-					if (!this.isJump.get(npc) && !(npc.isInWater() || npc.isInLava())) {
-						if (!npc.onGround && npc.motionY > 0.0d) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
-							if (anim!=null) { this.isJump.put(npc, true); }
-						}
-					} else if (npc.onGround) {
-						this.isJump.put(npc, false);
+				// Swing
+				if (this.swingProgress>0) {
+					anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
+					if (anim!=null) {
+						npc.swingProgress = 0.0f;
+						npc.swingProgressInt = 5;
+						this.isAttaking.put(npc, true);
 					}
 				}
+				// Jump
+				if (!this.isJump.get(npc) && !(npc.isInWater() || npc.isInLava())) {
+					if (!npc.onGround && npc.motionY > 0.0d) {
+						anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
+						if (anim!=null) {
+							this.isJump.put(npc, true);
+						}
+					}
+				} else if (npc.onGround) {
+					this.isJump.put(npc, false);
+				}
+			}
+			// INIT started in EntityNPCInterface.reset()
+			if (anim==null || !anim.isEdit) {
 				// Moving or Standing
 				if (anim==null) {
 					boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
-					if (npc.isInWater() || npc.isInLava()) {
-						if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
-						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
+					// Revenge Target
+					if (npc.isAttacking()) {
+						if (isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_WALK)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_WALK);
+						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_STAND)) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_STAND);
 						}
-					}
-					else {
-						if (!npc.onGround && npc.ais.getNavigationType()==1) {
-							if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
-							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
+					} else {
+						if (npc.isInWater() || npc.isInLava()) {
+							if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
+							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
 							}
-						} else {
-							if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
-							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
+						}
+						else {
+							if (!npc.onGround && npc.ais.getNavigationType()==1) {
+								if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
+									anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
+								} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
+									anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
+								}
+							} else {
+								if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
+									anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
+								} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
+									anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-		
-		Map<Integer, Float[]> animData = npc.animation.getValues(npc, anim);
-		if (animData != null) {
-			// Head
-			Float[] head = animData.get(0);
-			if (head!=null) {
-				if (anim.type.isMoving()) {
-					((ModelScaleRenderer) this.bipedHead).clearRotation();
-					((ModelScaleRenderer) this.bipedHeadwear).clearRotation();
-				}
-				((ModelScaleRenderer) this.bipedHead).setAnim(head);
-				((ModelScaleRenderer) this.bipedHeadwear).setAnim(head);
-			}
-			
-			// Left Arm
-			Float[] leftArm = animData.get(1);
-			if (leftArm!=null) {
-				if (anim.type.isMoving()) {
-					((ModelScaleRenderer) this.bipedLeftArm).clearRotation();
-					((ModelScaleRenderer) this.bipedLeftArmwear).clearRotation();
-				}
-				((ModelScaleRenderer) this.bipedLeftArm).setAnim(leftArm);
-				((ModelScaleRenderer) this.bipedLeftArmwear).setAnim(leftArm);
-				if (npc.display.getHasLivingAnimation() && (anim.type==AnimationKind.STANDING || anim.type==AnimationKind.FLY_STAND || anim.type==AnimationKind.WATER_STAND)) {
-					this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-					this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
-				}
-			}
-			
-			// Right Arm
-			Float[] rightArm = animData.get(2);
-			if (rightArm!=null) {
-				if (anim.type.isMoving()) {
-					((ModelScaleRenderer) this.bipedRightArm).clearRotation();
-					((ModelScaleRenderer) this.bipedRightArmwear).clearRotation();
-				}
-				((ModelScaleRenderer) this.bipedRightArm).setAnim(rightArm);
-				((ModelScaleRenderer) this.bipedRightArmwear).setAnim(rightArm);
-				if (npc.display.getHasLivingAnimation()) {
-					this.bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-					this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
-				}
-			}
-			// Body
-			Float[] body = animData.get(3);
-			if (body!=null) {
-				if (anim.type.isMoving()) {
-					((ModelScaleRenderer) this.bipedBody).clearRotation();
-					((ModelScaleRenderer) this.bipedBodyWear).clearRotation();
-				}
-				((ModelScaleRenderer) this.bipedBody).setAnim(body);
-				((ModelScaleRenderer) this.bipedBodyWear).setAnim(body);
-			}
-			// Left Leg
-			Float[] leftLeg = animData.get(4);
-			if (body!=null) {
-				if (anim.type.isMoving()) {
-					((ModelScaleRenderer) this.bipedLeftLeg).clearRotation();
-					((ModelScaleRenderer) this.bipedLeftLegwear).clearRotation();
-				}
-				((ModelScaleRenderer) this.bipedLeftLeg).setAnim(leftLeg);
-				((ModelScaleRenderer) this.bipedLeftLegwear).setAnim(leftLeg);
-			}
-
-			// Right Leg
-			Float[] rightLeg = animData.get(5);
-			if (body!=null) {
-				if (anim.type.isMoving()) {
-					((ModelScaleRenderer) this.bipedRightLeg).clearRotation();
-					((ModelScaleRenderer) this.bipedRightLegwear).clearRotation();
-				}
-				((ModelScaleRenderer) this.bipedRightLeg).setAnim(rightLeg);
-				((ModelScaleRenderer) this.bipedRightLegwear).setAnim(rightLeg);
+		npc.animation.activeAnim = anim;
+		boolean isSet = this.setAnimationRotationAngles(npc, anim, ageInTicks);
+		if (npc.animation.changeAnim!=null) {
+			if (anim == null) {
+				npc.animation.changeAnim = null;
+			} else {
+				boolean isChange = this.setAnimationRotationAngles(npc, npc.animation.changeAnim, ageInTicks);
+				if (isChange) { isSet = true;}
 			}
 		}
-		else if (anim==null) {
+		if (!isSet && !isBaseSet) {
+			if (npc.isPlayerSleeping()) {
+				if (this.bipedHead.rotateAngleX < 0.0f) {
+					this.bipedHead.rotateAngleX = 0.0f;
+					this.bipedHeadwear.rotateAngleX = 0.0f;
+				}
+			} else if (npc.currentAnimation == 9) {
+				this.bipedHeadwear.rotateAngleX = 0.7f;
+				this.bipedHead.rotateAngleX = 0.7f;
+			} else if (npc.currentAnimation == 3) {
+				AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 7) {
+				AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 10) {
+				AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 5) {
+				AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 11) {
+				AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 13) {
+				AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 12) {
+				AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (npc.currentAnimation == 8) {
+				AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity, (ModelBiped) this);
+			} else if (this.isSneak) {
+				this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleBase[1];
+			}
 			((ModelScaleRenderer) this.bipedHead).setAnim(null);
 			((ModelScaleRenderer) this.bipedLeftArm).setAnim(null);
 			((ModelScaleRenderer) this.bipedRightArm).setAnim(null);
@@ -359,6 +314,83 @@ extends ModelPlayer {
 		copyModelAngles(this.bipedRightArm, this.bipedRightArmwear);
 		copyModelAngles(this.bipedBody, this.bipedBodyWear);
 		copyModelAngles(this.bipedHead, this.bipedHeadwear);
+	}
+
+	private boolean setAnimationRotationAngles(EntityCustomNpc npc, AnimationConfig anim, float ageInTicks) {
+		if (npc==null || anim==null) { return false; }
+		Map<Integer, Float[]> animData = npc.animation.getValues(npc, anim);
+		if (animData == null) { return false; }
+		// Head
+		Float[] head = animData.get(0);
+		if (head!=null) {
+			if (anim.type.isMoving()) {
+				((ModelScaleRenderer) this.bipedHead).clearRotation();
+				((ModelScaleRenderer) this.bipedHeadwear).clearRotation();
+			}
+			((ModelScaleRenderer) this.bipedHead).setAnim(head);
+			((ModelScaleRenderer) this.bipedHeadwear).setAnim(head);
+		}
+		
+		// Left Arm
+		Float[] leftArm = animData.get(1);
+		if (leftArm!=null) {
+			if (anim.type.isMoving()) {
+				((ModelScaleRenderer) this.bipedLeftArm).clearRotation();
+				((ModelScaleRenderer) this.bipedLeftArmwear).clearRotation();
+			}
+			((ModelScaleRenderer) this.bipedLeftArm).setAnim(leftArm);
+			((ModelScaleRenderer) this.bipedLeftArmwear).setAnim(leftArm);
+			if (npc.display.getHasLivingAnimation() && (anim.type==AnimationKind.STANDING || anim.type==AnimationKind.FLY_STAND || anim.type==AnimationKind.WATER_STAND)) {
+				this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
+				this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+			}
+		}
+		// Right Arm
+		Float[] rightArm = animData.get(2);
+		if (rightArm!=null) {
+			if (anim.type.isMoving()) {
+				((ModelScaleRenderer) this.bipedRightArm).clearRotation();
+				((ModelScaleRenderer) this.bipedRightArmwear).clearRotation();
+			}
+			((ModelScaleRenderer) this.bipedRightArm).setAnim(rightArm);
+			((ModelScaleRenderer) this.bipedRightArmwear).setAnim(rightArm);
+			if (npc.display.getHasLivingAnimation()) {
+				this.bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
+				this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
+			}
+		}
+		// Body
+		Float[] body = animData.get(3);
+		if (body!=null) {
+			if (anim.type.isMoving()) {
+				((ModelScaleRenderer) this.bipedBody).clearRotation();
+				((ModelScaleRenderer) this.bipedBodyWear).clearRotation();
+			}
+			((ModelScaleRenderer) this.bipedBody).setAnim(body);
+			((ModelScaleRenderer) this.bipedBodyWear).setAnim(body);
+		}
+		// Left Leg
+		Float[] leftLeg = animData.get(4);
+		if (body!=null) {
+			if (anim.type.isMoving()) {
+				((ModelScaleRenderer) this.bipedLeftLeg).clearRotation();
+				((ModelScaleRenderer) this.bipedLeftLegwear).clearRotation();
+			}
+			((ModelScaleRenderer) this.bipedLeftLeg).setAnim(leftLeg);
+			((ModelScaleRenderer) this.bipedLeftLegwear).setAnim(leftLeg);
+		}
+
+		// Right Leg
+		Float[] rightLeg = animData.get(5);
+		if (body!=null) {
+			if (anim.type.isMoving()) {
+				((ModelScaleRenderer) this.bipedRightLeg).clearRotation();
+				((ModelScaleRenderer) this.bipedRightLegwear).clearRotation();
+			}
+			((ModelScaleRenderer) this.bipedRightLeg).setAnim(rightLeg);
+			((ModelScaleRenderer) this.bipedRightLegwear).setAnim(rightLeg);
+		}
+		return true;
 	}
 	
 }

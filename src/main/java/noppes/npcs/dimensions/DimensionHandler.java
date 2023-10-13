@@ -34,7 +34,6 @@ import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
@@ -162,18 +161,16 @@ implements IDimensionHandler
 		EnumDifficulty difficulty = mcServer.getEntityWorld().getDifficulty();
 		WorldServer world = (WorldServer) (new WorldCustom(worldInfo, mcServer, savehandler, dimensionID, overworld, mcServer.profiler).init());
 		world.addEventListener(new ServerWorldEventHandler(mcServer, world));
-		Load load = null;
+		LogWriter.debug("Try Load World: "+dimensionID+"; world = "+world);
 		try {
-			load = new WorldEvent.Load(world);
-			MinecraftForge.EVENT_BUS.post(load);
+			Class<?> as = Class.forName("org.orecruncher.dsurround.server.services.AtmosphereService");
+			if (as!=null) { }
 		}
-		catch (Exception e) {
-			LogWriter.error("Failed to run event World$Load. World: " + world + ". Load: " + load, e);
+		catch (ClassNotFoundException e) {
+			MinecraftForge.EVENT_BUS.post(new WorldEvent.Load(world));
 		}
-		finally {
-			if (!mcServer.isSinglePlayer()) { world.getWorldInfo().setGameType(mcServer.getGameType()); }
-			mcServer.setDifficultyForAllWorlds(difficulty);
-		}
+		if (!mcServer.isSinglePlayer()) { world.getWorldInfo().setGameType(mcServer.getGameType()); }
+		mcServer.setDifficultyForAllWorlds(difficulty);
 	}
 
 	public void deleteDimension(ICommandSender sender, int dimensionID) {
@@ -208,7 +205,7 @@ implements IDimensionHandler
 				players.add((EntityPlayerMP) player);
 			}
 			for (EntityPlayerMP player : players) {
-				NoppesUtilPlayer.teleportPlayer(player, coords.getX(), coords.getY(), coords.getZ(), 0);
+				NoppesUtilPlayer.teleportPlayer(player, coords.getX(), coords.getY(), coords.getZ(), 0, player.rotationYaw, player.rotationPitch);
 			}
 		}
 		Entity entitySender = null;
@@ -267,6 +264,7 @@ implements IDimensionHandler
 				if (this.toBeDeleted.containsKey(id)) { continue; }
 				key = (DimensionManager.getWorld(id)!=null) + "&" + this.dimensionInfo.get(id).getWorldName();
 			}
+			while (map.containsKey(key+"&"+provider.getDimensionType().getSuffix())) { key += "_"; }
 			key += "&"+provider.getDimensionType().getSuffix();
 			map.put(key, id);
 		}

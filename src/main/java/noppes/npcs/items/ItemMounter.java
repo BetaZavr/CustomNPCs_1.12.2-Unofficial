@@ -12,7 +12,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
@@ -26,7 +26,7 @@ implements IPermission {
 		this.setUnlocalizedName("npcmounter");
 		this.setFull3D();
 		this.maxStackSize = 1;
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
 	public boolean isAllowed(EnumPacketServer e) {

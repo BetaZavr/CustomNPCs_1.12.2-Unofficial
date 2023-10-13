@@ -11,6 +11,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.obj.OBJLoader;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -28,6 +30,7 @@ implements ICustomElement
 	public CustomParticle(NBTTagCompound data, TextureManager textureManager, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int ... parametrs) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 		this.nbtData = data;
+		if (data.hasKey("OBJModel", 8)) { this.obj = new ResourceLocation(CustomNpcs.MODID, "models/particle/"+data.getString("OBJModel")+".obj"); }
 		if (data.hasKey("IsFullTexture", 1)) { this.full = data.getBoolean("IsFullTexture"); }
 		if (data.hasKey("MaxAge", 3)) { this.particleMaxAge = data.getInteger("MaxAge"); }
 		if (data.hasKey("Gravity", 5)) { this.particleGravity = data.getFloat("Gravity"); }
@@ -79,6 +82,11 @@ implements ICustomElement
 	
 	public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
 		if (this.obj!=null) {
+			IModel model = null;
+			try { model = OBJLoader.INSTANCE.loadModel(this.obj); }
+			catch (Exception e) { }
+			if (model==null ) { return; }
+			
 			return;
 		}
 		if (this.texture==null) { return; }

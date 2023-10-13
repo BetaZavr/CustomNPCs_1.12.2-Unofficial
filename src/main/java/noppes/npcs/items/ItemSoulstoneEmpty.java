@@ -17,7 +17,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.NoppesUtilServer;
@@ -32,7 +32,7 @@ extends Item {
 	public ItemSoulstoneEmpty() {
 		this.setRegistryName(CustomNpcs.MODID, "npcsoulstoneempty");
 		this.setUnlocalizedName("npcsoulstoneempty");
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setMaxStackSize(64);
 	}
 
@@ -59,7 +59,7 @@ extends Item {
 	public boolean store(EntityLivingBase entity, ItemStack stack, EntityPlayer player) {
 		if (!this.hasPermission(entity, player) || entity instanceof EntityPlayer) { return false; }
 		
-		ItemStack stone = new ItemStack(CustomItems.soulstoneFull);
+		ItemStack stone = new ItemStack(CustomRegisters.soulstoneFull);
 		
 		NBTTagCompound compound = new NBTTagCompound();
 		if (!entity.writeToNBTAtomically(compound)) { return false; }

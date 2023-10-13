@@ -59,14 +59,14 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		if (guibutton.id == 1 && MusicController.Instance.isPlaying(this.oldPlay)) {
-			Minecraft.getMinecraft().getSoundHandler().stop(this.oldPlay, SoundCategory.NEUTRAL);
+			MusicController.Instance.stopSound(this.oldPlay, SoundCategory.MUSIC);
 			this.oldPlay = "";
 			return;
 		}
 		super.actionPerformed(guibutton);
 		if (guibutton.id == 1) {
 			BlockPos pos = this.player.getPosition();
-			MusicController.Instance.playSound(SoundCategory.NEUTRAL, this.selectedResource.toString(), pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			MusicController.Instance.playSound(SoundCategory.MUSIC, this.selectedResource.toString(), pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
 			this.oldPlay = this.selectedResource.toString();
 		}
 		if (guibutton.id == 2) { this.close(); }

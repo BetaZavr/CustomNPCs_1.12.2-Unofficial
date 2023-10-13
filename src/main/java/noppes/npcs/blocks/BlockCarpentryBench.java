@@ -16,7 +16,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.constants.EnumGuiType;
@@ -30,7 +30,7 @@ public class BlockCarpentryBench extends BlockInterface {
 		this.setName("npccarpentybench");
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setSoundType(SoundType.WOOD);
 	}
 

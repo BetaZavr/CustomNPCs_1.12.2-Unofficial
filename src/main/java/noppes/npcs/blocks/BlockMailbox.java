@@ -21,7 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.Server;
 import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.constants.EnumGuiType;
@@ -39,7 +39,7 @@ extends BlockInterface {
 		this.setSoundType(SoundType.METAL);
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
 	protected BlockStateContainer createBlockState() {

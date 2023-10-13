@@ -18,7 +18,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.constants.EnumGuiType;
@@ -33,7 +33,7 @@ public class BlockBuilder extends BlockInterface implements IPermission {
 		this.setName("npcbuilderblock");
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setSoundType(SoundType.STONE);
 	}
 
@@ -73,8 +73,8 @@ public class BlockBuilder extends BlockInterface implements IPermission {
 			return true;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem.getItem() == CustomItems.wand
-				|| currentItem.getItem() == Item.getItemFromBlock(CustomItems.builder)) {
+		if (currentItem.getItem() == CustomRegisters.wand
+				|| currentItem.getItem() == Item.getItemFromBlock(CustomRegisters.builder)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BuilderBlock, null, pos.getX(), pos.getY(), pos.getZ());
 		}
 		return true;

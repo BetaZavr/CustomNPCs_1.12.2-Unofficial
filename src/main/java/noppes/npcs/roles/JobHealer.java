@@ -1,39 +1,41 @@
 package noppes.npcs.roles;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumHand;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.roles.data.HealerSettings;
 import noppes.npcs.util.ValueUtil;
 
 public class JobHealer
 extends JobInterface {
 	
-	private List<EntityLivingBase> affected;
-	public HashMap<Integer, Integer> effects;
-	private int healTicks;
-	public int range;
-	public int speed;
-	public byte healerType;
+	private Map<Integer, List<EntityLivingBase>> affected;
+	private Random rnd;
+	public Map<Integer, HealerSettings> effects; // [ID, settings]
 
 	public JobHealer(EntityNPCInterface npc) {
 		super(npc);
-		this.healTicks = 0;
-		this.range = 8;
-		this.healerType = (byte) 2;
-		this.speed = 20;
-		this.effects = new HashMap<Integer, Integer>();
-		this.affected = new ArrayList<EntityLivingBase>();
+		this.effects = Maps.<Integer, HealerSettings>newHashMap();
+		this.affected = Maps.<Integer, List<EntityLivingBase>>newHashMap();
 		this.type = JobType.HEALER;
+		this.rnd = new Random();
 	}
 
 	@Override
@@ -43,58 +45,103 @@ extends JobInterface {
 
 	@Override
 	public boolean aiShouldExecute() {
-		++this.healTicks;
-		if (this.healTicks < this.speed) {
-			return false;
+		boolean canAdd = false;
+		this.affected.clear();
+		for (Integer id : this.effects.keySet()) {
+			if (this.npc.totalTicksAlive % this.effects.get(id).speed < 3) {
+				canAdd = true;
+				int r = this.effects.get(id).range;
+				this.affected.put(id, this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class, this.npc.getEntityBoundingBox().grow(r, r / 2.0d, r)));
+				if (!this.effects.get(id).onHimself) { this.affected.get(id).remove(this.npc); }
+			}
 		}
-		this.healTicks = 0;
-		this.affected = this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class,
-				this.npc.getEntityBoundingBox().grow(this.range, this.range / 2.0, this.range));
-		return !this.affected.isEmpty();
+		return canAdd;
 	}
 
 	@Override
 	public void aiStartExecuting() {
-		for (EntityLivingBase entity : this.affected) {
-			boolean isEnemy = false;
-			if (entity instanceof EntityPlayer) {
-				isEnemy = this.npc.faction.isAggressiveToPlayer((EntityPlayer) entity);
-			} else if (entity instanceof EntityNPCInterface) {
-				isEnemy = this.npc.faction.isAggressiveToNpc((EntityNPCInterface) entity);
-			} else {
-				isEnemy = (entity instanceof EntityMob);
-			}
-			if (entity != this.npc && (this.healerType != (byte) 0 || !isEnemy)) {
-				if (this.healerType == (byte) 1 && !isEnemy) {
-					continue;
-				}
-				for (Integer potionEffect : this.effects.keySet()) {
-					Potion p = Potion.getPotionById(potionEffect);
-					if (p != null) {
-						entity.addPotionEffect(new PotionEffect(p, 100, this.effects.get(potionEffect)));
+		boolean activated = false;
+		for (Integer id : this.affected.keySet()) {
+			Potion potion = Potion.getPotionById(id);
+			if (potion == null) { continue; }
+			HealerSettings hs = this.effects.get(id);
+			if (!hs.isMassive) {
+				if (this.affected.get(id).isEmpty()) { continue; }
+				EntityLivingBase entity = null;
+				try { entity = this.affected.get(id).get(this.rnd.nextInt(this.affected.get(id).size())); } catch (Exception e) {}
+				if (entity!=null) {
+					boolean isEnemy = this.isEnemy(entity);
+					boolean canAdd = true;
+					switch(hs.type) {
+						case (byte) 0: canAdd = !isEnemy; break;
+						case (byte) 1: canAdd = isEnemy; break;
 					}
+					if (canAdd) {
+						entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
+						activated = true;
+					}
+				}
+			} else {
+				for (EntityLivingBase entity : this.affected.get(id)) {
+					if ((entity instanceof EntityMob || entity instanceof EntityAnimal) && !hs.possibleOnMobs) { continue; }
+					boolean isEnemy = this.isEnemy(entity);
+					boolean next = false;
+					switch(hs.type) {
+						case (byte) 0: next = isEnemy; break;
+						case (byte) 1: next = !isEnemy; break;
+					}
+					if (next) { continue; }
+					entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
+					activated = true;
 				}
 			}
 		}
 		this.affected.clear();
+		if (activated) {
+			if (!this.npc.getHeldItemMainhand().isEmpty()) { this.npc.swingArm(EnumHand.MAIN_HAND); }
+			else { this.npc.swingArm(EnumHand.OFF_HAND); }
+		}
+	}
+
+	private boolean isEnemy(EntityLivingBase entity) {
+		if (entity instanceof EntityPlayer) {
+			return this.npc.faction.isAggressiveToPlayer((EntityPlayer) entity);
+		} else if (entity instanceof EntityNPCInterface) {
+			return this.npc.faction.isAggressiveToNpc((EntityNPCInterface) entity);
+		}
+		return (entity instanceof EntityMob);
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = JobType.HEALER;
-		this.range = compound.getInteger("HealerRange");
-		this.healerType = compound.getByte("HealerType");
-		this.effects = NBTTags.getIntegerIntegerMap(compound.getTagList("BeaconEffects", 10));
-		this.speed = ValueUtil.correctInt(compound.getInteger("HealerSpeed"), 10, Integer.MAX_VALUE);
+		this.effects.clear();
+		if (compound.hasKey("HealerData", 9)) {
+			for (int i = 0; i < compound.getTagList("HealerData", 10).tagCount(); i++) {
+				HealerSettings hs = new HealerSettings(compound.getTagList("HealerData", 10).getCompoundTagAt(i));
+				this.effects.put(hs.id, hs);
+			}
+		} else if (compound.hasKey("HealerRange", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+			int range = compound.getInteger("HealerRange");
+			int speed = ValueUtil.correctInt(compound.getInteger("HealerSpeed"), 10, Integer.MAX_VALUE);
+			byte type = compound.getByte("HealerType");
+			HashMap<Integer, Integer> oldMap = NBTTags.getIntegerIntegerMap(compound.getTagList("BeaconEffects", 10));
+			for (int id : oldMap.keySet()) {
+				HealerSettings hs = new HealerSettings(id, range, speed, oldMap.get(id), type);
+				this.effects.put(hs.id, hs);
+			}
+		}
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", JobType.HEALER.get());
-		compound.setInteger("HealerRange", this.range);
-		compound.setByte("HealerType", this.healerType);
-		compound.setTag("BeaconEffects", NBTTags.nbtIntegerIntegerMap(this.effects));
-		compound.setInteger("HealerSpeed", this.speed);
+		NBTTagList list = new NBTTagList();
+		for (HealerSettings hs : this.effects.values()) {
+			list.appendTag(hs.writeNBT());
+		}
+		compound.setTag("HealerData", list);
+		
 		return compound;
 	}
 }

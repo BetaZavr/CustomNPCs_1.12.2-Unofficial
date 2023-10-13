@@ -12,7 +12,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.constants.EnumGuiType;
@@ -25,7 +25,7 @@ public class BlockCopy extends BlockInterface implements IPermission {
 		this.setName("npccopyblock");
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setSoundType(SoundType.STONE);
 	}
 
@@ -54,7 +54,7 @@ public class BlockCopy extends BlockInterface implements IPermission {
 			return true;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null && currentItem.getItem() == CustomItems.wand) {
+		if (currentItem != null && currentItem.getItem() == CustomRegisters.wand) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.CopyBlock, null, pos.getX(), pos.getY(), pos.getZ());
 		}
 		return true;

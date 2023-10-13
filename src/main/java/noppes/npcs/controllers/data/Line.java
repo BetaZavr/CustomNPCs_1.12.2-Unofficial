@@ -22,7 +22,6 @@ implements ILine {
 
 	private boolean showText;
 	protected String sound;
-
 	protected String text;
 
 	public Line() {
@@ -32,10 +31,9 @@ implements ILine {
 	}
 
 	public Line(String text) {
-		this.text = "";
+		this.text = text;
 		this.sound = "";
 		this.showText = true;
-		this.text = text;
 	}
 
 	public Line copy() {
@@ -75,9 +73,7 @@ implements ILine {
 
 	@Override
 	public void setText(String text) {
-		if (text == null) {
-			text = "";
-		}
+		if (text == null) { text = ""; }
 		this.text = text;
 	}
 }

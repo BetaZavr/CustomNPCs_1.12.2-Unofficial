@@ -19,7 +19,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -65,7 +65,7 @@ implements ICustomElement {
 		if (nbtItem.hasKey("Enchantability", 3)) { this.enchantability = nbtItem.getInteger("Enchantability"); }
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) { this.setFull3D(); }
 		
-		this.setCreativeTab((CreativeTabs) CustomItems.tabItems);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
 	}
 
 	public float getAttackDamage() { return (float) ObfuscationHelper.getValue(ItemSword.class, this, float.class); }

@@ -70,6 +70,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumRewardType;
+import noppes.npcs.containers.ContainerNPCBankInterface;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.DropController;
@@ -82,6 +83,7 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.controllers.data.PlayerBankData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
@@ -109,6 +111,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.PLAY_SOUND);
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_MOVINGPATH);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
+		PacketHandlerClient.list.add(EnumPacketClient.CHATBUBBLE);
 	}
 
 	@SubscribeEvent
@@ -156,7 +159,6 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			if (!CustomNpcs.EnableChatBubbles || !CustomNpcs.EnablePlayerChatBubbles) { return; }
 			EntityPlayer pl = (EntityPlayer) entity;
-			System.out.println("player: "+pl);
 			if (!ClientEventHandler.chatMessages.containsKey(pl)) { ClientEventHandler.chatMessages.put(pl, new RenderChatMessages()); }
 			ClientEventHandler.chatMessages.get(pl).addMessage(Server.readString(buffer), pl);
 		} else if (type == EnumPacketClient.CHAT) {
@@ -310,21 +312,17 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			} else {
 				NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 			}
-		} else if (type == EnumPacketClient.PLAY_MUSIC) {
-			MusicController.Instance.playMusic(Server.readString(buffer), SoundCategory.PLAYERS, player);
 		} else if (type == EnumPacketClient.STOP_SOUND) {
 			String soundRes = Server.readString(buffer);
 			int categoryType = buffer.readInt();
 			if (categoryType >= 0 && categoryType < SoundCategory.values().length) {
-				Minecraft.getMinecraft().getSoundHandler().stop(soundRes, SoundCategory.values()[categoryType]);
+				MusicController.Instance.stopSound(soundRes, SoundCategory.values()[categoryType]);
 			} else {
-				for (SoundCategory sc : SoundCategory.values()) {
-					Minecraft.getMinecraft().getSoundHandler().stop(soundRes, sc);
-				}
+				MusicController.Instance.stopSounds();
 			}
 		}
 		else if (type == EnumPacketClient.PLAY_SOUND) {
-			MusicController.Instance.playSound(SoundCategory.VOICE, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
+			MusicController.Instance.playSound(SoundCategory.PLAYERS, Server.readString(buffer), buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readFloat(), buffer.readFloat());
 		} else if (type == EnumPacketClient.FORCE_PLAY_SOUND) {
 			int categoryType = buffer.readInt();
 			SoundCategory cat = SoundCategory.PLAYERS;
@@ -647,39 +645,42 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			DataAnimation anim = ((EntityNPCInterface) entity).animation;
 			switch (t) {
-			case 0:
-				((EntityNPCInterface) entity).animation.readFromNBT(compound);
-				break; // reload
-			case 1:
-				((EntityNPCInterface) entity).animation.stopAnimation();
-				break; // stopAnimation
-			case 2: // start
-				int animationType = -1, variant = -1;
-				if (compound.hasKey("Vars", 11)) {
-					int[] vars = compound.getIntArray("Vars");
-					if (vars.length >= 1) {
-						animationType = vars[0];
+				case 0: {
+					((EntityNPCInterface) entity).animation.readFromNBT(compound);
+					break; // reload
+				}
+				case 1: {
+					((EntityNPCInterface) entity).animation.stopAnimation();
+					break; // stopAnimation
+				}
+				case 2: { // start
+					int animationType = -1, variant = -1;
+					if (compound.hasKey("Vars", 11)) {
+						int[] vars = compound.getIntArray("Vars");
+						if (vars.length >= 1) {
+							animationType = vars[0];
+						}
+						if (vars.length >= 2) {
+							variant = vars[1];
+						}
 					}
-					if (vars.length >= 2) {
-						variant = vars[1];
+					if (animationType < 0 || animationType >= AnimationKind.values().length) {
+						CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
+						return;
 					}
+					anim.startAnimation(animationType, variant);
+					break;
 				}
-				if (animationType < 0 || animationType >= AnimationKind.values().length) {
-					CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
-					return;
+				case 3: { // startAnimationFromSaved
+					if (!compound.hasKey("CustomAnim", 10)) {
+						CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
+						return;
+					}
+					AnimationConfig ac = new AnimationConfig(0);
+					ac.readFromNBT(compound.getCompoundTag("CustomAnim"));
+					((EntityNPCInterface) entity).animation.activeAnim = ac;
+					break;
 				}
-				anim.startAnimation(animationType, variant);
-				break;
-			case 3: // startAnimationFromSaved
-				if (!compound.hasKey("CustomAnim", 10)) {
-					CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
-					return;
-				}
-				AnimationConfig ac = new AnimationConfig(0);
-				ac.readFromNBT(compound.getCompoundTag("CustomAnim"));
-				((EntityNPCInterface) entity).animation.activeAnim = ac;
-				break;
-
 			}
 		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
@@ -734,6 +735,18 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				ClientProxy.loadFiles.remove(name);
 			}
 			ClientTickHandler.loadFiles();
+		} else if (type == EnumPacketClient.PLAY_CAMERA_SHAKING) {
+			ClientGuiEventHandler.crashes.set(buffer.readInt(), buffer.readInt(), buffer.readInt(), buffer.readBoolean());
+		} else if (type == EnumPacketClient.STOP_CAMERA_SHAKING) {
+			ClientGuiEventHandler.crashes.isActive = false;
+		} else if (type == EnumPacketClient.SHOW_BANK_PLAYER) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			if (compound.getKeySet().isEmpty()) {
+				ContainerNPCBankInterface.editBank = null;
+				return;
+			}
+			ContainerNPCBankInterface.editBank = new PlayerBankData();
+			ContainerNPCBankInterface.editBank.loadNBTData(compound);
 		}
 		CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
 	}

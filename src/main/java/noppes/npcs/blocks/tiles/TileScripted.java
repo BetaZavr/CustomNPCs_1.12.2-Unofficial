@@ -22,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
@@ -88,7 +88,7 @@ implements ITickable, IScriptBlockHandler {
 		this.timers = new DataTimers(this);
 		this.lastInited = -1L;
 		this.ticksExisted = 0;
-		this.itemModel = new ItemStack(CustomItems.scripted);
+		this.itemModel = new ItemStack(CustomRegisters.scripted);
 		this.blockModel = null;
 		this.needsClientUpdate = false;
 		this.powering = 0;
@@ -437,7 +437,7 @@ implements ITickable, IScriptBlockHandler {
 	public void setDisplayNBT(NBTTagCompound compound) {
 		this.itemModel = new ItemStack(compound.getCompoundTag("ScriptBlockModel"));
 		if (this.itemModel.isEmpty()) {
-			this.itemModel = new ItemStack(CustomItems.scripted);
+			this.itemModel = new ItemStack(CustomRegisters.scripted);
 		}
 		if (compound.hasKey("ScriptBlockModelBlock")) {
 			this.blockModel = Block.getBlockFromName(compound.getString("ScriptBlockModelBlock"));
@@ -485,7 +485,7 @@ implements ITickable, IScriptBlockHandler {
 
 	public void setItemModel(ItemStack item, Block b) {
 		if (item == null || item.isEmpty()) {
-			item = new ItemStack(CustomItems.scripted);
+			item = new ItemStack(CustomRegisters.scripted);
 		}
 		if (NoppesUtilPlayer.compareItems(item, this.itemModel, false, false) && b != this.blockModel) {
 			return;

@@ -161,5 +161,9 @@ extends IEntityLivingBase<T> {
 	void stopSound(int categoryType, String sound);
 
 	IContainer getBubblesInventory();
+
+	void cameraShakingPlay(int time, int amplitude, int type, boolean isFading);
+	
+	void cameraShakingStop();
 	
 }

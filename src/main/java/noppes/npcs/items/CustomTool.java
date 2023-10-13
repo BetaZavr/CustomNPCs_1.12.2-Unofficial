@@ -17,7 +17,7 @@ import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -57,7 +57,7 @@ implements ICustomElement {
 		if (nbtItem.hasKey("ToolClass", 8)) { 
 			ObfuscationHelper.setValue(ItemTool.class, this, nbtItem.getString("ToolClass"), String.class);
 		}
-		this.setCreativeTab((CreativeTabs) CustomItems.tabItems);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
 	}
 
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {

@@ -12,7 +12,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -64,7 +64,7 @@ implements IPermission, ICustomElement {
 				if (block!=null) { this.effectiveBlocks.add(block); }
 			}
 		}
-		this.setCreativeTab((CreativeTabs) CustomItems.tabItems);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
 		this.setHasSubtypes(true);
 	}
 

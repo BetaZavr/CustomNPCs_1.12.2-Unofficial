@@ -179,26 +179,19 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.del").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.add").getFormattedText());
-		}
-		else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.paste." + (this.copyDialog!=null), (this.copyDialog!=null ? this.copyDialog.getKey() : "")).getFormattedText());
-		}
-		else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.copy", this.selectedDialog).getFormattedText());
-		}
-		else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.add", this.selectedCategory).getFormattedText());
-		}
-		else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.del", this.selectedDialog).getFormattedText());
-		}
-		else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.edit", this.selectedDialog).getFormattedText());
 		}
 	}
@@ -359,6 +352,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (i == 1 && this.subgui==null) {
 			this.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
 		}
 		super.keyTyped(c, i);
 	}

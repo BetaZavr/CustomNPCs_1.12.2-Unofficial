@@ -24,7 +24,7 @@ implements ICustomScrollListener {
 	
 	private ScriptContainer container;
 	private final Map<String, Long> scripts;
-	private final Map<String, ResourceLocation> data;
+	private final Map<ResourceLocation, String> data;
 	private GuiCustomScroll base;
 	private GuiCustomScroll selected;
 	private String back = "   "+Character.toChars(0x2190)[0]+" ("+new TextComponentTranslation("gui.back").getFormattedText()+")";
@@ -37,7 +37,7 @@ implements ICustomScrollListener {
 		this.ySize = 216;
 		if (scripts == null) { scripts = Maps.<String, Long>newTreeMap(); }
 		this.scripts = scripts;
-		this.data = Maps.<String, ResourceLocation>newTreeMap();
+		this.data = Maps.<ResourceLocation, String>newTreeMap();
 		for (String path : this.scripts.keySet()) {
 			ResourceLocation res;
 			if (path.indexOf("/")!=-1) {
@@ -46,7 +46,7 @@ implements ICustomScrollListener {
 			else {
 				res = new ResourceLocation("base", path);
 			}
-			this.data.put(res.getResourcePath(), res);
+			this.data.put(res, res.getResourcePath());
 		}
 	}
 
@@ -125,8 +125,8 @@ implements ICustomScrollListener {
 		char c = ((char) 167);
 		int t = 1;
 		if (!this.path.isEmpty()) { ds.put(this.back, 0L); }
-		for (String key : this.data.keySet()) {
-			ResourceLocation res = this.data.get(key);
+		for (ResourceLocation res : this.data.keySet()) {
+			String key = this.data.get(res);
 			boolean hasDir = !res.getResourceDomain().equals("base");
 			String file = (hasDir ? res.getResourceDomain()+"/" : "") + res.getResourcePath();
 			if (temp.contains(file) || this.container.scripts.contains(file)) {
@@ -138,7 +138,6 @@ implements ICustomScrollListener {
 						hs.put(key, file);
 						continue;
 					}
-					
 					if (foder.isEmpty() && !this.path.isEmpty()) {
 						continue;
 					}

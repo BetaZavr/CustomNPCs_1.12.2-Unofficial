@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -62,7 +63,9 @@ import noppes.npcs.api.wrapper.ContainerCustomChestWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
+import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.containers.ContainerNPCBankInterface;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.IScriptHandler;
@@ -113,8 +116,8 @@ public class EventHooks {
 		CustomGuiController.onSlotChange(new CustomGuiEvent.SlotEvent(player, gui, slotId, stack, heldItem));
 	}
 
-	public static boolean onCustomGuiSlotClicked(PlayerWrapper<?> player, ICustomGui gui, int slotId, int dragType, String clickType, IItemStack heldItem) {
-		return CustomGuiController.onSlotClick(new CustomGuiEvent.SlotClickEvent(player, gui, slotId, player.getOpenContainer().getSlot(slotId), dragType, clickType, heldItem));
+	public static boolean onCustomGuiSlotClicked(PlayerWrapper<?> player, ICustomGui gui, int slotId, int dragType, String clickType, IItemStack heldItem, Slot slot) {
+		return CustomGuiController.onSlotClick(new CustomGuiEvent.SlotClickEvent(player, gui, slotId, player.getOpenContainer().getSlot(slotId), dragType, clickType, heldItem, slot));
 	}
 
 	public static void onForgeEvent(ForgeEvent event) {
@@ -541,25 +544,25 @@ public class EventHooks {
 
 	public static void onCustomPotionIsReady(IsReadyEvent event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled()) { return; }
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_IS_READY, event);
 	}
 
 	public static void onCustomPotionPerformEffect(PerformEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled()) { return; }
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_PERFORM, event);
 	}
 
 	public static void onCustomPotionAffectEntity(AffectEntity event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled()) { return; }
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_AFFECT, event);
 	}
 
 	public static void onCustomPotionEndEffect(EndEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled()) { return; }
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_END, event);
 	}
 	
@@ -648,6 +651,10 @@ public class EventHooks {
 
 	public static void onPlayerOpenGui(EntityPlayerMP player, String newGUI, String oldGUI) {
 		if (player==null) { return; }
+		if (newGUI.equals("GuiNPCBankChest") && oldGUI.equals("GuiIngame")) {
+			ContainerNPCBankInterface.editBank = null;
+			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, new NBTTagCompound());
+		}
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		if (!handler.getEnabled()) { return; }
 		EventHooks.onEvent(handler, EnumScriptType.GUI_OPEN, new PlayerEvent.OpenGUI((IPlayer<?>) NpcAPI.Instance().getIEntity(player), newGUI, oldGUI));
@@ -662,6 +669,12 @@ public class EventHooks {
 	private static boolean onEvent(ScriptContainer script, EnumScriptType enumFunction, Event event) {
 		if (script == null || event == null || enumFunction==null) { return false; }
 		script.run(enumFunction.function, event, true);
+		return WrapperNpcAPI.EVENT_BUS.post(event);
+	}
+	
+	public static boolean onEvent(IScriptHandler handler, String enumFunction, Event event) {
+		if (handler == null || !handler.getEnabled() || event == null || enumFunction==null) { return false; }
+		handler.runScript(enumFunction, event);
 		return WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 	

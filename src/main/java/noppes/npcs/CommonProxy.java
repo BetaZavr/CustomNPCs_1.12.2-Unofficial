@@ -63,14 +63,17 @@ import noppes.npcs.containers.ContainerNPCFollowerSetup;
 import noppes.npcs.containers.ContainerNPCInv;
 import noppes.npcs.containers.ContainerNPCTrader;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
+import noppes.npcs.containers.ContainerNPCTransportSetup;
 import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.containers.ContainerNpcQuestReward;
 import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.RecipeController;
+import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
@@ -115,6 +118,16 @@ implements IGuiHandler {
 			case CustomChest: { return new ContainerCustomChest(player, x); }
 			case MainMenuInv: { return new ContainerNPCInv(npc, player); }
 			case MainMenuInvDrop: { return new ContainerNPCDropSetup(npc, player, x, y, z); } // New
+			case ManageTransport: {
+				TransportLocation loc = TransportController.getInstance().getTransport(x);
+				if (loc == null) {
+					loc = new TransportLocation();
+					loc.id = x;
+					loc.category = TransportController.getInstance().categories.get(y);
+				}
+				if (player.world.isRemote) { loc = loc.copy(); }
+				return new ContainerNPCTransportSetup(player, loc, y);
+			}
 			case PlayerAnvil: { return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z)); }
 			case PlayerBankSmall: { return new ContainerNPCBankSmall(player, x, y); }
 			case PlayerBankUnlock: { return new ContainerNPCBankUnlock(player, x, y); }

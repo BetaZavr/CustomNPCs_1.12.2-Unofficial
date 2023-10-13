@@ -10,13 +10,14 @@ public class GuiButtonBiDirectional
 extends GuiNpcButton {
 	
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/arrowbuttons.png");
-	public boolean cheakWidth;
+	public boolean cheakWidth, showShedow;
 	private int color;
 
 	public GuiButtonBiDirectional(int id, int x, int y, int width, int height, String[] arr, int current) {
 		super(id, x, y, width, height, arr, current);
 		this.cheakWidth = true;
 		this.color = CustomNpcs.mainColor;
+		this.showShedow = true;
 	}
 
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
@@ -53,7 +54,8 @@ extends GuiNpcButton {
 		else { text = this.displayString; }
 		if (this.hovered) { text = new String(Character.toChars(0x00A7)) + "n" + text; }
 		
-		this.drawCenteredString(mc.fontRenderer, text, this.x + this.width / 2, this.y + (this.height - 8) / 2, l);
+		if (this.showShedow) { this.drawCenteredString(mc.fontRenderer, text, this.x + this.width / 2, this.y + (this.height - 8) / 2, l); }
+		else { mc.fontRenderer.drawString(text, this.x + (this.width - mc.fontRenderer.getStringWidth(text)) / 2, this.y + (this.height - 8) / 2, l, false); }
 	}
 
 	@Override

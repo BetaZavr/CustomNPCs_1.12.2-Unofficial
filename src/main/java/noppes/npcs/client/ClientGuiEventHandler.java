@@ -51,6 +51,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -68,6 +69,7 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.renderer.ModelBuffer;
+import noppes.npcs.client.util.CrashesData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
@@ -97,6 +99,7 @@ extends Gui
 	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation[] BORDER;
 	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
+	public static final CrashesData crashes = new CrashesData();
 	
 	static {
 		BORDER = new ResourceLocation[16];
@@ -115,14 +118,14 @@ extends Gui
 
 	/** HUD Bar Interfase Canceled */
 	@SubscribeEvent
-	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
+	public void cnpcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
 		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
 	}
 	
 	/** HUD Bar Interfase */
 	@SuppressWarnings("unused")
 	@SubscribeEvent
-	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
+	public void cnpcRenderOverlay(RenderGameOverlayEvent.Text event) {
 		this.mc = Minecraft.getMinecraft();
 		this.sw = new ScaledResolution(this.mc);
 		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiCompassSetings)) { return; }
@@ -748,7 +751,7 @@ extends Gui
 	
 	/** Any Regions */
 	@SubscribeEvent
-	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
+	public void cnpcRenderWorldLastEvent(RenderWorldLastEvent event) {
 		if (this.mc==null) { this.mc = Minecraft.getMinecraft(); return; }
 		if (this.sw==null) { this.sw = new ScaledResolution(this.mc); return; }
 		this.bData = BorderController.getInstance();
@@ -835,6 +838,43 @@ extends Gui
 			if (this.mc.player.capabilities.isCreativeMode) { this.renderRegion(reg, id); }
 			else if (reg.showInClient) {
 				this.drawRegion(reg, -1);
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void cnpcCameraSetupEvent(EntityViewRenderEvent.CameraSetup event) {
+		if (event.getEntity() instanceof EntityLivingBase && ClientGuiEventHandler.crashes.isActive) { // camera shaking
+			float amplitude = ClientGuiEventHandler.crashes.get();
+			switch(ClientGuiEventHandler.crashes.type) {
+				case 0: { // vertical only
+					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+					break;
+				}
+				case 1: { // horizont only
+					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
+					break;
+				}
+				case 2: { // arc only
+					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
+					break;
+				}
+				case 3: { // vertical and horizont
+					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
+					break;
+				}
+				case 4: { // vertical and arc
+					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
+					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+					break;
+				}
+				default: { // all
+					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude * -1.0f);
+					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
+					break;
+				}
 			}
 		}
 	}

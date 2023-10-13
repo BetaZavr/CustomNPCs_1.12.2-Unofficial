@@ -28,7 +28,7 @@ implements IAnimation {
 	public final Map<Integer, AnimationFrameConfig> frames; // {Frame, setting Frame]}
 	public AnimationKind type;
 
-	public int id;
+	public int id, frame;
 
 	public AnimationConfig(int type) {
 		this.frames = Maps.<Integer, AnimationFrameConfig>newTreeMap();
@@ -50,8 +50,15 @@ implements IAnimation {
 	public void setDisable(boolean bo) { this.disable = bo; }
 
 	@Override
-	public IAnimationFrame[] getFrames() { return this.frames.values().toArray(new IAnimationFrame[this.frames.size()]); }
-
+	public IAnimationFrame[] getFrames() {
+		IAnimationFrame[] frames = new IAnimationFrame[this.frames.size()];
+		for (int id : this.frames.keySet()) { frames[id] = this.frames.get(id); }
+		return frames;
+	}
+	
+	@Override
+	public boolean hasFrame(int frame) { return this.frames.containsKey(frame); }
+	
 	@Override
 	public IAnimationFrame getFrame(int frame) {
 		if (!this.frames.containsKey(frame)) {
@@ -86,7 +93,6 @@ implements IAnimation {
 		NBTTagList list = new NBTTagList();
 		for (AnimationFrameConfig afc : this.frames.values()) { list.appendTag(afc.writeNBT()); }
 		compound.setTag("FrameConfigs", list);
-
 		compound.setInteger("ID", this.id);
 		compound.setInteger("Type", this.type.get());
 		compound.setString("Name", this.name);

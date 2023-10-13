@@ -91,6 +91,8 @@ extends CommandBase {
 	}
 
 	public abstract String getDescription();
+	
+	public abstract String getName();
 
 	public int getRequiredPermissionLevel() {
 		return 2;

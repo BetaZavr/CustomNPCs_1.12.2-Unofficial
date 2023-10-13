@@ -16,7 +16,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.stats.RecipeBook;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.ClientProxy;
 
 @SideOnly(Side.CLIENT)
@@ -90,12 +90,12 @@ public class GuiNpcButtonRecipeTab extends GuiButtonToggle {
 		} else if (this.category == CreativeTabs.MISC) {
 			render.renderItemAndEffectIntoGUI(itemstack, this.x + 3, this.y + 5);
 			render.renderItemAndEffectIntoGUI(CreativeTabs.FOOD.getIconItemStack(), this.x + 14, this.y + 5);
-		} else if (this.category == CustomItems.tab) {
+		} else if (this.category == CustomRegisters.tab) {
 			if (this.isGlobal) {
 				render.renderItemAndEffectIntoGUI(itemstack, this.x + 3, this.y + 5);
-				render.renderItemAndEffectIntoGUI(new ItemStack(CustomItems.cloner), this.x + 14, this.y + 5);
+				render.renderItemAndEffectIntoGUI(new ItemStack(CustomRegisters.cloner), this.x + 14, this.y + 5);
 			} else {
-				render.renderItemAndEffectIntoGUI(new ItemStack(CustomItems.carpentyBench), this.x + 9, this.y + 5);
+				render.renderItemAndEffectIntoGUI(new ItemStack(CustomRegisters.carpentyBench), this.x + 9, this.y + 5);
 			}
 		} else {
 			render.renderItemAndEffectIntoGUI(itemstack, this.x + 9, this.y + 5);
@@ -123,7 +123,7 @@ public class GuiNpcButtonRecipeTab extends GuiButtonToggle {
 	}
 
 	public boolean updateVisibility() {
-		if (this.category == CustomItems.tab) {
+		if (this.category == CustomRegisters.tab) {
 			this.visible = true;
 		} else {
 			List<RecipeList> list = RecipeBookClient.RECIPES_BY_TAB.get(this.category);

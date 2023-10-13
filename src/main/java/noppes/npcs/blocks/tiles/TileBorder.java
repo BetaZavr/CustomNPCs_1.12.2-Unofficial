@@ -16,7 +16,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.controllers.data.Availability;
 
@@ -80,7 +80,7 @@ implements Predicate, ITickable {
 		this.readExtraNBT(compound);
 		if (this.getWorld() != null) {
 			this.getWorld().setBlockState(this.getPos(),
-					CustomItems.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
+					CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
 		}
 	}
 

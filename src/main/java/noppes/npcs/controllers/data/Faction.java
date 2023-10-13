@@ -118,7 +118,7 @@ implements IFaction {
 	}
 
 	public boolean isAggressiveToNpc(EntityNPCInterface entity) {
-		return this.attackFactions.contains(entity.faction.id);
+		return this.attackFactions.contains(entity.faction.id) || entity.advanced.attackFactions.contains(this.id);
 	}
 
 	public boolean isAggressiveToPlayer(EntityPlayer player) {

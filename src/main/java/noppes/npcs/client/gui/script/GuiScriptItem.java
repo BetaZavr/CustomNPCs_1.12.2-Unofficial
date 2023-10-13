@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
@@ -16,7 +16,7 @@ public class GuiScriptItem extends GuiScriptInterface {
 
 	public GuiScriptItem(EntityPlayer player) {
 		ItemScriptedWrapper itemScriptedWrapper = new ItemScriptedWrapper(
-				new ItemStack((Item) CustomItems.scripted_item));
+				new ItemStack((Item) CustomRegisters.scripted_item));
 		this.item = itemScriptedWrapper;
 		this.handler = itemScriptedWrapper;
 		Client.sendData(EnumPacketServer.ScriptItemDataGet, new Object[0]);

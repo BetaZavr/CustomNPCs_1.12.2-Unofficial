@@ -23,7 +23,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -61,7 +61,7 @@ implements ICustomElement {
 		if (nbtItem.hasKey("RepairItem", 10)) { this.repairItemStack = new ItemStack(nbtItem.getCompoundTag("RepairItem")); }
 		else { this.repairItemStack = this.material.getRepairItemStack(); }
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) { this.setFull3D(); }
-		this.setCreativeTab((CreativeTabs) CustomItems.tabItems);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
 		
 		this.addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter() {
 			@SideOnly(Side.CLIENT)
@@ -75,7 +75,7 @@ implements ICustomElement {
 		});
 	}
 
-	private ItemStack findAmmo(EntityPlayer player) {
+	protected ItemStack findAmmo(EntityPlayer player) {
 		if (this.isArrow(player.getHeldItem(EnumHand.OFF_HAND))) { return player.getHeldItem(EnumHand.OFF_HAND); }
 		else if (this.isArrow(player.getHeldItem(EnumHand.MAIN_HAND))) { return player.getHeldItem(EnumHand.MAIN_HAND); }
 		else {

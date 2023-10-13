@@ -17,7 +17,7 @@ public class Deal {
 	public NpcMiscInventory inventoryCurrency;
 	public NpcMiscInventory inventorySold;
 	public int money;
-	public int type;
+	public int type; // 
 
 	public Deal() {
 		this.id = 0;

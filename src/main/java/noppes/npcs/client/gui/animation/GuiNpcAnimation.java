@@ -134,7 +134,9 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		this.addButton(new GuiNpcButton(65, this.guiLeft + this.xSize - 25, this.guiTop+3, 10, 10, this.onlyCurrentPart ? "_" : "^"));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 13, this.guiTop+3, 10, 10, "X"));
 		this.addLabel(new GuiNpcLabel(0, "animation.type", this.guiLeft+4, this.guiTop+4));
-		this.addButton(new GuiButtonBiDirectional(1, this.guiLeft+4, this.guiTop+14, 120, 20, AnimationKind.getNames(), GuiNpcAnimation.type.get()));
+		GuiNpcButton button = new GuiButtonBiDirectional(1, this.guiLeft+4, this.guiTop+14, 120, 20, AnimationKind.getNames(), GuiNpcAnimation.type.get());
+		((GuiButtonBiDirectional) button).showShedow = false;
+		this.addButton(button);
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 4, this.guiTop + 194, 58, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 64, this.guiTop + 194, 58, 20, "gui.remove"));
 		this.getButton(3).enabled = anim!=null;
@@ -171,7 +173,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			
 			int u = this.guiLeft+230, v = this.guiTop+14, s = 65;
 			// Display
-			GuiNpcButton button;
 			button = new GuiNpcCheckBox(18, u, v - 15, 65, 14, anim.isDisable() ? "gui.disabled" : "gui.enabled");
 			((GuiNpcCheckBox) button).setSelected(anim.isDisable());
 			this.addButton(button);
@@ -576,7 +577,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			}
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			for (int i=0; i<3; i++) {
+			for (int i=0; i<3; i++) { // up
 				if (this.onlyCurrentPart && i>0) {
 					Gui.drawRect(x-1+i*s, y-1, x+179, y+176, 0xFFF080F0);
 					Gui.drawRect(x+i*s, y, x+178, y+175, GuiNpcAnimation.backColor);
@@ -586,6 +587,9 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				Gui.drawRect(x+i*s, y, x+55+i*s, y+90, GuiNpcAnimation.backColor);
 				if (this.npcs[i]!=null && this.subgui==null) {
 					GlStateManager.pushMatrix();
+					if (this.rots[i+4]>=-10 && this.rots[i+4]<=10) {
+						this.drawHorizontalLine(x+65, x+123, y+73, 0x20FFFFFF);
+					}
 					GlStateManager.translate(i*s+259.0f, 85.0f, 100.0f);
 					this.drawNpc(this.npcs[i], 0, 0, 1.0f, this.rots[i]-180, this.rots[i+4], false);
 					GlStateManager.popMatrix();
@@ -593,7 +597,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			}
 			x += s;
 			y += 100;
-			for (int i=0; i<2; i++) {
+			for (int i=0; i<2; i++) { // down
 				if (!this.onlyCurrentPart) {
 					Gui.drawRect(x-1+i*s, y-1, x+56+i*s, y+91, i==0 ? 0xFF808080 :  0xFFF080F0);
 					Gui.drawRect(x+i*s, y, x+55+i*s, y+90, i==0 ? 0xFFF0F0F0 : GuiNpcAnimation.backColor);
@@ -610,6 +614,9 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 						scale = 2.75f * this.scaleFrame + 0.25f;
 						xPos = 352.0f;
 						yPos = 28.0f * scale + 103.0f;
+					}
+					if (this.rots[7]>=-10 && this.rots[7]<=10) {
+						this.drawHorizontalLine(x+65, x+123, y+73, 0x20FFFFFF);
 					}
 					GlStateManager.translate(xPos, yPos, 100.0f);
 					this.drawNpc(this.npcs[3], 0, 0, scale, this.rots[3]-180, this.rots[7], false);

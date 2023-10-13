@@ -49,6 +49,7 @@ import noppes.npcs.client.EntityUtil;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.DialogController;
@@ -448,8 +449,7 @@ implements IPlayer {
 	}
 
 	private boolean isItemEqual(ItemStack stack, ItemStack other) {
-		return !other.isEmpty() && stack.getItem() == other.getItem()
-				&& (stack.getItemDamage() < 0 || stack.getItemDamage() == other.getItemDamage());
+		return !other.isEmpty() && stack.getItem() == other.getItem() && (stack.getItemDamage() < 0 || stack.getItemDamage() == other.getItemDamage());
 	}
 
 	@Override
@@ -590,14 +590,14 @@ implements IPlayer {
 
 	@Override
 	public void setPos(IPos pos) {
+		this.setPosition(pos.getX(), pos.getY(), pos.getZ());
 		if (!(this.entity instanceof EntityPlayerMP)) { return; }
-		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, pos.getX(), pos.getY(), pos.getZ(), this.entity.dimension);
 	}
 
 	@Override
 	public void setPosition(double x, double y, double z) {
 		if (!(this.entity instanceof EntityPlayerMP)) { return; }
-		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, x, y, z, this.entity.dimension);
+		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, x, y, z, this.entity.dimension, this.entity.rotationYaw, this.entity.rotationPitch);
 	}
 
 	@Override
@@ -655,13 +655,16 @@ implements IPlayer {
 		if (!(this.entity instanceof EntityPlayerMP)) { return; }
 		Quest quest = QuestController.instance.quests.get(id);
 		if (quest == null) { return; }
-		QuestData questdata = new QuestData(quest);
-		PlayerData data = this.getData();
-		boolean has = data.questData.activeQuests.containsKey(id);
+		PlayerData playerdata = this.getData();
+		boolean has = playerdata.questData.activeQuests.containsKey(id);
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.MESSAGE, "quest."+(has ? "updatequest": "newquest"), quest.getTitle(), has ? 0 : 2);
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.CHAT, "quest."+(has ? "updatequest": "newquest"), ": ", quest.getTitle());
-		data.questData.activeQuests.put(id, questdata);
-		data.updateClient = true;
+		playerdata.questData.activeQuests.put(id,  new QuestData(quest));
+		playerdata.updateClient = true;
+		for (IQuestObjective obj : quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayerMP) this.entity))) {
+			if (obj.getType() != EnumQuestTask.ITEM.ordinal()) { continue; }
+			playerdata.questData.checkQuestCompletion((EntityPlayer) this.entity, playerdata.questData.activeQuests.get(id));
+		}
 	}
 
 	@Override
@@ -735,6 +738,25 @@ implements IPlayer {
 		if (sound == null) { sound = ""; }
 		if (categoryType < 0) { categoryType = -1; }
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.STOP_SOUND, sound, categoryType);
+	}
+
+	@Override
+	public void cameraShakingPlay(int time, int amplitude, int type, boolean isFading) {
+		if (time <= 20 || time > 1200) {
+			throw new CustomNPCsException("Camera shake time should be between 20 and 1200 ticks. You have: " + time);
+		}
+		if (amplitude <= 1 || amplitude > 25) {
+			throw new CustomNPCsException("Amplitude should be between 1 and 25 value. You have: " + amplitude);
+		}
+		if (type < 0 || type > 5) {
+			throw new CustomNPCsException("Type should be between 0 and 5 value. You have: " + type);
+		}
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.PLAY_CAMERA_SHAKING, time, amplitude, type, isFading);
+	}
+
+	@Override
+	public void cameraShakingStop() {
+		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.STOP_CAMERA_SHAKING);
 	}
 	
 }

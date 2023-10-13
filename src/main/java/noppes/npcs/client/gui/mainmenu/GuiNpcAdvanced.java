@@ -48,7 +48,7 @@ extends GuiNPCInterface2
 implements IGuiData, ISubGuiListener {
 	
 	private boolean hasChanges;
-
+	
 	public GuiNpcAdvanced(EntityNPCInterface npc) {
 		super(npc, 4);
 		this.hasChanges = false;
@@ -83,14 +83,13 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
+		if (button.id!=5 && button.id!=8) { this.save(); }
 		switch (button.id) {
 			case 3: {
-				this.save();
 				Client.sendData(EnumPacketServer.RoleGet);
 				break;
 			}
 			case 4: {
-				this.save();
 				Client.sendData(EnumPacketServer.JobGet);
 				break;
 			}
@@ -101,7 +100,6 @@ implements IGuiData, ISubGuiListener {
 				break;
 			}
 			case 7: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCLinesMenu(this.npc));
 				break;
 			}
@@ -112,37 +110,30 @@ implements IGuiData, ISubGuiListener {
 				break;
 			}
 			case 9: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCFactionSetup(this.npc));
 				break;
 			}
 			case 10: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCDialogNpcOptions(this.npc, this));
 				break;
 			}
 			case 11: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCSoundsMenu(this.npc));
 				break;
 			}
 			case 12: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCNightSetup(this.npc));
 				break;
 			}
 			case 13: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCAdvancedLinkedNpc(this.npc));
 				break;
 			}
 			case 14: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCScenes(this.npc));
 				break;
 			}
 			case 15: {
-				this.save();
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCMarks(this.npc));
 				break;
 			}
@@ -150,7 +141,7 @@ implements IGuiData, ISubGuiListener {
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcAnimation(this, (EntityCustomNpc) this.npc));
 				break;
 			}
-			case 18: { // Animation Settings
+			case 18: { // Emotion Settings
 				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcEmotion(this, (EntityCustomNpc) this.npc));
 				break;
 			}
@@ -292,12 +283,12 @@ implements IGuiData, ISubGuiListener {
 		}
 	}
 
-	// New
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcSelectTraider) {
+			this.hasChanges = true;
 			((RoleTrader) this.npc.advanced.roleInterface).marcet = (((SubGuiNpcSelectTraider) subgui)).id;
-			Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
+			this.save();
 		}
 	}
 

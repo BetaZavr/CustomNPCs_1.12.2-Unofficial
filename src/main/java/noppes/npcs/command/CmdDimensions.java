@@ -68,7 +68,7 @@ extends CommandNoppesBase {
 			}
 			catch (NumberFormatException ex) { }
 		}
-		NoppesUtilPlayer.teleportPlayer(player, x, y, z, id);
+		NoppesUtilPlayer.teleportPlayer(player, x, y, z, id, player.rotationYaw, player.rotationPitch);
 	}
 	
 	@SubCommand(desc = "Set spawn block in dimension")

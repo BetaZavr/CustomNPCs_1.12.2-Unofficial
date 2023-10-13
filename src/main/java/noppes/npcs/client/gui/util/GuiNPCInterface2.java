@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface2
@@ -25,7 +26,7 @@ extends GuiNPCInterface {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float f) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (this.drawDefaultBackground) {
 			this.drawDefaultBackground();
 		}
@@ -38,10 +39,10 @@ extends GuiNPCInterface {
 		if (this.hasSubGui()) {
 			y = (x = 0);
 		}
-		this.menu.drawElements(this.getFontRenderer(), x, y, this.mc, f);
+		this.menu.drawElements(this.getFontRenderer(), x, y, this.mc, partialTicks);
 		boolean bo = this.drawDefaultBackground;
 		this.drawDefaultBackground = false;
-		super.drawScreen(mouseX, mouseY, f);
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.drawDefaultBackground = bo;
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.menu!=null && this.menu.getTopButtons().length>0) {
@@ -139,13 +140,28 @@ extends GuiNPCInterface {
 	}
 
 	@Override
-	public void mouseClicked(int i, int j, int k) {
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		if (!this.hasSubGui()) {
-			this.menu.mouseClicked(i, j, k);
+			this.menu.mouseClicked(mouseX, mouseY, mouseBottom);
 		}
-		super.mouseClicked(i, j, k);
+		super.mouseClicked(mouseX, mouseY, mouseBottom);
 	}
 
 	@Override
 	public abstract void save();
+	
+	@Override
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui==null) {
+			this.close();
+			if (this instanceof GuiNpcDisplay) {
+				this.save();
+			} else {
+				this.menu.topButtonPressed(new GuiMenuTopButton(1, 0, 0, ""));
+			}
+			return;
+		}
+		super.keyTyped(c, i);
+	}
+	
 }

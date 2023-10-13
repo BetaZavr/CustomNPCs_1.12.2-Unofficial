@@ -118,7 +118,7 @@ public class ClientTickHandler {
 		++RenderNPCInterface.LastTextureTick;
 		if (this.prevWorld != mc.world) {
 			this.prevWorld = mc.world;
-			MusicController.Instance.stopMusic();
+			MusicController.Instance.stopSounds();
 		}
 		SoundManager sm = ObfuscationHelper.getValue(SoundHandler.class, mc.getSoundHandler(), SoundManager.class);
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
@@ -151,9 +151,9 @@ public class ClientTickHandler {
 				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_TICK_EVENT, md.createEvent(CustomNpcs.proxy.getPlayer()));
 			}
 		}
-		
 		if (CustomNpcs.ticks % 10 == 0) {
 			MarcetController.getInstance().updateTime();
+			MusicController.Instance.cheakBards(mc.player);
 			ClientTickHandler.loadFiles();
 		}
 		if (mc.currentScreen!=null) {
@@ -174,7 +174,7 @@ public class ClientTickHandler {
 				while (subGui.getSubGui()!=null) { subGui = subGui.getSubGui(); }
 			}
 			if (ClientEventHandler.subgui != subGui) {
-				LogWriter.debug(((subGui == null ? "Cloce SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - " + (ClientEventHandler.subgui == null ? "null" : ClientEventHandler.subgui.getClass().getSimpleName())));
+				LogWriter.debug(((subGui == null ? "Cloce SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - " + (ClientEventHandler.subgui == null ? "null" : ClientEventHandler.subgui.getClass().getSimpleName()))+"; in GUI "+(mc.currentScreen!=null ? mc.currentScreen.getClass().getSimpleName() : "NULL"));
 				ClientEventHandler.subgui = subGui;
 			}
 		}

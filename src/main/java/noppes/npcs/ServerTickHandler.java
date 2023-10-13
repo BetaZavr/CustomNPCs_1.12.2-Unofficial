@@ -34,6 +34,7 @@ import noppes.npcs.client.AnalyticsTracking;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.KeyController;
+import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.VisibilityController;
@@ -50,8 +51,11 @@ public class ServerTickHandler {
 
 	private static Map<EntityPlayerMP, GameType> visibleData = Maps.<EntityPlayerMP, GameType>newHashMap();
 	public int ticks;
+	public long oldTime;
 
-	public ServerTickHandler() { this.ticks = 0; }
+	public ServerTickHandler() {
+		this.ticks = 0;
+	}
 	
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -61,7 +65,7 @@ public class ServerTickHandler {
 		if (player.getHealth() > 0 && player.getHealth() < 1.0f) { player.setHealth(1.0f); }
 		PlayerData data = PlayerData.get(player);
 		long resTime = (long) player.getName().codePointAt(0);
-		if (data.updateClient || !ServerTickHandler.visibleData.containsKey(player) || ServerTickHandler.visibleData.get(player) != player.interactionManager.getGameType() || player.world.getTotalWorldTime() % 100L == resTime % 100L || (data.prevHeldItem != player.getHeldItemMainhand() && (data.prevHeldItem.getItem() == CustomItems.wand || player.getHeldItemMainhand().getItem() == CustomItems.wand))) {
+		if (data.updateClient || !ServerTickHandler.visibleData.containsKey(player) || ServerTickHandler.visibleData.get(player) != player.interactionManager.getGameType() || player.world.getTotalWorldTime() % 100L == resTime % 100L || (data.prevHeldItem != player.getHeldItemMainhand() && (data.prevHeldItem.getItem() == CustomRegisters.wand || player.getHeldItemMainhand().getItem() == CustomRegisters.wand))) {
 			ServerTickHandler.visibleData.put(player, player.interactionManager.getGameType());
 			if (data.updateClient) {
 				Server.sendData(player, EnumPacketClient.SYNC_END, 8, data.getSyncNBT());
@@ -97,6 +101,7 @@ public class ServerTickHandler {
 			CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			SchematicController.Instance.updateBuilding();
 			MassBlockController.Update();
+			MarcetController.getInstance().update();
 			for (DataScenes.SceneState state : DataScenes.StartedScenes.values()) {
 				if (!state.paused) {
 					DataScenes.SceneState sceneState = state;

@@ -3,6 +3,7 @@ package noppes.npcs.controllers.data;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -12,16 +13,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.Server;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.role.IRoleTrader;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.roles.RoleTrader;
 
-public class Marcet implements IRoleTrader {
+public class Marcet
+implements IRoleTrader, Predicate<EntityNPCInterface> {
 
 	public final Map<Integer, Deal> data;
 	public int id;
@@ -30,6 +36,7 @@ public class Marcet implements IRoleTrader {
 	public String name;
 	public long nextTime;
 	public int updateTime;
+	public Lines lines;
 
 	public Marcet() {
 		this.id = -1;
@@ -37,6 +44,7 @@ public class Marcet implements IRoleTrader {
 		this.updateTime = 0;
 		this.data = Maps.<Integer, Deal>newTreeMap();
 		this.data.put(0, new Deal());
+		this.lines = new Lines();
 	}
 
 	public Deal addDeal() {
@@ -169,6 +177,7 @@ public class Marcet implements IRoleTrader {
 		this.updateTime = compound.getInteger("UpdateTime");
 		this.lastTime = compound.getLong("LastTime");
 		this.nextTime = compound.getLong("NextTime");
+		if (compound.hasKey("NpcLines", 10)) { this.lines.readNBT(compound.getCompoundTag("NpcLines")); }
 	}
 
 	@Override
@@ -218,12 +227,18 @@ public class Marcet implements IRoleTrader {
 		this.name = name;
 	}
 
-	public void update() { // any 0.5 sec -> ServerTickHandler / WorldTickEvent
-		if (this.updateTime < 5L) {
-			return;
-		}
-		if (this.lastTime <= 0L || this.lastTime + this.updateTime * 60000L < System.currentTimeMillis()) {
+	public void update() { // any 1.0 sec -> (MarcetController.update) ServerTickHandler / ServerTickEvent
+		if (this.updateTime < 5L) { return; }
+		if (this.lastTime <= System.currentTimeMillis() - 7200000L || this.lastTime + this.updateTime * 60000L < System.currentTimeMillis()) {
 			this.lastTime = System.currentTimeMillis();
+			if (!this.lines.isEmpty() && CustomNpcs.Server!=null) {
+				for (WorldServer world : CustomNpcs.Server.worlds) {
+					List<EntityNPCInterface> npcs = world.getEntities(EntityNPCInterface.class, this);
+					for (EntityNPCInterface npc : npcs) {
+						npc.saySurrounding(this.lines.getLine(true));
+					}
+				}
+			}
 			for (Deal d : this.data.values()) {
 				d.updateNew();
 			}
@@ -232,7 +247,7 @@ public class Marcet implements IRoleTrader {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void updateTime() { // any 0.5 sec -> ClientTickHandler / ClientTickEvent
+	public void updateTime() { // any 0.5 sec -> (MarcetController.updateTime) ClientTickHandler / ClientTickEvent
 		if (this.nextTime < 0L) {
 			this.nextTime = 0L;
 		} else if (this.nextTime > 0L) {
@@ -251,6 +266,12 @@ public class Marcet implements IRoleTrader {
 		compound.setInteger("UpdateTime", this.updateTime);
 		compound.setLong("LastTime", this.lastTime);
 		compound.setLong("NextTime", this.lastTime + this.updateTime * 60000L - System.currentTimeMillis());
+		compound.setTag("NpcLines", this.lines.writeToNBT());
+	}
+
+	@Override
+	public boolean apply(EntityNPCInterface npc) {
+		return npc.advanced.roleInterface instanceof RoleTrader && ((RoleTrader) npc.advanced.roleInterface).marcet == this.id;
 	}
 
 }

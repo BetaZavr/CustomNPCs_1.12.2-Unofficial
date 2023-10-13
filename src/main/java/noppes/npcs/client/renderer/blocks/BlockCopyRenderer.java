@@ -9,12 +9,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.schematics.Schematic;
 
 public class BlockCopyRenderer<T extends TileEntity> extends BlockRendererInterface<T> {
-	private static ItemStack item = new ItemStack(CustomItems.copy);
+	private static ItemStack item = new ItemStack(CustomRegisters.copy);
 	public static BlockPos pos = null;
 	public static Schematic schematic = null;
 

@@ -62,11 +62,10 @@ public class NoppesUtilPlayer {
 		if (npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 			return;
 		}
-		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCBankInterface)) {
+		if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) {
 			return;
 		}
-		ContainerNPCBankInterface container = (ContainerNPCBankInterface) con;
+		ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
 		Bank bank = BankController.getInstance().getBank(container.bankid);
 		ItemStack item = bank.currencyInventory.getStackInSlot(container.slot);
 		if (item == null || item.isEmpty()) {
@@ -98,11 +97,10 @@ public class NoppesUtilPlayer {
 		if (npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
 			return;
 		}
-		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCBankInterface)) {
+		if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) {
 			return;
 		}
-		ContainerNPCBankInterface container = (ContainerNPCBankInterface) con;
+		ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
 		Bank bank = BankController.getInstance().getBank(container.bankid);
 		ItemStack item = bank.upgradeInventory.getStackInSlot(container.slot);
 		if (item == null || item.isEmpty()) {
@@ -149,12 +147,10 @@ public class NoppesUtilPlayer {
 		data.dialogId = -1;
 	}
 
-	private static boolean compareItemDetails(ItemStack item, ItemStack item2, boolean ignoreDamage,
-			boolean ignoreNBT) {
+	private static boolean compareItemDetails(ItemStack item, ItemStack item2, boolean ignoreDamage, boolean ignoreNBT) {
 		return item.getItem() == item2.getItem()
 				&& (ignoreDamage || item.getItemDamage() == -1 || item.getItemDamage() == item2.getItemDamage())
-				&& (ignoreNBT || item.getTagCompound() == null
-						|| (item2.getTagCompound() != null && item.getTagCompound().equals(item2.getTagCompound())))
+				&& (ignoreNBT || item.getTagCompound() == null || (item2.getTagCompound() != null && item.getTagCompound().equals(item2.getTagCompound())))
 				&& (ignoreNBT || item2.getTagCompound() == null || item.getTagCompound() != null);
 	}
 
@@ -186,7 +182,7 @@ public class NoppesUtilPlayer {
 		if (NoppesUtilServer.IsItemStackNull(item) || NoppesUtilServer.IsItemStackNull(item2)) {
 			return false;
 		}
-		OreDictionary.itemMatches(item, item2, false);
+		OreDictionary.itemMatches(item, item2, false); // meta
 		int[] ids = OreDictionary.getOreIDs(item);
 		if (ids.length > 0) {
 			for (int id : ids) {
@@ -505,7 +501,7 @@ public class NoppesUtilPlayer {
 		NoppesUtilPlayer.sendData(enu, obs);
 	}
 
-	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension) {
+	public static void teleportPlayer(EntityPlayerMP player, double x, double y, double z, int dimension, float yaw, float pitch) {
 		if (player.dimension != dimension) {
 			MinecraftServer server = player.getServer();
 			WorldServer wor = server.getWorld(dimension);
@@ -513,14 +509,12 @@ public class NoppesUtilPlayer {
 				player.sendMessage(new TextComponentString("Broken transporter. Dimenion does not exist"));
 				return;
 			}
-			player.setLocationAndAngles(x, y, z, player.rotationYaw, player.rotationPitch);
+			player.setLocationAndAngles(x, y, z, yaw, pitch);
 			server.getPlayerList().transferPlayerToDimension(player, dimension, (Teleporter) new CustomTeleporter(wor));
-			player.connection.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
-			if (!wor.playerEntities.contains(player)) {
-				wor.spawnEntity(player);
-			}
+			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
+			if (!wor.playerEntities.contains(player)) { wor.spawnEntity(player); }
 		} else {
-			player.connection.setPlayerLocation(x, y, z, player.rotationYaw, player.rotationPitch);
+			player.connection.setPlayerLocation(x, y, z, yaw, pitch);
 		}
 		player.world.updateEntityWithOptionalForce(player, false);
 	}

@@ -79,6 +79,8 @@ implements ICustomScrollListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.add").getFormattedText());
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 	}
 	

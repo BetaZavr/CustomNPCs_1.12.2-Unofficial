@@ -27,7 +27,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistry;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
@@ -165,15 +165,15 @@ implements IRecipeHandler {
 			return;
 		}
 		// Global
-		this.addRecipe("Npc Wand", "normal", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
-		this.addRecipe("Npc Wand", "potato", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
-		this.addRecipe("Npc Wand", "carrot", CustomItems.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
-		this.addRecipe("Mob Cloner", "normal", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
-		this.addRecipe("Mob Cloner", "potato", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
-		this.addRecipe("Mob Cloner", "carrot", CustomItems.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
-		this.addRecipe("Soul Stone", "empty", CustomItems.soulstoneEmpty, true, true, false, "XX", 'X', Items.DIAMOND);
+		this.addRecipe("Npc Wand", "normal", CustomRegisters.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
+		this.addRecipe("Npc Wand", "potato", CustomRegisters.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
+		this.addRecipe("Npc Wand", "carrot", CustomRegisters.wand, true, true, true, "XX ", " Y ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
+		this.addRecipe("Mob Cloner", "normal", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.BREAD, 'Y', Items.STICK);
+		this.addRecipe("Mob Cloner", "potato", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.POTATO, 'Y', Items.STICK);
+		this.addRecipe("Mob Cloner", "carrot", CustomRegisters.cloner, true, true, true, "XX ", "XY ", " Y ", 'X', Items.CARROT, 'Y', Items.STICK);
+		this.addRecipe("Soul Stone", "empty", CustomRegisters.soulstoneEmpty, true, true, false, "XX", 'X', Items.DIAMOND);
 		// Mod
-		this.addRecipe("Npc MailBox", "metallic", new ItemStack(CustomItems.mailbox, 1, 0), false, false, true, " XZ ", "YYYY", "Y  Y", "YYYY", 'X', Items.PAPER, 'Y', Items.IRON_INGOT, 'Z', new ItemStack(Items.DYE, 5, 4));
+		this.addRecipe("Npc MailBox", "metallic", new ItemStack(CustomRegisters.mailbox, 1, 0), false, false, true, " XZ ", "YYYY", "Y  Y", "YYYY", 'X', Items.PAPER, 'Y', Items.IRON_INGOT, 'Z', new ItemStack(Items.DYE, 5, 4));
 		for (int v = 0; v < 6; v++) {
 			String key = "wood_";
 			switch (v) {
@@ -184,7 +184,7 @@ implements IRecipeHandler {
 				case 5: { key += "dark_oak"; break; }
 				default: { key += "oak"; }
 			}
-			this.addRecipe("Npc MailStand", key, new ItemStack(CustomItems.mailbox, 1, 1), false, true, true, " X  ", "YYY ", "Y Y ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v));
+			this.addRecipe("Npc MailStand", key, new ItemStack(CustomRegisters.mailbox, 1, 1), false, true, true, " X  ", "YYY ", "Y Y ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v));
 		}
 		for (int v = 0; v < 6; v++) {
 			String key = "wood_";
@@ -195,7 +195,7 @@ implements IRecipeHandler {
 				case 5: { key += "dark_oak"; break; }
 				default: { key += "oak"; }
 			}
-			this.addRecipe("Npc MailStand Old", key, new ItemStack(CustomItems.mailbox, 1, 2), false, true, true, " X  ", "YYY ", "Z Z ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v), 'Z', Items.IRON_INGOT);
+			this.addRecipe("Npc MailStand Old", key, new ItemStack(CustomRegisters.mailbox, 1, 2), false, true, true, " X  ", "YYY ", "Z Z ", "YYY ", 'X', Items.PAPER, 'Y', new ItemStack(Blocks.PLANKS, 1, v), 'Z', Items.IRON_INGOT);
 		}
 		this.save();
 	}

@@ -1,6 +1,7 @@
 package noppes.npcs.api.wrapper.gui;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ILabel;
@@ -17,15 +18,15 @@ implements ILabel {
 	boolean showShedow;
 
 	public CustomGuiLabelWrapper() {
-		this.color = 16777215;
+		this.color = CustomNpcs.lableColor;
 		this.scale = 1.0f;
-		this.showShedow = true;
+		this.showShedow = false;
 	}
 
 	public CustomGuiLabelWrapper(int id, String label, int x, int y, int width, int height) {
-		this.color = 16777215;
+		this.color = CustomNpcs.lableColor;
 		this.scale = 1.0f;
-		this.showShedow = true;
+		this.showShedow = false;
 		this.setId(id);
 		this.setText(label);
 		this.setPos(x, y);

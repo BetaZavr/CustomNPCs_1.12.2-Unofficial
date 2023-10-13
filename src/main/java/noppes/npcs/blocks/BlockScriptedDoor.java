@@ -13,7 +13,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
@@ -109,8 +109,8 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
 		if (currentItem != null
-				&& (currentItem.getItem() == CustomItems.wand || currentItem.getItem() == CustomItems.scripter
-						|| currentItem.getItem() == CustomItems.scriptedDoorTool)) {
+				&& (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter
+						|| currentItem.getItem() == CustomRegisters.scriptedDoorTool)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1.getX(), blockpos1.getY(),
 					blockpos1.getZ());
 			return true;

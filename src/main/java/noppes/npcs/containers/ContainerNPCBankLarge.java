@@ -2,7 +2,9 @@ package noppes.npcs.containers;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ContainerNPCBankLarge extends ContainerNPCBankInterface {
+public class ContainerNPCBankLarge
+extends ContainerNPCBankInterface {
+	
 	public ContainerNPCBankLarge(EntityPlayer player, int slot, int bankid) {
 		super(player, slot, bankid);
 	}

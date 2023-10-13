@@ -12,7 +12,7 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
@@ -43,7 +43,7 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 		this.recipeBookGui = new GuiNpcRecipeBook(false);
 		this.recipeBookGui.getRecipeTabs().clear();
 		this.recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CreativeTabs.SEARCH, false));
-		this.recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomItems.tab, false));
+		this.recipeBookGui.getRecipeTabs().add(new GuiNpcButtonRecipeTab(0, CustomRegisters.tab, false));
 		this.container = container;
 		ScaledResolution scaleW = new ScaledResolution(this.mc);
 		this.guiLeft = (scaleW.getScaledWidth() - this.xSize) / 2;

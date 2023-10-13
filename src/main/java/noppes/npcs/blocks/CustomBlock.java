@@ -29,7 +29,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
@@ -94,7 +94,7 @@ implements IPermission, ICustomElement {
 			}
 		}
 
-		this.setCreativeTab(CustomItems.tabBlocks);
+		this.setCreativeTab(CustomRegisters.tabBlocks);
 	}
 
 	@Override

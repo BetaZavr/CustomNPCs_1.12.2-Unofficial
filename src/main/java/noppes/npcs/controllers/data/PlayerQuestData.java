@@ -22,7 +22,7 @@ public class PlayerQuestData {
 	public PlayerQuestData() {
 	}
 
-	public boolean checkQuestCompletion(EntityPlayer player, QuestData data) { // Changed
+	public boolean checkQuestCompletion(EntityPlayer player, QuestData data) {
 		QuestInterface inter = data.quest.questInterface;
 		if (inter.isCompleted(player)) {
 			if (data.isCompleted) { return false; }
@@ -40,8 +40,7 @@ public class PlayerQuestData {
 	public QuestData getQuestCompletion(EntityPlayer player, EntityNPCInterface npc) {
 		for (QuestData data : this.activeQuests.values()) {
 			Quest quest = data.quest;
-			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completer.getName().equals(npc.getName())
-					&& quest.questInterface.isCompleted(player)) {
+			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completer.getName().equals(npc.getName()) && quest.questInterface.isCompleted(player)) {
 				return data;
 			}
 		}

@@ -24,7 +24,7 @@ public class GuiCustomScroll
 extends GuiScreen {
 	
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
-	public int colorBack = -1072689136;
+	public int colorBack = 0xC0101010, border = 0xFF000000;
 	private List<Integer> colors;
 	private List<String> suffixs;
 	public int guiLeft;
@@ -34,7 +34,7 @@ extends GuiScreen {
 	public String[][] hoversTexts;
 	public String[] hoverText;
 	public int id;
-	private boolean isScrolling;
+	public boolean isScrolling;
 	private boolean isSorted;
 	private int lastClickedItem;
 	private long lastClickedTime;
@@ -153,9 +153,11 @@ extends GuiScreen {
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float f, int mouseScrolled) {
-		if (!this.visible) {
-			return;
+		if (!this.visible) { return; }
+		if (this.border!=0xFF000000) {
+			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1, this.height + this.guiTop + 1, this.border, this.border);
 		}
+		this.hovered = this.isMouseOver(mouseX, mouseY);
 		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop, this.colorBack, this.colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(GuiCustomScroll.resource);
@@ -303,12 +305,11 @@ extends GuiScreen {
 	}
 
 	public boolean hasSelected() {
-		return this.selected >= 0;
+		return this.selected >= 0 && this.getSelected()!=null;
 	}
 
 	public boolean isMouseOver(int x, int y) {
-		return x >= this.guiLeft && x <= this.guiLeft + this.width && y >= this.guiTop
-				&& y <= this.guiTop + this.height;
+		return x >= this.guiLeft && x <= this.guiLeft + this.width && y >= this.guiTop && y <= this.guiTop + this.height;
 	}
 
 	private boolean isSameList(List<String> list) {
@@ -417,16 +418,13 @@ extends GuiScreen {
 	}
 
 	public void resetRoll() {
-		if (this.selected<0 || this.listHeight<this.height) {
+		if (this.selected<0 || this.listHeight < this.height) {
 			this.scrollY = 0;
 			return;
 		}
-		int s = this.scrollY;
-		if (this.selected * 14 < s) { this.scrollY = this.selected * 14; }
-		else {
-			int e = s + this.height / 14;
-			if (this.selected>e) { this.scrollY = this.selected * 14; }
-		}
+		int e = this.scrollY + this.height / 14;
+		if (this.selected > e) { this.scrollY = this.selected * 14; }
+		else { this.scrollY = this.selected * 14; }
 		if (this.scrollY < 0) { this.scrollY = 0; }
 		if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY; }
 	}
@@ -438,13 +436,14 @@ extends GuiScreen {
 	public void setSize(int x, int y) {
 		this.height = y;
 		this.width = x;
-		this.listHeight = 14 * this.list.size();
+		this.listHeight = 15 * this.list.size();
 		if (this.listHeight > 0) {
 			this.scrollHeight = (int) ((float) this.height * ((float) this.height - 2.0f) / (float) this.listHeight);
 		} else {
 			this.scrollHeight = Integer.MAX_VALUE;
 		}
-		this.maxScrollY = this.listHeight - (this.height - 8) - 1;
+		this.maxScrollY = this.listHeight - this.height;
+		if (this.maxScrollY<0) { this.maxScrollY = 0; }
 	}
 
 	public void setStacks(List<ItemStack> stacks) {

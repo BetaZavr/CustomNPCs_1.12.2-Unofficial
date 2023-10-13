@@ -14,6 +14,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.SubGuiNPCLinesEdit;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -22,7 +23,9 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
@@ -35,7 +38,7 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class GuiNPCManageMarcets
 extends GuiContainerNPCInterface2
-implements ITextfieldListener, IGuiData, ICustomScrollListener {
+implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener {
 	
 	private ContainerNPCTraderSetup container;
 	private Map<String, Integer> dataDeals;
@@ -51,6 +54,7 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 		this.ySize = 200;
 		this.dataMarcets = Maps.<String, Integer>newTreeMap();
 		this.dataDeals = Maps.<String, Integer>newTreeMap();
+		this.setBackground("tradersetup.png");
 		this.wait = false;
 	}
 	
@@ -63,12 +67,11 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 		}
 		super.initGui();
 		this.mData = MarcetController.getInstance();
-		this.setBackground("tradersetup.png");
 		if (this.scrollMarcets == null) {
-			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(105, 96);
+			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(105, 98);
 		}
 		if (this.scrollDeal == null) {
-			(this.scrollDeal = new GuiCustomScroll(this, 1)).setSize(96, 96);
+			(this.scrollDeal = new GuiCustomScroll(this, 1)).setSize(96, 98);
 		}
 		this.scrollMarcets.setListNotSorted(Lists.newArrayList(this.dataMarcets.keySet()));
 		this.scrollDeal.setListNotSorted(Lists.newArrayList(this.dataDeals.keySet()));
@@ -98,6 +101,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 				i++;
 			}
 		}
+		this.scrollMarcets.resetRoll();
+		this.scrollDeal.resetRoll();
 		this.addLabel(new GuiNpcLabel(0, "global.market", this.guiLeft + 5, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "gui.market.deals", this.guiLeft + 113, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(2, "role.marketname", this.guiLeft + 214, this.guiTop + 140));
@@ -117,8 +122,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(0, 360, this.container.marcet.updateTime);
 
-			this.addButton(new GuiNpcButton(5, this.guiLeft + 5, this.guiTop + 112, 52, 20, "gui.add"));
-			this.addButton(new GuiNpcButton(6, this.guiLeft + 59, this.guiTop + 112, 51, 20, "gui.remove"));
+			this.addButton(new GuiNpcButton(5, this.guiLeft + 5, this.guiTop + 114, 52, 20, "gui.add"));
+			this.addButton(new GuiNpcButton(6, this.guiLeft + 59, this.guiTop + 114, 51, 20, "gui.remove"));
 			this.getButton(6).enabled = this.container.marcet!=null && MarcetController.getInstance().marcets.size() > 1;
 		}
 		
@@ -155,8 +160,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 			this.getButton(2).enabled = this.container.deal!=null;
 			this.getButton(3).enabled = this.container.deal!=null;
 			this.getButton(4).enabled = this.container.deal!=null;
-			this.addButton(new GuiNpcButton(7, this.guiLeft + 113, this.guiTop + 112, 48, 20, "gui.add"));
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 163, this.guiTop + 112, 47, 20, "gui.remove"));
+			this.addButton(new GuiNpcButton(7, this.guiLeft + 113, this.guiTop + 114, 48, 20, "gui.add"));
+			this.addButton(new GuiNpcButton(8, this.guiLeft + 163, this.guiTop + 114, 47, 20, "gui.remove"));
 			boolean notEmpty = true;
 			if (this.container.marcet != null) {
 				for (Deal d : this.container.marcet.data.values()) {
@@ -170,6 +175,7 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 			}
 			this.getButton(7).enabled = notEmpty;
 			this.getButton(8).enabled = this.container.deal!=null && this.container.marcet.data.size() > 1;
+			this.addButton(new GuiNpcButton(9, this.guiLeft + 270, this.guiTop + 183, 120, 20, "lines.title"));
 		}
 	}
 
@@ -232,6 +238,11 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 				this.wait = true;
 				break;
 			}
+			case 9: { // message
+				if (this.container.marcet == null) { return; }
+				this.setSubGui(new SubGuiNPCLinesEdit(0, this.npc, this.container.marcet.lines, null));
+				break;
+			}
 		}
 	}
 
@@ -246,13 +257,13 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 		}
+		this.drawHorizontalLine(this.guiLeft + 212, this.guiLeft + this.xSize - 4, this.guiTop + 137, 0x80000000);
+		this.drawVerticalLine(this.guiLeft + 211, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		this.drawHorizontalLine(this.guiLeft + 212, this.guiLeft + this.xSize - 4, this.guiTop + 137, 0x80000000);
-		this.drawVerticalLine(this.guiLeft + 211, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
 		if (this.subgui != null || this.wait) { return; }
 		if (this.player.world.getTotalWorldTime()%5==0 && this.container.deal!=null && this.container.deal.id==this.scrollDeal.selected && this.container.getSlot(0)!=null) {
 			ItemStack stDeal = this.container.deal.inventorySold.getStackInSlot(0);
@@ -314,6 +325,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.add").getFormattedText());
 		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.del").getFormattedText());
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("market.hover.message").getFormattedText());
 		}
 	}
 
@@ -438,8 +451,16 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener {
 		if (i == 1 && this.subgui==null) {
 			this.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
 		}
 		super.keyTyped(c, i);
+	}
+
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) {
+		if (this.container.marcet == null || !(subgui instanceof SubGuiNPCLinesEdit)) { return; }
+		((SubGuiNPCLinesEdit) subgui).lines.correctLines();
+		this.container.marcet.lines = ((SubGuiNPCLinesEdit) subgui).lines;
 	}
 
 }

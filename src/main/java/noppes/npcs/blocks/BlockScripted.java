@@ -21,7 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileScripted;
@@ -41,7 +41,7 @@ implements IPermission {
 		this.setName("npcscripted");
 		this.setHardness(5.0f);
 		this.setResistance(10.0f);
-		this.setCreativeTab((CreativeTabs) CustomItems.tab);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 		this.setSoundType(SoundType.STONE);
 	}
 
@@ -200,7 +200,7 @@ implements IPermission {
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
 		if (currentItem != null
-				&& (currentItem.getItem() == CustomItems.wand || currentItem.getItem() == CustomItems.scripter)) {
+				&& (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptBlock, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}

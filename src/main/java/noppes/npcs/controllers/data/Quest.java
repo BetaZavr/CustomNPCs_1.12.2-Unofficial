@@ -2,6 +2,7 @@ package noppes.npcs.controllers.data;
 
 import java.util.Map;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 
@@ -43,7 +44,7 @@ import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
 
 public class Quest
-implements ICompatibilty, IQuest {
+implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	
 	public boolean cancelable = false;
 	public int id, level, nextQuestid, rewardExp, step, version;
@@ -82,7 +83,7 @@ implements ICompatibilty, IQuest {
 		this.rewardType = EnumRewardType.RANDOM_ONE;
 		this.factionOptions = new FactionOptions();
 		this.category = category;
-		this.level = 1;
+		this.level = 0;
 		this.cancelable = false;
 		this.rewardText = "";
 		this.step = 0;
@@ -337,8 +338,8 @@ implements ICompatibilty, IQuest {
 				if (CustomNpcs.Server!=null) {
 					for (WorldServer w : CustomNpcs.Server.worlds) {
 						boolean found = false;
-						for (Entity e : w.getLoadedEntityList()) {
-							if (e instanceof EntityNPCInterface && e.getName().equals(name)) {
+						for (Entity e : w.getEntities(EntityNPCInterface.class, this)) {
+							if (e.getName().equals(name)) {
 								this.completer = (EntityNPCInterface) e;
 								found = true;
 								break;
@@ -507,6 +508,11 @@ implements ICompatibilty, IQuest {
 	public ICustomNpc<?> getCompleterNpc() {
 		if (this.completer==null) { return null; }
 		return (ICustomNpc<?>) NpcAPI.Instance().getIEntity(this.completer);
+	}
+
+	@Override
+	public boolean apply(EntityNPCInterface entity) {
+		return this.completer == null || this.completer.getName().equals(entity.getName());
 	}
 
 }

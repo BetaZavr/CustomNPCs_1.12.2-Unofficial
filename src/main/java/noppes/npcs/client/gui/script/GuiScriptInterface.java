@@ -75,6 +75,8 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		this.xSize = 427;
 		this.setBackground("menubg.png");
 		this.scaleW = new ScaledResolution(Minecraft.getMinecraft());
+		this.select = "";
+		this.preSelect = "";
 	}
 
 	@Override
@@ -146,7 +148,8 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	
 				this.scrollHelp = new GuiCustomScroll(this, 0);
 				this.scrollHelp.visible = false; // this.activeTab>0
-				this.scrollHelp.colorBack = 0xFF808080;
+				this.scrollHelp.colorBack = 0xFF828214;
+				this.scrollHelp.border = 0xFF2D3764;
 				this.scrollHelp.setSize(119, this.ySize - 102);
 				this.addScroll(this.scrollHelp);
 	
@@ -289,44 +292,81 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			this.startPos = 0; // start pos
 			this.select = "";
 			this.preSelect = "";
-			char tab = 9;
-			char enter = 10;
+			char tab = (char) 9;
+			char enter = (char) 10;
 			String filter = (""+tab)+" ;"+(""+enter);
 			if (pos!= text.length()) {
 				while (pos>0 && (text.charAt(pos)==' ' || text.charAt(pos)==tab)) { pos--; }
 			}
-			for (int i = 0; i<filter.length(); i++) {
-				char c = filter.charAt(i);
-				int p = text.lastIndexOf(c, pos);
-				if (p>-1) {
-					this.select = AdditionalMethods.match(text, p + 1+(pos==(p + 1) ? 1: 0), filter, ".([{"+filter);
-					this.startPos = text.lastIndexOf(this.select, p+1);
-					if (this.startPos>0 && (c==' ' || c==tab)) {
-						int e = -1;
-						p = -1;
-						for (int j = this.startPos-1; j>=0; j--) {
-							c = text.charAt(j);
-							if (e==-1) {
-								if (c==' ' || c==tab) { e = j; }
-								continue;
-							}
-							if (c!=' ' && c!=tab) {
-								this.preSelect = AdditionalMethods.match(text, j, filter, GuiTextArea.filter);
-								break;
-							}
+			if (pos == text.length()) {
+				this.startPos = pos;
+				for (int i = 0; i<filter.length(); i++) {
+					char c = filter.charAt(i);
+					if (c!=' ' && c!=tab) { continue; }
+					int e = -1;
+					for (int j = this.startPos - 1; j>=0; j--) {
+						c = text.charAt(j);
+						if (e==-1) {
+							if (c==' ' || c==tab) { e = j; }
+							continue;
+						}
+						if (c!=' ' && c!=tab) {
+							this.preSelect = AdditionalMethods.match(text, j, filter, GuiTextArea.filter);
+							break;
 						}
 					}
-					break;
+				}
+			}
+			else {
+				for (int i = 0; i<filter.length(); i++) {
+					char c = filter.charAt(i);
+					int p = text.lastIndexOf(c, pos);
+					if (p > -1) {
+						this.select = AdditionalMethods.match(text, p + 1+(pos==(p + 1) ? 1: 0), filter, ".([{"+filter);
+						this.startPos = text.lastIndexOf(this.select, p+1);
+						if (this.startPos>0 && c!=';') {
+							int e = -1;
+							for (int j = this.startPos-1; j>=0; j--) {
+								c = text.charAt(j);
+								if (e==-1) {
+									if (c==' ' || c==tab || c==tab) { e = j; }
+									continue;
+								}
+								if (c!=' ' && c!=tab) {
+									this.preSelect = AdditionalMethods.match(text, j, filter, GuiTextArea.filter);
+									break;
+								}
+							}
+						}
+						break;
+					}
 				}
 			}
 			if (this.startPos==0 && pos>0) { this.select = AdditionalMethods.match(text, 0, GuiTextArea.filter, GuiTextArea.filter); }
 			while (this.select.indexOf(tab)!=-1) { this.select = this.select.replace(""+tab, ""); }
 			while (this.preSelect.indexOf(tab)!=-1) { this.preSelect = this.preSelect.replace(""+tab, ""); }
+			if (pos>1) {
+				char c = area.getText().charAt(pos-1);
+				if (c == ((char) 10)) {
+					this.startPos = pos;
+					this.select = "";
+					this.map.put("var", null);
+					if (!this.preSelect.isEmpty()) { this.map.put("function", null); }
+					this.scrollHelp.setListNotSorted(Lists.newArrayList("var", "function"));
+					this.scrollHelp.selected = -1;
+					this.scrollHelp.visible = true;
+					this.scrollHelp.hoversTexts = null;
+					resetHelpPos(pos, area);
+					return;
+				}
+			}
 			if (this.preSelect.equals("function") || (this.preSelect.isEmpty() && this.select.equals("function"))) {
 				if (this.preSelect.isEmpty() && this.select.equals("function")) { this.select = ""; }
 				this.map.clear();
+				String funcName = this.select;
+				if (funcName.indexOf('(')!=-1) { funcName = this.select.substring(0, funcName.indexOf('(')); }
 				for (String func : this.baseFuncNames.keySet()) {
-					if (!this.select.isEmpty() && func.indexOf(this.select)==-1) { continue; }
+					if (!funcName.isEmpty() && func.indexOf(funcName)==-1) { continue; }
 					this.map.put(func + "(event)", new String[0]);
 				}
 				if (this.map.size() > 0) {
@@ -364,16 +404,26 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 					text += code + "\n";
 				}
 			}
-			text = text.replace(area.getLineText(), "");
-			if (!text.isEmpty()) {
-				String newText = text;
+			String rptext = text.replace(area.getLineText(), "");
+			if (!rptext.isEmpty()) {
+				String newText = rptext;
 				newText = newText.replace("\r\n", "\n");
-				newText = text.replace("\r", "\n");
+				newText = rptext.replace("\r", "\n");
 				container.script = newText;
 			} else {
 				this.setScript();
 			}
-			this.setData(AdditionalMethods.getScriptData(language, container, this.baseFuncNames));
+			Object[] objs = AdditionalMethods.getScriptData(language, container, this.baseFuncNames);
+			if (!((String) objs[1]).isEmpty()) { // has Error
+				if (!text.isEmpty()) {
+					String newText = text;
+					newText = newText.replace("\r\n", "\n");
+					newText = text.replace("\r", "\n");
+					container.script = newText;
+				}
+				objs = AdditionalMethods.getScriptData(language, container, this.baseFuncNames);
+			}
+			this.setData(objs);
 			Map<String, Class<?>> parametrs = Maps.newHashMap();
 			String fName = this.getFuncName();
 			boolean foundFunc = false;
@@ -468,9 +518,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	}
 
 	private void cheakVariables(int time, String text) {
-		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper || this.subgui!=null) {
-			return;
-		}
+		if (this.activeTab == 0 || !CustomNpcs.useScriptHelper || this.subgui!=null) { return; }
 		CustomNPCsScheduler.runTack(() -> {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (text != null && !text.isEmpty()) {
@@ -516,6 +564,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			if (i == 10) {
 				this.handler.getScripts().remove(this.activeTab - 1);
 				this.activeTab = 0;
+				this.initGui();
 			}
 		}
 		this.displayGuiScreen(this);
@@ -524,9 +573,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.activeTab == 0 || this.scrollVariables == null || this.getButton(120) == null) {
-			return;
-		}
+		if (this.activeTab == 0 || this.scrollVariables == null || this.getButton(120) == null) { return; }
 		if (this.subgui!=null) {
 			if (this.helper!=null) { this.helper.enabled = false; }
 			if (this.scrollVariables!=null) {
@@ -635,23 +682,28 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		return 0;
 	}
 
-		@Override
+	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 && CustomNpcs.useScriptHelper && this.scrollHelp != null && this.scrollHelp.visible) {
-			this.scrollHelp.visible = false;
-			return;
-		}
-		super.keyTyped(c, i);
-		if (!CustomNpcs.useScriptHelper) {
-			return;
-		}
-		if (i == 15 && this.scrollHelp != null) { // Tab
-			if (this.scrollHelp.visible) {
-				this.scrollHelp.selected = 0;
+		if (CustomNpcs.useScriptHelper && this.scrollHelp != null && this.scrollHelp.visible) {
+			if (i == 1) { // Esc
+				this.scrollHelp.visible = false;
+				return;
+			}
+			else if (i == 15) { // Tab
+				this.scrollHelp.selected ++;
+				if (this.scrollHelp.selected >= this.scrollHelp.getList().size()) {
+					this.scrollHelp.selected = 0;
+				}
+				this.scrollHelp.scrollTo(this.scrollHelp.getSelected());
+				return;
+			}
+			else if (i == 28 && this.scrollHelp.selected!=-1) { // Enter
 				this.scrollClicked(0, 0, 0, this.scrollHelp);
 				return;
 			}
 		}
+		super.keyTyped(c, i);
+		if (!CustomNpcs.useScriptHelper) { return; }
 		if (c == '.' && this.scrollHelp != null) {
 			this.scrollHelp.visible = false;
 			this.map.clear();
@@ -667,13 +719,13 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
+		if (this.scrollHelp != null && this.scrollHelp.visible && !this.scrollHelp.hovered) {
+			if (!this.scrollHelp.isScrolling) { this.scrollHelp.visible = false; }
+			return;
+		}
 		if (!CustomNpcs.useScriptHelper || !(this.get(2) instanceof GuiTextArea)) { return; }
 		GuiTextArea area = (GuiTextArea) this.get(2);
 		if (!area.hovered) { return; }
-		if (this.scrollHelp != null && this.scrollHelp.visible && !this.scrollHelp.hovered) {
-			this.scrollHelp.visible = false;
-			return;
-		}
 		if (area.getCursorPosition() != -1) { cheakPath(area); }
 	}
 
@@ -682,8 +734,8 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		if (area == null || pos < 0 || this.scrollHelp == null || !this.scrollHelp.visible) { return; }
 		int[] xy = area.getXYPosition(pos);
 		this.scrollHelp.scrollY = 0;
-		this.scrollHelp.guiLeft = area.x;
-		this.scrollHelp.guiTop = xy[1] + 1;
+		this.scrollHelp.guiLeft = area.x + 3;
+		this.scrollHelp.guiTop = xy[1] + 3;
 		int h = this.scrollHelp.getList().size() * 14 + 4;
 		int w = 0;
 		for (String str : this.scrollHelp.getList()) {
@@ -730,23 +782,26 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 		else if (scroll.id==0 && !scroll.getSelected().isEmpty()) { // helper hover
 			add = AdditionalMethods.instance.deleteColor(scroll.getSelected());
 		}
-		if (text==null || add==null || add.isEmpty() || this.startPos<0 || (text.length()!=0 && this.startPos>=text.length())) { return; }
+		if (text==null || add==null || add.isEmpty() || this.startPos<0) { return; }
 		int newpos = this.startPos + add.length()-1;
-		if (text.length()==0) { text = add+" "; }
-		else {
-			if (this.preSelect.equals("function")) {
-				if (text.indexOf('{')!=-1) {
-					add += " {";
-					this.select = text.substring(this.startPos, text.indexOf('{')+1);
-					newpos += 2;
-				} else {
-					add += " {"+(""+((char) 10))+"  "+(""+((char) 10))+"}";
-					newpos += 5;
-				}
+		if (this.preSelect!=null && this.preSelect.equals("function")) {
+			newpos += 5;
+			if (text.lastIndexOf('{', this.startPos) > text.lastIndexOf(this.preSelect, this.startPos)) {
+				add += " {";
+				try { this.select = text.substring(this.startPos, text.indexOf('{')+1); }
+				catch (Exception e) {}
+				newpos -= 3;
+			} else if (text.indexOf('{', this.startPos)==-1) {
+				add += " {"+(""+((char) 10))+"  "+(""+((char) 10))+"}";
 			}
-			if (!this.select.isEmpty()) {
-				text = text.substring(0, this.startPos)+(this.startPos+this.select.length()<text.length() ? text.substring(this.startPos+this.select.length()) : "");
-			}
+		} else {
+			add += " ";
+			newpos += 1;
+		}
+		if (text.length()==0 || this.startPos >= text.length()) { text += add; }
+		else if (!this.select.isEmpty()) {
+			text = text.replace(this.select, add);
+		} else {
 			text = (this.startPos > 0 ? text.substring(0, this.startPos) : "") + add + (this.startPos < text.length() - 1 ? text.substring(this.startPos) : "");
 		}
 		area.setText(text);
@@ -763,7 +818,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	public void setData(Object[] objects) { // New
+	public void setData(Object[] objects) {
 		String func = this.getFuncName();
 		ScriptData funcSD = null;
 		this.newFunc.clear();
@@ -875,7 +930,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			container.script = text;
 			if (this instanceof GuiScriptClient) {
 				container.isClient = true;
-				container.fullscript = container.script;
+				container.fullscript = ""+container.script;
 				if (!container.fullscript.isEmpty()) { container.fullscript += "\n"; }
 				Map<String, String> map = ScriptController.Instance.clients;
 				for (String loc : container.scripts) {

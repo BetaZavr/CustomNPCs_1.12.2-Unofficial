@@ -115,7 +115,6 @@ import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
-import noppes.npcs.items.ItemHeplBook;
 import noppes.npcs.items.ItemMounter;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemNpcBlock;
@@ -136,7 +135,7 @@ import noppes.npcs.util.NBTJsonUtil.JsonException;
 import noppes.npcs.util.ObfuscationHelper;
 
 @GameRegistry.ObjectHolder("customnpcs")
-public class CustomItems {
+public class CustomRegisters {
 	
 	@GameRegistry.ObjectHolder("npcborder")
 	public static Block border = null;
@@ -175,8 +174,6 @@ public class CustomItems {
 	public static Item teleporter = null;
 	@GameRegistry.ObjectHolder("npcwand")
 	public static Item wand = null;
-	@GameRegistry.ObjectHolder("npchelpbook") // New
-	public static Item helpbook = null; // New
 	@GameRegistry.ObjectHolder("npcboundary") // New
 	public static ItemBoundary npcboundary = null; // New
 	@GameRegistry.ObjectHolder("npcbuilder") // New
@@ -201,9 +198,9 @@ public class CustomItems {
 	 */
 	
 	public static void load() {
-		MinecraftForge.EVENT_BUS.register(new CustomItems());
-		CustomItems.registerFluid();
-		CustomItems.registerParticle();
+		MinecraftForge.EVENT_BUS.register(new CustomRegisters());
+		CustomRegisters.registerFluid();
+		CustomRegisters.registerParticle();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -212,20 +209,24 @@ public class CustomItems {
 		NBTTagCompound nbtParticles = new NBTTagCompound();
 		try { if (prtcsFile.exists()) { nbtParticles = NBTJsonUtil.LoadFile(prtcsFile); } }
 		catch (IOException | JsonException e) { LogWriter.error("Try Load custom_particles.js: ", e); }
-		boolean hPE = false;
+		boolean hPE = false, hPOE = false;
 		if (nbtParticles.hasKey("Particles", 9)) {
 			for (int i = 0; i < nbtParticles.getTagList("Particles", 10).tagCount(); i++) {
 				String name = nbtParticles.getTagList("Particles", 10).getCompoundTagAt(i).getString("RegistryName");
 				if (name.equalsIgnoreCase("PARTICLE_EXAMPLE")) { hPE = true;  break; }
+				else if (name.equalsIgnoreCase("PARTICLE_OBJ_EXAMPLE")) { hPOE = true;  break; }
 			}
 		}
-		if (!prtcsFile.exists() || !nbtParticles.hasKey("Particles", 9) || !hPE) {
+		if (!prtcsFile.exists() || !nbtParticles.hasKey("Particles", 9) || !hPE || !hPOE) {
 			if (!nbtParticles.hasKey("Particles", 9)) { nbtParticles.setTag("Particles", new NBTTagList());}
-			if (!hPE) {
-				NBTTagCompound nbt = CustomItems.getExampleParticles();
+			if (!hPE || !hPOE) {
+				NBTTagCompound nbt = CustomRegisters.getExampleParticles();
 				for (int i = 0; i < nbt.getTagList("Particles", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Particles", 10).getCompoundTagAt(i).getString("RegistryName");
 					if (name.equalsIgnoreCase("PARTICLE_EXAMPLE") && !hPE) {
+						nbtParticles.getTagList("Particles", 10).appendTag(nbt.getTagList("Particles", 10).getCompoundTagAt(i));
+					}
+					else if (name.equalsIgnoreCase("PARTICLE_OBJ_EXAMPLE") && !hPOE) {
 						nbtParticles.getTagList("Particles", 10).appendTag(nbt.getTagList("Particles", 10).getCompoundTagAt(i));
 					}
 				}
@@ -281,7 +282,7 @@ public class CustomItems {
 			
 			particles.put(idT, enumparticletypes);
 			by_name.put(prtc.name, enumparticletypes);
-			CustomItems.customparticles.put(prtc.id, prtc);
+			CustomRegisters.customparticles.put(prtc.id, prtc);
 			if (nbtParticle.getBoolean("CreateAllFiles")) {
 				CustomNpcs.proxy.checkParticleFiles((ICustomElement) prtc);
 				nbtParticle.setBoolean("CreateAllFiles", false);
@@ -310,7 +311,7 @@ public class CustomItems {
 		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || !hEL) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
 			if (!hEL) {
-				NBTTagCompound nbt = CustomItems.getExampleBlocks();
+				NBTTagCompound nbt = CustomRegisters.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
 					if (name.equals("liquidexample") && !hEL) {
@@ -357,27 +358,27 @@ public class CustomItems {
 		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
 		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
 		
-		CustomItems.redstoneBlock = new BlockNpcRedstone();
-		CustomItems.mailbox = new BlockMailbox();
-		CustomItems.waypoint = new BlockWaypoint();
-		CustomItems.border = new BlockBorder();
-		CustomItems.scripted = new BlockScripted();
-		CustomItems.scriptedDoor = new BlockScriptedDoor();
-		CustomItems.builder = new BlockBuilder();
-		CustomItems.copy = new BlockCopy();
-		CustomItems.carpentyBench = new BlockCarpentryBench();
+		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
+		CustomRegisters.mailbox = new BlockMailbox();
+		CustomRegisters.waypoint = new BlockWaypoint();
+		CustomRegisters.border = new BlockBorder();
+		CustomRegisters.scripted = new BlockScripted();
+		CustomRegisters.scriptedDoor = new BlockScriptedDoor();
+		CustomRegisters.builder = new BlockBuilder();
+		CustomRegisters.copy = new BlockCopy();
+		CustomRegisters.carpentyBench = new BlockCarpentryBench();
 		
 		List<Block> blocks = Lists.<Block>newArrayList();
 		List<String> names = Lists.<String>newArrayList();
-		blocks.add(CustomItems.redstoneBlock);
-		blocks.add(CustomItems.carpentyBench);
-		blocks.add(CustomItems.mailbox);
-		blocks.add(CustomItems.waypoint);
-		blocks.add(CustomItems.border);
-		blocks.add(CustomItems.scripted);
-		blocks.add(CustomItems.scriptedDoor);
-		blocks.add(CustomItems.builder);
-		blocks.add(CustomItems.copy);
+		blocks.add(CustomRegisters.redstoneBlock);
+		blocks.add(CustomRegisters.carpentyBench);
+		blocks.add(CustomRegisters.mailbox);
+		blocks.add(CustomRegisters.waypoint);
+		blocks.add(CustomRegisters.border);
+		blocks.add(CustomRegisters.scripted);
+		blocks.add(CustomRegisters.scriptedDoor);
+		blocks.add(CustomRegisters.builder);
+		blocks.add(CustomRegisters.copy);
 		
 		for (Block bl : blocks) { names.add(bl.getRegistryName().toString()); }
 		
@@ -408,7 +409,7 @@ public class CustomItems {
 		if (!blocksFile.exists() || !nbtBlocks.hasKey("Blocks", 9) || hE) {
 			if (!nbtBlocks.hasKey("Blocks", 9)) { nbtBlocks.setTag("Blocks", new NBTTagList());}
 			if (hE) {
-				NBTTagCompound nbt = CustomItems.getExampleBlocks();
+				NBTTagCompound nbt = CustomRegisters.getExampleBlocks();
 				for (int i = 0; i < nbt.getTagList("Blocks", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Blocks", 10).getCompoundTagAt(i).getString("RegistryName");
 					if ((name.equals("blockexample") && !hEB)
@@ -472,7 +473,7 @@ public class CustomItems {
 			}
 			LogWriter.info("Load Custom Block \""+block.getRegistryName()+"\"");
 			blocks.add(block);
-			CustomItems.customblocks.put(block, new ItemNpcBlock(block));
+			CustomRegisters.customblocks.put(block, new ItemNpcBlock(block));
 			names.add(block.getRegistryName().toString());
 			if (addblock!=null) {
 				if (names.contains(addblock.getRegistryName().toString()) || Block.getBlockFromName(addblock.getRegistryName().toString())!=null) {
@@ -485,7 +486,7 @@ public class CustomItems {
 				}
 				LogWriter.info("Load Custom Block \""+addblock.getRegistryName()+"\"");
 				blocks.add(addblock);
-				CustomItems.customblocks.put(addblock, new ItemNpcBlock(addblock));
+				CustomRegisters.customblocks.put(addblock, new ItemNpcBlock(addblock));
 				names.add(addblock.getRegistryName().toString());
 			}
 		}
@@ -513,7 +514,7 @@ public class CustomItems {
 		if (!itemsFile.exists() || !nbtItems.hasKey("Potions", 9) || !hasEP) {
 			if (!nbtItems.hasKey("Potions", 9)) { nbtItems.setTag("Potions", new NBTTagList());}
 			if (!hasEP) {
-				NBTTagCompound nbt = CustomItems.getExampleItems();
+				NBTTagCompound nbt = CustomRegisters.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Potions", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Potions", 10).getCompoundTagAt(i).getString("RegistryName");
 					if (name.equals("potionexample")) {
@@ -555,88 +556,86 @@ public class CustomItems {
 					potion.registerPotionAttributeModifier(attribute, uuid, nbtModifier.getDouble("Ammount"), nbtModifier.getInteger("Operation"));
 				}
 			}
-			CustomItems.custompotions.add(potion);
+			CustomRegisters.custompotions.add(potion);
 			int delay = nbtPotion.hasKey("BaseDelay", 3) ? nbtPotion.getInteger("BaseDelay") : 200;
 			PotionEffect potionEffect = new PotionEffect(potion, nbtPotion.getBoolean("IsInstant") ? 0 : delay);
 			ResourceLocation potionTypeName = new ResourceLocation(CustomNpcs.MODID, nbtPotion.getString("RegistryName").toLowerCase());
-			CustomItems.custompotiontypes.add(new PotionType(nbtPotion.getString("RegistryName").toLowerCase(), potionEffect).setRegistryName(potionTypeName));
+			CustomRegisters.custompotiontypes.add(new PotionType(nbtPotion.getString("RegistryName").toLowerCase(), potionEffect).setRegistryName(potionTypeName));
 			if (nbtPotion.getBoolean("IsInstant")) { break; }
 		}
 		if (resave) {
 			try { NBTJsonUtil.SaveFile(itemsFile, nbtItems); }
 			catch (IOException | JsonException e) { }
 		}
-		if (CustomItems.custompotions.size()==0) { return; }
-		event.getRegistry().registerAll(CustomItems.custompotions.toArray(new Potion[CustomItems.custompotions.size()]));
+		if (CustomRegisters.custompotions.size()==0) { return; }
+		event.getRegistry().registerAll(CustomRegisters.custompotions.toArray(new Potion[CustomRegisters.custompotions.size()]));
 	}
 	
 	@SubscribeEvent
 	public void registerPotionTypes(RegistryEvent.Register<PotionType> event) {
-		if (CustomItems.custompotiontypes.size()==0) { return; }
-		event.getRegistry().registerAll(CustomItems.custompotiontypes.toArray(new PotionType[CustomItems.custompotiontypes.size()]));
+		if (CustomRegisters.custompotiontypes.size()==0) { return; }
+		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.toArray(new PotionType[CustomRegisters.custompotiontypes.size()]));
 	}
 	
 	@SubscribeEvent
 	public void registerItems(RegistryEvent.Register<Item> event) { // Changed
-		CustomItems.wand = new ItemNpcWand();
-		CustomItems.cloner = new ItemNpcCloner();
-		CustomItems.scripter = new ItemNpcScripter();
-		CustomItems.moving = new ItemNpcMovingPath();
-		CustomItems.mount = new ItemMounter();
-		CustomItems.teleporter = new ItemTeleporter();
-		CustomItems.scriptedDoorTool = new ItemScriptedDoor(CustomItems.scriptedDoor);
-		CustomItems.soulstoneEmpty = new ItemSoulstoneEmpty();
-		CustomItems.soulstoneFull = new ItemSoulstoneFilled();
-		CustomItems.scripted_item = new ItemScripted();
-		CustomItems.nbt_book = new ItemNbtBook();
-		CustomItems.helpbook = new ItemHeplBook();
-		CustomItems.npcboundary = new ItemBoundary();
-		CustomItems.npcbuilder = new ItemBuilder();
+		CustomRegisters.wand = new ItemNpcWand();
+		CustomRegisters.cloner = new ItemNpcCloner();
+		CustomRegisters.scripter = new ItemNpcScripter();
+		CustomRegisters.moving = new ItemNpcMovingPath();
+		CustomRegisters.mount = new ItemMounter();
+		CustomRegisters.teleporter = new ItemTeleporter();
+		CustomRegisters.scriptedDoorTool = new ItemScriptedDoor(CustomRegisters.scriptedDoor);
+		CustomRegisters.soulstoneEmpty = new ItemSoulstoneEmpty();
+		CustomRegisters.soulstoneFull = new ItemSoulstoneFilled();
+		CustomRegisters.scripted_item = new ItemScripted();
+		CustomRegisters.nbt_book = new ItemNbtBook();
+		CustomRegisters.npcboundary = new ItemBoundary();
+		CustomRegisters.npcbuilder = new ItemBuilder();
 		
 		List<Item> items = Lists.<Item>newArrayList();
 		List<String> names = Lists.<String>newArrayList();
-		items.add(CustomItems.wand);
-		items.add(CustomItems.cloner);
-		items.add(CustomItems.scripter);
-		items.add(CustomItems.moving);
-		items.add(CustomItems.mount);
-		items.add(CustomItems.teleporter);
-		items.add(CustomItems.scriptedDoorTool);
-		items.add(CustomItems.soulstoneEmpty);
-		items.add(CustomItems.soulstoneFull);
-		items.add(CustomItems.scripted_item);
-		items.add(CustomItems.nbt_book);
-		items.add(CustomItems.helpbook);
-		items.add(CustomItems.npcboundary);
-		items.add(CustomItems.npcbuilder);
-		items.add(new ItemNpcBlock(CustomItems.redstoneBlock));
-		items.add(new ItemNpcBlock(CustomItems.carpentyBench));
-		items.add(new ItemNpcBlock(CustomItems.mailbox).setHasSubtypes(true));
-		items.add(new ItemNpcBlock(CustomItems.waypoint));
-		items.add(new ItemNpcBlock(CustomItems.border));
-		items.add(new ItemNpcBlockDoor(CustomItems.scriptedDoor));
-		items.add(new ItemNpcBlock(CustomItems.builder));
-		items.add(new ItemNpcBlock(CustomItems.copy));
-		Item iscr = new ItemNpcBlock(CustomItems.scripted);
+		items.add(CustomRegisters.wand);
+		items.add(CustomRegisters.cloner);
+		items.add(CustomRegisters.scripter);
+		items.add(CustomRegisters.moving);
+		items.add(CustomRegisters.mount);
+		items.add(CustomRegisters.teleporter);
+		items.add(CustomRegisters.scriptedDoorTool);
+		items.add(CustomRegisters.soulstoneEmpty);
+		items.add(CustomRegisters.soulstoneFull);
+		items.add(CustomRegisters.scripted_item);
+		items.add(CustomRegisters.nbt_book);
+		items.add(CustomRegisters.npcboundary);
+		items.add(CustomRegisters.npcbuilder);
+		items.add(new ItemNpcBlock(CustomRegisters.redstoneBlock));
+		items.add(new ItemNpcBlock(CustomRegisters.carpentyBench));
+		items.add(new ItemNpcBlock(CustomRegisters.mailbox).setHasSubtypes(true));
+		items.add(new ItemNpcBlock(CustomRegisters.waypoint));
+		items.add(new ItemNpcBlock(CustomRegisters.border));
+		items.add(new ItemNpcBlockDoor(CustomRegisters.scriptedDoor));
+		items.add(new ItemNpcBlock(CustomRegisters.builder));
+		items.add(new ItemNpcBlock(CustomRegisters.copy));
+		Item iscr = new ItemNpcBlock(CustomRegisters.scripted);
 		items.add(iscr);
 		
 		for (Item it : items) { names.add(it.getRegistryName().toString()); }
 		
-		CustomItems.tabBlocks.item = iscr;
-		CustomItems.tabItems.item = CustomItems.scripted_item;
-		for (Block block : CustomItems.customblocks.keySet()) {
-			Item item = CustomItems.customblocks.get(block);
+		CustomRegisters.tabBlocks.item = iscr;
+		CustomRegisters.tabItems.item = CustomRegisters.scripted_item;
+		for (Block block : CustomRegisters.customblocks.keySet()) {
+			Item item = CustomRegisters.customblocks.get(block);
 			if (item==null) { continue; }
 			items.add(item);
-			if (item.getRegistryName().getResourcePath().equals("custom_blockexample") || CustomItems.tabBlocks.item==iscr) {
-				CustomItems.tabBlocks.item = item;
+			if (item.getRegistryName().getResourcePath().equals("custom_blockexample") || CustomRegisters.tabBlocks.item==iscr) {
+				CustomRegisters.tabBlocks.item = item;
 			}
 		}
 		
 		/** Fluids */
 		for (Item it : event.getRegistry()) {
 			if (it instanceof UniversalBucket) {
-				it.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+				it.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
 			}
 		}
 		
@@ -692,7 +691,7 @@ public class CustomItems {
 		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || !hEB || !hEW || !hEA || !hES|| !hEB || !hEF || !hFR) {
 			if (!nbtItems.hasKey("Items", 9)) { nbtItems.setTag("Items", new NBTTagList());}
 			if (!hEB || !hEW || !hEA || !hES|| !hEB || !hEF || !hFR) {
-				NBTTagCompound nbt = CustomItems.getExampleItems();
+				NBTTagCompound nbt = CustomRegisters.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Items", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
 					if ((name.equals("itemexample") && !hEI) ||
@@ -777,7 +776,7 @@ public class CustomItems {
 			catch (IOException | JsonException e) { }
 		}
 		event.getRegistry().registerAll(items.toArray(new Item[items.size()]));
-		CustomItems.tab.item = CustomItems.wand;
+		CustomRegisters.tab.item = CustomRegisters.wand;
 		BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(soulstoneFull, new BehaviorDefaultDispenseItem() {
 			public ItemStack dispenseStack(IBlockSource source, ItemStack item) {
 				EnumFacing enumfacing = source.getBlockState().getValue(BlockDispenser.FACING);
@@ -799,10 +798,10 @@ public class CustomItems {
 		}
 		LogWriter.info("Load Custom Item \""+item.getRegistryName()+"\"");
 		items.add(item);
-		CustomItems.customitems.add(item);
+		CustomRegisters.customitems.add(item);
 		names.add(item.getRegistryName().toString());
-		if (item.getRegistryName().getResourcePath().equals("custom_itemexample") || CustomItems.tabItems.item==CustomItems.scripted_item) {
-			CustomItems.tabItems.item = item;
+		if (item.getRegistryName().getResourcePath().equals("custom_itemexample") || CustomRegisters.tabItems.item==CustomRegisters.scripted_item) {
+			CustomRegisters.tabItems.item = item;
 		}
 	}
 
@@ -811,44 +810,43 @@ public class CustomItems {
 	@SubscribeEvent
 	public void registerModels(ModelRegistryEvent event) { // Changed
 		// Blocks
-		ModelLoader.setCustomStateMapper(CustomItems.mailbox, new StateMap.Builder().ignore(new IProperty[] { BlockMailbox.ROTATION, BlockMailbox.TYPE }).build());
-		ModelLoader.setCustomStateMapper(CustomItems.scriptedDoor, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
-		ModelLoader.setCustomStateMapper(CustomItems.builder, new StateMap.Builder().ignore(new IProperty[] { BlockBuilder.ROTATION }).build());
-		ModelLoader.setCustomStateMapper(CustomItems.carpentyBench, new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.redstoneBlock), 0, new ModelResourceLocation(CustomItems.redstoneBlock.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.mailbox), 0, new ModelResourceLocation(CustomItems.mailbox.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.mailbox), 1, new ModelResourceLocation(CustomItems.mailbox.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.mailbox), 2, new ModelResourceLocation(CustomItems.mailbox.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.waypoint), 0, new ModelResourceLocation(CustomItems.waypoint.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.border), 0, new ModelResourceLocation(CustomItems.border.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.scripted), 0, new ModelResourceLocation(CustomItems.scripted.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.scriptedDoor), 0, new ModelResourceLocation(CustomItems.scriptedDoor.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.builder), 0, new ModelResourceLocation(CustomItems.builder.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.copy), 0, new ModelResourceLocation(CustomItems.copy.getRegistryName(), "inventory"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomItems.carpentyBench), 0, new ModelResourceLocation(CustomItems.carpentyBench.getRegistryName(), "inventory"));
-		for (Block block : CustomItems.customblocks.keySet()) {
+		ModelLoader.setCustomStateMapper(CustomRegisters.mailbox, new StateMap.Builder().ignore(new IProperty[] { BlockMailbox.ROTATION, BlockMailbox.TYPE }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.scriptedDoor, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.builder, new StateMap.Builder().ignore(new IProperty[] { BlockBuilder.ROTATION }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench, new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.redstoneBlock), 0, new ModelResourceLocation(CustomRegisters.redstoneBlock.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 0, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 1, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.mailbox), 2, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.waypoint), 0, new ModelResourceLocation(CustomRegisters.waypoint.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.border), 0, new ModelResourceLocation(CustomRegisters.border.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scripted), 0, new ModelResourceLocation(CustomRegisters.scripted.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.scriptedDoor), 0, new ModelResourceLocation(CustomRegisters.scriptedDoor.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.builder), 0, new ModelResourceLocation(CustomRegisters.builder.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.copy), 0, new ModelResourceLocation(CustomRegisters.copy.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, new ModelResourceLocation(CustomRegisters.carpentyBench.getRegistryName(), "inventory"));
+		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) { ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build()); }
 			else if (block instanceof CustomDoor) { ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build()); }
-			ModelLoader.setCustomModelResourceLocation(CustomItems.customblocks.get(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(CustomRegisters.customblocks.get(block), 0, new ModelResourceLocation(block.getRegistryName(), "inventory"));
 		}
 		// Items
-		ModelLoader.setCustomModelResourceLocation(CustomItems.wand, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcwand", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.cloner, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmobcloner", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.scripter, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripter", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.moving, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmovingpath", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.mount, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmounter", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.teleporter, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcteleporter", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.scriptedDoorTool, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripteddoortool", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.soulstoneEmpty, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstoneempty", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.soulstoneFull, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstonefilled", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.scripted_item, 0, new ModelResourceLocation(CustomNpcs.MODID + ":scripted_item", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.nbt_book, 0, new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.helpbook, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npchelpbook", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(CustomItems.npcboundary, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.wand, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcwand", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.cloner, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmobcloner", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripter, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripter", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.moving, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmovingpath", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.mount, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcmounter", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.teleporter, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcteleporter", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scriptedDoorTool, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripteddoortool", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.soulstoneEmpty, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstoneempty", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.soulstoneFull, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcsoulstonefilled", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripted_item, 0, new ModelResourceLocation(CustomNpcs.MODID + ":scripted_item", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.nbt_book, 0, new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcboundary, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
 		for (int i=0; i<5; i++) {
-			ModelLoader.setCustomModelResourceLocation(CustomItems.npcbuilder, i, new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder_"+EnumBuilder.values()[i].name(), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcbuilder, i, new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder_"+EnumBuilder.values()[i].name(), "inventory"));
 		}
-		for (Item item : CustomItems.customitems) { ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory")); }
+		for (Item item : CustomRegisters.customitems) { ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory")); }
 		
 		// Render Tiles
 		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class, new BlockCarpentryBenchRenderer<TileBlockAnvil>());
@@ -862,10 +860,10 @@ public class CustomItems {
 		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<CustomTileEntityChest>());
 		
 		// OLD JSON Models
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomItems.carpentyBench), 0, TileBlockAnvil.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomItems.mailbox), 0, TileMailbox.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomItems.mailbox), 1, TileMailbox2.class);
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomItems.mailbox), 2, TileMailbox3.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, TileBlockAnvil.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 0, TileMailbox.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 1, TileMailbox2.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
 	}
 
 	private static NBTTagCompound getExampleBlocks() {
@@ -1165,7 +1163,6 @@ public class CustomItems {
 		exampleParticle.setFloat("Scale", 1.5f);
 		exampleParticle.setString("Texture", "particles");
 		exampleParticle.setBoolean("IsFullTexture", false);
-		
 		exampleParticle.setBoolean("CreateAllFiles", true);
 		NBTTagList motion = new NBTTagList();
 		motion.appendTag(new NBTTagDouble(0.2d));
@@ -1174,8 +1171,17 @@ public class CustomItems {
 		exampleParticle.setTag("StartMotion", motion);
 		exampleParticle.setBoolean("IsRandomMotion", true);
 		exampleParticle.setBoolean("NotMotionY", true);
-		
 		listParticles.appendTag(exampleParticle);
+
+		NBTTagCompound objParticle = new NBTTagCompound();
+		objParticle.setString("RegistryName", "PARTICLE_OBJ_EXAMPLE");
+		objParticle.setBoolean("ShouldIgnoreRange", false);
+		objParticle.setInteger("MaxAge", 60);
+		objParticle.setFloat("Gravity", 0.0f);
+		objParticle.setFloat("Scale", 1.0f);
+		objParticle.setString("OBJModel", "sphere");
+		objParticle.setBoolean("CreateAllFiles", true);
+		listParticles.appendTag(objParticle);
 		
 		nbtParticles.setTag("Particles", listParticles);
 		return nbtParticles;

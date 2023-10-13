@@ -122,6 +122,10 @@ public class SyncController {
 				CustomNpcs.proxy.updateKeys();
 				break;
 			}
+			case 11: {
+				TransportController.getInstance().loadCategories(compound);
+				break;
+			}
 		}
 	}
 	

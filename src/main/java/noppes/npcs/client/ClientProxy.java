@@ -81,8 +81,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import noppes.npcs.CommonProxy;
-import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.LogWriter;
 import noppes.npcs.ModelData;
 import noppes.npcs.ModelPartData;
@@ -111,7 +111,6 @@ import noppes.npcs.client.gui.GuiBlockCopy;
 import noppes.npcs.client.gui.GuiBorderBlock;
 import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.client.gui.GuiBuilderSetting;
-import noppes.npcs.client.gui.GuiHelpBook;
 import noppes.npcs.client.gui.GuiMerchantAdd;
 import noppes.npcs.client.gui.GuiNbtBook;
 import noppes.npcs.client.gui.GuiNpcDimension;
@@ -200,6 +199,7 @@ import noppes.npcs.containers.ContainerNPCFollowerSetup;
 import noppes.npcs.containers.ContainerNPCInv;
 import noppes.npcs.containers.ContainerNPCTrader;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
+import noppes.npcs.containers.ContainerNPCTransportSetup;
 import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.containers.ContainerNpcQuestReward;
 import noppes.npcs.containers.ContainerNpcQuestRewardItem;
@@ -238,23 +238,21 @@ import noppes.npcs.util.TempFile;
 public class ClientProxy
 extends CommonProxy {
 	
-	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.<CreativeTabs, List<RecipeList>>newHashMap();
 	public static KeyBinding frontButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 55); // w
 	public static KeyBinding leftButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 56); // a
 	public static KeyBinding backButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 57); // s
 	public static KeyBinding rightButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 58); // d
 	public static KeyBinding jumpButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 59); // space
-	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.<Integer, List<UUID>>newHashMap();
+	public static KeyBinding QuestLog, Scene1, Scene2, Scene3, SceneReset;
+
 	public static FontContainer Font;
 	public static PlayerData playerData = new PlayerData();
-	public static KeyBinding QuestLog;
 	public static String recipeGroup, recipeName;
-	public static KeyBinding Scene1;
-	public static KeyBinding Scene2;
-	public static KeyBinding Scene3;
-	public static KeyBinding SceneReset;
-	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
+	
 	public static final Map<String, TempFile> loadFiles = Maps.<String, TempFile>newTreeMap();
+	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.<Integer, List<UUID>>newHashMap();
+	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.<CreativeTabs, List<RecipeList>>newHashMap();
+	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
 	
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.<Integer, KeyBinding>newHashMap();
 	
@@ -405,7 +403,7 @@ extends CommonProxy {
 			case ManageFactions: { return new GuiNPCManageFactions(npc); }
 			case ManageLinked: { return new GuiNPCManageLinkedNpc(npc); }
 			case BuilderBlock: { return new GuiBlockBuilder(x, y, z); }
-			case ManageTransport: { return new GuiNPCManageTransporters(npc); }
+			case ManageTransport: { return new GuiNPCManageTransporters(npc, (ContainerNPCTransportSetup) container); }
 			case ManageRecipes: { return new GuiNPCManageRecipes(npc, (ContainerManageRecipes) container); }
 			case ManageDialogs: { return new GuiNPCManageDialogs(npc); }
 			case ManageQuests: { return new GuiNPCManageQuest(npc); }
@@ -450,7 +448,6 @@ extends CommonProxy {
 			case CompanionInv: { return new GuiNpcCompanionInv(npc, (ContainerNPCCompanion) container); }
 			case NbtBook: { return new GuiNbtBook(x, y, z); }
 			case CustomGui: { return new GuiCustom((ContainerCustomGui) container); }
-			case HelpBook: { return new GuiHelpBook(); }
 			case BoundarySetting: { return new GuiBoundarySetting(x, y); }
 			case BuilderSetting: { return new GuiBuilderSetting((ContainerBuilderSettings) container, x); }
 			case DimentionSetting: { return new GuiCreateDimension(x); }
@@ -578,23 +575,23 @@ extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class, new RenderNPCInterface((ModelBase) new ModelNPCGolem(0.0f), 0.0f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, true)));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc((ModelBiped) new ModelClassicPlayer(0.0f)));
-		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomItems.mount, CustomItems.cloner, CustomItems.moving, CustomItems.scripter, CustomItems.wand, CustomItems.teleporter });
+		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
 		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> {
 			IItemStack item = NpcAPI.Instance().getIItemStack(stack);
-			if (stack.getItem() == CustomItems.scripted_item) {
+			if (stack.getItem() == CustomRegisters.scripted_item) {
 				return ((IItemScripted) item).getColor();
 			}
 			return -1;
-		}, new Item[] { CustomItems.scripted_item });
+		}, new Item[] { CustomRegisters.scripted_item });
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
 		
 		Map<Integer, IParticleFactory> map = ObfuscationHelper.getValue(ParticleManager.class, Minecraft.getMinecraft().effectRenderer, Map.class);
-		for (int id : CustomItems.customparticles.keySet()) {
+		for (int id : CustomRegisters.customparticles.keySet()) {
 			if (map.containsKey(id)) { continue; }
 			map.put(id, new IParticleFactory() {
 				public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
-					CustomParticleSettings ps = CustomItems.customparticles.get(particleID);
+					CustomParticleSettings ps = CustomRegisters.customparticles.get(particleID);
 					return new CustomParticle(ps == null ? new NBTTagCompound() : ps.nbtData, Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
 				}
 			});
@@ -602,9 +599,7 @@ extends CommonProxy {
 	}
 	
 	@Override
-	public void postload() {
-		
-	}
+	public void postload() {  }
 
 	@Override
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
@@ -661,10 +656,10 @@ extends CommonProxy {
 	public void updateRecipes(INpcRecipe recipe, boolean needSend, boolean delete, String debug) {
 		super.updateRecipes(recipe, false, delete, "ClientProxy.updateRecipes()");
 		/** Create Base Data Global */
-		if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(CustomItems.tab)) {
+		if (!RecipeBookClient.RECIPES_BY_TAB.containsKey(CustomRegisters.tab)) {
 			RecipeList recipelist = new RecipeList();
 			RecipeBookClient.ALL_RECIPES.add(recipelist);
-			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CustomItems.tab, (p_194085_0_) -> {
+			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> {
 				return new ArrayList<RecipeList>();
 			})).add(recipelist);
 			(RecipeBookClient.RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> {
@@ -672,9 +667,9 @@ extends CommonProxy {
 			})).add(recipelist);
 		}
 		/** Create Base Data Mod */
-		if (!ClientProxy.MOD_RECIPES_BY_TAB.containsKey(CustomItems.tab)) {
+		if (!ClientProxy.MOD_RECIPES_BY_TAB.containsKey(CustomRegisters.tab)) {
 			RecipeList recipelist = new RecipeList();
-			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CustomItems.tab, (p_194085_0_) -> {
+			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CustomRegisters.tab, (p_194085_0_) -> {
 				return new ArrayList<RecipeList>();
 			})).add(recipelist);
 			(ClientProxy.MOD_RECIPES_BY_TAB.computeIfAbsent(CreativeTabs.SEARCH, (p_194083_0_) -> {
@@ -684,7 +679,7 @@ extends CommonProxy {
 		
 		/** Update Recipe */
 		if (recipe != null) {
-			List<RecipeList> lists = recipe.isGlobal() ? RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab);
+			List<RecipeList> lists = recipe.isGlobal() ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab);
 			for (RecipeList list : lists) {
 				for (IRecipe rec : list.getRecipes()) {
 					if (rec instanceof INpcRecipe && ((INpcRecipe) rec).equal(recipe)) {
@@ -703,8 +698,8 @@ extends CommonProxy {
 		// Delete Old
 		for (int i = 0; i < 2; i++) { // Lists
 			List<RecipeList> delList = Lists.<RecipeList>newArrayList();
-			List<RecipeList> lists = (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab)
-					: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab));
+			List<RecipeList> lists = (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab)
+					: ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab));
 			for (RecipeList list : lists) { // Recipes
 				List<IRecipe> del = Lists.<IRecipe>newArrayList();
 				for (IRecipe rec : list.getRecipes()) {
@@ -725,10 +720,10 @@ extends CommonProxy {
 				for (RecipeList list : delList) {
 					if (i == 0) {
 						RecipeBookClient.ALL_RECIPES.remove(list);
-						RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab).remove(list);
+						RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab).remove(list);
 						RecipeBookClient.RECIPES_BY_TAB.get(CreativeTabs.SEARCH).remove(list);
 					} else {
-						ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab).remove(list);
+						ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab).remove(list);
 						ClientProxy.MOD_RECIPES_BY_TAB.get(CreativeTabs.SEARCH).remove(list);
 					}
 				}
@@ -744,7 +739,7 @@ extends CommonProxy {
 			Map<String, List<INpcRecipe>> map = (i == 0 ? RecipeController.getInstance().globalList : RecipeController.getInstance().modList);
 			for (String group : map.keySet()) {
 				RecipeList parent = null;
-				for (RecipeList list : (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab))) {
+				for (RecipeList list : (i == 0 ? RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab) : ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab))) {
 					if (list!=null && list.getRecipes().size()==0) {
 						parent = list;
 						break;
@@ -763,10 +758,10 @@ extends CommonProxy {
 					if (i == 0) {
 						RecipeBookClient.ALL_RECIPES.add(newList);
 						RecipeBookClient.RECIPES_BY_TAB.get(CreativeTabs.SEARCH).add(newList);
-						RecipeBookClient.RECIPES_BY_TAB.get(CustomItems.tab).add(newList);
+						RecipeBookClient.RECIPES_BY_TAB.get(CustomRegisters.tab).add(newList);
 					} else {
 						ClientProxy.MOD_RECIPES_BY_TAB.get(CreativeTabs.SEARCH).add(newList);
-						ClientProxy.MOD_RECIPES_BY_TAB.get(CustomItems.tab).add(newList);
+						ClientProxy.MOD_RECIPES_BY_TAB.get(CustomRegisters.tab).add(newList);
 					}
 				} else {
 					for (INpcRecipe rec : map.get(group)) {
@@ -1556,8 +1551,8 @@ extends CommonProxy {
 	public void reloadItemTextures() {
 		for (Map.Entry<Integer, String> entry : ItemScripted.Resources.entrySet()) {
 			ModelResourceLocation mrl = new ModelResourceLocation(entry.getValue(), "inventory");
-			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(CustomItems.scripted_item, entry.getKey(), mrl);
-			ModelLoader.setCustomModelResourceLocation(CustomItems.scripted_item, entry.getKey(), mrl);
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(CustomRegisters.scripted_item, entry.getKey(), mrl);
+			ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripted_item, entry.getKey(), mrl);
 		}
 	}
 	

@@ -237,6 +237,7 @@ implements ICustomScrollListener, IGuiData {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.mc.getTextureManager().bindTexture(this.slot);
 			for (IItemSlot slot : this.gui.getSlots()) {
+				if (!slot.isShowBack()) { continue; }
 				this.drawTexturedModalRect(this.getGuiLeft() + slot.getPosX() + cx, this.getGuiTop() + slot.getPosY() + cy, 0, 0, 18, 18);
 			}
 			GlStateManager.popMatrix();

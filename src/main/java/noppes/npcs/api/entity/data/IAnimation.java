@@ -8,6 +8,8 @@ public interface IAnimation {
 	IAnimationFrame[] getFrames();
 	
 	IAnimationFrame getFrame(int frame);
+	
+	boolean hasFrame(int frame);
 
 	IAnimationFrame addFrame();
 

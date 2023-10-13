@@ -121,7 +121,7 @@ public class PlayerScriptData implements IScriptHandler {
 				}
 			}
 			this.lastPlayerUpdate = ScriptController.Instance.lastPlayerUpdate;
-			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPlayerInit(this); }
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPlayerInit(this); }
 		}
 		for (int i = 0; i < this.scripts.size(); ++i) {
 			ScriptContainer script = this.scripts.get(i);

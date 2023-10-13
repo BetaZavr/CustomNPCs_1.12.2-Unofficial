@@ -15,6 +15,7 @@ import noppes.npcs.client.gui.SubGuiNpcFactionSelect;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IScrollData;
@@ -46,6 +47,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 			}
 			case 1: {
 				this.npc.advanced.defendFaction = (button.getValue() == 1);
+				this.initGui();
 				break;
 			}
 			case 2: {
@@ -72,6 +74,10 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 				this.setSubGui(new SubGuiNpcFactionOptions(this.npc.advanced.factions));
 				break;
 			}
+			case 5: {
+				this.npc.advanced.throughWalls = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			}
 		}
 	}
 
@@ -84,7 +90,14 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 		y += 22;
 		this.addLabel(new GuiNpcLabel(1, "faction.defend", this.guiLeft + 4, this.guiTop + y + 5));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 124, this.guiTop + y, 60, 20, new String[] { "gui.no", "gui.yes" }, (this.npc.advanced.defendFaction ? 1 : 0)));
-		y += 32;
+		if (this.npc.advanced.defendFaction) {
+			y += 22;
+			GuiNpcCheckBox checkBox= new GuiNpcCheckBox(5, this.guiLeft + 4, this.guiTop + y, 180, 20, "faction.through.walls");
+			checkBox.setSelected(this.npc.advanced.throughWalls);
+			this.addButton(checkBox);
+			y += 32;
+		}
+		else { y += 32; }
 		this.addLabel(new GuiNpcLabel(2, "faction.friends", this.guiLeft + 4, this.guiTop + y + 5));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 124, this.guiTop + y, 60, 20, "selectServer.edit"));
 		y += 22;
@@ -161,6 +174,8 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 			this.setHoverText(new TextComponentTranslation("faction.hover.addhostiles").getFormattedText());
 		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.replace").getFormattedText());
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("faction.hover.through.walls").getFormattedText());
 		}
 	}
 
@@ -181,6 +196,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 				this.npc.advanced.attackFactions.add(id);
 			}
 		}
+		this.save();
 	}
 	
 }

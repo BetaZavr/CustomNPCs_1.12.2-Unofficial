@@ -32,7 +32,7 @@ import noppes.npcs.util.ValueUtil;
 public class DataAdvanced
 implements INPCAdvanced {
 	
-	public boolean attackOtherFactions, defendFaction, disablePitch, orderedLines;
+	public boolean attackOtherFactions, defendFaction, disablePitch, orderedLines, throughWalls;
 	public JobInterface jobInterface;
 	public RoleInterface roleInterface;
 	private String angrySound, deathSound, hurtSound, idleSound, stepSound;
@@ -63,6 +63,7 @@ implements INPCAdvanced {
 		this.attackOtherFactions = false;
 		this.defendFaction = false;
 		this.disablePitch = false;
+		this.throughWalls = true;
 		this.npc = npc;
 		this.scenes = new DataScenes(npc);
 		this.attackFactions = Sets.<Integer>newHashSet();
@@ -195,7 +196,7 @@ implements INPCAdvanced {
 	}
 
 	public void readToNBT(NBTTagCompound compound) {
-		if (!compound.hasKey("NpcInteractLines", 10)) { return; }
+		if (!compound.hasKey("Role")) { return; }
 		this.interactLines.readNBT(compound.getCompoundTag("NpcInteractLines"));
 		this.worldLines.readNBT(compound.getCompoundTag("NpcLines"));
 		this.attackLines.readNBT(compound.getCompoundTag("NpcAttackLines"));
@@ -215,6 +216,9 @@ implements INPCAdvanced {
 		this.disablePitch = compound.getBoolean("DisablePitch");
 		this.factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
 		this.scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
+		
+		if (!compound.hasKey("ThroughWalls", 1) && CustomNpcs.FixUpdateFromPre_1_12) { this.throughWalls = true; }
+		else { this.throughWalls = compound.getBoolean("ThroughWalls"); }
 		
 		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3) && CustomNpcs.FixUpdateFromPre_1_12) {
 			this.setRole(compound.getInteger("Role"));
@@ -261,6 +265,7 @@ implements INPCAdvanced {
 		compound.setInteger("FactionID", this.npc.getFaction().id);
 		compound.setBoolean("AttackOtherFactions", this.attackOtherFactions);
 		compound.setBoolean("DefendFaction", this.defendFaction);
+		compound.setBoolean("ThroughWalls", this.throughWalls);
 		compound.setBoolean("DisablePitch", this.disablePitch);
 		compound.setTag("FactionPoints", this.factions.writeToNBT(new NBTTagCompound()));
 		compound.setIntArray("NPCDialogOptions", this.npc.dialogs);
@@ -279,10 +284,7 @@ implements INPCAdvanced {
 	}
 
 	public boolean isAggressiveToNpc(EntityNPCInterface entity) {
-		if (this.attackOtherFactions) {
-			if (this.npc.faction.isAggressiveToNpc(entity)) { return true; }
-			if (this.attackFactions.contains(entity.faction.id)) { return true; }
-		}
+		if (this.attackOtherFactions && (this.npc.faction.isAggressiveToNpc(entity) || this.attackFactions.contains(entity.faction.id))) { return true; }
 		return false;
 	}
 
@@ -305,7 +307,12 @@ implements INPCAdvanced {
 
 	public void tryDefendFaction(int id, EntityLivingBase possible¿riend, EntityLivingBase attacked) {
 		if (this.npc.isKilled() || !this.defendFaction) { return; }
-		if (!(this.npc.faction.id==id || this.npc.faction.frendFactions.contains(id) || this.frendFactions.contains(id)) || !this.npc.canSee(possible¿riend)) { return; }
+		boolean canSee = this.npc.canSee(possible¿riend);
+		if (!canSee && this.throughWalls) {
+			float dist = this.npc.getDistance(possible¿riend);
+			canSee = dist <= this.npc.stats.aggroRange;
+		}
+		if (!(this.npc.faction.id==id || this.npc.faction.frendFactions.contains(id) || this.frendFactions.contains(id)) || !canSee) { return; }
 		this.npc.onAttack(attacked);
 	}
 	

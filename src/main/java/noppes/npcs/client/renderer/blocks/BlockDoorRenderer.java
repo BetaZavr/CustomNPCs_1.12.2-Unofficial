@@ -15,7 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.BlockNpcDoorInterface;
 import noppes.npcs.blocks.tiles.TileDoor;
 
@@ -26,14 +26,14 @@ public class BlockDoorRenderer<T extends TileEntity> extends BlockRendererInterf
 
 	private boolean overrideModel() {
 		ItemStack held = Minecraft.getMinecraft().player.getHeldItemMainhand();
-		return held != null && (held.getItem() == CustomItems.wand || held.getItem() == CustomItems.scripter
-				|| held.getItem() == CustomItems.scriptedDoorTool);
+		return held != null && (held.getItem() == CustomRegisters.wand || held.getItem() == CustomRegisters.scripter
+				|| held.getItem() == CustomRegisters.scriptedDoorTool);
 	}
 
 	@SuppressWarnings("deprecation")
 	public void render(TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		TileDoor tile = (TileDoor) te;
-		IBlockState original = CustomItems.scriptedDoor.getStateFromMeta(tile.getBlockMetadata());
+		IBlockState original = CustomRegisters.scriptedDoor.getStateFromMeta(tile.getBlockMetadata());
 		BlockPos lowerPos = tile.getPos();
 		if (original.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.UPPER) {
 			lowerPos = tile.getPos().down();
@@ -44,12 +44,12 @@ public class BlockDoorRenderer<T extends TileEntity> extends BlockRendererInterf
 		if (lowerTile == null || upperTile == null) {
 			return;
 		}
-		IBlockState lowerState = CustomItems.scriptedDoor.getStateFromMeta(lowerTile.getBlockMetadata());
-		IBlockState upperState = CustomItems.scriptedDoor.getStateFromMeta(upperTile.getBlockMetadata());
+		IBlockState lowerState = CustomRegisters.scriptedDoor.getStateFromMeta(lowerTile.getBlockMetadata());
+		IBlockState upperState = CustomRegisters.scriptedDoor.getStateFromMeta(upperTile.getBlockMetadata());
 		int meta = BlockNpcDoorInterface.combineMetadata((IBlockAccess) this.getWorld(), tile.getPos());
 		Block b = lowerTile.blockModel;
 		if (this.overrideModel()) {
-			b = CustomItems.scriptedDoor;
+			b = CustomRegisters.scriptedDoor;
 		}
 		IBlockState state = b.getStateFromMeta(meta);
 		state = state.withProperty(BlockDoor.HALF, original.getValue(BlockDoor.HALF));

@@ -72,8 +72,8 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.IChatMessages;
 import noppes.npcs.NBTTags;
@@ -448,7 +448,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			projectile2.damage = event.damage;
 			ItemStack stack = entity.getHeldItemMainhand();
 			projectile2.callback = ((projectile1, pos, entity1) -> {
-				if (stack.getItem() == CustomItems.soulstoneFull) {
+				if (stack.getItem() == CustomRegisters.soulstoneFull) {
 					Entity e = ItemSoulstoneFilled.Spawn(null, stack, this.world, pos);
 					if (e instanceof EntityLivingBase && entity1 instanceof EntityLivingBase) {
 						if (e instanceof EntityLiving) {
@@ -922,7 +922,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isInvisibleToPlayer(EntityPlayer player) {
-		return this.isInvisible() && player.getHeldItemMainhand().getItem()!=CustomItems.wand && this.display.getAvailability().isAvailable(player);
+		return this.isInvisible() && player.getHeldItemMainhand().getItem()!=CustomRegisters.wand && this.display.getAvailability().isAvailable(player);
 	}
 
 	public boolean isKilled() {
@@ -1022,7 +1022,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void onDeath(DamageSource damagesource) {
 		this.setSprinting(false);
 		this.getNavigator().clearPath();
-		this.resetBackPos(); // New
+		this.resetBackPos();
 		this.extinguish();
 		this.clearActivePotions();
 		Entity attackingEntity = NoppesUtilServer.GetDamageSourcee(damagesource);
@@ -1039,9 +1039,13 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.bossInfo.setVisible(false);
 			this.inventory.dropStuff(event, attackingEntity, damagesource);
 			if (event.line != null) {
-				this.saySurrounding(Line.formatTarget((Line) event.line,
-						(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
+				this.saySurrounding(Line.formatTarget((Line) event.line, (attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
+		}
+		if (this.animation.getActiveAnimation(AnimationKind.DIES)!=null) {
+			this.motionX = 0.0d;
+			this.motionY = 0.0d;
+			this.motionZ = 0.0d;
 		}
 		super.onDeath(damagesource);
 	}
@@ -1064,20 +1068,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void onLivingUpdate() {
-		if (CustomNpcs.FreezeNPCs) {
-			return;
-		}
+		if (CustomNpcs.FreezeNPCs) { return; }
 		if (this.isAIDisabled()) {
 			super.onLivingUpdate();
 			return;
 		}
 		++this.totalTicksAlive;
 		this.updateArmSwingProgress();
-		if (this.ticksExisted % 20 == 0) {
+		if (this.totalTicksAlive % 20 == 0) {
 			this.faction = this.getFaction();
 		}
 		if (!this.world.isRemote) {
-			if (!this.isKilled() && this.ticksExisted % 20 == 0) {
+			if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
 				this.advanced.scenes.update();
 				if (this.getHealth() < this.getMaxHealth()) {
 					if (this.stats.healthRegen > 0 && !this.isAttacking()) {
@@ -1226,12 +1228,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		ItemStack stack = player.getHeldItem(hand);
 		if (stack != null) {
 			Item item = stack.getItem();
-			if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount || item == CustomItems.scripter) {
+			if (item == CustomRegisters.cloner || item == CustomRegisters.wand || item == CustomRegisters.mount || item == CustomRegisters.scripter) {
 				this.setAttackTarget(null);
 				this.setRevengeTarget(null);
 				return true;
 			}
-			if (item == CustomItems.moving) {
+			if (item == CustomRegisters.moving) {
 				this.setAttackTarget(null);
 				stack.setTagInfo("NPCID", new NBTTagInt(this.getEntityId()));
 				player.sendMessage(new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
@@ -1574,61 +1576,57 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (this.ais.canLeap) {
 				this.tasks.addTask(this.taskCount++, new EntityAIPounceTarget(this));
 			}
-			if (this.inventory.getProjectile() == null) { // melee
+			if (this.inventory.getProjectile() == null) { // meele
 				switch (this.ais.tacticalVariant) {
 					case 1: {
-						this.tasks.addTask(this.taskCount++, new EntityAIZigZagTarget(this, 1.3));
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIZigZagTarget(this, 1.3));
 						break;
 					}
 					case 2: {
-						this.tasks.addTask(this.taskCount++, new EntityAIOrbitTarget(this, 1.3, true));
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIOrbitTarget(this, 1.3, true));
 						break;
 					}
 					case 3: {
-						this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
 						break;
 					}
 					case 4: {
-						this.tasks.addTask(this.taskCount++, new EntityAIAmbushTarget(this, 1.2));
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAmbushTarget(this, 1.2));
 						break;
 					}
 					case 5: {
-						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIStalkTarget(this));
 						break;
 					}
 				}
-				this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
-				((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
+			} else { // ranged
+				switch (this.ais.tacticalVariant) {
+					case 1: {
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIDodgeShoot(this));
+						break;
+					}
+					case 2: {
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIOrbitTarget(this, 1.3, false));
+						break;
+					}
+					case 3: {
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
+						break;
+					}
+					case 4: {
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAmbushTarget(this, 1.3));
+						break;
+					}
+					case 5: {
+						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIStalkTarget(this));
+						break;
+					}
+				}
 			}
-			else { // ranged
-				switch (this.ais.tacticalVariant) {
-					case 1: {
-						this.tasks.addTask(this.taskCount++, new EntityAIDodgeShoot(this));
-						break;
-					}
-					case 2: {
-						this.tasks.addTask(this.taskCount++, new EntityAIOrbitTarget(this, 1.3, false));
-						break;
-					}
-					case 3: {
-						this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
-						break;
-					}
-					case 4: {
-						this.tasks.addTask(this.taskCount++, new EntityAIAmbushTarget(this, 1.3));
-						break;
-					}
-					case 5: {
-						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
-						break;
-					}
-					case 6: {
-						this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
-						((EntityAIAttackTarget) this.aiAttackTarget).navOverride(true);
-						break;
-					}
-				}
-				this.tasks.addTask(this.taskCount++, (this.aiRange = new EntityAIRangedAttack(this)));
+			this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
+			((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
+			if (this.inventory.getProjectile() != null) {
+				this.tasks.addTask(this.taskCount++, (EntityAIBase) (this.aiRange = new EntityAIRangedAttack((IRangedAttackMob) this)));
 				this.aiRange.navOverride(this.ais.tacticalVariant == 6);
 			}
 		} else if (this.ais.onAttack == 3) {

@@ -86,6 +86,7 @@ implements IScrollData, ISubGuiListener {
 		if (i == 1 && this.subgui==null) {
 			this.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
 		}
 		super.keyTyped(c, i);
 	}

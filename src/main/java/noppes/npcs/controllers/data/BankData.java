@@ -20,6 +20,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class BankData {
+	
 	public int bankId;
 	public HashMap<Integer, NpcMiscInventory> itemSlots;
 	public int unlockedSlots;

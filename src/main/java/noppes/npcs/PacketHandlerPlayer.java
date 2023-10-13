@@ -40,6 +40,8 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.containers.ContainerMail;
+import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.PlayerDataController;
@@ -47,6 +49,7 @@ import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
+import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
@@ -168,7 +171,7 @@ public class PacketHandlerPlayer {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) player).scriptData;
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 0, null);
 			EventHooks.onPlayerAttack(handler, ev);
-			if (item.getItem() == CustomItems.scripted_item) {
+			if (item.getItem() == CustomRegisters.scripted_item) {
 				ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
 				ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), 0, null);
 				EventHooks.onScriptItemAttack(isw, eve);
@@ -250,29 +253,163 @@ public class PacketHandlerPlayer {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
-			((RoleTransporter) npc.advanced.roleInterface).transport(player, Server.readString(buffer));
+			((RoleTransporter) npc.advanced.roleInterface).transport(player, buffer.readInt());
 		} else if (type == EnumPlayerPacket.BankUpgrade) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+			if (ContainerNPCBankInterface.editBank==null && (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				return;
+			}
+			if (ContainerNPCBankInterface.editBank!=null) {
+				String playerName = Server.readString(buffer);
+				if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) { return; }
+				ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
+				Bank bank = BankController.getInstance().getBank(container.bankid);
+				player.closeContainer();
+				
+				BankData bankData = ContainerNPCBankInterface.editBank.getBank(bank.id);
+				bankData.upgradedSlots.put(container.slot, true);
+				
+				PlayerData playerdata = null;
+				EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
+				if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
+				else { playerdata = PlayerData.get(pl); }
+				NBTTagCompound compound = new NBTTagCompound();
+				ContainerNPCBankInterface.editBank.saveNBTData(compound);
+				playerdata.bankData.loadNBTData(compound);
+				compound.setString("PlayerName", playerName);
+				Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, compound);
+				playerdata.save(true);
+				bankData.openBankGui(player, npc, bank.id, container.slot);
 				return;
 			}
 			NoppesUtilPlayer.bankUpgrade(player, npc);
-		} else if (type == EnumPlayerPacket.BankUnlock) {
+		} else if (type == EnumPlayerPacket.BankRegrade) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+			if (ContainerNPCBankInterface.editBank==null) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
+			String playerName = Server.readString(buffer);
+			if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) { return; }
+			ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
+			Bank bank = BankController.getInstance().getBank(container.bankid);
+			BankData bankData = ContainerNPCBankInterface.editBank.getBank(bank.id);
+			bankData.upgradedSlots.put(container.slot, false);
+			for (int i = 27; i < bankData.itemSlots.get(container.slot).items.size(); i++) {
+				bankData.itemSlots.get(container.slot).items.set(i, ItemStack.EMPTY);
+			}
+			player.closeContainer();
+			
+			PlayerData playerdata = null;
+			EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
+			if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
+			else { playerdata = PlayerData.get(pl); }
+			NBTTagCompound compound = new NBTTagCompound();
+			ContainerNPCBankInterface.editBank.saveNBTData(compound);
+			playerdata.bankData.loadNBTData(compound);
+			compound.setString("PlayerName", playerName);
+			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, compound);
+			playerdata.save(true);
+			bankData.openBankGui(player, npc, bank.id, container.slot);
+			
+		} else if (type == EnumPlayerPacket.BankUnlock) {
+			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
+			if (ContainerNPCBankInterface.editBank==null && (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK)) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				return;
+			}
+			if (ContainerNPCBankInterface.editBank!=null) {
+				String playerName = Server.readString(buffer);
+				if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) { return; }
+				ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
+				Bank bank = BankController.getInstance().getBank(container.bankid);
+				player.closeContainer();
+				BankData bankData = ContainerNPCBankInterface.editBank.getBank(bank.id);
+				if (bankData.unlockedSlots + 1 <= bank.maxSlots) {
+					BankData bankData2 = bankData;
+					++bankData2.unlockedSlots;
+				}
+				
+				PlayerData playerdata = null;
+				EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
+				if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
+				else { playerdata = PlayerData.get(pl); }
+				NBTTagCompound compound = new NBTTagCompound();
+				ContainerNPCBankInterface.editBank.saveNBTData(compound);
+				playerdata.bankData.loadNBTData(compound);
+				compound.setString("PlayerName", playerName);
+				Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, compound);
+				playerdata.save(true);
+				
+				bankData.openBankGui(player, npc, bank.id, container.slot);
+				return;
+			}
 			NoppesUtilPlayer.bankUnlock(player, npc);
+		} else if (type == EnumPlayerPacket.Banklock) {
+			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
+			if (ContainerNPCBankInterface.editBank==null) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				return;
+			}
+			String playerName = Server.readString(buffer);
+			int slot = buffer.readInt();
+			if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) { return; }
+			ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
+			Bank bank = BankController.getInstance().getBank(container.bankid);
+			BankData bankData = ContainerNPCBankInterface.editBank.getBank(bank.id);
+			bankData.unlockedSlots = slot;
+			for (int s : bankData.itemSlots.keySet()) {
+				if (s < slot) { continue; }
+				bankData.upgradedSlots.put(s, false);
+				for (int i = 0; i < bankData.itemSlots.get(s).items.size(); i++) {
+					bankData.itemSlots.get(s).items.set(i, ItemStack.EMPTY);
+				}
+			}
+			player.closeContainer();
+			PlayerData playerdata = null;
+			EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
+			if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
+			else { playerdata = PlayerData.get(pl); }
+			NBTTagCompound compound = new NBTTagCompound();
+			ContainerNPCBankInterface.editBank.saveNBTData(compound);
+			playerdata.bankData.loadNBTData(compound);
+			compound.setString("PlayerName", playerName);
+			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, compound);
+			playerdata.save(true);
+			
+			bankData.openBankGui(player, npc, bank.id, slot);
 		} else if (type == EnumPlayerPacket.BankSlotOpen) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc((EntityPlayer) player);
-			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+			if (ContainerNPCBankInterface.editBank==null && (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.BANK)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
 			int slot = buffer.readInt();
 			int bankId = buffer.readInt();
+			if (ContainerNPCBankInterface.editBank!=null) {
+				String playerName = Server.readString(buffer);
+				PlayerData playerdata = null;
+				EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
+				if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
+				else { playerdata = PlayerData.get(pl); }
+				if (playerdata==null || !playerdata.bankData.banks.containsKey(bankId)) { return; }
+				BankData bd = playerdata.bankData.banks.get(bankId);
+				NBTTagCompound compound = new NBTTagCompound();
+				playerdata.bankData.saveNBTData(compound);
+				compound.setString("PlayerName", playerName);
+				Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, compound);
+				if (player.openContainer != null && player.openContainer instanceof ContainerNPCBankInterface) {
+					ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
+					for (int i = 0; i < container.items.items.size(); i++) {
+						bd.itemSlots.get(container.slot).items.set(i, container.items.items.get(i));
+					}
+					playerdata.save(true);
+				}
+				ContainerNPCBankInterface.editBank = playerdata.bankData;
+				bd.openBankGui((EntityPlayer) player, npc, bankId, slot);
+				return;
+			}
 			BankData bd = PlayerDataController.instance.getBankData((EntityPlayer) player, bankId).getBankOrDefault(bankId);
 			bd.openBankGui((EntityPlayer) player, npc, bankId, slot);
 		} else if (type == EnumPlayerPacket.Dialog) {
@@ -623,7 +760,10 @@ public class PacketHandlerPlayer {
 			Server.sendData(player, EnumPacketClient.SEND_FILE_PART, false, part, name, String.valueOf(file.data.get(part)));
 		} else if (type == EnumPlayerPacket.GetSyncData) {
 			SyncController.syncPlayer(player);
+		} else if (type == EnumPlayerPacket.TransportCategoriesGet) {
+			NoppesUtilServer.sendTransportData(player);
 		}
+		
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
 }

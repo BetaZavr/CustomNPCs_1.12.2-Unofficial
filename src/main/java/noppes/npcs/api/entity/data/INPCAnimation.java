@@ -36,5 +36,7 @@ public interface INPCAnimation {
 	void removeAnimations(int type);
 
 	AnimationConfig createAnimation(int animationType);
-
+	
+	void setBaseAnimation(IAnimation animation);
+	
 }

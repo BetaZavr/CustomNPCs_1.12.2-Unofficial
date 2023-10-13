@@ -215,8 +215,7 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		Client.sendData(EnumPacketServer.DialogSave, this.dialog.category.id,
-				this.dialog.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.DialogSave, this.dialog.category.id, this.dialog.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override

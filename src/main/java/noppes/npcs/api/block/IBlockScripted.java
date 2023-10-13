@@ -61,6 +61,10 @@ extends IBlock {
 
 	void setModel(String name);
 
+	void setModel(String blockName, int meta);
+	
+	void setModel(IBlock iblock);
+
 	void setRedstonePower(int power);
 
 	void setResistance(float resistance);
@@ -68,10 +72,6 @@ extends IBlock {
 	void setRotation(int x, int y, int z);
 
 	void setScale(float x, float y, float z);
-
-	void setModel(String blockName, int meta);
-	
-	void setModel(IBlock iblock);
 
 	void trigger(int id, Object[] arguments);
 	

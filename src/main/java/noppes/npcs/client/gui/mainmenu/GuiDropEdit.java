@@ -113,13 +113,11 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			this.drop.setAmount(this.amount[0], this.amount[1]);
 		}
 		this.addLabel(new GuiNpcLabel(anyIDs++, "drop.amount", this.guiLeft + 329, this.guiTop + 145));
-		GuiNpcTextField countMin = new GuiNpcTextField(1, (GuiScreen) this, this.guiLeft + 366, this.guiTop + 136, 50,
-				14, "" + this.amount[0]);
+		GuiNpcTextField countMin = new GuiNpcTextField(1, (GuiScreen) this, this.guiLeft + 366, this.guiTop + 136, 50, 14, "" + this.amount[0]);
 		countMin.setNumbersOnly().setMinMaxDefault(1, this.drop.item.getMaxStackSize(), this.drop.item.getStackSize());
 		countMin.setEnabled(!this.drop.item.isEmpty());
 		this.addTextField(countMin);
-		GuiNpcTextField countMax = new GuiNpcTextField(2, (GuiScreen) this, this.guiLeft + 366, this.guiTop + 150, 50,
-				14, "" + this.amount[1]);
+		GuiNpcTextField countMax = new GuiNpcTextField(2, (GuiScreen) this, this.guiLeft + 366, this.guiTop + 150, 50, 14, "" + this.amount[1]);
 		countMax.setNumbersOnly().setMinMaxDefault(1, this.drop.item.getMaxStackSize(), this.drop.item.getStackSize());
 		countMax.setEnabled(!this.drop.item.isEmpty());
 		this.addTextField(countMax);

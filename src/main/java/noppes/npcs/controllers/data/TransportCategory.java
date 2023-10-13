@@ -1,20 +1,23 @@
 package noppes.npcs.controllers.data;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class TransportCategory {
+	
 	public int id;
-	public HashMap<Integer, TransportLocation> locations;
+	public Map<Integer, TransportLocation> locations;
 	public String title;
 
 	public TransportCategory() {
 		this.id = -1;
 		this.title = "";
-		this.locations = new HashMap<Integer, TransportLocation>();
+		this.locations = Maps.<Integer, TransportLocation>newTreeMap();
 	}
 
 	public Vector<TransportLocation> getDefaultLocations() {
@@ -30,10 +33,9 @@ public class TransportCategory {
 	public void readNBT(NBTTagCompound compound) {
 		this.id = compound.getInteger("CategoryId");
 		this.title = compound.getString("CategoryTitle");
+		if (this.title.isEmpty()) { this.title = "Default"; }
 		NBTTagList locs = compound.getTagList("CategoryLocations", 10);
-		if (locs == null || locs.tagCount() == 0) {
-			return;
-		}
+		if (locs == null || locs.tagCount() == 0) { return; }
 		for (int ii = 0; ii < locs.tagCount(); ++ii) {
 			TransportLocation location = new TransportLocation();
 			location.readNBT(locs.getCompoundTagAt(ii));

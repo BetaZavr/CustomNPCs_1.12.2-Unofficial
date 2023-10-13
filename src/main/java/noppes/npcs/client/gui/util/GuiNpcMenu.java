@@ -16,7 +16,9 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcMenu implements GuiYesNoCallback {
+public class GuiNpcMenu
+implements GuiYesNoCallback {
+	
 	private int activeMenu;
 	private EntityNPCInterface npc;
 	private GuiScreen parent;
@@ -97,7 +99,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		}
 	}
 
-	private void topButtonPressed(GuiMenuTopButton button) {
+	public void topButtonPressed(GuiMenuTopButton button) {
 		if (button.displayString.equals("" + this.activeMenu)) {
 			return;
 		}

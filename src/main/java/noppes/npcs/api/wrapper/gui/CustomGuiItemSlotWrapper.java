@@ -15,17 +15,19 @@ public class CustomGuiItemSlotWrapper
 extends CustomGuiComponentWrapper
 implements IItemSlot {
 	
-	// New
-	EntityPlayer player;
-	int slotIndex = 0;
-	IItemStack stack;
+	public EntityPlayer player;
+	public int slotIndex;
+	public IItemStack stack;
+	public boolean showBack;
+	public Slot slot;
 
-	public CustomGuiItemSlotWrapper() {
-		this.stack = ItemStackWrapper.AIR;
-	}
+	public CustomGuiItemSlotWrapper() { this(0, 0, null); }
 
 	public CustomGuiItemSlotWrapper(int x, int y, IItemStack stack) {
 		this.stack = ItemStackWrapper.AIR;
+		this.slotIndex = 0;
+		this.showBack = true;
+		this.slot = null;
 		this.setPos(x, y);
 		this.setStack(stack);
 	}
@@ -34,12 +36,13 @@ implements IItemSlot {
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
 		this.setStack(NpcAPI.Instance().getIItemStack(new ItemStack(nbt.getCompoundTag("Stack"))));
+		this.showBack = nbt.getBoolean("ShowBack");
 		return this;
 	}
 
 	@Override
 	public Slot getMCSlot() {
-		return null;
+		return this.slot;
 	}
 
 	@Override
@@ -64,9 +67,8 @@ implements IItemSlot {
 		} else {
 			this.stack = itemStack;
 		}
-		if (this.player != null && player.openContainer instanceof ContainerCustomGui) { // New
-			this.player.openContainer.getSlot(this.slotIndex).inventory.setInventorySlotContents(this.slotIndex,
-					this.stack.getMCItemStack());
+		if (this.player != null && player.openContainer instanceof ContainerCustomGui) {
+			this.player.openContainer.getSlot(this.slotIndex).inventory.setInventorySlotContents(this.slotIndex, this.stack.getMCItemStack());
 			this.player.openContainer.getSlot(this.slotIndex).inventory.markDirty();
 		}
 
@@ -77,6 +79,13 @@ implements IItemSlot {
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
 		super.toNBT(nbt);
 		nbt.setTag("Stack", this.stack.getMCItemStack().serializeNBT());
+		nbt.setBoolean("ShowBack", this.showBack);
 		return nbt;
 	}
+
+	@Override
+	public boolean isShowBack() { return this.showBack; }
+
+	@Override
+	public void setShowBack(boolean bo) { this.showBack = bo; }
 }

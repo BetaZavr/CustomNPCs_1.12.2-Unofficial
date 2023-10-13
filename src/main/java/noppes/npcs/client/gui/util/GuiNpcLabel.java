@@ -56,7 +56,6 @@ public class GuiNpcLabel {
 			if (this.backColor != 0) { Gui.drawRect(this.x - 1, this.y, this.x + this.width + 1, this.y + this.height-1, this.backColor); }
 			int i = 0;
 			for (String str : this.label) {
-				this.color = 0xFF404040;
 				fontRenderer.drawString(str, this.x, this.y + i, this.color);
 				i += 10;
 			}

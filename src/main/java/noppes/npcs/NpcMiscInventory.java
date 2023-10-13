@@ -163,9 +163,7 @@ implements IInventory {
 	}
 
 	public void setInventorySlotContents(int var1, ItemStack var2) {
-		if (var1 >= this.getSizeInventory()) {
-			return;
-		}
+		if (var1 >= this.getSizeInventory()) { return; }
 		this.items.set(var1, var2);
 	}
 

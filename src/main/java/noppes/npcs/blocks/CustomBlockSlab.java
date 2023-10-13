@@ -18,7 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
@@ -109,7 +109,7 @@ implements ICustomElement {
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
 		
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
-		this.setCreativeTab((CreativeTabs) CustomItems.tabBlocks);
+		this.setCreativeTab((CreativeTabs) CustomRegisters.tabBlocks);
 	}
 
 	@Override

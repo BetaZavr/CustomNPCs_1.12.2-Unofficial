@@ -274,8 +274,9 @@ extends GuiScreen {
 		for (IGui comp : new ArrayList<IGui>(this.components)) {
 			comp.drawScreen(x, y);
 		}
+		int dWheel = Mouse.getDWheel();
 		for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-			scroll.drawScreen(x, y, partialTicks, (!this.hasSubGui() && scroll.isMouseOver(x, y)) ? Mouse.getDWheel() : 0);
+			scroll.drawScreen(x, y, partialTicks, (!this.hasSubGui() && scroll.isMouseOver(x, y)) ? dWheel : 0);
 		}
 		for (GuiScreen gui : new ArrayList<GuiScreen>(this.extra.values())) {
 			gui.drawScreen(x, y, partialTicks);

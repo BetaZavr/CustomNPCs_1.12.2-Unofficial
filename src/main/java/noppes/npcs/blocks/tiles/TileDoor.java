@@ -11,7 +11,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
+import noppes.npcs.CustomRegisters;
 
 public class TileDoor extends TileNpcEntity implements ITickable {
 	
@@ -24,7 +24,7 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 
 	public TileDoor() {
 		this.ticksExisted = 0;
-		this.blockModel = CustomItems.scriptedDoor;
+		this.blockModel = CustomRegisters.scriptedDoor;
 		this.needsClientUpdate = false;
 		this.renderTileErrored = true;
 		this.renderTileUpdate = null;
@@ -65,7 +65,7 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 	public void setDoorNBT(NBTTagCompound compound) {
 		this.blockModel = Block.REGISTRY.getObject(new ResourceLocation(compound.getString("ScriptDoorBlockModel")));
 		if (this.blockModel == null || !(this.blockModel instanceof BlockDoor)) {
-			this.blockModel = CustomItems.scriptedDoor;
+			this.blockModel = CustomRegisters.scriptedDoor;
 		}
 		this.renderTileUpdate = null;
 		this.renderTile = null;
@@ -74,7 +74,7 @@ public class TileDoor extends TileNpcEntity implements ITickable {
 
 	public void setItemModel(Block block) {
 		if (block == null || !(block instanceof BlockDoor)) {
-			block = CustomItems.scriptedDoor;
+			block = CustomRegisters.scriptedDoor;
 		}
 		if (this.blockModel == block) {
 			return;
