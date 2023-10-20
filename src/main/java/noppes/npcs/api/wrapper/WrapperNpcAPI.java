@@ -45,6 +45,7 @@ import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.api.handler.IDialogHandler;
+import noppes.npcs.api.handler.IDimensionHandler;
 import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.IQuestHandler;
@@ -63,6 +64,7 @@ import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
@@ -362,5 +364,8 @@ extends NpcAPI {
 
 	@Override
 	public INpcAttribute getIAttribute(IAttributeInstance mcattribute) { return new AttributeWrapper(mcattribute); }
+
+	@Override
+	public IDimensionHandler getCustomDimention() { return DimensionHandler.getInstance(); }
 	
 }

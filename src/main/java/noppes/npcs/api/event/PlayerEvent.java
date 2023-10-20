@@ -145,6 +145,7 @@ extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class DamagedEvent extends PlayerEvent {
+		
 		public boolean clearTarget;
 		public float damage;
 		public IDamageSource damageSource;

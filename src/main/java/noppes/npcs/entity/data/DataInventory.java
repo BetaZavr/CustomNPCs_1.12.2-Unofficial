@@ -44,8 +44,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
 public class DataInventory
-implements IInventory,
-INPCInventory {
+implements IInventory, INPCInventory {
 	
 	public Map<Integer, IItemStack> armor;
 	public final Map<Integer, DropSet> drops;

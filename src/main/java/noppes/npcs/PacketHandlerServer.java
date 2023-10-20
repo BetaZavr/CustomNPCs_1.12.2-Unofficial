@@ -52,6 +52,7 @@ import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.containers.ContainerNPCTraderSetup;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.BorderController;
@@ -1284,9 +1285,16 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.TraderMarketNew) {
 			MarcetController mData = MarcetController.getInstance();
 			Marcet marcet = mData.getMarcet(buffer.readInt());
-			if (marcet == null) { marcet = mData.addMarcet(); }
-			else { marcet.addDeal(); }
+			Deal deal = null;
+			if (marcet == null) {
+				marcet = mData.addMarcet();
+				marcet.data.get(0);
+			}
+			else { deal = marcet.addDeal(); }
 			MarcetController.getInstance().saveMarcet(marcet);
+			if (player.openContainer instanceof ContainerNPCTraderSetup) {
+				((ContainerNPCTraderSetup) player.openContainer).setDeal(deal);
+			}
 			Server.sendData(player, EnumPacketClient.SET_MARCETS, mData.getNBT());
 		} else if (type == EnumPacketServer.TraderMarketDel) {
 			MarcetController mData = MarcetController.getInstance();

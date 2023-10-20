@@ -666,7 +666,7 @@ public class EventHooks {
 		return WrapperNpcAPI.EVENT_BUS.post(event);
 	}
 
-	private static boolean onEvent(ScriptContainer script, EnumScriptType enumFunction, Event event) {
+	public static boolean onEvent(ScriptContainer script, EnumScriptType enumFunction, Event event) {
 		if (script == null || event == null || enumFunction==null) { return false; }
 		script.run(enumFunction.function, event, true);
 		return WrapperNpcAPI.EVENT_BUS.post(event);

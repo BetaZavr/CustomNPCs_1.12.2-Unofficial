@@ -7,11 +7,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.CustomNPCsException;
-import noppes.npcs.api.entity.data.role.IRoleTransporter;
+import noppes.npcs.api.entity.data.role.ITransportLocation;
 import noppes.npcs.dimensions.DimensionHandler;
 
 public class TransportLocation
-implements IRoleTransporter.ITransportLocation {
+implements ITransportLocation {
 	
 	public TransportCategory category;
 	public int dimension, id, type;

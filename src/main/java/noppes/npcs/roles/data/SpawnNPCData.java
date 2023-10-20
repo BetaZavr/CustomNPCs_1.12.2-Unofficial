@@ -8,7 +8,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 
 public class SpawnNPCData {
-
 	
 	public NBTTagCompound compound;
 	public int count = 1;

@@ -35,126 +35,126 @@ public class DropNbtSet implements IDropNbtSet {
 
 	public String cheakValue(String value, int type) {
 		switch (type) {
-		case 0: { // boolean
-			try {
-				boolean b = Boolean.valueOf(value);
-				return String.valueOf(b);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 1: { // byte
-			try {
-				byte b = Byte.valueOf(value);
-				return String.valueOf(b);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 2: { // short
-			try {
-				short s = Short.valueOf(value);
-				return String.valueOf(s);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 3: { // integer
-			try {
-				int b = Integer.valueOf(value);
-				return String.valueOf(b);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 4: { // long
-			try {
-				long l = Long.valueOf(value);
-				return String.valueOf(l);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 5: { // float
-			try {
-				float f = Float.valueOf(value);
-				return String.valueOf(f);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 6: { // double
-			try {
-				double d = Double.valueOf(value);
-				return String.valueOf(d);
-			} catch (Exception e) {
-			}
-			break;
-		}
-		case 7: { // byte array
-			String[] br = value.split(",");
-			String text = "";
-			for (String str : br) {
+			case 0: { // boolean
 				try {
-					byte b = Byte.valueOf(str);
-					if (text.length() > 0) {
-						text += ",";
-					}
-					text += String.valueOf(b);
+					boolean b = Boolean.valueOf(value);
+					return String.valueOf(b);
 				} catch (Exception e) {
 				}
+				break;
 			}
-			if (text.length() > 0) {
-				return text;
-			}
-			break;
-		}
-		case 8: { // string
-			return value;
-		}
-		case 9: { // list
-			String[] br = value.split(",");
-			String text = "";
-			for (String str : br) {
+			case 1: { // byte
 				try {
-					String sc = cheakValue(str, this.typeList);
-					if (sc != null) {
+					byte b = Byte.valueOf(value);
+					return String.valueOf(b);
+				} catch (Exception e) {
+				}
+				break;
+			}
+			case 2: { // short
+				try {
+					short s = Short.valueOf(value);
+					return String.valueOf(s);
+				} catch (Exception e) {
+				}
+				break;
+			}
+			case 3: { // integer
+				try {
+					int b = Integer.valueOf(value);
+					return String.valueOf(b);
+				} catch (Exception e) {
+				}
+				break;
+			}
+			case 4: { // long
+				try {
+					long l = Long.valueOf(value);
+					return String.valueOf(l);
+				} catch (Exception e) {
+				}
+				break;
+			}
+			case 5: { // float
+				try {
+					float f = Float.valueOf(value);
+					return String.valueOf(f);
+				} catch (Exception e) {
+				}
+				break;
+			}
+			case 6: { // double
+				try {
+					double d = Double.valueOf(value);
+					return String.valueOf(d);
+				} catch (Exception e) {
+				}
+				break;
+			}
+			case 7: { // byte array
+				String[] br = value.split(",");
+				String text = "";
+				for (String str : br) {
+					try {
+						byte b = Byte.valueOf(str);
 						if (text.length() > 0) {
 							text += ",";
 						}
-						text += sc;
+						text += String.valueOf(b);
+					} catch (Exception e) {
 					}
-				} catch (Exception e) {
 				}
+				if (text.length() > 0) {
+					return text;
+				}
+				break;
 			}
-			if (text.length() > 0) {
-				return text;
+			case 8: { // string
+				return value;
 			}
-			break;
-		}
-		case 11: { // integer array
-			String[] br = value.split(",");
-			String text = "";
-			for (String str : br) {
-				try {
-					int i = Integer.valueOf(str);
-					if (text.length() > 0) {
-						if (type == this.type) {
-							text += ",";
+			case 9: { // list
+				String[] br = value.split(",");
+				String text = "";
+				for (String str : br) {
+					try {
+						String sc = cheakValue(str, this.typeList);
+						if (sc != null) {
+							if (text.length() > 0) {
+								text += ",";
+							}
+							text += sc;
 						}
-						{
-							text += ";";
-						}
+					} catch (Exception e) {
 					}
-					text += String.valueOf(i);
-				} catch (Exception e) {
 				}
+				if (text.length() > 0) {
+					return text;
+				}
+				break;
 			}
-			if (text.length() > 0) {
-				return text;
+			case 11: { // integer array
+				String[] br = value.split(",");
+				String text = "";
+				for (String str : br) {
+					try {
+						int i = Integer.valueOf(str);
+						if (text.length() > 0) {
+							if (type == this.type) {
+								text += ",";
+							}
+							{
+								text += ";";
+							}
+						}
+						text += String.valueOf(i);
+					} catch (Exception e) {
+					}
+				}
+				if (text.length() > 0) {
+					return text;
+				}
+				break;
 			}
-			break;
-		}
 		}
 		return null;
 	}

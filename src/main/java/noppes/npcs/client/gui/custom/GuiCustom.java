@@ -32,6 +32,7 @@ import noppes.npcs.api.wrapper.gui.CustomGuiScrollWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiTextFieldWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
+import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.custom.components.CustomGuiButton;
 import noppes.npcs.client.gui.custom.components.CustomGuiLabel;
 import noppes.npcs.client.gui.custom.components.CustomGuiScrollComponent;
@@ -281,6 +282,7 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
+		Client.sendDataDelayCheck(EnumPlayerPacket.CustomGuiKeyPressed, this, 0, keyCode);
 		for (ICustomKeyListener listener : this.keyListeners) {
 			listener.keyTyped(typedChar, keyCode);
 		}

@@ -8,6 +8,15 @@ import noppes.npcs.api.item.IItemStack;
 
 public class CustomGuiEvent extends CustomNPCsEvent {
 	
+	public static class KeyPressedEvent extends CustomGuiEvent {
+		public int key;
+
+		public KeyPressedEvent(IPlayer<?> player, ICustomGui gui, int k) {
+			super(player, gui);
+			this.key = k;
+		}
+	}
+	
 	public static class ButtonEvent extends CustomGuiEvent {
 		public int buttonId;
 

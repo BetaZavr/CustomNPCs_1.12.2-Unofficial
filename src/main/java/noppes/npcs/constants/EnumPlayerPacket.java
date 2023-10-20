@@ -60,6 +60,7 @@ public enum EnumPlayerPacket
 	OpenGui,
 	GetFilePart,
 	GetSyncData,
-	TransportCategoriesGet;
+	TransportCategoriesGet,
+	CustomGuiKeyPressed;
 	
 }

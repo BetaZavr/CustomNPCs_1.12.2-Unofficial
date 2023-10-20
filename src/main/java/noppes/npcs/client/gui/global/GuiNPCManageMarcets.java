@@ -68,10 +68,10 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 		super.initGui();
 		this.mData = MarcetController.getInstance();
 		if (this.scrollMarcets == null) {
-			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(105, 98);
+			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(105, 100);
 		}
 		if (this.scrollDeal == null) {
-			(this.scrollDeal = new GuiCustomScroll(this, 1)).setSize(96, 98);
+			(this.scrollDeal = new GuiCustomScroll(this, 1)).setSize(96, 100);
 		}
 		this.scrollMarcets.setListNotSorted(Lists.newArrayList(this.dataMarcets.keySet()));
 		this.scrollDeal.setListNotSorted(Lists.newArrayList(this.dataDeals.keySet()));
@@ -122,8 +122,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(0, 360, this.container.marcet.updateTime);
 
-			this.addButton(new GuiNpcButton(5, this.guiLeft + 5, this.guiTop + 114, 52, 20, "gui.add"));
-			this.addButton(new GuiNpcButton(6, this.guiLeft + 59, this.guiTop + 114, 51, 20, "gui.remove"));
+			this.addButton(new GuiNpcButton(5, this.guiLeft + 5, this.guiTop + 115, 52, 20, "gui.add"));
+			this.addButton(new GuiNpcButton(6, this.guiLeft + 59, this.guiTop + 115, 51, 20, "gui.remove"));
 			this.getButton(6).enabled = this.container.marcet!=null && MarcetController.getInstance().marcets.size() > 1;
 		}
 		
@@ -160,8 +160,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 			this.getButton(2).enabled = this.container.deal!=null;
 			this.getButton(3).enabled = this.container.deal!=null;
 			this.getButton(4).enabled = this.container.deal!=null;
-			this.addButton(new GuiNpcButton(7, this.guiLeft + 113, this.guiTop + 114, 48, 20, "gui.add"));
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 163, this.guiTop + 114, 47, 20, "gui.remove"));
+			this.addButton(new GuiNpcButton(7, this.guiLeft + 113, this.guiTop + 115, 48, 20, "gui.add"));
+			this.addButton(new GuiNpcButton(8, this.guiLeft + 163, this.guiTop + 115, 47, 20, "gui.remove"));
 			boolean notEmpty = true;
 			if (this.container.marcet != null) {
 				for (Deal d : this.container.marcet.data.values()) {

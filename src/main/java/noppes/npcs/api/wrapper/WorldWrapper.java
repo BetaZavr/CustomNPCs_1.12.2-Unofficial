@@ -158,7 +158,6 @@ implements IWorld {
 	}
 	
 	@Override
-	@Deprecated
 	public IBlock getBlock(IPos pos) {
 		if (pos==null) { return null; }
 		return NpcAPI.Instance().getIBlock(this.world, pos.getMCBlockPos());
@@ -183,11 +182,13 @@ implements IWorld {
 	}
 
 	@Override
+	@Deprecated
 	public IEntity<?> getClone(int tab, String name) {
 		return NpcAPI.Instance().getClones().get(tab, name, this);
 	}
 
 	@Override
+	@Deprecated
 	public IEntity<?> getClosestEntity(int x, int y, int z, int range, int type) {
 		return this.getClosestEntity(new BlockPosWrapper(new BlockPos(x, y, z)), range, type);
 	}
@@ -276,6 +277,7 @@ implements IWorld {
 	}
 
 	@Override
+	@Deprecated
 	public IEntity<?>[] getNearbyEntities(int x, int y, int z, int range, int type) {
 		return this.getNearbyEntities(new BlockPosWrapper(new BlockPos(x, y, z)), range, type);
 	}
@@ -372,6 +374,7 @@ implements IWorld {
 	}
 
 	@Override
+	@Deprecated
 	public void removeBlock(int x, int y, int z) {
 		this.world.setBlockToAir(new BlockPos(x, y, z));
 	}
@@ -381,8 +384,8 @@ implements IWorld {
 		this.world.setBlockToAir(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
+	@Deprecated
 	public void setBlock(int x, int y, int z, String name, int meta) {
 		Block block = Block.getBlockFromName(name);
 		if (block == null) {
@@ -417,6 +420,7 @@ implements IWorld {
 	}
 
 	@Override
+	@Deprecated
 	public IEntity<?> spawnClone(double x, double y, double z, int tab, String name) {
 		return NpcAPI.Instance().getClones().spawn(x, y, z, tab, name, this);
 	}

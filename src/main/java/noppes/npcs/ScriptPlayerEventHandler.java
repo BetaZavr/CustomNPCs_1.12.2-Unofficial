@@ -204,15 +204,19 @@ public class ScriptPlayerEventHandler {
 		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
 		if (event.getEntityLiving() instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) event.getEntityLiving()).scriptData;
-			PlayerEvent.DamagedEvent pevent = new PlayerEvent.DamagedEvent(handler.getPlayer(), source,
-					event.getAmount(), event.getSource());
-			event.setCanceled(EventHooks.onPlayerDamaged(handler, pevent));
-			event.setAmount(pevent.damage);
+			PlayerEvent.DamagedEvent pevent = new PlayerEvent.DamagedEvent(handler.getPlayer(), source, event.getAmount(), event.getSource());
+			boolean cancel = EventHooks.onPlayerDamaged(handler, pevent);
+			event.setCanceled(cancel);
+			if (pevent.clearTarget) {
+				event.setCanceled(true);
+				event.setAmount(0.0f);
+			} else {
+				event.setAmount(pevent.damage);
+			}
 		}
 		if (source instanceof EntityPlayer) {
 			PlayerScriptData handler = PlayerData.get((EntityPlayer) source).scriptData;
-			PlayerEvent.DamagedEntityEvent pevent2 = new PlayerEvent.DamagedEntityEvent(handler.getPlayer(),
-					event.getEntityLiving(), event.getAmount(), event.getSource());
+			PlayerEvent.DamagedEntityEvent pevent2 = new PlayerEvent.DamagedEntityEvent(handler.getPlayer(), event.getEntityLiving(), event.getAmount(), event.getSource());
 			event.setCanceled(EventHooks.onPlayerDamagedEntity(handler, pevent2));
 			event.setAmount(pevent2.damage);
 		}

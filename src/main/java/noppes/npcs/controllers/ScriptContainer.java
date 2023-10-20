@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +93,8 @@ public class ScriptContainer {
 		FillMap(SideType.class);
 		FillMap(TacticalType.class);
 		FillMap(ScriptController.Instance.constants);
+		ScriptContainer.Data.put("date", Date.class);
+		ScriptContainer.Data.put("calendar", Calendar.getInstance());
 		ScriptContainer.Data.put("API", NpcAPI.Instance());
 		ScriptContainer.Data.put("PosZero", new BlockPosWrapper(BlockPos.ORIGIN));
 	}

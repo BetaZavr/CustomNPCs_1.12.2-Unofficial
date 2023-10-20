@@ -134,12 +134,13 @@ extends GuiContainer {
 		for (GuiNpcLabel label : new ArrayList<GuiNpcLabel>(this.labels.values())) {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);
 		}
+		boolean hasArea = false;
 		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 			tf.drawTextBox(mouseX, mouseY);
+			if (tf instanceof GuiNpcTextArea) { hasArea = true; }
 		}
-		int dWheel = Mouse.getDWheel();
 		for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-			scroll.drawScreen(mouseX, mouseY, partialTicks, (!this.hasSubGui() && scroll.isMouseOver(mouseX, mouseY)) ? dWheel : 0);
+			scroll.drawScreen(mouseX, mouseY, partialTicks, (!this.hasSubGui() && (scroll.hovered || (this.scrolls.size()==0 && !hasArea))) ? Mouse.getDWheel() : 0);
 		}
 	}
 

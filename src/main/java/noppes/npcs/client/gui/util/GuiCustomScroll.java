@@ -79,6 +79,7 @@ extends GuiScreen {
 		this.hoversTexts = null;
 		this.colors = null;
 		this.stacks = null;
+		this.setSize(this.width, this.height);
 	}
 
 	public GuiCustomScroll(GuiScreen parent, int id, boolean multipleSelection) {
@@ -98,7 +99,7 @@ extends GuiScreen {
 		for (int i = 0; i < this.list.size(); ++i) {
 			int j = 4;
 			int k = 14 * i + 4 - this.scrollY;
-			if (k < 4 || k + 12 >= this.height) {
+			if (k < 4 || k + 10 >= this.height) {
 				continue;
 			}
 			String displayString = this.list.get(i).toString();
@@ -324,8 +325,8 @@ extends GuiScreen {
 		return true;
 	}
 
-	public void mouseClicked(int i, int j, int k) {
-		if (k != 0 || this.hover < 0) {
+	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+		if (mouseButton != 0 || this.hover < 0) {
 			return;
 		}
 		if (this.multipleSelection) {
@@ -342,7 +343,7 @@ extends GuiScreen {
 		}
 		if (this.listener != null) {
 			long time = System.currentTimeMillis();
-			this.listener.scrollClicked(i, j, k, this);
+			this.listener.scrollClicked(mouseX, mouseY, mouseButton, this);
 			if (this.selected >= 0 && this.selected == this.lastClickedItem && time - this.lastClickedTime < 500L) {
 				this.listener.scrollDoubleClicked(this.list.get(this.selected), this);
 			}
@@ -418,13 +419,11 @@ extends GuiScreen {
 	}
 
 	public void resetRoll() {
-		if (this.selected<0 || this.listHeight < this.height) {
-			this.scrollY = 0;
-			return;
-		}
-		int e = this.scrollY + this.height / 14;
-		if (this.selected > e) { this.scrollY = this.selected * 14; }
-		else { this.scrollY = this.selected * 14; }
+		if (this.selected <= 0) { return; }
+		int pos = (this.selected + 1) * 14;
+		if (pos >= this.scrollY && pos <= this.scrollY + this.height) { return; }
+		this.scrollY = pos;
+		if (pos - this.height / 2 > 0) { this.scrollY = pos - this.height / 2; }
 		if (this.scrollY < 0) { this.scrollY = 0; }
 		if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY; }
 	}
@@ -436,12 +435,9 @@ extends GuiScreen {
 	public void setSize(int x, int y) {
 		this.height = y;
 		this.width = x;
-		this.listHeight = 15 * this.list.size();
-		if (this.listHeight > 0) {
-			this.scrollHeight = (int) ((float) this.height * ((float) this.height - 2.0f) / (float) this.listHeight);
-		} else {
-			this.scrollHeight = Integer.MAX_VALUE;
-		}
+		this.listHeight = 14 * this.list.size();
+		if (this.listHeight > 0) { this.scrollHeight = (int) ((float) this.height * ((float) this.height - 2.0f) / (float) this.listHeight); }
+		else { this.scrollHeight = Integer.MAX_VALUE; }
 		this.maxScrollY = this.listHeight - this.height;
 		if (this.maxScrollY<0) { this.maxScrollY = 0; }
 	}
@@ -467,6 +463,7 @@ extends GuiScreen {
 	
 	@Override
 	public void keyTyped(char c, int i) {
+		if (!this.hovered) { return; }
 		if (this.list.size()<=1) { return; }
 		if (i==200 || i==ClientProxy.frontButton.getKeyCode()) { // up
 			if (this.selected<1) { return; }

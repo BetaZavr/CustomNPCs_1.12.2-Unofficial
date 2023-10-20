@@ -50,6 +50,7 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
+import noppes.npcs.util.temp.TempClass;
 
 public class ClientTickHandler {
 	
@@ -276,6 +277,14 @@ public class ClientTickHandler {
 		//EntityPlayerSP player = (EntityPlayerSP) entity;
 		//TempClass.createAPIs(true);
 		//TempClass.deobfucation();
+		
+		/*Point[] arr = new Point[0];
+		Class<?> c = arr.getClass();
+		System.out.println("Array: "+c.getName());
+		String path = c.getTypeName();
+		path = path.substring(0, path.indexOf("[]"));
+		try { c = Class.forName(path); } catch (Exception e) {}
+		System.out.println("Class: "+c.getName());*/
 		
 		/*if (ClientTickHandler.music==null) { return; }
 		String name = ClientTickHandler.music.sound.getSound().getSoundAsOggLocation().toString();

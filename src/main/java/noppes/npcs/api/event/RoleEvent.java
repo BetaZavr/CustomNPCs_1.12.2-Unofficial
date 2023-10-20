@@ -1,13 +1,18 @@
 package noppes.npcs.api.event;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
-import noppes.npcs.api.entity.data.role.IRoleTransporter;
+import noppes.npcs.api.entity.data.role.ITransportLocation;
 import noppes.npcs.api.item.IItemStack;
 
 public class RoleEvent extends CustomNPCsEvent {
@@ -57,29 +62,37 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	public static class TradeFailedEvent extends RoleEvent {
-		public IItemStack currency1;
-		public IItemStack currency2;
+		
+		public IItemStack[] currency;
 		public IItemStack receiving;
 		public IItemStack sold;
 
-		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, ItemStack currency1, ItemStack currency2) {
+		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, NonNullList<ItemStack> items) {
 			super(player, npc);
-			this.currency1 = (currency1.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency1.copy()));
-			this.currency2 = (currency2.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency2.copy()));
+			List<IItemStack> list = Lists.<IItemStack>newArrayList();
+			for (ItemStack stack : items) {
+				if (stack == null || stack.isEmpty()) { continue; }
+				list.add(NpcAPI.Instance().getIItemStack(stack.copy()));
+			}
+			this.currency = list.toArray(new IItemStack[list.size()]);
 			this.sold = NpcAPI.Instance().getIItemStack(sold.copy());
 		}
 	}
 
 	@Cancelable
 	public static class TraderEvent extends RoleEvent {
-		public IItemStack currency1;
-		public IItemStack currency2;
+		
+		public IItemStack[] currency;
 		public IItemStack sold;
 
-		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, ItemStack currency1, ItemStack currency2) {
+		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, NonNullList<ItemStack> items) {
 			super(player, npc);
-			this.currency1 = (currency1.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency1.copy()));
-			this.currency2 = (currency2.isEmpty() ? null : NpcAPI.Instance().getIItemStack(currency2.copy()));
+			List<IItemStack> list = Lists.<IItemStack>newArrayList();
+			for (ItemStack stack : items) {
+				if (stack == null || stack.isEmpty()) { continue; }
+				list.add(NpcAPI.Instance().getIItemStack(stack.copy()));
+			}
+			this.currency = list.toArray(new IItemStack[list.size()]);
 			this.sold = NpcAPI.Instance().getIItemStack(sold.copy());
 		}
 	}
@@ -93,9 +106,9 @@ public class RoleEvent extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class TransporterUseEvent extends RoleEvent {
-		public IRoleTransporter.ITransportLocation location;
+		public ITransportLocation location;
 
-		public TransporterUseEvent(EntityPlayer player, ICustomNpc<?> npc, IRoleTransporter.ITransportLocation location) {
+		public TransporterUseEvent(EntityPlayer player, ICustomNpc<?> npc, ITransportLocation location) {
 			super(player, npc);
 			this.location = location;
 		}

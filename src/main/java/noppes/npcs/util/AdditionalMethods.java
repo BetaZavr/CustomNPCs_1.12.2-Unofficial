@@ -1340,24 +1340,25 @@ implements IMetods {
 		return AdditionalMethods.teleportEntity(server, entity, dimension, (double) pos.getX()+0.5d, (double) pos.getY(), (double) pos.getZ()+0.5d);
 	}
 	
-	public static void teleportEntity(Entity entityIn, double x, double y, double z) {
-		teleportEntity(entityIn, x, y, z, 0.0f, 0.0f);
+	public static Entity teleportEntity(Entity entityIn, double x, double y, double z) {
+		return teleportEntity(entityIn, x, y, z, 0.0f, 0.0f);
 	}
 	
-	public static void teleportEntity(Entity entityIn, double x, double y, double z, float yaw, float pitch) {
+	public static Entity teleportEntity(Entity entityIn, double x, double y, double z, float yaw, float pitch) {
 		try {
 			CommandBase.CoordinateArg argX = CommandBase.parseCoordinate(entityIn.posX, ""+x, true);
 			CommandBase.CoordinateArg argY = CommandBase.parseCoordinate(entityIn.posY, ""+y, -4096, 4096, false);
 			CommandBase.CoordinateArg argZ = CommandBase.parseCoordinate(entityIn.posZ, ""+z, true);
 			CommandBase.CoordinateArg argYaw = CommandBase.parseCoordinate((double) entityIn.rotationYaw, ""+yaw, false);
 			CommandBase.CoordinateArg argPitch = CommandBase.parseCoordinate((double) entityIn.rotationPitch, ""+pitch, false);
-			teleportEntity(entityIn, argX, argY, argZ, argYaw, argPitch);
+			return teleportEntity(entityIn, argX, argY, argZ, argYaw, argPitch);
 		}
 		catch (NumberInvalidException e) { }
+		return null;
 	}
 	
 	/* Vanila Teleport in world */
-	public static void teleportEntity(Entity entityIn, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch) {
+	public static Entity teleportEntity(Entity entityIn, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch) {
 		if (entityIn instanceof EntityPlayerMP)
 		{
 			Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.<SPacketPlayerPosLook.EnumFlags>noneOf(SPacketPlayerPosLook.EnumFlags.class);
@@ -1384,6 +1385,7 @@ implements IMetods {
 			entityIn.motionY = 0.0D;
 			entityIn.onGround = true;
 		}
+		return entityIn;
 	}
 
 	@Override
@@ -1781,15 +1783,15 @@ implements IMetods {
 		return inputStream;
 	}
 
-	public List<File> getFiles(File dir, String suffix) {
+	public List<File> getFiles(File dir, String index) {
 		List<File> list = Lists.newArrayList();
 		if (dir==null || !dir.exists() || !dir.isDirectory()) { return list; }
 		for (File f : dir.listFiles()) {
 			if (f.isDirectory()) {
-				list.addAll(this.getFiles(f, suffix));
+				list.addAll(this.getFiles(f, index));
 				continue;
 			}
-			if (!f.isFile() || !f.getName().endsWith(suffix)) { continue; }
+			if (!f.isFile() || !f.getName().endsWith(index)) { continue; }
 			list.add(f);
 		}
 		return list;

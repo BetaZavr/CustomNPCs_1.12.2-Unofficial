@@ -42,7 +42,6 @@ implements IContainerCustomChest {
 			return;
 		}
 		this.name = name;
-		Server.sendDataDelayed((EntityPlayerMP) ((ContainerNpcInterface) this.getMCContainer()).player,
-				EnumPacketClient.CHEST_NAME, 10, name);
+		Server.sendDataDelayed((EntityPlayerMP) ((ContainerNpcInterface) this.getMCContainer()).player, EnumPacketClient.CHEST_NAME, 10, name);
 	}
 }

@@ -216,10 +216,10 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.kodevelopment.nl/minecraft/customnpcs/scripting", 0, true));
 		}
 		if (guibutton.id == 110) {
-			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.kodevelopment.nl/customnpcs/api/", 1, true));
+			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "https://minecraft.fandom.com/ru/wiki/Custom_NPCs/Unoficial_API_1.12.2", 1, true));
 		}
 		if (guibutton.id == 111) {
-			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "https://github.com/Noppes/CustomNPCsAPI", 2, true));
+			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/releases", 2, true));
 		}
 		if (guibutton.id == 112) {
 			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.minecraftforge.net/forum/index.php/board,122.0.html", 3, true));

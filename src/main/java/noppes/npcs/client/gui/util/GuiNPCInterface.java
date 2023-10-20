@@ -265,18 +265,20 @@ extends GuiScreen {
 		}
 		GlStateManager.translate(0, 0, 1.0f);
 		this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, this.height + 10, CustomNpcs.mainColor);
+		boolean hasArea = false;
 		for (GuiNpcLabel label : new ArrayList<GuiNpcLabel>(this.labels.values())) {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);
 		}
 		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 			tf.drawTextBox(x, y);
+			if (tf instanceof GuiNpcTextArea) { hasArea = true; }
 		}
 		for (IGui comp : new ArrayList<IGui>(this.components)) {
 			comp.drawScreen(x, y);
+			if (comp instanceof GuiNpcTextArea) { hasArea = true; }
 		}
-		int dWheel = Mouse.getDWheel();
 		for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-			scroll.drawScreen(x, y, partialTicks, (!this.hasSubGui() && scroll.isMouseOver(x, y)) ? dWheel : 0);
+			scroll.drawScreen(x, y, partialTicks, (!this.hasSubGui() && (scroll.hovered || (this.scrolls.size()==0 && !hasArea))) ? Mouse.getDWheel() : 0);
 		}
 		for (GuiScreen gui : new ArrayList<GuiScreen>(this.extra.values())) {
 			gui.drawScreen(x, y, partialTicks);

@@ -63,9 +63,9 @@ extends IEntityLiving<T> {
 
 	void setHome(int x, int y, int z);
 
-	IProjectile<?> shootItem(double x, double y, double z, IItemStack item, int count);
+	IProjectile<?> shootItem(double x, double y, double z, IItemStack item, int accuracy);
 
-	IProjectile<?> shootItem(IEntityLivingBase<?> entity, IItemStack item, int count);
+	IProjectile<?> shootItem(IEntityLivingBase<?> entity, IItemStack item, int accuracy);
 
 	void updateClient();
 

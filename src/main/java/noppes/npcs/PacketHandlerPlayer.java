@@ -25,6 +25,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.entity.ICustomNpc;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.CustomGuiEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.event.RoleEvent;
@@ -38,6 +41,7 @@ import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.containers.ContainerNPCBankInterface;
@@ -599,13 +603,18 @@ public class PacketHandlerPlayer {
 					d.amount -= stack.getCount();
 				}
 				boolean bo = stack.getCount() == 0 ? false : player.inventory.addItemStackToInventory(stack);
+				Entity entity = player.world.getEntityByID(buffer.readInt());
+				ICustomNpc<?> npc = null;
+				if (entity instanceof EntityNPCInterface) {
+					npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity(entity);
+				}
 				if (bo) {
-					player.sendMessage(new TextComponentTranslation("mes.market.buy",
-							new Object[] { d.inventorySold.getStackInSlot(0).getDisplayName() + " x"
-									+ d.inventorySold.getStackInSlot(0).getCount() }));
-					NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f,
-							((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+					player.sendMessage(new TextComponentTranslation("mes.market.buy", new Object[] { d.inventorySold.getStackInSlot(0).getDisplayName() + " x" + d.inventorySold.getStackInSlot(0).getCount() }));
+					NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 					AdditionalMethods.updatePlayerInventory(player);
+					EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
+				} else {
+					EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
 				}
 				m.detectAndSendChanges();
 			}
@@ -621,8 +630,12 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			ItemStack stack = d.inventorySold.getStackInSlot(0);
-			if (player.capabilities.isCreativeMode
-					|| AdditionalMethods.removeItem(player, stack, d.ignoreDamage, d.ignoreNBT)) {
+			Entity entity = player.world.getEntityByID(buffer.readInt());
+			ICustomNpc<?> npc = null;
+			if (entity instanceof EntityNPCInterface) {
+				npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity(entity);
+			}
+			if (player.capabilities.isCreativeMode || AdditionalMethods.removeItem(player, stack, d.ignoreDamage, d.ignoreNBT)) {
 				// Add Items
 				List<ItemStack> list = Lists.<ItemStack>newArrayList();
 				List<ItemStack> givelist = Lists.<ItemStack>newArrayList();
@@ -667,9 +680,11 @@ public class PacketHandlerPlayer {
 				if (d.count[1] != 0) {
 					d.amount += stack.getCount();
 				}
-				player.sendMessage(new TextComponentTranslation("mes.market.sell",
-						new Object[] { stack.getDisplayName() + " x" + stack.getCount() }));
+				player.sendMessage(new TextComponentTranslation("mes.market.sell", new Object[] { stack.getDisplayName() + " x" + stack.getCount() }));
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
 				m.detectAndSendChanges();
+			} else {
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
 			}
 		} else if (type == EnumPlayerPacket.TraderMarketReset) {
 			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
@@ -762,8 +777,11 @@ public class PacketHandlerPlayer {
 			SyncController.syncPlayer(player);
 		} else if (type == EnumPlayerPacket.TransportCategoriesGet) {
 			NoppesUtilServer.sendTransportData(player);
+		} else if (type == EnumPlayerPacket.CustomGuiKeyPressed) {
+			IPlayer<?> pl = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
+			if (pl.getCustomGui()==null || ((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler()==null) { return; }
+			EventHooks.onEvent(((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler(), EnumScriptType.KEY_UP, new CustomGuiEvent.KeyPressedEvent(pl, pl.getCustomGui(), buffer.readInt()));
 		}
-		
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
 }

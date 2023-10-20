@@ -421,6 +421,7 @@ implements IPlayer {
 		return data.dialogsRead.contains(id);
 	}
 
+	@Deprecated
 	@Override
 	public int inventoryItemCount(IItemStack item) {
 		int count = 0;
@@ -439,6 +440,7 @@ implements IPlayer {
 				(Availability) null, ignoreDamage, ignoreNBT);
 	}
 
+	@Deprecated
 	@Override
 	public int inventoryItemCount(String id, int damage) {
 		Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation(id));
@@ -618,6 +620,7 @@ implements IPlayer {
 		this.entity.setSpawnPoint(new BlockPos(block.getX(), block.getY(), block.getZ()), true);
 	}
 
+	@Deprecated
 	@Override
 	public IContainer showChestGui(int rows) {
 		ScriptContainer current = ScriptContainer.Current;

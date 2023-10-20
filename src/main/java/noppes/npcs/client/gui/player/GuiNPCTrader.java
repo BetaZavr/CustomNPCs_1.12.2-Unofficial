@@ -67,18 +67,18 @@ implements ICustomScrollListener, IGuiData {
 	public void buttonEvent(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
-		case 0: { // buy
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.container.marcet.id, this.container.deal.id);
-			break;
-		}
-		case 1: { // Sell
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, this.container.marcet.id, this.container.deal.id);
-			break;
-		}
-		case 2: { // Reset
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, this.container.marcet.id, this.container.deal.id);
-			break;
-		}
+			case 0: { // buy
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.container.marcet.id, this.container.deal.id, this.npc.getEntityId());
+				break;
+			}
+			case 1: { // Sell
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, this.container.marcet.id, this.container.deal.id, this.npc.getEntityId());
+				break;
+			}
+			case 2: { // Reset
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, this.container.marcet.id, this.container.deal.id, this.npc.getEntityId());
+				break;
+			}
 		}
 		this.wait = true;
 		this.initGui();
