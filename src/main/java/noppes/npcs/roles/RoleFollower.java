@@ -40,8 +40,7 @@ implements IRoleFollower {
 	public RoleFollower(EntityNPCInterface npc) {
 		super(npc);
 		this.isFollowing = true;
-		this.dialogHire = new TextComponentTranslation("follower.hireText").getFormattedText() + " {days} "
-				+ new TextComponentTranslation("follower.days").getFormattedText();
+		this.dialogHire = new TextComponentTranslation("follower.hireText").getFormattedText() + " {days} " + new TextComponentTranslation("follower.days").getFormattedText();
 		this.dialogFarewell = new TextComponentTranslation("follower.farewellText").getFormattedText() + " {player}";
 		this.disableGui = false;
 		this.infiniteDays = false;

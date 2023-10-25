@@ -5,18 +5,23 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.entity.data.role.IRoleTrader;
+import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RoleTrader
-extends RoleInterface {
+extends RoleInterface
+implements IRoleTrader {
 	
 	public int marcet;
 
@@ -25,7 +30,8 @@ extends RoleInterface {
 		this.marcet = -1;
 		this.type = RoleType.TRADER;
 	}
-
+	
+	@Override
 	@Deprecated
 	public IItemStack getCurrency1(int slot) {
 		if (MarcetController.getInstance().marcets.containsKey(this.marcet)) {
@@ -35,21 +41,24 @@ extends RoleInterface {
 		return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 	}
 
+	@Override
 	@Deprecated
 	public IItemStack getCurrency2(int slot) {
 		if (MarcetController.getInstance().marcets.containsKey(this.marcet)) {
 			Marcet m = MarcetController.getInstance().marcets.get(this.marcet);
-			return m.getCurrency(slot / 2, 1);
+			return m.getCurrency(slot, 1);
 		}
 		return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 	}
 
+	@Override
 	@Deprecated
 	public String getMarket() {
 		Marcet m = MarcetController.getInstance().marcets.get(this.marcet);
 		return m == null ? "" : m.name;
 	}
 
+	@Override
 	@Deprecated
 	public IItemStack getSold(int slot) {
 		if (MarcetController.getInstance().marcets.containsKey(this.marcet)) {
@@ -59,13 +68,20 @@ extends RoleInterface {
 		return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 	}
 
+	@Deprecated
 	public boolean hasCurrency(ItemStack stack) {
 		if (stack == null) {
 			return false;
 		}
 		if (MarcetController.getInstance().marcets.containsKey(this.marcet)) {
 			Marcet m = MarcetController.getInstance().marcets.get(this.marcet);
-			return m.hasCurrency(stack);
+			for (Deal d : m.data.values()) {
+				for (ItemStack item : d.inventoryCurrency.items) {
+					if (!item.isEmpty() && NoppesUtilPlayer.compareItems(item, stack, d.ignoreDamage, d.ignoreNBT)) {
+						return true;
+					}
+				}
+			}
 		}
 		return false;
 	}
@@ -83,6 +99,7 @@ extends RoleInterface {
 		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerTrader, this.npc);
 	}
 
+	@Override
 	@Deprecated
 	public void remove(int slot) {
 		if (MarcetController.getInstance().marcets.containsKey(this.marcet)) {
@@ -95,6 +112,7 @@ extends RoleInterface {
 		}
 	}
 
+	@Override
 	@Deprecated
 	public void set(int slot, IItemStack currency, IItemStack currency2, IItemStack sold) {
 		if (sold == null) {
@@ -125,12 +143,18 @@ extends RoleInterface {
 		}
 	}
 
+	@Override
 	@Deprecated
 	public void setMarket(String name) {
 		Marcet m = MarcetController.getInstance().get(name);
 		if (m != null) {
 			this.marcet = m.id;
 		}
+	}
+
+	@Override
+	public IMarcet getStore() {
+		return MarcetController.getInstance().marcets.get(this.marcet);
 	}
 
 	@Override
@@ -146,5 +170,8 @@ extends RoleInterface {
 		compound.setInteger("MarketID", this.marcet);
 		return compound;
 	}
+
+	@Override
+	public int getStoreId() { return this.marcet; }
 
 }

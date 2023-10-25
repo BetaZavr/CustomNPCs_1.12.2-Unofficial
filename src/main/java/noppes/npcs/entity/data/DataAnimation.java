@@ -226,6 +226,7 @@ implements INPCAnimation {
 	@Override
 	public void reset() {
 		this.stopAnimation();
+		this.stopEmotion();
 	}
 	
 	@Override

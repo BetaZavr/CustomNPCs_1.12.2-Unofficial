@@ -171,9 +171,9 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			List<String> list = Lists.newArrayList();
 			for (int i=0; i<anim.frames.size(); i++) { list.add(""+(i+1)+"/"+anim.frames.size()); }
 			
-			int u = this.guiLeft+230, v = this.guiTop+14, s = 65;
+			int u = this.guiLeft+230, v = this.guiTop + 14, s = 65;
 			// Display
-			button = new GuiNpcCheckBox(18, u, v - 15, 65, 14, anim.isDisable() ? "gui.disabled" : "gui.enabled");
+			button = new GuiNpcCheckBox(18, u - 103, v + this.height - 30, 65, 14, anim.isDisable() ? "gui.disabled" : "gui.enabled");
 			((GuiNpcCheckBox) button).setSelected(anim.isDisable());
 			this.addButton(button);
 			

@@ -157,29 +157,27 @@ implements IInventory, INPCInventory {
 		return prelist.toArray(new IItemStack[prelist.size()]);
 	}
 
-	public ItemStack decrStackSize(int par1, int par2) { // Changed
+	public ItemStack decrStackSize(int slot0, int slot1) {
 		int i = 0;
-		Map<Integer, IItemStack> var3 = new HashMap<Integer, IItemStack>(); // Changed
+		Map<Integer, IItemStack> var3 = new HashMap<Integer, IItemStack>();
 		ItemStack var4 = null;
-		/*
-		 * Changed if (par1 >= 7) { var3 = this.drops; par1 -= 7; } else
-		 */if (par1 >= 4) {
+		if (slot0 >= 4) {
 			var3 = this.weapons;
-			par1 -= 4;
+			slot0 -= 4;
 			i = 1;
 		} else {
 			var3 = this.armor;
 			i = 2;
 		}
 
-		if (var3.get(par1) != null) {
-			if (var3.get(par1).getMCItemStack().getCount() <= par2) {
-				var4 = var3.get(par1).getMCItemStack();
-				var3.put(par1, null);
+		if (var3.get(slot0) != null) {
+			if (var3.get(slot0).getMCItemStack().getCount() <= slot1) {
+				var4 = var3.get(slot0).getMCItemStack();
+				var3.put(slot0, null);
 			} else {
-				var4 = var3.get(par1).getMCItemStack().splitStack(par2);
-				if (var3.get(par1).getMCItemStack().getCount() == 0) {
-					var3.put(par1, null);
+				var4 = var3.get(slot0).getMCItemStack().splitStack(slot1);
+				if (var3.get(slot0).getMCItemStack().getCount() == 0) {
+					var3.put(slot0, null);
 				}
 			}
 		}
@@ -195,7 +193,7 @@ implements IInventory, INPCInventory {
 		return var4;
 	}
 
-	public void dropStuff(NpcEvent.DiedEvent event, Entity entity, DamageSource damagesource) { // Changed
+	public void dropStuff(NpcEvent.DiedEvent event, Entity entity, DamageSource damagesource) {
 		ArrayList<EntityItem> list = Lists.<EntityItem>newArrayList();
 		if (event.droppedItems != null) {
 			for (IItemStack itemD : event.droppedItems) {
@@ -243,11 +241,10 @@ implements IInventory, INPCInventory {
 		while (exp > 0) {
 			int var2 = EntityXPOrb.getXPSplit(exp);
 			exp -= var2;
-			if (/* Changed this.lootMode == 1 */ this.lootMode && entity instanceof EntityPlayer) {
+			if (this.lootMode && entity instanceof EntityPlayer) {
 				this.npc.world.spawnEntity(new EntityXPOrb(entity.world, entity.posX, entity.posY, entity.posZ, var2));
 			} else {
-				this.npc.world.spawnEntity(
-						new EntityXPOrb(this.npc.world, this.npc.posX, this.npc.posY, this.npc.posZ, var2));
+				this.npc.world.spawnEntity(new EntityXPOrb(this.npc.world, this.npc.posX, this.npc.posY, this.npc.posZ, var2));
 			}
 		}
 	}
@@ -268,8 +265,15 @@ implements IInventory, INPCInventory {
 		DropSet g = this.drops.get(slot);
 		return (ICustomDrop) g;
 	}
+	
+	public IItemStack getDropItem(int slot) {
+		if (slot < 0 || slot >= this.drops.size()) {
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum", new Object[0]);
+		}
+		DropSet g = this.drops.get(slot);
+		return g.getItem();
+	}
 
-	// New
 	public ICustomDrop[] getDrops() {
 		ICustomDrop[] dss = new ICustomDrop[this.drops.size()];
 		int i = 0;
@@ -348,18 +352,16 @@ implements IInventory, INPCInventory {
 	}
 
 	public int getSizeInventory() {
-		return /* 15 Changed */ 6;
+		return 7 + this.drops.size();
 	}
 
-	public ItemStack getStackInSlot(int i) {
-		if (i < 4) {
-			return ItemStackWrapper.MCItem(this.getArmor(i));
+	public ItemStack getStackInSlot(int slot) {
+		if (slot < 4) {
+			return ItemStackWrapper.MCItem(this.getArmor(slot));
 		}
-		if (i < 7) {
-			return ItemStackWrapper.MCItem(this.weapons.get(i - 4));
+		if (slot < 7) {
+			return ItemStackWrapper.MCItem(this.weapons.get(slot - 4));
 		}
-		// return ItemStackWrapper.MCItem(this.drops.get(i - 7)); Changed
-		// New
 		return ItemStackWrapper.MCItem(NpcAPI.Instance().getIItemStack(ItemStack.EMPTY));
 	}
 
@@ -381,11 +383,11 @@ implements IInventory, INPCInventory {
 		return true;
 	}
 
-	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		return true;
 	}
 
-	public boolean isUsableByPlayer(EntityPlayer var1) {
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return true;
 	}
 
@@ -468,23 +470,20 @@ implements IInventory, INPCInventory {
 		return false;
 	}
 
-	public ItemStack removeStackFromSlot(int par1) { // Changed
+	public ItemStack removeStackFromSlot(int slot) {
 		int i = 0;
 		Map<Integer, IItemStack> var2 = new HashMap<Integer, IItemStack>();
-		// Changed
-		/*
-		 * Changed if (par1 >= 7) { var2 = this.drops; par1 -= 7; } else
-		 */if (par1 >= 4) {
+		if (slot >= 4) {
 			var2 = this.weapons;
-			par1 -= 4;
+			slot -= 4;
 			i = 1;
 		} else {
 			var2 = this.armor;
 			i = 2;
 		}
-		if (var2.get(par1) != null) {
-			ItemStack var3 = var2.get(par1).getMCItemStack();
-			var2.put(par1, null);
+		if (var2.get(slot) != null) {
+			ItemStack var3 = var2.get(slot).getMCItemStack();
+			var2.put(slot, null);
 			if (i == 1) {
 				this.weapons = var2;
 			}
@@ -510,21 +509,18 @@ implements IInventory, INPCInventory {
 	public void setField(int id, int value) {
 	}
 
-	public void setInventorySlotContents(int par1, ItemStack par2ItemStack) { // Changed
+	public void setInventorySlotContents(int slot, ItemStack item) {
 		int i = 0;
 		Map<Integer, IItemStack> var3 = new HashMap<Integer, IItemStack>();
-		// Changed
-		/*
-		 * Changed if (par1 >= 7) { var3 = this.drops; par1 -= 7; } else
-		 */if (par1 >= 4) {
+		if (slot >= 4) {
 			var3 = this.weapons;
-			par1 -= 4;
+			slot -= 4;
 			i = 1;
 		} else {
 			var3 = this.armor;
 			i = 2;
 		}
-		var3.put(par1, NpcAPI.Instance().getIItemStack(par2ItemStack));
+		var3.put(slot, NpcAPI.Instance().getIItemStack(item));
 		if (i == 1) {
 			this.weapons = var3;
 		}

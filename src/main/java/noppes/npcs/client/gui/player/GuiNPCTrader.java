@@ -275,7 +275,7 @@ implements ICustomScrollListener, IGuiData {
 			this.setHoverText(new TextComponentTranslation("market.hover.reset").getFormattedText());
 		} else if (this.container.deal.count[1] > 0 && isMouseHover(i, j, this.guiLeft + 177, this.guiTop + 24, 45, 14)) {
 			this.setHoverText( this.container.deal.count[1] > 0 ? new TextComponentTranslation("market.hover.item.amount", new Object[] { "" + this.container.deal.amount }).getFormattedText() : "");
-		} else if (this.getLabel(6).enabled && isMouseHover(i, j, this.guiLeft + 80, this.guiTop + 5, this.mc.fontRenderer.getStringWidth(this.getLabel(6).label.get(0)), 10)) {
+		} else if (this.getLabel(6).enabled && this.getLabel(6).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
 		}
 

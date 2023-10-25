@@ -19,12 +19,14 @@ import net.minecraft.util.EnumHand;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.entity.data.role.IJobHealer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.HealerSettings;
 import noppes.npcs.util.ValueUtil;
 
 public class JobHealer
-extends JobInterface {
+extends JobInterface
+implements IJobHealer {
 	
 	private Map<Integer, List<EntityLivingBase>> affected;
 	private Random rnd;

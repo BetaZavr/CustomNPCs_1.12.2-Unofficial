@@ -14,10 +14,12 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.entity.data.role.IJobGuard;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobGuard
-extends JobInterface {
+extends JobInterface
+implements IJobGuard {
 	
 	public List<String> targets;
 

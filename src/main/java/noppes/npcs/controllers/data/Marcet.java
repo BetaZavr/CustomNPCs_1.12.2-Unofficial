@@ -20,14 +20,14 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.Server;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.data.role.IRoleTrader;
+import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTrader;
 
 public class Marcet
-implements IRoleTrader, Predicate<EntityNPCInterface> {
+implements IMarcet, Predicate<EntityNPCInterface> {
 
 	public final Map<Integer, Deal> data;
 	public int id;
@@ -82,11 +82,11 @@ implements IRoleTrader, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public IItemStack getCurrency(int position, int slot) {
-		if (slot < 0 || slot >= 9 || this.data.containsKey(position)) {
+	public IItemStack getCurrency(int dealId, int slot) {
+		if (slot < 0 || slot >= 9 || this.data.containsKey(dealId)) {
 			return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 		}
-		return NpcAPI.Instance().getIItemStack(this.data.get(position).inventoryCurrency.getStackInSlot(slot));
+		return NpcAPI.Instance().getIItemStack(this.data.get(dealId).inventoryCurrency.getStackInSlot(slot));
 	}
 
 	@Override
@@ -95,11 +95,11 @@ implements IRoleTrader, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public IItemStack getProduct(int position) {
-		if (this.data.containsKey(position)) {
+	public IItemStack getProduct(int dealId) {
+		if (this.data.containsKey(dealId)) {
 			return NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
 		}
-		return NpcAPI.Instance().getIItemStack(this.data.get(position).inventorySold.getStackInSlot(0));
+		return NpcAPI.Instance().getIItemStack(this.data.get(dealId).inventorySold.getStackInSlot(0));
 	}
 
 	public String getSettingName() {
@@ -111,17 +111,11 @@ implements IRoleTrader, Predicate<EntityNPCInterface> {
 		return new TextComponentTranslation(this.name).getFormattedText();
 	}
 
-	@Override
-	public int getType() {
-		return 1;
-	}
-
-	public boolean hasCurrency(ItemStack stack) {
-		for (Deal d : this.data.values()) {
-			for (ItemStack item : d.inventoryCurrency.items) {
-				if (!item.isEmpty() && NoppesUtilPlayer.compareItems(item, stack, d.ignoreDamage, d.ignoreNBT)) {
-					return true;
-				}
+	public boolean hasCurrency(int dealId, ItemStack stack) {
+		if (!this.data.containsKey(dealId)) { return false; }
+		for (ItemStack item : this.data.get(dealId).inventoryCurrency.items) {
+			if (!item.isEmpty() && NoppesUtilPlayer.compareItems(item, stack, this.data.get(dealId).ignoreDamage, this.data.get(dealId).ignoreNBT)) {
+				return true;
 			}
 		}
 		return false;
@@ -181,8 +175,8 @@ implements IRoleTrader, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public void remove(int position) {
-		this.data.remove(position);
+	public void remove(int dealId) {
+		this.data.remove(dealId);
 		this.detectAndSendChanges();
 	}
 
@@ -200,26 +194,26 @@ implements IRoleTrader, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public void set(int position, IItemStack product, IItemStack[] currencys) {
+	public void set(int dealId, IItemStack product, IItemStack[] currencys) {
 		ItemStack[] c = new ItemStack[currencys.length];
 		for (int i = 0; i < currencys.length; i++) {
 			c[i] = currencys[i].getMCItemStack();
 		}
-		this.set(position, product.getMCItemStack(), c);
+		this.set(dealId, product.getMCItemStack(), c);
 		this.detectAndSendChanges();
 	}
 
-	public Deal set(int position, ItemStack product, ItemStack[] currencys) {
+	public Deal set(int dealId, ItemStack product, ItemStack[] currencys) {
 		Deal d;
-		if (this.data.containsKey(position)) {
-			d = this.data.get(position);
+		if (this.data.containsKey(dealId)) {
+			d = this.data.get(dealId);
 		} else {
 			d = new Deal();
 		}
 		d.set(product, currencys);
-		this.data.put(position, d);
+		this.data.put(dealId, d);
 		this.detectAndSendChanges();
-		return this.data.get(position);
+		return this.data.get(dealId);
 	}
 
 	@Override

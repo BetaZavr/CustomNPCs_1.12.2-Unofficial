@@ -76,8 +76,7 @@ extends Container {
 			this.guiInventory.setInventorySlotContents(index, slot.getStack().getMCItemStack());
 		}
 		if (this.customGui.getShowPlayerInv()) {
-			this.addPlayerInventory(player, this.cx + this.customGui.getPlayerInvX(),
-					this.cy + this.customGui.getPlayerInvY());
+			this.addPlayerInventory(player, this.cx + this.customGui.getPlayerInvX(), this.cy + this.customGui.getPlayerInvY());
 		}
 	}
 

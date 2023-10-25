@@ -108,7 +108,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			this.canTransport = true;
 			for (ItemStack stack : this.barterItems.keySet()) {
 				int u = this.guiLeft + this.xSize + 5 + (slot % 3) * 18;
-				int v = 38 + (slot / 3) * 18;
+				int v = this.guiTop + 18 + (slot / 3) * 18;
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
 				if (this.canTransport) { this.canTransport = this.barterItems.get(stack); }
@@ -135,7 +135,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				int slot = 0;
 				for (ItemStack stack : this.barterItems.keySet()) {
 					int u = this.guiLeft + this.xSize + 5 + (slot % 3) * 18;
-					int v = 38 + (slot / 3) * 18;
+					int v = this.guiTop + 18 + (slot / 3) * 18;
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
 					RenderHelper.enableGUIStandardItemLighting();

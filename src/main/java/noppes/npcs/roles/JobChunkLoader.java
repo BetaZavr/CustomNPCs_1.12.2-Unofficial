@@ -9,11 +9,13 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.ForgeChunkManager;
 import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.entity.data.role.IJobChunkLoader;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobChunkLoader
-extends JobInterface {
+extends JobInterface
+implements IJobChunkLoader {
 	
 	private List<ChunkPos> chunks;
 	private long playerLastSeen;

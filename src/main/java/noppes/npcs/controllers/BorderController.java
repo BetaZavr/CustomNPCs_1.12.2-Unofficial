@@ -216,13 +216,13 @@ implements IBorderHandler {
 	}
 
 	@Override
-	public IBorder createNew(int imensionID, IPos pos) {
-		return this.createNew(imensionID, pos.getMCBlockPos());
+	public IBorder createNew(int dimensionID, IPos pos) {
+		return this.createNew(dimensionID, pos.getMCBlockPos());
 	}
 	
-	public Zone3D createNew(int imensionID, BlockPos pos) {
+	public Zone3D createNew(int dimensionID, BlockPos pos) {
 		if (this.regions==null) { this.regions = Maps.<Integer, Zone3D>newHashMap(); }
-		Zone3D reg = new Zone3D(this.getUnusedId(), imensionID, pos.getX(), pos.getY(), pos.getZ());
+		Zone3D reg = new Zone3D(this.getUnusedId(), dimensionID, pos.getX(), pos.getY(), pos.getZ());
 		this.regions.put(reg.getId(), reg);
 		return reg;
 	}

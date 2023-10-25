@@ -64,9 +64,7 @@ implements INPCJob {
 	}
 
 	public String itemToString(ItemStack item) {
-		if (item == null || item.isEmpty()) {
-			return "";
-		}
+		if (item == null || item.isEmpty()) { return ""; }
 		return Item.REGISTRY.getNameForObject(item.getItem()) + " - " + item.getItemDamage();
 	}
 
@@ -80,9 +78,7 @@ implements INPCJob {
 	}
 
 	public ItemStack stringToItem(String s) {
-		if (s.isEmpty()) {
-			return ItemStack.EMPTY;
-		}
+		if (s.isEmpty()) { return ItemStack.EMPTY; }
 		int damage = 0;
 		if (s.contains(" - ")) {
 			String[] split = s.split(" - ");

@@ -16,7 +16,7 @@ public interface INPCStats {
 
 	int getLevel();
 
-	int getMaxHealth();
+	double getMaxHealth();
 
 	INPCMelee getMelee();
 
@@ -50,7 +50,7 @@ public interface INPCStats {
 
 	void setLevel(int level);
 
-	void setMaxHealth(int maxHealth);
+	void setMaxHealth(double maxHealth);
 
 	void setRarity(int rarity);
 

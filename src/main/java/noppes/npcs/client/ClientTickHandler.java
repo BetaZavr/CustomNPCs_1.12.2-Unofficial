@@ -50,7 +50,6 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
-import noppes.npcs.util.temp.TempClass;
 
 public class ClientTickHandler {
 	
@@ -278,9 +277,14 @@ public class ClientTickHandler {
 		//TempClass.createAPIs(true);
 		//TempClass.deobfucation();
 		
+		/*List<String> list = Lists.newArrayList("Type", "Name", "Min", "Max");
+		Collections.sort(list);
+		System.out.println("list: ["+list+"]");*/
+		
 		/*Point[] arr = new Point[0];
+		System.out.println("Array: "+arr);
 		Class<?> c = arr.getClass();
-		System.out.println("Array: "+c.getName());
+		System.out.println("Array class: "+c.getName());
 		String path = c.getTypeName();
 		path = path.substring(0, path.indexOf("[]"));
 		try { c = Class.forName(path); } catch (Exception e) {}

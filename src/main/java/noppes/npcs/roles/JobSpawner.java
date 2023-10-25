@@ -36,9 +36,8 @@ extends JobInterface
 implements IJobSpawner {
 	
 	private String id;
-	// New
-	// 0/false=alive | 1/true=dead
-	private SpawnNPCData[][] dataEntitys;
+	
+	private SpawnNPCData[][] dataEntitys;// 0/false=alive | 1/true=dead
 	public int[][] offset;
 	private int[] spawnType; // 0 =one, 1 = all, 2 = random
 	private int[] number; // curent pos
@@ -484,7 +483,6 @@ implements IJobSpawner {
 		if (ticks>300000L) { ticks = 300000L; }
 		this.cooldownSet = ticks;
 	}
-
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {

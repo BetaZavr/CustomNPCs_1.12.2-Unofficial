@@ -78,24 +78,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		if (this.selected == null) {
 			return "";
 		}
-		return AdditionalMethods.ticksToElapsedTime(
-				(this.selected.timePast + System.currentTimeMillis() - this.time) / 50, false, true, true);
-		/*
-		 * if (this.selected.timePast > 86400000L) { int days = (int)
-		 * (this.selected.timePast / 86400000L); if (days == 1) { return days + " " +
-		 * new TextComponentTranslation("mailbox.day").getFormattedText(); } return days
-		 * + " " + new TextComponentTranslation("mailbox.days").getFormattedText(); }
-		 * else if (this.selected.timePast > 3600000L) { int hours = (int)
-		 * (this.selected.timePast / 3600000L); if (hours == 1) { return hours + " " +
-		 * new TextComponentTranslation("mailbox.hour").getFormattedText(); } return
-		 * hours + " " + new
-		 * TextComponentTranslation("mailbox.hours").getFormattedText(); } else { int
-		 * minutes = (int) (this.selected.timePast / 60000L); if (minutes == 1) { return
-		 * minutes + " " + new
-		 * TextComponentTranslation("mailbox.minutes").getFormattedText(); } return
-		 * minutes + " " + new
-		 * TextComponentTranslation("mailbox.minutes").getFormattedText(); }
-		 */
+		return AdditionalMethods.ticksToElapsedTime((this.selected.timePast + System.currentTimeMillis() - this.time) / 50, false, true, true);
 	}
 
 	@Override

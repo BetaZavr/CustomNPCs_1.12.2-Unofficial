@@ -53,8 +53,11 @@ public interface ICustomGui {
 
 	void showPlayerInventory(int x, int y);
 
+	void showPlayerInventory(int x, int y, boolean showSlots);
+	
 	void update(IPlayer<?> player);
 
 	void updateComponent(ICustomGuiComponent component);
+
 	
 }

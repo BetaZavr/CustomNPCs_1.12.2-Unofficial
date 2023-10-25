@@ -9,12 +9,14 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.entity.data.role.IRolePostman;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RolePostman
-extends RoleInterface {
+extends RoleInterface
+implements IRolePostman {
 	
 	public NpcMiscInventory inventory;
 	private List<EntityPlayer> recentlyChecked;

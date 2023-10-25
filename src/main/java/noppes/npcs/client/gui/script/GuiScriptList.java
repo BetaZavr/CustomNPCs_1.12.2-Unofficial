@@ -32,6 +32,7 @@ implements ICustomScrollListener {
 
 	public GuiScriptList(Map<String, Long> scripts, ScriptContainer container) {
 		this.container = container;
+		this.closeOnEsc = true;
 		this.setBackground("menubg.png");
 		this.xSize = 346;
 		this.ySize = 216;
@@ -214,12 +215,12 @@ implements ICustomScrollListener {
 		this.selected.setColors(colors);
 		this.selected.setSuffixs(suffixs);
 		this.selected.setListNotSorted(list);
-		
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 145, this.guiTop + 40, 55, 20, ">", this.base.hasSelected()));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 145, this.guiTop + 62, 55, 20, "<", this.selected.hasSelected()));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 145, this.guiTop + 90, 55, 20, ">>", !temp.isEmpty()));
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 145, this.guiTop + 112, 55, 20, "<<", !this.container.scripts.isEmpty()));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 260, this.guiTop + 194, 60, 20, "gui.done"));
+		int x = this.guiLeft + 145, y = this.guiTop + 40;
+		this.addButton(new GuiNpcButton(1, x, y, 55, 20, ">", this.base.hasSelected()));
+		this.addButton(new GuiNpcButton(2, x, (y += 22), 55, 20, "<", this.selected.hasSelected()));
+		this.addButton(new GuiNpcButton(3, x, (y += 44), 55, 20, ">>", !temp.isEmpty()));
+		this.addButton(new GuiNpcButton(4, x, (y += 22), 55, 20, "<<", !this.container.scripts.isEmpty()));
+		this.addButton(new GuiNpcButton(66, x, (y += 46), 55, 20, "gui.done"));
 	}
 
 

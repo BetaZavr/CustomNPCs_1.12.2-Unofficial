@@ -463,7 +463,7 @@ extends GuiScreen {
 	
 	@Override
 	public void keyTyped(char c, int i) {
-		if (!this.hovered) { return; }
+		if (!this.hovered || GuiNpcTextField.isActive()) { return; }
 		if (this.list.size()<=1) { return; }
 		if (i==200 || i==ClientProxy.frontButton.getKeyCode()) { // up
 			if (this.selected<1) { return; }

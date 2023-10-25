@@ -38,7 +38,7 @@ implements ICustomGui {
 	private EntityPlayer player;
 	int playerInvX, playerInvY;
 	ScriptContainer scriptHandler;
-	boolean showPlayerInv, isIndependent;
+	boolean showPlayerInv, showPlayerSlots, isIndependent;
 	List<IItemSlot> slots;
 	int width;
 	public int stretched, bgW, bgH, bgTx, bgTy;
@@ -48,6 +48,7 @@ implements ICustomGui {
 		this.components = new ArrayList<ICustomGuiComponent>();
 		this.slots = new ArrayList<IItemSlot>();
 		this.isIndependent = false;
+		this.showPlayerSlots = true;
 		this.player = player;
 		this.stretched = 0;
 		this.bgW = 0;
@@ -66,6 +67,7 @@ implements ICustomGui {
 		this.pauseGame = pauseGame;
 		this.scriptHandler = ScriptContainer.Current;
 		this.isIndependent = false;
+		this.showPlayerSlots = true;
 		this.player = player;
 		this.stretched = 0;
 		this.bgW = 0;
@@ -186,6 +188,7 @@ implements ICustomGui {
 			this.setPlayer((EntityPlayerMP) this.player);
 		} // New
 		this.showPlayerInv = tag.getBoolean("showPlayerInv");
+		this.showPlayerSlots = tag.getBoolean("showPlayerSlots");
 		if (this.showPlayerInv) {
 			this.playerInvX = tag.getIntArray("pInvPos")[0];
 			this.playerInvY = tag.getIntArray("pInvPos")[1];
@@ -240,6 +243,10 @@ implements ICustomGui {
 
 	public boolean getShowPlayerInv() {
 		return this.showPlayerInv;
+	}
+	
+	public boolean getShowPlayerSlots() {
+		return this.showPlayerInv && this.showPlayerSlots;
 	}
 
 	@Override
@@ -308,8 +315,17 @@ implements ICustomGui {
 	@Override
 	public void showPlayerInventory(int x, int y) {
 		this.showPlayerInv = true;
+		this.showPlayerSlots = false;
 		this.playerInvX = x;
 		this.playerInvY = y;
+	}
+	
+	@Override
+	public void showPlayerInventory(int x, int y, boolean showSlots) {
+		this.showPlayerInv = true;
+		this.playerInvX = x;
+		this.playerInvY = y;
+		this.showPlayerSlots = showSlots;
 	}
 
 	public NBTTagCompound toNBT() {
@@ -335,6 +351,7 @@ implements ICustomGui {
 		}
 		tag.setTag("slots", list);
 		tag.setBoolean("showPlayerInv", this.showPlayerInv);
+		tag.setBoolean("showPlayerSlots", this.showPlayerSlots);
 		if (this.showPlayerInv) {
 			tag.setIntArray("pInvPos", new int[] { this.playerInvX, this.playerInvY });
 		}

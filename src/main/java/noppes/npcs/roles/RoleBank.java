@@ -3,6 +3,7 @@ package noppes.npcs.roles;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.entity.data.role.IRoleBank;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.Bank;
@@ -10,7 +11,8 @@ import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RoleBank
-extends RoleInterface {
+extends RoleInterface
+implements IRoleBank {
 	
 	public int bankId;
 

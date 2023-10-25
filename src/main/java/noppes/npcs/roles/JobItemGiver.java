@@ -14,6 +14,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.entity.data.role.IJobItemGiver;
 import noppes.npcs.controllers.GlobalDataController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Line;
@@ -22,7 +23,8 @@ import noppes.npcs.controllers.data.PlayerItemGiverData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobItemGiver
-extends JobInterface {
+extends JobInterface
+implements IJobItemGiver {
 	
 	public Availability availability;
 	public int cooldown;

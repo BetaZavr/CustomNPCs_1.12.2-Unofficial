@@ -33,18 +33,20 @@ implements IInventory, IPlayerMail {
 	public long timePast;
 
 	public PlayerMail() {
-		this.subject = "";
-		this.sender = "";
-		this.message = new NBTTagCompound();
+		this.clear();
 		this.time = 0L;
-		this.beenRead = false;
-		this.questId = -1;
-		this.items = NonNullList.withSize(4, ItemStack.EMPTY);
-		// New
-		this.money = 0;
 	}
 
 	public void clear() {
+		this.subject = "";
+		this.sender = "";
+		this.message = new NBTTagCompound();
+		this.beenRead = false;
+		this.questId = -1;
+		if (this.items==null) { this.items = NonNullList.withSize(4, ItemStack.EMPTY); }
+		else { this.items.clear(); }
+		this.money = 0;
+		this.timePast = 0L;
 	}
 
 	public void closeInventory(EntityPlayer player) {
@@ -56,8 +58,8 @@ implements IInventory, IPlayerMail {
 		return mail;
 	}
 
-	public ItemStack decrStackSize(int index, int count) {
-		ItemStack itemstack = ItemStackHelper.getAndSplit(this.items, index, count);
+	public ItemStack decrStackSize(int slot, int count) {
+		ItemStack itemstack = ItemStackHelper.getAndSplit(this.items, slot, count);
 		if (!itemstack.isEmpty()) {
 			this.markDirty();
 		}
@@ -97,11 +99,11 @@ implements IInventory, IPlayerMail {
 	}
 
 	public int getSizeInventory() {
-		return 4;
+		return this.items.size();
 	}
 
-	public ItemStack getStackInSlot(int i) {
-		return this.items.get(i);
+	public ItemStack getStackInSlot(int slot) {
+		return this.items.get(slot);
 	}
 
 	public String getSubject() {
@@ -135,11 +137,11 @@ implements IInventory, IPlayerMail {
 		return true;
 	}
 
-	public boolean isItemValidForSlot(int var1, ItemStack var2) {
+	public boolean isItemValidForSlot(int slot, ItemStack item) {
 		return true;
 	}
 
-	public boolean isUsableByPlayer(EntityPlayer var1) {
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return true;
 	}
 
@@ -176,8 +178,8 @@ implements IInventory, IPlayerMail {
 		this.money = compound.getInteger("Money");
 	}
 
-	public ItemStack removeStackFromSlot(int var1) {
-		return this.items.set(var1, ItemStack.EMPTY);
+	public ItemStack removeStackFromSlot(int slot) {
+		return this.items.set(slot, ItemStack.EMPTY);
 	}
 
 	public void setField(int id, int value) {

@@ -55,11 +55,12 @@ implements ITickable {
 			this.guiColor = -1;
 			this.guiColorArr = block.nbtData.getIntArray("GUIColor");
 		}
+		if (this.size > 189) { this.size = 189; }
 		this.inventory = NonNullList.<ItemStack>withSize(this.size, ItemStack.EMPTY);
 	}
 	
 	@Override
-	public int getSizeInventory() { return this.size; }
+	public int getSizeInventory() { return this.inventory.size(); }
 	
 	@Override
 	public boolean isEmpty() {

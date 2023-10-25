@@ -101,23 +101,13 @@ implements INPCAdvanced {
 	}
 
 	private Lines getLines(int type) {
-		if (type == 0) {
-			return this.interactLines;
-		}
-		if (type == 1) {
-			return this.attackLines;
-		}
-		if (type == 2) {
-			return this.worldLines;
-		}
-		if (type == 3) {
-			return this.killedLines;
-		}
-		if (type == 4) {
-			return this.killLines;
-		}
-		if (type == 5) {
-			return this.npcInteractLines;
+		switch(type) {
+			case 0: { return this.interactLines; }
+			case 1: { return this.attackLines; }
+			case 2: { return this.worldLines; }
+			case 3: { return this.killedLines; }
+			case 4: { return this.killLines; }
+			case 5: { return this.npcInteractLines; }
 		}
 		return null;
 	}
@@ -305,11 +295,11 @@ implements INPCAdvanced {
 		return data.getFactionPoints(player, faction.id) < faction.neutralPoints;
 	}
 
-	public void tryDefendFaction(int id, EntityLivingBase possibleÀriend, EntityLivingBase attacked) {
+	public void tryDefendFaction(int id, EntityLivingBase possibleAriend, EntityLivingBase attacked) {
 		if (this.npc.isKilled() || !this.defendFaction) { return; }
-		boolean canSee = this.npc.canSee(possibleÀriend);
+		boolean canSee = this.npc.canSee(possibleAriend);
 		if (!canSee && this.throughWalls) {
-			float dist = this.npc.getDistance(possibleÀriend);
+			float dist = this.npc.getDistance(possibleAriend);
 			canSee = dist <= this.npc.stats.aggroRange;
 		}
 		if (!(this.npc.faction.id==id || this.npc.faction.frendFactions.contains(id) || this.frendFactions.contains(id)) || !canSee) { return; }

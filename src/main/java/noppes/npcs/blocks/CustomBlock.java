@@ -61,9 +61,8 @@ implements IPermission, ICustomElement {
 		this.blockParticleGravity = 1.0F;
 		this.lightOpacity = this.fullBlock ? 255 : 0;
 		this.translucent = !this.blockMaterial.blocksLight();
-		this.setHardness(0.0f);
+		this.setHardness(1.5f);
 		this.setResistance(10.0f);
-		
 		if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
 		if (nbtBlock.hasKey("Resistance", 5)) { this.setResistance(nbtBlock.getFloat("Resistance")); }
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
@@ -133,8 +132,9 @@ implements IPermission, ICustomElement {
 		}
 	}
 
-	public static EnumBlockRenderType getNbtRenderType(String string) {
-		switch(string.toLowerCase()) {
+	public static EnumBlockRenderType getNbtRenderType(String name) {
+		while(name.indexOf(" ")!=-1) { name = name.replace(" ", "_"); }
+		switch(name.toLowerCase()) {
 			case "invisible": return EnumBlockRenderType.INVISIBLE;
 			case "liquid": return EnumBlockRenderType.MODEL;
 			case "entityblock_animated": return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
@@ -295,6 +295,7 @@ implements IPermission, ICustomElement {
 	public BlockRenderLayer getBlockLayer() {
 		String name = "";
 		if (this.nbtData!=null && this.nbtData.hasKey("BlockLayer", 8)) { name = this.nbtData.getString("BlockLayer"); }
+		while(name.indexOf(" ")!=-1) { name = name.replace(" ", "_"); }
 		switch(name.toLowerCase()) {
 			case "cutout": return BlockRenderLayer.CUTOUT;
 			case "cutout_mipped": return BlockRenderLayer.CUTOUT_MIPPED;

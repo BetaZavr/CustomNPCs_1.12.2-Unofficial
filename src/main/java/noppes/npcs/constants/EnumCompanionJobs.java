@@ -9,4 +9,5 @@ public enum EnumCompanionJobs
 	MINER, 
 	SHOP, 
 	ROBOT;
+	
 }

@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.entity.data.role.IJobConversation;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Availability;
@@ -16,7 +17,8 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class JobConversation
-extends JobInterface {
+extends JobInterface
+implements IJobConversation {
 	
 	public class ConversationLine
 	extends Line {

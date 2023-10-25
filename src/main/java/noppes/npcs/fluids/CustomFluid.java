@@ -8,7 +8,7 @@ import noppes.npcs.CustomNpcs;
 public class CustomFluid
 extends Fluid {
 	
-	private int mapColor = 0xFFFFFFFF;
+	private int mapColor;
 	
 	public NBTTagCompound nbtData = new NBTTagCompound();
 
@@ -18,6 +18,7 @@ extends Fluid {
 				new ResourceLocation(CustomNpcs.MODID, "fluids/custom_fluid_"+nbtBlock.getString("RegistryName")+"_flow"),
 				new ResourceLocation(CustomNpcs.MODID, "fluids/custom_fluid_"+nbtBlock.getString("RegistryName")+"_overlay"));
 		this.nbtData = nbtBlock;
+		this.mapColor = nbtBlock.hasKey("Color", 3) ? nbtBlock.getInteger("Color") : 0xFFFFFFFF;
 		this.setDensity(nbtBlock.hasKey("Density", 3) ? nbtBlock.getInteger("Density") : 1100);
 		this.setGaseous(nbtBlock.hasKey("IsGaseous", 1) ? nbtBlock.getBoolean("IsGaseous") : false);
 		this.setLuminosity(nbtBlock.hasKey("Luminosity", 3) ? nbtBlock.getInteger("Luminosity") : 5);

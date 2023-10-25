@@ -66,7 +66,10 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener  {
 				break;
 			}
 			case 2: { // sel sound
-				if (!this.data.containsKey(this.select) || !this.lines.lines.containsKey(this.data.get(this.select))) { return; }
+				if (!this.data.containsKey(this.select) || !this.lines.lines.containsKey(this.data.get(this.select))) {
+					this.setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine)); // add
+					return;
+				}
 				this.setSubGui(new GuiSoundSelection(this.lines.lines.get(this.data.get(this.select)).getSound()));
 				break;
 			}

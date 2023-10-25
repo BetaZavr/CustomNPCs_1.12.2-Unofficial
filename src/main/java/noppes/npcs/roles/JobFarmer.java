@@ -40,13 +40,13 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 	public int chestMode;
 	private ItemStack holding;
 	private BlockPos ripe;
-	private int ticks;
+	private int ticks, walkTicks, range;
 	private List<BlockPos> trackedBlocks;
 	private boolean waitingForBlocks;
-	private int walkTicks;
 
 	public JobFarmer(EntityNPCInterface npc) {
 		super(npc);
+		this.range = 16;
 		this.chestMode = 1;
 		this.trackedBlocks = new ArrayList<BlockPos>();
 		this.ticks = 0;
@@ -198,7 +198,14 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 
 	@Override
 	public int getRange() {
-		return 16;
+		return this.range;
+	}
+
+	@Override
+	public void setRange(int range) {
+		if (range<0) { range += -1; }
+		if (range > 16) { range = 16; }
+		this.range = range;
 	}
 
 	@Override

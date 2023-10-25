@@ -130,10 +130,8 @@ implements IJobBuilder {
 		if (this.placing.state.getBlock() instanceof ITileEntityProvider && this.placing.tile != null) {
 			TileEntity tile = this.npc.world.getTileEntity(this.placing.pos);
 			if (tile != null) {
-				try {
-					tile.readFromNBT(this.placing.tile);
-				} catch (Exception ex) {
-				}
+				try { tile.readFromNBT(this.placing.tile); }
+				catch (Exception ex) { }
 			}
 		}
 		this.placing = null;

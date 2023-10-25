@@ -17,6 +17,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -149,7 +150,7 @@ implements ICustomScrollListener, IGuiData {
 		return this.gui == null || this.gui.getDoesPauseGame();
 	}
 
-	void drawBackgroundTexture() { // Changed
+	void drawBackgroundTexture() {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.getTextureManager().bindTexture(this.background);
@@ -216,6 +217,14 @@ implements ICustomScrollListener, IGuiData {
 			this.drawTexturedModalRect(0, 0, 0, 0, this.xSize, this.ySize);
 		}
 		GlStateManager.popMatrix();
+		if (this.gui.getShowPlayerSlots() && this.inventorySlots!=null) {
+			this.mc.getTextureManager().bindTexture(this.slot);
+			for (int slotId = this.inventorySlots.inventorySlots.size() - 1, i = 0; i < 36; slotId--, i++) {
+				Slot slot = this.inventorySlots.getSlot(slotId);
+				this.drawTexturedModalRect(this.getGuiLeft() + slot.xPos - 1, this.getGuiTop() + slot.yPos - 1, 0, 0, 18, 18);
+			}
+			//System.out.println("CNPCs: "+this.inventorySlots.inventorySlots.size());
+		}
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
@@ -233,7 +242,6 @@ implements ICustomScrollListener, IGuiData {
 		if (this.gui != null && this.gui.getSlots().length > 0) { // New
 			int cx = -41 + (256 - this.gui.getWidth()) / 2;
 			int cy = -46 + (256 - this.gui.getHeight()) / 2;
-			
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.mc.getTextureManager().bindTexture(this.slot);
@@ -243,11 +251,9 @@ implements ICustomScrollListener, IGuiData {
 			}
 			GlStateManager.popMatrix();
 		}
-
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY);
 		}
-
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.renderHoveredToolTip(mouseX, mouseY);
 	}

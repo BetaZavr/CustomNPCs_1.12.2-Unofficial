@@ -1407,10 +1407,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			return;
 		}
 		if (line.getShowText() && !line.getText().isEmpty()) {
-			ServerChatEvent event = new ServerChatEvent(this.getFakeChatPlayer(), line.getText(),
-					new TextComponentTranslation(line.getText().replace("%", "%%"), new Object[0]));
-			if (CustomNpcs.NpcSpeachTriggersChatEvent
-					&& (MinecraftForge.EVENT_BUS.post((Event) event) || event.getComponent() == null)) {
+			ServerChatEvent event = new ServerChatEvent(this.getFakeChatPlayer(), line.getText(), new TextComponentTranslation(line.getText().replace("%", "%%"), new Object[0]));
+			if (CustomNpcs.NpcSpeachTriggersChatEvent && (MinecraftForge.EVENT_BUS.post((Event) event) || event.getComponent() == null)) {
 				return;
 			}
 			line.setText(event.getComponent().getUnformattedText().replace("%%", "%"));
@@ -1828,7 +1826,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setInteger("NPCLevel", this.stats.getLevel());
 		compound.setInteger("NPCRarity", this.stats.getRarity());
 		compound.setString("NPCRarityTitle", this.stats.getRarityTitle());
-		compound.setInteger("MaxHealth", this.stats.maxHealth);
+		compound.setDouble("MaxHealth", this.stats.maxHealth);
 		compound.setTag("Armor", NBTTags.nbtIItemStackMap(this.inventory.armor));
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.inventory.weapons));
 		compound.setInteger("Speed", this.ais.getWalkingSpeed());

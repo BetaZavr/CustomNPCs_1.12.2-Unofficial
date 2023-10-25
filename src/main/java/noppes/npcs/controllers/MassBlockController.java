@@ -11,12 +11,15 @@ import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class MassBlockController {
+	
 	public interface IMassBlock {
 		EntityNPCInterface getNpc();
 
 		int getRange();
 
 		void processed(List<BlockData> p0);
+
+		void setRange(int range);
 	}
 
 	public static MassBlockController Instance;

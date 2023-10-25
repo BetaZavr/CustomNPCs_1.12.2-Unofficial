@@ -119,23 +119,23 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
-		int y = 14;
+		int y = this.guiTop + 14;
 		if (this.options == null) {
 			(this.options = new GuiCustomScroll(this, 0)).setSize(172, 154);
 		}
 		this.options.guiLeft = this.guiLeft + 4;
-		this.options.guiTop = this.guiTop + y;
+		this.options.guiTop = y;
 		this.addScroll(this.options);
 		
-		this.addLabel(new GuiNpcLabel(11, "beacon.availableEffects", this.guiLeft + 4, this.guiTop + y - 10));
+		this.addLabel(new GuiNpcLabel(11, "beacon.availableEffects", this.guiLeft + 4, y - 10));
 		if (this.configured == null) {
 			(this.configured = new GuiCustomScroll(this, 1)).setSize(172, 154);
 		}
 		this.configured.guiLeft = this.guiLeft + 238;
-		this.configured.guiTop = this.guiTop + y;
+		this.configured.guiTop = y;
 		this.addScroll(this.configured);
 		
-		this.addLabel(new GuiNpcLabel(12, "beacon.currentEffects", this.guiLeft + 235, this.guiTop + y - 10));
+		this.addLabel(new GuiNpcLabel(12, "beacon.currentEffects", this.guiLeft + 235, y - 10));
 		this.displays_0.clear();
 		this.displays_1.clear();
 		List<String> h_0 = Lists.<String>newArrayList(), h_1 = Lists.<String>newArrayList();
@@ -191,33 +191,33 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		for (String str : h_1) { this.configured.hoversTexts[i] = str.split("<br>"); i++; }
 		
 		y += 156;
-		this.addLabel(new GuiNpcLabel(1, "beacon.range", this.guiLeft + 10, this.guiTop + y + 5));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + y, 40, 20, this.range + ""));
+		this.addLabel(new GuiNpcLabel(1, "beacon.range", this.guiLeft + 10, y + 5));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, y, 40, 20, this.range + ""));
 		this.getTextField(1).numbersOnly = true;
 		this.getTextField(1).setMinMaxDefault(1, 64, 16);
 		
-		this.addLabel(new GuiNpcLabel(2, "stats.speed", this.guiLeft + 140, this.guiTop + y + 5));
-		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 220, this.guiTop + y, 40, 20, this.speed + ""));
+		this.addLabel(new GuiNpcLabel(2, "stats.speed", this.guiLeft + 140, y + 5));
+		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 220, y, 40, 20, this.speed + ""));
 		this.getTextField(2).numbersOnly = true;
 		this.getTextField(2).setMinMaxDefault(10, 72000, 20);
 		y += 22;
-		this.addLabel(new GuiNpcLabel(3, "beacon.affect", this.guiLeft + 10, this.guiTop + y + 5));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 56, this.guiTop + y, 80, 20, new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, this.type));
+		this.addLabel(new GuiNpcLabel(3, "beacon.affect", this.guiLeft + 10, y + 5));
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 56, y, 80, 20, new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, this.type));
 		
-		this.addLabel(new GuiNpcLabel(4, "beacon.amplifier", this.guiLeft + 140, this.guiTop + y + 5));
-		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 220, this.guiTop + y, 40, 20, (this.amplifier+1) + ""));
+		this.addLabel(new GuiNpcLabel(4, "beacon.amplifier", this.guiLeft + 140, y + 5));
+		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 220, y, 40, 20, (this.amplifier+1) + ""));
 		this.getTextField(3).numbersOnly = true;
 		this.getTextField(3).setMinMaxDefault(1, 4, 1);
-		y -= 189;
-		this.addButton(new GuiNpcButton(11, this.guiLeft + 177, this.guiTop + (y += 33), 61, 20, ">"));
+		y -= 198;
+		this.addButton(new GuiNpcButton(11, this.guiLeft + 177, (y += 33), 61, 20, ">"));
 		this.getButton(11).enabled = this.options.selected!=-1;
-		this.addButton(new GuiNpcButton(12, this.guiLeft + 177, this.guiTop + (y += 22), 61, 20, "<"));
+		this.addButton(new GuiNpcButton(12, this.guiLeft + 177, (y += 22), 61, 20, "<"));
 		this.getButton(12).enabled = this.configured.selected!=-1;
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 177, this.guiTop + (y += 22), 61, 20, ">>"));
+		this.addButton(new GuiNpcButton(13, this.guiLeft + 177, (y += 44), 61, 20, ">>"));
 		this.getButton(13).enabled = !this.displays_0.isEmpty();
-		this.addButton(new GuiNpcButton(14, this.guiLeft + 177, this.guiTop + (y += 22), 61, 20, "<<"));
+		this.addButton(new GuiNpcButton(14, this.guiLeft + 177, (y += 22), 61, 20, "<<"));
 		this.getButton(14).enabled = !this.displays_1.isEmpty();
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 177, this.guiTop + (y += 22), 61, 20, "gui.edit"));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 177, (y += 33), 61, 20, "gui.edit"));
 		this.getButton(0).enabled = this.configured.selected!=-1;
 	}
 

@@ -1,7 +1,5 @@
 package noppes.npcs.roles;
 
-import java.util.HashMap;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,12 +10,10 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class RoleInterface
 implements INPCRole {
 	
-	public HashMap<String, String> dataString;
 	public EntityNPCInterface npc;
 	public RoleType type;
 
 	public RoleInterface(EntityNPCInterface npc) {
-		this.dataString = new HashMap<String, String>();
 		this.npc = npc;
 		this.type = RoleType.DEFAULT;
 	}

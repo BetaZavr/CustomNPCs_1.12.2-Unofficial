@@ -452,7 +452,7 @@ public class CustomRegisters {
 					block = new CustomBlockSlabSingle(nbtBlock, (CustomBlockSlabDouble) addblock);
 					((CustomBlockSlabDouble) addblock).setSingle((CustomBlockSlabSingle) block);
 					break;
-				case (byte) 5: // Stairs
+				case (byte) 5: // Portal
 					block = new CustomBlockPortal(CustomItem.getMaterial(nbtBlock.getString("Material")), nbtBlock);
 					break;
 				case (byte) 6: // Door
@@ -916,7 +916,7 @@ public class CustomRegisters {
 		exampleLliquid.setInteger("Temperature", 300);
 		exampleLliquid.setInteger("Color", 0xFFFFFFFF);
 		exampleLliquid.setBoolean("CreateAllFiles", true);
-		exampleLliquid.setString("Material", "WOOD");
+		exampleLliquid.setString("Material", "WATER");
 		listBlocks.appendTag(exampleLliquid);
 
 		NBTTagCompound exampleChest = new NBTTagCompound();
@@ -951,6 +951,7 @@ public class CustomRegisters {
 		NBTTagCompound exampleStairs = new NBTTagCompound();
 		exampleStairs.setString("RegistryName", "stairsexample");
 		exampleStairs.setByte("BlockType", (byte) 3);
+		exampleStairs.setString("Material", "STONE");
 		exampleStairs.setBoolean("CreateAllFiles", true);
 		exampleStairs.setBoolean("IsFullCube", false);
 		exampleStairs.setBoolean("IsOpaqueCube", false);

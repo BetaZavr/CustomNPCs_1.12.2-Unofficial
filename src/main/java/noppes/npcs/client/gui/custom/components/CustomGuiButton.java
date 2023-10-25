@@ -50,6 +50,7 @@ implements IClickListener {
 			this.textureX = component.getTextureX();
 			this.textureY = component.getTextureY();
 			this.texture = new ResourceLocation(component.getTexture());
+			System.out.println("tXY: ["+this.textureX+", "+this.textureY+"]; texture: \""+this.texture+"\"");
 		}
 		this.label = buttonText;
         this.offsets = new int [] { 0, 0 };
@@ -123,10 +124,8 @@ implements IClickListener {
 					GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width,
-					this.height);
-			this.drawCenteredString(fontRenderer, this.label, this.x + this.width / 2, this.y + (this.height - 8) / 2,
-					this.colour);
+			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width, this.height);
+			this.drawCenteredString(fontRenderer, this.label, this.x + this.width / 2, this.y + (this.height - 8) / 2, this.colour);
 			if (this.hovered && this.hoverText != null && this.hoverText.length > 0) {
 				this.parent.hoverText = this.hoverText;
 			}

@@ -31,6 +31,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.entity.data.role.IRoleCompanion;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumCompanionJobs;
 import noppes.npcs.constants.EnumCompanionStage;
@@ -48,26 +49,21 @@ import noppes.npcs.roles.companion.CompanionTrader;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class RoleCompanion
-extends RoleInterface {
+extends RoleInterface
+implements IRoleCompanion {
 	
-	public boolean canAge;
-	public int companionID;
-	public int currentExp;
-	public boolean defendOwner;
+	public boolean canAge, defendOwner, hasInv;
+	public int companionID, currentExp, eatingDelay, eatingTicks;
 	private IItemStack eating;
-	private int eatingDelay;
-	private int eatingTicks;
 	public CompanionFoodStats foodstats;
-	public boolean hasInv;
 	public NpcMiscInventory inventory;
 	public EnumCompanionJobs job;
 	public CompanionJobInterface jobInterface;
 	public EntityPlayer owner;
-	public String ownerName;
 	public EnumCompanionStage stage;
 	public Map<EnumCompanionTalent, Integer> talents;
 	public long ticksActive;
-	public String uuid;
+	public String ownerName, uuid;
 
 	public RoleCompanion(EntityNPCInterface npc) {
 		super(npc);
@@ -509,12 +505,6 @@ extends RoleInterface {
 	public boolean isWeapon(ItemStack item) {
 		return item != null && item.getItem() != null && (item.getItem() instanceof ItemSword
 				|| item.getItem() instanceof ItemBow || item.getItem() == Item.getItemFromBlock(Blocks.COBBLESTONE));
-	}
-
-	public void levelSword() {
-		if (!this.talents.containsKey(EnumCompanionTalent.SWORD)) {
-			return;
-		}
 	}
 
 	public void levelTalent(EnumCompanionTalent talent, int exp) {

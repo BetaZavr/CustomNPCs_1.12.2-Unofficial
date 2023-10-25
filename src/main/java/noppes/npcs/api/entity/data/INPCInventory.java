@@ -10,6 +10,8 @@ public interface INPCInventory {
 	IItemStack getArmor(int slot);
 
 	ICustomDrop getDrop(int slot);
+	
+	IItemStack getDropItem(int slot);
 
 	ICustomDrop[] getDrops();
 

@@ -37,11 +37,11 @@ implements IButton {
 
 	public CustomGuiButtonWrapper(int id, String label, int x, int y, int width, int height, String texture) {
 		this(id, label, x, y, width, height);
+		this.textureY = 0;
 		this.setTexture(texture);
 	}
 
-	public CustomGuiButtonWrapper(int id, String label, int x, int y, int width, int height, String texture,
-			int textureX, int textureY) {
+	public CustomGuiButtonWrapper(int id, String label, int x, int y, int width, int height, String texture, int textureX, int textureY) {
 		this(id, label, x, y, width, height, texture);
 		this.setTextureOffset(textureX, textureY);
 	}

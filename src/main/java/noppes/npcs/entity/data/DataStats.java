@@ -31,7 +31,7 @@ implements INPCStats {
 	private String rarityTitle;
 	private EnumCreatureRarity rarity;
 	
-	public int maxHealth;
+	public double maxHealth;
 	public DataMelee melee;
 	public boolean noFallDamage;
 	private EntityNPCInterface npc;
@@ -43,7 +43,7 @@ implements INPCStats {
 
 	public DataStats(EntityNPCInterface npc) {
 		this.aggroRange = 16;
-		this.maxHealth = 20;
+		this.maxHealth = 20.0d;
 		this.respawnTime = 20;
 		this.spawnCycle = 0;
 		this.hideKilledBody = false;
@@ -125,23 +125,13 @@ implements INPCStats {
 
 	@Override
 	public boolean getImmune(int type) {
-		if (type == 0) {
-			return this.potionImmune;
-		}
-		if (type == 1) {
-			return !this.noFallDamage;
-		}
-		if (type == 2) {
-			return this.burnInSun;
-		}
-		if (type == 3) {
-			return this.immuneToFire;
-		}
-		if (type == 4) {
-			return !this.canDrown;
-		}
-		if (type == 5) {
-			return this.ignoreCobweb;
+		switch(type) {
+			case 0: return this.potionImmune;
+			case 1: return this.noFallDamage;
+			case 2: return this.burnInSun;
+			case 3: return this.immuneToFire;
+			case 4: return this.canDrown;
+			case 5: return this.ignoreCobweb;
 		}
 		throw new CustomNPCsException("Unknown immune type: " + type, new Object[0]);
 	}
@@ -158,7 +148,7 @@ implements INPCStats {
 	}
 
 	@Override
-	public int getMaxHealth() {
+	public double getMaxHealth() {
 		return this.maxHealth;
 	}
 
@@ -208,17 +198,11 @@ implements INPCStats {
 
 	@Override
 	public float getResistance(int type) {
-		if (type == 0) {
-			return this.resistances.melee;
-		}
-		if (type == 1) {
-			return this.resistances.arrow;
-		}
-		if (type == 2) {
-			return this.resistances.explosion;
-		}
-		if (type == 3) {
-			return this.resistances.knockback;
+		switch(type) {
+			case 0: return this.resistances.melee;
+			case 1: return this.resistances.arrow;
+			case 2: return this.resistances.explosion;
+			case 3: return this.resistances.knockback;
 		}
 		return 1.0f;
 	}
@@ -275,7 +259,10 @@ implements INPCStats {
 
 	public void readToNBT(NBTTagCompound compound) {
 		this.resistances.readToNBT(compound.getCompoundTag("Resistances"));
-		this.setMaxHealth(compound.getInteger("MaxHealth"));
+		if (compound.hasKey("MaxHealth", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // Old
+			this.setMaxHealth(compound.getInteger("MaxHealth"));
+		}
+		else { this.setMaxHealth(compound.getDouble("MaxHealth")); }
 		this.hideKilledBody = compound.getBoolean("HideBodyWhenKilled");
 		this.aggroRange = compound.getInteger("AggroRange");
 		this.respawnTime = compound.getInteger("RespawnTime");
@@ -361,10 +348,8 @@ implements INPCStats {
 	}
 
 	@Override
-	public void setMaxHealth(int maxHealth) {
-		if (maxHealth == this.maxHealth) {
-			return;
-		}
+	public void setMaxHealth(double maxHealth) {
+		if (maxHealth == this.maxHealth) { return; }
 		this.maxHealth = maxHealth;
 		this.npc.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
 		this.npc.updateClient = true;
@@ -415,7 +400,7 @@ implements INPCStats {
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setTag("Resistances", this.resistances.writeToNBT());
-		compound.setInteger("MaxHealth", this.maxHealth);
+		compound.setDouble("MaxHealth", this.maxHealth);
 		compound.setInteger("AggroRange", this.aggroRange);
 		compound.setBoolean("HideBodyWhenKilled", this.hideKilledBody);
 		compound.setInteger("RespawnTime", this.respawnTime);

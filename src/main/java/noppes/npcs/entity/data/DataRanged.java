@@ -188,20 +188,12 @@ implements INPCRanged {
 
 	@Override
 	public String getSound(int type) {
-		String sound = null;
-		if (type == 0) {
-			sound = this.fireSound;
+		switch(type) {
+			case 0: return this.fireSound;
+			case 1: return this.hitSound;
+			case 2: return this.groundSound;
 		}
-		if (type == 1) {
-			sound = this.hitSound;
-		}
-		if (type == 2) {
-			sound = this.groundSound;
-		}
-		if (sound == null || sound.isEmpty()) {
-			return null;
-		}
-		return sound;
+		return null;
 	}
 
 	public SoundEvent getSoundEvent(int type) {
