@@ -251,7 +251,6 @@ implements IDimensionHandler
 
 	@Override
 	public IWorldInfo getMCWorldInfo(int id) {
-		if (id<100) { return null; } 
 		return this.dimensionInfo.get(id);
 	}
 

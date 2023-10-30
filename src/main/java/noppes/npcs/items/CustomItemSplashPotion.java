@@ -9,6 +9,7 @@ import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.potions.PotionData;
 
 public class CustomItemSplashPotion
 extends ItemSplashPotion {
@@ -23,9 +24,13 @@ extends ItemSplashPotion {
         if (this.getCreativeTab() == null) { return; }
     	for (PotionType potiontype : PotionType.REGISTRY) {
             if (potiontype == PotionTypes.EMPTY) { continue; }
-            if (tab == CreativeTabs.SEARCH ||
-            		(tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.contains(potiontype)) ||
-            		(tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.contains(potiontype))) {
+            if (tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.containsKey(potiontype)) {
+            	PotionData data = CustomRegisters.custompotiontypes.get(potiontype);
+        		if (data.nbtData!=null && data.nbtData.hasKey("ShowInCreative", 1) && !data.nbtData.getBoolean("ShowInCreative")) { continue; }
+            	items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
+            	continue;
+            }
+            else if (tab == CreativeTabs.SEARCH || (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
             	items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
             }
         }

@@ -86,13 +86,14 @@ implements INbtHandler, ICapabilityProvider {
 
 	}
 
-	private static ResourceLocation CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
+	private static ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
 	
 	@CapabilityInject(MarkData.class)
-	public static Capability<MarkData> MARKDATA_CAPABILITY = null;
+	public static Capability<MarkData> CNPCS_MARKDATA_CAPABILITY = null;
 	
 	public static MarkData get(EntityLivingBase entity) {
-		MarkData data = (MarkData) entity.getCapability(MarkData.MARKDATA_CAPABILITY, null);
+		if (!(entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null) instanceof MarkData)) { return new MarkData(); }
+		MarkData data = (MarkData) entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null);
 		if (data.entity == null) {
 			data.entity = entity;
 			data.setNBT(entity.getEntityData().getCompoundTag("cnpcmarkdata"));
@@ -101,7 +102,7 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	public static void register(AttachCapabilitiesEvent<Entity> event) {
-		event.addCapability(MarkData.CAPKEY, (ICapabilityProvider) new MarkData());
+		event.addCapability(MarkData.CNPCS_CAPKEY, (ICapabilityProvider) new MarkData());
 	}
 
 	private EntityLivingBase entity;
@@ -160,7 +161,7 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		return capability == MarkData.MARKDATA_CAPABILITY;
+		return capability == MarkData.CNPCS_MARKDATA_CAPABILITY;
 	}
 
 	public void save() {

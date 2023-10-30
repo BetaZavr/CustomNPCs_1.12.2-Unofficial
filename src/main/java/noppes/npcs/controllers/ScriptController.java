@@ -6,11 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -65,8 +68,6 @@ public class ScriptController {
 	public PlayerScriptData playerScripts;
 	public PotionScriptData potionScripts;
 	
-	private ScriptEngine graalEngine;
-	
 	public ScriptController() {
 		this.languages = Maps.<String, String>newTreeMap();
 		this.factories = Maps.<String, ScriptEngineFactory>newTreeMap();
@@ -87,53 +88,10 @@ public class ScriptController {
 		if (!CustomNpcs.NashorArguments.isEmpty()) {
 			System.setProperty("nashorn.args", CustomNpcs.NashorArguments);
 		}
-		this.graalEngine = null;
-		try {
-			Class<?> graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
-			Class<?> cnt = Class.forName("org.graalvm.polyglot.Context");
-			Object cntInstance = null;
-			for (Method m : cnt.getDeclaredMethods()) {
-				if (m.getName().equals("newBuilder") && m.isAccessible()) {
-					try { cntInstance = m.invoke(cnt, "js"); }
-					catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { e.printStackTrace(); }
-					break;
-				}
-			}
-			if (cntInstance!=null) {
-				for (Method m : cnt.getDeclaredMethods()) {
-					if (!m.isAccessible()) { continue; }
-					try {
-						switch(m.getName()) {
-							case "allowExperimentalOptions": cntInstance = m.invoke(cntInstance, true); break;
-							case "allowHostClassLookup": cntInstance = m.invoke(cntInstance, true); break;
-							case "allowCreateProcess": cntInstance = m.invoke(cntInstance, true); break;
-							case "allowHostClassLoading": cntInstance = m.invoke(cntInstance, true); break;
-							case "allowNativeAccess": cntInstance = m.invoke(cntInstance, true); break;
-							case "allowAllAccess": cntInstance = m.invoke(cntInstance, true); break;
-							case "allowIO": cntInstance = m.invoke(cntInstance, true); break;
-							case "option":
-								cntInstance = m.invoke(cntInstance, "js.ecmascript-version", "2022");
-								cntInstance = m.invoke(cntInstance, "js.nashorn-compat", "true");
-							break;
-							default: continue;
-						}
-					}
-					catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { }
-				}
-				for (Method m : graal.getDeclaredMethods()) {
-					if (m.getName().equals("create")) {
-						try {
-							this.graalEngine = (ScriptEngine) m.invoke(graal, null, cntInstance);
-						}
-						catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { e.printStackTrace(); }
-					}
-				}
-			}
-		}
-		catch (ClassNotFoundException e) { }
 		this.manager = new ScriptEngineManager();
 		try {
 			if (this.manager.getEngineByName("ecmascript") == null) {
+				LogWriter.debug("Try create Nashorn Script Engine");
 				Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
 				Launch.classLoader.addClassLoaderExclusion("jdk.internal.dynalink");
 				Class<?> c = Class.forName("jdk.nashorn.api.scripting.NashornScriptEngineFactory");
@@ -143,16 +101,14 @@ public class ScriptController {
 					Class<?> require = Class.forName("com.coveo.nashorn_modules.Require");
 					Method metodEnable = require.getMethod("enable");
 					metodEnable.invoke(factory, CustomNpcs.getWorldSaveDirectory("scripts/common_js"));
-				} catch (Exception e) {
-				}
+				} catch (Exception e) { }
 				this.manager.registerEngineName("ecmascript", factory);
 				this.manager.registerEngineExtension("js", factory);
 				this.manager.registerEngineMimeType("application/ecmascript", factory);
 				this.languages.put(factory.getLanguageName(), ".js");
 				this.factories.put(factory.getLanguageName().toLowerCase(), factory);
 			}
-		} catch (Throwable t) {
-		}
+		} catch (Throwable t) { }
 		try {
 			Class<?> c = Class.forName("org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory");
 			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
@@ -167,15 +123,17 @@ public class ScriptController {
 		LogWriter.info("Script Engines Available:");
 		for (ScriptEngineFactory fac : this.manager.getEngineFactories()) {
 			try {
-				LogWriter.debug("Found script Library: \""+fac.getLanguageName() + "\"");
+				LogWriter.debug("Found script Library: \""+fac.getLanguageName() + "\"; type: \""+fac.getClass().getSimpleName()+"\"");
 				if (fac.getExtensions().isEmpty()) {
+					LogWriter.debug("Library: \""+fac.getLanguageName() + "\"; type: \""+fac.getClass().getSimpleName()+"\" Extensions isEmpty ");
 					continue;
 				}
 				if (!(fac.getScriptEngine() instanceof Invocable) && !fac.getLanguageName().equals("lua")) {
+					LogWriter.debug("Library: \""+fac.getLanguageName() + "\"; type: \""+fac.getClass().getSimpleName()+"\" Engine is not Invocable or not Lua");
 					continue;
 				}
 				String ext = "." + fac.getExtensions().get(0).toLowerCase();
-				LogWriter.info("Added script Library: \""+fac.getLanguageName() + "\"; files index: \"" + ext + "\"");
+				LogWriter.info("Added script Library: \""+fac.getLanguageName() + "\"; type: \""+fac.getClass().getSimpleName()+"\"; files index: \"" + ext + "\"");
 				this.languages.put(fac.getLanguageName(), ext);
 				this.factories.put(fac.getLanguageName().toLowerCase(), fac);
 			} catch (Throwable t3) {
@@ -184,7 +142,13 @@ public class ScriptController {
 		}
 	}
 
-	public boolean hasGraalLib() { return this.graalEngine!=null; }
+	public static boolean hasGraalLib() {
+		try {
+			Class<?> graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
+			return graal != null;
+		} catch (Exception e) {}
+		return false;
+	}
 
 	private File constantScriptsFile() {
 		return new File(this.dir, "constant_scripts.json");
@@ -199,10 +163,91 @@ public class ScriptController {
 	}
 	
 	public ScriptEngine getEngineByName(String language) {
-		if (language.equals("ECMAScript") && this.hasGraalLib()) { return this.graalEngine; }
+		if (language.equalsIgnoreCase("ECMAScript") && ScriptController.hasGraalLib()) { return this.getNewGraalEngine(); }
 		ScriptEngineFactory fac = this.factories.get(AdditionalMethods.instance.deleteColor(language).toLowerCase());
 		if (fac == null) { return null; }
 		return fac.getScriptEngine();
+	}
+
+	private ScriptEngine getNewGraalEngine() {
+		try {
+			Class<?> graal = Class.forName("com.oracle.truffle.js.scriptengine.GraalJSScriptEngine");
+			Method create = null;
+			for (Method m : graal.getMethods()) {
+				if (m.getName().equals("create") && m.getParameterCount()==2) { create = m; break; }
+			}
+			Class<?> cnt = Class.forName("org.graalvm.polyglot.Context");
+			Class<?> hostA = Class.forName("org.graalvm.polyglot.HostAccess");
+			Object contextBuilder = null; // org.graalvm.polyglot.Context.Builder
+			contextBuilder = cnt.getDeclaredMethod("newBuilder", String[].class).invoke(cnt, (Object) new String[] { "js" });
+			if (contextBuilder!=null) {
+				for (Method m : contextBuilder.getClass().getDeclaredMethods()) {
+					switch(m.getName()) {
+						case "allowExperimentalOptions": contextBuilder = m.invoke(contextBuilder, true); break;
+						case "allowHostClassLookup": contextBuilder = m.invoke(contextBuilder, (Predicate<String>) (s -> true)); break;
+						case "allowCreateProcess": contextBuilder = m.invoke(contextBuilder, true); break;
+						case "allowHostAccess": {
+							if (m.getParameters()[0].getType()==Boolean.class || m.getParameters()[0].getType()==boolean.class) { continue; }
+							Field f = hostA.getDeclaredField("ALL");
+							Method nb = hostA.getMethod("newBuilder", f.getType());
+							Object hostAccessBuilder = nb.invoke(hostA, f.get(hostA)); // org.graalvm.polyglot.HostAccess
+							Method ttm = null, b = null;
+							for (Method d : hostAccessBuilder.getClass().getMethods()) {
+								if (d.getName().equals("targetTypeMapping") && d.getParameterCount()==4) { ttm = d; }
+								if (d.getName().equals("build") && d.getParameterCount()==0) { b = d; }
+							}
+					        // Double to
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Double,Byte>) (n -> n.byteValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Float.class, null, (Function<Double,Float>) (n -> n.floatValue()));
+							hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Integer.class, null, (Function<Double,Integer>) (n -> n.intValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Long.class, null, (Function<Double,Long>) (n -> n.longValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, String.class, null, (Function<Double,String>) (n -> n.toString()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Boolean.class, null, (Function<Double,Boolean>) (n -> n != 0.0d));
+					        // Float to
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Byte.class, null, (Function<Float,Byte>) (n -> n.byteValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Double.class, null, (Function<Float,Double>) (n -> n.doubleValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Integer.class, null, (Function<Float,Integer>) (n -> n.intValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Long.class, null, (Function<Float,Long>) (n -> n.longValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, String.class, null, (Function<Float,String>) (n -> n.toString()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Float.class, Boolean.class, null, (Function<Float,Boolean>) (n -> n != 0.0f));
+					        // Integer to
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Byte.class, null, (Function<Integer,Byte>) (n -> n.byteValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Double.class, null, (Function<Integer,Double>) (n -> n.doubleValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Float.class, null, (Function<Integer,Float>) (n -> n.floatValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Long.class, null, (Function<Integer,Long>) (n -> n.longValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, String.class, null, (Function<Integer,String>) (n -> n.toString()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Integer.class, Boolean.class, null, (Function<Integer,Boolean>) (n -> n != 0));
+					        // Long to
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Double.class, Byte.class, null, (Function<Long,Byte>) (n -> n.byteValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Double.class, null, (Function<Long,Double>) (n -> n.doubleValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Float.class, null, (Function<Long,Float>) (n -> n.floatValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Integer.class, null, (Function<Long,Integer>) (n -> n.intValue()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, String.class, null, (Function<Long,String>) (n -> n.toString()));
+					        hostAccessBuilder = ttm.invoke(hostAccessBuilder, Long.class, Boolean.class, null, (Function<Long,Boolean>) (n -> n != 0l));
+					        hostAccessBuilder = b.invoke(hostAccessBuilder);
+					        // invoke to main
+							contextBuilder = m.invoke(contextBuilder, hostAccessBuilder);
+							break;
+						}
+						case "allowHostClassLoading": contextBuilder = m.invoke(contextBuilder, true); break;
+						case "allowNativeAccess": contextBuilder = m.invoke(contextBuilder, true); break;
+						case "allowAllAccess": { contextBuilder = m.invoke(contextBuilder, true); break; }
+						case "allowIO": contextBuilder = m.invoke(contextBuilder, true); break;
+						case "option": {
+							contextBuilder = m.invoke(contextBuilder, "js.ecmascript-version", "2022");
+							contextBuilder = m.invoke(contextBuilder, "js.nashorn-compat", "true");
+							break;
+						}
+						default: continue;
+					}
+				}
+				ScriptEngine engine = (ScriptEngine) create.invoke(graal, null, contextBuilder);
+				return engine;
+			}
+		} catch (ClassNotFoundException | NoSuchMethodException | IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private List<String> getScripts(String language, boolean isClient) {

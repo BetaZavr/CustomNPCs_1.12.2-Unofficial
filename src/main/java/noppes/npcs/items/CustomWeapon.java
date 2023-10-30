@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomRegisters;
@@ -66,6 +67,11 @@ implements ICustomElement {
 		if (nbtItem.hasKey("IsFull3D", 1) && nbtItem.getBoolean("IsFull3D")) { this.setFull3D(); }
 		
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+	}
+	
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab!=CustomRegisters.tabItems || (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative"))) { return; }
+		items.add(new ItemStack(this));
 	}
 
 	public float getAttackDamage() { return (float) ObfuscationHelper.getValue(ItemSword.class, this, float.class); }

@@ -112,8 +112,10 @@ public class ClientEventHandler {
 		Client.sendDataDelayCheck(EnumPlayerPacket.OpenGui, this, 0, event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(), mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
+			event.getGui().mc = mc;
 		} else if (event.getGui() instanceof GuiInventory && !mc.player.capabilities.isCreativeMode) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
+			event.getGui().mc = mc;
 		}
 		if (event.getGui() instanceof GuiOptions && mc.currentScreen instanceof GuiLanguage) {
 			ClientProxy.checkLocalization();

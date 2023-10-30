@@ -29,7 +29,7 @@ extends GuiScreen {
 	private List<String> suffixs;
 	public int guiLeft;
 	public int guiTop;
-	private int hover;
+	public int hover;
 	public boolean hovered;
 	public String[][] hoversTexts;
 	public String[] hoverText;

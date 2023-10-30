@@ -52,14 +52,14 @@ implements IDialogCategory {
 		}
 	}
 
-	public NBTTagCompound writeNBT(NBTTagCompound nbtfactions) {
-		nbtfactions.setInteger("Slot", this.id);
-		nbtfactions.setString("Title", this.title);
+	public NBTTagCompound writeNBT(NBTTagCompound compound) {
+		compound.setInteger("Slot", this.id);
+		compound.setString("Title", this.title);
 		NBTTagList dialogs = new NBTTagList();
 		for (Dialog dialog : this.dialogs.values()) {
 			dialogs.appendTag(dialog.writeToNBT(new NBTTagCompound()));
 		}
-		nbtfactions.setTag("Dialogs", dialogs);
-		return nbtfactions;
+		compound.setTag("Dialogs", dialogs);
+		return compound;
 	}
 }

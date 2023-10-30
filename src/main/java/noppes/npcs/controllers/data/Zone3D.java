@@ -270,7 +270,7 @@ implements IBorder, Predicate<Entity> {
 	 * @param x
 	 * @param y
 	 * @param z
-	 * @param type  0 - relative to the zero coordinate,  1 - relative to the center of the described contour;
+	 * @param type 0 - relative to the zero coordinate,  1 - relative to the center of the described contour;
 	 */
 	@Override
 	public void centerOffsetTo(int x, int y, int z, boolean type) {

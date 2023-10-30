@@ -205,8 +205,10 @@ implements IDialogOption {
 		}
 	}
 
-	public void addDialog(int dialogId) {
-		this.dialogs.add(new OptionDialogID(dialogId));
+	public OptionDialogID addDialog(int dialogId) {
+		OptionDialogID od = new OptionDialogID(dialogId);
+		this.dialogs.add(od);
+		return od;
 	}
 	
 }

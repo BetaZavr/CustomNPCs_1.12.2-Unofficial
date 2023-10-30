@@ -130,6 +130,7 @@ import noppes.npcs.items.ItemSoulstoneFilled;
 import noppes.npcs.items.ItemTeleporter;
 import noppes.npcs.particles.CustomParticleSettings;
 import noppes.npcs.potions.CustomPotion;
+import noppes.npcs.potions.PotionData;
 import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
 import noppes.npcs.util.ObfuscationHelper;
@@ -190,7 +191,7 @@ public class CustomRegisters {
 	public static Map<Block, Item> customblocks = Maps.<Block, Item>newHashMap();
 	public static List<Item> customitems = Lists.<Item>newArrayList();
 	public static List<Potion> custompotions = Lists.<Potion>newArrayList();
-	public static List<PotionType> custompotiontypes = Lists.<PotionType>newArrayList();
+	public static Map<PotionType, PotionData> custompotiontypes = Maps.<PotionType, PotionData>newHashMap();
 	public static Map<Integer, CustomParticleSettings> customparticles = Maps.<Integer, CustomParticleSettings>newTreeMap();
 	
 	/* RegistryEvent.Register<?> Types:
@@ -560,7 +561,10 @@ public class CustomRegisters {
 			int delay = nbtPotion.hasKey("BaseDelay", 3) ? nbtPotion.getInteger("BaseDelay") : 200;
 			PotionEffect potionEffect = new PotionEffect(potion, nbtPotion.getBoolean("IsInstant") ? 0 : delay);
 			ResourceLocation potionTypeName = new ResourceLocation(CustomNpcs.MODID, nbtPotion.getString("RegistryName").toLowerCase());
-			CustomRegisters.custompotiontypes.add(new PotionType(nbtPotion.getString("RegistryName").toLowerCase(), potionEffect).setRegistryName(potionTypeName));
+			PotionType potionType = new PotionType(nbtPotion.getString("RegistryName").toLowerCase(), potionEffect).setRegistryName(potionTypeName);
+			CustomRegisters.custompotiontypes.put(potionType, new PotionData(potion, potionType, nbtPotion));
+			
+			
 			if (nbtPotion.getBoolean("IsInstant")) { break; }
 		}
 		if (resave) {
@@ -569,12 +573,13 @@ public class CustomRegisters {
 		}
 		if (CustomRegisters.custompotions.size()==0) { return; }
 		event.getRegistry().registerAll(CustomRegisters.custompotions.toArray(new Potion[CustomRegisters.custompotions.size()]));
+System.out.println("Potions: "+CustomRegisters.custompotiontypes.size());
 	}
 	
 	@SubscribeEvent
 	public void registerPotionTypes(RegistryEvent.Register<PotionType> event) {
 		if (CustomRegisters.custompotiontypes.size()==0) { return; }
-		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.toArray(new PotionType[CustomRegisters.custompotiontypes.size()]));
+		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.keySet().toArray(new PotionType[CustomRegisters.custompotiontypes.size()]));
 	}
 	
 	@SubscribeEvent
@@ -621,6 +626,7 @@ public class CustomRegisters {
 		
 		for (Item it : items) { names.add(it.getRegistryName().toString()); }
 		
+		/** Blocks */
 		CustomRegisters.tabBlocks.item = iscr;
 		CustomRegisters.tabItems.item = CustomRegisters.scripted_item;
 		for (Block block : CustomRegisters.customblocks.keySet()) {
@@ -639,7 +645,9 @@ public class CustomRegisters {
 			}
 		}
 		
-		/** Replace ItemPotions */
+		/** Replace all ItemPotions
+		 * Due to the fact that the registration of potions occurs later than the registration of items,
+		 * potion items are substituted. They already check the distribution of across creative tabs.*/
 		ItemPotion ip = new CustomItemPotion();
 		ItemSplashPotion sip = new CustomItemSplashPotion();
 		ItemLingeringPotion lip = new CustomItemLingeringPotion();
@@ -733,7 +741,7 @@ public class CustomRegisters {
 					ArmorMaterial mat = CustomArmor.getMaterialArmor(nbtItem);
 					for (int a=0; a<nbtItem.getTagList("EquipmentSlots", 8).tagCount(); a++) {
 						EntityEquipmentSlot slot = CustomArmor.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
-						int maxStDam = 0;
+						int maxStDam = 0, rx = 2;
 						if (nbtItem.hasKey("MaxStackDamage", 11) && a<nbtItem.getIntArray("MaxStackDamage").length) {
 							maxStDam = nbtItem.getIntArray("MaxStackDamage")[a];
 						}
@@ -745,7 +753,10 @@ public class CustomRegisters {
 						if (nbtItem.getTagList("Toughness", 5)!=null && a<nbtItem.getTagList("Toughness", 5).tagCount()) {
 							tough = nbtItem.getTagList("Toughness", 5).getFloatAt(a);
 						}
-						this.registryItem(new CustomArmor(mat, nbtItem.getInteger("RenderIndex"), slot, maxStDam, damReAmt, tough, nbtItem), names, items, nbtItem);
+						if (nbtItem.hasKey("RenderIndex", 3)) { rx = nbtItem.getInteger("RenderIndex"); }
+						if (rx<0) { rx *= -1; }
+						if (rx > 4) { rx %= 5; }
+						this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items, nbtItem);
 					}
 					break;
 				case (byte) 4: // Shield

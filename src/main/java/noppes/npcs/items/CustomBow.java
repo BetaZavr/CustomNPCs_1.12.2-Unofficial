@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
@@ -43,7 +44,7 @@ implements ICustomElement {
 	private float critChance = 0.0f;
 	private double attackDamage = 2.0d;
 
-	protected static float speed = 20.0f;
+	protected float speed = 30.0f;
 
 	public CustomBow(NBTTagCompound nbtItem) {
 		super();
@@ -55,7 +56,7 @@ implements ICustomElement {
 		if (nbtItem.hasKey("CritChance", 5)) { this.critChance = nbtItem.getFloat("CritChance"); }
 		this.material = CustomItem.getMaterialTool(nbtItem);
 		
-		if (nbtItem.hasKey("DrawstringSpeed", 5)) { CustomBow.speed = nbtItem.getFloat("DrawstringSpeed"); }
+		if (nbtItem.hasKey("DrawstringSpeed", 5)) { this.speed = nbtItem.getFloat("DrawstringSpeed"); }
 		if (nbtItem.getInteger("MaxStackDamage")>1) { this.setMaxDamage(nbtItem.getInteger("MaxStackDamage")); }
 		if (nbtItem.hasKey("EntityDamage", 6)) { this.attackDamage  = nbtItem.getDouble("EntityDamage"); }
 		if (nbtItem.hasKey("RepairItem", 10)) { this.repairItemStack = new ItemStack(nbtItem.getCompoundTag("RepairItem")); }
@@ -68,11 +69,16 @@ implements ICustomElement {
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn) {
 				float f = 0.0f;
 				if (entityIn != null) {
-					f = (!(entityIn.getActiveItemStack().getItem() instanceof ItemBow)) ? 0.0F : (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / CustomBow.speed;
+					f = (!(entityIn.getActiveItemStack().getItem() instanceof ItemBow)) ? 0.0F : (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / ((CustomBow) stack.getItem()).speed;
 				}
 				return f;
 			}
 		});
+	}
+	
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab!=CustomRegisters.tabItems || (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative"))) { return; }
+		items.add(new ItemStack(this));
 	}
 
 	protected ItemStack findAmmo(EntityPlayer player) {

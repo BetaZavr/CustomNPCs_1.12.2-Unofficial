@@ -15,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomRegisters;
@@ -58,6 +59,11 @@ implements ICustomElement {
 			ObfuscationHelper.setValue(ItemTool.class, this, nbtItem.getString("ToolClass"), String.class);
 		}
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+	}
+	
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab!=CustomRegisters.tabItems || (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative"))) { return; }
+		items.add(new ItemStack(this));
 	}
 
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {

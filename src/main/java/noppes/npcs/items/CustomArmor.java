@@ -6,6 +6,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.ICustomElement;
@@ -35,6 +36,11 @@ implements ICustomElement {
 		else { this.repairItemStack = materialIn.getRepairItemStack(); }
 		if (nbtItem.hasKey("Enchantability", 3)) { this.enchantability = nbtItem.getInteger("Enchantability"); }
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
+	}
+	
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab!=CustomRegisters.tabItems || (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative"))) { return; }
+		items.add(new ItemStack(this));
 	}
 	
 	public int getItemEnchantability() {

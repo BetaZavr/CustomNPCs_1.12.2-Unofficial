@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.model;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -314,6 +315,8 @@ implements ICustomScrollListener {
 			this.setHoverText(new TextComponentTranslation("display.hover.part."+part).getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		} else if (this.scroll!=null && this.scroll.hover>-1) {
+			this.drawHoveringText(Arrays.asList(new TextComponentTranslation("display.hover.part."+this.scroll.getList().get(this.scroll.hover).toLowerCase()).getFormattedText()), mouseX, mouseY, this.fontRenderer);
 		}
 		else {
 			for (GuiButton b : this.buttonList) {

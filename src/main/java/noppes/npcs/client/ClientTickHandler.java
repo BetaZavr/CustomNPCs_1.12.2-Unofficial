@@ -50,6 +50,7 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
+import noppes.npcs.util.temp.TempClass;
 
 public class ClientTickHandler {
 	
@@ -274,10 +275,26 @@ public class ClientTickHandler {
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
 		//EntityPlayerSP player = (EntityPlayerSP) entity;
-		//TempClass.createAPIs(true);
+		TempClass.createAPIs(true);
 		//TempClass.deobfucation();
+		//TempClass.cheakLang();
 		
-		/*List<String> list = Lists.newArrayList("Type", "Name", "Min", "Max");
+		/*try {
+			@SuppressWarnings("unchecked")
+			Class<GraalJSEngineFactory> c = (Class<GraalJSEngineFactory>) Class.forName("com.oracle.truffle.js.scriptengine.GraalJSEngineFactory");
+			Field f = c.getDeclaredField("LANGUAGE");
+			Field modifiersField = Field.class.getDeclaredField("modifiers");
+			modifiersField.setAccessible(true);
+			modifiersField.setInt(f, f.getModifiers() - Modifier.FINAL - Modifier.PRIVATE + Modifier.PUBLIC);
+			f.set(c, new String("GraalJScript"));
+			modifiersField.setInt(f, f.getModifiers() -  Modifier.PUBLIC + Modifier.FINAL + Modifier.PRIVATE);
+		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
+		
+		/*List<String> list = Lists.newArrayList("DurationTicks", "Ambient", "Potion", "ShowParticles", "Probability", "Amplifier");
 		Collections.sort(list);
 		System.out.println("list: ["+list+"]");*/
 		

@@ -71,6 +71,7 @@ implements ICustomElement {
 
 		@Override
 		public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+			if (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 			items.add(new ItemStack(this, 1, 0));
 		}
 
@@ -80,7 +81,7 @@ implements ICustomElement {
 		}
 	}
 
-	private NBTTagCompound nbtData;
+	protected NBTTagCompound nbtData;
 	public static final PropertyEnum<CustomBlockTypes.TreeType> VARIANT = PropertyEnum.create("type", CustomBlockTypes.TreeType.class);
 	
 	public CustomBlockSlab(NBTTagCompound nbtBlock) {

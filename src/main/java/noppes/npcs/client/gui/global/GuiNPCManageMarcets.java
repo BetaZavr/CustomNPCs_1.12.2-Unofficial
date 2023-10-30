@@ -14,6 +14,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.SubGuiMarketExtraEdit;
 import noppes.npcs.client.gui.SubGuiNPCLinesEdit;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
@@ -106,25 +107,24 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 		this.addLabel(new GuiNpcLabel(0, "global.market", this.guiLeft + 5, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "gui.market.deals", this.guiLeft + 113, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(2, "role.marketname", this.guiLeft + 214, this.guiTop + 140));
-		this.addLabel(new GuiNpcLabel(3, "availability.options", this.guiLeft + 270, this.guiTop + 14));
+		this.addLabel(new GuiNpcLabel(3, "availability.options", this.guiLeft + 272, this.guiTop + 14));
 		this.addLabel(new GuiNpcLabel(4, "gui.market.product", this.guiLeft + 214, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(5, "gui.market.barter", this.guiLeft + 214, this.guiTop + 34));
 		this.addLabel(new GuiNpcLabel(6, "gui.market.currency", this.guiLeft + 214, this.guiTop + 102));
 		this.addLabel(new GuiNpcLabel(7, "gui.market.uptime", this.guiLeft + 214, this.guiTop + 173));
 		this.addLabel(new GuiNpcLabel(8, "quest.itemamount", this.guiLeft + 304, this.guiTop + 102));
-		this.addLabel(new GuiNpcLabel(9, "drop.chance", this.guiLeft + 270, this.guiTop + 33));
+		this.addLabel(new GuiNpcLabel(9, "drop.chance", this.guiLeft + 272, this.guiTop + 58));
 
 		if (this.container.marcet!=null) {
-			this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 214, this.guiTop + 150, 180, 20,
-					this.container.marcet.name));
-			this.addTextField(new GuiNpcTextField(2, this, this.guiLeft + 214, this.guiTop + 183, 50, 20,
-					"" + this.container.marcet.updateTime));
+			this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 214, this.guiTop + 150, 180, 20, this.container.marcet.name));
+			this.addTextField(new GuiNpcTextField(2, this, this.guiLeft + 214, this.guiTop + 183, 50, 20, "" + this.container.marcet.updateTime));
 			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(0, 360, this.container.marcet.updateTime);
-
 			this.addButton(new GuiNpcButton(5, this.guiLeft + 5, this.guiTop + 115, 52, 20, "gui.add"));
 			this.addButton(new GuiNpcButton(6, this.guiLeft + 59, this.guiTop + 115, 51, 20, "gui.remove"));
 			this.getButton(6).enabled = this.container.marcet!=null && MarcetController.getInstance().marcets.size() > 1;
+			this.addButton(new GuiNpcButton(9, this.guiLeft + 270, this.guiTop + 172, 120, 20, "lines.title"));
+			this.addButton(new GuiNpcButton(10, this.guiLeft + 270, this.guiTop + 193, 120, 20, "gui.extra"));
 		}
 		
 		if (this.container.deal!=null) {
@@ -145,7 +145,7 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 					this.container.deal.inventorySold.getStackInSlot(0).getMaxStackSize() * 12,
 					this.container.deal.count[1]);
 			double chance = Math.round(this.container.deal.chance * 1000000.0d) / 10000.0d;
-			this.addTextField(new GuiNpcTextField(5, this, this.guiLeft + 270, this.guiTop + 45, 50, 20, "" + chance));
+			this.addTextField(new GuiNpcTextField(5, this, this.guiLeft + 310, this.guiTop + 53, 50, 20, "" + chance));
 			this.getTextField(5).setDoubleNumbersOnly();
 			this.getTextField(5).setMinMaxDoubleDefault(0.0d, 100.0d, chance);
 	
@@ -175,7 +175,6 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 			}
 			this.getButton(7).enabled = notEmpty;
 			this.getButton(8).enabled = this.container.deal!=null && this.container.marcet.data.size() > 1;
-			this.addButton(new GuiNpcButton(9, this.guiLeft + 270, this.guiTop + 183, 120, 20, "lines.title"));
 		}
 	}
 
@@ -241,6 +240,11 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 			case 9: { // message
 				if (this.container.marcet == null) { return; }
 				this.setSubGui(new SubGuiNPCLinesEdit(0, this.npc, this.container.marcet.lines, null));
+				break;
+			}
+			case 10: { // extra
+				if (this.container.marcet == null) { return; }
+				this.setSubGui(new SubGuiMarketExtraEdit(0, this.npc, this.container.marcet));
 				break;
 			}
 		}
@@ -327,6 +331,8 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.del").getFormattedText());
 		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.message").getFormattedText());
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("market.hover.extra").getFormattedText());
 		}
 	}
 

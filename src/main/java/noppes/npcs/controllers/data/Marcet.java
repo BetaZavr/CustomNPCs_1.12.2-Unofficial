@@ -30,6 +30,7 @@ public class Marcet
 implements IMarcet, Predicate<EntityNPCInterface> {
 
 	public final Map<Integer, Deal> data;
+	public final Map<Integer, MarkupData> markup;
 	public int id;
 	public long lastTime;
 	public List<EntityPlayer> listeners = Lists.<EntityPlayer>newArrayList();
@@ -44,6 +45,10 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 		this.updateTime = 0;
 		this.data = Maps.<Integer, Deal>newTreeMap();
 		this.data.put(0, new Deal());
+		this.markup = Maps.<Integer, MarkupData>newTreeMap();
+		this.markup.put(0, new MarkupData(0, 0.05f, 0.10f));
+		this.markup.put(1, new MarkupData(1, 0.02f, 0.04f));
+		this.markup.put(2, new MarkupData(2, 0.0f, 0.0f));
 		this.lines = new Lines();
 	}
 
@@ -168,6 +173,16 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			d.id = i;
 			this.data.put(i, d);
 		}
+		this.markup.clear();
+		for (int i = 0; i < compound.getTagList("Markup", 10).tagCount(); i++) {
+			MarkupData md = new MarkupData(compound.getTagList("Markup", 10).getCompoundTagAt(i));
+			this.markup.put(md.id, md);
+		}
+		if (this.markup.isEmpty()) {
+			this.markup.put(0, new MarkupData(0, 0.05f, 0.10f));
+			this.markup.put(1, new MarkupData(1, 0.02f, 0.04f));
+			this.markup.put(2, new MarkupData(2, 0.0f, 0.0f));
+		}
 		this.updateTime = compound.getInteger("UpdateTime");
 		this.lastTime = compound.getLong("LastTime");
 		this.nextTime = compound.getLong("NextTime");
@@ -257,6 +272,13 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			deals.appendTag(d.getNBT());
 		}
 		compound.setTag("Deals", deals);
+		NBTTagList markup = new NBTTagList();
+		for (int id : this.markup.keySet()) {
+			MarkupData mp = this.markup.get(id);
+			mp.id = id;
+			markup.appendTag(mp.getNBT());
+		}
+		compound.setTag("Markup", markup);
 		compound.setInteger("UpdateTime", this.updateTime);
 		compound.setLong("LastTime", this.lastTime);
 		compound.setLong("NextTime", this.lastTime + this.updateTime * 60000L - System.currentTimeMillis());

@@ -186,7 +186,6 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener  {
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
-
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		switch(textField.getId()) {

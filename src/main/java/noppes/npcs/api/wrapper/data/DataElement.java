@@ -111,15 +111,9 @@ implements IDataElement {
 			} else {
 				key += "default ";
 			}
-			if (Modifier.isStatic(md)) {
-				key += "static ";
-			}
-			if (Modifier.isSynchronized(md)) {
-				key += "synchronized ";
-			}
-			if (Modifier.isFinal(md)) {
-				key += "final ";
-			}
+			if (Modifier.isStatic(md)) { key += "static "; }
+			if (Modifier.isSynchronized(md)) { key += "synchronized "; }
+			if (Modifier.isFinal(md)) { key += "final "; }
 		} else if (this.object instanceof Field) {
 			Field f = (Field) this.object;
 			int md = f.getModifiers();
@@ -133,13 +127,9 @@ implements IDataElement {
 			} else {
 				key += "default ";
 			}
+			if (Modifier.isStatic(md)) { key += "static "; }
+			if (Modifier.isFinal(md)) { key += "final "; }
 			f.setAccessible(true);
-			if (Modifier.isStatic(md)) {
-				key += "static ";
-			}
-			if (Modifier.isFinal(md)) {
-				key += "final ";
-			}
 		} else if (this.object instanceof Constructor) {
 			String body = "(";
 			for (Parameter p : ((Constructor<?>) this.object).getParameters()) {
@@ -201,10 +191,7 @@ implements IDataElement {
 			((Field) this.object).setAccessible(true);
 			try {
 				return ((Field) this.object).get(this.data);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-			}
-		} else if (this.object instanceof Class) {
-			return ((Class<?>) this.object).getSimpleName();
+			} catch (IllegalArgumentException | IllegalAccessException e) { }
 		}
 		return this.object;
 	}
@@ -235,12 +222,25 @@ implements IDataElement {
 	@Override
 	public boolean setValue(Object value) {
 		if (this.object instanceof Field) {
-			((Field) this.object).setAccessible(true);
-			try {
-				((Field) this.object).set(this.data, value);
-				return true;
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+			Field f = ((Field) this.object);
+			int mod = f.getModifiers();
+			if (Modifier.isFinal(mod)) {
+				try {
+					Field modifiersField = Field.class.getDeclaredField("modifiers");
+					modifiersField.setAccessible(true);
+					modifiersField.setInt(f, mod - Modifier.FINAL - (Modifier.isPrivate(mod) ? Modifier.PRIVATE : 0));
+					f.setAccessible(true);
+					f.set(Modifier.isStatic(mod) ? null : this.data, value);
+					modifiersField.setInt(f, mod);
+					return true;
+				}
+				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
 			}
+			try {
+				f.setAccessible(true);
+				f.set(this.data, value);
+				return true;
+			} catch (IllegalArgumentException | IllegalAccessException e) { }
 		}
 		return false;
 	}

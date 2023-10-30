@@ -93,8 +93,6 @@ public class ScriptContainer {
 		FillMap(SideType.class);
 		FillMap(TacticalType.class);
 		FillMap(ScriptController.Instance.constants);
-		ScriptContainer.Data.put("date", Date.class);
-		ScriptContainer.Data.put("calendar", Calendar.getInstance());
 		ScriptContainer.Data.put("API", NpcAPI.Instance());
 		ScriptContainer.Data.put("PosZero", new BlockPosWrapper(BlockPos.ORIGIN));
 	}
@@ -175,15 +173,13 @@ public class ScriptContainer {
 	}
 
 	public void appandConsole(String message) {
-		if (message == null || message.isEmpty()) {
-			return;
-		}
+		if (message == null || message.isEmpty()) { return; }
 		long time = System.currentTimeMillis();
 		if (this.console.containsKey(time)) {
 			message = this.console.get(time) + "\n" + message;
 		}
 		this.console.put(time, message);
-		while (this.console.size() > 40) {
+		while (this.console.size() > 250) {
 			this.console.remove(this.console.firstKey());
 		}
 	}
@@ -287,6 +283,7 @@ public class ScriptContainer {
 	}
 
 	public void setEngine(String scriptLanguage) {
+		this.console.clear();
 		this.engine = ScriptController.Instance.getEngineByName(scriptLanguage);
 		if (this.engine == null) {
 			this.errored = true;
@@ -308,29 +305,22 @@ public class ScriptContainer {
 			for (String key : ScriptController.Instance.constants.getCompoundTag("Constants").getKeySet()) {
 				NBTBase tag = ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key);
 				if (tag.getId()==8) {
-					try {
-						ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
-					}
+					try { ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString())); }
 					catch (Exception e) { }
 				}
 			}
 			ScriptContainer.Data.put("dump", new Dump());
 			ScriptContainer.Data.put("log", new Log());
-			if (ScriptController.Instance.hasGraalLib()) {
-				ScriptContainer.Data.put("booleanValue", new ToBoolean());
-				ScriptContainer.Data.put("intValue", new ToInt());
-				ScriptContainer.Data.put("floatValue", new ToFloat());
-				ScriptContainer.Data.put("doubleValue", new ToDouble());
-				ScriptContainer.Data.put("longValue", new ToDouble());
-				ScriptContainer.Data.put("toString", new ToString());
+			try {
+				ScriptContainer.Data.put("date", this.engine.eval("Java.type('"+Date.class.getName()+"')"));
+				ScriptContainer.Data.put("calendar", this.engine.eval("Java.type('"+Calendar.class.getName()+"')"));
 			}
+			catch (Exception e) { }
 		}
 		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
 			this.engine.put(entry.getKey(), entry.getValue());
 		}
-		if (ScriptController.Instance.hasGraalLib()) {
-			this.engine.put("currentThread", Thread.currentThread().getName());
-		}
+		this.engine.put("currentThread", Thread.currentThread().getName());
 		this.init = false;
 	}
 
@@ -361,59 +351,6 @@ public class ScriptContainer {
 			ScriptContainer.this.appandConsole(o + "");
 			LogWriter.info(o + "");
 			return null;
-		}
-	}
-	
-	public class ToBoolean implements Function<Object, Boolean> {
-		@Override
-		public Boolean apply(Object o) {
-			if (o==null) { return false; }
-			try { return (boolean) o; } catch (Exception e) { }
-			try { return Boolean.valueOf(o.toString()); } catch (Exception e) { }
-			return true;
-		}
-	}
-	
-	public class ToInt implements Function<Object, Integer> {
-		@Override
-		public Integer apply(Object o) {
-			try { return (int) o; } catch (Exception e) { }
-			try { return Integer.valueOf(o.toString()); } catch (Exception e) { }
-			return 0;
-		}
-	}
-	
-	public class ToFloat implements Function<Object, Float> {
-		@Override
-		public Float apply(Object o) {
-			try { return (float) o; } catch (Exception e) { }
-			try { return Float.valueOf(o.toString()); } catch (Exception e) { }
-			return 0.0f;
-		}
-	}
-	
-	public class ToDouble implements Function<Object, Double> {
-		@Override
-		public Double apply(Object o) {
-			try { return (double) o; } catch (Exception e) { }
-			try { return Double.valueOf(o.toString()); } catch (Exception e) { }
-			return 0.0d;
-		}
-	}
-	
-	public class ToLong implements Function<Object, Long> {
-		@Override
-		public Long apply(Object o) {
-			try { return (long) o; } catch (Exception e) { }
-			try { return Long.valueOf(o.toString()); } catch (Exception e) { }
-			return 0L;
-		}
-	}
-	
-	public class ToString implements Function<Object, String> {
-		@Override
-		public String apply(Object o) {
-			return o==null ? "NULL" : o.toString();
 		}
 	}
 	

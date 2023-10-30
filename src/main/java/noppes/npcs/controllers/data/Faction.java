@@ -21,15 +21,9 @@ implements IFaction {
 	}
 
 	public HashSet<Integer> attackFactions, frendFactions;
-	public int color;
-	public int defaultPoints;
-	public int friendlyPoints;
-	public boolean getsAttacked;
-	public boolean hideFaction;
-	public int id;
+	public int id, color, defaultPoints, friendlyPoints, neutralPoints;
+	public boolean getsAttacked, hideFaction;
 	public String name;
-
-	public int neutralPoints;
 	public FactionOptions factions;
 
 	public Faction() {

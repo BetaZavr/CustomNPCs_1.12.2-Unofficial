@@ -95,8 +95,7 @@ implements ICompatibilty, IAvailability {
 		return (hasRead && en == EnumAvailabilityDialog.After) || (!hasRead && en == EnumAvailabilityDialog.Before);
 	}
 
-	public boolean factionAvailable(int id, EnumAvailabilityFaction stance, EnumAvailabilityFactionType available,
-			EntityPlayer player) {
+	public boolean factionAvailable(int id, EnumAvailabilityFaction stance, EnumAvailabilityFactionType available, EntityPlayer player) {
 		if (available == EnumAvailabilityFactionType.Always) {
 			return true;
 		}

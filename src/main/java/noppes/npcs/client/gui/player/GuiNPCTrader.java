@@ -180,13 +180,13 @@ implements ICustomScrollListener, IGuiData {
 				int slot = 0;
 				for (ItemStack curr : this.barterItems.keySet()) {
 					int u = this.px - 9 + (slot % 3) * 18;
-					int v = this.py + 38 + (slot / 3) * 18;
+					int v = this.py + 39 + (slot / 3) * 18;
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
 					RenderHelper.enableGUIStandardItemLighting();
 					this.mc.getRenderItem().renderItemAndEffectIntoGUI(curr, 0, 0);
 					GlStateManager.translate(0.0f, 0.0f, 200.0f);
-					this.drawString(this.mc.fontRenderer, "" + curr.getCount(), (13 - (curr.getCount() > 9 ? 6 : 0)), 10, 0xFFFFFFFF);
+					this.drawString(this.mc.fontRenderer, "" + curr.getCount(), 16 - this.mc.fontRenderer.getStringWidth(""+curr.getCount()), 9, 0xFFFFFFFF);
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(i, j, u, v, 18, 18)) {
@@ -275,7 +275,7 @@ implements ICustomScrollListener, IGuiData {
 			this.setHoverText(new TextComponentTranslation("market.hover.reset").getFormattedText());
 		} else if (this.container.deal.count[1] > 0 && isMouseHover(i, j, this.guiLeft + 177, this.guiTop + 24, 45, 14)) {
 			this.setHoverText( this.container.deal.count[1] > 0 ? new TextComponentTranslation("market.hover.item.amount", new Object[] { "" + this.container.deal.amount }).getFormattedText() : "");
-		} else if (this.getLabel(6).enabled && this.getLabel(6).hovered) {
+		} else if (this.getLabel(6)!=null && this.getLabel(6).enabled && this.getLabel(6).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
 		}
 
@@ -452,7 +452,7 @@ implements ICustomScrollListener, IGuiData {
 	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
-		if (i==200 || i==ClientProxy.frontButton.getKeyCode() || i==208 || i==ClientProxy.backButton.getKeyCode()) { // up or down
+		if (i==200 || i==ClientProxy.frontButton.getKeyCode() || i==208 || i==ClientProxy.backButton.getKeyCode()) {
 			if (!this.data.containsKey(scroll.selected)) { return; }
 			this.selectDeal = this.scroll.selected;
 			this.container.deal = this.data.get(this.selectDeal);

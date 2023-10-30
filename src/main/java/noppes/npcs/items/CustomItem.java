@@ -12,8 +12,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CustomRegisters;
+import net.minecraft.util.NonNullList;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
@@ -26,7 +27,7 @@ implements IPermission, ICustomElement {
 	
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	
-	protected int enchantability = 0;
+	protected int enchantability = 10;
 	protected int harvestLevel = -1;
 	protected ItemStack repairItemStack = ItemStack.EMPTY;
 	
@@ -66,6 +67,11 @@ implements IPermission, ICustomElement {
 		}
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tabItems);
 		this.setHasSubtypes(true);
+	}
+	
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab!=CustomRegisters.tabItems || (this.nbtData!=null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative"))) { return; }
+		items.add(new ItemStack(this));
 	}
 
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {
