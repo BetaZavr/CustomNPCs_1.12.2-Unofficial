@@ -1,7 +1,0 @@
-<big>'''Класс net.minecraftforge.fml.common.eventhandler.[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/net/minecraftforge/fml/common/eventhandler/Event.java Event]'''</big><br>
-=== Суб-классы ===
-<br>
-== Классы событий ==
-{| class="wikitable" style="text-align:left
-! Классы: !! Имя функции: !! Описание:
-|}

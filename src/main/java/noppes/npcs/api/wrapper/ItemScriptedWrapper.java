@@ -156,9 +156,7 @@ implements IItemScripted, IScriptHandler {
 
 	public void loadScriptData() {
 		NBTTagCompound c = this.item.getTagCompound();
-		if (c == null) {
-			return;
-		}
+		if (c == null) { return; }
 		this.setScriptNBT(c.getCompoundTag("ScriptedData"));
 	}
 

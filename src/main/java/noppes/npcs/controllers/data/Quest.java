@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
-import com.mojang.authlib.GameProfile;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -56,7 +55,6 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	public PlayerMail mail;
 	public QuestInterface questInterface;
 	public NpcMiscInventory rewardItems = new NpcMiscInventory(9);
-	public GameProfile playerProfile;
 	public EnumQuestRepeat repeat;
 	public EnumQuestCompletion completion;
 	public EnumRewardType rewardType;

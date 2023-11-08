@@ -50,7 +50,6 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
-import noppes.npcs.util.temp.TempClass;
 
 public class ClientTickHandler {
 	
@@ -276,7 +275,7 @@ public class ClientTickHandler {
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
 		//EntityPlayerSP player = (EntityPlayerSP) entity;
-		TempClass.createAPIs(true);
+		//TempClass.createAPIs(true);
 		//TempClass.deobfucation();
 		//TempClass.cheakLang();
 		

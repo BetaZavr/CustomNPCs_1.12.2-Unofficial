@@ -85,7 +85,7 @@ public class QuestInterface {
 				to.setMaxProgress(1);
 			}
 			if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT)) {
-				to.slotID = stacks.size();
+				to.slotID = i;
 				stacks.add(to.getItemStack());
 			} else if (to.getEnumType() == EnumQuestTask.AREAKILL) {
 				if (to.getAreaRange() < 3) {
@@ -392,7 +392,7 @@ public class QuestInterface {
 				to.load(compound.getTagList("Tasks", 10).getCompoundTagAt(i));
 				if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT)
 						&& !to.getItemStack().isEmpty()) {
-					to.slotID = stacks.size();
+					to.slotID = i;
 					stacks.add(to.getItemStack());
 				}
 				this.tasks[i] = to;
