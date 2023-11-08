@@ -14,6 +14,7 @@ public enum EnumGuiType
 	PlayerFollower, 
 	SetupItemGiver, 
 	SetupTrader, 
+	SetupTraderDeal, 
 	SetupFollower, 
 	PlayerTrader, 
 	PlayerTransporter, 

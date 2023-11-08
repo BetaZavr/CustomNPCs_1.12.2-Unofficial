@@ -73,7 +73,6 @@ import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.ClientScriptData;
-import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DropsTemplate;
@@ -102,7 +101,6 @@ import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.RoleCompanion;
-import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.roles.data.SpawnNPCData;
 import noppes.npcs.schematics.Schematic;
@@ -1268,53 +1266,33 @@ public class PacketHandlerServer {
 			}
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 		} else if (type == EnumPacketServer.TraderMarketSave) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			boolean bo = buffer.readBoolean();
-			if (bo) {
-				if (npc.advanced.roleInterface instanceof RoleTrader) {
-					((RoleTrader) npc.advanced.roleInterface).marcet = compound.getInteger("MarcetID");
-				}
-			} else {
-				Marcet marcet = new Marcet();
-				marcet.readFromNBT(compound);
-				MarcetController.getInstance().saveMarcet(marcet);
-			}
-		} else if (type == EnumPacketServer.TraderMarketGet) {
 			MarcetController mData = MarcetController.getInstance();
-			Server.sendData(player, EnumPacketClient.SET_MARCETS, mData.getNBT());
+			NBTTagCompound compound = Server.readNBT(buffer);
+			if (compound.hasKey("DealID", 3)) { mData.loadDeal(compound); }
+			else { mData.loadMarcet(compound); }
+			MarcetController.getInstance().saveMarcets();
+		} else if (type == EnumPacketServer.TraderMarketGet) {
+			int id = -1;
+			try { id = buffer.readInt(); } catch (Exception e) {}
+			MarcetController.getInstance().sendTo(player, id);
 		} else if (type == EnumPacketServer.TraderMarketNew) {
 			MarcetController mData = MarcetController.getInstance();
-			Marcet marcet = mData.getMarcet(buffer.readInt());
-			Deal deal = null;
-			if (marcet == null) {
-				marcet = mData.addMarcet();
-				marcet.data.get(0);
-			}
-			else { deal = marcet.addDeal(); }
-			MarcetController.getInstance().saveMarcet(marcet);
+			int marketID = buffer.readInt();
+			Marcet marcet = (Marcet) mData.getMarcet(marketID);
+			if (marcet == null) { marcet = (Marcet) mData.addMarcet(); }
+			else { mData.addDeal(marcet.getId()); }
+			MarcetController.getInstance().saveMarcets();
 			if (player.openContainer instanceof ContainerNPCTraderSetup) {
-				((ContainerNPCTraderSetup) player.openContainer).setDeal(deal);
+				player.openContainer.onContainerClosed(player);
 			}
-			Server.sendData(player, EnumPacketClient.SET_MARCETS, mData.getNBT());
+			MarcetController.getInstance().sendTo(player, marcet.getId());
 		} else if (type == EnumPacketServer.TraderMarketDel) {
 			MarcetController mData = MarcetController.getInstance();
-			Marcet marcet = mData.getMarcet(buffer.readInt());
-			if (marcet == null) {
-				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());
-				return;
-			}
-			Deal deal = marcet.data.get(buffer.readInt());
-			if (deal == null) {
-				for (EntityPlayer listener : marcet.listeners) {
-					Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_CLOSE, marcet.id);
-				}
-				marcet.listeners.clear();
-				mData.removeMarcet(marcet.id);
-			} else {
-				marcet.remove(deal.id);
-				MarcetController.getInstance().saveMarcet(marcet);
-			}
-			Server.sendData(player, EnumPacketClient.SET_MARCETS, mData.getNBT());
+			int marcetID = buffer.readInt();
+			int dealID = buffer.readInt();
+			if (dealID < 0) { mData.removeMarcet(marcetID); }
+			else { mData.removeDeal(dealID); }
+			MarcetController.getInstance().sendTo(player, marcetID);
 		}
 		else if (type == EnumPacketServer.GetClone) {
 			NBTTagCompound npcNbt = null;
@@ -1562,6 +1540,18 @@ public class PacketHandlerServer {
 						playerdata.factionData.factionData.clear();
 						isChange = true;
 					}
+					break;
+				}
+				case Game: {
+					if (t==3) {
+						playerdata.game.money = 0L;
+						playerdata.game.marketData.clear();
+						playerdata.game.update = true;
+					} else {
+						NBTTagCompound compound = Server.readNBT(buffer);
+						playerdata.game.readFromNBT(compound);
+					}
+					isChange = true;
 					break;
 				}
 				default: { return; }

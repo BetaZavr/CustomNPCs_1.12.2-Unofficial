@@ -19,5 +19,7 @@ public interface IContainer {
 	IItemStack getSlot(int slot);
 
 	void setSlot(int slot, IItemStack item);
+
+	boolean isEmpty();
 	
 }

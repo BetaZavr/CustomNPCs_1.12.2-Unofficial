@@ -1,0 +1,115 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IJobFollower.java IJobFollower]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/JobFollower.java JobFollower]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob|INPCJob]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#aiContinueExecute|aiContinueExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#aiDeathExecute|aiDeathExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#aiShouldExecute|aiShouldExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#aiStartExecuting|aiStartExecuting]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#aiUpdateTask|aiUpdateTask]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#delete|delete]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#getEnumType|getEnumType]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#getMainhand|getMainhand]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#getMutexBits|getMutexBits]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#getOffhand|getOffhand]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#getType|getType]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#isFollowing|isFollowing]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#itemToString|itemToString]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#killed|killed]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#readFromNBT|readFromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#reset|reset]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#resetTask|resetTask]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#stringToItem|stringToItem]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob#writeToNBT|writeToNBT]]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/EntityNPCInterface.java EntityNPCInterface]
+| following
+| ''сущность NPC, за которым он следует''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| name
+| ''имя NPC, за которым он следует''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#aiShouldExecute|aiShouldExecute]]()
+| ''Возвращает может ли NPC выполнить работу сейчас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#getFollowing|getFollowing]]()
+| ''Возвращает имя сущности, за которой следует''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#getFollowingNpc|getFollowingNpc]]()
+| ''Возвращает NPC, за которым следует''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#hasOwner|hasOwner]]()
+| ''Возвращает есть ли владелец''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#isFollowing|isFollowing]]()
+| ''Возвращает следует ли за кем нубудь''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#reset|reset]]()
+| ''Сброс следования''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#resetTask|resetTask]]()
+| ''Сброс следования''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#setFollowing|setFollowing]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить имя сущности, за которой будет следовать''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== aiShouldExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiShouldExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC выполнить работу сейчас
+|}
+==== getFollowing ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getFollowing()''<br>'''Действие:'''<br>Возвращает имя сущности, за которой следует
+|}
+==== getFollowingNpc ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]] getFollowingNpc()''<br>'''Действие:'''<br>Возвращает NPC, за которым следует
+|}
+==== hasOwner ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasOwner()''<br>'''Действие:'''<br>Возвращает есть ли владелец
+|}
+==== isFollowing ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isFollowing()''<br>'''Действие:'''<br>Возвращает следует ли за кем нубудь
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== reset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] reset()''<br>'''Действие:'''<br>Сброс следования
+|}
+==== resetTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] resetTask()''<br>'''Действие:'''<br>Сброс следования
+|}
+==== setFollowing ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setFollowing(name)''<br>'''Действие:'''<br>Установить имя сущности, за которой будет следовать<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя NPC, за которым следовать
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

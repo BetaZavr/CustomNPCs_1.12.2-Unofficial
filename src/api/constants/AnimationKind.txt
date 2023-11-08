@@ -1,0 +1,58 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/AnimationKind.java AnimationKind]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''AnimationKind_ATTACKING'''
+| ''своя анимация атаки NPC''
+|-
+| 1
+| '''AnimationKind_DIES'''
+| ''своя анимация во время смерти NPC''
+|-
+| 2
+| '''AnimationKind_FLY_STAND'''
+| ''своя анимация полёта NPC, когда не движется''
+|-
+| 3
+| '''AnimationKind_FLY_WALK'''
+| ''своя анимация атаки NPC, когда движется''
+|-
+| 4
+| '''AnimationKind_INIT'''
+| ''своя анимация появления NPC''
+|-
+| 5
+| '''AnimationKind_JUMP'''
+| ''своя анимация прыжка NPC (отрыв NPC больше чем на 0,25 от блока)''
+|-
+| 6
+| '''AnimationKind_STANDING'''
+| ''своя анимация NPC, когда стоит на блоке''
+|-
+| 7
+| '''AnimationKind_WALKING'''
+| ''своя анимация NPC, когда движется по блокам''
+|-
+| 8
+| '''AnimationKind_WATER_STAND'''
+| ''своя анимация плаванья NPC, когда не движется''
+|-
+| 9
+| '''AnimationKind_WATER_WALK'''
+| ''своя анимация плаванья NPC, когда движется''
+|-
+| 10
+| '''AnimationKind_REVENGE_STAND'''
+| ''своя анимация, когда NPC видит цель и не движется''
+|-
+| 11
+| '''AnimationKind_REVENGE_WALK'''
+| ''своя анимация, когда NPC видит цель и движется''
+|-
+| 12
+| '''AnimationKind_HIT'''
+| ''своя анимация получения урона NPC''
+|}

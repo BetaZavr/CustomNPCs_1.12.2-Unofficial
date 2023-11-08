@@ -405,14 +405,11 @@ extends GuiScreen {
 			}
 		}
 		active = (active || GuiNpcTextField.isActive());
-		boolean helpButtons = false;
-		if (i==56 || i==29 || i==184) {
-			helpButtons = Keyboard.isKeyDown(35);
-		} else if (i==35) {
-			helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184);
-		}
-		if (helpButtons) {
-			CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions;
+		if (this.subgui==null) {
+			boolean helpButtons = false;
+			if (i==56 || i==29 || i==184) { helpButtons = Keyboard.isKeyDown(35); }
+			else if (i==35) { helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184); }
+			if (helpButtons) { CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions; }
 		}
 		if (this.closeOnEsc && (i == 1 || (!active && this.isInventoryKey(i)))) {
 			this.close();

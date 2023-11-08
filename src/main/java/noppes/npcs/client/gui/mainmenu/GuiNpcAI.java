@@ -112,7 +112,7 @@ implements ITextfieldListener, IGuiData {
 			}
 			this.addLabel(new GuiNpcLabel(21, label, this.guiLeft + 300, this.guiTop + 140));
 			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 380, this.guiTop + 135, 30, 20, this.ai.getTacticalRange() + ""));
-			this.getTextField(3).numbersOnly = true;
+			this.getTextField(3).setNumbersOnly();
 			this.getTextField(3).setMinMaxDefault(1, this.npc.stats.aggroRange, 5);
 		}
 		this.getButton(17).setEnabled(this.ai.onAttack == 0);

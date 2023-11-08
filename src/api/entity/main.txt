@@ -1,0 +1,42 @@
+'''Раздел noppes.npcs.api.entity'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IAnimal|IAnimal]]
+| ''Интерфейс для животных''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IArrow|IArrow]]
+| ''Интерфейс для стрел''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]]
+| ''Интерфейс для NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]]
+| ''Интерфейс для cущности, находящейся или созданной в мире''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntityItem|IEntityItem]]
+| ''Интерфейс для предмета на земле, как сущность''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntityLiving|IEntityLiving]]
+| ''Интерфейс для сущности<br>Живая, имеет здоровье, но не движется (рамка, стойка и т.д.)''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntityLivingBase|IEntityLivingBase]]
+| ''Интерфейс для сущности<br>Живая, имеет здоровье и AI, все кто способен двигаться''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IMonster|IMonster]]
+| ''Интерфейс для монстров''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPixelmon|IPixelmon]]
+| ''Интерфейс для сущности из модификации Pixelmon''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]]
+| ''Интерфейс для игрока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile|IProjectile]]
+| ''Интерфейс для снаряда-сущности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IThrowable|IThrowable]]
+| ''Интерфейс для метательного снаряда, как сущность''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager|IVillager]]
+| ''Интерфейс для жителя''

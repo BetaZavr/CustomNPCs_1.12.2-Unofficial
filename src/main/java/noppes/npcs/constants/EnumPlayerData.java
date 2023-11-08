@@ -8,6 +8,7 @@ public enum EnumPlayerData
 	Transport, 
 	Bank, 
 	Factions,
-	Wipe;
+	Wipe,
+	Game;
 	
 }

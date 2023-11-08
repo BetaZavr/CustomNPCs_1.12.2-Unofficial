@@ -68,11 +68,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(0, "inv.minExp", this.guiLeft + 118, this.guiTop + 18));
 		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 29, 60, 20, this.inventory.getExpMin() + ""));
-		this.getTextField(0).numbersOnly = true;
+		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, 32767, 0);
 		this.addLabel(new GuiNpcLabel(1, "inv.maxExp", this.guiLeft + 118, this.guiTop + 52));
 		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + ""));
-		this.getTextField(1).numbersOnly = true;
+		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, 32767, 0);
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 88, this.guiTop + 88, 80, 20, new String[] { "stats.normal", "inv.auto" }, this.inventory.lootMode ? 1 : 0)); // Changed
 		this.addLabel(new GuiNpcLabel(2, "inv.npcInventory", this.guiLeft + 191, this.guiTop + 5));

@@ -74,22 +74,22 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 		this.addLabel(new GuiNpcLabel(1, "enchantment.arrowDamage", this.guiLeft + 5, this.guiTop + 15));
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 45, this.guiTop + 10, 50, 18,
 				this.stats.getStrength() + ""));
-		this.getTextField(1).numbersOnly = true;
+		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, Integer.MAX_VALUE, 5);
 		this.addLabel(new GuiNpcLabel(2, "enchantment.arrowKnockback", this.guiLeft + 110, this.guiTop + 15));
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 150, this.guiTop + 10, 50, 18,
 				this.stats.getKnockback() + ""));
-		this.getTextField(2).numbersOnly = true;
+		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(0, 3, 0);
 		this.addLabel(new GuiNpcLabel(3, "stats.size", this.guiLeft + 5, this.guiTop + 45));
 		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 45, this.guiTop + 40, 50, 18,
 				this.stats.getSize() + ""));
-		this.getTextField(3).numbersOnly = true;
+		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(2, 20, 10); // Changed
 		this.addLabel(new GuiNpcLabel(4, "stats.speed", this.guiLeft + 5, this.guiTop + 75));
 		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 45, this.guiTop + 70, 50, 18,
 				this.stats.getSpeed() + ""));
-		this.getTextField(4).numbersOnly = true;
+		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(1, 50, 10);
 		this.addLabel(new GuiNpcLabel(5, "stats.hasgravity", this.guiLeft + 5, this.guiTop + 105));
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 60, this.guiTop + 100, 60, 20,
@@ -107,7 +107,7 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 		if (this.stats.getEffectType() != 0) {
 			this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 140, this.guiTop + 160, 60,
 					18, this.stats.getEffectTime() + ""));
-			this.getTextField(5).numbersOnly = true;
+			this.getTextField(5).setNumbersOnly();
 			this.getTextField(5).setMinMaxDefault(1, 99999, 5);
 			if (this.stats.getEffectType() != 1) {
 				this.addButton(new GuiNpcButton(10, this.guiLeft + 210, this.guiTop + 160, 40, 20,

@@ -1,0 +1,73 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IQuestCategory.java IQuestCategory]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getCategory|IQuest]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/QuestCategory.java QuestCategory]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| id
+| ''field.api.handler.data.iquestcategory.id''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap]
+| quests
+| ''field.api.handler.data.iquestcategory.quests''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| title
+| ''field.api.handler.data.iquestcategory.title''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#create|create]]()
+| ''method.api.handler.data.iquestcategory.create''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#getName|getName]]()
+| ''method.api.handler.data.iquestcategory.getName''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#quests|quests]]()
+| ''method.api.handler.data.iquestcategory.quests''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#readNBT|readNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbttagcompound)
+| ''method.api.handler.data.iquestcategory.readNBT''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#writeNBT|writeNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbttagcompound)
+| ''method.api.handler.data.iquestcategory.writeNBT''
+|}
+=== Описание методов ===
+
+==== create ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]] create()''<br>'''Действие:'''<br>method.api.handler.data.iquestcategory.create
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>method.api.handler.data.iquestcategory.getName
+|}
+==== quests ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest[]]] quests()''<br>'''Действие:'''<br>method.api.handler.data.iquestcategory.quests
+|}
+==== readNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBT(nbttagcompound)''<br>'''Действие:'''<br>method.api.handler.data.iquestcategory.readNBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbttagcompound''' = набор тегов NBT
+|}
+==== writeNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeNBT(nbttagcompound)''<br>'''Действие:'''<br>method.api.handler.data.iquestcategory.writeNBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbttagcompound''' = набор тегов NBT
+|}

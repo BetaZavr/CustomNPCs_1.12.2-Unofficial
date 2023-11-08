@@ -87,4 +87,9 @@ implements IContainer {
 			this.container.detectAndSendChanges();
 		}
 	}
+
+	@Override
+	public boolean isEmpty() {
+		return this.inventory == null || this.inventory.isEmpty();
+	}
 }

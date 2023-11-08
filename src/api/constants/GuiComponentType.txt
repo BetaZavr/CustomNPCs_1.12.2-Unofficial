@@ -1,0 +1,34 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/GuiComponentType.java GuiComponentType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''GuiComponentType_BUTTON'''
+| ''компонент ГУИ - кнопка''
+|-
+| 1
+| '''GuiComponentType_LABEL'''
+| ''компонент ГУИ - метка''
+|-
+| 2
+| '''GuiComponentType_TEXTURED_RECT'''
+| ''компонент ГУИ - текстура''
+|-
+| 3
+| '''GuiComponentType_TEXT_FIELD'''
+| ''компонент ГУИ - поле воода текста''
+|-
+| 4
+| '''GuiComponentType_SCROLL'''
+| ''компонент ГУИ - скролл-прокрутки''
+|-
+| 5
+| '''GuiComponentType_ITEM_SLOT'''
+| ''компонент ГУИ - слот''
+|-
+| 6
+| '''GuiComponentType_TIMER'''
+| ''компонент ГУИ - таймер отчёта''
+|}

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -888,16 +889,11 @@ implements IMetods {
 		return directory.delete();
 	}
 
-	public static boolean removeItem(EntityPlayerMP player, ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
-		if (player == null || stack.isEmpty()) {
-			return false;
-		}
-		int count = stack.getCount();
+	public static boolean removeItem(EntityPlayerMP player, ItemStack stack, int count, boolean ignoreDamage, boolean ignoreNBT) {
+		if (player == null || stack == null || stack.isEmpty()) { return false; }
 		for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
 			ItemStack is = player.inventory.getStackInSlot(i);
-			if (NoppesUtilServer.IsItemStackNull(is)) {
-				continue;
-			}
+			if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
 			if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
 				if (count < is.getCount()) {
 					is.splitStack(count);
@@ -911,18 +907,22 @@ implements IMetods {
 		return count <= 0;
 	}
 	
-	public static boolean canAddItemAfterRemoveItems(EntityPlayer player, ItemStack addStack, NonNullList<ItemStack> removeItems, boolean ignoreDamage, boolean ignoreNBT) {
-		if (player == null || addStack.isEmpty()) { return false; }
-		if (player.capabilities.isCreativeMode) { return true; }
-		NonNullList<ItemStack> inv = NonNullList.<ItemStack>withSize(36, ItemStack.EMPTY);
-		for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
-			if (NoppesUtilServer.IsItemStackNull(player.inventory.getStackInSlot(i))) { continue; }
-			inv.set(i, player.inventory.getStackInSlot(i).copy());
+	public static boolean removeItem(EntityPlayerMP player, ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
+		if (player == null || stack == null || stack.isEmpty()) { return false; }
+		return AdditionalMethods.removeItem(player, stack, stack.getCount(), ignoreDamage, ignoreNBT);
+	}
+	
+	public static boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
+		if (inventory == null || addStack.isEmpty()) { return false; }
+		NonNullList<ItemStack> inv = NonNullList.<ItemStack>withSize(inventory.size(), ItemStack.EMPTY);
+		for (int i = 0; i < inventory.size(); ++i) {
+			if (NoppesUtilServer.IsItemStackNull(inventory.get(i))) { continue; }
+			inv.set(i, inventory.get(i).copy());
 		}
-		if (removeItems!=null && !removeItems.isEmpty()) {
-			for (ItemStack stack : removeItems) {
+		if (items!=null && !items.isEmpty()) {
+			for (ItemStack stack : items.keySet()) {
 				if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-				int count = stack.getCount();
+				int count = items.get(stack);
 				for (int i = 0; i < inv.size(); ++i) {
 					ItemStack is = inv.get(i);
 					if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
@@ -946,25 +946,23 @@ implements IMetods {
 		}
 		return false;
 	}
-	
-	public static boolean canRemoveItems(EntityPlayer player, NonNullList<ItemStack> items, boolean ignoreDamage, boolean ignoreNBT) {
-		if (player == null || items.isEmpty()) {
-			return false;
-		}
-		NonNullList<ItemStack> inv = NonNullList.<ItemStack>withSize(36, ItemStack.EMPTY);
-		for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
-			if (NoppesUtilServer.IsItemStackNull(player.inventory.getStackInSlot(i))) { continue; }
-			inv.set(i, player.inventory.getStackInSlot(i).copy());
+
+	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
+		if (inventory == null || items==null || items.isEmpty()) { return false; }
+		NonNullList<ItemStack> inv = NonNullList.<ItemStack>withSize(inventory.size(), ItemStack.EMPTY);
+		for (int i = 0; i < inventory.size(); ++i) {
+			if (NoppesUtilServer.IsItemStackNull(inventory.get(i))) { continue; }
+			inv.set(i, inventory.get(i).copy());
 		}
 		boolean canRemove = true;
-		for (ItemStack stack : items) {
+		for (ItemStack stack : items.keySet()) {
 			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-			int count = stack.getCount();
+			int count = items.get(stack);
 			for (int i = 0; i < inv.size(); ++i) {
 				ItemStack is = inv.get(i);
 				if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
 				if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
-					if (count < is.getCount()) {
+					if (count < items.get(stack)) {
 						is.splitStack(count);
 						inv.set(i, is);
 						count = 0;
@@ -984,6 +982,53 @@ implements IMetods {
 		return canRemove;
 	}
 
+	public static boolean canRemoveItems(Map<ItemStack, Integer> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
+		if (inventory == null || items==null || items.isEmpty()) { return false; }
+		for (ItemStack stack : items.keySet()) {
+			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
+			for (ItemStack is : inventory.keySet()) {
+				if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
+					if (inventory.get(is) < items.get(stack)) { return false; }
+				}
+			}
+		}
+		return true;
+	}
+	
+	public static boolean canRemoveItems(Map<ItemStack, Integer> inventory, NonNullList<ItemStack> items, boolean ignoreDamage, boolean ignoreNBT) {
+		if (inventory == null || items.isEmpty()) { return false; }
+		Map<ItemStack, Integer> inv = Maps.<ItemStack, Integer>newLinkedHashMap();
+		if (items==null || !items.isEmpty()) {
+			Map<ItemStack, Integer> map = Maps.<ItemStack, Integer>newHashMap();
+			for (int slot = 0; slot < items.size(); slot++) {
+				ItemStack stack = items.get(slot);
+				if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
+				boolean has = false;
+				for (ItemStack s : map.keySet()) {
+					if (NoppesUtilPlayer.compareItems(stack, s, ignoreDamage, ignoreNBT)) {
+						has = true;
+						map.put(s, map.get(s) + stack.getCount());
+						break;
+					}
+				}
+				if (!has) {
+					map.put(stack, stack.getCount());
+				}
+			}
+			List<Entry<ItemStack, Integer>> list = Lists.newArrayList(map.entrySet());
+			Collections.sort(list, new Comparator<Entry<ItemStack, Integer>>() {
+		        public int compare(Entry<ItemStack, Integer> st_0, Entry<ItemStack, Integer> st_1) {
+		            return ((Integer) st_1.getValue()).compareTo((Integer) st_0.getValue());
+		        }
+		    });
+	        for (Entry<ItemStack, Integer> entry : list) {
+	        	inv.put(entry.getKey(), entry.getValue());
+	        }
+		}
+		return AdditionalMethods.canRemoveItems(inventory, inv, ignoreDamage, ignoreNBT);
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public static void resetRecipes(EntityPlayer player, GuiContainer gui) {
 		CustomNpcs.proxy.updateRecipes(null, false, false, "this.resetRecipes()");

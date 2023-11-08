@@ -446,8 +446,7 @@ public class NoppesUtilServer {
 
 	private static void sendExtraData(EntityPlayer player, EntityNPCInterface npc, EnumGuiType gui, int i, int j,
 			int k) {
-		if (gui == EnumGuiType.PlayerFollower || gui == EnumGuiType.PlayerFollowerHire
-				|| gui == EnumGuiType.PlayerTrader || gui == EnumGuiType.PlayerTransporter) {
+		if (gui == EnumGuiType.PlayerFollower || gui == EnumGuiType.PlayerFollowerHire || gui == EnumGuiType.PlayerTrader || gui == EnumGuiType.PlayerTransporter) {
 			sendRoleData(player, npc);
 		}
 	}
@@ -628,6 +627,8 @@ public class NoppesUtilServer {
 					if (faction == null) { continue; }
 					map.put(faction.name + ";" + data5.getFactionPoints((EntityPlayer) player, factionId), factionId);
 				}
+			} else if (type == EnumPlayerData.Game) {
+				Server.sendData(player, EnumPacketClient.GUI_DATA, playerdata.game.saveNBTData(new NBTTagCompound()));
 			}
 		}
 		sendScrollData(player, map);

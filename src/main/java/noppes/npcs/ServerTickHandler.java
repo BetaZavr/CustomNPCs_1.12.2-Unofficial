@@ -50,11 +50,11 @@ import noppes.npcs.util.BuilderData;
 public class ServerTickHandler {
 
 	private static Map<EntityPlayerMP, GameType> visibleData = Maps.<EntityPlayerMP, GameType>newHashMap();
-	public int ticks;
+	public static int ticks;
 	public long oldTime;
 
 	public ServerTickHandler() {
-		this.ticks = 0;
+		ServerTickHandler.ticks = 0;
 	}
 	
 	@SubscribeEvent
@@ -96,7 +96,7 @@ public class ServerTickHandler {
 		if (event.side == Side.CLIENT) { return; }
 		BorderController.getInstance().update();
 		if (event.phase == TickEvent.Phase.END) { return; }
-		if ((this.ticks++) % 20 == 0) {
+		if ((ServerTickHandler.ticks++) % 20 == 0) {
 			Thread.currentThread();
 			CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			SchematicController.Instance.updateBuilding();
@@ -112,8 +112,8 @@ public class ServerTickHandler {
 				entry.update();
 			}
 			DataScenes.ScenesToRun = new ArrayList<DataScenes.SceneContainer>();
-			if (this.ticks>=6000) {
-				this.ticks = 0;
+			if (ServerTickHandler.ticks>=6000) {
+				ServerTickHandler.ticks = 0;
 				List<Integer> del = Lists.<Integer>newArrayList();
 				for (int id :  CommonProxy.dataBuilder.keySet()) {
 					BuilderData bd = CommonProxy.dataBuilder.get(id);

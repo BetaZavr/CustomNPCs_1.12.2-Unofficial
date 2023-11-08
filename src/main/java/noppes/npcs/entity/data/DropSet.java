@@ -40,7 +40,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	public int npcLevel;
 	public int[] amount;
 	public float damage;
-	public double chance;
+	public double chance; // 0-100
 	public boolean lootMode; // dropped or get to player
 	public boolean tiedToLevel;
 
@@ -157,7 +157,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Enchants
 		if (this.enchants.size() > 0) {
 			for (EnchantSet es : this.enchants) {
-				if (es.chance>=1.0d || es.chance*addChance / 100.0d < Math.random()) {
+				if (es.chance>=1.0d || es.chance * addChance / 100.0d < Math.random()) {
 					int lvlM = es.getMinLevel();
 					int lvlN = es.getMaxLevel();
 					if (lvlM==0 && lvlN==0) { continue; }

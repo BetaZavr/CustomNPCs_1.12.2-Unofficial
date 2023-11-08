@@ -53,7 +53,7 @@ implements ITextfieldListener, IGuiData {
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 50, y, 110, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(2, "display.size", this.guiLeft + 175, y + 5));
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 203, y, 40, 20, this.display.getSize() + ""));
-		this.getTextField(2).numbersOnly = true;
+		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 30, 5);
 		this.addLabel(new GuiNpcLabel(3, "(1-30)", this.guiLeft + 246, y + 5));
 		y += 23;

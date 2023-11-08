@@ -1,0 +1,120 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/IProjectile.java IProjectile]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc#shootItem|ICustomNpc]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ProjectileEvent#projectile|ProjectileEvent]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/ProjectileWrapper.java ProjectileWrapper]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#enableEvents|enableEvents]]()
+| ''Включить скрипты на снаряде''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#getAccuracy|getAccuracy]]()
+| ''Возвращает точность расчёта первоначального вектора полёта в процентах''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#getHasGravity|getHasGravity]]()
+| ''Возвращает действует ли гравитация на снаряд''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#getItem|getItem]]()
+| ''Возвращает предмет, модель которого использует снаряд''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#getType|getType]]()
+| ''Возвращает числовое значение [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] ( = 7)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#setAccuracy|setAccuracy]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] accuracy)
+| ''Установить точность расчёта первоначального вектора полёта в процентах''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#setHasGravity|setHasGravity]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить действует ли гравитация на снаряд''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#setHeading|setHeading]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] entity)
+| ''Установить положение носовой части снаряда''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#setHeading|setHeading]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] z)
+| ''Установить положение носовой части снаряда''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#setHeading|setHeading]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] yaw, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] pitch)
+| ''Установить положение носовой части снаряда''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#setItem|setItem]]([[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] item)
+| ''Установить предмет, модель которого использует снаряд''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IProjectile#typeOf|typeOf]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] super.typeOf(type)
+| ''Возвращает соответствие [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] с указанным''
+|}
+=== Описание методов ===
+
+==== enableEvents ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] enableEvents()''<br>'''Действие:'''<br>Включить скрипты на снаряде
+|}
+==== getAccuracy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getAccuracy()''<br>'''Действие:'''<br>Возвращает точность расчёта первоначального вектора полёта в процентах
+|}
+==== getHasGravity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getHasGravity()''<br>'''Действие:'''<br>Возвращает действует ли гравитация на снаряд
+|}
+==== getItem ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] getItem()''<br>'''Действие:'''<br>Возвращает предмет, модель которого использует снаряд
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает числовое значение [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] ( = 7)
+|}
+==== setAccuracy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAccuracy(accuracy)''<br>'''Действие:'''<br>Установить точность расчёта первоначального вектора полёта в процентах<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''accuracy''' = parametr.api.entity.projectilewrapper.setAccuracy.accuracy
+|}
+==== setHasGravity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHasGravity(bo)''<br>'''Действие:'''<br>Установить действует ли гравитация на снаряд<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = parametr.api.entity.projectilewrapper.setHasGravity.bo
+|}
+==== setHeading ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHeading(entity)''<br>'''Действие:'''<br>Установить положение носовой части снаряда<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] '''entity''' = parametr.api.entity.projectilewrapper.setHeading.entity
+|}
+==== setHeading ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHeading(x, y, z)''<br>'''Действие:'''<br>Установить положение носовой части снаряда<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''x''' = parametr.api.entity.projectilewrapper.setHeading.x<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''y''' = parametr.api.entity.projectilewrapper.setHeading.y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''z''' = parametr.api.entity.projectilewrapper.setHeading.z
+|}
+==== setHeading ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHeading(yaw, pitch)''<br>'''Действие:'''<br>Установить положение носовой части снаряда<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''yaw''' = parametr.api.entity.projectilewrapper.setHeading.yaw<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''pitch''' = parametr.api.entity.projectilewrapper.setHeading.pitch
+|}
+==== setItem ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setItem(item)''<br>'''Действие:'''<br>Установить предмет, модель которого использует снаряд<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] '''item''' = parametr.api.entity.projectilewrapper.setItem.item
+|}
+==== typeOf ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] typeOf(super.typeOf(type)''<br>'''Действие:'''<br>Возвращает соответствие [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] с указанным<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''super.typeOf(type''' = parametr.api.entity.projectilewrapper.typeOf.super.typeOf(type
+|}

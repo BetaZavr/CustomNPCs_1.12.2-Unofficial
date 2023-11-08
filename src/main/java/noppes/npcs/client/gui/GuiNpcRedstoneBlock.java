@@ -49,45 +49,43 @@ public class GuiNpcRedstoneBlock extends GuiNPCInterface implements IGuiData {
 					this.guiLeft + 1, this.guiTop + 76, 16777215));
 			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30,
 					20, this.tile.onRangeX + ""));
-			this.getTextField(0).numbersOnly = true;
+			this.getTextField(0).setNumbersOnly();
 			this.getTextField(0).setMinMaxDefault(0, 50, 6);
 			this.addLabel(new GuiNpcLabel(1, "Y:", this.guiLeft + 113, this.guiTop + 76, 16777215));
 			this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 122, this.guiTop + 71, 30,
 					20, this.tile.onRangeY + ""));
-			this.getTextField(1).numbersOnly = true;
+			this.getTextField(1).setNumbersOnly();
 			this.getTextField(1).setMinMaxDefault(0, 50, 6);
 			this.addLabel(new GuiNpcLabel(2, "Z:", this.guiLeft + 155, this.guiTop + 76, 16777215));
 			this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 164, this.guiTop + 71, 30,
 					20, this.tile.onRangeZ + ""));
-			this.getTextField(2).numbersOnly = true;
+			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(0, 50, 6);
 			this.addLabel(
 					new GuiNpcLabel(3, new TextComponentTranslation("bard.offdistance").getFormattedText() + " X:",
 							this.guiLeft - 3, this.guiTop + 99, 16777215));
 			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30,
 					20, this.tile.offRangeX + ""));
-			this.getTextField(3).numbersOnly = true;
+			this.getTextField(3).setNumbersOnly();
 			this.getTextField(3).setMinMaxDefault(0, 50, 10);
 			this.addLabel(new GuiNpcLabel(4, "Y:", this.guiLeft + 113, this.guiTop + 99, 16777215));
 			this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 122, this.guiTop + 94, 30,
 					20, this.tile.offRangeY + ""));
-			this.getTextField(4).numbersOnly = true;
+			this.getTextField(4).setNumbersOnly();
 			this.getTextField(4).setMinMaxDefault(0, 50, 10);
 			this.addLabel(new GuiNpcLabel(5, "Z:", this.guiLeft + 155, this.guiTop + 99, 16777215));
 			this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 164, this.guiTop + 94, 30,
 					20, this.tile.offRangeZ + ""));
-			this.getTextField(5).numbersOnly = true;
+			this.getTextField(5).setNumbersOnly();
 			this.getTextField(5).setMinMaxDefault(0, 50, 10);
 		} else {
 			this.addLabel(new GuiNpcLabel(0, "bard.ondistance", this.guiLeft + 1, this.guiTop + 76, 16777215));
-			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30,
-					20, this.tile.onRange + ""));
-			this.getTextField(0).numbersOnly = true;
+			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30, 20, this.tile.onRange + ""));
+			this.getTextField(0).setNumbersOnly();
 			this.getTextField(0).setMinMaxDefault(0, 50, 6);
 			this.addLabel(new GuiNpcLabel(3, "bard.offdistance", this.guiLeft - 3, this.guiTop + 99, 16777215));
-			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30,
-					20, this.tile.offRange + ""));
-			this.getTextField(3).numbersOnly = true;
+			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30, 20, this.tile.offRange + ""));
+			this.getTextField(3).setNumbersOnly();
 			this.getTextField(3).setMinMaxDefault(0, 50, 10);
 		}
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 40, this.guiTop + 190, 120, 20, "Done"));

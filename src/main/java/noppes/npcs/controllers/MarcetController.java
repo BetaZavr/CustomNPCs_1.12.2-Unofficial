@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,24 +17,31 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
+import noppes.npcs.api.handler.IMarcetHandler;
+import noppes.npcs.api.handler.data.IDeal;
+import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.Deal;
+import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.Marcet;
-import noppes.npcs.entity.EntityNPCInterface;
 
-public class MarcetController {
+public class MarcetController
+implements IMarcetHandler {
 	
 	private static MarcetController instance;
 	private String filePath;
 	public final Map<Integer, Marcet> marcets;
+	public final Map<Integer, Deal> deals;
 
 	public MarcetController() {
 		this.filePath = "";
 		MarcetController.instance = this;
 		this.marcets = Maps.<Integer, Marcet>newTreeMap();
-		this.loadMarcets();
+		this.deals = Maps.<Integer, Deal>newTreeMap();
+		this.load();
 	}
 
 	public static MarcetController getInstance() {
@@ -49,15 +58,16 @@ public class MarcetController {
 		File file = CustomNpcs.getWorldSaveDirectory();
 		return file != null && !MarcetController.instance.filePath.equals(file.getAbsolutePath());
 	}
-
-	public Marcet addMarcet() {
-		Marcet marcet = new Marcet();
-		marcet.id = this.getUnusedId();
-		this.marcets.put(marcet.id, marcet);
-		return this.marcets.get(marcet.id);
+	
+	@Override
+	public IMarcet addMarcet() {
+		Marcet marcet = new Marcet(this.getUnusedMarketId());
+		this.marcets.put(marcet.getId(), marcet);
+		this.addDeal(marcet.getId());
+		return this.marcets.get(marcet.getId());
 	}
 
-	public boolean contains(String name) {
+	public boolean containsMarcetName(String name) {
 		for (Marcet m : this.marcets.values()) {
 			if (m.name.equals(name)) {
 				return true;
@@ -66,16 +76,8 @@ public class MarcetController {
 		return false;
 	}
 
-	private boolean containsRecipeName(int id, String name) {
-		for (Marcet m : this.marcets.values()) {
-			if (m.id != id && m.getName().equalsIgnoreCase(name)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public Marcet get(String name) {
+	@Override
+	public IMarcet getMarcet(String name) {
 		for (Marcet m : this.marcets.values()) {
 			if (m.name.equals(name)) {
 				return m;
@@ -84,103 +86,134 @@ public class MarcetController {
 		return null;
 	}
 
-	public Marcet getMarcet(int marcetId) {
+	@Override
+	public IMarcet getMarcet(int marcetId) {
 		if (marcetId < 0 || !this.marcets.containsKey(marcetId)) {
 			return null;
 		}
 		return this.marcets.get(marcetId);
 	}
 
-	public int[] getMarkets(EntityNPCInterface npc) {
+	@Override
+	public int[] getMarketIDs() {
 		int[] arr = new int[this.marcets.size()];
-		if (npc.world.isRemote) {
-			return new int[0];
-		}
 		int i = 0;
 		for (Marcet m : this.marcets.values()) {
-			arr[i] = m.id;
+			arr[i] = m.getId();
 			i++;
 		}
 		return arr;
 	}
 
-	public NBTTagCompound getNBT() {
-		NBTTagList list = new NBTTagList();
-		for (Marcet marcet : this.marcets.values()) {
-			NBTTagCompound nbtfactions = new NBTTagCompound();
-			marcet.writeToNBT(nbtfactions);
-			list.appendTag(nbtfactions);
+	@Override
+	public int[] getDealIDs() {
+		int[] arr = new int[this.deals.size()];
+		int i = 0;
+		for (Deal m : this.deals.values()) {
+			arr[i] = m.getId();
+			i++;
 		}
-		NBTTagCompound nbttagcompound = new NBTTagCompound();
-		nbttagcompound.setTag("Data", list);
-		return nbttagcompound;
+		return arr;
+	}
+	
+	public NBTTagCompound getNBT() {
+		NBTTagCompound compound = new NBTTagCompound();
+		
+		NBTTagList mList = new NBTTagList();
+		for (Marcet marcet : this.marcets.values()) {
+			if (marcet == null) { continue; }
+			NBTTagCompound nbtMarcet = marcet.writeToNBT();
+			mList.appendTag(nbtMarcet);
+		}
+		compound.setTag("Marcets", mList);
+		
+		NBTTagList dList = new NBTTagList();
+		for (Deal deal : this.deals.values()) {
+			if (deal == null) { continue; }
+			NBTTagCompound nbtDeal = deal.writeToNBT();
+			dList.appendTag(nbtDeal);
+		}
+		compound.setTag("Deals", dList);
+		return compound;
 	}
 
-	public int getUnusedId() {
+	public int getUnusedMarketId() {
 		int id = 0;
 		while (this.marcets.containsKey(id)) { id++; }
 		return id;
 	}
 
-	private void loadMarcets() {
+	public int getUnusedDealId() {
+		int id = 0;
+		while (this.deals.containsKey(id)) { id++; }
+		return id;
+	}
+
+	private void load() {
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
-		if (saveDir == null) {
-			return;
-		}
+		if (saveDir == null || saveDir.getAbsolutePath().indexOf(CustomNpcs.MODID)==-1) { return; }
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.startDebug("Common", null, "loadMarcets");
 		}
 		this.filePath = saveDir.getAbsolutePath();
 		try {
 			File file = new File(saveDir, "marcet.dat");
-			if (file.exists()) {
-				this.loadMarcets(file);
-			}
+			if (file.exists()) { this.load(file); }
 		} catch (Exception e) {
 			try {
 				File file2 = new File(saveDir, "marcet.dat_old");
-				if (file2.exists()) {
-					this.loadMarcets(file2);
-				}
-			} catch (Exception ex) {
-			}
+				if (file2.exists()) { this.load(file2); }
+			} catch (Exception ex) { }
 		}
 
-		if (this.marcets.isEmpty()) { this.loadDefaultMarcets(); }
+		if (this.marcets.isEmpty() || !this.marcets.containsKey(0)) { this.loadDefaultMarcets(); }
 		if (CustomNpcs.VerboseDebug) {
 			CustomNpcs.debugData.endDebug("Common", null, "loadMarcets");
 		}
 	}
 
 	private void loadDefaultMarcets() {
-		Marcet marcet = this.addMarcet();
+		Marcet marcet;
+		if (this.marcets.containsKey(0)) {
+			marcet = this.marcets.get(0);
+			for (int id : marcet.getDealIDs()) { this.removeDeal(id); }
+		}
+		else { marcet = new Marcet(0); }
 		marcet.name = "Default Marcet";
-		marcet.updateTime = 120;
+		marcet.updateTime = 5;
 		marcet.lastTime = System.currentTimeMillis();
-		Deal d0 = marcet.set(0, new ItemStack(Items.DIAMOND), new ItemStack[] { new ItemStack(Items.GOLD_INGOT, 32, 0), new ItemStack(Items.IRON_INGOT, 48, 0) });
-		d0.type = 2;
-		d0.count = new int[] { 2, 7 };
-		d0.money = 1000;
-		d0.chance = 0.1575f;
-		Deal d1 = marcet.set(1, new ItemStack(Items.IRON_INGOT, 4, 0), new ItemStack[] { new ItemStack(Items.GOLD_INGOT) });
-		d1.type = 2;
-		d1.money = 40;
-		d1.chance = 0.955f;
-		this.marcets.put(marcet.id, marcet);
+		this.marcets.put(marcet.getId(), marcet);
+		Deal d0 = (Deal) this.addDeal(0);
+		d0.set(new ItemStack(Items.DIAMOND), new ItemStack[] { new ItemStack(Items.GOLD_INGOT, 10, 0), new ItemStack(Items.IRON_INGOT, 45, 0) });
+		d0.setType(2);
+		d0.setCount(2, 7);
+		d0.setMoney(1000);
+		d0.setChance(0.1575f);
+		Deal d1 = (Deal) this.addDeal(0);
+		d1.set(new ItemStack(Items.IRON_INGOT, 4, 0), new ItemStack[] { new ItemStack(Items.GOLD_INGOT) });
+		d1.setType(2);
+		d1.setMoney(40);
+		d1.setChance(0.955f);
 		this.saveMarcets();
 	}
 
-	private void loadMarcets(File file) throws IOException {
-		this.loadMarcets(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+	private void load(File file) throws IOException {
+		this.load(CompressedStreamTools.readCompressed(new FileInputStream(file)));
 	}
 
-	public void loadMarcets(NBTTagCompound nbtFile) throws IOException {
+	public void load(NBTTagCompound nbtFile) throws IOException {
 		this.marcets.clear();
-		NBTTagList list = nbtFile.getTagList("Data", 10);
-		if (list != null) {
-			for (int i = 0; i < list.tagCount(); ++i) {
-				Marcet marcet = this.loadMarcet(list.getCompoundTagAt(i));
-				if (marcet!=null) { this.marcets.put(marcet.id, marcet); }
+		this.deals.clear();
+		if (nbtFile.hasKey("Marcets", 9)) {
+			for (int i = 0; i < nbtFile.getTagList("Marcets", 10).tagCount(); ++i) {
+				Marcet marcet = this.loadMarcet(nbtFile.getTagList("Marcets", 10).getCompoundTagAt(i));
+				if (marcet!=null) { this.marcets.put(marcet.getId(), marcet); }
+			}
+		}
+		if (nbtFile.hasKey("Deals", 9)) {
+			for (int i = 0; i < nbtFile.getTagList("Deals", 10).tagCount(); ++i) {
+				Deal deal = this.loadDeal(nbtFile.getTagList("Deals", 10).getCompoundTagAt(i));
+				if (deal!=null) { this.deals.put(deal.getId(), deal); }
 			}
 		}
 	}
@@ -192,82 +225,110 @@ public class MarcetController {
 			this.marcets.get(id).readFromNBT(nbtMarcet);
 			return this.marcets.get(id);
 		}
-		Marcet marcet = new Marcet();
+		Marcet marcet = new Marcet(id);
 		marcet.readFromNBT(nbtMarcet);
-		this.marcets.put(marcet.id, marcet);
-		return this.marcets.get(marcet.id);
+		this.marcets.put(marcet.getId(), marcet);
+		if (nbtMarcet.hasKey("Deals", 9)) { // pre old load deals
+			for (int i = 0; i < nbtMarcet.getTagList("Deals", 10).tagCount(); i++) {
+				Deal deal = (Deal) this.addDeal(id);
+				NBTTagCompound nbt = nbtMarcet.getTagList("Deals", 10).getCompoundTagAt(i);
+				nbt.setInteger("MarcetID", id);
+				deal.readFromNBT(nbt);
+			}
+		}
+		return marcet;
 	}
 
+	public Deal loadDeal(NBTTagCompound nbtDeal) {
+		if (nbtDeal==null || !nbtDeal.hasKey("DealID", 3) || nbtDeal.getInteger("DealID")<0) { return null; }
+		int id = nbtDeal.getInteger("DealID");
+		int mID = nbtDeal.getInteger("MarcetID");
+		if (this.deals.containsKey(id)) {
+			this.deals.get(id).readFromNBT(nbtDeal);
+			return this.deals.get(id);
+		}
+		Deal deal = new Deal(id, mID);
+		deal.readFromNBT(nbtDeal);
+		this.deals.put(deal.getId(), deal);
+		return deal;
+	}
+	
 	public int loadOld(NBTTagCompound nbttagcompound) {
 		String marketName = nbttagcompound.getString("TraderMarket");
-		Marcet marcet = null;
 		if (!marketName.isEmpty()) {
 			for (Marcet m : this.marcets.values()) {
 				if (m.name.equalsIgnoreCase(marketName)) {
-					marcet = m;
-					break;
+					return m.getId();
 				}
 			}
 		}
-		if (marcet == null) {
-			marcet = new Marcet();
-			if (!marketName.isEmpty()) {
-				marcet.name = marketName;
-			}
-			marcet.id = this.getUnusedId();
+		IMarcet marcet = this.addMarcet();
+		if (!marketName.isEmpty()) { marcet.setName(marketName); }
+		boolean ignoreDamage = nbttagcompound.getBoolean("TraderIgnoreDamage");
+		boolean ignoreNBT = nbttagcompound.getBoolean("TraderIgnoreNBT");
+		NpcMiscInventory inventoryCurrency = new NpcMiscInventory(36);
+		NpcMiscInventory inventorySold = new NpcMiscInventory(18);
+		inventoryCurrency.setFromNBT(nbttagcompound.getCompoundTag("TraderCurrency"));
+		inventorySold.setFromNBT(nbttagcompound.getCompoundTag("TraderSold"));
 
-			boolean ignoreDamage = nbttagcompound.getBoolean("TraderIgnoreDamage");
-			boolean ignoreNBT = nbttagcompound.getBoolean("TraderIgnoreNBT");
-			NpcMiscInventory inventoryCurrency = new NpcMiscInventory(36);
-			NpcMiscInventory inventorySold = new NpcMiscInventory(18);
-			inventoryCurrency.setFromNBT(nbttagcompound.getCompoundTag("TraderCurrency"));
-			inventorySold.setFromNBT(nbttagcompound.getCompoundTag("TraderSold"));
-
-			for (int i = 0; i < 18; i++) {
-				if (inventorySold.getStackInSlot(i).isEmpty()) {
-					continue;
-				}
-				ItemStack st0 = inventoryCurrency.getStackInSlot(i);
-				ItemStack st1 = inventoryCurrency.getStackInSlot(i + 18);
-				if (st0.isEmpty() && st1.isEmpty()) {
-					continue;
-				}
-				Deal deal = marcet.addDeal();
-				deal.set(inventorySold.getStackInSlot(i), new ItemStack[] { st0, st1 });
-				deal.ignoreDamage = ignoreDamage;
-				deal.ignoreNBT = ignoreNBT;
+		for (int i = 0; i < 18; i++) {
+			if (inventorySold.getStackInSlot(i).isEmpty()) {
+				continue;
 			}
-			this.marcets.put(marcet.id, marcet);
+			ItemStack st0 = inventoryCurrency.getStackInSlot(i);
+			ItemStack st1 = inventoryCurrency.getStackInSlot(i + 18);
+			if (st0.isEmpty() && st1.isEmpty()) {
+				continue;
+			}
+			Deal deal = (Deal) this.addDeal(marcet.getId());
+			deal.set(inventorySold.getStackInSlot(i), new ItemStack[] { st0, st1 });
+			deal.setIgnoreDamage(ignoreDamage);
+			deal.setIgnoreNBT(ignoreNBT);
 		}
-		return marcet.id;
+		return marcet.getId();
 	}
 
-	public void removeMarcet(int marcetID) {
-		if (marcetID < 0 || this.marcets.size() <= 1) {
-			return;
+	@Override
+	public boolean removeMarcet(int marcetID) {
+		if (marcetID < 0 || (marcetID!=0 && this.marcets.size() <= 1)) { return false; }
+		if (!this.marcets.containsKey(marcetID)) {
+			if (marcetID == 0) { this.loadDefaultMarcets(); }
+			return false;
 		}
+		Marcet marcet = this.marcets.get(marcetID);
+		marcet.closeForAllPlayers();
+		List<Integer> delDeal = Lists.<Integer>newArrayList();
+		for (Integer dealId : this.deals.keySet()) {
+			if (this.deals.get(dealId).getMarcetID()==marcetID) { delDeal.add(dealId); }
+		}
+		for (Integer dealId : delDeal) { this.deals.remove(dealId); }
 		this.marcets.remove(marcetID);
+		if (marcetID == 0) { this.loadDefaultMarcets(); }
 		this.saveMarcets();
+		return true;
 	}
-
-	public void saveMarcet(Marcet marcet) {
-		if (marcet.id < 0) {
-			marcet.id = this.getUnusedId();
+	
+	@Override
+	public boolean removeDeal(int dealID) {
+		boolean isRemove = false;
+		if (this.deals.containsKey(dealID)) {
+			this.deals.remove(dealID);
+			isRemove = true;
 		}
-		while (this.containsRecipeName(marcet.id, marcet.name)) {
-			marcet.name += "_";
-		}
-		this.marcets.put(marcet.id, marcet);
 		this.saveMarcets();
+		return isRemove;
 	}
 
 	public void saveMarcets() {
 		try {
+			// Save
 			File saveDir = CustomNpcs.getWorldSaveDirectory();
+			if (saveDir == null || saveDir.getAbsolutePath().indexOf(CustomNpcs.MODID)==-1) { return; }
 			File file = new File(saveDir, "marcet.dat_new");
 			File file2 = new File(saveDir, "marcet.dat_old");
 			File file3 = new File(saveDir, "marcet.dat");
-			CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(file));
+			NBTTagCompound nbtFile = this.getNBT();
+			CompressedStreamTools.writeCompressed(nbtFile, new FileOutputStream(file));
 			if (file2.exists()) { file2.delete(); }
 			file3.renameTo(file2);
 			if (file3.exists()) { file3.delete(); }
@@ -282,6 +343,9 @@ public class MarcetController {
 		for (Marcet m : this.marcets.values()) {
 			m.update();
 		}
+		for (Deal d : this.deals.values()) {
+			d.update();
+		}
 	}
 
 	public void updateTime() {
@@ -290,15 +354,59 @@ public class MarcetController {
 		}
 	}
 	
-	public void sendTo(EntityPlayerMP player) {
-		Server.sendData(player, EnumPacketClient.MARCET_DATA, 5, false);
-		for (int id : this.marcets.keySet()) {
-			if (id < 0 || this.marcets.get(id).id < 0) { continue; }
-			if (this.marcets.get(id).id != id) { this.marcets.get(id).id = id; }
-			NBTTagCompound nbtMarcet = new NBTTagCompound();
-			this.marcets.get(id).writeToNBT(nbtMarcet);
-			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 10, true, nbtMarcet);
+	public void sendTo(EntityPlayerMP player, int marcetID) {
+		LogWriter.debug("CustomNpcs: Send marked data to \""+player.getName()+"\"");
+		if (this.marcets.containsKey(marcetID)) { // market
+			this.marcets.get(marcetID).sendTo(player);
+			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 250, 2);
+		} else if (marcetID<0) { // all
+			if (this.marcets.isEmpty() || !this.marcets.containsKey(0)) { this.loadDefaultMarcets(); }
+			Map<Integer, Marcet> mapM = Maps.<Integer, Marcet>newHashMap(this.marcets);
+			Map<Integer, Deal> mapD = Maps.<Integer, Deal>newHashMap(this.deals);
+			Server.sendData(player, EnumPacketClient.MARCET_DATA, 0);
+			for (int id : mapM.keySet()) {
+				Marcet market = mapM.get(id);
+				if (id < 0 || market.getId() < 0) { continue; }
+				if (market.getId() != id) {
+					market = market.copy(id);
+					mapM.put(id, market);
+				}
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 1, market.writeToNBT());
+				for (int dealId : market.getDealIDs()) {
+					Deal deal = mapD.get(dealId);
+					if (deal == null) { continue; }
+					Server.sendData(player, EnumPacketClient.MARCET_DATA, 3, deal.writeToNBT());
+				}
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+			}
+			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 250, 2);
+		}
+		else { // not
+			Server.sendData(player, EnumPacketClient.MARCET_DATA, 4, marcetID);
 		}
 	}
+
+	public DealMarkup getBuyData(int marcetID, int dealID, int marcetSlot) {
+		return this.getBuyData(this.marcets.get(marcetID), this.deals.get(dealID), marcetSlot);
+	}
+	
+	public DealMarkup getBuyData(Marcet marcet, Deal deal, int marcetLevel) {
+		DealMarkup dm = new DealMarkup();
+		if (deal!=null) { dm.set(deal); }
+		if (marcet!=null) {
+			dm.set(marcet.markup.containsKey(marcetLevel) ? marcet.markup.get(marcetLevel) : marcetLevel >= marcet.markup.size() ? marcet.markup.get(marcet.markup.size()-1) : marcet.markup.get(0));
+		}
+		return dm;
+	}
+
+	public IDeal addDeal(int marcetID) {
+		if (!this.marcets.containsKey(marcetID)) { return null; }
+		Deal deal = new Deal(this.getUnusedDealId(), marcetID);
+		this.deals.put(deal.getId(), deal);
+		this.marcets.get(marcetID).detectAndSendChanges();
+		return deal;
+	}
+
+	public IDeal getDeal(int dealId) { return this.deals.get(dealId); }
 	
 }

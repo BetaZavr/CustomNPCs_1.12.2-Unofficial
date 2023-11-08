@@ -1,0 +1,537 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IQuest.java IQuest]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialog#getQuest|IDialog]], [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#create|IQuestCategory]], [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IQuestHandler#get|IQuestHandler]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/QuestEvent#quest|QuestEvent]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Quest.java Quest]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| cancelable
+| ''field.api.handler.data.iquest.cancelable''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/QuestCategory.java QuestCategory]
+| category
+| ''field.api.handler.data.iquest.category''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| command
+| ''field.api.handler.data.iquest.command''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| completeText
+| ''field.api.handler.data.iquest.completeText''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/EntityNPCInterface.java EntityNPCInterface]
+| completer
+| ''field.api.handler.data.iquest.completer''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| completerPos
+| ''field.api.handler.data.iquest.completerPos''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumQuestCompletion.java EnumQuestCompletion]
+| completion
+| ''field.api.handler.data.iquest.completion''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/FactionOptions.java FactionOptions]
+| factionOptions
+| ''field.api.handler.data.iquest.factionOptions''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| forgetDialogues
+| ''field.api.handler.data.iquest.forgetDialogues''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| forgetQuests
+| ''field.api.handler.data.iquest.forgetQuests''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/ResourceLocation.html ResourceLocation]
+| icon
+| ''field.api.handler.data.iquest.icon''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| id
+| ''field.api.handler.data.iquest.id''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| level
+| ''field.api.handler.data.iquest.level''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| logText
+| ''field.api.handler.data.iquest.logText''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/PlayerMail.java PlayerMail]
+| mail
+| ''field.api.handler.data.iquest.mail''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| nextQuestTitle
+| ''field.api.handler.data.iquest.nextQuestTitle''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| nextQuestid
+| ''field.api.handler.data.iquest.nextQuestid''
+|-
+| GameProfile
+| playerProfile
+| ''field.api.handler.data.iquest.playerProfile''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/quests/QuestInterface.java QuestInterface]
+| questInterface
+| ''field.api.handler.data.iquest.questInterface''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumQuestRepeat.java EnumQuestRepeat]
+| repeat
+| ''field.api.handler.data.iquest.repeat''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| rewardExp
+| ''field.api.handler.data.iquest.rewardExp''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/NpcMiscInventory.java NpcMiscInventory]
+| rewardItems
+| ''field.api.handler.data.iquest.rewardItems''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| rewardText
+| ''field.api.handler.data.iquest.rewardText''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumRewardType.java EnumRewardType]
+| rewardType
+| ''field.api.handler.data.iquest.rewardType''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| step
+| ''field.api.handler.data.iquest.step''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/ResourceLocation.html ResourceLocation]
+| texture
+| ''field.api.handler.data.iquest.texture''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| title
+| ''field.api.handler.data.iquest.title''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| version
+| ''версия сборки мода''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World]
+| world
+| ''интерфейс мира / измерения''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#addTask|addTask]]()
+| ''Добавляет и возвращает новую задачу квеста в конец списка задач''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#apply|apply]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/EntityNPCInterface.java EntityNPCInterface] entity)
+| ''method.api.handler.data.iquest.apply''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#apply|apply]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] entity)
+| ''method.api.handler.data.iquest.apply''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#complete|complete]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player, [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/QuestData.java QuestData] data)
+| ''method.api.handler.data.iquest.complete''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Quest.java Quest]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#copy|copy]]()
+| ''method.api.handler.data.iquest.copy''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory|IQuestCategory]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getCategory|getCategory]]()
+| ''Возвращает категорию квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getCompleteText|getCompleteText]]()
+| ''Возвращает текст, показываемый игроку по завершению квеста''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getCompleterNpc|getCompleterNpc]]()
+| ''Возвращает NPC, к которому необходимо сдать квест после выполнения всех задач''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getForgetDialogues|getForgetDialogues]]()
+| ''Возвращает список ID диалогов, которые будут удалены из данных игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getForgetQuests|getForgetQuests]]()
+| ''Возвращает список ID квестов, которые будут удалены из данных игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getId|getId]]()
+| ''Возвращает ID квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getIsRepeatable|getIsRepeatable]]()
+| ''Возвращает может ли игрок получить тот квест снова''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getKey|getKey]]()
+| ''method.api.handler.data.iquest.getKey''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getLevel|getLevel]]()
+| ''Возвращает уровень квеста<br>для удобства''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getLogText|getLogText]]()
+| ''Возвращает текст краткого описания квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getName|getName]]()
+| ''Возвращает название квеста''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getNextQuest|getNextQuest]]()
+| ''Возвращает следующий квест, который выдаётся игроку автоматически по завершению текущего''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getObjectives|getObjectives]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Возвращает список задач квеста для игрока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getObjectives|getObjectives]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]] player)
+| ''Возвращает список задач квеста для игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getRewardType|getRewardType]]()
+| ''Возвращает тип выдачи наградных предметов<br>0-ALL, 1-ONE_SELECT, 2-RANDOM_ONE''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getRewards|getRewards]]()
+| ''Возвращает контейнер с предметами, которые выдаются в качестве награды за выполнение квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getTitle|getTitle]]()
+| ''Формирует и возвращает полное название квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getVersion|getVersion]]()
+| ''Возвращает версию сборки мода''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#hasCompassSettings|hasCompassSettings]]()
+| ''method.api.handler.data.iquest.hasCompassSettings''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#hasNewQuest|hasNewQuest]]()
+| ''method.api.handler.data.iquest.hasNewQuest''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#isCancelable|isCancelable]]()
+| ''Возвращает может ли игрок отменить этот квест во время выполнения''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#isSetUp|isSetUp]]()
+| ''Возвращает настроен ли данный квест полностью или есть ненастроенные элементы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#readNBT|readNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''method.api.handler.data.iquest.readNBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#readNBTPartial|readNBTPartial]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''method.api.handler.data.iquest.readNBTPartial''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#removeTask|removeTask]]([[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective]] task)
+| ''Удалить задачу квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#save|save]]()
+| ''Сохранить квест в файл''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setCancelable|setCancelable]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] cancelable)
+| ''Установить может ли игрок отменить этот квест во время выполнения''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setCompleteText|setCompleteText]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''method.api.handler.data.iquest.setCompleteText''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setCompleterNpc|setCompleterNpc]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]] npc)
+| ''Установить NPC, к которому необходимо сдать квест после выполнения всех задач''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setForgetDialogues|setForgetDialogues]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] forget)
+| ''Установить список ID диалогов, которые будут удалены из данных игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setForgetQuests|setForgetQuests]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] forget)
+| ''Установить список ID квестов, которые будут удалены из данных игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setLevel|setLevel]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] level)
+| ''Установить уровень квеста<br>для удобства''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setLogText|setLogText]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''Установить текст краткого описания квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setName|setName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить название квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setNextQuest|setNextQuest]]([[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]] quest)
+| ''Установить следующий квест, который выдаётся игроку автоматически по завершению текущего''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setRewardText|setRewardText]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''Установить дополнительный текст награды''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setRewardType|setRewardType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип выдачи наградных предметов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#setVersion|setVersion]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] version)
+| ''Установить версию сборки мода''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''method.api.handler.data.iquest.writeToNBT''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#writeToNBTPartial|writeToNBTPartial]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''method.api.handler.data.iquest.writeToNBTPartial''
+|}
+=== Описание методов ===
+
+==== addTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective]] addTask()''<br>'''Действие:'''<br>Добавляет и возвращает новую задачу квеста в конец списка задач
+|}
+==== apply ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] apply(entity)''<br>'''Действие:'''<br>method.api.handler.data.iquest.apply<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/EntityNPCInterface.java EntityNPCInterface] '''entity''' = parametr.api.handler.data.quest.apply.entity
+|}
+==== apply ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] apply(entity)''<br>'''Действие:'''<br>method.api.handler.data.iquest.apply<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] '''entity''' = parametr.api.handler.data.quest.apply.entity
+|}
+==== complete ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] complete(player, data)''<br>'''Действие:'''<br>method.api.handler.data.iquest.complete<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/QuestData.java QuestData] '''data''' = parametr.api.handler.data.quest.complete.data
+|}
+==== copy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Quest.java Quest] copy()''<br>'''Действие:'''<br>method.api.handler.data.iquest.copy
+|}
+==== getCategory ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory|IQuestCategory]] getCategory()''<br>'''Действие:'''<br>Возвращает категорию квеста
+|}
+==== getCompleteText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getCompleteText()''<br>'''Действие:'''<br>Возвращает текст, показываемый игроку по завершению квеста
+|}
+==== getCompleterNpc ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]] getCompleterNpc()''<br>'''Действие:'''<br>Возвращает NPC, к которому необходимо сдать квест после выполнения всех задач
+|}
+==== getForgetDialogues ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] getForgetDialogues()''<br>'''Действие:'''<br>Возвращает список ID диалогов, которые будут удалены из данных игрока
+|}
+==== getForgetQuests ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] getForgetQuests()''<br>'''Действие:'''<br>Возвращает список ID квестов, которые будут удалены из данных игрока
+|}
+==== getId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getId()''<br>'''Действие:'''<br>Возвращает ID квеста
+|}
+==== getIsRepeatable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getIsRepeatable()''<br>'''Действие:'''<br>Возвращает может ли игрок получить тот квест снова
+|}
+==== getKey ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getKey()''<br>'''Действие:'''<br>method.api.handler.data.iquest.getKey
+|}
+==== getLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getLevel()''<br>'''Действие:'''<br>Возвращает уровень квеста<br>для удобства
+|}
+==== getLogText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getLogText()''<br>'''Действие:'''<br>Возвращает текст краткого описания квеста
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает название квеста
+|}
+==== getNextQuest ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]] getNextQuest()''<br>'''Действие:'''<br>Возвращает следующий квест, который выдаётся игроку автоматически по завершению текущего
+|}
+==== getObjectives ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective[]]] getObjectives(player)''<br>'''Действие:'''<br>Возвращает список задач квеста для игрока<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== getObjectives ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective[]]] getObjectives(player)''<br>'''Действие:'''<br>Возвращает список задач квеста для игрока<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]] '''player''' = игрок
+|}
+==== getRewardType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRewardType()''<br>'''Действие:'''<br>Возвращает тип выдачи наградных предметов<br>0-ALL, 1-ONE_SELECT, 2-RANDOM_ONE
+|}
+==== getRewards ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]] getRewards()''<br>'''Действие:'''<br>Возвращает контейнер с предметами, которые выдаются в качестве награды за выполнение квеста
+|}
+==== getTitle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getTitle()''<br>'''Действие:'''<br>Формирует и возвращает полное название квеста
+|}
+==== getVersion ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getVersion()''<br>'''Действие:'''<br>Возвращает версию сборки мода
+|}
+==== hasCompassSettings ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasCompassSettings()''<br>'''Действие:'''<br>method.api.handler.data.iquest.hasCompassSettings
+|}
+==== hasNewQuest ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasNewQuest()''<br>'''Действие:'''<br>method.api.handler.data.iquest.hasNewQuest
+|}
+==== isCancelable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isCancelable()''<br>'''Действие:'''<br>Возвращает может ли игрок отменить этот квест во время выполнения
+|}
+==== isSetUp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isSetUp()''<br>'''Действие:'''<br>Возвращает настроен ли данный квест полностью или есть ненастроенные элементы
+|}
+==== readNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBT(compound)''<br>'''Действие:'''<br>method.api.handler.data.iquest.readNBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== readNBTPartial ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBTPartial(compound)''<br>'''Действие:'''<br>method.api.handler.data.iquest.readNBTPartial<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== removeTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removeTask(task)''<br>'''Действие:'''<br>Удалить задачу квеста<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective]] '''task''' = parametr.api.handler.data.quest.removeTask.task
+|}
+==== save ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] save()''<br>'''Действие:'''<br>Сохранить квест в файл
+|}
+==== setCancelable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCancelable(cancelable)''<br>'''Действие:'''<br>Установить может ли игрок отменить этот квест во время выполнения<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''cancelable''' = parametr.api.handler.data.quest.setCancelable.cancelable
+|}
+==== setCompleteText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCompleteText(text)''<br>'''Действие:'''<br>method.api.handler.data.iquest.setCompleteText<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = parametr.api.handler.data.quest.setCompleteText.text
+|}
+==== setCompleterNpc ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCompleterNpc(npc)''<br>'''Действие:'''<br>Установить NPC, к которому необходимо сдать квест после выполнения всех задач<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]] '''npc''' = parametr.api.handler.data.quest.setCompleterNpc.npc
+|}
+==== setForgetDialogues ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setForgetDialogues(forget)''<br>'''Действие:'''<br>Установить список ID диалогов, которые будут удалены из данных игрока<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] '''forget''' = parametr.api.handler.data.quest.setForgetDialogues.forget
+|}
+==== setForgetQuests ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setForgetQuests(forget)''<br>'''Действие:'''<br>Установить список ID квестов, которые будут удалены из данных игрока<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] '''forget''' = parametr.api.handler.data.quest.setForgetQuests.forget
+|}
+==== setLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setLevel(level)''<br>'''Действие:'''<br>Установить уровень квеста<br>для удобства<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''level''' = parametr.api.handler.data.quest.setLevel.level
+|}
+==== setLogText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setLogText(text)''<br>'''Действие:'''<br>Установить текст краткого описания квеста<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = parametr.api.handler.data.quest.setLogText.text
+|}
+==== setName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setName(name)''<br>'''Действие:'''<br>Установить название квеста<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = parametr.api.handler.data.quest.setName.name
+|}
+==== setNextQuest ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNextQuest(quest)''<br>'''Действие:'''<br>Установить следующий квест, который выдаётся игроку автоматически по завершению текущего<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]] '''quest''' = parametr.api.handler.data.quest.setNextQuest.quest
+|}
+==== setRewardText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRewardText(text)''<br>'''Действие:'''<br>Установить дополнительный текст награды<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = parametr.api.handler.data.quest.setRewardText.text
+|}
+==== setRewardType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRewardType(type)''<br>'''Действие:'''<br>Установить тип выдачи наградных предметов<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = parametr.api.handler.data.quest.setRewardType.type
+|}
+==== setVersion ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setVersion(version)''<br>'''Действие:'''<br>Установить версию сборки мода<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''version''' = версия мода
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>method.api.handler.data.iquest.writeToNBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== writeToNBTPartial ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBTPartial(compound)''<br>'''Действие:'''<br>method.api.handler.data.iquest.writeToNBTPartial<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

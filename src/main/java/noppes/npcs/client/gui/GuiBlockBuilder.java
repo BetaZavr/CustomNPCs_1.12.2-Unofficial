@@ -156,7 +156,7 @@ public class GuiBlockBuilder extends GuiNPCInterface
 			this.addTextField(new GuiNpcTextField(id7, this, i, y, 50, 20, this.tile.yOffest + ""));
 			this.addLabel(new GuiNpcLabel(9, new TextComponentTranslation("gui.yoffset").getFormattedText(),
 					this.guiLeft + 130, y + 5));
-			this.getTextField(9).numbersOnly = true;
+			this.getTextField(9).setNumbersOnly();
 			this.getTextField(9).setMinMaxDefault(-10, 10, 0);
 			int j = 5;
 			int k = this.guiLeft + 200;

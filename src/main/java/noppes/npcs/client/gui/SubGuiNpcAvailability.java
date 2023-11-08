@@ -20,6 +20,7 @@ implements ISliderListener, ITextfieldListener {
 	private Availability availabitily;
 
 	public SubGuiNpcAvailability(Availability availabitily) {
+		super();
 		this.availabitily = availabitily;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
@@ -49,13 +50,13 @@ implements ISliderListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(51, "availability.minlevel", this.guiLeft + 4, this.guiTop + 153));
 		this.addTextField(new GuiNpcTextField(51, this, this.fontRenderer, this.guiLeft + 70, this.guiTop + 148, 70, 20,
 				this.availabitily.minPlayerLevel + ""));
-		this.getTextField(51).numbersOnly = true;
+		this.getTextField(51).setNumbersOnly();
 		this.getTextField(51).setMinMaxDefault(0, Integer.MAX_VALUE, 0);
 		this.addTextField(new GuiNpcTextField(52, this, this.fontRenderer, this.guiLeft + 145, this.guiTop + 126, 40, 20, this.availabitily.daytime[0] + ""));
-		this.getTextField(52).numbersOnly = true;
+		this.getTextField(52).setNumbersOnly();
 		this.getTextField(52).setMinMaxDefault(0, 23, this.availabitily.daytime[0]);
 		this.addTextField(new GuiNpcTextField(53, this, this.fontRenderer, this.guiLeft + 190, this.guiTop + 126, 40, 20, this.availabitily.daytime[1] + ""));
-		this.getTextField(53).numbersOnly = true;
+		this.getTextField(53).setNumbersOnly();
 		this.getTextField(53).setMinMaxDefault(0, 23, this.availabitily.daytime[1]);
 		
 		this.addLabel(new GuiNpcLabel(52, "availability.health", this.guiLeft + 4, this.guiTop + 175));

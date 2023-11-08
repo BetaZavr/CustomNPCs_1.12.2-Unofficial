@@ -1,0 +1,76 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IRoleTrader.java IRoleTrader]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/RoleTrader.java RoleTrader]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole|INPCRole]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiContinueExecute|aiContinueExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiDeathExecute|aiDeathExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiShouldExecute|aiShouldExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiStartExecuting|aiStartExecuting]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiUpdateTask|aiUpdateTask]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#clientUpdate|clientUpdate]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#defendOwner|defendOwner]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#delete|delete]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#getEnumType|getEnumType]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#getType|getType]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#interact|interact]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#isFollowing|isFollowing]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#killed|killed]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#readFromNBT|readFromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#writeToNBT|writeToNBT]]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IMarcet|IMarcet]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#getMarket|getMarket]]()
+| ''Возвращает имя магазина<br>Вместо этого используйте методы магазина из [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/#getStore|getStore]]()''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#getMarketID|getMarketID]]()
+| ''method.api.entity.data.role.iroletrader.getMarketID''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#interact|interact]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Действия при взаимодействии игрока с NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#setMarket|setMarket]]([[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IMarcet|IMarcet]] marcet)
+| ''Установить имя магазину<br>Вместо этого используйте методы магазина из [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/#getStore|getStore]]()''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#setMarket|setMarket]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id)
+| ''Установить имя магазину<br>Вместо этого используйте методы магазина из [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/#getStore|getStore]]()''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== getMarket ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IMarcet|IMarcet]] getMarket()''<br>'''Действие:'''<br>Возвращает имя магазина<br>Вместо этого используйте методы магазина из [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/#getStore|getStore]]()
+|}
+==== getMarketID ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMarketID()''<br>'''Действие:'''<br>method.api.entity.data.role.iroletrader.getMarketID
+|}
+==== interact ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] interact(player)''<br>'''Действие:'''<br>Действия при взаимодействии игрока с NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setMarket ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setMarket(marcet)''<br>'''Действие:'''<br>Установить имя магазину<br>Вместо этого используйте методы магазина из [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/#getStore|getStore]]()<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IMarcet|IMarcet]] '''marcet''' = parametr.api.entity.data.role.roletrader.setMarket.marcet
+|}
+==== setMarket ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setMarket(id)''<br>'''Действие:'''<br>Установить имя магазину<br>Вместо этого используйте методы магазина из [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/#getStore|getStore]]()<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = parametr.api.entity.data.role.roletrader.setMarket.id
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

@@ -1,11 +1,13 @@
 package noppes.npcs.controllers.data;
 
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import noppes.npcs.api.handler.data.IMarcet;
+import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.util.AdditionalMethods;
 
 public class PlayerGameData {
@@ -13,8 +15,10 @@ public class PlayerGameData {
 	public long money;
 	public boolean update; // ServerTickHandler
 	public boolean op = false;
-	private final Map<Integer, Integer> marketData = Maps.<Integer, Integer>newTreeMap(); // ID market, slot
+	public final List<MarkupData> marketData = Lists.<MarkupData>newArrayList(); // ID market, slot
 
+	public long getMoney() { return this.money; }
+	
 	public void addMoney(long money) {
 		this.money += money;
 		if (this.money < 0L) {
@@ -30,12 +34,7 @@ public class PlayerGameData {
 		compound.setLong("Money", this.money);
 		compound.setBoolean("IsOP", this.op);
 		NBTTagList markup = new NBTTagList();
-		for (int market : this.marketData.keySet()) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setInteger("MarketID", market);
-			nbt.setInteger("Slot", this.marketData.get(market));
-			markup.appendTag(nbt);
-		}
+		for (MarkupData data : this.marketData) { markup.appendTag(data.getPlayerNBT()); }
 		compound.setTag("MarketData", markup);
 		return compound;
 	}
@@ -53,7 +52,7 @@ public class PlayerGameData {
 				this.marketData.clear();
 				for (int i = 0; i < gameNBT.getTagList("MarketData", 10).tagCount(); i++) {
 					NBTTagCompound nbt = gameNBT.getTagList("MarketData", 10).getCompoundTagAt(i);
-					this.marketData.put(nbt.getInteger("MarketID"), nbt.getInteger("Slot"));
+					this.marketData.add(new MarkupData(nbt.getInteger("id"), nbt.getInteger("slot"), nbt.getInteger("xp")));
 				}
 			}
 		}
@@ -73,13 +72,43 @@ public class PlayerGameData {
 		this.money = money;
 		this.update = true;
 	}
-	
-	public int getMarcetSlot(int marketID) {
-		if (this.marketData.containsKey(marketID)) { return this.marketData.get(marketID); }
-		this.marketData.put(marketID, 0);
-		return 0;
+
+	public MarkupData getMarkupData(int marketID) {
+		MarkupData md = null;
+		for (MarkupData m : this.marketData) {
+			if (m.id == marketID) {
+				md = m;
+				break;
+			}
+		}
+		if (md == null) {
+			md = new MarkupData(marketID, 0, 0);
+			this.marketData.add(md);
+		}
+		return md;
 	}
 	
-	public void setMarcetSlot(int marketID, int slot) { this.marketData.put(marketID, slot); }
+	public int getMarcetLevel(int marketID) {
+		return this.getMarkupData(marketID).level;
+	}
+
+	public void setMarkupLevel(int marketID, int level) {
+		this.getMarkupData(marketID).level = level;
+	}
+
+	public void addMarkupXP(int marketID, int xp) {
+		if (xp==0) { return; }
+		MarkupData md = this.getMarkupData(marketID);
+		md.addXP(xp);
+		IMarcet m = MarcetController.getInstance().getMarcet(marketID);
+		if (m!=null) {
+			MarkupData d = ((Marcet) m).markup.get(md.level);
+			if (md.level < ((Marcet) m).markup.size() - 1 && d!=null && d.xp <= md.xp) {
+				md.level++;
+				md.xp = 0;
+			}
+		}
+		this.update = true;
+	}
 	
 }

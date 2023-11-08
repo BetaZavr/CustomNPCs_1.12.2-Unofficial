@@ -1,0 +1,58 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/block|block]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/block/IBlockFluidContainer.java IBlockFluidContainer]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/BlockFluidContainerWrapper.java BlockFluidContainerWrapper]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock|IBlock]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#blockEvent|blockEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#clearCache|clearCache]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#createNew|createNew]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getContainer|getContainer]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getDisplayName|getDisplayName]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getMCBlock|getMCBlock]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getMCBlockState|getMCBlockState]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getMCTileEntity|getMCTileEntity]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getMetadata|getMetadata]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getName|getName]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getPos|getPos]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getStoreddata|getStoreddata]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getTempdata|getTempdata]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getTileEntityNBT|getTileEntityNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getWorld|getWorld]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getX|getX]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getY|getY]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getZ|getZ]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#hasTileEntity|hasTileEntity]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#interact|interact]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#isAir|isAir]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#isContainer|isContainer]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#isRemoved|isRemoved]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#remove|remove]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#setBlock|setBlock]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#setBlock|setBlock]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#setMetadata|setMetadata]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#setTile|setTile]], [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#setTileEntityNBT|setTileEntityNBT]]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlockFluidContainer#getFluidName|getFluidName]]()
+| ''Возвращает зарегистрированное имя жидкости''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlockFluidContainer#getFluidPercentage|getFluidPercentage]]()
+| ''Возвращает процент заполнения жидкостью позиции блока ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlockFluidContainer#getFluidValue|getFluidValue]]()
+| ''Возвращает количество жидкости''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlockFluidContainer#getFuildDensity|getFuildDensity]]()
+| ''Возвращает значение плотности жидкости''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlockFluidContainer#getFuildTemperature|getFuildTemperature]]()
+| ''Возвращает значение температуры кипения жидкости''
+|}
+=== Описание методов ===
+
+==== getFluidName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getFluidName()''<br>'''Действие:'''<br>Возвращает зарегистрированное имя жидкости
+|}
+==== getFluidPercentage ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getFluidPercentage()''<br>'''Действие:'''<br>Возвращает процент заполнения жидкостью позиции блока 
+|}
+==== getFluidValue ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getFluidValue()''<br>'''Действие:'''<br>Возвращает количество жидкости
+|}
+==== getFuildDensity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getFuildDensity()''<br>'''Действие:'''<br>Возвращает значение плотности жидкости
+|}
+==== getFuildTemperature ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getFuildTemperature()''<br>'''Действие:'''<br>Возвращает значение температуры кипения жидкости
+|}

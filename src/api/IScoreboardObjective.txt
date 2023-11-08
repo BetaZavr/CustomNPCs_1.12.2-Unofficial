@@ -1,0 +1,102 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/IScoreboardObjective.java IScoreboardObjective]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboard#addObjective|IScoreboard]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/ScoreboardObjectiveWrapper.java ScoreboardObjectiveWrapper]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#createScore|createScore]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Создать и возвратить счёт для игрока на этот объект''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#getCriteria|getCriteria]]()
+| ''Возвращает имя критерия этого объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#getDisplayName|getDisplayName]]()
+| ''Возвращает отображаемое имя объекта на таблице''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#getName|getName]]()
+| ''Возвращает зарегистрированное имя объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#getScore|getScore]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Возвращает счёт игрока на этот объект''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#getScores|getScores]]()
+| ''Возвращает массив счетов всех игроков объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#hasScore|hasScore]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Возвращает имеет ли игрок счёт на этот объект''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#isReadyOnly|isReadyOnly]]()
+| ''Возвращает является ли этот объект только для чтения<br>Нельзя изменить счёт функциями игры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#removeScore|removeScore]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Удалить счёт игрока на этот объект''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective#setDisplayName|setDisplayName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить новое имя объекта<br>содержит 1 - 16 символов''
+|}
+=== Описание методов ===
+
+==== createScore ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore]] createScore(player)''<br>'''Действие:'''<br>Создать и возвратить счёт для игрока на этот объект<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== getCriteria ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getCriteria()''<br>'''Действие:'''<br>Возвращает имя критерия этого объекта
+|}
+==== getDisplayName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getDisplayName()''<br>'''Действие:'''<br>Возвращает отображаемое имя объекта на таблице
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает зарегистрированное имя объекта
+|}
+==== getScore ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore]] getScore(player)''<br>'''Действие:'''<br>Возвращает счёт игрока на этот объект<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== getScores ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore[]]] getScores()''<br>'''Действие:'''<br>Возвращает массив счетов всех игроков объекта
+|}
+==== hasScore ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasScore(player)''<br>'''Действие:'''<br>Возвращает имеет ли игрок счёт на этот объект<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== isReadyOnly ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isReadyOnly()''<br>'''Действие:'''<br>Возвращает является ли этот объект только для чтения<br>Нельзя изменить счёт функциями игры
+|}
+==== removeScore ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] removeScore(player)''<br>'''Действие:'''<br>Удалить счёт игрока на этот объект<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== setDisplayName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDisplayName(name)''<br>'''Действие:'''<br>Установить новое имя объекта<br>содержит 1 - 16 символов<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = parametr.api.scoreboardobjectivewrapper.setDisplayName.name
+|}

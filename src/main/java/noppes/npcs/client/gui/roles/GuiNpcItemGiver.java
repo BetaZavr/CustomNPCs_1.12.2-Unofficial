@@ -58,10 +58,10 @@ extends GuiContainerNPCInterface2 {
 				new String[] { "Timer", "Give Only Once", "Daily" }, this.role.cooldownType));
 		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 55,
 				this.guiTop + 54, 90, 20, this.role.cooldown + ""));
-		this.getTextField(0).numbersOnly = true;
+		this.getTextField(0).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(0, "Cooldown:", this.guiLeft + 6, this.guiTop + 59));
 		this.addLabel(new GuiNpcLabel(1, "Items to give", this.guiLeft + 46, this.guiTop + 79));
-		this.getTextField(0).numbersOnly = true;
+		this.getTextField(0).setNumbersOnly();
 		int i = 0;
 		for (String line : this.role.lines) {
 			this.addTextField(new GuiNpcTextField(i + 1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 150,

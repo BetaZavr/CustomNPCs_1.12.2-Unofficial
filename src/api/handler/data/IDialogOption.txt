@@ -1,0 +1,150 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IDialogOption.java IDialogOption]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialog#getOption|IDialog]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/DialogEvent/OptionEvent#option|OptionEvent]]<br>
+'''События:'''<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/DialogEvent/OptionEvent|DialogEvent.OptionEvent]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/DialogOption.java DialogOption]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| command
+| ''[[Команды_консоли|команды консоли]], выполняемая при выборе этого ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List]
+| dialogs
+| ''список вариантов ID диалогов и их доступность, для показа следующим при выборе этого ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| optionColor
+| ''цвет текста этого ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| optionType
+| ''[[Custom_NPCs/Unoficial_API_1.12.2/api/constants/OptionType|тип ответа]]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| slot
+| ''ID ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| title
+| ''текст ответа''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/dialogoption$optiondialogidOptionDialogID.java OptionDialogID]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#addDialog|addDialog]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dialogId)
+| ''Добавить и возвратить новый вариант выбора диалога, для показа при выборе этого ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#downPos|downPos]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dialogId)
+| ''Смещает диалог из списка вариантов диалогов ниже по списку (увеличивает ID ответа на 1)''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Dialog.java Dialog]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#getDialog|getDialog]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Возвращает следующий диалог для показа игроку''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#getName|getName]]()
+| ''Возвращает текст ответа на диалог''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#getSlot|getSlot]]()
+| ''Возвращает номер позиции ответа на диалог''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#getType|getType]]()
+| ''Возвращает тип действия при выборе этого ответа на диалог<br>0-Выход, 1-следующий диалог, 2-неактивно, 3-роль NPC, 4-выполнить команду командного блока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#hasDialogs|hasDialogs]]()
+| ''Возвращает есть ли возможные диалоги для показа игроку при выборе этого ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#isAvailable|isAvailable]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Возвращает доступен ли этот ответ игроку или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#readNBT|readNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки ответа на диалог через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#replaceDialogIDs|replaceDialogIDs]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] oldId, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] newId)
+| ''заменяет ID диалога из вариантов диалогов на новый''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#upPos|upPos]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dialogId)
+| ''Смещает диалог из списка вариантов диалогов выше по списку (уменьшает ID ответа на 1)''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption#writeNBT|writeNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки ответа на диалог''
+|}
+=== Описание методов ===
+
+==== addDialog ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/dialogoption$optiondialogidOptionDialogID.java OptionDialogID] addDialog(dialogId)''<br>'''Действие:'''<br>Добавить и возвратить новый вариант выбора диалога, для показа при выборе этого ответа<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dialogId''' = ID диалога
+|}
+==== downPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] downPos(dialogId)''<br>'''Действие:'''<br>Смещает диалог из списка вариантов диалогов ниже по списку (увеличивает ID ответа на 1)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dialogId''' = ID диалога
+|}
+==== getDialog ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Dialog.java Dialog] getDialog(player)''<br>'''Действие:'''<br>Возвращает следующий диалог для показа игроку<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает текст ответа на диалог
+|}
+==== getSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getSlot()''<br>'''Действие:'''<br>Возвращает номер позиции ответа на диалог
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает тип действия при выборе этого ответа на диалог<br>0-Выход, 1-следующий диалог, 2-неактивно, 3-роль NPC, 4-выполнить команду командного блока
+|}
+==== hasDialogs ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasDialogs()''<br>'''Действие:'''<br>Возвращает есть ли возможные диалоги для показа игроку при выборе этого ответа
+|}
+==== isAvailable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isAvailable(player)''<br>'''Действие:'''<br>Возвращает доступен ли этот ответ игроку или нет<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== readNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки ответа на диалог через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== replaceDialogIDs ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] replaceDialogIDs(oldId, newId)''<br>'''Действие:'''<br>заменяет ID диалога из вариантов диалогов на новый<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''oldId''' = ID диалога<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''newId''' = ID диалога
+|}
+==== upPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] upPos(dialogId)''<br>'''Действие:'''<br>Смещает диалог из списка вариантов диалогов выше по списку (уменьшает ID ответа на 1)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dialogId''' = ID диалога
+|}
+==== writeNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки ответа на диалог
+|}

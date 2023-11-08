@@ -1,0 +1,86 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/ILine.java ILine]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/NpcEvent/DiedEvent#line|DiedEvent]]<br>
+'''События:'''<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/NpcEvent/DiedEvent|NpcEvent.DiedEvent]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#copy|copy]]()
+| ''Возвращает копию текущей настройки сообщения от NPC''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#formatTarget|formatTarget]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line] line, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] entity)
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>Возвращает подстроенную под сущность настройку сообщения от NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#getShowText|getShowText]]()
+| ''Возвращает показывать ли пузырь с текстом над головой NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#getSound|getSound]]()
+| ''Возвращает имя звука настройки сообщения от NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#getText|getText]]()
+| ''Возвращает текст настройки сообщения от NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#setShowText|setShowText]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] show)
+| ''Установить показывать ли пузырь с текстом над головой NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#setSound|setSound]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] sound)
+| ''Установить имя звука настройки сообщения от NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine#setText|setText]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''Установить текст настройки сообщения от NPC''
+|}
+=== Описание методов ===
+
+==== copy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line] copy()''<br>'''Действие:'''<br>Возвращает копию текущей настройки сообщения от NPC
+|}
+==== formatTarget ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line] formatTarget(line, entity)''<br>'''Действие:'''<br>Возвращает подстроенную под сущность настройку сообщения от NPC<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Line.java Line] '''line''' = parametr.api.entity.data.line.formatTarget.line<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] '''entity''' = parametr.api.entity.data.line.formatTarget.entity
+|}
+==== getShowText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getShowText()''<br>'''Действие:'''<br>Возвращает показывать ли пузырь с текстом над головой NPC
+|}
+==== getSound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getSound()''<br>'''Действие:'''<br>Возвращает имя звука настройки сообщения от NPC
+|}
+==== getText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getText()''<br>'''Действие:'''<br>Возвращает текст настройки сообщения от NPC
+|}
+==== setShowText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShowText(show)''<br>'''Действие:'''<br>Установить показывать ли пузырь с текстом над головой NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''show''' = parametr.api.entity.data.line.setShowText.show
+|}
+==== setSound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSound(sound)''<br>'''Действие:'''<br>Установить имя звука настройки сообщения от NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''sound''' = parametr.api.entity.data.line.setSound.sound
+|}
+==== setText ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setText(text)''<br>'''Действие:'''<br>Установить текст настройки сообщения от NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = parametr.api.entity.data.line.setText.text
+|}

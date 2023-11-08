@@ -3,9 +3,6 @@ package noppes.npcs;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-
-import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
@@ -36,7 +33,6 @@ import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -56,6 +52,7 @@ import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.Deal;
+import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -172,7 +169,7 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			ItemStack item = player.getHeldItemMainhand();
-			PlayerScriptData handler = PlayerData.get((EntityPlayer) player).scriptData;
+			PlayerScriptData handler = data.scriptData;
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 0, null);
 			EventHooks.onPlayerAttack(handler, ev);
 			if (item.getItem() == CustomRegisters.scripted_item) {
@@ -438,15 +435,15 @@ public class PacketHandlerPlayer {
 			ItemStack stack = new ItemStack(Server.readNBT(buffer));
 			NoppesUtilPlayer.questCompletion(player, id, stack);
 		}  else if (type == EnumPlayerPacket.FactionsGet) {
-			PlayerFactionData data2 = PlayerData.get((EntityPlayer) player).factionData;
+			PlayerFactionData data2 = data.factionData;
 			Server.sendData(player, EnumPacketClient.GUI_DATA, data2.getPlayerGuiData());
 		} else if (type == EnumPlayerPacket.MailGet) {
-			PlayerMailData data3 = PlayerData.get((EntityPlayer) player).mailData;
+			PlayerMailData data3 = data.mailData;
 			Server.sendData(player, EnumPacketClient.GUI_DATA, data3.saveNBTData(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.MailDelete) {
 			long time = buffer.readLong();
 			String username = Server.readString(buffer);
-			PlayerMailData data4 = PlayerData.get((EntityPlayer) player).mailData;
+			PlayerMailData data4 = data.mailData;
 			Iterator<PlayerMail> it = data4.playermail.iterator();
 			while (it.hasNext()) {
 				PlayerMail mail = it.next();
@@ -493,7 +490,7 @@ public class PacketHandlerPlayer {
 			long time = buffer.readLong();
 			String username = Server.readString(buffer);
 			player.closeContainer();
-			PlayerMailData data4 = PlayerData.get((EntityPlayer) player).mailData;
+			PlayerMailData data4 = data.mailData;
 			for (PlayerMail mail : data4.playermail) {
 				if (mail.time == time && mail.sender.equals(username)) {
 					ContainerMail.staticmail = mail;
@@ -504,7 +501,7 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.MailRead) {
 			long time = buffer.readLong();
 			String username = Server.readString(buffer);
-			PlayerMailData data4 = PlayerData.get((EntityPlayer) player).mailData;
+			PlayerMailData data4 = data.mailData;
 			for (PlayerMail mail : data4.playermail) {
 				if (!mail.beenRead && mail.time == time && mail.sender.equals(username)) {
 					if (mail.hasQuest()) {
@@ -522,7 +519,7 @@ public class PacketHandlerPlayer {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 				return;
 			}
-			boolean bo = EventHooks.onQuestCanceled(PlayerData.get(player).scriptData, (Quest) quest);
+			boolean bo = EventHooks.onQuestCanceled(data.scriptData, (Quest) quest);
 			if (!bo && PlayerQuestController.getRemoveActiveQuest(player, id)) {
 				player.sendMessage(new TextComponentTranslation("quest.removequest", quest.getTitle()));
 				Server.sendData(player, EnumPacketClient.GUI_DATA, new NBTTagCompound());
@@ -544,7 +541,7 @@ public class PacketHandlerPlayer {
 				Server.sendData(player, EnumPacketClient.NPC_VISUAL_DATA, entityID, compound);
 			}
 		} else if (type == EnumPlayerPacket.IsMoved) {
-			PlayerData.get((EntityPlayer) player).hud.isMoved = buffer.readBoolean();
+			data.hud.isMoved = buffer.readBoolean();
 		} else if (type == EnumPlayerPacket.WindowSize) {
 			PlayerOverlayHUD hud = data.hud;
 			NBTTagCompound compound = Server.readNBT(buffer);
@@ -566,134 +563,157 @@ public class PacketHandlerPlayer {
 			ServerNpcRecipeBookHelper serverRecipeBookHelper = new ServerNpcRecipeBookHelper();
 			serverRecipeBookHelper.getGhostRecipe(player, recipe, isShiftPress);
 		} else if (type == EnumPlayerPacket.TraderMarketBuy) {
-			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
+			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m == null || !m.hasListener(player)) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				return;
 			}
-			Deal d = m.data.get(buffer.readInt());
-			if (d == null || d.type == 1 || d.inventorySold.getStackInSlot(0).isEmpty()) {
+			Deal deal = (Deal) MarcetController.getInstance().getDeal(buffer.readInt());
+			if (deal == null || deal.getType() == 1 || deal.getProduct().isEmpty()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				return;
 			}
-			boolean canGiveItem = d.availability.isAvailable(player);
+			boolean canGiveItem = deal.availability.isAvailable(player);
+			DealMarkup dm = MarcetController.getInstance().getBuyData(m, deal, data.game.getMarcetLevel(m.getId()));
 			if (!player.capabilities.isCreativeMode) {
 				// Has Money
-				if (canGiveItem && (data!=null && d.money > data.game.money)) {
+				if (canGiveItem && (data!=null && dm.buyMoney > data.game.money)) {
 					canGiveItem = false;
 				}
 				// Has Items
 				if (canGiveItem) {
-					canGiveItem = AdditionalMethods.canRemoveItems(player, d.inventoryCurrency.items, d.ignoreDamage, d.ignoreNBT);
+					canGiveItem = AdditionalMethods.canRemoveItems(player.inventory.mainInventory, dm.buyItems, dm.ignoreDamage, dm.ignoreNBT);
 				}
 			}
-			if (canGiveItem) {
-				// Del Money
-				if (data != null) { data.game.addMoney(-1 * d.money); }
-				// Del Items
-				for (ItemStack st : d.inventoryCurrency.items) {
-					AdditionalMethods.removeItem(player, st, d.ignoreDamage, d.ignoreNBT);
-				}
-				// Give
-				ItemStack stack = d.inventorySold.getStackInSlot(0).copy();
-				if (d.count[1] != 0 && d.amount != 0) {
-					if (d.amount < stack.getCount()) {
-						stack.setCount(d.amount);
-					}
-					d.amount -= stack.getCount();
-				}
-				boolean bo = stack.getCount() == 0 ? false : player.inventory.addItemStackToInventory(stack);
-				Entity entity = player.world.getEntityByID(buffer.readInt());
-				ICustomNpc<?> npc = null;
-				if (entity instanceof EntityNPCInterface) {
-					npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity(entity);
-				}
-				if (bo) {
-					player.sendMessage(new TextComponentTranslation("mes.market.buy", new Object[] { d.inventorySold.getStackInSlot(0).getDisplayName() + " x" + d.inventorySold.getStackInSlot(0).getCount() }));
-					NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-					AdditionalMethods.updatePlayerInventory(player);
-					EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
-				} else {
-					EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
-				}
-				m.detectAndSendChanges();
-			}
-		} else if (type == EnumPlayerPacket.TraderMarketSell) {
-			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
-			if (m == null || !m.hasListener(player)) {
-				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
-				return;
-			}
-			Deal d = m.data.get(buffer.readInt());
-			if (d == null || d.type == 0 || d.inventorySold.getStackInSlot(0).isEmpty()) {
-				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
-				return;
-			}
-			ItemStack stack = d.inventorySold.getStackInSlot(0);
 			Entity entity = player.world.getEntityByID(buffer.readInt());
 			ICustomNpc<?> npc = null;
 			if (entity instanceof EntityNPCInterface) {
 				npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity(entity);
 			}
-			if (player.capabilities.isCreativeMode || AdditionalMethods.removeItem(player, stack, d.ignoreDamage, d.ignoreNBT)) {
+			if (!canGiveItem) {
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.buyItems));
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+				return;
+			}
+			if (!player.capabilities.isCreativeMode) {
+				// Del Money
+				if (data != null) { data.game.addMoney(-1 * dm.buyMoney); }
+				// Del Items
+				for (ItemStack st : dm.buyItems.keySet()) {
+					AdditionalMethods.removeItem(player, st, dm.buyItems.get(st), dm.ignoreDamage, dm.ignoreNBT);
+				}
+			}
+			// Give
+			if (deal.getMaxCount() > 0 &&  deal.getAmount() < dm.count) {
+				dm.count = deal.getAmount();
+				if (dm.count==0) { // GM
+					dm.count = dm.main.getCount();
+				}
+			}
+			boolean bo = false;
+			ItemStack stack = dm.main.copy();
+			if (dm.count > dm.main.getMaxStackSize()) {
+				int c = dm.count;
+				while (c > 0) {
+					stack = dm.main.copy();
+					if (c > dm.main.getMaxStackSize()) { stack.setCount(dm.main.getMaxStackSize()); }
+					else { stack.setCount(c); }
+					c -= dm.main.getMaxStackSize();
+					boolean b = player.inventory.addItemStackToInventory(stack);
+					if (b && !bo) { bo = true; }
+				}
+			} else {
+				stack.setCount(dm.count);
+				bo = dm.count <= 0 ? false : player.inventory.addItemStackToInventory(stack);
+			}
+			if (bo) {
+				if (deal.getMaxCount() != 0) { deal.setAmount(deal.getAmount() - dm.count); }
+				player.sendMessage(new TextComponentTranslation("mes.market.buy", new Object[] { dm.main.getDisplayName() + " x" + dm.count }));
+				NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+				AdditionalMethods.updatePlayerInventory(player);
+				data.game.addMarkupXP(m.getId(), 5);
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, dm.main, dm.buyItems));
+				m.detectAndSendChanges();
+			} else {
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.buyItems));
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+			}
+		} else if (type == EnumPlayerPacket.TraderMarketSell) {
+			Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
+			if (marcet == null || !marcet.hasListener(player)) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+				return;
+			}
+			Deal deal = (Deal) MarcetController.getInstance().getDeal(buffer.readInt());
+			if (deal == null || deal.getType() == 0 || deal.getProduct().isEmpty()) {
+				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+				return;
+			}
+			DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal, data.game.getMarcetLevel(marcet.getId()));
+			Entity entity = player.world.getEntityByID(buffer.readInt());
+			ICustomNpc<?> npc = null;
+			if (entity instanceof EntityNPCInterface) {
+				npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity(entity);
+			}
+			if (marcet.isLimited) {
+				boolean notSell = false;
+				if (marcet.money < dm.sellMoney) { notSell = true; }
+				else { marcet.money -= dm.sellMoney; }
+				if (!notSell && dm.sellItems.size() > 0 && !AdditionalMethods.canRemoveItems(marcet.inventory, dm.sellItems, dm.ignoreDamage, dm.ignoreNBT)) { notSell = true; }
+				else { marcet.removeInventoryItems(dm.sellItems); }
+				if (notSell) {
+					marcet.detectAndSendChanges();
+					CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
+					Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+					return;
+				}
+			}
+			if (player.capabilities.isCreativeMode || AdditionalMethods.removeItem(player, dm.main, dm.ignoreDamage, dm.ignoreNBT)) {
 				// Add Items
-				List<ItemStack> list = Lists.<ItemStack>newArrayList();
-				List<ItemStack> givelist = Lists.<ItemStack>newArrayList();
-				for (ItemStack st : d.inventoryCurrency.items) {
-					if (st.isEmpty()) { continue; }
-					AdditionalMethods.addStackToList(list, st);
-				}
-				if (list.size()>0) {
-					for (ItemStack st : list) {
-						int size = (int) Math.floor((double) st.getCount()/4.0d);
-						if (size==0) { continue; }
-						ItemStack s = st.copy();
-						s.setCount(size);
-						givelist.add(s); 
-					}
-					if (givelist.isEmpty()) {
-						Random random = new Random();
-						ItemStack s = list.get(random.nextInt(list.size())).copy();
-						s.setCount(1);
-						givelist.add(s);
-					}
-				}
-				if (givelist.size()>0) {
+				if (dm.sellItems.size()>0) {
 					boolean change = false;
-					for (ItemStack st : givelist) {
-						if (player.inventory.addItemStackToInventory(st)) {
-							change = true;
+					for (ItemStack st : dm.sellItems.keySet()) {
+						int count = dm.sellItems.get(st);
+						while (count > 0) {
+							ItemStack stc = st.copy();
+							stc.setCount(count <= st.getMaxStackSize() ? count : st.getMaxStackSize());
+							count -= st.getMaxStackSize();
+							if (player.inventory.addItemStackToInventory(stc)) {
+								change = true;
+							}
 						}
 					}
 					if (change) {
 						NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 						AdditionalMethods.updatePlayerInventory(player);
 					}
+					marcet.addInventoryItems(dm.sellItems);
 				}
 				// Add Money
-				int money = (int) Math.floor((double) d.money / 4.0d);
-				if (money>0) {
-					if (data != null) {
-						data.game.addMoney(money);
-					}
+				if (dm.sellMoney > 0) {
+					if (data != null) { data.game.addMoney(dm.sellMoney); }
+					marcet.money -= dm.sellMoney;
 				}
-				if (d.count[1] != 0) {
-					d.amount += stack.getCount();
+				if (deal.getMaxCount() != 0) {
+					deal.setAmount(deal.getAmount() + dm.count);
 				}
-				player.sendMessage(new TextComponentTranslation("mes.market.sell", new Object[] { stack.getDisplayName() + " x" + stack.getCount() }));
-				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
-				m.detectAndSendChanges();
+				player.sendMessage(new TextComponentTranslation("mes.market.sell", new Object[] { dm.main.getDisplayName() + " x" + dm.count }));
+				data.game.addMarkupXP(marcet.getId(), 1);
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, dm.main, dm.sellItems));
+				marcet.detectAndSendChanges();
 			} else {
-				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, d.inventorySold.getStackInSlot(0), d.inventoryCurrency.items));
+				EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.sellItems));
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 			}
 		} else if (type == EnumPlayerPacket.TraderMarketReset) {
-			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
-			if (m != null) {
-				m.lastTime = 0L;
-				m.update();
-			}
+			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
+			if (m != null) { m.updateNew(); }
 		} else if (type == EnumPlayerPacket.TraderMarketRemove) {
-			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
+			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
 				m.removeListener(player, true);
 			}
@@ -711,7 +731,7 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.ScriptDataGetVar) {
 			// AdditionalMethods.createAndSendVarFuncData(player, Server.readNBT(buffer));
 		} else if (type == EnumPlayerPacket.CurrentLanguage) {
-			ObfuscationHelper.setValue(PlayerGameData.class, ClientProxy.playerData.game, Server.readString(buffer), String.class);
+			ObfuscationHelper.setValue(PlayerGameData.class, data.game, Server.readString(buffer), String.class);
 		} else if (type == EnumPlayerPacket.GetBuildData) {
 			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) {
 				CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
@@ -731,7 +751,7 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.HudTimerEnd) {
 			int id = buffer.readInt();
 			int orientationType = buffer.readInt();
-			EventHooks.onPlayerTimer(PlayerData.get(player), id);
+			EventHooks.onPlayerTimer(data, id);
 			data.hud.removeComponent(orientationType, id);
 			data.hud.update();
 		} else if (type == EnumPlayerPacket.TrackQuest) {
@@ -781,7 +801,10 @@ public class PacketHandlerPlayer {
 			IPlayer<?> pl = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
 			if (pl.getCustomGui()==null || ((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler()==null) { return; }
 			EventHooks.onEvent(((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler(), EnumScriptType.KEY_UP, new CustomGuiEvent.KeyPressedEvent(pl, pl.getCustomGui(), buffer.readInt()));
+		} else if (type == EnumPlayerPacket.MarketTime) {
+			MarcetController.getInstance().sendTo(player, buffer.readInt());
 		}
+		
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerPlayer_Received_"+type.toString());
 	}
 }

@@ -87,7 +87,7 @@ implements ITextfieldListener, ISliderListener {
 		this.addLabel(new GuiNpcLabel(2, "companion.age", this.guiLeft + 4, y + 5));
 		if (this.role.canAge) {
 			this.addTextField(new GuiNpcTextField(2, this, this.guiLeft + 162, y, 140, 20, this.role.ticksActive + ""));
-			this.getTextField(2).numbersOnly = true;
+			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(0, Integer.MAX_VALUE, 0);
 		}
 		List<GuiNpcCompanionTalents.GuiTalent> talents = this.talents;

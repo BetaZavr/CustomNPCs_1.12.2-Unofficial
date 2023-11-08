@@ -88,18 +88,18 @@ public class Lines {
 	}
 
 	public NBTTagCompound writeToNBT() {
-		NBTTagCompound compound = new NBTTagCompound();
-		NBTTagList nbttaglist = new NBTTagList();
+		NBTTagCompound nbt = new NBTTagCompound();
+		NBTTagList list = new NBTTagList();
 		for (int slot : this.lines.keySet()) {
 			Line line = this.lines.get(slot);
-			NBTTagCompound nbttagcompound = new NBTTagCompound();
-			nbttagcompound.setInteger("Slot", slot);
-			nbttagcompound.setString("Line", line.getText());
-			nbttagcompound.setString("Song", line.getSound());
-			nbttaglist.appendTag(nbttagcompound);
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("Slot", slot);
+			tags.setString("Line", line.getText());
+			tags.setString("Song", line.getSound());
+			list.appendTag(tags);
 		}
-		compound.setTag("Lines", nbttaglist);
-		return compound;
+		nbt.setTag("Lines", list);
+		return nbt;
 	}
 
 }

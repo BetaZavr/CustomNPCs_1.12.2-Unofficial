@@ -1,375 +1,248 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.SubGuiMarketExtraEdit;
-import noppes.npcs.client.gui.SubGuiNPCLinesEdit;
-import noppes.npcs.client.gui.SubGuiNpcAvailability;
-import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
+import noppes.npcs.client.gui.SubGuiNpcMarketSettings;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
-import noppes.npcs.client.gui.util.ISubGuiListener;
-import noppes.npcs.client.gui.util.ITextfieldListener;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.containers.ContainerNPCTraderSetup;
 import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Deal;
+import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.AdditionalMethods;
 
 public class GuiNPCManageMarcets
-extends GuiContainerNPCInterface2
-implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener {
+extends GuiNPCInterface2
+implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 	
-	private ContainerNPCTraderSetup container;
-	private Map<String, Integer> dataDeals;
-	private Map<String, Integer> dataMarcets;
-	private GuiCustomScroll scrollMarcets, scrollDeal;
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
+	private final Map<String, Integer> dataDeals;
+	private final Map<String, Integer> dataMarcets;
+	private GuiCustomScroll scrollMarcets, scrollDeals;
 	private MarcetController mData;
-	private boolean wait;
+	private int marcetID, dealID;
+	private Marcet selectedMarcet;
+	private Deal selectedDeal;
+	private boolean addNewMarcet, addNewDeal;
 
-	public GuiNPCManageMarcets(EntityNPCInterface npc, ContainerNPCTraderSetup container) {
-		super(npc, container);
-		this.container = container;
+	public GuiNPCManageMarcets(EntityNPCInterface npc, int marcetID, int dealID) {
+		super(npc);
+		this.marcetID = marcetID;
+		this.dealID = dealID;
 		this.ySize = 200;
-		this.dataMarcets = Maps.<String, Integer>newTreeMap();
 		this.dataDeals = Maps.<String, Integer>newTreeMap();
-		this.setBackground("tradersetup.png");
-		this.wait = false;
+		this.dataMarcets = Maps.<String, Integer>newTreeMap();
+		Client.sendData(EnumPacketServer.TraderMarketGet);
 	}
 	
 	@Override
 	public void initGui() {
-		if (this.wait) {
-			this.clear();
-			super.initGui();
-			return;
-		}
 		super.initGui();
 		this.mData = MarcetController.getInstance();
-		if (this.scrollMarcets == null) {
-			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(105, 100);
-		}
-		if (this.scrollDeal == null) {
-			(this.scrollDeal = new GuiCustomScroll(this, 1)).setSize(96, 100);
-		}
+		int w = 202, h = this.ySize - 24;
+		if (this.scrollMarcets == null) { (this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(w, h); }
+		if (this.scrollDeals == null) { (this.scrollDeals = new GuiCustomScroll(this, 1)).setSize(w, h); }
+		int x0 = this.guiLeft + 5, x1 = this.guiLeft + w + 10, y = this.guiTop + 14;
 		this.scrollMarcets.setListNotSorted(Lists.newArrayList(this.dataMarcets.keySet()));
-		this.scrollDeal.setListNotSorted(Lists.newArrayList(this.dataDeals.keySet()));
-		this.scrollMarcets.guiLeft = this.guiLeft + 5;
-		this.scrollMarcets.guiTop = this.guiTop + 14;
-		this.scrollDeal.guiLeft = this.guiLeft + 113;
-		this.scrollDeal.guiTop = this.guiTop + 14;
+		this.scrollDeals.setListNotSorted(Lists.newArrayList(this.dataDeals.keySet()));
+		this.scrollMarcets.guiLeft = x0;
+		this.scrollMarcets.guiTop = y;
+		this.scrollDeals.guiLeft = x1;
+		this.scrollDeals.guiTop = y;
 		this.addScroll(this.scrollMarcets);
-		this.addScroll(this.scrollDeal);
-		int i = 0;
-		if (this.container.marcet!=null) {
-			for (int idM : this.dataMarcets.values()) {
-				if (idM == this.container.marcet.id) {
-					this.scrollMarcets.selected = i;
-					break;
-				}
-				i++;
-			}
-		}
-		if (this.container.deal!=null) {
-			i = 0;
-			for (int idD : this.dataDeals.values()) {
-				if (idD == this.container.deal.id) {
-					this.scrollDeal.selected = i;
-					break;
-				}
-				i++;
-			}
-		}
-		this.scrollMarcets.resetRoll();
-		this.scrollDeal.resetRoll();
-		this.addLabel(new GuiNpcLabel(0, "global.market", this.guiLeft + 5, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(1, "gui.market.deals", this.guiLeft + 113, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(2, "role.marketname", this.guiLeft + 214, this.guiTop + 140));
-		this.addLabel(new GuiNpcLabel(3, "availability.options", this.guiLeft + 272, this.guiTop + 14));
-		this.addLabel(new GuiNpcLabel(4, "gui.market.product", this.guiLeft + 214, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(5, "gui.market.barter", this.guiLeft + 214, this.guiTop + 34));
-		this.addLabel(new GuiNpcLabel(6, "gui.market.currency", this.guiLeft + 214, this.guiTop + 102));
-		this.addLabel(new GuiNpcLabel(7, "gui.market.uptime", this.guiLeft + 214, this.guiTop + 173));
-		this.addLabel(new GuiNpcLabel(8, "quest.itemamount", this.guiLeft + 304, this.guiTop + 102));
-		this.addLabel(new GuiNpcLabel(9, "drop.chance", this.guiLeft + 272, this.guiTop + 58));
-
-		if (this.container.marcet!=null) {
-			this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 214, this.guiTop + 150, 180, 20, this.container.marcet.name));
-			this.addTextField(new GuiNpcTextField(2, this, this.guiLeft + 214, this.guiTop + 183, 50, 20, "" + this.container.marcet.updateTime));
-			this.getTextField(2).setNumbersOnly();
-			this.getTextField(2).setMinMaxDefault(0, 360, this.container.marcet.updateTime);
-			this.addButton(new GuiNpcButton(5, this.guiLeft + 5, this.guiTop + 115, 52, 20, "gui.add"));
-			this.addButton(new GuiNpcButton(6, this.guiLeft + 59, this.guiTop + 115, 51, 20, "gui.remove"));
-			this.getButton(6).enabled = this.container.marcet!=null && MarcetController.getInstance().marcets.size() > 1;
-			this.addButton(new GuiNpcButton(9, this.guiLeft + 270, this.guiTop + 172, 120, 20, "lines.title"));
-			this.addButton(new GuiNpcButton(10, this.guiLeft + 270, this.guiTop + 193, 120, 20, "gui.extra"));
-		}
-		
-		if (this.container.deal!=null) {
-			this.addTextField(new GuiNpcTextField(1, this, this.guiLeft + 214, this.guiTop + 114, 50, 20,
-					"" + this.container.deal.money));
-			this.getTextField(1).setNumbersOnly();
-			this.getTextField(1).setMinMaxDefault(0, Integer.MAX_VALUE, this.container.deal.money);
-			this.addTextField(new GuiNpcTextField(3, this, this.guiLeft + 274, this.guiTop + 114, 50, 20,
-					"" + this.container.deal.count[0]));
-			this.getTextField(3).setNumbersOnly();
-			this.getTextField(3).setMinMaxDefault(0,
-					this.container.deal.inventorySold.getStackInSlot(0).getMaxStackSize() * 3,
-					this.container.deal.count[0]);
-			this.addTextField(new GuiNpcTextField(4, this, this.guiLeft + 330, this.guiTop + 114, 50, 20,
-					"" + this.container.deal.count[1]));
-			this.getTextField(4).setNumbersOnly();
-			this.getTextField(4).setMinMaxDefault(0,
-					this.container.deal.inventorySold.getStackInSlot(0).getMaxStackSize() * 12,
-					this.container.deal.count[1]);
-			double chance = Math.round(this.container.deal.chance * 1000000.0d) / 10000.0d;
-			this.addTextField(new GuiNpcTextField(5, this, this.guiLeft + 310, this.guiTop + 53, 50, 20, "" + chance));
-			this.getTextField(5).setDoubleNumbersOnly();
-			this.getTextField(5).setMinMaxDoubleDefault(0.0d, 100.0d, chance);
-	
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 363, this.guiTop + 31, 50, 20, new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" }, this.container.deal.ignoreDamage ? 1 : 0));
-			this.addButton(new GuiNpcButton(2, this.guiLeft + 363, this.guiTop + 53, 50, 20,
-					new String[] { "gui.ignoreNBT.0", "gui.ignoreNBT.1" }, this.container.deal.ignoreNBT ? 1 : 0));
-			this.addButton(new GuiNpcButton(3, this.guiLeft + 363, this.guiTop + 9, 50, 20, "selectServer.edit"));
-			this.addButton(new GuiNpcButton(4, this.guiLeft + 293, this.guiTop + 75, 120, 20,
-					new String[] { "gui.market.deal.type.0", "gui.market.deal.type.1", "gui.market.deal.type.2" },
-					this.container.deal.type));
-			this.getButton(1).enabled = this.container.deal!=null;
-			this.getButton(2).enabled = this.container.deal!=null;
-			this.getButton(3).enabled = this.container.deal!=null;
-			this.getButton(4).enabled = this.container.deal!=null;
-			this.addButton(new GuiNpcButton(7, this.guiLeft + 113, this.guiTop + 115, 48, 20, "gui.add"));
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 163, this.guiTop + 115, 47, 20, "gui.remove"));
-			boolean notEmpty = true;
-			if (this.container.marcet != null) {
-				for (Deal d : this.container.marcet.data.values()) {
-					if (d != null && d.inventorySold.getStackInSlot(0).isEmpty()) {
-						notEmpty = false;
-						break;
+		this.addScroll(this.scrollDeals);
+		if (this.selectedMarcet!=null) {
+			this.scrollMarcets.setSelected(this.selectedMarcet.getSettingName());
+			List<String[]> infoList = new ArrayList<String[]>();
+			List<ItemStack> stacks = Lists.<ItemStack>newArrayList();
+			for (Integer dealID : this.selectedMarcet.getDealIDs()) {
+				Deal deal = (Deal) this.mData.getDeal(dealID);
+				List<String> info = new ArrayList<String>();
+				DealMarkup dm = new DealMarkup();
+				if (deal != null) { dm.set((Deal) deal); }
+				if (deal==null || !deal.isValid()) {
+					info.add(new TextComponentTranslation("market.hover.nv.deal").getFormattedText());
+					if (deal==null) {
+						stacks.add(ItemStack.EMPTY);
+						info.add(new TextComponentTranslation("hover.total.error").getFormattedText());
+					} else {
+						stacks.add(dm.main);
+						if (dm.main == null || dm.main.getItem()==Items.AIR) { info.add(new TextComponentTranslation("market.hover.nv.deal.product").getFormattedText()); }
+						if (dm.baseMoney == 0 && dm.baseItems.isEmpty()) { info.add(new TextComponentTranslation("market.hover.nv.deal.barter").getFormattedText()); }
 					}
 				}
-			} else {
-				notEmpty = false;
+				else {
+					stacks.add(dm.main);
+					info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
+					info.add(dm.main.getDisplayName() + " x" + dm.count + (deal.getMaxCount() > 0 ? " " + new TextComponentTranslation("market.hover.item.amount", new Object[] { "" + deal.getAmount() }).getFormattedText() : ""));
+					if (!dm.baseItems.isEmpty()) {
+						info.add(new TextComponentTranslation("market.hover.item").getFormattedText());
+						for (ItemStack curr : dm.baseItems.keySet()) {
+							info.add(curr.getDisplayName() + " x" + dm.baseItems.get(curr));
+						}
+					}
+					if (dm.baseMoney > 0) {
+						info.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
+						info.add("" + dm.baseMoney + CustomNpcs.charCurrencies.charAt(0));
+					}
+					info.add(((char) 167)+"e"+(new TextComponentTranslation("market.deal.type." + dm.deal.getType()).getFormattedText()));
+					info.add(((char) 167)+"6"+(new TextComponentTranslation("drop.chance").getFormattedText() + ((char) 167)+"6: " + ((char) 167)+"r"+dm.deal.getChance()+"%"));
+				}
+					
+				infoList.add(info.toArray(new String[info.size()]));
 			}
-			this.getButton(7).enabled = notEmpty;
-			this.getButton(8).enabled = this.container.deal!=null && this.container.marcet.data.size() > 1;
+			this.scrollDeals.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
+			this.scrollDeals.setStacks(stacks);
 		}
+		else {this.scrollDeals.hoversTexts = null;}
+		if (this.selectedDeal!=null) { this.scrollDeals.setSelected(this.selectedDeal.getSettingName()); }
+		if (!this.dataMarcets.isEmpty()) {
+			List<String[]> infoList = new ArrayList<String[]>();
+			for (int marcetId : this.dataMarcets.values()) {
+				Marcet marcet = (Marcet) this.mData.getMarcet(marcetId);
+				List<String> info = new ArrayList<String>();
+				info.add(new TextComponentTranslation("market.hover.market.id", ""+marcet.getId(), ""+marcet.name).getFormattedText());
+				if (marcet.isEmpty() || marcet.hasEmptyDeal()) {
+					info.add(new TextComponentTranslation("market.hover.nv.market").getFormattedText());
+					for (int dealId : marcet.getDealIDs()) {
+						Deal deal = (Deal) this.mData.getDeal(dealId);
+						if (deal == null) { info.add(new TextComponentTranslation("market.hover.nv.market.null", ""+dealId).getFormattedText()); }
+						else if (!deal.isValid()) {
+							if (deal.getProduct().getMCItemStack() == null || deal.getProduct().getMCItemStack().getItem()==Items.AIR) { info.add(new TextComponentTranslation("market.hover.nv.market.deal.0", ""+dealId).getFormattedText()); }
+							if (deal.getMoney() == 0 && deal.getCurrency().isEmpty()) { info.add(new TextComponentTranslation("market.hover.nv.market.deal.1", ""+dealId).getFormattedText()); }
+						}
+					}
+					if (info.size()>9) { info.add("..."); break; }
+				}
+				infoList.add(info.toArray(new String[info.size()]));
+			}
+			this.scrollMarcets.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
+		}
+		else {this.scrollMarcets.hoversTexts = null;}
+		
+		this.scrollMarcets.resetRoll();
+		this.scrollDeals.resetRoll();
+		this.addLabel(new GuiNpcLabel(0, "global.market", x0 + 2, y - 10));
+		this.addLabel(new GuiNpcLabel(1, "market.deals", x1, y - 10));
+		
+		y += this.scrollMarcets.height + 2;
+		int bw = (w - 2)/3;
+		this.addButton(new GuiNpcButton(0, x0, y, bw, 20, "gui.add"));
+		this.addButton(new GuiNpcButton(1, x0 + 2 + bw, y, bw, 20, "gui.remove"));
+		this.getButton(1).setEnabled(this.selectedMarcet!=null && this.mData.marcets.size()>1);
+		this.addButton(new GuiNpcButton(2, x0 + (2 + bw) * 2, y, bw, 20, "selectServer.edit"));
+		this.getButton(2).setEnabled(this.selectedMarcet!=null);
+		
+		this.addButton(new GuiNpcButton(3, x1, y, bw, 20, "gui.add"));
+		this.getButton(3).setEnabled(this.selectedMarcet!=null && !this.selectedMarcet.hasEmptyDeal());
+		this.addButton(new GuiNpcButton(4, x1 + 2 + bw, y, bw, 20, "gui.remove"));
+		this.getButton(4).setEnabled(this.selectedMarcet!=null &&this.selectedMarcet.getDealIDs().length>1);
+		this.addButton(new GuiNpcButton(5, x1 + (2 + bw) * 2, y, bw, 20, "selectServer.edit"));
+		this.getButton(5).setEnabled(this.selectedDeal!=null);
 	}
 
 	public void actionPerformed(GuiButton guibutton) {
 		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
-			case 1: {
-				if (this.container.deal == null || this.container.deal.inventorySold.getStackInSlot(0).isEmpty()) { return; }
-				this.container.deal.ignoreDamage = button.getValue() == 1;
-				break;
-			}
-			case 2: {
-				if (this.container.deal == null || this.container.deal.inventorySold.getStackInSlot(0).isEmpty()) {
-					return;
-				}
-				this.container.deal.ignoreNBT = button.getValue() == 1;
-				break;
-			}
-			case 3: {
-				if (this.container.deal == null || this.container.deal.inventorySold.getStackInSlot(0).isEmpty()) { return; }
-				this.setSubGui(new SubGuiNpcAvailability((Availability) this.container.deal.availability));
-				this.initGui();
-				break;
-			}
-			case 4: {
-				if (this.container.deal == null || this.container.deal.inventorySold.getStackInSlot(0).isEmpty()) { return; }
-				this.container.deal.type = button.getValue();
-				break;
-			}
-			case 5: { // Add Marcet
+			case 0: { // Add market
 				this.save();
-				Marcet m = new Marcet();
-				m.id = this.mData.getUnusedId();
-				this.container.marcet = m;
 				Client.sendData(EnumPacketServer.TraderMarketNew, -1);
-				this.wait = true;
+				this.addNewMarcet = true;
 				break;
 			}
-			case 6: { // Del Marcet
-				if (this.container.marcet == null) { return; }
-				Client.sendData(EnumPacketServer.TraderMarketDel, this.container.marcet.id, -1);
-				this.container.marcet = null;
-				this.wait = true;
+			case 1: { // Del market
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.scrollMarcets.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				this.displayGuiScreen((GuiScreen) guiyesno);
 				break;
 			}
-			case 7: { // Add Deal
+			case 2: { // Market settings
+				this.setSubGui(new SubGuiNpcMarketSettings(this.selectedMarcet));
+				break;
+			}
+			case 3: { // Add deal
 				this.save();
-				Deal d = new Deal();
-				d.id = this.container.marcet.data.size();
-				this.container.deal = d;
-				Client.sendData(EnumPacketServer.TraderMarketNew, this.container.marcet.id);
-				this.wait = true;
+				Client.sendData(EnumPacketServer.TraderMarketNew, this.marcetID);
+				this.addNewDeal = true;
 				break;
 			}
-			case 8: { // Del Deal
-				if (this.container.deal == null) { return; }
-				Client.sendData(EnumPacketServer.TraderMarketDel, this.container.marcet.id, this.container.deal.id);
-				this.container.marcet.remove(this.container.deal.id);
-				this.container.setDeal(null);
-				this.wait = true;
+			case 4: { // Del deal
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.scrollDeals.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
+				this.displayGuiScreen((GuiScreen) guiyesno);
 				break;
 			}
-			case 9: { // message
-				if (this.container.marcet == null) { return; }
-				this.setSubGui(new SubGuiNPCLinesEdit(0, this.npc, this.container.marcet.lines, null));
-				break;
-			}
-			case 10: { // extra
-				if (this.container.marcet == null) { return; }
-				this.setSubGui(new SubGuiMarketExtraEdit(0, this.npc, this.container.marcet));
+			case 5: { // Deal settings
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, this.marcetID, this.dealID, 0);
+				this.close();
 				break;
 			}
 		}
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		super.drawGuiContainerBackgroundLayer(f, i, j);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		for (int slotId = 0; slotId < 10; ++slotId) {
-			int x = this.guiLeft + this.container.getSlot(slotId).xPos;
-			int y = this.guiTop + this.container.getSlot(slotId).yPos;
-			this.mc.renderEngine.bindTexture(this.slot);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
-		}
-		this.drawHorizontalLine(this.guiLeft + 212, this.guiLeft + this.xSize - 4, this.guiTop + 137, 0x80000000);
-		this.drawVerticalLine(this.guiLeft + 211, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
-	}
-
-	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
-		if (this.subgui != null || this.wait) { return; }
-		if (this.player.world.getTotalWorldTime()%5==0 && this.container.deal!=null && this.container.deal.id==this.scrollDeal.selected && this.container.getSlot(0)!=null) {
-			ItemStack stDeal = this.container.deal.inventorySold.getStackInSlot(0);
-			ItemStack stCon = this.container.getSlot(0).getStack();
-			if ((!stDeal.isEmpty() || !stCon.isEmpty()) && !stDeal.isItemEqual(stCon)) {
-				this.container.deal.inventorySold.setInventorySlotContents(0, this.container.getSlot(0).getStack());
-				this.dataDeals.clear();
-				boolean notEmpty = true;
-				for (Deal d : this.container.marcet.data.values()) {
-					this.dataDeals.put(d.getSettingName(), d.id);
-					if (d != null && d.inventorySold.getStackInSlot(0).isEmpty()) {
-						notEmpty = false;
-						break;
-					}
-				}
-				this.scrollDeal.setListNotSorted(Lists.newArrayList(this.dataDeals.keySet()));
-				if (this.getButton(7)!=null) {
-					this.getButton(7).enabled = notEmpty;
-				}
-			}
-		}		
-		if (!CustomNpcs.showDescriptions) { return; }
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
 		// Labels
 		if (this.getLabel(0)!=null && this.getLabel(0).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.names").getFormattedText());
 		} else if (this.getLabel(1)!=null && this.getLabel(1).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.deals").getFormattedText());
-		} else if (this.getLabel(4)!=null && this.getLabel(4).hovered) {
-			this.setHoverText(new TextComponentTranslation("market.hover.product").getFormattedText());
-		} else if (this.getLabel(5)!=null && this.getLabel(5).hovered) {
-			this.setHoverText(new TextComponentTranslation("market.hover.item").getFormattedText());
-		}
-		// TextFields
-		else if (isMouseHover(i, j, this.guiLeft + 214, this.guiTop + 114, 50, 20)) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.currency").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 274, this.guiTop + 114, 106, 20)) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.amount").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 270, this.guiTop + 45, 50, 20)) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.chance").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 214, this.guiTop + 150, 180, 20)) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.name").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 214, this.guiTop + 183, 50, 20)) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.update", new Object[] { AdditionalMethods.ticksToElapsedTime(this.container.marcet.updateTime * 1200, false, false, false) }).getFormattedText());
-		}
-		// Buttons
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
-		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("recipe.hover.damage").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("recipe.hover.nbt").getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.set.type").getFormattedText());
-		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.market.add").getFormattedText());
-		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.market.del").getFormattedText());
-		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("market.hover.market.settings").getFormattedText());
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.add").getFormattedText());
-		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.del").getFormattedText());
-		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.message").getFormattedText());
-		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("market.hover.extra").getFormattedText());
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("market.hover.deal.settings").getFormattedText());
 		}
 	}
-
-	@Override
-	public void initPacket() {
-		Client.sendData(EnumPacketServer.TraderMarketGet);
-	}
-
+	
 	@Override
 	public void save() {
-		if (this.container.marcet==null) { return; }
-		NBTTagCompound compound = new NBTTagCompound();
-		this.container.saveMarcet();
-		this.container.marcet.writeToNBT(compound);
-		Client.sendData(EnumPacketServer.TraderMarketSave, compound, false);
+		if (this.selectedMarcet == null) { return; }
+		Client.sendData(EnumPacketServer.TraderMarketSave, this.selectedMarcet.writeToNBT());
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		String name = scroll.getSelected();
 		switch (scroll.id) {
 			case 0: { // Marcets
-				String key = AdditionalMethods.getDeleteColor(this.dataMarcets, name, true, false);
-				if (!this.dataMarcets.containsKey(key)) { return; }
-				this.save();
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, this.dataMarcets.get(key), 0, 0);
-				this.wait = true;
+				if (!this.dataMarcets.containsKey(scroll.getSelected())) { return; }
+				this.setMarket(this.dataMarcets.get(scroll.getSelected()));
 				this.initGui();
 				break;
 			}
 			case 1: { // Deals
-				this.save();
-				String key = AdditionalMethods.getDeleteColor(this.dataDeals, name, true, false);
-				if (!this.dataDeals.containsKey(key)) { return; }
-				this.save();
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, this.container.marcet.id, this.dataDeals.get(key), 0);
-				this.wait = true;
+				if (!this.dataDeals.containsKey(scroll.getSelected())) { return; }
+				this.dealID = this.dataDeals.get(scroll.getSelected());
+				this.selectedDeal = (Deal) this.mData.getDeal(this.dealID);
 				this.initGui();
 				break;
 			}
@@ -378,75 +251,16 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 
 	@Override
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-	}
-
-	@Override
-	public void setGuiData(NBTTagCompound compound) {
-		this.mData = MarcetController.getInstance();
-		this.dataMarcets.clear();
-		this.dataDeals.clear();
-		int idM = -1, idD = -1;
-		int nowIdM = this.container.marcet == null ? -1 : this.container.marcet.id;
-		int nowIdD = this.container.deal == null ? 0 : this.container.deal.id;
-		for (Marcet m : this.mData.marcets.values()) {
-			String name = m.getSettingName();
-			this.dataMarcets.put(name, m.id);
-			if (nowIdM == m.id) { this.container.marcet = m; }
-			else if (idM<m.id) { idM = m.id; }
-		}
-		if (nowIdM<0 && idM>=0) { this.container.marcet = this.mData.getMarcet(idM); }
-		if (this.container.marcet!=null) {
-			for (Deal d : this.container.marcet.data.values()) {
-				String name = d.getSettingName();
-				this.dataDeals.put(name, d.id);
-				if (nowIdD == d.id) { this.container.setDeal(d); }
-				else if (idD<d.id) { idM = d.id; }
-			}
-		}
-		if (nowIdD<0 && idD>=0) { this.container.setDeal(this.container.marcet.data.get(idD)); }
-		this.wait = false;
-		this.initGui();
-	}
-
-	@Override
-	public void unFocused(GuiNpcTextField textField) {
-		String text = textField.getText();
-		switch (textField.getId()) {
-			case 0: { // Name
-				if (text.equals(this.container.marcet.name)) { return; }
-				this.container.marcet.name = text;
-				this.initGui();
+		switch (scroll.id) {
+			case 0: { // Marcets
+				if (this.selectedMarcet == null) { return; }
+				this.setSubGui(new SubGuiNpcMarketSettings(this.selectedMarcet));
 				break;
 			}
-			case 1: {
-				this.container.deal.money = textField.getInteger();
-				this.initGui();
-				break;
-			}
-			case 2: {
-				int time = textField.getInteger();
-				if (time < 5) {
-					time = 0;
-				} else if (time > 360) {
-					time = 360;
-				}
-				this.container.marcet.updateTime = time;
-				this.initGui();
-				break;
-			}
-			case 3: {
-				this.container.deal.count[0] = textField.getInteger();
-				this.initGui();
-				break;
-			}
-			case 4: {
-				this.container.deal.count[1] = textField.getInteger();
-				this.initGui();
-				break;
-			}
-			case 5: {
-				this.container.deal.chance = (float) textField.getDouble() / 100.0f;
-				this.initGui();
+			case 1: { // Deals
+				if (this.selectedMarcet == null || this.selectedDeal == null) { return; }
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, this.selectedMarcet.getId(), this.selectedDeal.getId(), 0);
+				this.close();
 				break;
 			}
 		}
@@ -462,11 +276,60 @@ implements ITextfieldListener, IGuiData, ICustomScrollListener, ISubGuiListener 
 		super.keyTyped(c, i);
 	}
 
-	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (this.container.marcet == null || !(subgui instanceof SubGuiNPCLinesEdit)) { return; }
-		((SubGuiNPCLinesEdit) subgui).lines.correctLines();
-		this.container.marcet.lines = ((SubGuiNPCLinesEdit) subgui).lines;
+	public void confirmClicked(boolean result, int id) {
+		NoppesUtil.openGUI((EntityPlayer) this.player, this);
+		if (!result) { return; }
+		switch(id) {
+			case 0: {
+				if (this.selectedMarcet==null) { return; }
+				Client.sendData(EnumPacketServer.TraderMarketDel, this.marcetID, -1);
+				break;
+			}
+			case 1: {
+				if (this.selectedMarcet==null) { return; }
+				Client.sendData(EnumPacketServer.TraderMarketDel, this.marcetID, this.dealID);
+				break;
+			}
+		}
 	}
 
+	@Override
+	public void setGuiData(NBTTagCompound compound) {
+		this.mData = MarcetController.getInstance();
+		this.dataMarcets.clear();
+		this.selectedMarcet = null;
+		for (Marcet m : this.mData.marcets.values()) {
+			this.dataMarcets.put(m.getSettingName(), m.getId());
+			if (this.addNewMarcet || this.marcetID == m.getId() || (this.marcetID<=0 && this.selectedMarcet == null)) {
+				this.selectedMarcet = m;
+			}
+		}
+		if (this.selectedMarcet!=null) { this.setMarket(this.selectedMarcet.getId()); }
+		this.addNewMarcet = false;
+		this.initGui();
+	}
+	
+	private void setMarket(int marcetID) {
+		this.marcetID = marcetID;
+		this.dataDeals.clear();
+		this.mData = MarcetController.getInstance();
+		this.selectedMarcet = (Marcet) this.mData.getMarcet(marcetID);
+		if (this.selectedMarcet!=null) {
+			this.selectedDeal = null;
+			for (Integer dealId : this.selectedMarcet.getDealIDs()) {
+				Deal deal = (Deal) this.mData.getDeal(dealId);
+				if (deal == null) {
+					this.dataDeals.put("ID: "+dealId + ": " + ((char) 167) + "4" + new TextComponentTranslation("type.empty").getFormattedText(), dealId);
+					continue;
+				}
+				this.dataDeals.put(deal.getSettingName(), dealId);
+				if (this.addNewDeal || this.dealID == deal.getId() || (this.dealID<=0 && this.selectedDeal == null)) {
+					this.selectedDeal = deal;
+					this.dealID = deal.getId();
+				}
+			}
+		}
+		this.addNewDeal = false;
+	}
+	
 }

@@ -99,7 +99,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 		lable.enabled = this.scroll.selected>=0;
 		this.addLabel(lable);
 		GuiNpcTextField textField = new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 130, this.guiTop + 16, 110, 20, fo!=null ? ""+fo.factionPoints :"0");
-		textField.numbersOnly = true;
+		textField.setNumbersOnly();
 		textField.setMinMaxDefault(-100000, 100000, fo!=null ? fo.factionPoints :0);
 		textField.enabled = this.scroll.selected>=0;
 		this.addTextField(textField);

@@ -1,0 +1,38 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/RoleType.java RoleType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''RoleType_DEFAULT'''
+| ''нет роли у NPC''
+|-
+| 1
+| '''RoleType_TRADER'''
+| ''роль NPC - Продавец''
+|-
+| 2
+| '''RoleType_FOLLOWER'''
+| ''роль NPC - Последователь''
+|-
+| 3
+| '''RoleType_BANK'''
+| ''роль NPC - Банкир''
+|-
+| 4
+| '''RoleType_TRANSPORTER'''
+| ''роль NPC - Транспортировщик''
+|-
+| 5
+| '''RoleType_POSTMAN'''
+| ''роль NPC - Почтальон''
+|-
+| 6
+| '''RoleType_COMPANION'''
+| ''роль NPC - Компаньён''
+|-
+| 7
+| '''RoleType_DIALOG'''
+| ''роль NPC - Простой диалог''
+|}

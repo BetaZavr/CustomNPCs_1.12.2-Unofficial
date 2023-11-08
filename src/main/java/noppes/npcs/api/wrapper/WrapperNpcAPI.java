@@ -48,6 +48,7 @@ import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.IDimensionHandler;
 import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IKeyBinding;
+import noppes.npcs.api.handler.IMarcetHandler;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.item.IItemStack;
@@ -59,6 +60,7 @@ import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.KeyController;
+import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ServerCloneController;
@@ -367,5 +369,8 @@ extends NpcAPI {
 
 	@Override
 	public IDimensionHandler getCustomDimention() { return DimensionHandler.getInstance(); }
+
+	@Override
+	public IMarcetHandler getMarkets() { return MarcetController.getInstance(); }
 	
 }

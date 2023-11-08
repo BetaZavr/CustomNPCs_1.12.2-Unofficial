@@ -59,7 +59,7 @@ extends GuiContainerNPCInterface2 {
 			int y = this.guiTop + 37;
 			y += i * 25;
 			GuiNpcTextField tf = new GuiNpcTextField(i, (GuiScreen) this, this.fontRenderer, x, y, 24, 20, "1");
-			tf.numbersOnly = true;
+			tf.setNumbersOnly();
 			tf.setMinMaxDefault(1, Integer.MAX_VALUE, 1);
 			this.addTextField(tf);
 		}

@@ -1,9 +1,11 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -22,6 +24,7 @@ import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
@@ -43,19 +46,20 @@ extends GuiNPCInterface2
 implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	
 	public static GuiScreen Instance;
-	private final TreeMap<String, DialogCategory> categoryData;
-	private final TreeMap<String, Dialog> dialogData;
+	private final Map<String, DialogCategory> categoryData;
+	private final Map<String, Dialog> dialogData;
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollDialogs;
 	private String selectedCategory = "";
 	private String selectedDialog = "";
 	private Dialog copyDialog = null;
-	char chr = Character.toChars(0x00A7)[0];
+	String chr = ""+((char) 167);
+	private static boolean isName = true;
 
 	public GuiNPCManageDialogs(EntityNPCInterface npc) {
 		super(npc);
 		this.categoryData = Maps.<String, DialogCategory>newTreeMap();
-		this.dialogData = Maps.<String, Dialog>newTreeMap();
+		this.dialogData = Maps.<String, Dialog>newLinkedHashMap();
 		GuiNPCManageDialogs.Instance = this;
 		Client.sendData(EnumPacketServer.DialogCategoryGet);
 	}
@@ -75,12 +79,26 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		// dialogs
 		if (!this.selectedCategory.isEmpty()) {
 			if (this.categoryData.containsKey(this.selectedCategory)) {
+				Map<String, Dialog> map = Maps.<String, Dialog>newTreeMap();
 				for (Dialog dialog : this.categoryData.get(this.selectedCategory).dialogs.values()) {
 					boolean b = !dialog.text.isEmpty();
-					String key = chr + "7ID:" + dialog.id + "-\"" + chr + "r" + dialog.title + chr + "7\"" + chr + (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText()) + chr + (b ? "2)" : "c)");
-					this.dialogData.put(key, dialog);
-					if (this.selectedDialog.isEmpty()) { this.selectedDialog = key; }
+		        	String key = chr + "7ID:" + dialog.id + "-\"" + chr + "r" + new TextComponentTranslation(dialog.title).getFormattedText() + chr + "7\"" + chr + (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText()) + chr + (b ? "2)" : "c)");
+					map.put(key, dialog);
 				}
+				List<Entry<String, Dialog>> list = Lists.newArrayList(map.entrySet());
+				Collections.sort(list, new Comparator<Entry<String, Dialog>>() {
+			        public int compare(Entry<String, Dialog> d_0, Entry<String, Dialog> d_1) {
+			        	if (GuiNPCManageDialogs.isName) {
+			        		String n_0 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
+			        		String n_1 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
+			        		return n_0.compareTo(n_1); }
+			        	else { return ((Integer) d_0.getValue().id).compareTo((Integer) d_1.getValue().id); }
+			        }
+			    });
+		        for (Entry<String, Dialog> entry : list) {
+		        	this.dialogData.put(entry.getKey(), entry.getValue());
+		        	if (this.selectedDialog.isEmpty()) { this.selectedDialog = entry.getKey(); }
+		        }
 				// Hover Text:
 				if (!this.dialogData.isEmpty()) {
 					int pos = 0;
@@ -141,7 +159,12 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		}
 		// scroll info
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(1, "dialog.dialogs", this.guiLeft + 175, this.guiTop + 4));
+		this.addLabel(new GuiNpcLabel(1, "dialog.dialogs", this.guiLeft + 180, this.guiTop + 4));
+
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 225, this.guiTop, 90, 12, GuiNPCManageDialogs.isName ? "gui.name" : "ID");
+		checkBox.setSelected(GuiNPCManageDialogs.isName);
+		this.addButton(checkBox);
+		
 		// dialog buttons
 		int x = this.guiLeft + 350, y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(3, "dialog.dialogs", x + 2, y));
@@ -157,19 +180,19 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove",!this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(1, x, y += 17, 64, 15, "gui.add"));
 
-		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200); }
+		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3); }
 		this.scrollCategories.setList(Lists.newArrayList(this.categoryData.keySet()));
 		this.scrollCategories.guiLeft = this.guiLeft + 4;
-		this.scrollCategories.guiTop = this.guiTop + 14;
+		this.scrollCategories.guiTop = this.guiTop + 15;
 		if (!this.selectedCategory.isEmpty()) { this.scrollCategories.setSelected(this.selectedCategory); }
 		this.addScroll(this.scrollCategories);
 
-		if (this.scrollDialogs == null) { (this.scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, 200); }
-		this.scrollDialogs.setList(Lists.newArrayList(this.dialogData.keySet()));
-		this.scrollDialogs.guiLeft = this.guiLeft + 175;
-		this.scrollDialogs.guiTop = this.guiTop + 14;
-		if (ht!=null) { this.scrollDialogs.hoversTexts = ht; }
+		if (this.scrollDialogs == null) { (this.scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3); }
+		this.scrollDialogs.setListNotSorted(Lists.<String>newArrayList(this.dialogData.keySet()));
+		this.scrollDialogs.guiLeft = this.guiLeft + 176;
+		this.scrollDialogs.guiTop = this.guiTop + 15;
 		if (!this.selectedDialog.isEmpty()) { this.scrollDialogs.setSelected(this.selectedDialog); }
+		if (ht!=null) { this.scrollDialogs.hoversTexts = ht; }
 		this.addScroll(this.scrollDialogs);
 	}
 
@@ -193,6 +216,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.del", this.selectedDialog).getFormattedText());
 		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.dialog.edit", this.selectedDialog).getFormattedText());
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
 		}
 	}
 
@@ -246,6 +271,12 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				this.setSubGui(new GuiDialogEdit(this.dialogData.get(this.selectedDialog)));
 				break;
 			}
+			case 14: {
+				GuiNPCManageDialogs.isName = ((GuiNpcCheckBox) button).isSelected();
+				((GuiNpcCheckBox) button).setText(GuiNPCManageDialogs.isName ? "gui.name" : "ID");
+				this.initGui();
+				break;
+			}
 		}
 	}
 
@@ -283,7 +314,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			}
 			this.selectedCategory = guiCustomScroll.getSelected();
 			this.selectedDialog = "";
-			this.scrollDialogs.selected = -1;
+			guiCustomScroll.selected = -1;
 		}
 		if (guiCustomScroll.id == 1) {
 			if (this.selectedDialog.equals(guiCustomScroll.getSelected())) {

@@ -193,12 +193,12 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		y += 156;
 		this.addLabel(new GuiNpcLabel(1, "beacon.range", this.guiLeft + 10, y + 5));
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, y, 40, 20, this.range + ""));
-		this.getTextField(1).numbersOnly = true;
+		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(1, 64, 16);
 		
 		this.addLabel(new GuiNpcLabel(2, "stats.speed", this.guiLeft + 140, y + 5));
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 220, y, 40, 20, this.speed + ""));
-		this.getTextField(2).numbersOnly = true;
+		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(10, 72000, 20);
 		y += 22;
 		this.addLabel(new GuiNpcLabel(3, "beacon.affect", this.guiLeft + 10, y + 5));
@@ -206,7 +206,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		
 		this.addLabel(new GuiNpcLabel(4, "beacon.amplifier", this.guiLeft + 140, y + 5));
 		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 220, y, 40, 20, (this.amplifier+1) + ""));
-		this.getTextField(3).numbersOnly = true;
+		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(1, 4, 1);
 		y -= 198;
 		this.addButton(new GuiNpcButton(11, this.guiLeft + 177, (y += 33), 61, 20, ">"));

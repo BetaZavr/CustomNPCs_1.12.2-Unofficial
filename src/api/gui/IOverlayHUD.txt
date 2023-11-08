@@ -1,0 +1,351 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/gui|gui]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/gui/IOverlayHUD.java IOverlayHUD]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer#getOverlayHUD|IPlayer]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/PlayerOverlayHUD.java PlayerOverlayHUD]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/PlayerCompassHUDData.java PlayerCompassHUDData]
+| compassData
+| ''интерфейс настроек квестового компаса''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| isMoved
+| ''игрок движется в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List]
+| keyPress
+| ''ID [[Коды_клавиш#Коды_клавиатуры|клавиш клавиатуры]] зажатых и удерживаемых игроком в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List]
+| mousePress
+| ''ID клавиш мышки зажатых и удерживаемых игроком в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| questID
+| ''ID квеста, отслеживаемого квестовым компасом''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addItemSlot|addItemSlot]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y)
+| ''Добавляет и возвращает новый слот для предмета в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addItemSlot|addItemSlot]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] stack)
+| ''Добавляет и возвращает новый слот для предмета в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ILabel|ILabel]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addLabel|addLabel]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] label, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height)
+| ''Добавляет и возвращает новую метку в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ILabel|ILabel]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addLabel|addLabel]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] label, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] color)
+| ''Добавляет и возвращает новую метку в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addTexturedRect|addTexturedRect]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] texture, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height)
+| ''Добавляет и возвращает новое изображдение в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addTexturedRect|addTexturedRect]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] texture, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] textureX, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] textureY)
+| ''Добавляет и возвращает новое изображдение в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IGuiTimer|IGuiTimer]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addTimer|addTimer]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] start, [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] end, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height)
+| ''Добавляет и возвращает новый ГУИ таймер в собственном HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IGuiTimer|IGuiTimer]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addTimer|addTimer]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] start, [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] end, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] color)
+| ''Добавляет и возвращает новый ГУИ таймер в собственном HUD''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#clear|clear]]()
+| ''Удалить все компонента из HUD игрока и обновить его''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#clearGuiComponents|clearGuiComponents]]()
+| ''Удалить все компонента из HUD игрока и обновить его''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData|ICompassData]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getCompasData|getCompasData]]()
+| ''Возвращает настройки квестового компаса''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getComponent|getComponent]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] componentID)
+| ''Возвращает компонент из собственного HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getComponents|getComponents]]()
+| ''Возвращает список компонентов из собственного HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getComponents|getComponents]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType)
+| ''Возвращает список компонентов из собственного HUD''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getGuiComponents|getGuiComponents]]()
+| ''Возвращает карту рассположения и самих компонентов HUD''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getGuiSlots|getGuiSlots]]()
+| ''Возвращает карту рассположения и самих слотов HUD''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getKeyPressed|getKeyPressed]]()
+| ''Возвращает массив [[Коды_клавиш#Коды_клавиатуры|ID клавиш клавиатуры]] зажатых и удерживаемых игроком в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getMousePressed|getMousePressed]]()
+| ''Возвращает массив ID клавиш мышки зажатых и удерживаемых игроком в данный момент''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getNBT|getNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки HUD игрока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getSlots|getSlots]]()
+| ''Возвращает список слотов из собственного HUD''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getSlots|getSlots]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType)
+| ''Возвращает список слотов из собственного HUD''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getWindowSize|getWindowSize]]()
+| ''Возвращает массив размера окна экрана монитора игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#hasMousePress|hasMousePress]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] key)
+| ''Возвращает нажата ли клавиша мышки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#hasOrKeysPressed|hasOrKeysPressed]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] keys)
+| ''Возвращает нажата ли хотябы одна [[Коды_клавиш#Коды_клавиатуры|клавиша клавиатуры]] из массива''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#isMoved|isMoved]]()
+| ''Возвращает движется ли игрок по управлению в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#isShowElementType|isShowElementType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Возвращает показывать ли элементы [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/client/event/RenderGameOverlayEvent.ElementType.html стандартного HUD]. ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#loadNBTData|loadNBTData]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки HUD игрока через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#removeComponent|removeComponent]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] componentID)
+| ''Удалить компонент из собственного HUD''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#removeSlot|removeSlot]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] orientationType, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] slotID)
+| ''Удалить слот из собственного HUD''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#saveNBTData|saveNBTData]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки HUD игрока для сохранения в файл''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#setShowElementType|setShowElementType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить показывать ли элементы [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/client/event/RenderGameOverlayEvent.ElementType.html стандартного HUD]. ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#setShowElementType|setShowElementType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить показывать ли элементы [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/client/event/RenderGameOverlayEvent.ElementType.html стандартного HUD]. ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#setWindowSize|setWindowSize]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagList.html NBTTagList] tagList)
+| ''Установить размера окна экрана монитора игрока (только для клиента)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#update|update]]()
+| ''Обновить HUD для игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#updateHud|updateHud]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] player)
+| ''Обновить HUD для игрока''
+|}
+=== Описание методов ===
+
+==== addItemSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot]] addItemSlot(orientationType, x, y)''<br>'''Действие:'''<br>Добавляет и возвращает новый слот для предмета в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)
+|}
+==== addItemSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot]] addItemSlot(orientationType, x, y, stack)''<br>'''Действие:'''<br>Добавляет и возвращает новый слот для предмета в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] '''stack''' = предмет-пачка
+|}
+==== addLabel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ILabel|ILabel]] addLabel(id, orientationType, label, x, y, width, height)''<br>'''Действие:'''<br>Добавляет и возвращает новую метку в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''label''' = текст метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота метки
+|}
+==== addLabel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ILabel|ILabel]] addLabel(id, orientationType, label, x, y, width, height, color)''<br>'''Действие:'''<br>Добавляет и возвращает новую метку в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''label''' = текст метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота метки<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''color''' = цвет ARGB в десетиричном виде (пример оранжевый: 0xFF8000 или 16744448)
+|}
+==== addTexturedRect ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] addTexturedRect(id, orientationType, texture, x, y, width, height)''<br>'''Действие:'''<br>Добавляет и возвращает новое изображдение в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID текстуры<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''texture''' = путь к текстуре<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина текстуры<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота текстуры
+|}
+==== addTexturedRect ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] addTexturedRect(id, orientationType, texture, x, y, width, height, textureX, textureY)''<br>'''Действие:'''<br>Добавляет и возвращает новое изображдение в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID текстуры<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''texture''' = путь к текстуре<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина текстуры<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота текстуры<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''textureX''' = значение U из текстуры (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''textureY''' = значение V из текстуры  (по оси Y)
+|}
+==== addTimer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IGuiTimer|IGuiTimer]] addTimer(id, orientationType, start, end, x, y, width, height)''<br>'''Действие:'''<br>Добавляет и возвращает новый ГУИ таймер в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] '''start''' = время в тиках начала работы таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] '''end''' = время в тиках окончания работы таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота таймера
+|}
+==== addTimer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IGuiTimer|IGuiTimer]] addTimer(id, orientationType, start, end, x, y, width, height, color)''<br>'''Действие:'''<br>Добавляет и возвращает новый ГУИ таймер в собственном HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] '''start''' = время в тиках начала работы таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] '''end''' = время в тиках окончания работы таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = значение V (по оси Y)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота таймера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''color''' = цвет ARGB в десетиричном виде (пример оранжевый: 0xFF8000 или 16744448)
+|}
+==== clear ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clear()''<br>'''Действие:'''<br>Удалить все компонента из HUD игрока и обновить его
+|}
+==== clearGuiComponents ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clearGuiComponents()''<br>'''Действие:'''<br>Удалить все компонента из HUD игрока и обновить его
+|}
+==== getCompasData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData|ICompassData]] getCompasData()''<br>'''Действие:'''<br>Возвращает настройки квестового компаса
+|}
+==== getComponent ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent]] getComponent(orientationType, componentID)''<br>'''Действие:'''<br>Возвращает компонент из собственного HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''componentID''' = ID компонента
+|}
+==== getComponents ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent[]]] getComponents()''<br>'''Действие:'''<br>Возвращает список компонентов из собственного HUD
+|}
+==== getComponents ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent[]]] getComponents(orientationType)''<br>'''Действие:'''<br>Возвращает список компонентов из собственного HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)
+|}
+==== getGuiComponents ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap] getGuiComponents()''<br>'''Действие:'''<br>Возвращает карту рассположения и самих компонентов HUD
+|}
+==== getGuiSlots ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap] getGuiSlots()''<br>'''Действие:'''<br>Возвращает карту рассположения и самих слотов HUD
+|}
+==== getKeyPressed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] getKeyPressed()''<br>'''Действие:'''<br>Возвращает массив [[Коды_клавиш#Коды_клавиатуры|ID клавиш клавиатуры]] зажатых и удерживаемых игроком в данный момент
+|}
+==== getMousePressed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] getMousePressed()''<br>'''Действие:'''<br>Возвращает массив ID клавиш мышки зажатых и удерживаемых игроком в данный момент
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки HUD игрока
+|}
+==== getSlots ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot[]]] getSlots()''<br>'''Действие:'''<br>Возвращает список слотов из собственного HUD
+|}
+==== getSlots ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot[]]] getSlots(orientationType)''<br>'''Действие:'''<br>Возвращает список слотов из собственного HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)
+|}
+==== getWindowSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double[]] getWindowSize()''<br>'''Действие:'''<br>Возвращает массив размера окна экрана монитора игрока
+|}
+==== hasMousePress ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasMousePress(key)''<br>'''Действие:'''<br>Возвращает нажата ли клавиша мышки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''key''' = ID кнопки мышки
+|}
+==== hasOrKeysPressed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasOrKeysPressed(keys)''<br>'''Действие:'''<br>Возвращает нажата ли хотябы одна [[Коды_клавиш#Коды_клавиатуры|клавиша клавиатуры]] из массива<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] '''keys''' = [[Коды_клавиш#Коды_клавиатуры|ID клавиши клавиатуры]]
+|}
+==== isMoved ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isMoved()''<br>'''Действие:'''<br>Возвращает движется ли игрок по управлению в данный момент
+|}
+==== isShowElementType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isShowElementType(type)''<br>'''Действие:'''<br>Возвращает показывать ли элементы [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/client/event/RenderGameOverlayEvent.ElementType.html стандартного HUD]. <br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = ID элемента стандартного HUD
+|}
+==== loadNBTData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] loadNBTData(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки HUD игрока через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== removeComponent ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removeComponent(orientationType, componentID)''<br>'''Действие:'''<br>Удалить компонент из собственного HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''componentID''' = ID компонента
+|}
+==== removeSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removeSlot(orientationType, slotID)''<br>'''Действие:'''<br>Удалить слот из собственного HUD<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''orientationType''' = тип положения (0 - верхний левый угол экрана, 1 - нижний левый угол, 2 - верхний правый угол, 3 - нижний правый угол)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''slotID''' = ID слота
+|}
+==== saveNBTData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] saveNBTData(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки HUD игрока для сохранения в файл<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setShowElementType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShowElementType(name, bo)''<br>'''Действие:'''<br>Установить показывать ли элементы [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/client/event/RenderGameOverlayEvent.ElementType.html стандартного HUD]. <br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя элемента стандартного HUD. <br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = да или нет
+|}
+==== setShowElementType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShowElementType(type, bo)''<br>'''Действие:'''<br>Установить показывать ли элементы [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/client/event/RenderGameOverlayEvent.ElementType.html стандартного HUD]. <br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = ID элемента стандартного HUD<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = да или нет
+|}
+==== setWindowSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setWindowSize(tagList)''<br>'''Действие:'''<br>Установить размера окна экрана монитора игрока (только для клиента)<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagList.html NBTTagList] '''tagList''' = листовой тег с данными длины и ширины экрана
+|}
+==== update ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] update()''<br>'''Действие:'''<br>Обновить HUD для игрока
+|}
+==== updateHud ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] updateHud(player)''<br>'''Действие:'''<br>Обновить HUD для игрока<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] '''player''' = игрок
+|}

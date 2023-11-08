@@ -104,11 +104,11 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData {
 		this.getTextField(0).setMaxStringLength(20);
 		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 10,
 				this.guiTop + 80, 16, 16, ""));
-		this.getTextField(1).numbersOnly = true;
+		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMaxStringLength(1);
 		this.addTextField(new GuiNpcTextField(2, (GuiScreen) this, this.fontRenderer, this.guiLeft + 10,
 				this.guiTop + 110, 16, 16, ""));
-		this.getTextField(2).numbersOnly = true;
+		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMaxStringLength(1);
 	}
 

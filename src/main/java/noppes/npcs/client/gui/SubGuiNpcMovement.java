@@ -90,7 +90,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		if (this.ai.getMovingType() == 1) {
 			y += 22;
 			this.addTextField(new GuiNpcTextField(4, this, this.guiLeft + 100, y, 40, 20, this.ai.walkingRange + ""));
-			this.getTextField(4).numbersOnly = true;
+			this.getTextField(4).setNumbersOnly();
 			this.getTextField(4).setMinMaxDefault(0, 1000, 10);
 			this.addLabel(new GuiNpcLabel(4, "gui.range", this.guiLeft + 4, y + 5));
 			y += 22;
@@ -105,15 +105,15 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.addTextField(new GuiNpcTextField(7, this, this.guiLeft + 99, y, 24, 20, this.ai.bodyOffsetX + ""));
 			this.addLabel(new GuiNpcLabel(17, "spawner.posoffset", this.guiLeft + 4, y + 5));
 			this.addLabel(new GuiNpcLabel(7, "X:", this.guiLeft + 115, y + 5));
-			this.getTextField(7).doubleNumbersOnly = true;
+			this.getTextField(7).setDoubleNumbersOnly();
 			this.getTextField(7).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			this.addLabel(new GuiNpcLabel(8, "Y:", this.guiLeft + 125, y + 5));
 			this.addTextField(new GuiNpcTextField(8, this, this.guiLeft + 135, y, 24, 20, this.ai.bodyOffsetY + ""));
-			this.getTextField(8).doubleNumbersOnly = true;
+			this.getTextField(8).setDoubleNumbersOnly();
 			this.getTextField(8).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			this.addLabel(new GuiNpcLabel(9, "Z:", this.guiLeft + 161, y + 5));
 			this.addTextField(new GuiNpcTextField(9, this, this.guiLeft + 171, y, 24, 20, this.ai.bodyOffsetZ + ""));
-			this.getTextField(9).doubleNumbersOnly = true;
+			this.getTextField(9).setDoubleNumbersOnly();
 			this.getTextField(9).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			y += 22;
 			this.addButton(new GuiNpcButton(4, this.guiLeft + 80, y, 100, 20,
@@ -129,14 +129,14 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			} else {
 				y += 22;
 				this.addTextField(new GuiNpcTextField(5, this, this.guiLeft + 99, y, 40, 20, this.ai.orientation + ""));
-				this.getTextField(5).numbersOnly = true;
+				this.getTextField(5).setNumbersOnly();
 				this.getTextField(5).setMinMaxDefault(0, 359, 0);
 				this.addLabel(new GuiNpcLabel(6, "movement.rotation", this.guiLeft + 4, y + 5));
 				this.addLabel(new GuiNpcLabel(5, "(0-359)", this.guiLeft + 142, y + 5));
 			}
 			if (this.ai.getStandingType() == 1 || this.ai.getStandingType() == 3) {
 				this.addTextField( new GuiNpcTextField(5, this, this.guiLeft + 165, y, 40, 20, this.ai.orientation + ""));
-				this.getTextField(5).numbersOnly = true;
+				this.getTextField(5).setNumbersOnly();
 				this.getTextField(5).setMinMaxDefault(0, 359, 0);
 				this.addLabel(new GuiNpcLabel(5, "(0-359)", this.guiLeft + 207, y + 5));
 			}
@@ -165,7 +165,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		this.addLabel(new GuiNpcLabel(13, "movement.stopinteract", this.guiLeft + 4, y + 5));
 		y += 22;
 		this.addTextField(new GuiNpcTextField(14, this, this.guiLeft + 80, y, 50, 18, this.ai.getWalkingSpeed() + ""));
-		this.getTextField(14).numbersOnly = true;
+		this.getTextField(14).setNumbersOnly();
 		this.getTextField(14).setMinMaxDefault(0, 10, 4);
 		this.addLabel(new GuiNpcLabel(14, "stats.movespeed", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, this.guiTop + 190, 60, 20, "gui.done"));

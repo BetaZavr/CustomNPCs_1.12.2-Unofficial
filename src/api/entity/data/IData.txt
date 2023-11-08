@@ -1,0 +1,84 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IData.java IData]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock#getStoreddata|IBlock]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity#getStoreddata|IEntity]], [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack#getStoreddata|IItemStack]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer#getStoreddata|IPlayer]], [[Custom NPCs/Unoficial_API_1.12.2/api/IWorld#getStoreddata|IWorld]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/data/StoredData.java StoredData], [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/data/TempData.java TempData]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#clear|clear]]()
+| ''Очистить / удалить все данные''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#get|get]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] key)
+| ''Returns an object by the name of their storage in the data''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#getKeys|getKeys]]()
+| ''Возвращает список всех имён ключей, по которым хранятся данные''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#getNbt|getNbt]]()
+| ''Возвращает набор тегов, в которые записаны данные даты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#has|has]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] key)
+| ''Возвращает имеются ли данные по имени ключа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#put|put]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] key, [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] value)
+| ''Записать новые данные''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#remove|remove]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] key)
+| ''Удалить данные''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData#setNbt|setNbt]]([[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] nbt)
+| ''Переписать данные в дате через набор тегов''
+|}
+=== Описание методов ===
+
+==== clear ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clear()''<br>'''Действие:'''<br>Очистить / удалить все данные
+|}
+==== get ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] get(key)''<br>'''Действие:'''<br>Returns an object by the name of their storage in the data<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''key''' = имимя ключа, под которым храниться объектя ключа, под которым храниться объект
+|}
+==== getKeys ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] getKeys()''<br>'''Действие:'''<br>Возвращает список всех имён ключей, по которым хранятся данные
+|}
+==== getNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getNbt()''<br>'''Действие:'''<br>Возвращает набор тегов, в которые записаны данные даты
+|}
+==== has ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] has(key)''<br>'''Действие:'''<br>Возвращает имеются ли данные по имени ключа<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''key''' = имя ключа, под которым храниться объект
+|}
+==== put ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] put(key, value)''<br>'''Действие:'''<br>Записать новые данные<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''key''' = имя ключа, под которым храниться объект<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] '''value''' = объект для хранения
+|}
+==== remove ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] remove(key)''<br>'''Действие:'''<br>Удалить данные<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''key''' = имя ключа, под которым храниться объект
+|}
+==== setNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNbt(nbt)''<br>'''Действие:'''<br>Переписать данные в дате через набор тегов<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] '''nbt''' = набор тегов NBT
+|}

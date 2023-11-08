@@ -1,0 +1,97 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IRoleTransporter.java IRoleTransporter]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/RoleTransporter.java RoleTransporter]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole|INPCRole]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiContinueExecute|aiContinueExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiDeathExecute|aiDeathExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiShouldExecute|aiShouldExecute]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiStartExecuting|aiStartExecuting]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#aiUpdateTask|aiUpdateTask]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#clientUpdate|clientUpdate]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#defendOwner|defendOwner]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#delete|delete]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#getEnumType|getEnumType]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#getType|getType]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#interact|interact]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#isFollowing|isFollowing]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#killed|killed]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#readFromNBT|readFromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole#writeToNBT|writeToNBT]]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| name
+| ''имя локации транспортного пути этого NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| transportId
+| ''ID локации транспортного пути''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#aiShouldExecute|aiShouldExecute]]()
+| ''Возвращает может ли NPC выполнить роль сейчас''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/TransportLocation.java TransportLocation]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#getLocation|getLocation]]()
+| ''Возращает настройки локации для телепортации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#hasTransport|hasTransport]]()
+| ''Возращает настроена ли локация для телепортации у NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#interact|interact]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Действия при взаимодействии игрока с NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#setTransport|setTransport]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/TransportLocation.java TransportLocation] location)
+| ''Установить настройки локации для телепортации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#transport|transport]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] player, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id)
+| ''Пытается транспортировать игрока в указанную локацию''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== aiShouldExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiShouldExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC выполнить роль сейчас
+|}
+==== getLocation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/TransportLocation.java TransportLocation] getLocation()''<br>'''Действие:'''<br>Возращает настройки локации для телепортации
+|}
+==== hasTransport ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasTransport()''<br>'''Действие:'''<br>Возращает настроена ли локация для телепортации у NPC
+|}
+==== interact ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] interact(player)''<br>'''Действие:'''<br>Действия при взаимодействии игрока с NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setTransport ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setTransport(location)''<br>'''Действие:'''<br>Установить настройки локации для телепортации<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/TransportLocation.java TransportLocation] '''location''' = настройки локации
+|}
+==== transport ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] transport(player, id)''<br>'''Действие:'''<br>Пытается транспортировать игрока в указанную локацию<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] '''player''' = игрок<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID локации
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

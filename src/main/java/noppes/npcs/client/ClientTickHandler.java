@@ -270,6 +270,7 @@ public class ClientTickHandler {
 		//System.out.println("Client: "+entity);
 		if (entity instanceof EntityPlayerMP) {
 			//EntityPlayerMP player = (EntityPlayerMP) entity;
+			//player.getActivePotionEffects().toArray();
 			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
 			//System.out.println("Server: "+entity);
 		}
@@ -292,7 +293,6 @@ public class ClientTickHandler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-		
 		
 		/*List<String> list = Lists.newArrayList("DurationTicks", "Ambient", "Potion", "ShowParticles", "Probability", "Amplifier");
 		Collections.sort(list);

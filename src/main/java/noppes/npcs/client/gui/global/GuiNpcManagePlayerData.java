@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -27,8 +28,10 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -37,15 +40,17 @@ import noppes.npcs.containers.ContainerNPCBankInterface;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
+import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Faction;
+import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNpcManagePlayerData
 extends GuiNPCInterface2
-implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback {
+implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback, IGuiData, ITextfieldListener {
 	
 	public HashMap<String, Integer> data;
 	public HashMap<String, String> scrollData;
@@ -53,6 +58,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	private GuiCustomScroll scroll;
 	public String search, selected, selectedPlayer;
 	public EnumPlayerData selection;
+	private NBTTagCompound gameData;
 
 	public GuiNpcManagePlayerData(EntityNPCInterface npc, GuiNPCInterface2 parent) {
 		super(npc);
@@ -63,21 +69,81 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		this.scrollData = new HashMap<String, String>();
 		this.selection = EnumPlayerData.Players;
 		this.search = "";
+		this.gameData = null;
 		Client.sendData(EnumPacketServer.PlayerDataGet, this.selection);
+	}
+
+	@Override
+	public void initGui() {
+		super.initGui();
+		if (this.scroll==null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(300, 152); }
+		this.scroll.guiLeft = this.guiLeft + 7;
+		this.scroll.guiTop = this.guiTop + 16;
+		this.addScroll(this.scroll);
+		this.selected = null;
+		this.addLabel(new GuiNpcLabel(0, "data.all.players", this.guiLeft + 10, this.guiTop + 6));
+		int x = this.guiLeft + 313, y = this.guiTop + 16, w = 99;
+		this.addButton(new GuiNpcButton(1, x, y, w, 20, "playerdata.players"));
+		this.addButton(new GuiNpcButton(2, x, (y += 22), w, 20, "quest.quest"));
+		this.addButton(new GuiNpcButton(3, x, (y += 22), w, 20, "dialog.dialog"));
+		this.addButton(new GuiNpcButton(4, x, (y += 22), w, 20, "global.transport"));
+		this.addButton(new GuiNpcButton(5, x, (y += 22), w, 20, "global.banks"));
+		this.addButton(new GuiNpcButton(6, x, (y += 22), w, 20, "menu.factions"));
+		this.addButton(new GuiNpcButton(9, x, (y += 22), w, 20, "gui.game"));
+		this.addButton(new GuiNpcButton(7, x, (y += 22), w, 20, "gui.wipe"));
+		y = this.guiTop + 170;
+		this.addLabel(new GuiNpcLabel(1, "gui.found", this.guiLeft + 10, y + 5));
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 66, y, 240, 20, this.search));
+		x = this.guiLeft + 7;
+		w = 73;
+		this.addButton(new GuiNpcButton(8, x, (y += 22), w, 20, "gui.add"));
+		this.addButton(new GuiNpcButton(0, (x += w + 3), y, w, 20, "gui.remove"));
+		this.addButton(new GuiNpcButton(10, (x += w + 3), y, w, 20, "gui.remove.all"));
+		this.addButton(new GuiNpcButton(11, (x += w + 3), y, w, 20, "selectServer.edit"));
+		this.initButtons();
+		if (this.selection == EnumPlayerData.Game) {
+			y = this.guiTop + 18;
+			this.addLabel(new GuiNpcLabel(2, "gui.money", this.guiLeft + 10, y + 5));
+			this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 66, y, 120, 20, "" + this.gameData.getLong("Money")));
+			this.getTextField(1).setNumbersOnly();
+			this.getTextField(1).setMinMaxDefault(0, Long.MAX_VALUE, this.gameData.getLong("Money"));
+			this.addLabel(new GuiNpcLabel(3, new TextComponentTranslation("global.market").getFormattedText() + ":", this.guiLeft + 10, (y += 25)));
+		}
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
 		int id = guibutton.id;
-		if (id == 0) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("global.playerdata").getFormattedText()+": "+this.selectedPlayer, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			this.displayGuiScreen((GuiScreen) guiyesno);
+		GuiNpcTextField.unfocus();
+		String title = this.selectedPlayer;
+		switch(this.selection) {
+			case Quest: title = new TextComponentTranslation("quest.quest").getFormattedText(); break;
+			case Dialog: title = new TextComponentTranslation("dialog.dialog").getFormattedText(); break;
+			case Transport: title = new TextComponentTranslation("global.transport").getFormattedText(); break;
+			case Bank: title = new TextComponentTranslation("global.banks").getFormattedText(); break;
+			case Factions: title = new TextComponentTranslation("menu.factions").getFormattedText(); break;
+			case Game: title = new TextComponentTranslation("gui.game").getFormattedText(); break;
+			default: { break; }
 		}
-		else if (id >= 1 && id <= 6) {
+		if (id == 0) { // del
+			if (this.selection==EnumPlayerData.Players || !this.scroll.hasSelected()) {
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("global.playerdata").getFormattedText()+": "+title, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				this.displayGuiScreen((GuiScreen) guiyesno);
+			} else {
+				Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 1, this.data.get(this.scrollData.get(this.scroll.getSelected())));
+			}
+		}
+		else if (id >= 1 && id <= 6 || id == 9) {
 			if (this.selectedPlayer == null && id != 1) {
 				return;
 			}
-			this.selection = EnumPlayerData.values()[id - 1];
+			if (this.selection == EnumPlayerData.Game) { this.save(); }
+			if (id ==9) {
+				this.selection = EnumPlayerData.Game;
+				Client.sendData(EnumPacketServer.TraderMarketGet);
+			} else {
+				this.selection = EnumPlayerData.values()[id - 1];
+			}
 			this.initButtons();
 			this.scroll.clear();
 			this.data.clear();
@@ -140,11 +206,9 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			}
 			this.setSubGui(subgui);
 		}
-		else if (id == 9) { // del
-			Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 1, this.data.get(this.scrollData.get(this.scroll.getSelected())));
-		}
 		else if (id == 10) { // del all
-			Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 3, -1);
+			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("global.playerdata").getFormattedText()+": "+title, new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
+			this.displayGuiScreen((GuiScreen) guiyesno);
 		}
 		else if (id == 11) { // edit
 			this.editData();
@@ -156,7 +220,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		super.drawScreen(i, j, f);
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("data.hover.delete").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("hover.delete").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("data.hover.list").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
@@ -174,13 +238,17 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.add").getFormattedText());
 		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.delete").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("data.hover.game").getFormattedText());
 		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.delete.all").getFormattedText());
 		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.edit").getFormattedText());
-		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		} else if (this.getTextField(0)!=null && this.getTextField(0).getVisible() && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("data.hover.found").getFormattedText());
+		} else if (this.getTextField(1)!=null && this.getTextField(1).getVisible() && this.getTextField(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("data.hover.money", ""+Long.MAX_VALUE).getFormattedText());
+		} else if (this.getLabel(3)!=null && this.getLabel(3).enabled && this.getLabel(3).hovered) {
+			this.setHoverText(new TextComponentTranslation("data.hover.markets").getFormattedText());
 		}
 	}
 
@@ -372,94 +440,83 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 
 	public void initButtons() {
 		boolean hasPlayer = this.selectedPlayer!=null && !this.selectedPlayer.isEmpty();
+		this.getButton(0).setVisible(true);
 		this.getButton(0).setEnabled(hasPlayer);
-		this.getButton(0).setVisible(this.selection == EnumPlayerData.Players);
 		this.getButton(1).setEnabled(this.selection != EnumPlayerData.Players && hasPlayer);
 		this.getButton(2).setEnabled(this.selection != EnumPlayerData.Quest && hasPlayer);
 		this.getButton(3).setEnabled(this.selection != EnumPlayerData.Dialog && hasPlayer);
 		this.getButton(4).setEnabled(this.selection != EnumPlayerData.Transport && hasPlayer);
 		this.getButton(5).setEnabled(this.selection != EnumPlayerData.Bank && hasPlayer);
 		this.getButton(6).setEnabled(this.selection != EnumPlayerData.Factions && hasPlayer);
+		this.getButton(9).setEnabled(this.selection != EnumPlayerData.Game && hasPlayer);
 		boolean canEdit = this.selection != EnumPlayerData.Players && this.selection != EnumPlayerData.Wipe;
 		this.getButton(8).setVisible(true);
-		this.getButton(9).setVisible(true);
 		this.getButton(10).setVisible(true);
 		this.getButton(11).setVisible(true);
+		
+		if (this.scroll!=null) {
+			if (this.selection != EnumPlayerData.Game) {
+				this.scroll.guiLeft = this.guiLeft + 7;
+				this.scroll.guiTop = this.guiTop + 16;
+				this.scroll.setSize(300, 152);
+			} else {
+				this.scroll.guiLeft = this.guiLeft + 7;
+				this.scroll.guiTop = this.guiTop + 52;
+				this.scroll.setSize(120, 138);
+			}
+		}
+		this.getLabel(1).enabled = this.selection != EnumPlayerData.Game;
+		this.getTextField(0).setVisible(this.selection != EnumPlayerData.Game);
+		if (this.getLabel(2)!=null) { this.getLabel(2).enabled = this.selection == EnumPlayerData.Game; }
+		if (this.getLabel(3)!=null) { this.getLabel(3).enabled = this.selection == EnumPlayerData.Game; }
+		if (this.getTextField(1)!=null) { this.getTextField(1).setVisible(this.selection == EnumPlayerData.Game); }
+		
 		switch(this.selection) {
 			case Quest: {
 				this.getButton(8).setEnabled(canEdit && hasPlayer);
-				this.getButton(9).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
 				this.getButton(11).setEnabled(false);
 				break;
 			}
 			case Dialog: {
 				this.getButton(8).setEnabled(canEdit && hasPlayer);
-				this.getButton(9).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
 				this.getButton(11).setEnabled(false);
 				break;
 			}
 			case Transport: {
 				this.getButton(8).setEnabled(canEdit && hasPlayer);
-				this.getButton(9).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
 				this.getButton(11).setEnabled(false);
 				break;
 			}
 			case Bank: {
 				this.getButton(8).setEnabled(canEdit && hasPlayer && this.data.size() < BankController.getInstance().banks.size());
-				this.getButton(9).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
 				this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				break;
 			}
 			case Factions: {
 				this.getButton(8).setEnabled(canEdit && hasPlayer && this.data.size() < FactionController.instance.factions.size());
-				this.getButton(9).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				this.getButton(10).setEnabled(canEdit && hasPlayer && !this.scroll.getList().isEmpty());
 				this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll!=null && this.scroll.hasSelected());
 				break;
 			}
+			case Game: {
+				this.getButton(0).setEnabled(canEdit && hasPlayer && this.scroll.hasSelected());
+				this.getButton(8).setVisible(false);
+				this.getButton(10).setEnabled(canEdit && hasPlayer && this.gameData!=null);
+				this.getButton(11).setEnabled(canEdit && hasPlayer && this.scroll.hasSelected());
+				break;
+			}
 			default: {
 				this.getButton(8).setVisible(false);
-				this.getButton(9).setVisible(false);
 				this.getButton(10).setVisible(false);
 				this.getButton(11).setVisible(false);
 			}
 		}
 		if (!hasPlayer) { this.getLabel(0).setLabel("data.all.players"); }
 		else { this.getLabel(0).setLabel(new TextComponentTranslation("data.sel.player", ((char) 167)+(this.isOnline ? "2" : "4")+((char) 167)+"l"+this.selectedPlayer).getFormattedText()); }
-	}
-
-	@Override
-	public void initGui() {
-		super.initGui();
-		if (this.scroll==null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(300, 152); }
-		this.scroll.guiLeft = this.guiLeft + 7;
-		this.scroll.guiTop = this.guiTop + 16;
-		this.addScroll(this.scroll);
-		this.selected = null;
-		this.addLabel(new GuiNpcLabel(0, "data.all.players", this.guiLeft + 10, this.guiTop + 6));
-		int x = this.guiLeft + 313, y = this.guiTop + 16, w = 99;
-		this.addButton(new GuiNpcButton(0, x, y, w, 20, "selectWorld.deleteButton"));
-		this.addButton(new GuiNpcButton(1, x, (y += 22), w, 20, "playerdata.players"));
-		this.addButton(new GuiNpcButton(2, x, (y += 22), w, 20, "quest.quest"));
-		this.addButton(new GuiNpcButton(3, x, (y += 22), w, 20, "dialog.dialog"));
-		this.addButton(new GuiNpcButton(4, x, (y += 22), w, 20, "global.transport"));
-		this.addButton(new GuiNpcButton(5, x, (y += 22), w, 20, "global.banks"));
-		this.addButton(new GuiNpcButton(6, x, (y += 22), w, 20, "menu.factions"));
-		this.addButton(new GuiNpcButton(7, x, (y += 22), w, 20, "gui.wipe"));
-		y = this.guiTop + 170;
-		this.addLabel(new GuiNpcLabel(1, "gui.found", this.guiLeft + 10, y + 5));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 66, y, 240, 20, this.search));
-		x = this.guiLeft + 7;
-		w = 73;
-		this.addButton(new GuiNpcButton(8, x, (y += 22), w, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(9, (x += w + 3), y, w, 20, "gui.remove"));
-		this.addButton(new GuiNpcButton(10, (x += w + 3), y, w, 20, "gui.remove.all"));
-		this.addButton(new GuiNpcButton(11, (x += w + 3), y, w, 20, "selectServer.edit"));
-		this.initButtons();
 	}
 
 	@Override
@@ -491,6 +548,12 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	@Override
 	public void save() {
 		ContainerNPCBankInterface.editBank = null;
+		if (this.selection == EnumPlayerData.Game) {
+			boolean hasPlayer = this.selectedPlayer!=null && !this.selectedPlayer.isEmpty();
+			if (hasPlayer && this.gameData!=null) {
+				Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 0, this.gameData);
+			}
+		}
 	}
 
 	@Override
@@ -532,12 +595,34 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 				this.setSubGui(subgui);
 				break;
 			}
+			case Game: {
+				if (this.gameData==null || !this.data.containsKey(this.scroll.getSelected())) { return; }
+				SubGuiEditText subgui = new SubGuiEditText(2, "");
+				subgui.initGui();
+				subgui.getTextField(0).setNumbersOnly();
+				int m = 3, s = 0, id = this.data.get(this.scroll.getSelected());
+				MarcetController mData = MarcetController.getInstance();
+				for (int i = 0; i < this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
+					NBTTagCompound nbt = this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
+					if (id!=nbt.getInteger("MarketID")) { continue; }
+					s = nbt.getInteger("Slot");
+					Marcet marcet = (Marcet) mData.getMarcet(id);
+					if (marcet == null) { break; }
+					m = marcet.markup.size() - 1;
+					break;
+				}
+				subgui.text[0] = "" + s;
+				subgui.getTextField(0).setMinMaxDefault(0, m, s);
+				subgui.lable = "gui.set.new.value";
+				this.setSubGui(subgui);
+			}
 			default: { return; }
 		}
 	}
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
+		if (this.selection == EnumPlayerData.Game) { return; }
 		this.data.clear();
 		this.data.putAll(data);
 		this.setCurentList();
@@ -576,6 +661,9 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			this.scroll.selected = -1;
 			this.initButtons();
 		}
+		else if (id == 1) {
+			Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 3, -1);
+		}
 		else if (id == 7) {
 			this.selection = EnumPlayerData.Wipe;
 			this.initButtons();
@@ -594,10 +682,54 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		if (((SubGuiEditText) subgui).id==1) { // set
 			try { Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 2, this.data.get(this.scrollData.get(this.scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0])); }
 			catch (Exception e) { }
+		} else if (((SubGuiEditText) subgui).id==2) { // change market slot
+			if (this.gameData==null || !this.data.containsKey(this.scroll.getSelected())) { return; }
+			int id = this.data.get(this.scroll.getSelected());
+			for (int i = 0; i < this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
+				NBTTagCompound nbt = this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
+				if (id!=nbt.getInteger("MarketID")) { continue; }
+				nbt.setInteger("Slot", ((SubGuiEditText) subgui).getTextField(0).getInteger());
+				break;
+			}
+			this.setGuiData(this.gameData);
+			
 		} else if (((SubGuiEditText) subgui).id==0) { // add
 			try { Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0])); }
 			catch (Exception e) { }
 		}
+	}
+
+	@Override
+	public void setGuiData(NBTTagCompound compound) {
+		if (this.selection != EnumPlayerData.Game || !compound.hasKey("GameData", 10)) { return; }
+		this.gameData = compound;
+		Map<Integer, Integer> map = Maps.<Integer, Integer>newTreeMap();
+		for (int i = 0; i < compound.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
+			NBTTagCompound nbt = compound.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
+			map.put(nbt.getInteger("MarketID"), nbt.getInteger("Slot"));
+		}
+		List<String> list = Lists.<String>newArrayList();
+		MarcetController mData = MarcetController.getInstance();
+		this.scroll.hoversTexts = new String[map.size()][];
+		this.data.clear();
+		int i = 0;
+		for (int id : map.keySet()) {
+			String key = ((char) 167)+"7ID:"+id+" "+(new TextComponentTranslation("bank.slot").getFormattedText())+((char) 167)+"r: "+map.get(id);
+			list.add(key);
+			this.data.put(key, id);
+			Marcet m = (Marcet) mData.getMarcet(id);
+			if (m!=null) { this.scroll.hoversTexts[i] = new String[] { "ID:"+id+" \""+m.getName()+"\"", (new TextComponentTranslation("gui.max").getFormattedText()) + ": " + (m.markup.size()-1)}; }
+			else { this.scroll.hoversTexts[i] = new String[] { (new TextComponentTranslation("global.market").getFormattedText()) + " - " + (new TextComponentTranslation("quest.notfound").getFormattedText()) }; }
+			i++;
+		}
+		this.scroll.setListNotSorted(list);
+		this.initGui();
+	}
+
+	@Override
+	public void unFocused(GuiNpcTextField textField) {
+		if (textField.getId()!=1 || this.gameData==null || !textField.isLong()) { return; }
+		this.gameData.getCompoundTag("GameData").setLong("Money", textField.getLong());
 	}
 		
 }

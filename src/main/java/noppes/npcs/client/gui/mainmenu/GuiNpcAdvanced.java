@@ -164,7 +164,8 @@ implements IGuiData, ISubGuiListener {
 			}
 			switch (this.npc.advanced.roleInterface.getEnumType()) {
 				case TRADER: {
-					this.setSubGui(new SubGuiNpcSelectTraider(((RoleTrader) this.npc.advanced.roleInterface).marcet));
+					RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;
+					this.setSubGui(new SubGuiNpcSelectTraider(role.getMarketID()));
 					break;
 				}
 				case FOLLOWER: {
@@ -287,7 +288,8 @@ implements IGuiData, ISubGuiListener {
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiNpcSelectTraider) {
 			this.hasChanges = true;
-			((RoleTrader) this.npc.advanced.roleInterface).marcet = (((SubGuiNpcSelectTraider) subgui)).id;
+			RoleTrader role = (RoleTrader) this.npc.advanced.roleInterface;
+			role.setMarket((((SubGuiNpcSelectTraider) subgui)).id);
 			this.save();
 		}
 	}

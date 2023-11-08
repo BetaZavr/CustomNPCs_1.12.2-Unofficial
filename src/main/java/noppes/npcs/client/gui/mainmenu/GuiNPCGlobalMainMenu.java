@@ -63,7 +63,7 @@ extends GuiNPCInterface2 {
 				break;
 			}
 			case 17: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, 0, 0, 0);
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, 0, -1, 0);
 				break;
 			}
 		}

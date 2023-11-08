@@ -1,0 +1,64 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/IVillager.java IVillager]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/VillagerWrapper.java VillagerWrapper]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager#getCareer|getCareer]]()
+| ''Возвращает название [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/registry/VillagerRegistry.VillagerCareer.html карьеры]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager#getProfession|getProfession]]()
+| ''Возвращает ID [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/registry/VillagerRegistry.VillagerCareer.html карьеры]''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/village/MerchantRecipeList.html MerchantRecipeList]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager#getRecipes|getRecipes]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]] player)
+| ''Возвращает список торговых сделок с жителем''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager#getType|getType]]()
+| ''Возвращает числовое значение [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] ( = 9)''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/IInventory.html IInventory]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager#getVillagerInventory|getVillagerInventory]]()
+| ''Возвращает инвентарь жителя''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IVillager#typeOf|typeOf]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] super.typeOf(type)
+| ''Возвращает соответствие [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] с указанным''
+|}
+=== Описание методов ===
+
+==== getCareer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getCareer()''<br>'''Действие:'''<br>Возвращает название [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/registry/VillagerRegistry.VillagerCareer.html карьеры]
+|}
+==== getProfession ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getProfession()''<br>'''Действие:'''<br>Возвращает ID [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/registry/VillagerRegistry.VillagerCareer.html карьеры]
+|}
+==== getRecipes ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/village/MerchantRecipeList.html MerchantRecipeList] getRecipes(player)''<br>'''Действие:'''<br>Возвращает список торговых сделок с жителем<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]] '''player''' = игрок
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает числовое значение [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] ( = 9)
+|}
+==== getVillagerInventory ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/IInventory.html IInventory] getVillagerInventory()''<br>'''Действие:'''<br>Возвращает инвентарь жителя
+|}
+==== typeOf ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] typeOf(super.typeOf(type)''<br>'''Действие:'''<br>Возвращает соответствие [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/EntityType|Типа сущности]] с указанным<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''super.typeOf(type''' = parametr.api.entity.villagerwrapper.typeOf.super.typeOf(type
+|}

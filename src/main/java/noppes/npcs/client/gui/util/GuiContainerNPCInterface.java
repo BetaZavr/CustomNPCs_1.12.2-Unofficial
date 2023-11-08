@@ -311,18 +311,13 @@ extends GuiContainer {
 	}
 
 	protected void keyTyped(char c, int i) {
-		boolean helpButtons = false;
-		if (i==56 || i==29 || i==184) { // Alt
-			helpButtons = Keyboard.isKeyDown(35); // + H
-		} else if (i==35) { // H
-			helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184); // + Alt
-		}
-		if (helpButtons) {
-			CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions;
-		}
 		if (this.subgui != null) {
 			this.subgui.keyTyped(c, i);
 		} else {
+			boolean helpButtons = false;
+			if (i==56 || i==29 || i==184) { helpButtons = Keyboard.isKeyDown(35); }
+			else if (i==35) { helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184); }
+			if (helpButtons) { CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions; }
 			for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 				tf.textboxKeyTyped(c, i);
 			}

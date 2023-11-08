@@ -1,0 +1,135 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IAnimationPart.java IAnimationPart]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#getPart|IAnimationFrame]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/client/model/animation/AnimationFrameConfig$PartConfig.java PartConfig]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| disable
+| ''field.api.entity.data.ianimationpart.disable''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]]
+| offset
+| ''field.api.entity.data.ianimationpart.offset''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| part
+| ''field.api.entity.data.ianimationpart.part''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]]
+| rotation
+| ''field.api.entity.data.ianimationpart.rotation''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]]
+| scale
+| ''field.api.entity.data.ianimationpart.scale''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#clear|clear]]()
+| ''Сброс настроек части тела в кадре анимации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#getOffset|getOffset]]()
+| ''Возвращает положение части тела по осям в кадре анимации<br>[X, Y, Z]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#getRotation|getRotation]]()
+| ''Возвращает вращение части тела по осям в кадре анимации<br>[X, Y, Z]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#getScale|getScale]]()
+| ''Возвращает масштаб части тела по осям в кадре анимации<br>[X, Y, Z]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#isDisable|isDisable]]()
+| ''Возвращает используется ли части тела в кадре анимация<br>иначе используются чистые настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#readNBT|readNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] arg0)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT, в который записана настройка части тела кадра анимации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#setDisable|setDisable]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить используется ли части тела в кадре анимация''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#setOffset|setOffset]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] z)
+| ''Установить положение части тела по осям в кадре анимации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#setRotation|setRotation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] z)
+| ''Установить вращение части тела по осям в кадре анимации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#setScale|setScale]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] z)
+| ''Установить масштаб части тела по осям в кадре анимации''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart#writeNBT|writeNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку части тела кадра анимации через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== clear ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clear()''<br>'''Действие:'''<br>Сброс настроек части тела в кадре анимации
+|}
+==== getOffset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]] getOffset()''<br>'''Действие:'''<br>Возвращает положение части тела по осям в кадре анимации<br>[X, Y, Z]
+|}
+==== getRotation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]] getRotation()''<br>'''Действие:'''<br>Возвращает вращение части тела по осям в кадре анимации<br>[X, Y, Z]
+|}
+==== getScale ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float[]] getScale()''<br>'''Действие:'''<br>Возвращает масштаб части тела по осям в кадре анимации<br>[X, Y, Z]
+|}
+==== isDisable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDisable()''<br>'''Действие:'''<br>Возвращает используется ли части тела в кадре анимация<br>иначе используются чистые настройки
+|}
+==== readNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBT(arg0)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT, в который записана настройка части тела кадра анимации<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''arg0''' = parametr.api.entity.data.partconfig.readNBT.arg0
+|}
+==== setDisable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDisable(bo)''<br>'''Действие:'''<br>Установить используется ли части тела в кадре анимация<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = parametr.api.entity.data.partconfig.setDisable.bo
+|}
+==== setOffset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setOffset(x, y, z)''<br>'''Действие:'''<br>Установить положение части тела по осям в кадре анимации<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''x''' = parametr.api.entity.data.partconfig.setOffset.x<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''y''' = parametr.api.entity.data.partconfig.setOffset.y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''z''' = parametr.api.entity.data.partconfig.setOffset.z
+|}
+==== setRotation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRotation(x, y, z)''<br>'''Действие:'''<br>Установить вращение части тела по осям в кадре анимации<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''x''' = parametr.api.entity.data.partconfig.setRotation.x<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''y''' = parametr.api.entity.data.partconfig.setRotation.y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''z''' = parametr.api.entity.data.partconfig.setRotation.z
+|}
+==== setScale ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setScale(x, y, z)''<br>'''Действие:'''<br>Установить масштаб части тела по осям в кадре анимации<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''x''' = parametr.api.entity.data.partconfig.setScale.x<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''y''' = parametr.api.entity.data.partconfig.setScale.y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''z''' = parametr.api.entity.data.partconfig.setScale.z
+|}
+==== writeNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку части тела кадра анимации через набор тегов NBT
+|}

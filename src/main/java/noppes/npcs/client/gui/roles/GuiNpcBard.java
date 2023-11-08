@@ -82,7 +82,7 @@ implements ISubGuiListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(0, "bard.ondistance", this.guiLeft + x, this.guiTop + y + 6));
 		for (int i = 0; i < 3; i++) {
 			this.addTextField(new GuiNpcTextField(2 + i, this, this.fontRenderer, this.guiLeft + x + 104 + i * 44, this.guiTop + y, 40, 20, ""));
-			this.getTextField(2 + i).numbersOnly = true;
+			this.getTextField(2 + i).setNumbersOnly();
 			this.getTextField(2 + i).setMinMaxDefault(2, 64, 5);
 			if (this.job.isRange && i==0) { this.getTextField(2 + i).setText(this.job.range[0] + ""); }
 			else {
@@ -96,7 +96,7 @@ implements ISubGuiListener, ITextfieldListener {
 		if (this.job.hasOffRange) {
 			for (int i = 0; i < 3; i++) {
 				this.addTextField(new GuiNpcTextField(5 + i, this, this.fontRenderer, this.guiLeft+ x + 104 + i * 44, this.guiTop + y, 40, 20, ""));
-				this.getTextField(5 + i).numbersOnly = true;
+				this.getTextField(5 + i).setNumbersOnly();
 				this.getTextField(5 + i).setMinMaxDefault(2, 256, 64);
 				if (this.job.isRange && i==0) { this.getTextField(5 + i).setText(this.job.range[1] + ""); }
 				else {

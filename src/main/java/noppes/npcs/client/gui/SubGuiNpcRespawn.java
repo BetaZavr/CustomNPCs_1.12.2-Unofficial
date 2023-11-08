@@ -56,7 +56,7 @@ implements ITextfieldListener {
 			this.addLabel(new GuiNpcLabel(3, "gui.time", this.guiLeft + 5, this.guiTop + 57));
 			this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 122, this.guiTop + 53, 50,
 					18, this.stats.respawnTime + ""));
-			this.getTextField(2).numbersOnly = true;
+			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(1, Integer.MAX_VALUE, 20);
 			this.addLabel(new GuiNpcLabel(4, "stats.deadbody", this.guiLeft + 4, this.guiTop + 79));
 			this.addButton(new GuiNpcButton(4, this.guiLeft + 122, this.guiTop + 74, 60, 20,

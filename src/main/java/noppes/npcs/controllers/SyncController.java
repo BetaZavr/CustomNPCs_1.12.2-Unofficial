@@ -333,7 +333,7 @@ public class SyncController {
 		syncScriptRecipes(player);
 		
 		BorderController.getInstance().sendTo(player);
-		MarcetController.getInstance().sendTo(player);
+		MarcetController.getInstance().sendTo(player, - 1);
 		ScriptController.Instance.sendClientTo(player);
 	}
 

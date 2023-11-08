@@ -74,18 +74,17 @@ implements IJobBard {
 			if (this.isRange) {
 				aabb = aabb.grow(this.range[0], this.range[0], this.range[0]);
 			} else {
-				aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1], aabb.minZ - this.minPos[2],
-						aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1], aabb.maxZ + this.minPos[2]);
+				aabb = new AxisAlignedBB(aabb.minX - this.minPos[0], aabb.minY - this.minPos[1], aabb.minZ - this.minPos[2], aabb.maxX + this.minPos[0], aabb.maxY + this.minPos[1], aabb.maxZ + this.minPos[2]);
 			}
 			List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
 			if (!list.contains(CustomNpcs.proxy.getPlayer())) { return; }
 			mData.bardPlaySound(this.song, this.isStreamer, this.npc);
 		}
-		else if (this.isStreamer ? this.npc.equals(mData.songBard) : this.npc.equals(mData.musicBard) && !this.song.equals(this.isStreamer ? mData.song : mData.music)) {
+		else if (this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard) && !this.song.equals(this.isStreamer ? mData.song : mData.music)) {
 			if (!mData.song.isEmpty() && this.npc.equals(mData.songBard)) { mData.stopSound(mData.song, SoundCategory.AMBIENT); }
 			if (!mData.music.isEmpty() && this.npc.equals(mData.musicBard)) { mData.stopSound(mData.music, SoundCategory.MUSIC); }
 		}
-		else if (this.isStreamer ? !this.song.equals(mData.song) : !this.song.equals(mData.music)) { // cheak main NPC
+		else if (!this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // cheak main NPC
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();
 			if (player==null) { return; }
 			EntityNPCInterface oldNPC = this.isStreamer ? mData.songBard : mData.musicBard;
@@ -104,7 +103,7 @@ implements IJobBard {
 				}
 			}
 		}
-		else if (this.hasOffRange && (this.isStreamer ? this.npc.equals(mData.songBard) : this.npc.equals(mData.musicBard))) { // cheak Distance
+		else if (this.hasOffRange && this.npc.equals(this.isStreamer ? mData.songBard : mData.musicBard)) { // cheak Distance
 			AxisAlignedBB aabb = this.npc.getEntityBoundingBox();
 			if (this.isRange) {
 				aabb = aabb.grow(this.range[1], this.range[1], this.range[1]);

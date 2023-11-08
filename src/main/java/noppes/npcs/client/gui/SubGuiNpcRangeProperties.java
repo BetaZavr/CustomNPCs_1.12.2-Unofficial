@@ -59,43 +59,43 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18,
 				this.ranged.getAccuracy() + ""));
 		this.addLabel(new GuiNpcLabel(1, "stats.accuracy", this.guiLeft + 5, y + 5));
-		this.getTextField(1).numbersOnly = true;
+		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, 100, 90);
 		this.addTextField(new GuiNpcTextField(8, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18,
 				this.ranged.getShotCount() + ""));
 		this.addLabel(new GuiNpcLabel(8, "stats.shotcount", this.guiLeft + 135, y + 5));
-		this.getTextField(8).numbersOnly = true;
+		this.getTextField(8).setNumbersOnly();
 		this.getTextField(8).setMinMaxDefault(1, 10, 1);
 		y += 22;
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18, this.ranged.getRange() + ""));
 		this.addLabel(new GuiNpcLabel(2, "gui.range", this.guiLeft + 5, y + 5));
-		this.getTextField(2).numbersOnly = true;
+		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 64, 2);
 		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 200, y, 30, 20,
 				this.ranged.getMeleeRange() + ""));
 		this.addLabel(new GuiNpcLabel(16, "stats.meleerange", this.guiLeft + 135, y + 5));
-		this.getTextField(9).numbersOnly = true;
+		this.getTextField(9).setNumbersOnly();
 		this.getTextField(9).setMinMaxDefault(0, this.stats.aggroRange, 5);
 		int j = this.guiLeft + 80;
 		y += 22;
 		this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, j, y, 50, 18, this.ranged.getDelayMin() + ""));
 		this.addLabel(new GuiNpcLabel(3, "stats.mindelay", this.guiLeft + 5, y + 5));
-		this.getTextField(3).numbersOnly = true;
+		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(1, 9999, 20);
 		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18,
 				this.ranged.getDelayMax() + ""));
 		this.addLabel(new GuiNpcLabel(4, "stats.maxdelay", this.guiLeft + 135, y + 5));
-		this.getTextField(4).numbersOnly = true;
+		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(1, 9999, 20);
 		y += 22;
 		this.addTextField(new GuiNpcTextField(6, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18, this.ranged.getBurst() + ""));
 		this.addLabel(new GuiNpcLabel(6, "stats.burstcount", this.guiLeft + 5, y + 5));
-		this.getTextField(6).numbersOnly = true;
+		this.getTextField(6).setNumbersOnly();
 		this.getTextField(6).setMinMaxDefault(1, 100, 20);
 		this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18,
 				this.ranged.getBurstDelay() + ""));
 		this.addLabel(new GuiNpcLabel(5, "stats.burstspeed", this.guiLeft + 135, y + 5));
-		this.getTextField(5).numbersOnly = true;
+		this.getTextField(5).setNumbersOnly();
 		this.getTextField(5).setMinMaxDefault(0, 30, 0);
 		y += 22;
 		this.addTextField(new GuiNpcTextField(7, this, this.fontRenderer, this.guiLeft + 80, y, 100, 20, this.ranged.getSound(0)));

@@ -1,0 +1,139 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IAnimationFrame.java IAnimationFrame]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation#addFrame|IAnimation]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/client/model/animation/AnimationFrameConfig.java AnimationFrameConfig]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/client/model/animation/AnimationFrameConfig.java AnimationFrameConfig]
+| EMPTY_PART
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>field.api.entity.data.ianimationframe.EMPTY_PART''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| delay
+| ''field.api.entity.data.ianimationframe.delay''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| id
+| ''field.api.entity.data.ianimationframe.id''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/client/model/animation/animationframeconfig$partconfigPartConfig.java PartConfig[]]
+| parts
+| ''field.api.entity.data.ianimationframe.parts''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| smooth
+| ''field.api.entity.data.ianimationframe.smooth''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| speed
+| ''field.api.entity.data.ianimationframe.speed''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#clear|clear]]()
+| ''Сбросить все настройки кадра''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/client/model/animation/AnimationFrameConfig.java AnimationFrameConfig]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#copy|copy]]()
+| ''Возвращает копию настроек кадра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#getEndDelay|getEndDelay]]()
+| ''Возвращает время задержки кадра в конце<br>в тиках''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart|IAnimationPart]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#getPart|getPart]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id)
+| ''Возвращает настройку для части тела''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#getSpeed|getSpeed]]()
+| ''Возвращает время перехода анимации на этот кадр<br>в тиках''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#isSmooth|isSmooth]]()
+| ''Возвращает плавность анимации этого кадра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#readNBT|readNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] arg0)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT, в который записана настройка кадра анимации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#setEndDelay|setEndDelay]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] ticks)
+| ''Установить время задержки кадра в конце''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#setSmooth|setSmooth]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isSmooth)
+| ''Установить плавность анимации этого кадра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#setSpeed|setSpeed]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] ticks)
+| ''Установить время перехода анимации на этот кадр''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame#writeNBT|writeNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку кадра анимации через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== clear ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clear()''<br>'''Действие:'''<br>Сбросить все настройки кадра
+|}
+==== copy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/client/model/animation/AnimationFrameConfig.java AnimationFrameConfig] copy()''<br>'''Действие:'''<br>Возвращает копию настроек кадра
+|}
+==== getEndDelay ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getEndDelay()''<br>'''Действие:'''<br>Возвращает время задержки кадра в конце<br>в тиках
+|}
+==== getPart ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart|IAnimationPart]] getPart(id)''<br>'''Действие:'''<br>Возвращает настройку для части тела<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = parametr.api.entity.data.animationframeconfig.getPart.id
+|}
+==== getSpeed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getSpeed()''<br>'''Действие:'''<br>Возвращает время перехода анимации на этот кадр<br>в тиках
+|}
+==== isSmooth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isSmooth()''<br>'''Действие:'''<br>Возвращает плавность анимации этого кадра
+|}
+==== readNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBT(arg0)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT, в который записана настройка кадра анимации<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''arg0''' = parametr.api.entity.data.animationframeconfig.readNBT.arg0
+|}
+==== setEndDelay ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setEndDelay(ticks)''<br>'''Действие:'''<br>Установить время задержки кадра в конце<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''ticks''' = parametr.api.entity.data.animationframeconfig.setEndDelay.ticks
+|}
+==== setSmooth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSmooth(isSmooth)''<br>'''Действие:'''<br>Установить плавность анимации этого кадра<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isSmooth''' = parametr.api.entity.data.animationframeconfig.setSmooth.isSmooth
+|}
+==== setSpeed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSpeed(ticks)''<br>'''Действие:'''<br>Установить время перехода анимации на этот кадр<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''ticks''' = parametr.api.entity.data.animationframeconfig.setSpeed.ticks
+|}
+==== writeNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку кадра анимации через набор тегов NBT
+|}

@@ -80,7 +80,7 @@ implements ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(1, "quest.exp", this.guiLeft + 4, this.guiTop + 45));
 		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 4,
 				this.guiTop + 55, 60, 20, this.quest.rewardExp + ""));
-		this.getTextField(0).numbersOnly = true;
+		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, this.maxXp, 0); // Change
 	}
 

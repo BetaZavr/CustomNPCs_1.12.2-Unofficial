@@ -71,6 +71,7 @@ import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.TransportController;
+import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.TransportLocation;
@@ -137,10 +138,13 @@ implements IGuiHandler {
 			case PlayerFollower: { return new ContainerNPCFollower(npc, player); }
 			case PlayerTrader: { return new ContainerNPCTrader(npc, player); }
 			case SetupItemGiver: { return new ContainerNpcItemGiver(npc, player); }
-			case SetupTrader: { // Change
-				Marcet marcet = MarcetController.getInstance().getMarcet(x);
-				if (marcet == null) { marcet = new Marcet(); }
-				return new ContainerNPCTraderSetup(marcet, y, player);
+			case SetupTraderDeal: { // Change
+				MarcetController mData = MarcetController.getInstance();
+				Marcet marcet= (Marcet) mData.getMarcet(x);
+				if (marcet == null) { marcet = new Marcet(x); }
+				Deal deal = (Deal) mData.getDeal(y);
+				if (deal == null) { deal = new Deal(y, x); }
+				return new ContainerNPCTraderSetup(marcet, deal, player);
 			}
 			case SetupFollower: { return new ContainerNPCFollowerSetup(npc, player); }
 			case QuestReward: { return new ContainerNpcQuestReward(player); }

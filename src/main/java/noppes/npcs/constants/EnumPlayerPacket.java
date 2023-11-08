@@ -61,6 +61,7 @@ public enum EnumPlayerPacket
 	GetFilePart,
 	GetSyncData,
 	TransportCategoriesGet,
-	CustomGuiKeyPressed;
+	CustomGuiKeyPressed,
+	MarketTime;
 	
 }

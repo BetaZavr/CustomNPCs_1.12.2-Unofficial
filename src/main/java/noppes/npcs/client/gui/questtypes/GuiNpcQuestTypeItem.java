@@ -60,24 +60,24 @@ implements ITextfieldListener {
 		// New
 		this.addLabel(new GuiNpcLabel(3, "quest.itemamount", this.guiLeft + 6, this.guiTop + 62));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 91, this.guiTop + 59, 48, 15, this.task.getMaxProgress() + ""));
-		this.getTextField(0).numbersOnly = true;
+		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, 576, 1);
 		
 		this.addLabel(new GuiNpcLabel(11, "X:", this.guiLeft + 4, this.guiTop + 78));
 		this.addTextField(new GuiNpcTextField(10, this, this.fontRenderer, this.guiLeft + 12, this.guiTop + 77, 40, 13, ""+this.task.pos.getX()));
-		this.getTextField(10).numbersOnly = true;
+		this.getTextField(10).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(12, "Y:", this.guiLeft + 54, this.guiTop + 78));
 		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 62, this.guiTop + 77, 40, 13, ""+this.task.pos.getY()));
-		this.getTextField(11).numbersOnly = true;
+		this.getTextField(11).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(13, "Z:", this.guiLeft + 104, this.guiTop + 78));
 		this.addTextField(new GuiNpcTextField(12, this, this.fontRenderer, this.guiLeft + 112, this.guiTop + 77, 40, 13, ""+this.task.pos.getZ()));
-		this.getTextField(12).numbersOnly = true;
+		this.getTextField(12).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(14, "D:", this.guiLeft + 63, this.guiTop + 96));
 		this.addTextField(new GuiNpcTextField(13, this, this.fontRenderer, this.guiLeft + 71, this.guiTop + 95, 25, 13, ""+this.task.dimensionID));
-		this.getTextField(13).numbersOnly = true;
+		this.getTextField(13).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(15, "R:", this.guiLeft + 28, this.guiTop + 96));
 		this.addTextField(new GuiNpcTextField(14, this, this.fontRenderer, this.guiLeft + 36, this.guiTop + 95, 25, 13, ""+this.task.rangeCompass));
-		this.getTextField(14).numbersOnly = true;
+		this.getTextField(14).setNumbersOnly();
 		this.getTextField(14).setMinMaxDefault(0, 64, this.task.rangeCompass);
 		this.addButton(new GuiNpcButton(10, this.guiLeft+109, this.guiTop + this.ySize, 60, 20, "gui.set"));
 		this.addButton(new GuiNpcButton(11, this.guiLeft+87, this.guiTop + this.ySize, 20, 20, "TP"));

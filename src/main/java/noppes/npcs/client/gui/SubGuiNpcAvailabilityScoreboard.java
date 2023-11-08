@@ -88,7 +88,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				!this.select.isEmpty() ? this.dataNames.get(this.select) : ""));
 		this.addTextField(new GuiNpcTextField(1, this, this.guiLeft + 252, this.guiTop + this.ySize - 46, 36, 20,
 				!this.select.isEmpty() ? "" + this.dataSets.get(this.select).scoreboardValue : ""));
-		this.getTextField(1).numbersOnly = true;
+		this.getTextField(1).setNumbersOnly();
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 290, this.guiTop + this.ySize - 46, 20, 20, "X"));
 		this.getButton(2).setEnabled(!this.select.isEmpty());
 

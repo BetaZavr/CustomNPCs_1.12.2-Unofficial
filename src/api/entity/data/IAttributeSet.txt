@@ -1,0 +1,162 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IAttributeSet.java IAttributeSet]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ICustomDrop#addAttribute|ICustomDrop]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/AttributeSet.java AttributeSet]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/IAttribute.html IAttribute]
+| attr
+| ''field.api.entity.data.iattributeset.attr''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| chance
+| ''field.api.entity.data.iattributeset.chance''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DropSet.java DropSet]
+| parent
+| ''field.api.entity.data.iattributeset.parent''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| slot
+| ''field.api.entity.data.iattributeset.slot''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double[]]
+| values
+| ''field.api.entity.data.iattributeset.values''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getAttribute|getAttribute]]()
+| ''Возвращает имя атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getChance|getChance]]()
+| ''Возвращает шанс наложения атрибуты на предмет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getKey|getKey]]()
+| ''Возвращает строку названия для настройки в ГУИ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getMaxValue|getMaxValue]]()
+| ''Возвращает максимальное значение атрибуты для создания''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getMinValue|getMinValue]]()
+| ''Возвращает минимальное значение атрибуты для создания''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getNBT|getNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#getSlot|getSlot]]()
+| ''Возвращает слот ячейки атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#load|load]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtAS)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки атрибуты через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#remove|remove]]()
+| ''Удалить текущие настройки атрибуты из дропа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#setAttribute|setAttribute]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/IAttribute.html IAttribute] attribute)
+| ''Установить имя атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#setAttribute|setAttribute]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить имя атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#setChance|setChance]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] chance)
+| ''Установить шанс наложения атрибуты на предмет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#setSlot|setSlot]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] slot)
+| ''Установить слот ячейки атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet#setValues|setValues]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] min, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] max)
+| ''Установить максимальные и минимальные значения атрибуты для создания''
+|}
+=== Описание методов ===
+
+==== getAttribute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getAttribute()''<br>'''Действие:'''<br>Возвращает имя атрибуты
+|}
+==== getChance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getChance()''<br>'''Действие:'''<br>Возвращает шанс наложения атрибуты на предмет
+|}
+==== getKey ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getKey()''<br>'''Действие:'''<br>Возвращает строку названия для настройки в ГУИ
+|}
+==== getMaxValue ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getMaxValue()''<br>'''Действие:'''<br>Возвращает максимальное значение атрибуты для создания
+|}
+==== getMinValue ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getMinValue()''<br>'''Действие:'''<br>Возвращает минимальное значение атрибуты для создания
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки атрибуты
+|}
+==== getSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getSlot()''<br>'''Действие:'''<br>Возвращает слот ячейки атрибуты
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load(nbtAS)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки атрибуты через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtAS''' = parametr.api.entity.data.attributeset.load.nbtAS
+|}
+==== remove ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] remove()''<br>'''Действие:'''<br>Удалить текущие настройки атрибуты из дропа
+|}
+==== setAttribute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAttribute(attribute)''<br>'''Действие:'''<br>Установить имя атрибуты<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/IAttribute.html IAttribute] '''attribute''' = parametr.api.entity.data.attributeset.setAttribute.attribute
+|}
+==== setAttribute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAttribute(name)''<br>'''Действие:'''<br>Установить имя атрибуты<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = parametr.api.entity.data.attributeset.setAttribute.name
+|}
+==== setChance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setChance(chance)''<br>'''Действие:'''<br>Установить шанс наложения атрибуты на предмет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''chance''' = parametr.api.entity.data.attributeset.setChance.chance
+|}
+==== setSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSlot(slot)''<br>'''Действие:'''<br>Установить слот ячейки атрибуты<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''slot''' = parametr.api.entity.data.attributeset.setSlot.slot
+|}
+==== setValues ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setValues(min, max)''<br>'''Действие:'''<br>Установить максимальные и минимальные значения атрибуты для создания<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''min''' = parametr.api.entity.data.attributeset.setValues.min<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''max''' = parametr.api.entity.data.attributeset.setValues.max
+|}

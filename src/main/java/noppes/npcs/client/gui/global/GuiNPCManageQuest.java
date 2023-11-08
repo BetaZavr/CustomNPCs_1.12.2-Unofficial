@@ -1,7 +1,11 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -20,6 +24,7 @@ import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
@@ -47,7 +52,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	private String selectedCategory = "";
 	private String selectedQuest = "";
 	private Quest copyQuest = null;
-	char chr = Character.toChars(0x00A7)[0];
+	String chr = ""+((char) 167);
+	private static boolean isName = true;
 
 	public GuiNPCManageQuest(EntityNPCInterface npc) {
 		super(npc);
@@ -70,12 +76,26 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		}
 		if (!this.selectedCategory.isEmpty()) {
 			if (this.categoryData.containsKey(this.selectedCategory)) {
+				Map<String, Quest> map = Maps.<String, Quest>newTreeMap();
 				for (Quest quest : this.categoryData.get(this.selectedCategory).quests.values()) {
 					boolean b = quest.isSetUp();
 					String key = chr + "7ID:" + quest.id+"-\"" + chr + "r" + quest.getTitle() + chr + "7\"" + chr + (b ? "2 (" : "c (") + (new TextComponentTranslation("quest.has." + b).getFormattedText()) + chr + (b ? "2)" : "c)");
-					this.questData.put(key, quest);
-					if (this.selectedQuest.isEmpty()) { this.selectedQuest = key; }
+					map.put(key, quest);
 				}
+				List<Entry<String, Quest>> list = Lists.newArrayList(map.entrySet());
+				Collections.sort(list, new Comparator<Entry<String, Quest>>() {
+			        public int compare(Entry<String, Quest> d_0, Entry<String, Quest> d_1) {
+			        	if (GuiNPCManageQuest.isName) {
+			        		String n_0 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_0.getValue().title).getFormattedText() + "_" + d_0.getValue().id).toLowerCase();
+			        		String n_1 = AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d_1.getValue().title).getFormattedText() + "_" + d_1.getValue().id).toLowerCase();
+			        		return n_0.compareTo(n_1); }
+			        	else { return ((Integer) d_0.getValue().id).compareTo((Integer) d_1.getValue().id); }
+			        }
+			    });
+		        for (Entry<String, Quest> entry : list) {
+		        	this.questData.put(entry.getKey(), entry.getValue());
+		        	if (this.selectedQuest.isEmpty()) { this.selectedQuest = entry.getKey(); }
+		        }
 			} else {
 				this.selectedCategory = "";
 				this.selectedQuest = "";
@@ -116,7 +136,11 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		}
 		// scroll info
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
-		this.addLabel(new GuiNpcLabel(1, "quest.quests", this.guiLeft + 175, this.guiTop + 4));
+		this.addLabel(new GuiNpcLabel(1, "quest.quests", this.guiLeft + 180, this.guiTop + 4));
+
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 225, this.guiTop, 90, 12, GuiNPCManageQuest.isName ? "gui.name" : "ID");
+		checkBox.setSelected(GuiNPCManageQuest.isName);
+		this.addButton(checkBox);
 		// quest buttons
 		int x = this.guiLeft + 350, y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(3, "quest.quests", this.guiLeft + 356, this.guiTop + 8));
@@ -132,17 +156,17 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove",!this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(1, x, y += 17, 64, 15, "gui.add"));
 
-		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200); }
+		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, this.ySize - 3); }
 		this.scrollCategories.setList(Lists.newArrayList(this.categoryData.keySet()));
 		this.scrollCategories.guiLeft = this.guiLeft + 4;
-		this.scrollCategories.guiTop = this.guiTop + 14;
+		this.scrollCategories.guiTop = this.guiTop + 15;
 		if (!this.selectedCategory.isEmpty()) { this.scrollCategories.setSelected(this.selectedCategory); }
 		this.addScroll(this.scrollCategories);
 
-		if (this.scrollQuests == null) { (this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, 200); }
+		if (this.scrollQuests == null) { (this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3); }
 		this.scrollQuests.setList(Lists.newArrayList(this.questData.keySet()));
-		this.scrollQuests.guiLeft = this.guiLeft + 175;
-		this.scrollQuests.guiTop = this.guiTop + 14;
+		this.scrollQuests.guiLeft = this.guiLeft + 176;
+		this.scrollQuests.guiTop = this.guiTop + 15;
 		if (ht!=null) { this.scrollQuests.hoversTexts = ht; }
 		if (!this.selectedQuest.isEmpty()) { this.scrollQuests.setSelected(this.selectedQuest); }
 		this.addScroll(this.scrollQuests);
@@ -154,27 +178,22 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.del").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.add").getFormattedText());
-		}
-		else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.quest.paste." + (this.copyQuest!=null), (this.copyQuest!=null ? this.copyQuest.getKey(): "")).getFormattedText());
-		}
-		else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.quest.copy", this.selectedQuest).getFormattedText());
-		}
-		else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.quest.add", this.selectedCategory).getFormattedText());
-		}
-		else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.quest.del", this.selectedQuest).getFormattedText());
-		}
-		else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.quest.edit", this.selectedQuest).getFormattedText());
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
 		}
 	}
 
@@ -229,7 +248,12 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				this.setSubGui(new GuiQuestEdit(this.questData.get(this.selectedQuest)));
 				break;
 			}
-			default: { break; }
+			case 14: {
+				GuiNPCManageQuest.isName = ((GuiNpcCheckBox) button).isSelected();
+				((GuiNpcCheckBox) button).setText(GuiNPCManageQuest.isName ? "gui.name" : "ID");
+				this.initGui();
+				break;
+			}
 		}
 	}
 

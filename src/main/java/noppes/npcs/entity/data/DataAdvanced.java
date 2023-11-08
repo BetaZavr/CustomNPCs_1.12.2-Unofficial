@@ -224,7 +224,7 @@ implements INPCAdvanced {
 		}
 		
 		if (this.roleInterface instanceof RoleTrader && compound.hasKey("MarketID", 3)) {
-			((RoleTrader) this.roleInterface).marcet = compound.getInteger("MarketID");
+			((RoleTrader) this.roleInterface).readFromNBT(compound);
 		}
 		if (compound.hasKey("NPCDialogOptions", 11)) {
 			this.npc.dialogs = compound.getIntArray("NPCDialogOptions"); // new

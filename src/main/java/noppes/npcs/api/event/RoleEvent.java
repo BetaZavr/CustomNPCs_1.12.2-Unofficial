@@ -1,12 +1,11 @@
 package noppes.npcs.api.event;
 
-import java.util.List;
+import java.util.Map;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.ICustomNpc;
@@ -62,19 +61,17 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	public static class TradeFailedEvent extends RoleEvent {
-		
-		public IItemStack[] currency;
-		public IItemStack receiving;
+
+		public Map<IItemStack, Integer> currency;
 		public IItemStack sold;
 
-		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, NonNullList<ItemStack> items) {
+		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			List<IItemStack> list = Lists.<IItemStack>newArrayList();
-			for (ItemStack stack : items) {
+			this.currency = Maps.<IItemStack, Integer>newLinkedHashMap();
+			for (ItemStack stack : items.keySet()) {
 				if (stack == null || stack.isEmpty()) { continue; }
-				list.add(NpcAPI.Instance().getIItemStack(stack.copy()));
+				this.currency.put(NpcAPI.Instance().getIItemStack(stack), items.get(stack));
 			}
-			this.currency = list.toArray(new IItemStack[list.size()]);
 			this.sold = NpcAPI.Instance().getIItemStack(sold.copy());
 		}
 	}
@@ -82,18 +79,17 @@ public class RoleEvent extends CustomNPCsEvent {
 	@Cancelable
 	public static class TraderEvent extends RoleEvent {
 		
-		public IItemStack[] currency;
+		public Map<IItemStack, Integer> currency;
 		public IItemStack sold;
 
-		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, NonNullList<ItemStack> items) {
+		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			List<IItemStack> list = Lists.<IItemStack>newArrayList();
-			for (ItemStack stack : items) {
+			this.currency = Maps.<IItemStack, Integer>newLinkedHashMap();
+			for (ItemStack stack : items.keySet()) {
 				if (stack == null || stack.isEmpty()) { continue; }
-				list.add(NpcAPI.Instance().getIItemStack(stack.copy()));
+				this.currency.put(NpcAPI.Instance().getIItemStack(stack), items.get(stack));
 			}
-			this.currency = list.toArray(new IItemStack[list.size()]);
-			this.sold = NpcAPI.Instance().getIItemStack(sold.copy());
+			this.sold = NpcAPI.Instance().getIItemStack(sold);
 		}
 	}
 

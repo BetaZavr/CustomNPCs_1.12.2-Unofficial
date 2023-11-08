@@ -28,6 +28,7 @@ import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.IDimensionHandler;
 import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.IKeyBinding;
+import noppes.npcs.api.handler.IMarcetHandler;
 import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.item.IItemStack;
@@ -128,5 +129,8 @@ public abstract class NpcAPI {
 	public abstract INpcAttribute getIAttribute(IAttributeInstance mcattribute);
 	
 	public abstract IDimensionHandler getCustomDimention();
+
+	public abstract IMarcetHandler getMarkets();
+	
 	
 }

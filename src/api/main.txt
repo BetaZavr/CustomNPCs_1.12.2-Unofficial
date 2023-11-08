@@ -1,0 +1,57 @@
+'''Раздел noppes.npcs.api'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]]
+| ''Интерфейс для контейнера''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IContainerCustomChest|IContainerCustomChest]]
+| ''Интерфейс для своего контейнера''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/ICustomElement|ICustomElement]]
+| ''Интерфейс для своих блоков, предметов, зелий и прочих добавленных элементов игры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IDamageSource|IDamageSource]]
+| ''Интерфейс для источника урона, наносимого по сущности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IDimension|IDimension]]
+| ''Интерфейс для своего измерения''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource|IEntityDamageSource]]
+| ''Интерфейс для своего источника урона''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/ILayerModel|ILayerModel]]
+| ''Интерфейс для слоя модели скриптового блока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IMetods|IMetods]]
+| ''Интерфейс дополнительных методов для ваших скриптов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| ''Интерфейс для набора тегов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| ''Интерфейс для позиции блока<br>Не содержит сам блок или мир''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IRayTrace|IRayTrace]]
+| ''Интерфейс для трассировки<br>Блоки или сущности полученные путём трассировки между позицией и вектором направления''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboard|IScoreboard]]
+| ''Интерфейс для информационной панели игры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardObjective|IScoreboardObjective]]
+| ''Интерфейс для объекта из информационной панели игры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardScore|IScoreboardScore]]
+| ''Интерфейс для счёта объекта из информационной панели игры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam|IScoreboardTeam]]
+| ''Интерфейс для команды игроков из информационной панели игры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/ITimers|ITimers]]
+| ''Интерфейс для таймеров объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]]
+| ''Интерфейс для мира / измерения''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI|NpcAPI]]
+| ''Класс-база управляющая основными параметрами и методами модификации''

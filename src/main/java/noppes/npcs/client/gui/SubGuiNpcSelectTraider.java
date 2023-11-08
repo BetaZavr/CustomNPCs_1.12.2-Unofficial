@@ -22,8 +22,9 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
 
 public class SubGuiNpcSelectTraider extends SubGuiInterface implements IGuiData, ICustomScrollListener {
-	private Map<String, Integer> data;
+	
 	public int id;
+	private Map<String, Integer> data;
 	private GuiCustomScroll scrollMarcets;
 	private String select;
 
@@ -39,9 +40,40 @@ public class SubGuiNpcSelectTraider extends SubGuiInterface implements IGuiData,
 	}
 
 	@Override
+	public void initGui() {
+		super.initGui();
+		List<String> list = new ArrayList<String>();
+		this.data.clear();
+		for (Marcet m : MarcetController.getInstance().marcets.values()) {
+			if (!m.isValid()) { continue; }
+			String name = m.getSettingName();
+			list.add(name);
+			this.data.put(name, m.getId());
+			if (this.id == m.getId()) { this.select = name; }
+		}
+		if (this.scrollMarcets == null) { (this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(170, 157); }
+		int x = this.guiLeft + 12, y = this.guiTop + 14;
+		this.scrollMarcets.guiLeft = x;
+		this.scrollMarcets.guiTop = y;
+		this.scrollMarcets.setList(list);
+		if (this.data.containsValue(this.id) && !this.select.isEmpty()) {
+			this.scrollMarcets.setSelected(this.select);
+		}
+		this.addLabel(new GuiNpcLabel(0, "market.select", x + 2, y - 10));
+		this.addScroll(this.scrollMarcets);
+		
+		this.addButton(new GuiNpcButton(66, this.guiLeft + 50, this.guiTop + 190, 90, 20, "gui.done"));
+	}
+
+
+	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 66) {
-			this.close();
+		GuiNpcButton button = (GuiNpcButton) guibutton;
+		switch (button.id) {
+			case 66: {
+				this.close();
+				break;
+			}
 		}
 	}
 
@@ -60,43 +92,14 @@ public class SubGuiNpcSelectTraider extends SubGuiInterface implements IGuiData,
 		if (!CustomNpcs.showDescriptions || this.subgui != null) {
 			return;
 		}
-		if (isMouseHover(i, j, this.guiLeft + 12, this.guiTop + 4, 194, 10)) {
-			this.setHoverText(new TextComponentTranslation("market.hover.list").getFormattedText());
+		if (this.getLabel(0)!=null && this.getLabel(0).hovered) {
+			this.setHoverText(new TextComponentTranslation("market.hover.role.list").getFormattedText());
+		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("market.hover.role.own").getFormattedText());
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 	}
-
-	@Override
-	public void initGui() {
-		super.initGui();
-		List<String> list = new ArrayList<String>();
-		this.data.clear();
-		for (Marcet m : MarcetController.getInstance().marcets.values()) {
-			if (m.hasEmpty()) {
-				continue;
-			}
-			String name = m.getSettingName();
-			list.add(name);
-			this.data.put(name, m.id);
-			if (this.id == m.id) {
-				this.select = name;
-			}
-		}
-		if (this.scrollMarcets == null) {
-			(this.scrollMarcets = new GuiCustomScroll(this, 0)).setSize(170, 174);
-		}
-		this.scrollMarcets.guiLeft = this.guiLeft + 12;
-		this.scrollMarcets.guiTop = this.guiTop + 14;
-		this.scrollMarcets.setList(list);
-		if (this.data.containsValue(this.id) && !this.select.isEmpty()) {
-			this.scrollMarcets.setSelected(this.select);
-		}
-		this.addScroll(this.scrollMarcets);
-
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 50, this.guiTop + 190, 90, 20, "gui.done"));
-
-		this.addLabel(new GuiNpcLabel(2, "gui.select.market", this.guiLeft + 12, this.guiTop + 4));
-	}
-
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(this.select) || !this.data.containsKey(scroll.getSelected())) {

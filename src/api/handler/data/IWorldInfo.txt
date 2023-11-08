@@ -1,0 +1,305 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IWorldInfo.java IWorldInfo]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDimensionHandler#createDimension|IDimensionHandler]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/dimensions/CustomWorldInfo.java CustomWorldInfo]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/EnumDifficulty.html EnumDifficulty]
+| DEFAULT_DIFFICULTY
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>field.api.handler.data.iworldinfo.DEFAULT_DIFFICULTY''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| additionalProperties
+| ''field.api.handler.data.iworldinfo.additionalProperties''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| allowCommands
+| ''field.api.handler.data.iworldinfo.allowCommands''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| borderCenterX
+| ''field.api.handler.data.iworldinfo.borderCenterX''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| borderCenterZ
+| ''field.api.handler.data.iworldinfo.borderCenterZ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| borderDamagePerBlock
+| ''field.api.handler.data.iworldinfo.borderDamagePerBlock''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| borderSafeZone
+| ''field.api.handler.data.iworldinfo.borderSafeZone''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| borderSize
+| ''field.api.handler.data.iworldinfo.borderSize''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| borderSizeLerpTarget
+| ''field.api.handler.data.iworldinfo.borderSizeLerpTarget''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| borderSizeLerpTime
+| ''field.api.handler.data.iworldinfo.borderSizeLerpTime''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| borderWarningDistance
+| ''field.api.handler.data.iworldinfo.borderWarningDistance''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| borderWarningTime
+| ''field.api.handler.data.iworldinfo.borderWarningTime''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| cleanWeatherTime
+| ''field.api.handler.data.iworldinfo.cleanWeatherTime''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/EnumDifficulty.html EnumDifficulty]
+| difficulty
+| ''field.api.handler.data.iworldinfo.difficulty''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| difficultyLocked
+| ''field.api.handler.data.iworldinfo.difficultyLocked''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| dimension
+| ''field.api.handler.data.iworldinfo.dimension''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| dimensionData
+| ''field.api.handler.data.iworldinfo.dimensionData''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/GameRules.html GameRules]
+| gameRules
+| ''field.api.handler.data.iworldinfo.gameRules''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/GameType.html GameType]
+| gameType
+| ''field.api.handler.data.iworldinfo.gameType''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| generatorOptions
+| ''field.api.handler.data.iworldinfo.generatorOptions''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| hardcore
+| ''field.api.handler.data.iworldinfo.hardcore''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| id
+| ''field.api.handler.data.iworldinfo.id''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| initialized
+| ''field.api.handler.data.iworldinfo.initialized''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| lastTimePlayed
+| ''field.api.handler.data.iworldinfo.lastTimePlayed''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| levelName
+| ''field.api.handler.data.iworldinfo.levelName''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| mapFeaturesEnabled
+| ''field.api.handler.data.iworldinfo.mapFeaturesEnabled''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| playerTag
+| ''field.api.handler.data.iworldinfo.playerTag''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| rainTime
+| ''field.api.handler.data.iworldinfo.rainTime''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| raining
+| ''field.api.handler.data.iworldinfo.raining''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| randomSeed
+| ''field.api.handler.data.iworldinfo.randomSeed''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| saveVersion
+| ''field.api.handler.data.iworldinfo.saveVersion''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| sizeOnDisk
+| ''field.api.handler.data.iworldinfo.sizeOnDisk''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| spawnX
+| ''field.api.handler.data.iworldinfo.spawnX''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| spawnY
+| ''field.api.handler.data.iworldinfo.spawnY''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| spawnZ
+| ''field.api.handler.data.iworldinfo.spawnZ''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/WorldType.html WorldType]
+| terrainType
+| ''field.api.handler.data.iworldinfo.terrainType''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| thunderTime
+| ''field.api.handler.data.iworldinfo.thunderTime''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| thundering
+| ''field.api.handler.data.iworldinfo.thundering''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| totalTime
+| ''field.api.handler.data.iworldinfo.totalTime''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| versionId
+| ''field.api.handler.data.iworldinfo.versionId''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| versionName
+| ''field.api.handler.data.iworldinfo.versionName''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| versionSnapshot
+| ''field.api.handler.data.iworldinfo.versionSnapshot''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| worldTime
+| ''field.api.handler.data.iworldinfo.worldTime''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#areCommandsAllowed|areCommandsAllowed]]()
+| ''method.api.handler.data.iworldinfo.areCommandsAllowed''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/EnumDifficulty.html EnumDifficulty]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getDifficulty|getDifficulty]]()
+| ''method.api.handler.data.iworldinfo.getDifficulty''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/GameRules.html GameRules]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getGameRulesInstance|getGameRulesInstance]]()
+| ''Возвращает собранный / загруженный объект этого класса''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/GameType.html GameType]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getGameType|getGameType]]()
+| ''method.api.handler.data.iworldinfo.getGameType''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getId|getId]]()
+| ''Возвращает ID измерения''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getLastTimePlayed|getLastTimePlayed]]()
+| ''method.api.handler.data.iworldinfo.getLastTimePlayed''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getNbt|getNbt]]()
+| ''Возвращает набор тегов, в который записаны настройки измерения''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#getPlayerNBTTagCompound|getPlayerNBTTagCompound]]()
+| ''method.api.handler.data.iworldinfo.getPlayerNBTTagCompound''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#isDifficultyLocked|isDifficultyLocked]]()
+| ''method.api.handler.data.iworldinfo.isDifficultyLocked''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#isHardcoreModeEnabled|isHardcoreModeEnabled]]()
+| ''method.api.handler.data.iworldinfo.isHardcoreModeEnabled''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#load|load]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''method.api.handler.data.iworldinfo.load''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#read|read]]()
+| ''method.api.handler.data.iworldinfo.read''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo#setNbt|setNbt]]([[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] nbt)
+| ''Перезаписать настройки своего измерения через набор тегов<br>{{цвет|Indigo|Только для}} {{цвет|Blue|мега}} {{цвет|Orange|BRO}}''
+|}
+=== Описание методов ===
+
+==== areCommandsAllowed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] areCommandsAllowed()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.areCommandsAllowed
+|}
+==== getDifficulty ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/EnumDifficulty.html EnumDifficulty] getDifficulty()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.getDifficulty
+|}
+==== getGameRulesInstance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/GameRules.html GameRules] getGameRulesInstance()''<br>'''Действие:'''<br>Возвращает собранный / загруженный объект этого класса
+|}
+==== getGameType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/GameType.html GameType] getGameType()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.getGameType
+|}
+==== getId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getId()''<br>'''Действие:'''<br>Возвращает ID измерения
+|}
+==== getLastTimePlayed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] getLastTimePlayed()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.getLastTimePlayed
+|}
+==== getNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getNbt()''<br>'''Действие:'''<br>Возвращает набор тегов, в который записаны настройки измерения
+|}
+==== getPlayerNBTTagCompound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getPlayerNBTTagCompound()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.getPlayerNBTTagCompound
+|}
+==== isDifficultyLocked ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDifficultyLocked()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.isDifficultyLocked
+|}
+==== isHardcoreModeEnabled ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isHardcoreModeEnabled()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.isHardcoreModeEnabled
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load(nbt)''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.load<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}
+==== read ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] read()''<br>'''Действие:'''<br>method.api.handler.data.iworldinfo.read
+|}
+==== setNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNbt(nbt)''<br>'''Действие:'''<br>Перезаписать настройки своего измерения через набор тегов<br>{{цвет|Indigo|Только для}} {{цвет|Blue|мега}} {{цвет|Orange|BRO}}<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] '''nbt''' = набор тегов NBT
+|}

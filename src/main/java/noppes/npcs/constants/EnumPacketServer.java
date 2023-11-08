@@ -34,10 +34,10 @@ public enum EnumPacketServer
 	TransformSave(CustomNpcsPermissions.NPC_ADVANCED, true), 
 	TransformGet(true), 
 	TransformLoad(CustomNpcsPermissions.NPC_ADVANCED, true), 
-	TraderMarketSave(CustomNpcsPermissions.GLOBAL_MARCET, true), 
-	TraderMarketGet(CustomNpcsPermissions.GLOBAL_MARCET, true), // New
-	TraderMarketNew(CustomNpcsPermissions.GLOBAL_MARCET, true), // New
-	TraderMarketDel(CustomNpcsPermissions.GLOBAL_MARCET, true), // New
+	TraderMarketSave(CustomNpcsPermissions.GLOBAL_MARCET, false), 
+	TraderMarketGet(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
+	TraderMarketNew(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
+	TraderMarketDel(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
 	AnimationSave(CustomNpcsPermissions.NPC_ADVANCED, true),
 	AnimationGlobalSave(true), 
 	AnimationGet(true), 

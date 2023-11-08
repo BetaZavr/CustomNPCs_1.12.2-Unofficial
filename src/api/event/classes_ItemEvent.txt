@@ -1,0 +1,102 @@
+<big>'''Класс noppes.npcs.api.event.[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/event/ItemEvent.java ItemEvent]'''</big><br>
+=== Суб-классы ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/AttackEvent|AttackEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/InitEvent|InitEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/InteractEvent|InteractEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/PickedUpEvent|PickedUpEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/SpawnEvent|SpawnEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/TossedEvent|TossedEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/UpdateEvent|UpdateEvent]]<br>
+== Классы событий ==
+{| class="wikitable" style="text-align:left
+! Классы: !! Имя функции: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/AttackEvent|ItemEvent.AttackEvent]]
+| {{цвет|DarkGreen|'''attack'''}}
+| ''Событие при клике левой кнопкой мыши игроком с предметом-пачкой в правой руке''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/InitEvent|ItemEvent.InitEvent]]
+| {{цвет|DarkGreen|'''init'''}}
+| ''Событие при инициализации предмета-пачки''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/InteractEvent|ItemEvent.InteractEvent]]
+| {{цвет|DarkGreen|'''interact'''}}
+| ''Событие при клике правой кнопкой мыши игроком с предметом-пачкой в правой руке''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/PickedUpEvent|ItemEvent.PickedUpEvent]]
+| {{цвет|DarkGreen|'''pickedUp'''}}
+| ''Событие при поднятии игроком этого предмета-пачки''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/SpawnEvent|ItemEvent.SpawnEvent]]
+| {{цвет|DarkGreen|'''spawn'''}}
+| ''Событие при призыве предмета-пачки в мир / измерение как дроп''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/TossedEvent|ItemEvent.TossedEvent]]
+| {{цвет|DarkGreen|'''tossed'''}}
+| ''Событие при потере игроком этого предмета-пачки''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/ItemEvent/UpdateEvent|ItemEvent.UpdateEvent]]
+| {{цвет|DarkGreen|'''tick'''}}
+| ''Событие срабатывающее каждые 10 тиков (0,5 секунды), пока предмет в инвентаре игрока''
+|}
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание: !! Унаследовано из:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemScripted|IItemScripted]]
+| item
+| ''интерфейс предмета-пачки''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI|NpcAPI]]
+| API
+| ''Класс-база управляющая основными параметрами и методами модификации''
+| [[Custom NPCs/Unoficial_API_1.12.2/api/event/CustomNPCsEvent|CustomNPCsEvent]]
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание: !! Унаследовано из:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#setup setup]()
+| ''Используется для настройки события при его создании''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/event$resultResult.html Result]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#getResult getResult]()
+| ''Возвращает результат работы события (DENY, DEFAULT, ALLOW)''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#setResult setResult]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/event$resultResult.html Result] result)
+| ''Установить результат работы события (DENY, DEFAULT, ALLOW)''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#isCanceled isCanceled]()
+| ''Возвращает отменено ли событие или нет''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#setCanceled setCanceled]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] cancel)
+| ''Установить отменено ли событие или нет''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/EventPriority.html EventPriority]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#getPhase getPhase]()
+| ''Возвращает фазу работы события (HIGHEST, HIGH, NORMAL, LOW, LOWEST)''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/ListenerList.html ListenerList]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#getListenerList getListenerList]()
+| ''Возвращает все объекты, на которых распространяется это событие''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#isCancelable isCancelable]()
+| ''Возвращает можно ли отменить событие или нет''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#hasResult hasResult]()
+| ''Возвращает есть ли результат работы события''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html#setPhase setPhase]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/EventPriority.html EventPriority] priority)
+| ''Установить фазу работы события (HIGHEST, HIGH, NORMAL, LOW, LOWEST)''
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/Event.html Event]
+|}

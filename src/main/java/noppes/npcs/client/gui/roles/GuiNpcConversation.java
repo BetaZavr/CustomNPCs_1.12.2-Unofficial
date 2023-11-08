@@ -85,19 +85,19 @@ implements ITextfieldListener, GuiSelectionListener {
 			if (i > 0) {
 				this.addTextField(new GuiNpcTextField(i + 14, this, this.fontRenderer, this.guiLeft + 164 + offset,
 						this.guiTop + 13 + i % 7 * 22, 30, 20, line.delay + ""));
-				this.getTextField(i + 14).numbersOnly = true;
+				this.getTextField(i + 14).setNumbersOnly();
 				this.getTextField(i + 14).setMinMaxDefault(5, 1000, 40);
 			}
 		}
 		this.addLabel(new GuiNpcLabel(50, "conversation.delay", this.guiLeft + 202, this.guiTop + 175));
 		this.addTextField(new GuiNpcTextField(50, this, this.fontRenderer, this.guiLeft + 260, this.guiTop + 170, 40,
 				20, this.job.generalDelay + ""));
-		this.getTextField(50).numbersOnly = true;
+		this.getTextField(50).setNumbersOnly();
 		this.getTextField(50).setMinMaxDefault(10, 1000000, 12000);
 		this.addLabel(new GuiNpcLabel(54, "gui.range", this.guiLeft + 202, this.guiTop + 196));
 		this.addTextField(new GuiNpcTextField(54, this, this.fontRenderer, this.guiLeft + 260, this.guiTop + 191, 40,
 				20, this.job.range + ""));
-		this.getTextField(54).numbersOnly = true;
+		this.getTextField(54).setNumbersOnly();
 		this.getTextField(54).setMinMaxDefault(4, 60, 20);
 		this.addLabel(new GuiNpcLabel(51, "quest.quest", this.guiLeft + 13, this.guiTop + 175));
 		String title = this.job.questTitle;

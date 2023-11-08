@@ -1,0 +1,26 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IPixelmonPlayerData.java IPixelmonPlayerData]<br><br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IPixelmonPlayerData#getPC|getPC]]()
+| ''Возвращает данные игрока модификации Pixelmon''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IPixelmonPlayerData#getParty|getParty]]()
+| ''Возвращает данные группы модификации Pixelmon''
+|}
+=== Описание методов ===
+
+==== getPC ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] getPC()''<br>'''Действие:'''<br>Возвращает данные игрока модификации Pixelmon
+|}
+==== getParty ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] getParty()''<br>'''Действие:'''<br>Возвращает данные группы модификации Pixelmon
+|}

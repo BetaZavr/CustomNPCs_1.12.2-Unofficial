@@ -33,6 +33,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
@@ -80,7 +81,16 @@ implements IWorld {
 
 	@Override
 	public void broadcast(String message) {
-		this.world.getMinecraftServer().getPlayerList().sendMessage(new TextComponentString(message));
+		if (this.world.getMinecraftServer() != null) {
+			this.world.getMinecraftServer().getPlayerList().sendMessage(new TextComponentString(message));
+		} else if (CustomNpcs.Server != null) {
+			CustomNpcs.Server.getPlayerList().sendMessage(new TextComponentString(message));
+		} else {
+			EntityPlayer player = CustomNpcs.proxy.getPlayer();
+			if (player!=null) {
+				player.sendMessage(new TextComponentString(message));
+			}
+		}
 	}
 
 	@Override

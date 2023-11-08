@@ -123,6 +123,7 @@ import noppes.npcs.client.gui.GuiNpcWaypoint;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.dimentions.GuiCreateDimension;
 import noppes.npcs.client.gui.global.GuiNPCManageBanks;
+import noppes.npcs.client.gui.global.GuiNPCManageDeal;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
 import noppes.npcs.client.gui.global.GuiNPCManageFactions;
 import noppes.npcs.client.gui.global.GuiNPCManageLinkedNpc;
@@ -426,7 +427,8 @@ extends CommonProxy {
 			case ScriptPlayers: { return new GuiScriptGlobal(); }
 			case SetupFollower: { return new GuiNpcFollowerSetup(npc, (ContainerNPCFollowerSetup) container); }
 			case SetupItemGiver: { return new GuiNpcItemGiver(npc, (ContainerNpcItemGiver) container); }
-			case SetupTrader: { return new GuiNPCManageMarcets(npc, (ContainerNPCTraderSetup) container); }
+			case SetupTrader: { return new GuiNPCManageMarcets(npc, x, y); }
+			case SetupTraderDeal: { return new GuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container); }
 			case SetupTransporter: { return new GuiNpcTransporter(npc); }
 			case SetupBank: { return new GuiNpcBankSetup(npc); }
 			case NpcRemote: {

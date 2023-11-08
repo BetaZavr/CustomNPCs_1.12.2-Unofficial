@@ -1,0 +1,150 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/gui|gui]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/gui/ITexturedRect.java ITexturedRect]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGui#addTexturedRect|ICustomGui]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addTexturedRect|IOverlayHUD]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiTexturedRectWrapper.java CustomGuiTexturedRectWrapper]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#createFromNBT|createFromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#fromNBT|fromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getHoverText|getHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getId|getId]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getPosX|getPosX]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getPosY|getPosY]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getType|getType]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#hasHoverText|hasHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#offSet|offSet]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setHoverText|setHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setHoverText|setHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setId|setId]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setPos|setPos]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#toNBT|toNBT]]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiComponentWrapper.java CustomGuiComponentWrapper]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#fromNBT|fromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку ГИУ текстуры через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getColor|getColor]]()
+| ''Возвращает цвет маски, накладываемой на текстуру''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getHeight|getHeight]]()
+| ''Возвращает высоту ГУИ текстуры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getScale|getScale]]()
+| ''Возвращает масштаб ГУИ текстуры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getTexture|getTexture]]()
+| ''Возвращает название текстуры, как путь до текстуры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getTextureX|getTextureX]]()
+| ''Возвращает значение U (положение по оси X) начала отрисовки из текстуры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getTextureY|getTextureY]]()
+| ''Возвращает значение V (положение по оси Y) начала отрисовки из текстуры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getType|getType]]()
+| ''Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|тип компонента]] (2)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#getWidth|getWidth]]()
+| ''Возвращает длину ГУИ текстуры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#setColor|setColor]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] color)
+| ''Установить цвет маски, накладываемой на текстуру''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#setScale|setScale]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] scale)
+| ''Установить масштаб ГУИ текстуры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#setSize|setSize]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height)
+| ''Установить длину и высоту  ГУИ текстуры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#setTexture|setTexture]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] texture)
+| ''Установить название текстуры, как путь до текстуры''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#setTextureOffset|setTextureOffset]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] textureX, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] textureY)
+| ''Установить значения UV (положение по оси X и Y) начала отрисовки из текстуры''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect#toNBT|toNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка ГИУ текстуры''
+|}
+=== Описание методов ===
+
+==== fromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiComponentWrapper.java CustomGuiComponentWrapper] fromNBT(nbt)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку ГИУ текстуры через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}
+==== getColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getColor()''<br>'''Действие:'''<br>Возвращает цвет маски, накладываемой на текстуру
+|}
+==== getHeight ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getHeight()''<br>'''Действие:'''<br>Возвращает высоту ГУИ текстуры
+|}
+==== getScale ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getScale()''<br>'''Действие:'''<br>Возвращает масштаб ГУИ текстуры
+|}
+==== getTexture ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getTexture()''<br>'''Действие:'''<br>Возвращает название текстуры, как путь до текстуры
+|}
+==== getTextureX ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTextureX()''<br>'''Действие:'''<br>Возвращает значение U (положение по оси X) начала отрисовки из текстуры
+|}
+==== getTextureY ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTextureY()''<br>'''Действие:'''<br>Возвращает значение V (положение по оси Y) начала отрисовки из текстуры
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|тип компонента]] (2)
+|}
+==== getWidth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getWidth()''<br>'''Действие:'''<br>Возвращает длину ГУИ текстуры
+|}
+==== setColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] setColor(color)''<br>'''Действие:'''<br>Установить цвет маски, накладываемой на текстуру<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''color''' = цвет ARGB в десетиричном виде (пример оранжевый: 0xFF8000 или 16744448)
+|}
+==== setScale ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] setScale(scale)''<br>'''Действие:'''<br>Установить масштаб ГУИ текстуры<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''scale''' = масштаб текстуры
+|}
+==== setSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] setSize(width, height)''<br>'''Действие:'''<br>Установить длину и высоту  ГУИ текстуры<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина компонента<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота компонента
+|}
+==== setTexture ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] setTexture(texture)''<br>'''Действие:'''<br>Установить название текстуры, как путь до текстуры<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''texture''' = путь к текстуре
+|}
+==== setTextureOffset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ITexturedRect|ITexturedRect]] setTextureOffset(textureX, textureY)''<br>'''Действие:'''<br>Установить значения UV (положение по оси X и Y) начала отрисовки из текстуры<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''textureX''' = значение U (по оси X)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''textureY''' = значение V (по оси Y)
+|}
+==== toNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] toNBT(nbt)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка ГИУ текстуры<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}

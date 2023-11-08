@@ -51,6 +51,7 @@ import noppes.npcs.client.gui.GuiAchievement;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerAdd;
 import noppes.npcs.client.gui.GuiNpcRemoteEditor;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
+import noppes.npcs.client.gui.global.GuiNPCManageMarcets;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.player.GuiCustomChest;
 import noppes.npcs.client.gui.player.GuiNPCTrader;
@@ -127,7 +128,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				type = EnumPacketClient.values()[buffer.readInt()];
 				if (!PacketHandlerClient.list.contains(type)) {
 					LogWriter.debug("Received: " + type);
-				} // Changed
+				}
 				this.client(buffer, player, type);
 			} catch (Exception e) {
 				LogWriter.error("Error with EnumPacketClient." + type, e);
@@ -517,35 +518,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 			IRecipe recipe = CraftingManager.REGISTRY.getObjectById(buffer.readInt());
 			((IRecipeShownListener) gui).func_194310_f().setupGhostRecipe(recipe, container.inventorySlots);
-		} else if (type == EnumPacketClient.SET_MARCETS) {
-			MarcetController mData = MarcetController.getInstance();
-			mData.loadMarcets(Server.readNBT(buffer));
-			GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-			if (gui == null) {
-				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
-				return;
-			}
-			if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
-				gui = ((GuiNPCInterface) gui).getSubGui();
-			} else if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
-				gui = ((GuiContainerNPCInterface) gui).getSubGui();
-			}
-			if (gui instanceof IGuiData) {
-				((IGuiData) gui).setGuiData(mData.getNBT());
-			}
-		} else if (type == EnumPacketClient.MARCET_UPDATE) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			Marcet m = MarcetController.getInstance().getMarcet(compound.getInteger("MarcetID"));
-			if (m != null) {
-				m.readFromNBT(compound);
-				m.addListener(player, false);
-			}
-			GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-			if (gui instanceof GuiNPCTrader) {
-				((IGuiData) gui).setGuiData(compound);
-			}
 		} else if (type == EnumPacketClient.MARCET_CLOSE) {
-			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
+			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
 				m.removeListener(player, false);
 			}
@@ -554,10 +528,42 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				gui.onGuiClosed();
 			}
 		} else if (type == EnumPacketClient.MARCET_DATA) {
-			if (buffer.readBoolean()) {
-				MarcetController.getInstance().loadMarcet(Server.readNBT(buffer));
-			} else {
-				MarcetController.getInstance().marcets.clear();
+			boolean updateGui = false;
+			int t = buffer.readInt();
+			switch(t) {
+				case 0: {
+					MarcetController.getInstance().marcets.clear();
+					MarcetController.getInstance().deals.clear();
+					break;
+				}
+				case 1: {
+					MarcetController.getInstance().loadMarcet(Server.readNBT(buffer));
+					break;
+				}
+				case 2: {
+					updateGui = true;
+					break;
+				}
+				case 3: {
+					MarcetController.getInstance().loadDeal(Server.readNBT(buffer));
+					break;
+				}
+				case 4: {
+					MarcetController.getInstance().removeMarcet(buffer.readInt());
+					updateGui = true;
+					break;
+				}
+			}
+			if (!updateGui) { return; }
+			GuiScreen gui = Minecraft.getMinecraft().currentScreen;
+			if (gui == null) {
+				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
+				return;
+			}
+			if (gui instanceof GuiNPCTrader) {
+				((GuiNPCTrader) gui).setGuiData(new NBTTagCompound());
+			} else if (gui instanceof GuiNPCManageMarcets) {
+				((GuiNPCManageMarcets) gui).setGuiData(new NBTTagCompound());
 			}
 		} else if (type == EnumPacketClient.SCRIPT_DATA) {
 			GuiScreen gui = Minecraft.getMinecraft().currentScreen;

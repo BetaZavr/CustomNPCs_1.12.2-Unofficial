@@ -1,0 +1,57 @@
+'''Раздел noppes.npcs.api.entity.data.role'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobBard|IJobBard]]
+| ''Интерфейс для работы NPC - Бард''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobBuilder|IJobBuilder]]
+| ''Интерфейс для работы NPC - Строитель''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobChunkLoader|IJobChunkLoader]]
+| ''Интерфейс для работы NPC - Загрузчик чанка''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation|IJobConversation]]
+| ''Интерфейс для работы NPC - Разговорщик''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer|IJobFarmer]]
+| ''Интерфейс для работы NPC - Фермер''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFollower|IJobFollower]]
+| ''Интерфейс для работы NPC - Последователь''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobGuard|IJobGuard]]
+| ''Интерфейс для работы NPC - Стражник''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobHealer|IJobHealer]]
+| ''Интерфейс для работы NPC - Целитель''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobItemGiver|IJobItemGiver]]
+| ''Интерфейс для работы NPC - Раздатчик ресурсов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner|IJobSpawner]]
+| ''Интерфейс для работы NPC - Призватель''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleBank|IRoleBank]]
+| ''Интерфейс для роли NPC - Банкир''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion|IRoleCompanion]]
+| ''Интерфейс для роли NPC - Компаньён''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog|IRoleDialog]]
+| ''Интерфейс для роли NPC - Разговорщик''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleFollower|IRoleFollower]]
+| ''Интерфейс для роли NPC - Наёмник''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRolePostman|IRolePostman]]
+| ''Интерфейс для роли NPC - Почтальон''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTrader|IRoleTrader]]
+| ''Интерфейс для роли NPC - Торговец''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleTransporter|IRoleTransporter]]
+| ''Интерфейс для роли NPC - Транспортировщик''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/ITransportLocation|ITransportLocation]]
+| ''Интерфейс для локации на телепортацию NPC транспортировщика''

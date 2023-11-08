@@ -10,18 +10,13 @@ extends GuiTextField {
 	
 	private static GuiNpcTextField activeTextfield = null;
 	private int[] allowedSpecialChars;
-	public boolean canEdit;
-	public boolean doubleNumbersOnly;
-	public boolean enabled;
-	// New
-	public boolean inMenu;
+	public boolean enabled, inMenu, hovered;
+	protected boolean canEdit;
+	private boolean numbersOnly;
+	private boolean doubleNumbersOnly;
 	private ITextfieldListener listener;
-	public int min, max, def;
-
+	public long min, max, def;
 	public double minD, maxD, defD;
-
-	public boolean numbersOnly;
-	private boolean hovered;
 
 	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height, String text) {
 		super(id, fontRenderer, x, y, width, height);
@@ -99,6 +94,12 @@ extends GuiTextField {
 		return i;
 	}
 
+	public long getLong() {
+		long i = 0L;
+		try { i = Long.parseLong(this.getText()); } catch (Exception e) {}
+		return i;
+	}
+
 	public boolean isDouble() {
 		try {
 			Double.parseDouble(this.getText().replace(",", "."));
@@ -114,6 +115,15 @@ extends GuiTextField {
 	public boolean isInteger() {
 		try {
 			Integer.parseInt(this.getText());
+			return true;
+		}
+		catch (NumberFormatException e) { }
+		return false;
+	}
+	
+	public boolean isLong() {
+		try {
+			Long.parseLong(this.getText());
 			return true;
 		}
 		catch (NumberFormatException e) { }
@@ -141,7 +151,7 @@ extends GuiTextField {
 		return this;
 	}
 
-	public void setMinMaxDefault(int min, int max, int def) {
+	public void setMinMaxDefault(long min, long max, long def) {
 		this.min = min;
 		this.max = max;
 		this.def = def;

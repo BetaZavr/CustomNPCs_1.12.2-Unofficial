@@ -132,19 +132,19 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 		
 		this.addLabel(new GuiNpcLabel(11, "X:", this.guiLeft + 4, this.guiTop + 38));
 		this.addTextField(new GuiNpcTextField(10, this, this.fontRenderer, this.guiLeft + 12, this.guiTop + 37, 40, 13, ""+this.task.pos.getX()));
-		this.getTextField(10).numbersOnly = true;
+		this.getTextField(10).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(12, "Y:", this.guiLeft + 56, this.guiTop + 38));
 		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 64, this.guiTop + 37, 40, 13, ""+this.task.pos.getY()));
-		this.getTextField(11).numbersOnly = true;
+		this.getTextField(11).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(13, "Z:", this.guiLeft + 108, this.guiTop + 38));
 		this.addTextField(new GuiNpcTextField(12, this, this.fontRenderer, this.guiLeft + 116, this.guiTop + 37, 40, 13, ""+this.task.pos.getZ()));
-		this.getTextField(12).numbersOnly = true;
+		this.getTextField(12).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(14, "D:", this.guiLeft + 4, this.guiTop + 56));
 		this.addTextField(new GuiNpcTextField(13, this, this.fontRenderer, this.guiLeft + 12, this.guiTop + 55, 40, 13, ""+this.task.dimensionID));
-		this.getTextField(13).numbersOnly = true;
+		this.getTextField(13).setNumbersOnly();
 		this.addLabel(new GuiNpcLabel(15, "R:", this.guiLeft + 160, this.guiTop + 38));
 		this.addTextField(new GuiNpcTextField(14, this, this.fontRenderer, this.guiLeft + 170, this.guiTop + 37, 45, 13, ""+this.task.rangeCompass));
-		this.getTextField(14).numbersOnly = true;
+		this.getTextField(14).setNumbersOnly();
 		this.getTextField(14).setMinMaxDefault(0, 64, this.task.rangeCompass);
 		this.addButton(new GuiNpcButton(10, this.guiLeft+183, this.guiTop + 72, 60, 20, "gui.set"));
 		this.addButton(new GuiNpcButton(11, this.guiLeft+161, this.guiTop + 72, 20, 20, "TP"));

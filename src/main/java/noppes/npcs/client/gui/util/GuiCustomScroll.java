@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -173,7 +175,9 @@ extends GuiScreen {
 		}
 		this.drawItems();
 		GlStateManager.popMatrix();
-		if (this.stacks != null) { this.drawStacks(); }
+		if (this.stacks != null && this.parent!=null &&
+				((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) ||
+				(this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) { this.drawStacks(); }
 		if (this.scrollHeight < this.height - 8) {
 			this.drawScrollBar(); // Changed
 			mouseX -= this.guiLeft;
@@ -314,13 +318,12 @@ extends GuiScreen {
 	}
 
 	private boolean isSameList(List<String> list) {
-		if (this.list.size() != list.size()) {
-			return false;
-		}
-		for (String s : this.list) {
-			if (!list.contains(s)) {
-				return false;
-			}
+		if (this.list.size() != list.size()) { return false; }
+		for (int i = 0; i < this.list.size(); i++) {
+			String s = this.list.get(i);
+			if (!list.contains(s)) { return false; }
+			String l = list.get(i);
+			if (!s.equalsIgnoreCase(l)) { return false; }
 		}
 		return true;
 	}
@@ -393,6 +396,7 @@ extends GuiScreen {
 	}
 
 	public void setList(List<String> list) {
+		if (list==null) { list = Lists.<String>newArrayList(); }
 		if (this.isSameList(list)) { return; }
 		this.isSorted = true;
 		this.scrollY = 0;
@@ -403,7 +407,6 @@ extends GuiScreen {
 
 	public void setListNotSorted(List<String> list) {
 		if (this.isSameList(list)) { return; }
-		this.isSorted = true;
 		this.scrollY = 0;
 		this.list = list;
 		this.setSize(this.width, this.height);
@@ -415,6 +418,15 @@ extends GuiScreen {
 			this.selected = -1;
 		}
 		this.selected = this.list.indexOf(name);
+		if (this.selected == -1) {
+			name = AdditionalMethods.instance.deleteColor(name);
+			for (int i = 0; i < this.list.size(); i++) {
+				if (AdditionalMethods.instance.deleteColor(this.list.get(i)).equalsIgnoreCase(name)) {
+					this.selected = i;
+					break;
+				}
+			}
+		}
 		this.resetRoll();
 	}
 

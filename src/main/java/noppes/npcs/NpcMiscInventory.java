@@ -12,12 +12,10 @@ public class NpcMiscInventory
 implements IInventory {
 	
 	public NonNullList<ItemStack> items;
-	private int size;
 	public int stackLimit;
 
 	public NpcMiscInventory(int size) {
 		this.stackLimit = 64;
-		this.size = size;
 		this.items = NonNullList.withSize(size, ItemStack.EMPTY);
 	}
 
@@ -110,7 +108,7 @@ implements IInventory {
 	}
 
 	public int getSizeInventory() {
-		return this.size;
+		return this.items.size();
 	}
 
 	public ItemStack getStackInSlot(int index) {
@@ -167,8 +165,13 @@ implements IInventory {
 		this.items.set(var1, var2);
 	}
 
-	public void setSize(int i) {
-		this.size = i;
+	public void setSize(int size) {
+		if (this.items.size()==size) { return; }
+		NonNullList<ItemStack> newItems = NonNullList.withSize(size, ItemStack.EMPTY);
+		for (int slot = 0; slot < this.items.size() && slot < size; ++slot) {
+			newItems.add(this.items.get(slot));
+		}
+		this.items = newItems;
 	}
 
 	public boolean isFull() {
