@@ -1,0 +1,341 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IJobSpawner.java IJobSpawner]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/JobSpawner.java JobSpawner]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| exact
+| ''призыв на свою позицию или рядом''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[][]]
+| offset
+| ''массив из массивов смещений по осям [x, y, z] для призыва, когда мёртв и когда жив''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| resetUpdate
+| ''обновить на клиенты игроков или нет''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#add|add]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] sd, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Добавить и возвратить новую настройку призыва сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#aiDeathExecute|aiDeathExecute]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] attackingEntity)
+| ''Действия работы при смерти NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#aiShouldExecute|aiShouldExecute]]()
+| ''Возвращает может ли NPC выполнить работу сейчас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#aiStartExecuting|aiStartExecuting]]()
+| ''Возвращает может ли NPC начать работу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#aiUpdateTask|aiUpdateTask]]()
+| ''Действия во время выполнения работы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#checkSpawns|checkSpawns]]()
+| ''Проверить и удалить призванные существа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#checkTarget|checkTarget]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] entity)
+| ''проверить текущую цель, чтобы призывать сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#cleanCompound|cleanCompound]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''Удаляет из набора тегов лишние теги для передачи на клиент игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#clear|clear]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Удалить настройки призыва сущностей''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#get|get]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] slot, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Возвращает настройку призыва сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#getCooldown|getCooldown]]()
+| ''Возвращает настроенное время между призывами сущностей''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#getDespawnOnTargetLost|getDespawnOnTargetLost]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Возвращает удалить ли призванные сущности, если NPC теряет цель''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#getId|getId]]()
+| ''Возвращает уникальный ID этого NPC спавнера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#getOffset|getOffset]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Возвращает массив смещений по осям [x, y, z] для призыва''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#getSpawnType|getSpawnType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Возвращает тип прызыва сущностей (0 - по-однму, 1 - всех разом, 2 - случано)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#hasPixelmon|hasPixelmon]]()
+| ''Возвращает есть ли в настройках сущности из мода Pixelmon''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#isOnCooldown|isOnCooldown]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Возвращает может ли NPC призвать сущность прямо сейчас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#killed|killed]]()
+| ''Действия при убийстве этого NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#readJobCompound|readJobCompound]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] slot, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] spawnNBT)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка призыва сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#removeAllSpawned|removeAllSpawned]]()
+| ''Удалить из мира всех призванных существ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#removeCompound|removeCompound]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''Удалить из набора тегов теги работы призывателя''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#removeSpawned|removeSpawned]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] slot, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Удалить настройку призыва сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#reset|reset]]()
+| ''Сброс призывателя''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#resetTask|resetTask]]()
+| ''Сброс призывов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#setCooldown|setCooldown]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] ticks)
+| ''Установить время задержки между призывами''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#setCooldown|setCooldown]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] ticks)
+| ''Установить время задержки между призывами''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#setDespawnOnTargetLost|setDespawnOnTargetLost]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isLost)
+| ''Установить удалить ли призванные сущности, если NPC теряет цель''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#setOffset|setOffset]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] offset)
+| ''Установить массив смещений по осям [x, y, z] для призыва''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#setSpawnType|setSpawnType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] readInt)
+| ''Установить тип прызыва сущностей''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#shouldDelete|shouldDelete]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] entity)
+| ''Возвращает необходимо ли удалить эту призванную сущность''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#size|size]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Возвращает количество настроенных призывов сущности''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#spawnEntity|spawnEntity]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] sd, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] base)
+| ''Призвать существо''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntityLivingBase|IEntityLivingBase]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#spawnEntity|spawnEntity]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] sd, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isDead)
+| ''Призвать существо''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobSpawner#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== add ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] add(sd, isDead)''<br>'''Действие:'''<br>Добавить и возвратить новую настройку призыва сущности<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] '''sd''' = настройка призыва<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== aiDeathExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiDeathExecute(attackingEntity)''<br>'''Действие:'''<br>Действия работы при смерти NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] '''attackingEntity''' = сущность, убившая NPC
+|}
+==== aiShouldExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiShouldExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC выполнить работу сейчас
+|}
+==== aiStartExecuting ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiStartExecuting()''<br>'''Действие:'''<br>Возвращает может ли NPC начать работу
+|}
+==== aiUpdateTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiUpdateTask()''<br>'''Действие:'''<br>Действия во время выполнения работы
+|}
+==== checkSpawns ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] checkSpawns()''<br>'''Действие:'''<br>Проверить и удалить призванные существа
+|}
+==== checkTarget ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] checkTarget(entity)''<br>'''Действие:'''<br>проверить текущую цель, чтобы призывать сущности<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] '''entity''' = сущность, предполагаемя цель
+|}
+==== cleanCompound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] cleanCompound(compound)''<br>'''Действие:'''<br>Удаляет из набора тегов лишние теги для передачи на клиент игрока<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== clear ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clear(isDead)''<br>'''Действие:'''<br>Удалить настройки призыва сущностей<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== get ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] get(slot, isDead)''<br>'''Действие:'''<br>Возвращает настройку призыва сущности<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''slot''' = ID настройки призыва<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== getCooldown ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] getCooldown()''<br>'''Действие:'''<br>Возвращает настроенное время между призывами сущностей
+|}
+==== getDespawnOnTargetLost ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getDespawnOnTargetLost(isDead)''<br>'''Действие:'''<br>Возвращает удалить ли призванные сущности, если NPC теряет цель<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== getId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getId()''<br>'''Действие:'''<br>Возвращает уникальный ID этого NPC спавнера
+|}
+==== getOffset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] getOffset(isDead)''<br>'''Действие:'''<br>Возвращает массив смещений по осям [x, y, z] для призыва<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== getSpawnType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getSpawnType(isDead)''<br>'''Действие:'''<br>Возвращает тип прызыва сущностей (0 - по-однму, 1 - всех разом, 2 - случано)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== hasPixelmon ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasPixelmon()''<br>'''Действие:'''<br>Возвращает есть ли в настройках сущности из мода Pixelmon
+|}
+==== isOnCooldown ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isOnCooldown(isDead)''<br>'''Действие:'''<br>Возвращает может ли NPC призвать сущность прямо сейчас<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== killed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] killed()''<br>'''Действие:'''<br>Действия при убийстве этого NPC
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== readJobCompound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] readJobCompound(slot, isDead, spawnNBT)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка призыва сущности<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''slot''' = ID настройки призыва<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''spawnNBT''' = набор тегов NBT
+|}
+==== removeAllSpawned ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] removeAllSpawned()''<br>'''Действие:'''<br>Удалить из мира всех призванных существ
+|}
+==== removeCompound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] removeCompound(compound)''<br>'''Действие:'''<br>Удалить из набора тегов теги работы призывателя<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== removeSpawned ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removeSpawned(slot, isDead)''<br>'''Действие:'''<br>Удалить настройку призыва сущности<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''slot''' = ID настройки призыва<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== reset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] reset()''<br>'''Действие:'''<br>Сброс призывателя
+|}
+==== resetTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] resetTask()''<br>'''Действие:'''<br>Сброс призывов
+|}
+==== setCooldown ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCooldown(ticks)''<br>'''Действие:'''<br>Установить время задержки между призывами<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''ticks''' = время в тиках
+|}
+==== setCooldown ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCooldown(ticks)''<br>'''Действие:'''<br>Установить время задержки между призывами<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long] '''ticks''' = время в тиках
+|}
+==== setDespawnOnTargetLost ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDespawnOnTargetLost(isDead, isLost)''<br>'''Действие:'''<br>Установить удалить ли призванные сущности, если NPC теряет цель<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isLost''' = да или нет
+|}
+==== setOffset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setOffset(isDead, offset)''<br>'''Действие:'''<br>Установить массив смещений по осям [x, y, z] для призыва<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] '''offset''' = массив координат [x, y, z]
+|}
+==== setSpawnType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSpawnType(isDead, readInt)''<br>'''Действие:'''<br>Установить тип прызыва сущностей<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''readInt''' = ID настройки призыва
+|}
+==== shouldDelete ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] shouldDelete(entity)''<br>'''Действие:'''<br>Возвращает необходимо ли удалить эту призванную сущность<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] '''entity''' = призванная сущность
+|}
+==== size ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] size(isDead)''<br>'''Действие:'''<br>Возвращает количество настроенных призывов сущности<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== spawnEntity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] spawnEntity(sd, isDead, base)''<br>'''Действие:'''<br>Призвать существо<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/data/SpawnNPCData.java SpawnNPCData] '''sd''' = настройка призыва<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] '''base''' = призываемая сущность
+|}
+==== spawnEntity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntityLivingBase|IEntityLivingBase]] spawnEntity(sd, isDead)''<br>'''Действие:'''<br>Призвать существо<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''sd''' = настройка призыва<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''isDead''' = когда мёртв или когда жив
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

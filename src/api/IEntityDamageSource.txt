@@ -1,0 +1,171 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/IEntityDamageSource.java IEntityDamageSource]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIDamageSource|NpcAPI]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/NpcEntityDamageSource.java NpcEntityDamageSource]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| damageIsAbsolute
+| ''field.api.ientitydamagesource.damageIsAbsolute''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity]
+| damageSourceEntity
+| ''field.api.ientitydamagesource.damageSourceEntity''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| damageType
+| ''field.api.ientitydamagesource.damageType''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| deadMessage
+| ''field.api.ientitydamagesource.deadMessage''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| difficultyScaled
+| ''field.api.ientitydamagesource.difficultyScaled''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| explosion
+| ''field.api.ientitydamagesource.explosion''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| fireDamage
+| ''field.api.ientitydamagesource.fireDamage''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| hungerDamage
+| ''field.api.ientitydamagesource.hungerDamage''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity]
+| indirectEntity
+| ''field.api.ientitydamagesource.indirectEntity''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| isDamageAllowedInCreativeMode
+| ''field.api.ientitydamagesource.isDamageAllowedInCreativeMode''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| isThornsDamage
+| ''field.api.ientitydamagesource.isThornsDamage''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| isUnblockable
+| ''field.api.ientitydamagesource.isUnblockable''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| magicDamage
+| ''field.api.ientitydamagesource.magicDamage''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| projectile
+| ''field.api.ientitydamagesource.projectile''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getDeadMessage|getDeadMessage]]()
+| ''Возвращает текс для всех игроков, в случае если этим источником будет убит игрок''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/text/ITextComponent.html ITextComponent]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getDeathMessage|getDeathMessage]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] entityLivingBaseIn)
+| ''Создаёт и возвращает локализированный текс о смерти указанной сущности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getIImmediateSource|getIImmediateSource]]()
+| ''Возвращает сущность, непосредственно наносящую урон<br>Стрелы, снаряды, игрок, моб и т.д.''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getITrueSource|getITrueSource]]()
+| ''Возвращает сущность, наносящую урон<br>Т.е. из за кого реально сущность получает урон''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getImmediateSource|getImmediateSource]]()
+| ''Возвращает Minecraft сущность непосредственно наносящую урон<br>Стрелы, снаряды, игрок, моб и т.д.''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getTrueSource|getTrueSource]]()
+| ''Возвращает Minecraft сущность которая нанесла урон<br>Т.е. из за кого реально сущность получает урон''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#getType|getType]]()
+| ''Возвращает название урона''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#setDeadMessage|setDeadMessage]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] message)
+| ''Установить текс для всех игроков, в случае если этим источником будет убит игрок''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#setImmediateSource|setImmediateSource]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] entity)
+| ''Установить сущность непосредственно наносящую урон<br>Стрелы, снаряды, игрок, моб и т.д.''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#setTrueSource|setTrueSource]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] entity)
+| ''Установить сущность которая нанесла урон<br>Т.е. из за кого реально сущность получает урон''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource#setType|setType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] damageType)
+| ''Установить название урона''
+|}
+=== Описание методов ===
+
+==== getDeadMessage ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getDeadMessage()''<br>'''Действие:'''<br>Возвращает текс для всех игроков, в случае если этим источником будет убит игрок
+|}
+==== getDeathMessage ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/text/ITextComponent.html ITextComponent] getDeathMessage(entityLivingBaseIn)''<br>'''Действие:'''<br>Создаёт и возвращает локализированный текс о смерти указанной сущности<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EntityLivingBase.html EntityLivingBase] '''entityLivingBaseIn''' = parametr.api.npcentitydamagesource.getDeathMessage.entityLivingBaseIn
+|}
+==== getIImmediateSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] getIImmediateSource()''<br>'''Действие:'''<br>Возвращает сущность, непосредственно наносящую урон<br>Стрелы, снаряды, игрок, моб и т.д.
+|}
+==== getITrueSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] getITrueSource()''<br>'''Действие:'''<br>Возвращает сущность, наносящую урон<br>Т.е. из за кого реально сущность получает урон
+|}
+==== getImmediateSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] getImmediateSource()''<br>'''Действие:'''<br>Возвращает Minecraft сущность непосредственно наносящую урон<br>Стрелы, снаряды, игрок, моб и т.д.
+|}
+==== getTrueSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] getTrueSource()''<br>'''Действие:'''<br>Возвращает Minecraft сущность которая нанесла урон<br>Т.е. из за кого реально сущность получает урон
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getType()''<br>'''Действие:'''<br>Возвращает название урона
+|}
+==== setDeadMessage ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDeadMessage(message)''<br>'''Действие:'''<br>Установить текс для всех игроков, в случае если этим источником будет убит игрок<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''message''' = parametr.api.npcentitydamagesource.setDeadMessage.message
+|}
+==== setImmediateSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setImmediateSource(entity)''<br>'''Действие:'''<br>Установить сущность непосредственно наносящую урон<br>Стрелы, снаряды, игрок, моб и т.д.<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] '''entity''' = parametr.api.npcentitydamagesource.setImmediateSource.entity
+|}
+==== setTrueSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setTrueSource(entity)''<br>'''Действие:'''<br>Установить сущность которая нанесла урон<br>Т.е. из за кого реально сущность получает урон<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] '''entity''' = parametr.api.npcentitydamagesource.setTrueSource.entity
+|}
+==== setType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setType(damageType)''<br>'''Действие:'''<br>Установить название урона<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''damageType''' = parametr.api.npcentitydamagesource.setType.damageType
+|}

@@ -1,0 +1,123 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/gui|gui]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/gui/IScroll.java IScroll]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGui#addScroll|ICustomGui]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiScrollWrapper.java CustomGuiScrollWrapper]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#createFromNBT|createFromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#fromNBT|fromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getHoverText|getHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getId|getId]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getPosX|getPosX]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getPosY|getPosY]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getType|getType]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#hasHoverText|hasHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#offSet|offSet]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setHoverText|setHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setHoverText|setHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setId|setId]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setPos|setPos]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#toNBT|toNBT]]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiComponentWrapper.java CustomGuiComponentWrapper]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#fromNBT|fromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку скролла-прокрутки через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#getDefaultSelection|getDefaultSelection]]()
+| ''Возвращает имя выбора по умолчанию для скролла-прокрутки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#getHeight|getHeight]]()
+| ''Возвращает высоту скролла-прокрутки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#getList|getList]]()
+| ''Возвращает список выборов из скролла-прокрутки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#getType|getType]]()
+| ''Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|тип компонента]] (4)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#getWidth|getWidth]]()
+| ''Возвращает длину скролла-прокрутки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#isMultiSelect|isMultiSelect]]()
+| ''Возвращает возможность выбора нескольких вариантов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#setDefaultSelection|setDefaultSelection]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] defaultSelection)
+| ''Установить ID базовой выбранной позиции''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#setList|setList]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] list)
+| ''Установить список выборов из скролла-прокрутки''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#setMultiSelect|setMultiSelect]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] multiSelect)
+| ''Установить возможность выбора нескольких вариантов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#setSize|setSize]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height)
+| ''Установить длину и высоту скролла-прокрутки''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll#toNBT|toNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка скролла-прокрутки''
+|}
+=== Описание методов ===
+
+==== fromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiComponentWrapper.java CustomGuiComponentWrapper] fromNBT(nbt)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку скролла-прокрутки через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}
+==== getDefaultSelection ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getDefaultSelection()''<br>'''Действие:'''<br>Возвращает имя выбора по умолчанию для скролла-прокрутки
+|}
+==== getHeight ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getHeight()''<br>'''Действие:'''<br>Возвращает высоту скролла-прокрутки
+|}
+==== getList ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] getList()''<br>'''Действие:'''<br>Возвращает список выборов из скролла-прокрутки
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|тип компонента]] (4)
+|}
+==== getWidth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getWidth()''<br>'''Действие:'''<br>Возвращает длину скролла-прокрутки
+|}
+==== isMultiSelect ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isMultiSelect()''<br>'''Действие:'''<br>Возвращает возможность выбора нескольких вариантов
+|}
+==== setDefaultSelection ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]] setDefaultSelection(defaultSelection)''<br>'''Действие:'''<br>Установить ID базовой выбранной позиции<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''defaultSelection''' = ID базовой выбранной позиции
+|}
+==== setList ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]] setList(list)''<br>'''Действие:'''<br>Установить список выборов из скролла-прокрутки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] '''list''' = список строк
+|}
+==== setMultiSelect ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]] setMultiSelect(multiSelect)''<br>'''Действие:'''<br>Установить возможность выбора нескольких вариантов<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''multiSelect''' = да или нет
+|}
+==== setSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IScroll|IScroll]] setSize(width, height)''<br>'''Действие:'''<br>Установить длину и высоту скролла-прокрутки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина компонента<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота компонента
+|}
+==== toNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] toNBT(nbt)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка скролла-прокрутки<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}

@@ -1,0 +1,704 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IBorder.java IBorder]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IBorderHandler#createNew|IBorderHandler]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Zone3D.java Zone3D]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Availability.java Availability]
+| availability
+| ''условия доступности действия для игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| color
+| ''цвет барьера у региона ARGB в десетиричном виде (пример оранжевый: 0xFF8000 или 16744448)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| dimensionID
+| ''ID измерения''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| homePos
+| ''безопастная позиция блока для телепортации, если игрока постоянно отбрасывает''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| keepOut
+| ''не впускать игроков или не выпусткать''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| message
+| ''сообщение при попытке нарушить территорию''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| name
+| ''имя региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap]
+| points
+| ''карта вершин многоугольника''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| showInClient
+| ''отображать барьера у региона для каждого игрока (или только ГМ)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| y
+| ''массив минемальной и максимальной высоты по оси Y''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#addPoint|addPoint]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] x)
+| ''Пытается добавить и возвратить вершину в многоугольник региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#addPoint|addPoint]]([[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Пытается добавить и возвратить вершину в многоугольник региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#addPoint|addPoint]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y)
+| ''Пытается добавить и возвратить вершину в многоугольник региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#addPoint|addPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Пытается добавить и возвратить вершину в многоугольник региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#apply|apply]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] entity)
+| ''Возвращает подходит ли сущность по условиями и находится внутри региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#apply|apply]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] entity)
+| ''Возвращает подходит ли сущность по условиями и находится внутри региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#centerOffsetTo|centerOffsetTo]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] y)
+| ''Сместить регион-барьер через новое положение центра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#centerOffsetTo|centerOffsetTo]]([[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] type)
+| ''Сместить регион-барьер через новое положение центра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#centerOffsetTo|centerOffsetTo]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] type)
+| ''Сместить регион-барьер через новое положение центра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#centerOffsetTo|centerOffsetTo]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] type)
+| ''Сместить регион-барьер через новое положение центра''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#clear|clear]]()
+| ''Сбросить все настройки региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#contains|contains]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] z, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] height)
+| ''Возвращает находится ли указанная позиция внутри региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#contains|contains]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Возвращает находится ли указанная позиция внутри региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#distanceTo|distanceTo]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] entity)
+| ''Возвращает дистанцию от указанной позициидо центра региона''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#distanceTo|distanceTo]]([[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] entity)
+| ''Возвращает дистанцию от указанной позициидо центра региона''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#distanceTo|distanceTo]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] z)
+| ''Возвращает дистанцию от указанной позициидо центра региона''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#equals|equals]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Zone3D.java Zone3D] zone)
+| ''Возвращает схож ли текущий регион-барьер с указанным''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#fix|fix]]()
+| ''Исправляет ошибки конструирования многоугольника региона-барьера и безопастной позиции''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IAvailability|IAvailability]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getAvailability|getAvailability]]()
+| ''Возвращает условия доступности работы региона-барьера для игроков''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getCenter|getCenter]]()
+| ''Возвращает позицию центра региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getClosestPoint|getClosestPoint]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point, [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Возвращает ближайшую вершину от указанной позиции''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getClosestPoints|getClosestPoints]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point, [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Возвращает две ближайших вершины от указанной позиции''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getColor|getColor]]()
+| ''Возвращает цвет барьера у региона''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getDimensionId|getDimensionId]]()
+| ''Возвращает ID мира / измерения, в котором размещён регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getHeight|getHeight]]()
+| ''Возвращает высоту региона-барьера''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getHomePos|getHomePos]]()
+| ''Возвращает безопасную позицию для телепортации игрока<br>Используется когда игрок многократро нарушает границу региона<br>По умолчанию - центр региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getId|getId]]()
+| ''Возвращает ID региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getIdNearestPoint|getIdNearestPoint]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] pos)
+| ''Возвращает ID ближайшей вершины к указанной позиции''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMaxX|getMaxX]]()
+| ''Возвращает максимальное значение по оси X из всех позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMaxY|getMaxY]]()
+| ''Возвращает максимальное значение по оси Y из всех позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMaxZ|getMaxZ]]()
+| ''Возвращает максимальное значение по оси Z из всех позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMessage|getMessage]]()
+| ''Возвращает текст сообщения при нарушении границы региона-барьера игроком''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMinX|getMinX]]()
+| ''Возвращает минимальное значение по оси X из всех позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMinY|getMinY]]()
+| ''Возвращает минимальное значение по оси Y из всех позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getMinZ|getMinZ]]()
+| ''Возвращает минимальное значение по оси Z из всех позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getName|getName]]()
+| ''Возвращает имя региона-барьера''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getNbt|getNbt]]()
+| ''Возвращает набор тегов, в которые записан регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getPointList|getPointList]]()
+| ''Возвращает список всех вершин многоугольника региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getPoints|getPoints]]()
+| ''Возвращает список позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getSize|getSize]]()
+| ''Возвращает количество всех вершин многоугольника региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getWidthX|getWidthX]]()
+| ''Возвращает длину региона-барьера по оси X''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#getWidthZ|getWidthZ]]()
+| ''Возвращает длину региона-барьера по оси Z''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#insertPoint|insertPoint]]([[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos0, [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos1)
+| ''Добавить позицию в регион-барьер<br>добавляет между ближайщими позициями границы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#insertPoint|insertPoint]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Добавить позицию в регион-барьер<br>добавляет между ближайщими позициями границы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#insertPoint|insertPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z, [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Добавить позицию в регион-барьер<br>добавляет между ближайщими позициями границы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#isShowToPlayers|isShowToPlayers]]()
+| ''Возвращает, показывать ли границу региона-барьера всем игрокам или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#offset|offset]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] x)
+| ''Сместить регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#offset|offset]]([[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] position)
+| ''Сместить регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#offset|offset]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point)
+| ''Сместить регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#offset|offset]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Сместить регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtRegion)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записан регион-барьер''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#removePoint|removePoint]]([https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point)
+| ''Удалить позицию из позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#removePoint|removePoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Удалить позицию из позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#scaling|scaling]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] radius, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] type)
+| ''Изменить масштаб региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#scaling|scaling]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] scale, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] type)
+| ''Изменить масштаб региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setColor|setColor]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] color)
+| ''Установить цвет региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setDimensionId|setDimensionId]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dimID)
+| ''Установить ID измерения региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setHomePos|setHomePos]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Установить безопасную позицию для телепортации игрока<br>Используется когда игрок многократро нарушает границу региона<br>По умолчанию - центр региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setMessage|setMessage]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] message)
+| ''Установить текст сообщения при нарушении границы региона-барьера игроком''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setName|setName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить имя региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setNbt|setNbt]]([[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] nbt)
+| ''Пересоздать регион-барьер через набор тегов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setPoint|setPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] index, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] x)
+| ''Изменить позицию  границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setPoint|setPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] index, [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Изменить позицию  границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setPoint|setPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] index, [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point)
+| ''Изменить позицию  границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setPoint|setPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] index, [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] point, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y)
+| ''Изменить позицию  границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setPoint|setPoint]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] index, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Изменить позицию  границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#setShowToPlayers|setShowToPlayers]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] show)
+| ''Установить, показывать ли границу региона-барьера всем игрокам или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#size|size]]()
+| ''Возвращает количество позиций границы региона-барьера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#toString|toString]]()
+| ''Возвращает регион-барьер, записанный в строку''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#update|update]]()
+| ''Обновить регион-барьер<br>Так же обновляет внутренние данные игроков согласно условий''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#update|update]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/WorldServer.html WorldServer] worldsworld)
+| ''Обновить регион-барьер<br>Так же обновляет внутренние данные игроков согласно условий''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtRegion)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать регион-барьер через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== addPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] addPoint(x)''<br>'''Действие:'''<br>Пытается добавить и возвратить вершину в многоугольник региона-барьера<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''x''' = позиция по оси X
+|}
+==== addPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] addPoint(pos)''<br>'''Действие:'''<br>Пытается добавить и возвратить вершину в многоугольник региона-барьера<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока
+|}
+==== addPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] addPoint(point, y)''<br>'''Действие:'''<br>Пытается добавить и возвратить вершину в многоугольник региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y
+|}
+==== addPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] addPoint(x, y, z)''<br>'''Действие:'''<br>Пытается добавить и возвратить вершину в многоугольник региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== apply ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] apply(entity)''<br>'''Действие:'''<br>Возвращает подходит ли сущность по условиями и находится внутри региона-барьера<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] '''entity''' = сущность
+|}
+==== apply ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] apply(entity)''<br>'''Действие:'''<br>Возвращает подходит ли сущность по условиями и находится внутри региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] '''entity''' = сущность
+|}
+==== centerOffsetTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] centerOffsetTo(x, y)''<br>'''Действие:'''<br>Сместить регион-барьер через новое положение центра<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''y''' = позиция по оси Y
+|}
+==== centerOffsetTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] centerOffsetTo(pos, type)''<br>'''Действие:'''<br>Сместить регион-барьер через новое положение центра<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''type''' = тип смещения (0 – относительно нулевой координаты мира, 1 – относительно центра региона-барьера)
+|}
+==== centerOffsetTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] centerOffsetTo(point, type)''<br>'''Действие:'''<br>Сместить регион-барьер через новое положение центра<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''type''' = тип смещения (0 – относительно нулевой координаты мира, 1 – относительно центра региона-барьера)
+|}
+==== centerOffsetTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] centerOffsetTo(x, y, z, type)''<br>'''Действие:'''<br>Сместить регион-барьер через новое положение центра<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''type''' = тип смещения (0 – относительно нулевой координаты мира, 1 – относительно центра региона-барьера)
+|}
+==== clear ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clear()''<br>'''Действие:'''<br>Сбросить все настройки региона-барьера
+|}
+==== contains ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] contains(x, y, z, height)''<br>'''Действие:'''<br>Возвращает находится ли указанная позиция внутри региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''z''' = позиция по оси Z<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''height''' = высота сущности
+|}
+==== contains ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] contains(x, z)''<br>'''Действие:'''<br>Возвращает находится ли указанная позиция внутри региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== distanceTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] distanceTo(entity)''<br>'''Действие:'''<br>Возвращает дистанцию от указанной позициидо центра региона<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] '''entity''' = сущность
+|}
+==== distanceTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] distanceTo(entity)''<br>'''Действие:'''<br>Возвращает дистанцию от указанной позициидо центра региона<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] '''entity''' = сущность
+|}
+==== distanceTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] distanceTo(x, z)''<br>'''Действие:'''<br>Возвращает дистанцию от указанной позициидо центра региона<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''z''' = позиция по оси Z
+|}
+==== equals ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] equals(zone)''<br>'''Действие:'''<br>Возвращает схож ли текущий регион-барьер с указанным<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Zone3D.java Zone3D] '''zone''' = другой регион-барьер
+|}
+==== fix ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] fix()''<br>'''Действие:'''<br>Исправляет ошибки конструирования многоугольника региона-барьера и безопастной позиции
+|}
+==== getAvailability ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IAvailability|IAvailability]] getAvailability()''<br>'''Действие:'''<br>Возвращает условия доступности работы региона-барьера для игроков
+|}
+==== getCenter ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] getCenter()''<br>'''Действие:'''<br>Возвращает позицию центра региона-барьера
+|}
+==== getClosestPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getClosestPoint(point, pos)''<br>'''Действие:'''<br>Возвращает ближайшую вершину от указанной позиции<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина, как начальная позиция<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока, как конечная позиция
+|}
+==== getClosestPoints ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point[]] getClosestPoints(point, pos)''<br>'''Действие:'''<br>Возвращает две ближайших вершины от указанной позиции<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина, как начальная позиция<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока, как конечная позиция
+|}
+==== getColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getColor()''<br>'''Действие:'''<br>Возвращает цвет барьера у региона
+|}
+==== getDimensionId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getDimensionId()''<br>'''Действие:'''<br>Возвращает ID мира / измерения, в котором размещён регион-барьер
+|}
+==== getHeight ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getHeight()''<br>'''Действие:'''<br>Возвращает высоту региона-барьера
+|}
+==== getHomePos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] getHomePos()''<br>'''Действие:'''<br>Возвращает безопасную позицию для телепортации игрока<br>Используется когда игрок многократро нарушает границу региона<br>По умолчанию - центр региона-барьера
+|}
+==== getId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getId()''<br>'''Действие:'''<br>Возвращает ID региона-барьера
+|}
+==== getIdNearestPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getIdNearestPoint(pos)''<br>'''Действие:'''<br>Возвращает ID ближайшей вершины к указанной позиции<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''pos''' = позиция блока
+|}
+==== getMaxX ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMaxX()''<br>'''Действие:'''<br>Возвращает максимальное значение по оси X из всех позиций границы региона-барьера
+|}
+==== getMaxY ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMaxY()''<br>'''Действие:'''<br>Возвращает максимальное значение по оси Y из всех позиций границы региона-барьера
+|}
+==== getMaxZ ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMaxZ()''<br>'''Действие:'''<br>Возвращает максимальное значение по оси Z из всех позиций границы региона-барьера
+|}
+==== getMessage ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getMessage()''<br>'''Действие:'''<br>Возвращает текст сообщения при нарушении границы региона-барьера игроком
+|}
+==== getMinX ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMinX()''<br>'''Действие:'''<br>Возвращает минимальное значение по оси X из всех позиций границы региона-барьера
+|}
+==== getMinY ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMinY()''<br>'''Действие:'''<br>Возвращает минимальное значение по оси Y из всех позиций границы региона-барьера
+|}
+==== getMinZ ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMinZ()''<br>'''Действие:'''<br>Возвращает минимальное значение по оси Z из всех позиций границы региона-барьера
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает имя региона-барьера
+|}
+==== getNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getNbt()''<br>'''Действие:'''<br>Возвращает набор тегов, в которые записан регион-барьер
+|}
+==== getPointList ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] getPointList()''<br>'''Действие:'''<br>Возвращает список всех вершин многоугольника региона-барьера
+|}
+==== getPoints ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point[]] getPoints()''<br>'''Действие:'''<br>Возвращает список позиций границы региона-барьера
+|}
+==== getSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getSize()''<br>'''Действие:'''<br>Возвращает количество всех вершин многоугольника региона-барьера
+|}
+==== getWidthX ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getWidthX()''<br>'''Действие:'''<br>Возвращает длину региона-барьера по оси X
+|}
+==== getWidthZ ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getWidthZ()''<br>'''Действие:'''<br>Возвращает длину региона-барьера по оси Z
+|}
+==== insertPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] insertPoint(pos0, pos1)''<br>'''Действие:'''<br>Добавить позицию в регион-барьер<br>добавляет между ближайщими позициями границы<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos0''' = позиция блока<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos1''' = позиция блока
+|}
+==== insertPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] insertPoint(point, y, pos)''<br>'''Действие:'''<br>Добавить позицию в регион-барьер<br>добавляет между ближайщими позициями границы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока
+|}
+==== insertPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] insertPoint(x, y, z, pos)''<br>'''Действие:'''<br>Добавить позицию в регион-барьер<br>добавляет между ближайщими позициями границы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока
+|}
+==== isShowToPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isShowToPlayers()''<br>'''Действие:'''<br>Возвращает, показывать ли границу региона-барьера всем игрокам или нет
+|}
+==== offset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] offset(x)''<br>'''Действие:'''<br>Сместить регион-барьер<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''x''' = позиция по оси X
+|}
+==== offset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] offset(position)''<br>'''Действие:'''<br>Сместить регион-барьер<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''position''' = позиция блока
+|}
+==== offset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] offset(point)''<br>'''Действие:'''<br>Сместить регион-барьер<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина
+|}
+==== offset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] offset(x, y, z)''<br>'''Действие:'''<br>Сместить регион-барьер<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(nbtRegion)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записан регион-барьер<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtRegion''' = набор тегов NBT
+|}
+==== removePoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removePoint(point)''<br>'''Действие:'''<br>Удалить позицию из позиций границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина
+|}
+==== removePoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removePoint(x, z)''<br>'''Действие:'''<br>Удалить позицию из позиций границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== scaling ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] scaling(radius, type)''<br>'''Действие:'''<br>Изменить масштаб региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''radius''' = масштаб, как радиус региона-барьера<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''type''' = тип смещения (0 – относительно нулевой координаты мира, 1 – относительно центра региона-барьера)
+|}
+==== scaling ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] scaling(scale, type)''<br>'''Действие:'''<br>Изменить масштаб региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''scale''' = масштаб<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''type''' = тип смещения (0 – относительно нулевой координаты мира, 1 – относительно центра региона-барьера)
+|}
+==== setColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setColor(color)''<br>'''Действие:'''<br>Установить цвет региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''color''' = цвет ARGB в десетиричном виде (пример оранжевый: 0xFF8000 или 16744448)
+|}
+==== setDimensionId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDimensionId(dimID)''<br>'''Действие:'''<br>Установить ID измерения региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dimID''' = ID мира / измерения
+|}
+==== setHomePos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHomePos(x, y, z)''<br>'''Действие:'''<br>Установить безопасную позицию для телепортации игрока<br>Используется когда игрок многократро нарушает границу региона<br>По умолчанию - центр региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== setMessage ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setMessage(message)''<br>'''Действие:'''<br>Установить текст сообщения при нарушении границы региона-барьера игроком<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''message''' = текст сообщения
+|}
+==== setName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setName(name)''<br>'''Действие:'''<br>Установить имя региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя региона-барьера
+|}
+==== setNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNbt(nbt)''<br>'''Действие:'''<br>Пересоздать регион-барьер через набор тегов<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] '''nbt''' = набор тегов NBT
+|}
+==== setPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] setPoint(index, x)''<br>'''Действие:'''<br>Изменить позицию  границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''index''' = ID вершины<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''x''' = позиция по оси X
+|}
+==== setPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] setPoint(index, pos)''<br>'''Действие:'''<br>Изменить позицию  границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''index''' = ID вершины<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока
+|}
+==== setPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] setPoint(index, point)''<br>'''Действие:'''<br>Изменить позицию  границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''index''' = ID вершины<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина
+|}
+==== setPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] setPoint(index, point, y)''<br>'''Действие:'''<br>Изменить позицию  границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''index''' = ID вершины<br>[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] '''point''' = вершина<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y
+|}
+==== setPoint ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/awt/Point.html Point] setPoint(index, x, y, z)''<br>'''Действие:'''<br>Изменить позицию  границы региона-барьера<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''index''' = ID вершины<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== setShowToPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShowToPlayers(show)''<br>'''Действие:'''<br>Установить, показывать ли границу региона-барьера всем игрокам или нет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''show''' = да или нет
+|}
+==== size ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] size()''<br>'''Действие:'''<br>Возвращает количество позиций границы региона-барьера
+|}
+==== toString ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] toString()''<br>'''Действие:'''<br>Возвращает регион-барьер, записанный в строку
+|}
+==== update ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] update()''<br>'''Действие:'''<br>Обновить регион-барьер<br>Так же обновляет внутренние данные игроков согласно условий
+|}
+==== update ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] update(worldsworld)''<br>'''Действие:'''<br>Обновить регион-барьер<br>Так же обновляет внутренние данные игроков согласно условий<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/WorldServer.html WorldServer] '''worldsworld''' = мир
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] writeToNBT(nbtRegion)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать регион-барьер через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtRegion''' = набор тегов NBT
+|}

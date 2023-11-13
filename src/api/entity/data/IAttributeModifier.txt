@@ -1,0 +1,93 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IAttributeModifier.java IAttributeModifier]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INpcAttribute#addModifier|INpcAttribute]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/data/AttributeModifierWrapper.java AttributeModifierWrapper]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#getAmount|getAmount]]()
+| ''Возвращает значение модификатора атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#getID|getID]]()
+| ''Возвращает уникальный ID модификатора атрибуты''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/AttributeModifier.html AttributeModifier]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#getMCModifier|getMCModifier]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает экземпляр Minecraft класса модификатора атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#getName|getName]]()
+| ''Возвращает название модификатора атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#getOperation|getOperation]]()
+| ''Возвращает ID  операнда модификатора атрибуты<br>0-добавить к базовому значению атрибуты, 1-процент от базового значения атрибуты, 2-процентная сумма всех значений таких модификаторов от базового значения атрибуты''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier|IAttributeModifier]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#setAmount|setAmount]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] amount)
+| ''Удаляет текущий модификатор, создаёт и возвращает точную копию новым значением модификатора атрибуты''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier|IAttributeModifier]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#setName|setName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Удаляет текущий модификатор, создаёт и возвращает точную копию нового с новым именем''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#setOperation|setOperation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] operation)
+| ''Установить ID  операнда модификатора атрибуты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier#toString|toString]]()
+| ''Возвращает модификатор атрибуты, записанный в строку''
+|}
+=== Описание методов ===
+
+==== getAmount ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getAmount()''<br>'''Действие:'''<br>Возвращает значение модификатора атрибуты
+|}
+==== getID ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getID()''<br>'''Действие:'''<br>Возвращает уникальный ID модификатора атрибуты
+|}
+==== getMCModifier ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/AttributeModifier.html AttributeModifier] getMCModifier()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает экземпляр Minecraft класса модификатора атрибуты
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает название модификатора атрибуты
+|}
+==== getOperation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getOperation()''<br>'''Действие:'''<br>Возвращает ID  операнда модификатора атрибуты<br>0-добавить к базовому значению атрибуты, 1-процент от базового значения атрибуты, 2-процентная сумма всех значений таких модификаторов от базового значения атрибуты
+|}
+==== setAmount ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier|IAttributeModifier]] setAmount(amount)''<br>'''Действие:'''<br>Удаляет текущий модификатор, создаёт и возвращает точную копию новым значением модификатора атрибуты<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''amount''' = parametr.api.entity.data.attributemodifierwrapper.setAmount.amount
+|}
+==== setName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier|IAttributeModifier]] setName(name)''<br>'''Действие:'''<br>Удаляет текущий модификатор, создаёт и возвращает точную копию нового с новым именем<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = parametr.api.entity.data.attributemodifierwrapper.setName.name
+|}
+==== setOperation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setOperation(operation)''<br>'''Действие:'''<br>Установить ID  операнда модификатора атрибуты<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''operation''' = parametr.api.entity.data.attributemodifierwrapper.setOperation.operation
+|}
+==== toString ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] toString()''<br>'''Действие:'''<br>Возвращает модификатор атрибуты, записанный в строку
+|}

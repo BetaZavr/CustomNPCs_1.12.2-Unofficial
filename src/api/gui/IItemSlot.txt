@@ -1,0 +1,120 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/gui|gui]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/gui/IItemSlot.java IItemSlot]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGui#addItemSlot|ICustomGui]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#addItemSlot|IOverlayHUD]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiItemSlotWrapper.java CustomGuiItemSlotWrapper]<br>
+=== Наследуемые методы ===
+из класса [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent|ICustomGuiComponent]]:<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#createFromNBT|createFromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#fromNBT|fromNBT]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getHoverText|getHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getId|getId]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getPosX|getPosX]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getPosY|getPosY]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#getType|getType]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#hasHoverText|hasHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#offSet|offSet]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setHoverText|setHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setHoverText|setHoverText]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setId|setId]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#setPos|setPos]], [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGuiComponent#toNBT|toNBT]]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer]
+| player
+| ''интерфейс игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| showBack
+| ''показывать заднюю текстуру слота''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/Slot.html Slot]
+| slot
+| ''экземпляр Minecraft класса слота''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| slotIndex
+| ''ID слота''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]]
+| stack
+| ''интерфейс предмета-пачки''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiComponentWrapper.java CustomGuiComponentWrapper]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#fromNBT|fromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку ГИУ слота через набор тегов NBT''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/Slot.html Slot]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#getMCSlot|getMCSlot]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает экземпляр Minecraft класса слота''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#getStack|getStack]]()
+| ''Возвращает стак предмета из этого слота''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#getType|getType]]()
+| ''Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|тип компонента]] (5)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#hasStack|hasStack]]()
+| ''Возвращает имеется  ли в слоте предмет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#isShowBack|isShowBack]]()
+| ''Возвращает показывать ли задний фон стандартного слота или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#setShowBack|setShowBack]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить показывать ли задний фон стандартного слота или нет''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#setStack|setStack]]([[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] stack)
+| ''Установить стак предмета в этот слот''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot#toNBT|toNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка ГИУ слота''
+|}
+=== Описание методов ===
+
+==== fromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/gui/CustomGuiComponentWrapper.java CustomGuiComponentWrapper] fromNBT(nbt)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройку ГИУ слота через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}
+==== getMCSlot ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/Slot.html Slot] getMCSlot()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает экземпляр Minecraft класса слота
+|}
+==== getStack ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] getStack()''<br>'''Действие:'''<br>Возвращает стак предмета из этого слота
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|тип компонента]] (5)
+|}
+==== hasStack ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasStack()''<br>'''Действие:'''<br>Возвращает имеется  ли в слоте предмет
+|}
+==== isShowBack ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isShowBack()''<br>'''Действие:'''<br>Возвращает показывать ли задний фон стандартного слота или нет
+|}
+==== setShowBack ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShowBack(bo)''<br>'''Действие:'''<br>Установить показывать ли задний фон стандартного слота или нет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = да или нет
+|}
+==== setStack ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IItemSlot|IItemSlot]] setStack(stack)''<br>'''Действие:'''<br>Установить стак предмета в этот слот<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] '''stack''' = предмет-пачка
+|}
+==== toNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] toNBT(nbt)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана настройка ГИУ слота<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}

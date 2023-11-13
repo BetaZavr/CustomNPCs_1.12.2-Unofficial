@@ -1,0 +1,154 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IJobConversation.java IJobConversation]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/JobConversation.java JobConversation]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Availability.java Availability]
+| availability
+| ''условия доступности запуска беседы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| generalDelay
+| ''время задержки до следующей беседы в тиках''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html HashMap]
+| lines
+| ''карта настроек беседы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| mode
+| ''тип текущей беседы (0 - ещё не началась, 1 - уже в работе)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| quest
+| ''ID квеста всем игрокам вокруг, прослушавших беседу доконца''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| questTitle
+| ''описание квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| range
+| ''дистанция в блоках, в пределах которой активна беседа и ищются игроки для выдачи квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| ticks
+| ''счётсчик времени (используется для старта беседы и выбора следующего сообщения)''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#aiContinueExecute|aiContinueExecute]]()
+| ''Возвращает может ли NPC продолжить работу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#aiShouldExecute|aiShouldExecute]]()
+| ''Возвращает может ли NPC выполнить работу сейчас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#aiStartExecuting|aiStartExecuting]]()
+| ''Возвращает может ли NPC начать работу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#aiUpdateTask|aiUpdateTask]]()
+| ''Возвращает может ли NPC начать работу''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/jobconversation$conversationlineConversationLine.java ConversationLine]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#getLine|getLine]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] slot)
+| ''Возвращает настройку сообщения''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Quest.java Quest]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#getQuest|getQuest]]()
+| ''Возвращает квест, выдаваемый игрокам по окончании беседы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#hasQuest|hasQuest]]()
+| ''Возвращает настроен ли квест, выдаваемый игрокам по окончании беседы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#killed|killed]]()
+| ''Действия при убийстве этого NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#reset|reset]]()
+| ''Сброс всей беседы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#resetTask|resetTask]]()
+| ''Сброс сообщения из беседы''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobConversation#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== aiContinueExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiContinueExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC продолжить работу
+|}
+==== aiShouldExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiShouldExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC выполнить работу сейчас
+|}
+==== aiStartExecuting ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiStartExecuting()''<br>'''Действие:'''<br>Возвращает может ли NPC начать работу
+|}
+==== aiUpdateTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiUpdateTask()''<br>'''Действие:'''<br>Возвращает может ли NPC начать работу
+|}
+==== getLine ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/jobconversation$conversationlineConversationLine.java ConversationLine] getLine(slot)''<br>'''Действие:'''<br>Возвращает настройку сообщения<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''slot''' = ID настроенного сообщения
+|}
+==== getQuest ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Quest.java Quest] getQuest()''<br>'''Действие:'''<br>Возвращает квест, выдаваемый игрокам по окончании беседы
+|}
+==== hasQuest ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasQuest()''<br>'''Действие:'''<br>Возвращает настроен ли квест, выдаваемый игрокам по окончании беседы
+|}
+==== killed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] killed()''<br>'''Действие:'''<br>Действия при убийстве этого NPC
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== reset ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] reset()''<br>'''Действие:'''<br>Сброс всей беседы
+|}
+==== resetTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] resetTask()''<br>'''Действие:'''<br>Сброс сообщения из беседы
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

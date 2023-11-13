@@ -9,6 +9,8 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -402,10 +404,6 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		}
 	}
 
-	public void reset() {
-		this.reset = 5;
-	}
-
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
@@ -524,5 +522,11 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			}
 		}
 	}
+	
+	@Override
+	protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type) {
+		super.handleMouseClick(slotIn, slotId, mouseButton, type);
+        if (slotIn != null) { this.reset = 5; }
+    }
 	
 }

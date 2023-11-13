@@ -1,0 +1,36 @@
+'''Раздел noppes.npcs.api.handler'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler|IAnimationHandler]]
+| ''Интерфейс для класса-базы управляющий своими анимациями NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IBorderHandler|IBorderHandler]]
+| ''Интерфейс для класса-базы управляющий регионами-барьерами''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/ICloneHandler|ICloneHandler]]
+| ''Интерфейс для класса-базы управляющий сохранёнными клонами сущностей''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject|IDataObject]]
+| ''Интерфейс для данных объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDialogHandler|IDialogHandler]]
+| ''Интерфейс для класса-базы управляющий диалогами и их категориями''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDimensionHandler|IDimensionHandler]]
+| ''Интерфейс для класса-базы управляющий своими Измерениями<br>{{цвет|Indigo|Только для}} {{цвет|Blue|мега}} {{цвет|Orange|BRO}}''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IFactionHandler|IFactionHandler]]
+| ''Интерфейс для класса-базы управляющий фракциями''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IKeyBinding|IKeyBinding]]
+| ''Интерфейс для нажатия своего сочетания [[Коды_клавиш#Коды_клавиатуры|клавиш клавиатуры]]''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IMarcetHandler|IMarcetHandler]]
+| ''Интерфейс для класса-базы управляющий магазинами в игре''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IQuestHandler|IQuestHandler]]
+| ''Интерфейс для класса-базы управляющий квестами и их категориями''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler|IRecipeHandler]]
+| ''Интерфейс для класса-базы управляющий своими рецептами''

@@ -1,0 +1,178 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IKeySetting.java IKeySetting]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IKeyBinding#createKeySetting|IKeyBinding]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/PlayerEvent/KeyActive#key|KeyActive]]<br>
+'''События:'''<br>
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/PlayerEvent/KeyActive|PlayerEvent.KeyActive]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/KeyConfig.java KeyConfig]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| category
+| ''имя категории сочетания клавиш''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| keyId
+| ''основой ID [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| modifer
+| ''тип дополнительной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]] (0-нет, 1-Shift, 2-Ctrl, 3-Alt)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| name
+| ''имя настройки сочетания клавиш''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#equals|equals]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] obj)
+| ''Возвращает схожа ли текущая настройка с указанной''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#getCategory|getCategory]]()
+| ''Возвращает имя категории настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#getId|getId]]()
+| ''Возвращает порядковый ID этой настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#getKeyId|getKeyId]]()
+| ''Возвращает ID основной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#getModiferType|getModiferType]]()
+| ''Возвращает тип дополнительной клавиши. (0-нет, 1-Shift, 2-Ctrl, 3-Alt)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#getName|getName]]()
+| ''Возвращает имя настройки''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#getNbt|getNbt]]()
+| ''Возвращает набор тегов, в которые записаны эти настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#isActive|isActive]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] key, [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] keyPress)
+| ''Проверить, активировано ли нажатие клавиш. (только для клиента)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#read|read]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtKey)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки сочетания клавиш через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#setCategory|setCategory]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить имя категории настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#setKeyId|setKeyId]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] keyId)
+| ''Установить ID основной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#setModiferType|setModiferType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип дополнительной клавиши''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#setName|setName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить имя настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#setNbt|setNbt]]([[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] nbt)
+| ''Переписать эти настройки через набор тегов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#toString|toString]]()
+| ''Возвращает настройку сочетания клавиш, записанную в строку''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting#write|write]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки сочетания клавиш''
+|}
+=== Описание методов ===
+
+==== equals ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] equals(obj)''<br>'''Действие:'''<br>Возвращает схожа ли текущая настройка с указанной<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] '''obj''' = настройка сочетания клавиш
+|}
+==== getCategory ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getCategory()''<br>'''Действие:'''<br>Возвращает имя категории настройки
+|}
+==== getId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getId()''<br>'''Действие:'''<br>Возвращает порядковый ID этой настройки
+|}
+==== getKeyId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getKeyId()''<br>'''Действие:'''<br>Возвращает ID основной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]
+|}
+==== getModiferType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getModiferType()''<br>'''Действие:'''<br>Возвращает тип дополнительной клавиши. (0-нет, 1-Shift, 2-Ctrl, 3-Alt)
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает имя настройки
+|}
+==== getNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getNbt()''<br>'''Действие:'''<br>Возвращает набор тегов, в которые записаны эти настройки
+|}
+==== isActive ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isActive(key, keyPress)''<br>'''Действие:'''<br>Проверить, активировано ли нажатие клавиш. (только для клиента)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''key''' = ID основной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]<br>[https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] '''keyPress''' = список ID нажатых [[Коды_клавиш#Коды_клавиатуры|клавиш клавиатуры]]
+|}
+==== read ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] read(nbtKey)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки сочетания клавиш через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtKey''' = набор тегов NBT
+|}
+==== setCategory ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCategory(name)''<br>'''Действие:'''<br>Установить имя категории настройки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя категории настроек сочетания клавиш
+|}
+==== setKeyId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setKeyId(keyId)''<br>'''Действие:'''<br>Установить ID основной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''keyId''' = ID основной [[Коды_клавиш#Коды_клавиатуры|клавиши клавиатуры]]
+|}
+==== setModiferType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setModiferType(type)''<br>'''Действие:'''<br>Установить тип дополнительной клавиши<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип клавиши (0-нет, 1-Shift, 2-Ctrl, 3-Alt)
+|}
+==== setName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setName(name)''<br>'''Действие:'''<br>Установить имя настройки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя настройки сочетания клавиш
+|}
+==== setNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNbt(nbt)''<br>'''Действие:'''<br>Переписать эти настройки через набор тегов<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] '''nbt''' = набор тегов NBT
+|}
+==== toString ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] toString()''<br>'''Действие:'''<br>Возвращает настройку сочетания клавиш, записанную в строку
+|}
+==== write ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] write()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки сочетания клавиш
+|}

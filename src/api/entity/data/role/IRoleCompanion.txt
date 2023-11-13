@@ -1,0 +1,442 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IRoleCompanion.java IRoleCompanion]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/RoleCompanion.java RoleCompanion]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| canAge
+| ''может расти / развиваться''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| companionID
+| ''уникальный ID компаньёна''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| currentExp
+| ''текущее количесвто заработанного опыта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| defendOwner
+| ''защищает владельца''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| eatingDelay
+| ''время между приёмами пищи''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| eatingTicks
+| ''время поедания еды''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/companion/CompanionFoodStats.java CompanionFoodStats]
+| foodstats
+| ''текущие данные по голоду''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| hasInv
+| ''имеет собственный инвентарь''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/NpcMiscInventory.java NpcMiscInventory]
+| inventory
+| ''инвентарь с предметами''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionJobs.java EnumCompanionJobs]
+| job
+| ''тип работы компаньёна''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/companion/CompanionJobInterface.java CompanionJobInterface]
+| jobInterface
+| ''интерфейс работы компаньёна''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer]
+| owner
+| ''игрок-владелец''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| ownerName
+| ''имя игрока-владельца''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionStage.java EnumCompanionStage]
+| stage
+| ''текущий возраст компаньёна''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| talents
+| ''карта изученных талантов компаньёна''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Long.html long]
+| ticksActive
+| ''текущее время жизни в тиках''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| uuid
+| ''уникальный ID игрока-владельца ''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#addExp|addExp]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] exp)
+| ''Добавить опыт развития''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#addMovementStat|addMovementStat]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] z)
+| ''Уменьшить сытность при перемещении компаньёна''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#addTalentExp|addTalentExp]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] talent, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] exp)
+| ''Добавить опыт таланта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#aiShouldExecute|aiShouldExecute]]()
+| ''Возвращает может ли NPC выполнить роль сейчас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#aiUpdateTask|aiUpdateTask]]()
+| ''Возвращает может ли NPC начать роль''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#applyArmorCalculations|applyArmorCalculations]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/DamageSource.html DamageSource] source, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] damage)
+| ''Возвращает полученный урон уменьшеный на значение брони''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#attackedEntity|attackedEntity]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] entity)
+| ''Добавляет опыт при атаке сущности (так же поломку оружия)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#canAddExp|canAddExp]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] exp)
+| ''Возвращает может ли получить опыт развития''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#canWearArmor|canWearArmor]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] item)
+| ''Возвращает может ли носить доспех''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#canWearSword|canWearSword]]([[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] item)
+| ''Возвращает может ли носить оружие ближнего боя''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#canWearWeapon|canWearWeapon]]([[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] stack)
+| ''Возвращает может ли носить любое оружие''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#clientUpdate|clientUpdate]]()
+| ''Обновить данные для клиента игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#defendOwner|defendOwner]]()
+| ''Возвращает имет ли компаньён владельца''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#gainExp|gainExp]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] chance)
+| ''Выдаёт 1 еденицу опыта с учётом шанса''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getExp|getExp]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] talent)
+| ''Возвращает значение опыта таланта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getHeldItem|getHeldItem]]()
+| ''Возвращает предмет-пачку из правой руки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getMaxExp|getMaxExp]]()
+| ''Возвращает максимальное значение опыта для получения уровня роста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html Integer]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getNextLevel|getNextLevel]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] talent)
+| ''Возвращает необходимое значение опыта для получения уровня таланта''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getOwner|getOwner]]()
+| ''Возвращает игрока-владельца''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getTalentLevel|getTalentLevel]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] this.getTalentLevel(EnumCompanionTalent.INVENTORY)
+| ''Возвращает текущий уровень таланта (0-5)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getTotalArmorValue|getTotalArmorValue]]()
+| ''Возвращает текущее значение экипированной брони компаньёна''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#getTotalLevel|getTotalLevel]]()
+| ''Возвращает текущий уровень компаньёна''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#hasInv|hasInv]]()
+| ''Возвращает имеет ли компаньён свой инвентарь''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#hasOwner|hasOwner]]()
+| ''Возвращает имеет ли компаньён игрока-владельца''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#hasTalent|hasTalent]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] talent)
+| ''Возвращает имеет ли компаньён таланты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#interact|interact]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] this.jobInterface).interact(player)
+| ''Действия при взаимодействии игрока с NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#interact|interact]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] openGui)
+| ''Действия при взаимодействии игрока с NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#isEating|isEating]]()
+| ''Возвращает есть ли сейчас компаньён''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#isFollowing|isFollowing]]()
+| ''Возвращает движется ли компаньён за игроком-владельцем в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#isSitting|isSitting]]()
+| ''Возвращает сидит ли сейчас компаньён''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#isWeapon|isWeapon]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] item)
+| ''Возвращает держит ли компаньён оружие в правой руке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#levelTalent|levelTalent]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] talent, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] exp)
+| ''Добавить опыт таланта (не для оружия)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#matureTo|matureTo]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionStage.java EnumCompanionStage] stage)
+| ''Повысить возраст до''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#setExp|setExp]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] talent, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] exp)
+| ''Установить опыт таланта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#setOwner|setOwner]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Установить игрока-владельца''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#setSelfsuficient|setSelfsuficient]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить саморазвитие (для работ Стражника и Фрмера)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#setSitting|setSitting]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] sit)
+| ''Установить сидит ли в данный момент или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#setStats|setStats]]()
+| ''Установить характеристики урона ближнего и дальнего боя относительно оружия в правой руке''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleCompanion#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== addExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] addExp(exp)''<br>'''Действие:'''<br>Добавить опыт развития<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''exp''' = опыт
+|}
+==== addMovementStat ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] addMovementStat(x, y, z)''<br>'''Действие:'''<br>Уменьшить сытность при перемещении компаньёна<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''z''' = позиция по оси Z
+|}
+==== addTalentExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] addTalentExp(talent, exp)''<br>'''Действие:'''<br>Добавить опыт таланта<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''talent''' = тип таланта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''exp''' = опыт
+|}
+==== aiShouldExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiShouldExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC выполнить роль сейчас
+|}
+==== aiUpdateTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiUpdateTask()''<br>'''Действие:'''<br>Возвращает может ли NPC начать роль
+|}
+==== applyArmorCalculations ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] applyArmorCalculations(source, damage)''<br>'''Действие:'''<br>Возвращает полученный урон уменьшеный на значение брони<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/DamageSource.html DamageSource] '''source''' = источник урона<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''damage''' = урон до расчёта
+|}
+==== attackedEntity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] attackedEntity(entity)''<br>'''Действие:'''<br>Добавляет опыт при атаке сущности (так же поломку оружия)<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] '''entity''' = сущность
+|}
+==== canAddExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] canAddExp(exp)''<br>'''Действие:'''<br>Возвращает может ли получить опыт развития<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''exp''' = опыт
+|}
+==== canWearArmor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] canWearArmor(item)''<br>'''Действие:'''<br>Возвращает может ли носить доспех<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] '''item''' = предмет брони
+|}
+==== canWearSword ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] canWearSword(item)''<br>'''Действие:'''<br>Возвращает может ли носить оружие ближнего боя<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] '''item''' = предмет оружия ближнего боя
+|}
+==== canWearWeapon ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] canWearWeapon(stack)''<br>'''Действие:'''<br>Возвращает может ли носить любое оружие<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] '''stack''' = предмет оружия (+ [[Булыжник|булыжник]])
+|}
+==== clientUpdate ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clientUpdate()''<br>'''Действие:'''<br>Обновить данные для клиента игрока
+|}
+==== defendOwner ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] defendOwner()''<br>'''Действие:'''<br>Возвращает имет ли компаньён владельца
+|}
+==== gainExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] gainExp(chance)''<br>'''Действие:'''<br>Выдаёт 1 еденицу опыта с учётом шанса<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''chance''' = шанс в процентах (0-100)
+|}
+==== getExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getExp(talent)''<br>'''Действие:'''<br>Возвращает значение опыта таланта<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''talent''' = тип таланта
+|}
+==== getHeldItem ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] getHeldItem()''<br>'''Действие:'''<br>Возвращает предмет-пачку из правой руки
+|}
+==== getMaxExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMaxExp()''<br>'''Действие:'''<br>Возвращает максимальное значение опыта для получения уровня роста
+|}
+==== getNextLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html Integer] getNextLevel(talent)''<br>'''Действие:'''<br>Возвращает необходимое значение опыта для получения уровня таланта<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''talent''' = тип таланта
+|}
+==== getOwner ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] getOwner()''<br>'''Действие:'''<br>Возвращает игрока-владельца
+|}
+==== getTalentLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTalentLevel(this.getTalentLevel(EnumCompanionTalent.INVENTORY)''<br>'''Действие:'''<br>Возвращает текущий уровень таланта (0-5)<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''this.getTalentLevel(EnumCompanionTalent.INVENTORY''' = тип таланта
+|}
+==== getTotalArmorValue ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTotalArmorValue()''<br>'''Действие:'''<br>Возвращает текущее значение экипированной брони компаньёна
+|}
+==== getTotalLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTotalLevel()''<br>'''Действие:'''<br>Возвращает текущий уровень компаньёна
+|}
+==== hasInv ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasInv()''<br>'''Действие:'''<br>Возвращает имеет ли компаньён свой инвентарь
+|}
+==== hasOwner ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasOwner()''<br>'''Действие:'''<br>Возвращает имеет ли компаньён игрока-владельца
+|}
+==== hasTalent ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasTalent(talent)''<br>'''Действие:'''<br>Возвращает имеет ли компаньён таланты<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''talent''' = тип таланта
+|}
+==== interact ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] interact(this.jobInterface).interact(player)''<br>'''Действие:'''<br>Действия при взаимодействии игрока с NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''this.jobInterface).interact(player''' = игрок
+|}
+==== interact ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] interact(player, openGui)''<br>'''Действие:'''<br>Действия при взаимодействии игрока с NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''openGui''' = игрок
+|}
+==== isEating ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isEating()''<br>'''Действие:'''<br>Возвращает есть ли сейчас компаньён
+|}
+==== isFollowing ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isFollowing()''<br>'''Действие:'''<br>Возвращает движется ли компаньён за игроком-владельцем в данный момент
+|}
+==== isSitting ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isSitting()''<br>'''Действие:'''<br>Возвращает сидит ли сейчас компаньён
+|}
+==== isWeapon ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isWeapon(item)''<br>'''Действие:'''<br>Возвращает держит ли компаньён оружие в правой руке<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] '''item''' = предмет оружия (+ [[Булыжник|булыжник]])
+|}
+==== levelTalent ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] levelTalent(talent, exp)''<br>'''Действие:'''<br>Добавить опыт таланта (не для оружия)<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''talent''' = тип таланта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''exp''' = опыт
+|}
+==== matureTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] matureTo(stage)''<br>'''Действие:'''<br>Повысить возраст до<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionStage.java EnumCompanionStage] '''stage''' = уровень развития
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setExp ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setExp(talent, exp)''<br>'''Действие:'''<br>Установить опыт таланта<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/constants/EnumCompanionTalent.java EnumCompanionTalent] '''talent''' = тип таланта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''exp''' = опыт
+|}
+==== setOwner ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setOwner(player)''<br>'''Действие:'''<br>Установить игрока-владельца<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== setSelfsuficient ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSelfsuficient(bo)''<br>'''Действие:'''<br>Установить саморазвитие (для работ Стражника и Фрмера)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = да или нет
+|}
+==== setSitting ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSitting(sit)''<br>'''Действие:'''<br>Установить сидит ли в данный момент или нет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''sit''' = да или нет
+|}
+==== setStats ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setStats()''<br>'''Действие:'''<br>Установить характеристики урона ближнего и дальнего боя относительно оружия в правой руке
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

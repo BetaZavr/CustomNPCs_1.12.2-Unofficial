@@ -1,0 +1,45 @@
+'''Раздел noppes.npcs.api.constants'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/AnimationKind|AnimationKind]]
+| ''Константы своих анимаций NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/AnimationType|AnimationType]]
+| ''Константы простых анимаций NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/EntityType|EntityType]]
+| ''Константы типов сущностей''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/GuiComponentType|GuiComponentType]]
+| ''Константы компонентов своего ГУИ''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/ItemType|ItemType]]
+| ''Константы типов предметов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/JobType|JobType]]
+| ''Константы типов работы NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/MarkType|MarkType]]
+| ''Константы типов метки над головой NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/OptionType|OptionType]]
+| ''Константы типов ответа в диалоге NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/ParticleType|ParticleType]]
+| ''Константы типов частиц''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/PotionEffectType|PotionEffectType]]
+| ''Константы типов своих зелий''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/QuestType|QuestType]]
+| ''Константы типов задачи квеста''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/RoleType|RoleType]]
+| ''Константы типов роли NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/SideType|SideType]]
+| ''Константы типов стороны света''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/constants/TacticalType|TacticalType]]
+| ''Константы типов тактики ведения боя NPC''

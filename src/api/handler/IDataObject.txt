@@ -1,0 +1,139 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/IDataObject.java IDataObject]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/DataObject.java DataObject]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List]
+| data
+| ''список всех элементов объекта класса''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object]
+| object
+| ''объект класса''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#get|get]]()
+| ''Возвращает имя этого объекта<br>Конструктор, Суб-класс, Поле / Переменная или Метод''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getClasses|getClasses]]()
+| ''Возвращает список всех суб-классов объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getClassesInfo|getClassesInfo]]()
+| ''Возвращает короткую информацию о всех суб-классах этого объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getClazz|getClazz]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Возвращает элемент, как суб-класс этого объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getConstructors|getConstructors]]()
+| ''Возвращает список всех конструкторов объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getConstructorsInfo|getConstructorsInfo]]()
+| ''Возвращает короткую информацию о всех конструкторах этого объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getField|getField]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Возвращает элемент, как поле этого объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getFields|getFields]]()
+| ''Возвращает список всех полей объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getFieldsInfo|getFieldsInfo]]()
+| ''Возвращает короткую информацию о всех полях этого объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getInfo|getInfo]]()
+| ''Возвращает короткую информацию о всём, что содержит класс этого объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getMethod|getMethod]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Возвращает элемент, как метод этого объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getMethods|getMethods]]()
+| ''Возвращает список всех методов объекта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDataObject#getMethodsInfo|getMethodsInfo]]()
+| ''Возвращает короткую информацию о всех методах этого объекта''
+|}
+=== Описание методов ===
+
+==== get ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] get()''<br>'''Действие:'''<br>Возвращает имя этого объекта<br>Конструктор, Суб-класс, Поле / Переменная или Метод
+|}
+==== getClasses ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]] getClasses()''<br>'''Действие:'''<br>Возвращает список всех суб-классов объекта
+|}
+==== getClassesInfo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getClassesInfo()''<br>'''Действие:'''<br>Возвращает короткую информацию о всех суб-классах этого объекта
+|}
+==== getClazz ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]] getClazz(name)''<br>'''Действие:'''<br>Возвращает элемент, как суб-класс этого объекта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = название суб-класса
+|}
+==== getConstructors ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]] getConstructors()''<br>'''Действие:'''<br>Возвращает список всех конструкторов объекта
+|}
+==== getConstructorsInfo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getConstructorsInfo()''<br>'''Действие:'''<br>Возвращает короткую информацию о всех конструкторах этого объекта
+|}
+==== getField ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]] getField(name)''<br>'''Действие:'''<br>Возвращает элемент, как поле этого объекта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = название поля класса
+|}
+==== getFields ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]] getFields()''<br>'''Действие:'''<br>Возвращает список всех полей объекта
+|}
+==== getFieldsInfo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getFieldsInfo()''<br>'''Действие:'''<br>Возвращает короткую информацию о всех полях этого объекта
+|}
+==== getInfo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getInfo()''<br>'''Действие:'''<br>Возвращает короткую информацию о всём, что содержит класс этого объекта
+|}
+==== getMethod ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]] getMethod(name)''<br>'''Действие:'''<br>Возвращает элемент, как метод этого объекта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = название метода класса
+|}
+==== getMethods ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement[]]] getMethods()''<br>'''Действие:'''<br>Возвращает список всех методов объекта
+|}
+==== getMethodsInfo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getMethodsInfo()''<br>'''Действие:'''<br>Возвращает короткую информацию о всех методах этого объекта
+|}

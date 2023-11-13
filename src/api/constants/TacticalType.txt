@@ -1,0 +1,34 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/TacticalType.java TacticalType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''TacticalType_DEFAULT'''
+| ''стандартная тактика боя NPC''
+|-
+| 1
+| '''TacticalType_DODGE'''
+| ''тактика боя NPC - Уворот''
+|-
+| 2
+| '''TacticalType_SURROUND'''
+| ''тактика боя NPC - Окружать''
+|-
+| 3
+| '''TacticalType_HITNRUN'''
+| ''тактика боя NPC - Ударить и бежать''
+|-
+| 4
+| '''TacticalType_AMBUSH'''
+| ''тактика боя NPC - Засада''
+|-
+| 5
+| '''TacticalType_STALK'''
+| ''тактика боя NPC - Подкрадываться''
+|-
+| 6
+| '''TacticalType_NONE'''
+| ''нет тактики боя NPC''
+|}

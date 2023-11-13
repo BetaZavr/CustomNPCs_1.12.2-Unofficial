@@ -1,0 +1,185 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IDropNbtSet.java IDropNbtSet]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ICustomDrop#addDropNbtSet|ICustomDrop]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DropNbtSet.java DropNbtSet]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| chance
+| ''field.api.entity.data.idropnbtset.chance''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| path
+| ''field.api.entity.data.idropnbtset.path''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| type
+| ''field.api.entity.data.idropnbtset.type''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| typeList
+| ''field.api.entity.data.idropnbtset.typeList''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#cheakValue|cheakValue]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] value, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Проверяет и Возвращает возможность конвертирования строки в указанный тип NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getChance|getChance]]()
+| ''Возвращает шанс добавления этого набора тегов при создании дропа''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getConstructoredTag|getConstructoredTag]]([[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] nbt)
+| ''Создаёт и возвращает набор тегов по текущим настройкам''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getKey|getKey]]()
+| ''Возвращает строку названия для настройки в ГУИ''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getNBT|getNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов, в которые записаны настройки тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getPath|getPath]]()
+| ''Возвращает путь для создания набора тегов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getType|getType]]()
+| ''Возвращает тип конечного тега''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getTypeList|getTypeList]]()
+| ''Возвращает тип листа, как конечного тега''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#getValues|getValues]]()
+| ''Возвращает список вариантов значений тега''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#load|load]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtDS)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки тегов NBT через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#remove|remove]]()
+| ''Удалить настройку набора тегов из дропа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#setChance|setChance]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] chance)
+| ''Установить шанс добавления этого набора тегов при создании дропа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#setPath|setPath]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] path)
+| ''Установить путь для создания набора тегов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#setType|setType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип конечного тега''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#setTypeList|setTypeList]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип листа, как конечного тега''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#setValues|setValues]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] values)
+| ''Установить список вариантов значений тега''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet#setValues|setValues]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] values)
+| ''Установить список вариантов значений тега''
+|}
+=== Описание методов ===
+
+==== cheakValue ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] cheakValue(value, type)''<br>'''Действие:'''<br>Проверяет и Возвращает возможность конвертирования строки в указанный тип NBT<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''value''' = parametr.api.entity.data.dropnbtset.cheakValue.value<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = parametr.api.entity.data.dropnbtset.cheakValue.type
+|}
+==== getChance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getChance()''<br>'''Действие:'''<br>Возвращает шанс добавления этого набора тегов при создании дропа
+|}
+==== getConstructoredTag ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getConstructoredTag(nbt)''<br>'''Действие:'''<br>Создаёт и возвращает набор тегов по текущим настройкам<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] '''nbt''' = набор тегов NBT
+|}
+==== getKey ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getKey()''<br>'''Действие:'''<br>Возвращает строку названия для настройки в ГУИ
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов, в которые записаны настройки тегов NBT
+|}
+==== getPath ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getPath()''<br>'''Действие:'''<br>Возвращает путь для создания набора тегов
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает тип конечного тега
+|}
+==== getTypeList ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTypeList()''<br>'''Действие:'''<br>Возвращает тип листа, как конечного тега
+|}
+==== getValues ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] getValues()''<br>'''Действие:'''<br>Возвращает список вариантов значений тега
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load(nbtDS)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки тегов NBT через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtDS''' = parametr.api.entity.data.dropnbtset.load.nbtDS
+|}
+==== remove ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] remove()''<br>'''Действие:'''<br>Удалить настройку набора тегов из дропа
+|}
+==== setChance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setChance(chance)''<br>'''Действие:'''<br>Установить шанс добавления этого набора тегов при создании дропа<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''chance''' = parametr.api.entity.data.dropnbtset.setChance.chance
+|}
+==== setPath ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setPath(path)''<br>'''Действие:'''<br>Установить путь для создания набора тегов<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''path''' = parametr.api.entity.data.dropnbtset.setPath.path
+|}
+==== setType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setType(type)''<br>'''Действие:'''<br>Установить тип конечного тега<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = parametr.api.entity.data.dropnbtset.setType.type
+|}
+==== setTypeList ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setTypeList(type)''<br>'''Действие:'''<br>Установить тип листа, как конечного тега<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = parametr.api.entity.data.dropnbtset.setTypeList.type
+|}
+==== setValues ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setValues(values)''<br>'''Действие:'''<br>Установить список вариантов значений тега<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''values''' = parametr.api.entity.data.dropnbtset.setValues.values
+|}
+==== setValues ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setValues(values)''<br>'''Действие:'''<br>Установить список вариантов значений тега<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] '''values''' = parametr.api.entity.data.dropnbtset.setValues.values
+|}

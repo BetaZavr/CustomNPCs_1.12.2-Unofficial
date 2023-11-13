@@ -1,0 +1,73 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IQuestCategory.java IQuestCategory]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest#getCategory|IQuest]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/QuestCategory.java QuestCategory]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| id
+| ''ID категории квестов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap]
+| quests
+| ''карта всех квестов категории''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| title
+| ''имя категории''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#create|create]]()
+| ''Создаёт и возвращает новый квест для этой категории''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#getName|getName]]()
+| ''Возвращает имя этой категории''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#quests|quests]]()
+| ''Возвращает массив интерфейсов всех квестов категории''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#readNBT|readNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbttagcompound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки категории и все её квесты через набор тегов NBT''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory#writeNBT|writeNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbttagcompound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки категории и все её квесты''
+|}
+=== Описание методов ===
+
+==== create ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]] create()''<br>'''Действие:'''<br>Создаёт и возвращает новый квест для этой категории
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает имя этой категории
+|}
+==== quests ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest[]]] quests()''<br>'''Действие:'''<br>Возвращает массив интерфейсов всех квестов категории
+|}
+==== readNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readNBT(nbttagcompound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки категории и все её квесты через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbttagcompound''' = набор тегов NBT
+|}
+==== writeNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeNBT(nbttagcompound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки категории и все её квесты<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbttagcompound''' = набор тегов NBT
+|}

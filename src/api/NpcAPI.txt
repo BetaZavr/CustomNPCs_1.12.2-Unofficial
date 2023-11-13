@@ -1,0 +1,397 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/NpcAPI.java NpcAPI]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/Event/CustomNPCsEvent#API|CustomNPCsEvent]], [[Custom NPCs/Unoficial_API_1.12.2/api/event/ForgeEvent#API|ForgeEvent]]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI|NpcAPI]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#Instance|Instance]]()
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>Возвращает собранный / загруженный объект этого класса''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#IsAvailable|IsAvailable]]()
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>Возвращает загружена ли эта модификация или нет''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGui|ICustomGui]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#createCustomGui|createCustomGui]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] pauseGame)
+| ''Создаёт и возвращает свой ГУИ''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IPlayerMail|IPlayerMail]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#createMail|createMail]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] sender, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] subject)
+| ''Создаёт и возвращает письмо для игрока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#createNPC|createNPC]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] world)
+| ''Создаёт и возвращает NPC''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/EventBus.html EventBus]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#events|events]]()
+| ''Возвращает шину всех зарезервированных событий''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#executeCommand|executeCommand]]([[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]] world, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] command)
+| ''Пытается выполнить [[Команды_консоли|команду консоли]] от имени мода''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getAllPlayers|getAllPlayers]]()
+| ''Возвращает массив всех игроков онлайн''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler|IAnimationHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getAnimations|getAnimations]]()
+| ''Возвращает класс-базу, управляющую своими анимациями для NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IBorderHandler|IBorderHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getBorders|getBorders]]()
+| ''Возвращает класс-базу, управляющую регионами-барьерами''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/ICloneHandler|ICloneHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getClones|getClones]]()
+| ''Возвращает класс-базу, управляющую сохранёнными клонами сущностей''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDimensionHandler|IDimensionHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getCustomDimention|getCustomDimention]]()
+| ''Возвращает класс-базу, управляющую своими мирами / измерениями<br>{{цвет|Indigo|Только для}} {{цвет|Blue|мега}} {{цвет|Orange|BRO}}''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDialogHandler|IDialogHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getDialogs|getDialogs]]()
+| ''Возвращает класс-базу, управляющую диалогами и их категориями''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IFactionHandler|IFactionHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getFactions|getFactions]]()
+| ''Возвращает класс-базу, управляющую фракциями''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/io/File.html File]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getGlobalDir|getGlobalDir]]()
+| ''Возвращает глобальную директорию игры / сервера''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INpcAttribute|INpcAttribute]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIAttribute|getIAttribute]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/IAttributeInstance.html IAttributeInstance] mcattribute)
+| ''Возвращает оболочку управления атрибутой сущности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock|IBlock]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIBlock|getIBlock]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] world, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] pos)
+| ''Возвращает оболочку управления блоком из мира / измерения''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIContainer|getIContainer]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/Container.html Container] container)
+| ''Возвращает оболочку управления контейнером''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIContainer|getIContainer]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/IInventory.html IInventory] inventory)
+| ''Возвращает оболочку управления контейнером''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IDamageSource|IDamageSource]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIDamageSource|getIDamageSource]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/DamageSource.html DamageSource] source)
+| ''Возвращает оболочку управления источником урона''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource|IEntityDamageSource]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIDamageSource|getIDamageSource]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name, [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] entity)
+| ''Возвращает оболочку управления источником урона''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIEntity|getIEntity]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] entity)
+| ''Возвращает оболочку управления сущностью''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIItemStack|getIItemStack]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] stack)
+| ''Возвращает оболочку управления предметом-пачкой''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IKeyBinding|IKeyBinding]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIKeyBinding|getIKeyBinding]]()
+| ''Возвращает класс-базу, управляющую настройками для нажатия своего сочетания клавиш''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getINbt|getINbt]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''Возвращает оболочку управления набором тегов NBT''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIPlayer|getIPlayer]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] nameOrUUID)
+| ''Возвращает оболочку управления игроком''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIPos|getIPos]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] pos)
+| ''Возвращает оболочку управления позицией блока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIPos|getIPos]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] z)
+| ''Возвращает оболочку управления позицией блока''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIWorld|getIWorld]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] world)
+| ''Возвращает оболочку управления миром / измерением''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIWorld|getIWorld]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dimensionId)
+| ''Возвращает оболочку управления миром / измерением''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getIWorlds|getIWorlds]]()
+| ''Возвращает массив оболочкек управления всех измерений в игре / на сервере''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IMarcetHandler|IMarcetHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getMarkets|getMarkets]]()
+| ''Возвращает класс-базу, управляющую магазинами в игре''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IMetods|IMetods]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getMetods|getMetods]]()
+| ''Возвращает класс-базу, специальных частоиспользуемых сложных методов''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IQuestHandler|IQuestHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getQuests|getQuests]]()
+| ''Возвращает класс-базу, управляющую квестами и их категориями''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getRandomName|getRandomName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dictionary, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] gender)
+| ''Возвращает случайное имя для NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getRawPlayerData|getRawPlayerData]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] uuid)
+| ''Возвращает набор тегов NBT, в который записаны все игровые данные игрока от этого мода''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler|IRecipeHandler]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getRecipes|getRecipes]]()
+| ''Возвращает класс-базу, управляющую своими рецептами''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/io/File.html File]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getWorldDir|getWorldDir]]()
+| ''Возвращает директорию сохранения карты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#hasPermissionNode|hasPermissionNode]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] permission)
+| ''Возвращает зарегистрировано ли имя "разрешения" (используется для проверки вывода команд и прочих специальных механик мода)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#registerCommand|registerCommand]]([https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/CommandNoppesBase.java CommandNoppesBase] command)
+| ''Зарегистировать новую [[Команды_консоли|команду консоли]] от имени мода "/noppes ..."''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#registerPermissionNode|registerPermissionNode]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] permission, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] defaultType)
+| ''Пытается зарегистрировать новое "разрешение" (используется для проверки вывода команд и прочих специальных механик мода)''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#spawnNPC|spawnNPC]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] world, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Пытается призвать нового NPC в мир / измерение. Настройки по-умолчанию''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#stringToNbt|stringToNbt]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] str)
+| ''Конвертирует строку и оболочку управления набором тегов NBT''
+|}
+=== Описание методов ===
+
+==== Instance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI|NpcAPI]] Instance()''<br>'''Действие:'''<br>Возвращает собранный / загруженный объект этого класса
+|}
+==== IsAvailable ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] IsAvailable()''<br>'''Действие:'''<br>Возвращает загружена ли эта модификация или нет
+|}
+==== createCustomGui ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICustomGui|ICustomGui]] createCustomGui(id, width, height, pauseGame)''<br>'''Действие:'''<br>Создаёт и возвращает свой ГУИ<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID своего ГУИ<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = длина своего ГУИ<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота своего ГУИ<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''pauseGame''' = остановка игры при просмотре
+|}
+==== createMail ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IPlayerMail|IPlayerMail]] createMail(sender, subject)''<br>'''Действие:'''<br>Создаёт и возвращает письмо для игрока<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''sender''' = имя игрока отправителя<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''subject''' = имя игрока получателя
+|}
+==== createNPC ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]] createNPC(world)''<br>'''Действие:'''<br>Создаёт и возвращает NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] '''world''' = мир / измерение
+|}
+==== events ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/fml/common/eventhandler/EventBus.html EventBus] events()''<br>'''Действие:'''<br>Возвращает шину всех зарезервированных событий
+|}
+==== executeCommand ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] executeCommand(world, command)''<br>'''Действие:'''<br>Пытается выполнить [[Команды_консоли|команду консоли]] от имени мода<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]] '''world''' = мир / измерение<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''command''' = [[Команды_консоли|команда консоли]]
+|}
+==== getAllPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer[]]] getAllPlayers()''<br>'''Действие:'''<br>Возвращает массив всех игроков онлайн
+|}
+==== getAnimations ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler|IAnimationHandler]] getAnimations()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую своими анимациями для NPC
+|}
+==== getBorders ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IBorderHandler|IBorderHandler]] getBorders()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую регионами-барьерами
+|}
+==== getClones ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/ICloneHandler|ICloneHandler]] getClones()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую сохранёнными клонами сущностей
+|}
+==== getCustomDimention ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDimensionHandler|IDimensionHandler]] getCustomDimention()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую своими мирами / измерениями<br>{{цвет|Indigo|Только для}} {{цвет|Blue|мега}} {{цвет|Orange|BRO}}
+|}
+==== getDialogs ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IDialogHandler|IDialogHandler]] getDialogs()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую диалогами и их категориями
+|}
+==== getFactions ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IFactionHandler|IFactionHandler]] getFactions()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую фракциями
+|}
+==== getGlobalDir ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/io/File.html File] getGlobalDir()''<br>'''Действие:'''<br>Возвращает глобальную директорию игры / сервера
+|}
+==== getIAttribute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INpcAttribute|INpcAttribute]] getIAttribute(mcattribute)''<br>'''Действие:'''<br>Возвращает оболочку управления атрибутой сущности<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/ai/attributes/IAttributeInstance.html IAttributeInstance] '''mcattribute''' = Minecraft атрибута сущности
+|}
+==== getIBlock ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/block/IBlock|IBlock]] getIBlock(world, pos)''<br>'''Действие:'''<br>Возвращает оболочку управления блоком из мира / измерения<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] '''world''' = Minecraft мир / измерение<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''pos''' = Minecraft позиция блока
+|}
+==== getIContainer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]] getIContainer(container)''<br>'''Действие:'''<br>Возвращает оболочку управления контейнером<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/Container.html Container] '''container''' = Minecraft контейнер
+|}
+==== getIContainer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IContainer|IContainer]] getIContainer(inventory)''<br>'''Действие:'''<br>Возвращает оболочку управления контейнером<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/IInventory.html IInventory] '''inventory''' = Minecraft инвентарь
+|}
+==== getIDamageSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IDamageSource|IDamageSource]] getIDamageSource(source)''<br>'''Действие:'''<br>Возвращает оболочку управления источником урона<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/DamageSource.html DamageSource] '''source''' = Minecraft источник урона
+|}
+==== getIDamageSource ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IEntityDamageSource|IEntityDamageSource]] getIDamageSource(name, entity)''<br>'''Действие:'''<br>Возвращает оболочку управления источником урона<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя источника урона<br>[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] '''entity''' = сущность, наносящая этот урон
+|}
+==== getIEntity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntity|IEntity]] getIEntity(entity)''<br>'''Действие:'''<br>Возвращает оболочку управления сущностью<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/Entity.html Entity] '''entity''' = Minecraft сущность
+|}
+==== getIItemStack ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] getIItemStack(stack)''<br>'''Действие:'''<br>Возвращает оболочку управления предметом-пачкой<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] '''stack''' = Minecraft предмет-пачка
+|}
+==== getIKeyBinding ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IKeyBinding|IKeyBinding]] getIKeyBinding()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую настройками для нажатия своего сочетания клавиш
+|}
+==== getINbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getINbt(nbt)''<br>'''Действие:'''<br>Возвращает оболочку управления набором тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = Minecraft набор тегов NBT
+|}
+==== getIPlayer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IPlayer|IPlayer]] getIPlayer(nameOrUUID)''<br>'''Действие:'''<br>Возвращает оболочку управления игроком<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''nameOrUUID''' = имя или уникальный ID игрока
+|}
+==== getIPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] getIPos(pos)''<br>'''Действие:'''<br>Возвращает оболочку управления позицией блока<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos] '''pos''' = Minecraft позиция блока
+|}
+==== getIPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] getIPos(x, y, z)''<br>'''Действие:'''<br>Возвращает оболочку управления позицией блока<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''z''' = позиция по оси Z
+|}
+==== getIWorld ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]] getIWorld(world)''<br>'''Действие:'''<br>Возвращает оболочку управления миром / измерением<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] '''world''' = Minecraft мир / измерение
+|}
+==== getIWorld ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld]] getIWorld(dimensionId)''<br>'''Действие:'''<br>Возвращает оболочку управления миром / измерением<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dimensionId''' = ID измерения
+|}
+==== getIWorlds ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IWorld|IWorld[]]] getIWorlds()''<br>'''Действие:'''<br>Возвращает массив оболочкек управления всех измерений в игре / на сервере
+|}
+==== getMarkets ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IMarcetHandler|IMarcetHandler]] getMarkets()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую магазинами в игре
+|}
+==== getMetods ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IMetods|IMetods]] getMetods()''<br>'''Действие:'''<br>Возвращает класс-базу, специальных частоиспользуемых сложных методов
+|}
+==== getQuests ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IQuestHandler|IQuestHandler]] getQuests()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую квестами и их категориями
+|}
+==== getRandomName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getRandomName(dictionary, gender)''<br>'''Действие:'''<br>Возвращает случайное имя для NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dictionary''' = словарь (набор имён по национальности)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''gender''' = тип гендера сущности (0 - любой, 1 - мужской, 2 - женский)
+|}
+==== getRawPlayerData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getRawPlayerData(uuid)''<br>'''Действие:'''<br>Возвращает набор тегов NBT, в который записаны все игровые данные игрока от этого мода<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''uuid''' = уникальный ID игрока
+|}
+==== getRecipes ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler|IRecipeHandler]] getRecipes()''<br>'''Действие:'''<br>Возвращает класс-базу, управляющую своими рецептами
+|}
+==== getWorldDir ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/io/File.html File] getWorldDir()''<br>'''Действие:'''<br>Возвращает директорию сохранения карты
+|}
+==== hasPermissionNode ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasPermissionNode(permission)''<br>'''Действие:'''<br>Возвращает зарегистрировано ли имя "разрешения" (используется для проверки вывода команд и прочих специальных механик мода)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''permission''' = имя "разрешения"
+|}
+==== registerCommand ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] registerCommand(command)''<br>'''Действие:'''<br>Зарегистировать новую [[Команды_консоли|команду консоли]] от имени мода "/noppes ..."<br><br>'''Параметры:'''<br>[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/CommandNoppesBase.java CommandNoppesBase] '''command''' = настроенная команда
+|}
+==== registerPermissionNode ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] registerPermissionNode(permission, defaultType)''<br>'''Действие:'''<br>Пытается зарегистрировать новое "разрешение" (используется для проверки вывода команд и прочих специальных механик мода)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''permission''' = имя "разрешения"<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''defaultType''' = тип "разрешения" (0 - для всех, 1 - только оператор, 2 - никто)
+|}
+==== spawnNPC ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc|ICustomNpc]] spawnNPC(world, x, y, z)''<br>'''Действие:'''<br>Пытается призвать нового NPC в мир / измерение. Настройки по-умолчанию<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/world/World.html World] '''world''' = Minecraft мир / измерение<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z
+|}
+==== stringToNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] stringToNbt(str)''<br>'''Действие:'''<br>Конвертирует строку и оболочку управления набором тегов NBT<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''str''' = строка в виде тегов NBT
+|}

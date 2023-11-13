@@ -27,7 +27,15 @@ extends ItemPotion {
             if (tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.containsKey(potiontype)) {
             	PotionData data = CustomRegisters.custompotiontypes.get(potiontype);
         		if (data.nbtData!=null && data.nbtData.hasKey("ShowInCreative", 1) && !data.nbtData.getBoolean("ShowInCreative")) { continue; }
-            	items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
+            	ItemStack stack = PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype);
+        		if (data.nbtData!=null && data.nbtData.hasKey("MaxStackSize", 3)) {
+        			int count = data.nbtData.getInteger("MaxStackSize");
+        			if (count < 1) { count = 1; }
+        			if (count > 64) { count = 64; }
+        			stack.getItem().setMaxStackSize(count);
+        			stack.setCount(count);
+        		}
+        		items.add(stack);
             	continue;
             }
             else if (tab == CreativeTabs.SEARCH || (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {

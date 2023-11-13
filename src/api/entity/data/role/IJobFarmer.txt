@@ -1,0 +1,135 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IJobFarmer.java IJobFarmer]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/JobFarmer.java JobFarmer]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| chestMode
+| ''тип сбора (0 - собрал, удалил; 1 - собирает в сундук, или 2, если сундука нет; 2 - бросает на землю)''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#aiContinueExecute|aiContinueExecute]]()
+| ''Возвращает может ли NPC продолжить работу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#aiShouldExecute|aiShouldExecute]]()
+| ''Возвращает может ли NPC выполнить работу сейчас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#aiUpdateTask|aiUpdateTask]]()
+| ''Возвращает может ли NPC начать работу''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#getMainhand|getMainhand]]()
+| ''Возвращает предмет-пачку из правой руки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#getMutexBits|getMutexBits]]()
+| ''(неактивно) Возвращает количество битов действия работы''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/EntityNPCInterface.java EntityNPCInterface]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#getNpc|getNpc]]()
+| ''Возвращает NPC фермера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#getRange|getRange]]()
+| ''Возвращает дистанцию поиска грядок (0-16)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#isPlucking|isPlucking]]()
+| ''Возвращает собирает ли NPC урожай в данный момент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#processed|processed]]([https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] list)
+| ''Запуск процесса сбора блоков урожая, а так же поиск сундука возле себя''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#setHolding|setHolding]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] item)
+| ''Установить рабочий инструмен (предмет-пачку) в правую руку NPC фермера''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#setRange|setRange]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] range)
+| ''Установить дистанцию поиска грядок''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IJobFarmer#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== aiContinueExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiContinueExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC продолжить работу
+|}
+==== aiShouldExecute ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aiShouldExecute()''<br>'''Действие:'''<br>Возвращает может ли NPC выполнить работу сейчас
+|}
+==== aiUpdateTask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] aiUpdateTask()''<br>'''Действие:'''<br>Возвращает может ли NPC начать работу
+|}
+==== getMainhand ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemStack|IItemStack]] getMainhand()''<br>'''Действие:'''<br>Возвращает предмет-пачку из правой руки
+|}
+==== getMutexBits ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMutexBits()''<br>'''Действие:'''<br>(неактивно) Возвращает количество битов действия работы
+|}
+==== getNpc ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/EntityNPCInterface.java EntityNPCInterface] getNpc()''<br>'''Действие:'''<br>Возвращает NPC фермера
+|}
+==== getRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRange()''<br>'''Действие:'''<br>Возвращает дистанцию поиска грядок (0-16)
+|}
+==== isPlucking ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isPlucking()''<br>'''Действие:'''<br>Возвращает собирает ли NPC урожай в данный момент
+|}
+==== processed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] processed(list)''<br>'''Действие:'''<br>Запуск процесса сбора блоков урожая, а так же поиск сундука возле себя<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] '''list''' = список блоков урожая и сундуков вокруг
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки работы NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setHolding ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHolding(item)''<br>'''Действие:'''<br>Установить рабочий инструмен (предмет-пачку) в правую руку NPC фермера<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] '''item''' = предмет-пачка
+|}
+==== setRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRange(range)''<br>'''Действие:'''<br>Установить дистанцию поиска грядок<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''range''' = дистанция от NPC
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки работы NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

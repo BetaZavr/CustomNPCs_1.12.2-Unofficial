@@ -1,0 +1,66 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/AnimationType.java AnimationType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''AnimationType_NORMAL'''
+| ''стандартная анимация NPC''
+|-
+| 1
+| '''AnimationType_SIT'''
+| ''общая анимация, NPC сидит''
+|-
+| 2
+| '''AnimationType_SLEEP'''
+| ''общая анимация, NPC спит''
+|-
+| 3
+| '''AnimationType_HUG'''
+| ''общая анимация, NPC обнимает''
+|-
+| 4
+| '''AnimationType_SNEAK'''
+| ''общая анимация, NPC крадётся''
+|-
+| 5
+| '''AnimationType_DANCE'''
+| ''общая анимация, NPC танцует''
+|-
+| 6
+| '''AnimationType_AIM'''
+| ''общая анимация, NPC присматривается''
+|-
+| 7
+| '''AnimationType_CRAWL'''
+| ''общая анимация, NPC ползает''
+|-
+| 8
+| '''AnimationType_POINT'''
+| ''общая анимация показа рукой NPC''
+|-
+| 9
+| '''AnimationType_CRY'''
+| ''общая анимация, NPC плачет''
+|-
+| 10
+| '''AnimationType_WAVE'''
+| ''общая анимация, NPC машет рукой''
+|-
+| 11
+| '''AnimationType_BOW'''
+| ''общая анимация, NPC прицеливается''
+|-
+| 12
+| '''AnimationType_NO'''
+| ''общая анимация, NPC кивает НЕТ''
+|-
+| 13
+| '''AnimationType_YES'''
+| ''общая анимация, NPC кивает ДА''
+|-
+| 14
+| '''AnimationType_DEATH'''
+| ''общая анимация смерти NPC''
+|}

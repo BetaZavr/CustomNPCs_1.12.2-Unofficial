@@ -1,0 +1,288 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/ICustomParticle.java ICustomParticle]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/event/CustomParticleEvent#particle|CustomParticleEvent]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/particles/CustomParticle.java CustomParticle]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| full
+| ''Использовать всю текстуру для рисовки частицы или часть''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| nbtData
+| ''Набор тегов формирующих/создающих данный элемент''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/ResourceLocation.html ResourceLocation]
+| obj
+| ''Путь к модели OBJ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| objList
+| ''ID сетки рисовки модели OBJ на клиенте''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/ResourceLocation.html ResourceLocation]
+| texture
+| ''Путь к текстуре частицы''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getAge|getAge]]()
+| ''Возвращает время в тиках существования частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getAlphaF|getAlphaF]]()
+| ''Возвращает значение прозрачности частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getColorMask|getColorMask]]()
+| ''Возвращает маску цвета на частицу формата RGB в десятеричном виде''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getCustomName|getCustomName]]()
+| ''Возвращает регистрационное имя заданное пользователем''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getCustomNbt|getCustomNbt]]()
+| ''Возвращает теги, формирующие/создающие данный элемент''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getHeight|getHeight]]()
+| ''Возвращает высоту текстурированной частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getObj|getObj]]()
+| ''Возвращает путь к модели OBJ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getPrevPoses|getPrevPoses]]()
+| ''Возвращает массив положения частицы одним тиком ранее по осям XYZ (предыдущее)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getRotationX|getRotationX]]()
+| ''Возвращает текущий угол поворота модели OBJ по оси X''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getRotationY|getRotationY]]()
+| ''Возвращает текущий угол поворота модели OBJ по оси Y''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getRotationZ|getRotationZ]]()
+| ''Возвращает текущий угол поворота модели OBJ по оси Z''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getScale|getScale]]()
+| ''Возвращает масштаб частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getTexture|getTexture]]()
+| ''Возвращает путь к изображению текстурированной частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getTotalAge|getTotalAge]]()
+| ''Возвращает максимальное время в тиках существования частицы, после которого она исчезнет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#getWidth|getWidth]]()
+| ''Возвращает длину текстурированной частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#posX|posX]]()
+| ''Возвращает текущее положение по оси X''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#posY|posY]]()
+| ''Возвращает текущее положение по оси Y''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#posZ|posZ]]()
+| ''Возвращает текущее положение по оси Z''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setAge|setAge]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] ticks)
+| ''Установить время в тиках существования частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setAlphaF|setAlphaF]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] alpha)
+| ''Установить значение прозрачности частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setColorMask|setColorMask]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] color)
+| ''Установить маску цвета на частицу формата RGB в десятеричном виде''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setCustomSize|setCustomSize]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] height)
+| ''Установить длину и высоту текстурированной частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setObj|setObj]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] objPath)
+| ''Установить путь к модели OBJ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setPos|setPos]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] z)
+| ''Установить текущее положение по осям XYZ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setRotation|setRotation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] angleX, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] angleY, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] angleZ)
+| ''Установить текущие углы поворота модели OBJ по осям XYZ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setScale|setScale]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] scale)
+| ''Установить масштаб частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setTexture|setTexture]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] texture)
+| ''Установить путь к изображению текстурированной частицы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle#setTotalAge|setTotalAge]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] ticks)
+| ''Установить максимальное время в тиках существования частицы, после которого она исчезнет''
+|}
+=== Описание методов ===
+
+==== getAge ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getAge()''<br>'''Действие:'''<br>Возвращает время в тиках существования частицы
+|}
+==== getAlphaF ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getAlphaF()''<br>'''Действие:'''<br>Возвращает значение прозрачности частицы
+|}
+==== getColorMask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getColorMask()''<br>'''Действие:'''<br>Возвращает маску цвета на частицу формата RGB в десятеричном виде
+|}
+==== getCustomName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getCustomName()''<br>'''Действие:'''<br>Возвращает регистрационное имя заданное пользователем
+|}
+==== getCustomNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getCustomNbt()''<br>'''Действие:'''<br>Возвращает теги, формирующие/создающие данный элемент
+|}
+==== getHeight ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getHeight()''<br>'''Действие:'''<br>Возвращает высоту текстурированной частицы
+|}
+==== getObj ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getObj()''<br>'''Действие:'''<br>Возвращает путь к модели OBJ
+|}
+==== getPrevPoses ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double[]] getPrevPoses()''<br>'''Действие:'''<br>Возвращает массив положения частицы одним тиком ранее по осям XYZ (предыдущее)
+|}
+==== getRotationX ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getRotationX()''<br>'''Действие:'''<br>Возвращает текущий угол поворота модели OBJ по оси X
+|}
+==== getRotationY ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getRotationY()''<br>'''Действие:'''<br>Возвращает текущий угол поворота модели OBJ по оси Y
+|}
+==== getRotationZ ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getRotationZ()''<br>'''Действие:'''<br>Возвращает текущий угол поворота модели OBJ по оси Z
+|}
+==== getScale ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getScale()''<br>'''Действие:'''<br>Возвращает масштаб частицы
+|}
+==== getTexture ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getTexture()''<br>'''Действие:'''<br>Возвращает путь к изображению текстурированной частицы
+|}
+==== getTotalAge ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getTotalAge()''<br>'''Действие:'''<br>Возвращает максимальное время в тиках существования частицы, после которого она исчезнет
+|}
+==== getWidth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getWidth()''<br>'''Действие:'''<br>Возвращает длину текстурированной частицы
+|}
+==== posX ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] posX()''<br>'''Действие:'''<br>Возвращает текущее положение по оси X
+|}
+==== posY ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] posY()''<br>'''Действие:'''<br>Возвращает текущее положение по оси Y
+|}
+==== posZ ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] posZ()''<br>'''Действие:'''<br>Возвращает текущее положение по оси Z
+|}
+==== setAge ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAge(ticks)''<br>'''Действие:'''<br>Установить время в тиках существования частицы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''ticks''' = время в тиках
+|}
+==== setAlphaF ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAlphaF(alpha)''<br>'''Действие:'''<br>Установить значение прозрачности частицы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''alpha''' = значение прозрачности (0.0 - 1.0)
+|}
+==== setColorMask ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setColorMask(color)''<br>'''Действие:'''<br>Установить маску цвета на частицу формата RGB в десятеричном виде<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''color''' = цвет RGB в десятеричном виде (пример оранжевый: 0xFF8000 или 16744448)
+|}
+==== setCustomSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCustomSize(width, height)''<br>'''Действие:'''<br>Установить длину и высоту текстурированной частицы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''width''' = значение длины<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''height''' = значение высоты
+|}
+==== setObj ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setObj(objPath)''<br>'''Действие:'''<br>Установить путь к модели OBJ<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''objPath''' = путь к текстуре
+|}
+==== setPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setPos(x, y, z)''<br>'''Действие:'''<br>Установить текущее положение по осям XYZ<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''x''' = позиция по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''y''' = позиция по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''z''' = позиция по оси Z
+|}
+==== setRotation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRotation(angleX, angleY, angleZ)''<br>'''Действие:'''<br>Установить текущие углы поворота модели OBJ по осям XYZ<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''angleX''' = вращение по оси X<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''angleY''' = вращение по оси Y<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''angleZ''' = вращение по оси Z
+|}
+==== setScale ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setScale(scale)''<br>'''Действие:'''<br>Установить масштаб частицы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''scale''' = масштаб
+|}
+==== setTexture ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setTexture(texture)''<br>'''Действие:'''<br>Установить путь к изображению текстурированной частицы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''texture''' = путь к текстуре
+|}
+==== setTotalAge ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setTotalAge(ticks)''<br>'''Действие:'''<br>Установить максимальное время в тиках существования частицы, после которого она исчезнет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''ticks''' = время в тиках
+|}

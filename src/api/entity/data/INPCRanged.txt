@@ -1,0 +1,489 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/INPCRanged.java INPCRanged]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRanged|INPCStats]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DataRanged.java DataRanged]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getAccelerate|getAccelerate]]()
+| ''Возвращает ускоряется ли снаряд или нет при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getAccuracy|getAccuracy]]()
+| ''Возвращает точность точность расчёта первоначального вектора полёта в процентах''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getBurst|getBurst]]()
+| ''Возвращает количество запусков снарядов в очереди''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getBurstDelay|getBurstDelay]]()
+| ''Возвращает время задержки между очередями запуска снарядов<br>в тиках''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getDelayMax|getDelayMax]]()
+| ''Возвращает максимальное время для прицеливания на дальнобойную атаку''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getDelayMin|getDelayMin]]()
+| ''Возвращает минимальное время для прицеливания на дальнобойную атаку''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getDelayRNG|getDelayRNG]]()
+| ''Возвращает случайное время из текущих настроек для проведения дальнобойной атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getEffectStrength|getEffectStrength]]()
+| ''Возвращает силу эффекта, накладываемого при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getEffectTime|getEffectTime]]()
+| ''Возвращает время эффекта, накладываемого при дальнобойной атаке<br>в секундах''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getEffectType|getEffectType]]()
+| ''Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/PotionEffectType|тип эффекта]], накладываемого при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getExplodeSize|getExplodeSize]]()
+| ''Возвращает размер в блоках для взрыва при ударе снаряда о что-либо''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getFireType|getFireType]]()
+| ''Возвращает количество снарядов выпускаемых за один залп''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getGlows|getGlows]]()
+| ''Возвращает будет ли сущность подсвечена при попадании снаряда для игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getHasAimAnimation|getHasAimAnimation]]()
+| ''Возвращает имеется ли анимация при прицеливании для NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getHasGravity|getHasGravity]]()
+| ''Возвращает дествует ли гравитация на снаряд''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getKnockback|getKnockback]]()
+| ''Возвращает силу отбрасывания при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getMeleeRange|getMeleeRange]]()
+| ''Возвращает дистанцию в блоках, когда NPC переключается на рукопашный бой''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getParticle|getParticle]]()
+| ''Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/ParticleType|тип частиц]], создаваемых снарядом во время полёта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getRange|getRange]]()
+| ''Возвращает минимальную дистанцию для проведения дальнобойной атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getRender3D|getRender3D]]()
+| ''Возвращает имеет ли снаряд модель 3D или плоская картинка''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getShotCount|getShotCount]]()
+| ''Возвращает количество вытрелов за раз''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getSize|getSize]]()
+| ''Возвращает тип размера модели снаряда<br>1<->10''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getSound|getSound]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Возвращает звук, воспроизводимый при попадании снаряда''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/SoundEvent.html SoundEvent]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getSoundEvent|getSoundEvent]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Возвращает зарегистрированное имя звука по типу звука (0 - звук выстрела, 1 - звук удара о сущность, 2 - звук удара о блок)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getSpeed|getSpeed]]()
+| ''Возвращает тип начальной скорости полёта<br>1<->50''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getSpins|getSpins]]()
+| ''Возвращает вращается ли снаряд в полёте или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getSticks|getSticks]]()
+| ''Возвращает поведение снаряда в полёте как бросок копья или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#getStrength|getStrength]]()
+| ''Возвращает значение урона, наносимого от каждого снаряда''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки дальнобойной атаки NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setAccelerate|setAccelerate]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] accelerate)
+| ''Установить ускоряется ли снаряд или нет при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setAccuracy|setAccuracy]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] accuracy)
+| ''Установить точность в процентах наведения дальнобойной атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setBurst|setBurst]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] count)
+| ''Установить количество запусков снарядов в очереди''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setBurstDelay|setBurstDelay]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] delay)
+| ''Установить время задержки между очередями запуска снарядов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setDelay|setDelay]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] min, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] max)
+| ''Установить время задержки между дальнобойными атаками''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setEffect|setEffect]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] strength, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] time)
+| ''Установить эффект, накладываемый при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setExplodeSize|setExplodeSize]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] size)
+| ''Установить размер в блоках для взрыва при ударе снаряда о что-либо''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setFireType|setFireType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить количество снарядов выпускаемых за один залп''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setGlows|setGlows]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] glows)
+| ''Установить будет ли сущность подсвечена при попадании снаряда для игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setHasAimAnimation|setHasAimAnimation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] aim)
+| ''Установить имеется ли анимация при прицеливании для NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setHasGravity|setHasGravity]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasGravity)
+| ''Установить дествует ли гравитация на снаряд''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setKnockback|setKnockback]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] punch)
+| ''Установить силу отбрасывания при дальнобойной атаке''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setMeleeRange|setMeleeRange]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] range)
+| ''Установить минимальную дистанцию, при которой NPC переходит в ближний бой''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setParticle|setParticle]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип частиц, создаваемых снарядом во время полёта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setRange|setRange]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] range)
+| ''Установить минимальную дистанцию для проведения дальнобойной атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setRender3D|setRender3D]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] render3d)
+| ''Установить имеет ли снаряд модель 3D или плоская картинка''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setShotCount|setShotCount]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] count)
+| ''Установить количество вытрелов за раз''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setSize|setSize]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] size)
+| ''Установить тип размера модели снаряда''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setSound|setSound]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] sound)
+| ''Установить звук, воспроизводимый при попадании снаряда''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setSpeed|setSpeed]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] speed)
+| ''Установить тип начальной скорости полёта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setSpins|setSpins]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] spins)
+| ''Установить вращается ли снаряд в полёте или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setSticks|setSticks]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] sticks)
+| ''Установить поведение снаряда в полёте как бросок копья или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#setStrength|setStrength]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] strength)
+| ''Установить значение урона, наносимого от каждого снаряда''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки дальнобойной атаки NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== getAccelerate ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getAccelerate()''<br>'''Действие:'''<br>Возвращает ускоряется ли снаряд или нет при дальнобойной атаке
+|}
+==== getAccuracy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getAccuracy()''<br>'''Действие:'''<br>Возвращает точность точность расчёта первоначального вектора полёта в процентах
+|}
+==== getBurst ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getBurst()''<br>'''Действие:'''<br>Возвращает количество запусков снарядов в очереди
+|}
+==== getBurstDelay ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getBurstDelay()''<br>'''Действие:'''<br>Возвращает время задержки между очередями запуска снарядов<br>в тиках
+|}
+==== getDelayMax ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getDelayMax()''<br>'''Действие:'''<br>Возвращает максимальное время для прицеливания на дальнобойную атаку
+|}
+==== getDelayMin ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getDelayMin()''<br>'''Действие:'''<br>Возвращает минимальное время для прицеливания на дальнобойную атаку
+|}
+==== getDelayRNG ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getDelayRNG()''<br>'''Действие:'''<br>Возвращает случайное время из текущих настроек для проведения дальнобойной атаки
+|}
+==== getEffectStrength ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getEffectStrength()''<br>'''Действие:'''<br>Возвращает силу эффекта, накладываемого при дальнобойной атаке
+|}
+==== getEffectTime ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getEffectTime()''<br>'''Действие:'''<br>Возвращает время эффекта, накладываемого при дальнобойной атаке<br>в секундах
+|}
+==== getEffectType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getEffectType()''<br>'''Действие:'''<br>Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/PotionEffectType|тип эффекта]], накладываемого при дальнобойной атаке
+|}
+==== getExplodeSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getExplodeSize()''<br>'''Действие:'''<br>Возвращает размер в блоках для взрыва при ударе снаряда о что-либо
+|}
+==== getFireType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getFireType()''<br>'''Действие:'''<br>Возвращает количество снарядов выпускаемых за один залп
+|}
+==== getGlows ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getGlows()''<br>'''Действие:'''<br>Возвращает будет ли сущность подсвечена при попадании снаряда для игрока
+|}
+==== getHasAimAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getHasAimAnimation()''<br>'''Действие:'''<br>Возвращает имеется ли анимация при прицеливании для NPC
+|}
+==== getHasGravity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getHasGravity()''<br>'''Действие:'''<br>Возвращает дествует ли гравитация на снаряд
+|}
+==== getKnockback ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getKnockback()''<br>'''Действие:'''<br>Возвращает силу отбрасывания при дальнобойной атаке
+|}
+==== getMeleeRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMeleeRange()''<br>'''Действие:'''<br>Возвращает дистанцию в блоках, когда NPC переключается на рукопашный бой
+|}
+==== getParticle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getParticle()''<br>'''Действие:'''<br>Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/ParticleType|тип частиц]], создаваемых снарядом во время полёта
+|}
+==== getRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRange()''<br>'''Действие:'''<br>Возвращает минимальную дистанцию для проведения дальнобойной атаки
+|}
+==== getRender3D ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getRender3D()''<br>'''Действие:'''<br>Возвращает имеет ли снаряд модель 3D или плоская картинка
+|}
+==== getShotCount ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getShotCount()''<br>'''Действие:'''<br>Возвращает количество вытрелов за раз
+|}
+==== getSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getSize()''<br>'''Действие:'''<br>Возвращает тип размера модели снаряда<br>1<->10
+|}
+==== getSound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getSound(type)''<br>'''Действие:'''<br>Возвращает звук, воспроизводимый при попадании снаряда<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип звука (0 - звук выстрела, 1 - звук удара о сущность, 2 - звук удара о блок)
+|}
+==== getSoundEvent ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/SoundEvent.html SoundEvent] getSoundEvent(type)''<br>'''Действие:'''<br>Возвращает зарегистрированное имя звука по типу звука (0 - звук выстрела, 1 - звук удара о сущность, 2 - звук удара о блок)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип звука (0 - звук выстрела, 1 - звук удара о сущность, 2 - звук удара о блок)
+|}
+==== getSpeed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getSpeed()''<br>'''Действие:'''<br>Возвращает тип начальной скорости полёта<br>1<->50
+|}
+==== getSpins ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getSpins()''<br>'''Действие:'''<br>Возвращает вращается ли снаряд в полёте или нет
+|}
+==== getSticks ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getSticks()''<br>'''Действие:'''<br>Возвращает поведение снаряда в полёте как бросок копья или нет
+|}
+==== getStrength ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getStrength()''<br>'''Действие:'''<br>Возвращает значение урона, наносимого от каждого снаряда
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки дальнобойной атаки NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setAccelerate ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAccelerate(accelerate)''<br>'''Действие:'''<br>Установить ускоряется ли снаряд или нет при дальнобойной атаке<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''accelerate''' = да или нет
+|}
+==== setAccuracy ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAccuracy(accuracy)''<br>'''Действие:'''<br>Установить точность в процентах наведения дальнобойной атаки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''accuracy''' = точность выстрела в процентах (1-100)
+|}
+==== setBurst ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setBurst(count)''<br>'''Действие:'''<br>Установить количество запусков снарядов в очереди<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''count''' = количество снарядов
+|}
+==== setBurstDelay ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setBurstDelay(delay)''<br>'''Действие:'''<br>Установить время задержки между очередями запуска снарядов<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''delay''' = время в тиках
+|}
+==== setDelay ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDelay(min, max)''<br>'''Действие:'''<br>Установить время задержки между дальнобойными атаками<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''min''' = минимальное время в тиках<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''max''' = максимальное время в тиках
+|}
+==== setEffect ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setEffect(type, strength, time)''<br>'''Действие:'''<br>Установить эффект, накладываемый при дальнобойной атаке<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/PotionEffectType|тип эффекта]]<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''strength''' = сила / уровень эффекта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''time''' = время в тиках
+|}
+==== setExplodeSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setExplodeSize(size)''<br>'''Действие:'''<br>Установить размер в блоках для взрыва при ударе снаряда о что-либо<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''size''' = размер в блоках
+|}
+==== setFireType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setFireType(type)''<br>'''Действие:'''<br>Установить количество снарядов выпускаемых за один залп<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = количество снарядов
+|}
+==== setGlows ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setGlows(glows)''<br>'''Действие:'''<br>Установить будет ли сущность подсвечена при попадании снаряда для игрока<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''glows''' = да или нет
+|}
+==== setHasAimAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHasAimAnimation(aim)''<br>'''Действие:'''<br>Установить имеется ли анимация при прицеливании для NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''aim''' = да или нет
+|}
+==== setHasGravity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHasGravity(hasGravity)''<br>'''Действие:'''<br>Установить дествует ли гравитация на снаряд<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''hasGravity''' = да или нет
+|}
+==== setKnockback ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setKnockback(punch)''<br>'''Действие:'''<br>Установить силу отбрасывания при дальнобойной атаке<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''punch''' = сила толчка в блоках
+|}
+==== setMeleeRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setMeleeRange(range)''<br>'''Действие:'''<br>Установить минимальную дистанцию, при которой NPC переходит в ближний бой<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''range''' = минимальная дистанция для переключения в ближний бой
+|}
+==== setParticle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setParticle(type)''<br>'''Действие:'''<br>Установить тип частиц, создаваемых снарядом во время полёта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/ParticleType|тип частиц]]
+|}
+==== setRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRange(range)''<br>'''Действие:'''<br>Установить минимальную дистанцию для проведения дальнобойной атаки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''range''' = минимальная дистанция для произведения выстрела
+|}
+==== setRender3D ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRender3D(render3d)''<br>'''Действие:'''<br>Установить имеет ли снаряд модель 3D или плоская картинка<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''render3d''' = да или нет
+|}
+==== setShotCount ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShotCount(count)''<br>'''Действие:'''<br>Установить количество вытрелов за раз<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''count''' = количество выстрелов
+|}
+==== setSize ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSize(size)''<br>'''Действие:'''<br>Установить тип размера модели снаряда<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''size''' = размер снаряда (0-10)
+|}
+==== setSound ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSound(type, sound)''<br>'''Действие:'''<br>Установить звук, воспроизводимый при попадании снаряда<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип звука (0 - звук выстрела, 1 - звук удара о сущность, 2 - звук удара о блок)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''sound''' = зарегистрированное имя звука
+|}
+==== setSpeed ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSpeed(speed)''<br>'''Действие:'''<br>Установить тип начальной скорости полёта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''speed''' = время в тиках
+|}
+==== setSpins ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSpins(spins)''<br>'''Действие:'''<br>Установить вращается ли снаряд в полёте или нет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''spins''' = да или нет
+|}
+==== setSticks ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSticks(sticks)''<br>'''Действие:'''<br>Установить поведение снаряда в полёте как бросок копья или нет<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''sticks''' = да или нет
+|}
+==== setStrength ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setStrength(strength)''<br>'''Действие:'''<br>Установить значение урона, наносимого от каждого снаряда<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''strength''' = наносимый урон
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки дальнобойной атаки NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

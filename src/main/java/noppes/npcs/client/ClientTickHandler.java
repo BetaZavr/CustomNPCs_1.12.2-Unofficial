@@ -1,5 +1,6 @@
 package noppes.npcs.client;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,7 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
+import noppes.npcs.util.temp.TempClass;
 
 public class ClientTickHandler {
 	
@@ -275,7 +277,7 @@ public class ClientTickHandler {
 		}
 		if (!(entity instanceof EntityPlayerSP)) { return; }
 		//EntityPlayerSP player = (EntityPlayerSP) entity;
-		//TempClass.createAPIs(true);
+		TempClass.createAPIs(true);
 		//TempClass.deobfucation();
 		//TempClass.cheakLang();
 		
@@ -293,9 +295,16 @@ public class ClientTickHandler {
 			e.printStackTrace();
 		}*/
 		
-		/*List<String> list = Lists.newArrayList("DurationTicks", "Ambient", "Potion", "ShowParticles", "Probability", "Amplifier");
+		List<String> list = Lists.newArrayList("IsInstant", "IsBeneficial", "MaxStackSize", "ItemType", "RegistryName", "BaseDelay", "IsBadEffect",
+				"Duration", "CureItem", "CreateAllFiles", "LiquidColor", "Modifiers");
 		Collections.sort(list);
-		System.out.println("list: ["+list+"]");*/
+		System.out.println("list: ["+list+"]");
+		
+		/*for (PotionEffect pe : player.getActivePotionEffects()) {
+			try {
+				System.out.println("Potion: "+pe.getPotion()+" = "+pe.getPotion().getAttributeModifierMap());
+			} catch (Exception e) {}
+		}*/
 		
 		/*Point[] arr = new Point[0];
 		System.out.println("Array: "+arr);

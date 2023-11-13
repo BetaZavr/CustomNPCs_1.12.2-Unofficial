@@ -1,0 +1,111 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data/role|role]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/role/IRoleDialog.java IRoleDialog]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/roles/RoleDialog.java RoleDialog]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| dialog
+| ''имя диалога''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html HashMap]
+| options
+| ''карта всех настроек ответов для игрока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html HashMap]
+| optionsTexts
+| ''карта только доступных настроек ответов для игрока (только для клиента)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| questId
+| ''ID кветса, выдаваемого игроку при прочтении диалога''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#getDialog|getDialog]]()
+| ''Возвращает текст диалога''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#getOption|getOption]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] option)
+| ''Возвращает текст ответа на диалог из настроенных''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#getOptionDialog|getOptionDialog]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] option)
+| ''Возвращает текст ответа на диалог из возможных (только для клиента)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#interact|interact]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] player)
+| ''Действия при взаимодействии игрока с NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#readFromNBT|readFromNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#setDialog|setDialog]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''Установить текст диалога''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#setOption|setOption]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] option, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''Установить текст ответа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#setOptionDialog|setOptionDialog]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] option, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] text)
+| ''Установить текст ответа на диалог''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/role/IRoleDialog#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== getDialog ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getDialog()''<br>'''Действие:'''<br>Возвращает текст диалога
+|}
+==== getOption ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getOption(option)''<br>'''Действие:'''<br>Возвращает текст ответа на диалог из настроенных<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''option''' = ID ответа игрока из настроенных
+|}
+==== getOptionDialog ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getOptionDialog(option)''<br>'''Действие:'''<br>Возвращает текст ответа на диалог из возможных (только для клиента)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''option''' = ID ответа игрока из возможных
+|}
+==== interact ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] interact(player)''<br>'''Действие:'''<br>Действия при взаимодействии игрока с NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayer.html EntityPlayer] '''player''' = игрок
+|}
+==== readFromNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readFromNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки роли NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setDialog ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDialog(text)''<br>'''Действие:'''<br>Установить текст диалога<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = тескт диалога
+|}
+==== setOption ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setOption(option, text)''<br>'''Действие:'''<br>Установить текст ответа<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''option''' = ID ответа игрока из настроенных<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = текст ответа игрока из настроенных
+|}
+==== setOptionDialog ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setOptionDialog(option, text)''<br>'''Действие:'''<br>Установить текст ответа на диалог<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''option''' = ID ответа игрока из возможных<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''text''' = ID ответа игрока из возможных
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки роли NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

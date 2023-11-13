@@ -1,8 +1,11 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import com.google.common.collect.Lists;
@@ -20,6 +23,7 @@ import noppes.npcs.client.gui.SubGuiNpcFactionSelect;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
@@ -38,16 +42,17 @@ public class GuiNPCManageFactions
 extends GuiNPCInterface2
 implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISubGuiListener {
 	
+	private HashMap<String, Integer> base;
 	private Map<String, Integer> data;
 	private Faction faction;
 	private GuiCustomScroll scrollFactions;
-	private String selected;
+	public static boolean isName = true;
 
 	public GuiNPCManageFactions(EntityNPCInterface npc) {
 		super(npc);
-		this.data = Maps.<String, Integer>newHashMap();
+		this.base = Maps.<String, Integer>newHashMap();
+		this.data = Maps.<String, Integer>newLinkedHashMap();
 		this.faction = new Faction();
-		this.selected = null;
 		Client.sendData(EnumPacketServer.FactionsGet, new Object[0]);
 	}
 
@@ -66,7 +71,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				break;
 			}
 			case 1: {
-				Client.sendData(EnumPacketServer.FactionRemove, this.data.get(this.selected));
+				if (!this.data.containsKey(this.scrollFactions.getSelected())) { return; }
+				Client.sendData(EnumPacketServer.FactionRemove, this.data.get(this.scrollFactions.getSelected()));
 				this.scrollFactions.clear();
 				this.faction = new Faction();
 				this.initGui();
@@ -89,27 +95,35 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				break;
 			}
 			case 6: {
+				if (this.scrollFactions.getSelected() == null) { return; }
 				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
-				for (String name : this.data.keySet()) {
-					int id = this.data.get(name);
+				for (String name : this.base.keySet()) {
+					int id = this.base.get(name);
 					if (this.faction.id==id || this.faction.frendFactions.contains(id)) { continue; }
 					corData.put(name, id);
 				}
-				this.setSubGui(new SubGuiNpcFactionSelect(6, this.selected, this.faction.attackFactions, corData));
+				this.setSubGui(new SubGuiNpcFactionSelect(6, this.scrollFactions.getSelected(), this.faction.attackFactions, corData));
 				break;
 			}
 			case 7: {
+				if (this.scrollFactions.getSelected() == null) { return; }
 				HashMap<String, Integer> corData = Maps.<String, Integer>newHashMap();
-				for (String name : this.data.keySet()) {
-					int id = this.data.get(name);
+				for (String name : this.base.keySet()) {
+					int id = this.base.get(name);
 					if (this.faction.id==id || this.faction.attackFactions.contains(id)) { continue; }
 					corData.put(name, id);
 				}
-				this.setSubGui(new SubGuiNpcFactionSelect(7, this.selected, this.faction.frendFactions, corData));
+				this.setSubGui(new SubGuiNpcFactionSelect(7, this.scrollFactions.getSelected(), this.faction.frendFactions, corData));
 				break;
 			}
 			case 10: {
 				this.setSubGui(new SubGuiColorSelector(this.faction.color));
+				break;
+			}
+			case 14: {
+				GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
+				((GuiNpcCheckBox) button).setText(GuiNPCManageFactions.isName ? "gui.name" : "ID");
+				this.setData(new Vector<String>(this.base.keySet()), this.base);
 				break;
 			}
 			default: { break; }
@@ -121,12 +135,14 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		super.initGui();
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 368, this.guiTop + 8, 45, 20, "gui.add"));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 368, this.guiTop + 32, 45, 20, "gui.remove"));
-		if (this.scrollFactions == null) {
-			(this.scrollFactions = new GuiCustomScroll(this, 0)).setSize(143, 208);
-		}
+		if (this.scrollFactions == null) { (this.scrollFactions = new GuiCustomScroll(this, 0)).setSize(143, 208); }
 		this.scrollFactions.guiLeft = this.guiLeft + 220;
 		this.scrollFactions.guiTop = this.guiTop + 4;
 		this.addScroll(this.scrollFactions);
+
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 368, this.guiTop + 56, 45, 12, GuiNPCManageFactions.isName ? "gui.name" : "ID");
+		checkBox.setSelected(GuiNPCManageFactions.isName);
+		this.addButton(checkBox);
 		if (this.faction.id == -1) { return; }
 		
 		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, AdditionalMethods.instance.deleteColor(this.faction.name)));
@@ -183,24 +199,29 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			this.setHoverText(new TextComponentTranslation("faction.hover.addfrends").getFormattedText());
 		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.color").getFormattedText());
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.sort", new TextComponentTranslation("global.factions").getFormattedText(), ((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
 		}
 	}
 	
 	@Override
 	public void save() {
-		if (this.selected != null && this.data.containsKey(this.selected) && this.faction != null) {
-			NBTTagCompound compound = new NBTTagCompound();
-			this.faction.writeNBT(compound);
-			Client.sendData(EnumPacketServer.FactionSave, compound);
-		}
+		if (this.scrollFactions==null ||
+				this.scrollFactions.getSelected()==null ||
+				!this.data.containsKey(this.scrollFactions.getSelected()) ||
+				this.faction == null || this.faction.id == -1)
+		{ return; }
+		NBTTagCompound compound = new NBTTagCompound();
+		this.faction.writeNBT(compound);
+		Client.sendData(EnumPacketServer.FactionSave, compound);
 	}
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (scroll.id == 0) {
+			if (!this.data.containsKey(this.scrollFactions.getSelected())) { return; }
 			this.save();
-			this.selected = this.scrollFactions.getSelected();
-			Client.sendData(EnumPacketServer.FactionGet, this.data.get(this.selected));
+			Client.sendData(EnumPacketServer.FactionGet, this.data.get(this.scrollFactions.getSelected()));
 		}
 	}
 
@@ -209,23 +230,26 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		String select = this.scrollFactions.getSelected();
-		Map<Integer, String> map = Maps.<Integer, String>newTreeMap();
-		for (String key : data.keySet()) { map.put(data.get(key), key); }
-		
-		List<String> newList = Lists.<String>newArrayList();
+		System.out.println("list: "+list);
+		this.base = data;
+		String select = this.scrollFactions==null || this.scrollFactions.getSelected() == null ? "" : this.scrollFactions.getSelected();
 		this.data.clear();
-		char chr = ((char) 167);
-		for (int id  : map.keySet()) {
-			String key = map.get(id);
-			String name = AdditionalMethods.instance.deleteColor(key);
+		List<Entry<String, Integer>> newList = Lists.newArrayList(data.entrySet());
+		Collections.sort(newList, new Comparator<Entry<String, Integer>>() {
+	        public int compare(Entry<String, Integer> f_0, Entry<String, Integer> f_1) {
+	        	if (GuiNPCManageFactions.isName) { return f_0.getKey().compareTo(f_1.getKey()); }
+	        	else { return f_0.getValue().compareTo(f_1.getValue()); }
+	        }
+	    });
+        for (Entry<String, Integer> entry : newList) {
+        	int id = entry.getValue();
+			String name = AdditionalMethods.instance.deleteColor(entry.getKey());
 			if (name.indexOf("ID:"+id+" ")>=0) { name = name.substring(name.indexOf(" ")+3); }
-			String str = chr+"7ID:"+id+" "+chr+"r"+name;
-			newList.add(str);
-			this.data.put(str, id);
-			if (select!=null && select.equals(name)) { select = str; }
-		}
-		this.scrollFactions.setListNotSorted(newList);
+			String key = ((char) 167)+"7ID:"+id+" "+((char) 167)+"r"+name;
+        	this.data.put(key, id);
+			if (select!=null && select.equals(key)) { select = key; }
+        }
+		this.scrollFactions.setListNotSorted(Lists.<String>newArrayList(this.data.keySet()));
 		if (select!=null && !select.isEmpty()) { this.scrollFactions.setSelected(select); }
 	}
 
@@ -239,8 +263,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	@Override
 	public void setSelected(String selected) {
 		for (String key : this.scrollFactions.getList()) {
-			if (AdditionalMethods.instance.deleteColor(key+"").equals(selected)) {
-				this.selected = key;
+			if (AdditionalMethods.instance.deleteColor(key+"").equals(selected) && this.data.containsKey(key)) {
 				this.scrollFactions.setSelected(key);
 				return;
 			}
@@ -269,6 +292,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				}
 			}
 			this.save();
+			this.initGui();
 		}
 	}
 
@@ -280,12 +304,13 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		if (guiNpcTextField.getId() == 0) {
 			String name = guiNpcTextField.getText();
 			if (!name.isEmpty() && !this.data.containsKey(name)) {
-				String old = "" + this.selected;
+				String old = "" + this.scrollFactions.getSelected();
 				this.data.remove(this.faction.name);
+				this.base.remove(this.faction.name);
 				this.faction.name = name;
 				String str = ((char) 167)+"7ID:"+this.faction.id+" "+((char) 167)+"r"+name;
 				this.data.put(str, this.faction.id);
-				this.selected = str;
+				this.base.put(name, this.faction.id);
 				this.scrollFactions.replace(old, str);
 			}
 			this.initGui();

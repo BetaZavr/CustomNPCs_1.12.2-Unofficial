@@ -1,0 +1,144 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]].[[Custom NPCs/Unoficial_API_1.12.2/handler/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/data/IScriptData.java IScriptData]<br><br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/util/ScriptData.java ScriptData]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| isConstant
+| ''field.api.handler.data.iscriptdata.isConstant''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getFuncVariables|getFuncVariables]]()
+| ''method.api.handler.data.iscriptdata.getFuncVariables''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getGUIDescription|getGUIDescription]]()
+| ''method.api.handler.data.iscriptdata.getGUIDescription''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getGUIName|getGUIName]]()
+| ''method.api.handler.data.iscriptdata.getGUIName''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getGUIScrollName|getGUIScrollName]]()
+| ''method.api.handler.data.iscriptdata.getGUIScrollName''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getNBT|getNBT]]()
+| ''Возвращает набор тегов в который записан объект скрипта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getName|getName]]()
+| ''Возвращает имя объекта скрипта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getObject|getObject]]()
+| ''Возвращает содержимое или сам объект скрипта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getParametrs|getParametrs]]()
+| ''method.api.handler.data.iscriptdata.getParametrs''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getType|getType]]()
+| ''Возвращает тип объекта скрипта<br>0-any; 1--boolean; 2--byte; 3--short; 4--integer; 5--long; 6--float; 7--double; 8--string; 9--class; 10--class[]; 11--array; 12--function; 13--undefined''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getValue|getValue]]()
+| ''Возвращает имя класса объекта скрипта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#getVariables|getVariables]]([https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map] data)
+| ''method.api.handler.data.iscriptdata.getVariables''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#load|load]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbt)
+| ''method.api.handler.data.iscriptdata.load''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#setNBT|setNBT]]([[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] nbt)
+| ''Перезаписать объект через набор тегов ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData#setVarToFunction|setVarToFunction]]([https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] vars, [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map] baseFuncNames)
+| ''method.api.handler.data.iscriptdata.setVarToFunction''
+|}
+=== Описание методов ===
+
+==== getFuncVariables ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map] getFuncVariables()''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.getFuncVariables
+|}
+==== getGUIDescription ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] getGUIDescription()''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.getGUIDescription
+|}
+==== getGUIName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getGUIName()''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.getGUIName
+|}
+==== getGUIScrollName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getGUIScrollName()''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.getGUIScrollName
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] getNBT()''<br>'''Действие:'''<br>Возвращает набор тегов в который записан объект скрипта
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает имя объекта скрипта
+|}
+==== getObject ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] getObject()''<br>'''Действие:'''<br>Возвращает содержимое или сам объект скрипта
+|}
+==== getParametrs ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] getParametrs()''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.getParametrs
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает тип объекта скрипта<br>0-any; 1--boolean; 2--byte; 3--short; 4--integer; 5--long; 6--float; 7--double; 8--string; 9--class; 10--class[]; 11--array; 12--function; 13--undefined
+|}
+==== getValue ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getValue()''<br>'''Действие:'''<br>Возвращает имя класса объекта скрипта
+|}
+==== getVariables ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map] getVariables(data)''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.getVariables<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map] '''data''' = parametr.api.handler.data.scriptdata.getVariables.data
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load(nbt)''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.load<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbt''' = набор тегов NBT
+|}
+==== setNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNBT(nbt)''<br>'''Действие:'''<br>Перезаписать объект через набор тегов <br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/INbt|INbt]] '''nbt''' = набор тегов NBT
+|}
+==== setVarToFunction ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setVarToFunction(vars, baseFuncNames)''<br>'''Действие:'''<br>method.api.handler.data.iscriptdata.setVarToFunction<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] '''vars''' = parametr.api.handler.data.scriptdata.setVarToFunction.vars<br>[https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map] '''baseFuncNames''' = parametr.api.handler.data.scriptdata.setVarToFunction.baseFuncNames
+|}

@@ -1,0 +1,231 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/gui|gui]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/gui/ICompassData.java ICompassData]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/gui/IOverlayHUD#getCompasData|IOverlayHUD]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/PlayerCompassHUDData.java PlayerCompassHUDData]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| incline
+| ''вертикальный угол поворота компаса на экране''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| name
+| ''название отслеживаемого квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| npc
+| ''имя NPC, которого надо искать в зоне, для точного ориентирования''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/math/BlockPos.html BlockPos]
+| pos
+| ''интерфейс позиции блока''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| rot
+| ''горизонтальный угол поворота компаса на экране''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| scale
+| ''масштаб отображения компаса на экране''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double[]]
+| screenPos
+| ''массив процентного положения компаса на экране [ U (по оси X), V ( по оси Y)]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| show
+| ''показывать ли компас на экране''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| showQuestName
+| ''показывать ли название отслеживаемого квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| showTaskProgress
+| ''показывать ли название и статус отслеживаемой задачи квеста''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| title
+| ''название и статус отслеживаемой задачи квеста''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getDimensionID|getDimensionID]]()
+| ''Возвращает ID измерения, в котором активен компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getNPCName|getNPCName]]()
+| ''Возвращает имя NPC, на которого ориентируется компас ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getName|getName]]()
+| ''Возвращает название задачи, на которую ориентируется компас''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getNbt|getNbt]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны текущие настройки компаса''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getPos|getPos]]()
+| ''Возвращает позицию блока, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getRange|getRange]]()
+| ''Возвращает дистанцию (в блоках) зоны от позиции, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getTitle|getTitle]]()
+| ''Возвращает имя квеста, в котором находится текущая задача''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#getType|getType]]()
+| ''Возвращает тип метки, как тип задачи, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#isShow|isShow]]()
+| ''Возвращает показывается ли в данный момент компас на экране''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#load|load]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtCompass)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки компаса через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setDimensionID|setDimensionID]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] dimID)
+| ''Установить ID измерения, в котором активен компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setNPCName|setNPCName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] npcName)
+| ''Установить имя NPC, на которого ориентируется компас ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setName|setName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить название задачи, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setPos|setPos]]([[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] pos)
+| ''Установить позицию блока, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setPos|setPos]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] x, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] y, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] z)
+| ''Установить позицию блока, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setRange|setRange]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] range)
+| ''Установить дистанцию (в блоках) зоны от позиции, на которую ориентируется компас''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setShow|setShow]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] show)
+| ''Установить показывается ли в данный момент компас на экране''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setTitle|setTitle]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] title)
+| ''Установить имя квеста, в котором находится текущая задача''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/gui/ICompassData#setType|setType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип метки, как тип задачи, на которую ориентируется компас''
+|}
+=== Описание методов ===
+
+==== getDimensionID ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getDimensionID()''<br>'''Действие:'''<br>Возвращает ID измерения, в котором активен компас
+|}
+==== getNPCName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getNPCName()''<br>'''Действие:'''<br>Возвращает имя NPC, на которого ориентируется компас 
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает название задачи, на которую ориентируется компас
+|}
+==== getNbt ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNbt()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны текущие настройки компаса
+|}
+==== getPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] getPos()''<br>'''Действие:'''<br>Возвращает позицию блока, на которую ориентируется компас
+|}
+==== getRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRange()''<br>'''Действие:'''<br>Возвращает дистанцию (в блоках) зоны от позиции, на которую ориентируется компас
+|}
+==== getTitle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getTitle()''<br>'''Действие:'''<br>Возвращает имя квеста, в котором находится текущая задача
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает тип метки, как тип задачи, на которую ориентируется компас
+|}
+==== isShow ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isShow()''<br>'''Действие:'''<br>Возвращает показывается ли в данный момент компас на экране
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load(nbtCompass)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки компаса через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtCompass''' = набор тегов NBT
+|}
+==== setDimensionID ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDimensionID(dimID)''<br>'''Действие:'''<br>Установить ID измерения, в котором активен компас<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''dimID''' = ID мира / измерения, где отслеживаемая позиция
+|}
+==== setNPCName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setNPCName(npcName)''<br>'''Действие:'''<br>Установить имя NPC, на которого ориентируется компас <br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''npcName''' = имя NPC, которого искать в позиции для точной навигации
+|}
+==== setName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setName(name)''<br>'''Действие:'''<br>Установить название задачи, на которую ориентируется компас<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя отслеживаемого квеста
+|}
+==== setPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setPos(pos)''<br>'''Действие:'''<br>Установить позицию блока, на которую ориентируется компас<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/IPos|IPos]] '''pos''' = позиция блока, где отслеживаемая позиция
+|}
+==== setPos ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setPos(x, y, z)''<br>'''Действие:'''<br>Установить позицию блока, на которую ориентируется компас<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''x''' = позиция по оси X, где отслеживаемая позиция<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''y''' = позиция по оси Y, где отслеживаемая позиция<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''z''' = позиция по оси Z, где отслеживаемая позиция
+|}
+==== setRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRange(range)''<br>'''Действие:'''<br>Установить дистанцию (в блоках) зоны от позиции, на которую ориентируется компас<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''range''' = дистанция в блоках
+|}
+==== setShow ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setShow(show)''<br>'''Действие:'''<br>Установить показывается ли в данный момент компас на экране<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''show''' = да или нет
+|}
+==== setTitle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setTitle(title)''<br>'''Действие:'''<br>Установить имя квеста, в котором находится текущая задача<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''title''' = имя отслеживаемой задачи квеста
+|}
+==== setType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setType(type)''<br>'''Действие:'''<br>Установить тип метки, как тип задачи, на которую ориентируется компас<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип задачи квеста (0 - ITEM, 1 - DIALOG, 2 - KILL, 3 - LOCATION, 4 - AREAKILL, 5 - MANUAL, 6 - CRAFT)
+|}

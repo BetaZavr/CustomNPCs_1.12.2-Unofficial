@@ -1,0 +1,412 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/INPCStats.java INPCStats]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/ICustomNpc#getStats|ICustomNpc]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DataStats.java DataStats]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| aggroRange
+| ''агрро радиус (радиус поиска цели для атаки)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| burnInSun
+| ''загорается ли под [[Солнце|солнцем]] или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| calmdown
+| ''дистанция в блоках от базовой позиции, чтобы NPC прекратил бой''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| canDrown
+| ''может ли утонуть или нет (требуется воздух для дыхания)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| combatRegen
+| ''количество здоровья, восстанавливаемое в бою каждую секунду''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/EnumCreatureAttribute.html EnumCreatureAttribute]
+| creatureType
+| ''тип сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| healthRegen
+| ''количество здоровья, восстанавливаемое в не боя каждую секунду''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| hideKilledBody
+| ''скрыть тело после смерти или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| ignoreCobweb
+| ''замедляется ли от [[Паутина|блока паутины]] или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| immuneToFire
+| ''не получает урон от огня или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| maxHealth
+| ''максимальное здоровье''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DataMelee.java DataMelee]
+| melee
+| ''настройки ближнего боя''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| noFallDamage
+| ''не получает урон от падения или нет''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| potionImmune
+| ''не получает урон от отравления (зельем) или нет''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DataRanged.java DataRanged]
+| ranged
+| ''настройки дальнего боя''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/Resistances.java Resistances]
+| resistances
+| ''настройки сопротивления урону''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| respawnTime
+| ''время до воскрешения после смерти в секундах''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| spawnCycle
+| ''тип, когда NPC может воскреснуть (0 - всегда, 1 - днём, 2 - ночью, 3 - никогда, 4 - естественно)''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getAggroRange|getAggroRange]]()
+| ''Возвращает дистанцию поиска цели для атаки<br>в блоках''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getCombatRegen|getCombatRegen]]()
+| ''Возвращает количество здоровья, восстанавливаемое каждую секунду, когда NPC находится в бою''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getCreatureType|getCreatureType]]()
+| ''Возвращает тип сущности<br>Используется [[Зачаровывание|зачарованиями]] для расчёта урона<br>0-UNDEFINED, 1-UNDEAD, 2-ARTHROPOD, 3-ILLAGER''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getHP|getHP]]()
+| ''Возвращает расчётное значение здоровья относительно типа качества и уровня NPC ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getHealthRegen|getHealthRegen]]()
+| ''Возвращает количество здоровья, восстанавливаемое каждую секунду, когда NPC не находится в бою''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getHideDeadBody|getHideDeadBody]]()
+| ''Возвращает скрыть ли тело NPC, когда он убит''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getImmune|getImmune]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Возвращает наличие враждённого иммунитета''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getLevel|getLevel]]()
+| ''Возвращает уровень NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getMaxHealth|getMaxHealth]]()
+| ''Возвращает максимальное количество здоровья''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCMelee|INPCMelee]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getMelee|getMelee]]()
+| ''Возвращает настройки рукопашной атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getMellePower|getMellePower]]()
+| ''Возвращает расчётное значение урона ближнего боя относительно типа качества и уровня NPC ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRangePower|getRangePower]]()
+| ''Возвращает расчётное значение урона дальнего боя относительно типа качества и уровня NPC ''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged|INPCRanged]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRanged|getRanged]]()
+| ''Возвращает настройки дальнобойной атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRarity|getRarity]]()
+| ''Возвращает редкость NPC<br>0-нормальный, 1-элитный, 2-босс''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRarityTitle|getRarityTitle]]()
+| ''Возвращает текст описания уровня и редкости NPC<br>над головой<br>можно отключить в конфигурациях модификации''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getResistance|getResistance]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Возвращает значение сопротивления к урону<br>в процентах (0-2; 0-1 ниже 100%; 1-2 больше 100%)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRespawnTime|getRespawnTime]]()
+| ''Возвращает время до воскрешения NPC после смерти<br>в тиках''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getRespawnType|getRespawnType]]()
+| ''Возвращает тип возможного воскрешения<br>0-да, 1-днём, 2-ночью, 3-нет, 4-естественно''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#getXP|getXP]]()
+| ''Возвращает расчётное значение количества [[Опыт|опыта]] при смерти NPC относительно типа качества и уровня NPC ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#isCalmdown|isCalmdown]]()
+| ''Возвращает вернётся ли NPC в предыдущую позацию (базовую), если тот отходит дальше двух агрорадиусов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#readToNBT|readToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки характеристики NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setAggroRange|setAggroRange]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] range)
+| ''Установить дистанцию поиска цели для атаки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setCalmdown|setCalmdown]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить вернётся ли NPC в предыдущую позацию (базовую), если тот отходит дальше двух агрорадиусов''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setCombatRegen|setCombatRegen]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] regen)
+| ''Установить количество здоровья, восстанавливаемое каждую секунду, когда NPC находится в бою''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setCreatureType|setCreatureType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип сущности<br>Используется [[Зачаровывание|зачарованиями]] для расчёта урона''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setHealthRegen|setHealthRegen]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] regen)
+| ''Установить количество здоровья, восстанавливаемое каждую секунду, когда NPC не находится в бою''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setHideDeadBody|setHideDeadBody]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hide)
+| ''Установить скрыть ли тело NPC, когда он убит''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setImmune|setImmune]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить наличие враждённого иммунитета''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setLevel|setLevel]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] level)
+| ''Установить уровень NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setMaxHealth|setMaxHealth]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] maxHealth)
+| ''Установить максимальное здоровье этому NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setRarity|setRarity]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] rarity)
+| ''Установить редкость NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setRarityTitle|setRarityTitle]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] rarity)
+| ''Установить текст описания уровня и редкости NPC''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setResistance|setResistance]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type, [https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] value)
+| ''Установить значение сопротивления к урону''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setRespawnTime|setRespawnTime]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] seconds)
+| ''Установить время до воскрешения NPC после смерти''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#setRespawnType|setRespawnType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить тип возможного воскрешения''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats#writeToNBT|writeToNBT]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки характеристики NPC через набор тегов NBT''
+|}
+=== Описание методов ===
+
+==== getAggroRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getAggroRange()''<br>'''Действие:'''<br>Возвращает дистанцию поиска цели для атаки<br>в блоках
+|}
+==== getCombatRegen ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getCombatRegen()''<br>'''Действие:'''<br>Возвращает количество здоровья, восстанавливаемое каждую секунду, когда NPC находится в бою
+|}
+==== getCreatureType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getCreatureType()''<br>'''Действие:'''<br>Возвращает тип сущности<br>Используется [[Зачаровывание|зачарованиями]] для расчёта урона<br>0-UNDEFINED, 1-UNDEAD, 2-ARTHROPOD, 3-ILLAGER
+|}
+==== getHP ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getHP()''<br>'''Действие:'''<br>Возвращает расчётное значение здоровья относительно типа качества и уровня NPC 
+|}
+==== getHealthRegen ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getHealthRegen()''<br>'''Действие:'''<br>Возвращает количество здоровья, восстанавливаемое каждую секунду, когда NPC не находится в бою
+|}
+==== getHideDeadBody ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getHideDeadBody()''<br>'''Действие:'''<br>Возвращает скрыть ли тело NPC, когда он убит
+|}
+==== getImmune ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getImmune(type)''<br>'''Действие:'''<br>Возвращает наличие враждённого иммунитета<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип иммунитета (0 - отравление (зелье), 1 - урон от падения, 2 - горит на солнце, 3 - урон от огня, 4 - может утонуть, 5 - замедление от [[Паутина|паутины]])
+|}
+==== getLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getLevel()''<br>'''Действие:'''<br>Возвращает уровень NPC
+|}
+==== getMaxHealth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getMaxHealth()''<br>'''Действие:'''<br>Возвращает максимальное количество здоровья
+|}
+==== getMelee ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCMelee|INPCMelee]] getMelee()''<br>'''Действие:'''<br>Возвращает настройки рукопашной атаки
+|}
+==== getMellePower ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMellePower()''<br>'''Действие:'''<br>Возвращает расчётное значение урона ближнего боя относительно типа качества и уровня NPC 
+|}
+==== getRangePower ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRangePower()''<br>'''Действие:'''<br>Возвращает расчётное значение урона дальнего боя относительно типа качества и уровня NPC 
+|}
+==== getRanged ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged|INPCRanged]] getRanged()''<br>'''Действие:'''<br>Возвращает настройки дальнобойной атаки
+|}
+==== getRarity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRarity()''<br>'''Действие:'''<br>Возвращает редкость NPC<br>0-нормальный, 1-элитный, 2-босс
+|}
+==== getRarityTitle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getRarityTitle()''<br>'''Действие:'''<br>Возвращает текст описания уровня и редкости NPC<br>над головой<br>можно отключить в конфигурациях модификации
+|}
+==== getResistance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] getResistance(type)''<br>'''Действие:'''<br>Возвращает значение сопротивления к урону<br>в процентах (0-2; 0-1 ниже 100%; 1-2 больше 100%)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип сопротивления урону (0 - ближний бой, 1 - дальный бой, 2 - взрывы, 3 - отдача)
+|}
+==== getRespawnTime ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRespawnTime()''<br>'''Действие:'''<br>Возвращает время до воскрешения NPC после смерти<br>в тиках
+|}
+==== getRespawnType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getRespawnType()''<br>'''Действие:'''<br>Возвращает тип возможного воскрешения<br>0-да, 1-днём, 2-ночью, 3-нет, 4-естественно
+|}
+==== getXP ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]] getXP()''<br>'''Действие:'''<br>Возвращает расчётное значение количества [[Опыт|опыта]] при смерти NPC относительно типа качества и уровня NPC 
+|}
+==== isCalmdown ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isCalmdown()''<br>'''Действие:'''<br>Возвращает вернётся ли NPC в предыдущую позацию (базовую), если тот отходит дальше двух агрорадиусов
+|}
+==== readToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] readToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки характеристики NPC<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== setAggroRange ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setAggroRange(range)''<br>'''Действие:'''<br>Установить дистанцию поиска цели для атаки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''range''' = агрро радиус в блоках (радиус поиска цели для атаки)
+|}
+==== setCalmdown ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCalmdown(bo)''<br>'''Действие:'''<br>Установить вернётся ли NPC в предыдущую позацию (базовую), если тот отходит дальше двух агрорадиусов<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = да или нет
+|}
+==== setCombatRegen ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCombatRegen(regen)''<br>'''Действие:'''<br>Установить количество здоровья, восстанавливаемое каждую секунду, когда NPC находится в бою<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''regen''' = количество здоровья, восстанавливаемое в бою каждую секунду
+|}
+==== setCreatureType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setCreatureType(type)''<br>'''Действие:'''<br>Установить тип сущности<br>Используется [[Зачаровывание|зачарованиями]] для расчёта урона<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип сущности
+|}
+==== setHealthRegen ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHealthRegen(regen)''<br>'''Действие:'''<br>Установить количество здоровья, восстанавливаемое каждую секунду, когда NPC не находится в бою<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''regen''' = количество здоровья, восстанавливаемое в не боя каждую секунду
+|}
+==== setHideDeadBody ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setHideDeadBody(hide)''<br>'''Действие:'''<br>Установить скрыть ли тело NPC, когда он убит<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''hide''' = скрыть тело после смерти или нет
+|}
+==== setImmune ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setImmune(type, bo)''<br>'''Действие:'''<br>Установить наличие враждённого иммунитета<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип иммунитета (0 - отравление (зелье), 1 - урон от падения, 2 - горит на солнце, 3 - урон от огня, 4 - может утонуть, 5 - замедление от [[Паутина|паутины]])<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = да или нет
+|}
+==== setLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setLevel(level)''<br>'''Действие:'''<br>Установить уровень NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''level''' = уровень NPC
+|}
+==== setMaxHealth ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setMaxHealth(maxHealth)''<br>'''Действие:'''<br>Установить максимальное здоровье этому NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''maxHealth''' = количество здоровья
+|}
+==== setRarity ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRarity(rarity)''<br>'''Действие:'''<br>Установить редкость NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''rarity''' = редкость NPC
+|}
+==== setRarityTitle ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRarityTitle(rarity)''<br>'''Действие:'''<br>Установить текст описания уровня и редкости NPC<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''rarity''' = описание редкость NPC
+|}
+==== setResistance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setResistance(type, value)''<br>'''Действие:'''<br>Установить значение сопротивления к урону<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип сопротивления урону (0 - ближний бой, 1 - дальный бой, 2 - взрывы, 3 - отдача)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Float.html float] '''value''' = значение сопротивления в процентах (0-2; 0-1 ниже 100%; 1-2 больше 100%)
+|}
+==== setRespawnTime ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRespawnTime(seconds)''<br>'''Действие:'''<br>Установить время до воскрешения NPC после смерти<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''seconds''' = время до воскрешения после смерти в секундах
+|}
+==== setRespawnType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRespawnType(type)''<br>'''Действие:'''<br>Установить тип возможного воскрешения<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = тип воскрешения (0-да, 1-днём, 2-ночью, 3-нет, 4-естественно)
+|}
+==== writeToNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] writeToNBT(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки характеристики NPC через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}

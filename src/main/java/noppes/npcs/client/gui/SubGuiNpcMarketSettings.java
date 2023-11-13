@@ -80,19 +80,19 @@ implements ITextfieldListener {
 			md = this.marcet.markup.get(this.level);
 		}
 		this.addLabel(new GuiNpcLabel(3, "market.extra.markup", x + 76, y + 5));
-		this.addLabel(new GuiNpcLabel(4, "%", x + 154, y + 5));
-		this.addTextField(new GuiNpcTextField(2, this, x + 120, y, 30, 20, ""+(int) (md.buy * 100.0f)));
+		this.addLabel(new GuiNpcLabel(4, "%", x + 174, y + 5));
+		this.addTextField(new GuiNpcTextField(2, this, x + 120, y, 50, 20, ""+(int) (md.buy * 100.0f)));
 		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(-100, 500, (int) (md.buy * 100.0f));
 
-		this.addLabel(new GuiNpcLabel(5, "%", x + 198, y + 5));
-		this.addTextField(new GuiNpcTextField(3, this, x + 164, y, 30, 20, ""+(int) (md.sell * 100.0f)));
+		this.addLabel(new GuiNpcLabel(5, "%", x + 238, y + 5));
+		this.addTextField(new GuiNpcTextField(3, this, x + 184, y, 50, 20, ""+(int) (md.sell * 100.0f)));
 		this.getTextField(3).setDoubleNumbersOnly();
 		this.getTextField(3).setMinMaxDoubleDefault(-500, 100, (int) (md.sell * 100.0f));
 
 		y += 22;
 		this.addLabel(new GuiNpcLabel(6, "quest.exp", x + 76, y + 5));
-		this.addTextField(new GuiNpcTextField(4, this, x + 120, y, 30, 20, ""+md.xp));
+		this.addTextField(new GuiNpcTextField(4, this, x + 120, y, 50, 20, ""+md.xp));
 		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(0, Integer.MAX_VALUE, md.xp);
 		

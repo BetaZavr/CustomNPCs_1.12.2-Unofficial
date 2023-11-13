@@ -85,6 +85,7 @@ import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemNpcMovingPath;
+import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
@@ -114,6 +115,7 @@ extends Gui
 	private List<int[]> listMovingPath;
 	private List<double[]> listPath = Lists.<double[]>newArrayList();
 	public static RayTraceResult result;
+	public static List<CustomParticle> customParticle = Lists.<CustomParticle>newArrayList();
 	
 
 	/** HUD Bar Interfase Canceled */
@@ -762,6 +764,35 @@ extends Gui
 		this.dx = this.mc.player.lastTickPosX + (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
 		this.dy = this.mc.player.lastTickPosY + (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
 		this.dz = this.mc.player.lastTickPosZ + (this.mc.player.posZ - this.mc.player.lastTickPosZ) * (double) event.getPartialTicks();
+		
+		if (!ClientGuiEventHandler.customParticle .isEmpty()) {
+			List<CustomParticle> del = Lists.<CustomParticle>newArrayList();
+			for (CustomParticle cp : ClientGuiEventHandler.customParticle) {
+				if (!cp.isAlive() || cp.obj==null) { del.add(cp); continue; }
+				GlStateManager.pushMatrix();
+				if (cp.objList != -1) {
+					Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+					GlStateManager.translate(cp.posX()-this.dx, cp.posY()-this.dy, cp.posZ()-this.dz);
+					if (cp.getScale()!=0.0f) { GlStateManager.scale(cp.getScale(), cp.getScale(), cp.getScale()); }
+					if (cp.getRotationX()!=0.0f) { GlStateManager.rotate(cp.getRotationX(), 1.0f, 0.0f, 0.0f); }
+					if (cp.getRotationY()!=0.0f) { GlStateManager.rotate(cp.getRotationY(), 0.0f, 1.0f, 0.0f); }
+					if (cp.getRotationZ()!=0.0f) { GlStateManager.rotate(cp.getRotationZ(), 0.0f, 0.0f, 1.0f); }
+					
+					GlStateManager.enableDepth();
+					GlStateManager.color(cp.getRedColorF(), cp.getGreenColorF(), cp.getBlueColorF(), cp.getAlphaF());
+					GlStateManager.enableRescaleNormal();
+					GlStateManager.enableLighting();
+					RenderHelper.enableStandardItemLighting();
+					OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+					
+					GlStateManager.callList(cp.objList);
+					
+					GlStateManager.disableBlend();
+				}
+				else { cp.objList = ModelBuffer.getDisplayList(cp.obj, null, null); }
+				GlStateManager.popMatrix();
+			}
+		}
 		
 		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBuilder) {
 			int id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("ID");

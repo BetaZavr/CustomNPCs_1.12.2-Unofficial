@@ -1,0 +1,126 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IMark.java IMark]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/IEntityLivingBase#addMark|IEntityLivingBase]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/MarkData$Mark.java Mark]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/data/Availability.java Availability]
+| availability
+| ''условия доступности этой метки для показа игроку''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| color
+| ''цвет ARGB в десетиричном виде (пример оранжевый: 0xFF8000 или 16744448)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| is3d
+| ''field.api.entity.data.imark.is3d''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| rotate
+| ''field.api.entity.data.imark.rotate''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| type
+| ''field.api.entity.data.imark.type''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IAvailability|IAvailability]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#getAvailability|getAvailability]]()
+| ''Возвращает доступность показа метки игрокам''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#getColor|getColor]]()
+| ''Возвращает цвет метки над головой сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#getType|getType]]()
+| ''Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/MarkType|тип метки]]<br>(0 - нет, 1 - вопросительный знак, 2 - восклицательный знак, 3 - указатель, 4 - череп, 5 - крест, 6 - звезда)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#is3D|is3D]]()
+| ''Возвращает модель имеет вид 3D объекта или 2D''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#isRotate|isRotate]]()
+| ''Возвращает вращается ли метка''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#set3D|set3D]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] arg0)
+| ''Установить является ли модель 3D объектом''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#setColor|setColor]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] color)
+| ''Установить цвет метки над головой сущности''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#setRotate|setRotate]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] rotate)
+| ''Установить вращается ли метка''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#setType|setType]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] type)
+| ''Установить [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/MarkType|тип метки]]<br>(0 - нет, 1 - вопросительный знак, 2 - восклицательный знак, 3 - указатель, 4 - череп, 5 - крест, 6 - звезда)''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark#update|update]]()
+| ''Обновить на клиентах игроков''
+|}
+=== Описание методов ===
+
+==== getAvailability ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IAvailability|IAvailability]] getAvailability()''<br>'''Действие:'''<br>Возвращает доступность показа метки игрокам
+|}
+==== getColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getColor()''<br>'''Действие:'''<br>Возвращает цвет метки над головой сущности
+|}
+==== getType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getType()''<br>'''Действие:'''<br>Возвращает [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/MarkType|тип метки]]<br>(0 - нет, 1 - вопросительный знак, 2 - восклицательный знак, 3 - указатель, 4 - череп, 5 - крест, 6 - звезда)
+|}
+==== is3D ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] is3D()''<br>'''Действие:'''<br>Возвращает модель имеет вид 3D объекта или 2D
+|}
+==== isRotate ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] isRotate()''<br>'''Действие:'''<br>Возвращает вращается ли метка
+|}
+==== set3D ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] set3D(arg0)''<br>'''Действие:'''<br>Установить является ли модель 3D объектом<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''arg0''' = parametr.api.entity.data.mark.set3D.arg0
+|}
+==== setColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setColor(color)''<br>'''Действие:'''<br>Установить цвет метки над головой сущности<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''color''' = parametr.api.entity.data.mark.setColor.color
+|}
+==== setRotate ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setRotate(rotate)''<br>'''Действие:'''<br>Установить вращается ли метка<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''rotate''' = parametr.api.entity.data.mark.setRotate.rotate
+|}
+==== setType ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setType(type)''<br>'''Действие:'''<br>Установить [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/MarkType|тип метки]]<br>(0 - нет, 1 - вопросительный знак, 2 - восклицательный знак, 3 - указатель, 4 - череп, 5 - крест, 6 - звезда)<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''type''' = parametr.api.entity.data.mark.setType.type
+|}
+==== update ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] update()''<br>'''Действие:'''<br>Обновить на клиентах игроков
+|}

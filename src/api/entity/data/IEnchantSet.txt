@@ -1,0 +1,149 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/entity|entity]].[[Custom NPCs/Unoficial_API_1.12.2/entity/data|data]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/entity/data/IEnchantSet.java IEnchantSet]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ICustomDrop#addEnchant|ICustomDrop]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/EnchantSet.java EnchantSet]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| chance
+| ''field.api.entity.data.ienchantset.chance''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/enchantment/Enchantment.html Enchantment]
+| ench
+| ''field.api.entity.data.ienchantset.ench''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int[]]
+| lvls
+| ''field.api.entity.data.ienchantset.lvls''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/entity/data/DropSet.java DropSet]
+| parent
+| ''field.api.entity.data.ienchantset.parent''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#getChance|getChance]]()
+| ''Возвращает шанс добавления этого [[Зачаровывание|зачарования]] при создании дропа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#getEnchant|getEnchant]]()
+| ''Возвращает имя [[Зачаровывание|зачарования]]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#getKey|getKey]]()
+| ''Возвращает строку названия для настройки в ГУИ''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#getMaxLevel|getMaxLevel]]()
+| ''Возвращает максимальный настроенный уровень [[Зачаровывание|зачарования]]''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#getMinLevel|getMinLevel]]()
+| ''Возвращает минимальный настроенный уровень [[Зачаровывание|зачарования]]''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#getNBT|getNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов, в которые записаны настройки зачарования''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#load|load]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtES)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки зачарования через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#remove|remove]]()
+| ''Удалить настройку [[Зачаровывание|зачарования]] из дропа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#setChance|setChance]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] chance)
+| ''Установить шанс добавления этого [[Зачаровывание|зачарования]] при создании дропа''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#setEnchant|setEnchant]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/enchantment/Enchantment.html Enchantment] enchant)
+| ''Установить зачарование в текущие настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#setEnchant|setEnchant]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить зачарование в текущие настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#setEnchant|setEnchant]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id)
+| ''Установить зачарование в текущие настройки''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet#setLevels|setLevels]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] min, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] max)
+| ''Установить максимальный и минимальный уровни [[Зачаровывание|зачарования]]''
+|}
+=== Описание методов ===
+
+==== getChance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] getChance()''<br>'''Действие:'''<br>Возвращает шанс добавления этого [[Зачаровывание|зачарования]] при создании дропа
+|}
+==== getEnchant ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getEnchant()''<br>'''Действие:'''<br>Возвращает имя [[Зачаровывание|зачарования]]
+|}
+==== getKey ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getKey()''<br>'''Действие:'''<br>Возвращает строку названия для настройки в ГУИ
+|}
+==== getMaxLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMaxLevel()''<br>'''Действие:'''<br>Возвращает максимальный настроенный уровень [[Зачаровывание|зачарования]]
+|}
+==== getMinLevel ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getMinLevel()''<br>'''Действие:'''<br>Возвращает минимальный настроенный уровень [[Зачаровывание|зачарования]]
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов, в которые записаны настройки зачарования
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load(nbtES)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать настройки зачарования через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtES''' = parametr.api.entity.data.enchantset.load.nbtES
+|}
+==== remove ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] remove()''<br>'''Действие:'''<br>Удалить настройку [[Зачаровывание|зачарования]] из дропа
+|}
+==== setChance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setChance(chance)''<br>'''Действие:'''<br>Установить шанс добавления этого [[Зачаровывание|зачарования]] при создании дропа<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Double.html double] '''chance''' = parametr.api.entity.data.enchantset.setChance.chance
+|}
+==== setEnchant ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setEnchant(enchant)''<br>'''Действие:'''<br>Установить зачарование в текущие настройки<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/enchantment/Enchantment.html Enchantment] '''enchant''' = parametr.api.entity.data.enchantset.setEnchant.enchant
+|}
+==== setEnchant ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] setEnchant(name)''<br>'''Действие:'''<br>Установить зачарование в текущие настройки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = parametr.api.entity.data.enchantset.setEnchant.name
+|}
+==== setEnchant ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] setEnchant(id)''<br>'''Действие:'''<br>Установить зачарование в текущие настройки<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = parametr.api.entity.data.enchantset.setEnchant.id
+|}
+==== setLevels ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setLevels(min, max)''<br>'''Действие:'''<br>Установить максимальный и минимальный уровни [[Зачаровывание|зачарования]]<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''min''' = parametr.api.entity.data.enchantset.setLevels.min<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''max''' = parametr.api.entity.data.enchantset.setLevels.max
+|}

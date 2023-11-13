@@ -1,8 +1,12 @@
 package noppes.npcs.client.gui;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -12,8 +16,10 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.gui.global.GuiNPCManageFactions;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
@@ -24,11 +30,12 @@ extends SubGuiInterface
 implements ICustomScrollListener {
 
 	private String name;
-	private Map<Integer, String> data;
+	private HashMap<String, Integer> base;
+	private Map<String, Integer> data;
 	private GuiCustomScroll scrollHostileFactions;
 	public HashSet<Integer> selectFactions;
 
-	public SubGuiNpcFactionSelect(int id, String name, HashSet<Integer> setFactions, Map<String, Integer> data) {
+	public SubGuiNpcFactionSelect(int id, String name, HashSet<Integer> setFactions, HashMap<String, Integer> base) {
 		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 		this.xSize = 171;
 		this.ySize = 217;
@@ -36,29 +43,37 @@ implements ICustomScrollListener {
 		this.id = id;
 		this.name = name;
 		this.selectFactions = setFactions;
-		this.data = Maps.<Integer, String>newTreeMap();
-		for (String key : data.keySet()) {
-			this.data.put(data.get(key), key);
-		}
+		this.base = base;
+		this.data = Maps.<String, Integer>newLinkedHashMap();
 	}
 	
 	@Override
 	public void initGui() {
 		super.initGui();
-		ArrayList<String> showList = Lists.<String>newArrayList();
+		System.out.println(GuiNPCManageFactions.isName+"; initGui" + this.base);
+		List<Entry<String, Integer>> newList = Lists.newArrayList(this.base.entrySet());
+		Collections.sort(newList, new Comparator<Entry<String, Integer>>() {
+	        public int compare(Entry<String, Integer> f_0, Entry<String, Integer> f_1) {
+	        	if (GuiNPCManageFactions.isName) { return f_0.getKey().compareTo(f_1.getKey()); }
+	        	else { return f_0.getValue().compareTo(f_1.getValue()); }
+	        }
+	    });
 		HashSet<String> set = Sets.<String>newHashSet();
-		for (int id : this.data.keySet()) {
-			String key = this.data.get(id);
+		this.data.clear();
+        for (Entry<String, Integer> entry : newList) {
+        	int id = entry.getValue();
+			String name = AdditionalMethods.instance.deleteColor(entry.getKey());
+			if (name.indexOf("ID:"+id+" ")>=0) { name = name.substring(name.indexOf(" ")+3); }
+			String key = ((char) 167)+"7ID:"+id+" "+((char) 167)+"r"+name;
+        	this.data.put(key, id);
 			if (key.equals(this.name)) { continue; }
-			showList.add(key);
 			if (this.selectFactions.contains(id)) { set.add(key); }
-		}
-		if (this.scrollHostileFactions == null) {
-			(this.scrollHostileFactions = new GuiCustomScroll(this, 1, true)).setSize(163, 185);
-		}
+        }
+		
+		if (this.scrollHostileFactions == null) { (this.scrollHostileFactions = new GuiCustomScroll(this, 1, true)).setSize(163, 185); }
 		this.scrollHostileFactions.guiLeft = this.guiLeft + 4;
 		this.scrollHostileFactions.guiTop = this.guiTop + 28;
-		this.scrollHostileFactions.setListNotSorted(showList);
+		this.scrollHostileFactions.setListNotSorted(Lists.<String>newArrayList(this.data.keySet()));
 		this.scrollHostileFactions.setSelectedList(set);
 		
 		this.addScroll(this.scrollHostileFactions);
@@ -66,19 +81,35 @@ implements ICustomScrollListener {
 		this.addLabel(new GuiNpcLabel(1, "faction.select", this.guiLeft + 4, this.guiTop + 16));
 		
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 123, this.guiTop + 6, 45, 20, "gui.done"));
+		
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 91, this.guiTop + 6, 30, 12, GuiNPCManageFactions.isName ? "gui.name" : "ID");
+		checkBox.setSelected(GuiNPCManageFactions.isName);
+		this.addButton(checkBox);
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		this.close();
+		GuiNpcButton button = (GuiNpcButton) guibutton;
+		switch(button.id) {
+			case 14: {
+				GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
+				((GuiNpcCheckBox) button).setText(GuiNPCManageFactions.isName ? "gui.name" : "ID");
+				this.initGui();
+				break;
+			}
+			case 66: {
+				this.close();
+				break;
+			}
+		}
 	}
 	
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		if (!CustomNpcs.showDescriptions) { return; }
-		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("faction.hover.add").getFormattedText());
+		if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.sort", new TextComponentTranslation("global.factions").getFormattedText(), ((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -90,10 +121,11 @@ implements ICustomScrollListener {
 			HashSet<Integer> set = Sets.<Integer>newHashSet();
 			HashSet<String> list = scroll.getSelectedList();
 			HashSet<String> newlist = Sets.<String>newHashSet();
-			for (int id : this.data.keySet()) {
-				if (!list.contains(this.data.get(id))) { continue; }
+			for (String key : this.data.keySet()) {
+				int id = this.data.get(key);
+				if (!list.contains(key)) { continue; }
 				set.add(id);
-				newlist.add(this.data.get(id));
+				newlist.add(key);
 			}
 			this.selectFactions = set;
 			if (list.size()!=newlist.size()) { scroll.setSelectedList(newlist); }

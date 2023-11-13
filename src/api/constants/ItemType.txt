@@ -1,0 +1,34 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/ItemType.java ItemType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''ItemType_NORMAL'''
+| ''простой предмет-пачка''
+|-
+| 1
+| '''ItemType_BOOK'''
+| ''тип предмета-пачки - [[Книга|Книга]] (можно прочитать)''
+|-
+| 2
+| '''ItemType_BLOCK'''
+| ''тип предмета-пачки - [[Блоки|Блок]]''
+|-
+| 3
+| '''ItemType_ARMOR'''
+| ''тип предмета-пачки - [[Броня|Броня]]''
+|-
+| 4
+| '''ItemType_SWORD'''
+| ''тип предмета-пачки - [[Меч|Оружие]] (ближний бой)''
+|-
+| 5
+| '''ItemType_SEEDS'''
+| ''тип предмета-пачки - [[Семена_(значения)|Семена]]''
+|-
+| 6
+| '''ItemType_SCRIPTED'''
+| ''тип предмета-пачки - [[Custom NPCs/Unoficial_API_1.12.2/api/item/IItemScripted|Скриптовый]]''
+|}

@@ -1,0 +1,138 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/IScoreboardTeam.java IScoreboardTeam]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboard#addTeam|IScoreboard]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/wrapper/ScoreboardTeamWrapper.java ScoreboardTeamWrapper]<br>
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#addPlayer|addPlayer]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Добавить игрока в команду''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#clearPlayers|clearPlayers]]()
+| ''Удалить всех игроков из команды''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#getColor|getColor]]()
+| ''Возвращает название цвета команды''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#getDisplayName|getDisplayName]]()
+| ''Возвращает отображаемое имя команды на таблице''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#getFriendlyFire|getFriendlyFire]]()
+| ''Возвращает могут ли игроки этой команды наносить урон друг другу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#getName|getName]]()
+| ''Возвращает зарегистрированное имя команды''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#getPlayers|getPlayers]]()
+| ''Возвращает массив имён всех игроков команды''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#getSeeInvisibleTeamPlayers|getSeeInvisibleTeamPlayers]]()
+| ''Возвращает могут ли игроки этой команды видеть друг друга в невидимости''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#hasPlayer|hasPlayer]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Возвращает принадлежит ли игрок этой команде''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#removePlayer|removePlayer]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] player)
+| ''Удалить игрока из команды''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#setColor|setColor]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] color)
+| ''Установить цвет команде''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#setDisplayName|setDisplayName]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Установить отображаемое имя команды на таблице''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#setFriendlyFire|setFriendlyFire]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить могут ли игроки этой команды наносить урон друг другу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/IScoreboardTeam#setSeeInvisibleTeamPlayers|setSeeInvisibleTeamPlayers]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] bo)
+| ''Установить могут ли игроки этой команды видеть друг друга в невидимости''
+|}
+=== Описание методов ===
+
+==== addPlayer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] addPlayer(player)''<br>'''Действие:'''<br>Добавить игрока в команду<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== clearPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] clearPlayers()''<br>'''Действие:'''<br>Удалить всех игроков из команды
+|}
+==== getColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getColor()''<br>'''Действие:'''<br>Возвращает название цвета команды
+|}
+==== getDisplayName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getDisplayName()''<br>'''Действие:'''<br>Возвращает отображаемое имя команды на таблице
+|}
+==== getFriendlyFire ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getFriendlyFire()''<br>'''Действие:'''<br>Возвращает могут ли игроки этой команды наносить урон друг другу
+|}
+==== getName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] getName()''<br>'''Действие:'''<br>Возвращает зарегистрированное имя команды
+|}
+==== getPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String[]] getPlayers()''<br>'''Действие:'''<br>Возвращает массив имён всех игроков команды
+|}
+==== getSeeInvisibleTeamPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] getSeeInvisibleTeamPlayers()''<br>'''Действие:'''<br>Возвращает могут ли игроки этой команды видеть друг друга в невидимости
+|}
+==== hasPlayer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] hasPlayer(player)''<br>'''Действие:'''<br>Возвращает принадлежит ли игрок этой команде<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== removePlayer ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] removePlayer(player)''<br>'''Действие:'''<br>Удалить игрока из команды<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''player''' = игрок
+|}
+==== setColor ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setColor(color)''<br>'''Действие:'''<br>Установить цвет команде<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''color''' = parametr.api.scoreboardteamwrapper.setColor.color
+|}
+==== setDisplayName ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setDisplayName(name)''<br>'''Действие:'''<br>Установить отображаемое имя команды на таблице<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = parametr.api.scoreboardteamwrapper.setDisplayName.name
+|}
+==== setFriendlyFire ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setFriendlyFire(bo)''<br>'''Действие:'''<br>Установить могут ли игроки этой команды наносить урон друг другу<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = parametr.api.scoreboardteamwrapper.setFriendlyFire.bo
+|}
+==== setSeeInvisibleTeamPlayers ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] setSeeInvisibleTeamPlayers(bo)''<br>'''Действие:'''<br>Установить могут ли игроки этой команды видеть друг друга в невидимости<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''bo''' = parametr.api.scoreboardteamwrapper.setSeeInvisibleTeamPlayers.bo
+|}

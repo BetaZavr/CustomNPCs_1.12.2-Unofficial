@@ -1,0 +1,78 @@
+'''Раздел noppes.npcs.api.entity.data'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]]
+| ''Интерфейс для своих анимации NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationFrame|IAnimationFrame]]
+| ''Интерфейс для кадра своей анимации NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimationPart|IAnimationPart]]
+| ''Интерфейс для части тела в кадре своей анимации NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeModifier|IAttributeModifier]]
+| ''Интерфейс для модификатора атрибуты сущности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAttributeSet|IAttributeSet]]
+| ''Интерфейс для настройки атрибуты на дроп-предмет''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ICustomDrop|ICustomDrop]]
+| ''Интерфейс для настройки дропа предметов при убийстве NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IData|IData]]
+| ''Интерфейс для базы данных объекта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IDropNbtSet|IDropNbtSet]]
+| ''Интерфейс для настройки набора тегов на дроп-предмет''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEmotion|IEmotion]]
+| ''Интерфейс для эмоции. {{цвет|DarkRed|WIP}}''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IEnchantSet|IEnchantSet]]
+| ''Интерфейс для настройки [[Зачаровывание|зачарования]] на дроп-предмет''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/ILine|ILine]]
+| ''Интерфейс для сообщения у NPC создающего беседу''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IMark|IMark]]
+| ''Интерфейс для метки над головой NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCAdvanced|INPCAdvanced]]
+| ''Интерфейс для продвинутых настроек NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCAi|INPCAi]]
+| ''Интерфейс для настроек поведения NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCAnimation|INPCAnimation]]
+| ''Интерфейс для анимации NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INpcAttribute|INpcAttribute]]
+| ''Интерфейс для атрибуты сущности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCDisplay|INPCDisplay]]
+| ''Интерфейс для отображения NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCInventory|INPCInventory]]
+| ''Интерфейс для инвентаря NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCJob|INPCJob]]
+| ''Интерфейс для работы NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCMelee|INPCMelee]]
+| ''Интерфейс для рукопашной атаки NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRanged|INPCRanged]]
+| ''Интерфейс для дальнобойной атаки NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCRole|INPCRole]]
+| ''Интерфейс для роли NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/INPCStats|INPCStats]]
+| ''Интерфейс для характеристик NPC''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IPixelmonPlayerData|IPixelmonPlayerData]]
+| ''Интерфейс для данных игрока из модификации Pixelmon''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IPlayerMail|IPlayerMail]]
+| ''Интерфейс для писем игрока''

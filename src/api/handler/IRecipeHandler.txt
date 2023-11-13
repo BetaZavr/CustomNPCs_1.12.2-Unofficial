@@ -1,0 +1,239 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/IRecipeHandler.java IRecipeHandler]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getRecipes|NpcAPI]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/RecipeController.java RecipeController]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraftforge/registries/ForgeRegistry.html ForgeRegistry]
+| Registry
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>база зарегистрированнх рецептов крафта игрой''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| globalList
+| ''карта настроек своих глобальных рецептов крафта (для простого [[Верстак|верстака]])''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/Map.html Map]
+| modList
+| ''карта настроек своих рецептов мода крафта (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| version
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>версия сборки мода''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#addRecipe|addRecipe]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name, [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] ob, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] global, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] known, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] shaped, [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object[]] objects)
+| ''Создать и добавить новый свой рецепт крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#addRecipe|addRecipe]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] global, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] known, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] result, [https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object[]] objects)
+| ''Создать и добавить новый свой рецепт крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#addRecipe|addRecipe]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] global, [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] known, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] result, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] width, [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] height, [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack[]] stacks)
+| ''Создать и добавить новый свой рецепт крафта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#delete|delete]]([[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] recipe)
+| ''Удалить свой рецепт крафта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#delete|delete]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Удалить свой рецепт крафта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#delete|delete]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id)
+| ''Удалить свой рецепт крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#findMatchingRecipe|findMatchingRecipe]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/InventoryCrafting.html InventoryCrafting] inventoryCrafting)
+| ''Ищет и возвращает свой рецепт крафта по сетке крафта ''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getCarpentryData|getCarpentryData]]()
+| ''Возвращает массив всех настроек своих рецептов мода крафта (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getCarpentryRecipes|getCarpentryRecipes]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group)
+| ''Возвращает массив настроек своих рецептов мода крафта из группы (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getGlobalData|getGlobalData]]()
+| ''Возвращает массив всех настроек своих глобальных рецептов крафта (для простого [[Верстак|верстака]])''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getGlobalRecipes|getGlobalRecipes]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group)
+| ''Возвращает массив настроек своих глобальных рецептов крафта из группы (для простого [[Верстак|верстака]])''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/RecipeController.java RecipeController]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getInstance|getInstance]]()
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>Возвращает собранный / загруженный объект этого класса''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/List.html List]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getKnownRecipes|getKnownRecipes]]()
+| ''Возвращает список рецептов крафта, известных игрокам сразу''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getNBT|getNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана база своих рецептов крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getRecipe|getRecipe]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/ResourceLocation.html ResourceLocation] regName)
+| ''Возвращает настройку своего рецепта крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getRecipe|getRecipe]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] group, [https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] name)
+| ''Возвращает настройку своего рецепта крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#getRecipe|getRecipe]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] id)
+| ''Возвращает настройку своего рецепта крафта''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#load|load]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать базу своих рецептов крафта из файлов карты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#loadNBTData|loadNBTData]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtFile)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать / загрузить свой рецепт крафта через набор тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#loadNBTRecipe|loadNBTRecipe]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtRecipe)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать базу своих рецептов крафта через набор тегов NBT''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#putRecipe|putRecipe]]([[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] recipe)
+| ''Пытается добавить свой рецепт крафта в базу''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#save|save]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. базу настроек сочетания клавиш в файле карты''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IRecipeHandler#sendTo|sendTo]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] player)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Отправить настройки рецептов базы на клиент игрока''
+|}
+=== Описание методов ===
+
+==== addRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] addRecipe(group, name, ob, global, known, shaped, objects)''<br>'''Действие:'''<br>Создать и добавить новый свой рецепт крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя рецепта крафта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object] '''ob''' = объект (или [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/Item.html предмет], или [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/block/Block.html блок], или [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html предмет-пачка])<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''global''' = глобальный (для простого [[Верстак|верстака]]) или же мод-рецепт (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''known''' = сразу известен игрокам<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''shaped''' = строгий рецепт (предметы на своих местах в сетке крафта) или свободный (предметы в любых местах на сетке крафта)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object[]] '''objects''' = массив данных сетки крафта
+|}
+==== addRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] addRecipe(group, name, global, known, result, objects)''<br>'''Действие:'''<br>Создать и добавить новый свой рецепт крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя рецепта крафта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''global''' = глобальный (для простого [[Верстак|верстака]]) или же мод-рецепт (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''known''' = сразу известен игрокам<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] '''result''' = предмет-пачка, получаемый в качестве крафта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html Object[]] '''objects''' = массив данных сетки крафта
+|}
+==== addRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] addRecipe(group, name, global, known, result, width, height, stacks)''<br>'''Действие:'''<br>Создать и добавить новый свой рецепт крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя рецепта крафта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''global''' = глобальный (для простого [[Верстак|верстака]]) или же мод-рецепт (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] '''known''' = сразу известен игрокам<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack] '''result''' = предмет-пачка, получаемый в качестве крафта<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''width''' = высота сетки крафта (3 или 4)<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''height''' = высота сетки крафта (3 или 4)<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/item/ItemStack.html ItemStack[]] '''stacks''' = массив предметов-пачки сетки крафта
+|}
+==== delete ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] delete(recipe)''<br>'''Действие:'''<br>Удалить свой рецепт крафта<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] '''recipe''' = настройка рецепта крафта
+|}
+==== delete ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] delete(group, name)''<br>'''Действие:'''<br>Удалить свой рецепт крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя рецепта крафта
+|}
+==== delete ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] delete(id)''<br>'''Действие:'''<br>Удалить свой рецепт крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID рецепта крафта
+|}
+==== findMatchingRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] findMatchingRecipe(inventoryCrafting)''<br>'''Действие:'''<br>Ищет и возвращает свой рецепт крафта по сетке крафта <br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/inventory/InventoryCrafting.html InventoryCrafting] '''inventoryCrafting''' = инвентарь сетки крафта
+|}
+==== getCarpentryData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]] getCarpentryData()''<br>'''Действие:'''<br>Возвращает массив всех настроек своих рецептов мода крафта (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])
+|}
+==== getCarpentryRecipes ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]] getCarpentryRecipes(group)''<br>'''Действие:'''<br>Возвращает массив настроек своих рецептов мода крафта из группы (для [[Custom_NPCs/Верстак_плотника|верстака плотника]] или [[Custom_NPCs/Наковальня|спец наковальни]])<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов
+|}
+==== getGlobalData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]] getGlobalData()''<br>'''Действие:'''<br>Возвращает массив всех настроек своих глобальных рецептов крафта (для простого [[Верстак|верстака]])
+|}
+==== getGlobalRecipes ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe[]]] getGlobalRecipes(group)''<br>'''Действие:'''<br>Возвращает массив настроек своих глобальных рецептов крафта из группы (для простого [[Верстак|верстака]])<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов
+|}
+==== getInstance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/RecipeController.java RecipeController] getInstance()''<br>'''Действие:'''<br>Возвращает собранный / загруженный объект этого класса
+|}
+==== getKnownRecipes ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/util/List.html List] getKnownRecipes()''<br>'''Действие:'''<br>Возвращает список рецептов крафта, известных игрокам сразу
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записана база своих рецептов крафта
+|}
+==== getRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] getRecipe(regName)''<br>'''Действие:'''<br>Возвращает настройку своего рецепта крафта<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/util/ResourceLocation.html ResourceLocation] '''regName''' = зарегистрированное имя рецепта крафта
+|}
+==== getRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] getRecipe(group, name)''<br>'''Действие:'''<br>Возвращает настройку своего рецепта крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''group''' = имя группы рецептов<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''name''' = имя рецепта крафта
+|}
+==== getRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] getRecipe(id)''<br>'''Действие:'''<br>Возвращает настройку своего рецепта крафта<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''id''' = ID рецепта крафта
+|}
+==== load ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] load()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать базу своих рецептов крафта из файлов карты
+|}
+==== loadNBTData ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] loadNBTData(nbtFile)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать / загрузить свой рецепт крафта через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtFile''' = набор тегов NBT
+|}
+==== loadNBTRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] loadNBTRecipe(nbtRecipe)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Переписать базу своих рецептов крафта через набор тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtRecipe''' = набор тегов NBT
+|}
+==== putRecipe ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] putRecipe(recipe)''<br>'''Действие:'''<br>Пытается добавить свой рецепт крафта в базу<br><br>'''Параметры:'''<br>[[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]] '''recipe''' = настройка рецепта крафта
+|}
+==== save ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] save()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. базу настроек сочетания клавиш в файле карты
+|}
+==== sendTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] sendTo(player)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Отправить настройки рецептов базы на клиент игрока<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] '''player''' = игрок
+|}

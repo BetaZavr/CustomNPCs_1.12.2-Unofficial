@@ -1,0 +1,58 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/EntityType.java EntityType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| -1
+| '''EntityType_ANY'''
+| ''[[Мобы|любая]] сущность''
+|-
+| 0
+| '''EntityType_UNKNOWN'''
+| ''сущность неизвестна (не подходит ни под один из типов)''
+|-
+| 1
+| '''EntityType_PLAYER'''
+| ''сущность является [[Игровой_персонаж|игроком]]''
+|-
+| 2
+| '''EntityType_NPC'''
+| ''сущность является [[Custom_NPCs/NPC|NPC]]''
+|-
+| 3
+| '''EntityType_MONSTER'''
+| ''сущность является [[Мобы#Враждебные_мобы|монстром]]''
+|-
+| 4
+| '''EntityType_ANIMAL'''
+| ''сущность является [[Мобы|живонтным]]''
+|-
+| 5
+| '''EntityType_LIVING'''
+| ''сущность является [[Рамка|живой]], но не имеет ИИ''
+|-
+| 6
+| '''EntityType_ITEM'''
+| ''сущность является [[Дроп|предметом]]''
+|-
+| 7
+| '''EntityType_PROJECTILE'''
+| ''сущность является [[Снежок|снарядом]]''
+|-
+| 8
+| '''EntityType_PIXELMON'''
+| ''сущность из модификации Pixelmon''
+|-
+| 9
+| '''EntityType_VILLAGER'''
+| ''сущность является [[Деревенский_житель|жителем]]''
+|-
+| 10
+| '''EntityType_ARROW'''
+| ''сущность является [[Стрела|стрелой]]''
+|-
+| 11
+| '''EntityType_THROWABLE'''
+| ''сущность является [[Custom_NPCs/Прочее_оружие#Метательные_оружия|метательным оружием]]''
+|}

@@ -115,27 +115,23 @@ public class NoppesUtil {
 
 	public static void setScrollData(ByteBuf buffer) {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-		if (gui == null) {
-			return;
-		}
-		try {
-			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
-				int id = buffer.readInt();
-				String name = Server.readString(buffer);
-				NoppesUtil.data.put(name, id);
-			}
-		} catch (Exception ex) {
-		}
+		if (gui == null) { return; }
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
 			gui = ((GuiNPCInterface) gui).getSubGui();
 		}
 		if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
 			gui = ((GuiContainerNPCInterface) gui).getSubGui();
 		}
-		if (gui instanceof IScrollData) {
-			((IScrollData) gui).setData(new Vector<String>(NoppesUtil.data.keySet()), NoppesUtil.data);
-		}
+		if (!(gui instanceof IScrollData)) { return; }
 		NoppesUtil.data = new HashMap<String, Integer>();
+		try {
+			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
+				int id = buffer.readInt();
+				String name = Server.readString(buffer);
+				NoppesUtil.data.put(name, id);
+			}
+		} catch (Exception ex) { }
+		((IScrollData) gui).setData(new Vector<String>(NoppesUtil.data.keySet()), NoppesUtil.data);
 	}
 
 	public static void setScrollList(ByteBuf buffer) {

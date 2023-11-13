@@ -1,0 +1,42 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/constants|constants]]<br>
+'''Константа''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/constants/ParticleType.java ParticleType]<br><br>
+=== Сводка полей ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Номер: !! Название: !! Описание:
+|-
+| 0
+| '''ParticleType_NONE'''
+| ''нет частицы''
+|-
+| 1
+| '''ParticleType_SMOKE'''
+| ''тип частицы - [[Частицы#smoke|Дым]]''
+|-
+| 2
+| '''ParticleType_PORTAL'''
+| ''тип частицы - [[Частицы#portal|Портал]]''
+|-
+| 3
+| '''ParticleType_REDSTONE'''
+| ''тип частицы - [[Частицы#dust|Красный камень]]''
+|-
+| 4
+| '''ParticleType_LIGHTNING'''
+| ''тип частицы - [[Частицы#instant_effect|Крит Магии]]''
+|-
+| 5
+| '''ParticleType_LARGE_SMOKE'''
+| ''тип частицы - [[Частицы#largesmoke|Большой дым]]''
+|-
+| 6
+| '''ParticleType_MAGIC'''
+| ''тип частицы - [[Частицы#effect|Магия / Зелье]]''
+|-
+| 7
+| '''ParticleType_ENCHANT'''
+| ''тип частицы - [[Частицы#enchant|Символ чар]]''
+|-
+| 8
+| '''ParticleType_CRIT'''
+| ''тип частицы - [[Частицы#crit|Крит]]''
+|}

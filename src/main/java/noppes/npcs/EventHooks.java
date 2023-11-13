@@ -663,19 +663,19 @@ public class EventHooks {
 	public static boolean onEvent(IScriptHandler handler, EnumScriptType enumFunction, Event event) {
 		if (handler == null || !handler.getEnabled() || event == null || enumFunction==null) { return false; }
 		handler.runScript(enumFunction.function, event);
-		return WrapperNpcAPI.EVENT_BUS.post(event);
+		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
 
 	public static boolean onEvent(ScriptContainer script, EnumScriptType enumFunction, Event event) {
 		if (script == null || event == null || enumFunction==null) { return false; }
 		script.run(enumFunction.function, event, true);
-		return WrapperNpcAPI.EVENT_BUS.post(event);
+		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
 	
 	public static boolean onEvent(IScriptHandler handler, String enumFunction, Event event) {
 		if (handler == null || !handler.getEnabled() || event == null || enumFunction==null) { return false; }
 		handler.runScript(enumFunction, event);
-		return WrapperNpcAPI.EVENT_BUS.post(event);
+		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
 	
 }

@@ -1,0 +1,54 @@
+'''Раздел noppes.npcs.api.handler.data'''<br>
+{| class="wikitable" style="text-align:left
+! Классы и Интерфейсы: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IAvailability|IAvailability]]
+| ''Интерфейс для настройки доступности''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IBorder|IBorder]]
+| ''Интерфейс для региона-барьера''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/ICustomParticle|ICustomParticle]]
+| ''Интерфейс для своих частиц''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDataElement|IDataElement]]
+| ''Интерфейс для элемента объекта, представленного его классом''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDeal|IDeal]]
+| ''Интерфейс сделки магазина''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialog|IDialog]]
+| ''Интерфейс для диалога''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogCategory|IDialogCategory]]
+| ''Интерфейс для категории диалога''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IDialogOption|IDialogOption]]
+| ''Интерфейс для ответа на диалог''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IFaction|IFaction]]
+| ''Интерфейс для фракции''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IKeySetting|IKeySetting]]
+| ''Интерфейс настройки своего сочетания [[Коды_клавиш#Коды_клавиатуры|клавиш клавиатуры]]''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IMarcet|IMarcet]]
+| ''Интерфейс магазина''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/INpcRecipe|INpcRecipe]]
+| ''Интерфейс для своего рецепта крафта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuest|IQuest]]
+| ''Интерфейс для квеста''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestCategory|IQuestCategory]]
+| ''Интерфейс для категории квеста''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IQuestObjective|IQuestObjective]]
+| ''Интерфейс для объекта / задачи в квесте''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IScriptData|IScriptData]]
+| ''Интерфейс для элемента скрипта''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/data/IWorldInfo|IWorldInfo]]
+| ''Интерфейс для своего измерения<br>{{цвет|Indigo|Только для}} {{цвет|Blue|мега}} {{цвет|Orange|BRO}}''

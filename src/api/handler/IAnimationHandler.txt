@@ -1,0 +1,141 @@
+Раздел noppes.npcs.[[Custom NPCs/Unoficial_API_1.12.2/api|api]].[[Custom NPCs/Unoficial_API_1.12.2/handler|handler]]<br>
+'''Интерфейс''' [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/api/handler/IAnimationHandler.java IAnimationHandler]<br><br>
+=== Получить из ===
+[[Custom NPCs/Unoficial_API_1.12.2/api/NpcAPI#getAnimations|NpcAPI]]<br>
+=== Реализации ===
+[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/AnimationController.java AnimationController]<br>
+=== Список переменных ===
+{| class="wikitable" style="text-align:left; width:100%"
+! Тип: !! Название: !! Описание:
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html TreeMap]
+| animations
+| ''карта настроенных анимаций''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| version
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>версия сборки мода''
+|}
+=== Список методов ===
+{| class="wikitable" style="text-align:left"
+! Возвращает: !! Название метода: !! Описание:
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#createNew|createNew]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] animationType)
+| ''Создаёт и возвращает новую анимацию из базы''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#getAnimation|getAnimation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] animationName)
+| ''Возвращает анимацию из базы''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#getAnimation|getAnimation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] animationId)
+| ''Возвращает анимацию из базы''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation[]]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#getAnimations|getAnimations]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] animationType)
+| ''Возвращает список анимаций из базы''
+|-
+| [https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/AnimationController.java AnimationController]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#getInstance|getInstance]]()
+| ''{{цвет|DarkGreen|'''Статичный'''}}<br>Возвращает собранный / загруженный объект этого класса''
+|-
+| [https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#getNBT|getNBT]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки анимаций базы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#getUnusedId|getUnusedId]]()
+| ''Возвращает ещё не используемый ID анимации''
+|-
+| [[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#loadAnimation|loadAnimation]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] nbtAnimation)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Загружает / переписывает настройку анимаций в базу из набора тегов NBT''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#loadAnimations|loadAnimations]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] compound)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Загружает настройки анимаций базы из набора тегов NBT файла игры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#removeAnimation|removeAnimation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] animationName)
+| ''Удалить анимацию из базы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#removeAnimation|removeAnimation]]([https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] animationId)
+| ''Удалить анимацию из базы''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#save|save]]()
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Сохранить настройки анимаций базы в файл игры''
+|-
+| [https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void]
+| [[Custom NPCs/Unoficial_API_1.12.2/api/handler/IAnimationHandler#sendTo|sendTo]]([https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] player)
+| ''{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Отправить настройки анимаций базы на клиент игрока''
+|}
+=== Описание методов ===
+
+==== createNew ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]] createNew(animationType)''<br>'''Действие:'''<br>Создаёт и возвращает новую анимацию из базы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''animationType''' = [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/AnimationKind|тип своей анимации]]
+|}
+==== getAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]] getAnimation(animationName)''<br>'''Действие:'''<br>Возвращает анимацию из базы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''animationName''' = название анимации
+|}
+==== getAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]] getAnimation(animationId)''<br>'''Действие:'''<br>Возвращает анимацию из базы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''animationId''' = ID анимации
+|}
+==== getAnimations ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation[]]] getAnimations(animationType)''<br>'''Действие:'''<br>Возвращает список анимаций из базы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''animationType''' = [[Custom_NPCs/Unoficial_API_1.12.2/api/constants/AnimationKind|тип своей анимации]]
+|}
+==== getInstance ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/tree/master/src/main/java/noppes/npcs/controllers/AnimationController.java AnimationController] getInstance()''<br>'''Действие:'''<br>Возвращает собранный / загруженный объект этого класса
+|}
+==== getNBT ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] getNBT()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Возвращает набор тегов NBT в который записаны настройки анимаций базы
+|}
+==== getUnusedId ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] getUnusedId()''<br>'''Действие:'''<br>Возвращает ещё не используемый ID анимации
+|}
+==== loadAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[[Custom NPCs/Unoficial_API_1.12.2/api/entity/data/IAnimation|IAnimation]] loadAnimation(nbtAnimation)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Загружает / переписывает настройку анимаций в базу из набора тегов NBT<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''nbtAnimation''' = набор тегов NBT анимации
+|}
+==== loadAnimations ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] loadAnimations(compound)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Загружает настройки анимаций базы из набора тегов NBT файла игры<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/nbt/NBTTagCompound.html NBTTagCompound] '''compound''' = набор тегов NBT
+|}
+==== removeAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removeAnimation(animationName)''<br>'''Действие:'''<br>Удалить анимацию из базы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/String.html String] '''animationName''' = название анимации
+|}
+==== removeAnimation ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html boolean] removeAnimation(animationId)''<br>'''Действие:'''<br>Удалить анимацию из базы<br><br>'''Параметры:'''<br>[https://docs.oracle.com/javase/8/docs/api/java/lang/Integer.html int] '''animationId''' = ID анимации
+|}
+==== save ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] save()''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Сохранить настройки анимаций базы в файл игры
+|}
+==== sendTo ====
+{| class="wikitable" style="text-align:left; width:100%";
+|-
+| ''[https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html void] sendTo(player)''<br>'''Действие:'''<br>{{цвет|Indigo|Для}} {{цвет|Orange|PRO}}. Отправить настройки анимаций базы на клиент игрока<br><br>'''Параметры:'''<br>[https://nekoyue.github.io/ForgeJavaDocs-NG/javadoc/1.12.2/net/minecraft/entity/player/EntityPlayerMP.html EntityPlayerMP] '''player''' = игрок
+|}

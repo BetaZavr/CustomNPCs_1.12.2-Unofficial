@@ -7,8 +7,11 @@ import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -1307,52 +1310,212 @@ extends CommonProxy {
 		
 		String n = name;
 		if (name.equalsIgnoreCase("PARTICLE_EXAMPLE")) {n = "Example Custom Particle"; }
+		else if (name.equalsIgnoreCase("PARTICLE_OBJ_EXAMPLE")) {n = "Example Custom OBJ Particle"; }
 		while(n.indexOf('_')!=-1) { n = n.replace('_', ' '); }
 		this.setLocalization("particle."+name, n);
 		
 		INbt nbt = customparticle.getCustomNbt();
-		
-		String textureName = nbt.getString("Texture");
-		File texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/particle");
-		if (!texturesDir.exists()) { texturesDir.mkdirs(); }
-		File texture = new File(texturesDir, textureName+".png");
-		if (texture!=null && !texture.exists()) {
-			boolean has = false;
-			try {
-				IResource baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/particle/particles.png"));
-				if (baseTexrure!=null) {
-					try {
-						BufferedImage particlesImage = new BufferedImage(128, 128, 6);
-						BufferedImage bufferedImage = ImageIO.read(baseTexrure.getInputStream());
-						for (int u=0; u<128; u++) {
-							for (int v=0; v<128; v++) {
-								Color c = new Color(bufferedImage.getRGB(u, v));
-								if (c.getRGB()!=-16777216) {
-									float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-									hsb[0] += 0.25f;
-									if (hsb[0]>1.0f) { hsb[0] -= 1.0f; }
-									c = Color.getHSBColor(hsb[0] - (hsb[0]>1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
-									c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 171);
-									particlesImage.setRGB(u, v, c.getRGB());
+		if (nbt.getMCNBT().hasKey("OBJModel", 8)) {
+			File modelDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/particle");
+			if (!modelDir.exists()) { modelDir.mkdirs(); }
+			name = nbt.getString("OBJModel");
+			File modelFile = new File(modelDir, name+".obj");
+			String ent = ""+((char) 10);
+			if (!modelFile.exists()) {
+				String fileData = "mtllib "+name+".mtl" + ent +
+						"o body" + ent +
+						"v 0.000000 -0.312500 0.000000" + ent +
+						"v 0.000000 -0.156250 -0.270633" + ent +
+						"v 0.054127 -0.140625 -0.243570" + ent +
+						"v 0.054127 -0.281250 0.000000" + ent +
+						"v 0.054127 -0.109375 -0.189443" + ent +
+						"v 0.054127 -0.218750 0.000000" + ent +
+						"v 0.000000 -0.093750 -0.162380" + ent +
+						"v 0.000000 -0.187500 0.000000" + ent +
+						"v -0.054127 -0.109375 -0.189443" + ent +
+						"v -0.054127 -0.218750 0.000000" + ent +
+						"v -0.054127 -0.140625 -0.243570" + ent +
+						"v -0.054127 -0.281250 0.000000" + ent +
+						"v 0.000000 0.156250 -0.270633" + ent +
+						"v 0.054127 0.140625 -0.243570" + ent +
+						"v 0.054127 0.109375 -0.189443" + ent +
+						"v 0.000000 0.093750 -0.162380" + ent +
+						"v -0.054127 0.109375 -0.189443" + ent +
+						"v -0.054127 0.140625 -0.243570" + ent +
+						"v 0.000000 0.312500 -0.000000" + ent +
+						"v 0.054127 0.281250 -0.000000" + ent +
+						"v 0.054127 0.218750 -0.000000" + ent +
+						"v 0.000000 0.187500 -0.000000" + ent +
+						"v -0.054127 0.218750 -0.000000" + ent +
+						"v -0.054127 0.281250 -0.000000" + ent +
+						"v 0.000000 0.156250 0.270633" + ent +
+						"v 0.054127 0.140625 0.243570" + ent +
+						"v 0.054127 0.109375 0.189443" + ent +
+						"v 0.000000 0.093750 0.162380" + ent +
+						"v -0.054127 0.109375 0.189443" + ent +
+						"v -0.054127 0.140625 0.243570" + ent +
+						"v 0.000000 -0.156250 0.270633" + ent +
+						"v 0.054127 -0.140625 0.243570" + ent +
+						"v 0.054127 -0.109375 0.189443" + ent +
+						"v 0.000000 -0.093750 0.162380" + ent +
+						"v -0.054127 -0.109375 0.189443" + ent +
+						"v -0.054127 -0.140625 0.243570" + ent +
+						"vt 0.500000 0.500000" + ent +
+						"vt 0.666667 0.500000" + ent +
+						"vt 0.666667 0.666667" + ent +
+						"vt 0.500000 0.666667" + ent +
+						"vt 0.666667 0.833333" + ent +
+						"vt 0.500000 0.833333" + ent +
+						"vt 0.666667 1.000000" + ent +
+						"vt 0.500000 1.000000" + ent +
+						"vt 0.500000 -0.000000" + ent +
+						"vt 0.666667 -0.000000" + ent +
+						"vt 0.666667 0.166667" + ent +
+						"vt 0.500000 0.166667" + ent +
+						"vt 0.666667 0.333333" + ent +
+						"vt 0.500000 0.333333" + ent +
+						"vt 0.833333 0.500000" + ent +
+						"vt 0.833333 0.666667" + ent +
+						"vt 0.833333 0.833333" + ent +
+						"vt 0.833333 1.000000" + ent +
+						"vt 0.833333 -0.000000" + ent +
+						"vt 0.833333 0.166667" + ent +
+						"vt 0.833333 0.333333" + ent +
+						"vt 1.000000 0.500000" + ent +
+						"vt 1.000000 0.666667" + ent +
+						"vt 1.000000 0.833333" + ent +
+						"vt 1.000000 1.000000" + ent +
+						"vt 1.000000 -0.000000" + ent +
+						"vt 1.000000 0.166667" + ent +
+						"vt 1.000000 0.333333" + ent +
+						"vt -0.000000 0.500000" + ent +
+						"vt 0.166667 0.500000" + ent +
+						"vt 0.166667 0.666667" + ent +
+						"vt -0.000000 0.666667" + ent +
+						"vt 0.166667 0.833333" + ent +
+						"vt -0.000000 0.833333" + ent +
+						"vt 0.166667 1.000000" + ent +
+						"vt -0.000000 1.000000" + ent +
+						"vt -0.000000 -0.000000" + ent +
+						"vt 0.166667 -0.000000" + ent +
+						"vt 0.166667 0.166667" + ent +
+						"vt -0.000000 0.166667" + ent +
+						"vt 0.166667 0.333333" + ent +
+						"vt -0.000000 0.333333" + ent +
+						"vt 0.333333 0.500000" + ent +
+						"vt 0.333333 0.666667" + ent +
+						"vt 0.333333 0.833333" + ent +
+						"vt 0.333333 1.000000" + ent +
+						"vt 0.333333 -0.000000" + ent +
+						"vt 0.333333 0.166667" + ent +
+						"vt 0.333333 0.333333" + ent +
+						"vn 0.4472 -0.7746 -0.4472" + ent +
+						"vn 1.0000 0.0000 0.0000" + ent +
+						"vn 0.4472 0.7746 0.4472" + ent +
+						"vn -0.4472 0.7746 0.4472" + ent +
+						"vn -1.0000 0.0000 0.0000" + ent +
+						"vn -0.4472 -0.7746 -0.4472" + ent +
+						"vn 0.4472 -0.0000 -0.8944" + ent +
+						"vn 0.4472 0.0000 0.8944" + ent +
+						"vn -0.4472 0.0000 0.8944" + ent +
+						"vn -0.4472 -0.0000 -0.8944" + ent +
+						"vn 0.4472 0.7746 -0.4472" + ent +
+						"vn 0.4472 -0.7746 0.4472" + ent +
+						"vn -0.4472 -0.7746 0.4472" + ent +
+						"vn -0.4472 0.7746 -0.4472" + ent +
+						"usemtl material" + ent +
+						"f 1/1/1 2/2/1 3/3/1 4/4/1" + ent +
+						"f 4/4/2 3/3/2 5/5/2 6/6/2" + ent +
+						"f 6/6/3 5/5/3 7/7/3 8/8/3" + ent +
+						"f 8/9/4 7/10/4 9/11/4 10/12/4" + ent +
+						"f 10/12/5 9/11/5 11/13/5 12/14/5" + ent +
+						"f 12/14/6 11/13/6 2/2/6 1/1/6" + ent +
+						"f 2/2/7 13/15/7 14/16/7 3/3/7" + ent +
+						"f 3/3/2 14/16/2 15/17/2 5/5/2" + ent +
+						"f 5/5/8 15/17/8 16/18/8 7/7/8" + ent +
+						"f 7/10/9 16/19/9 17/20/9 9/11/9" + ent +
+						"f 9/11/5 17/20/5 18/21/5 11/13/5" + ent +
+						"f 11/13/10 18/21/10 13/15/10 2/2/10" + ent +
+						"f 13/15/11 19/22/11 20/23/11 14/16/11" + ent +
+						"f 14/16/2 20/23/2 21/24/2 15/17/2" + ent +
+						"f 15/17/12 21/24/12 22/25/12 16/18/12" + ent +
+						"f 16/19/13 22/26/13 23/27/13 17/20/13" + ent +
+						"f 17/20/5 23/27/5 24/28/5 18/21/5" + ent +
+						"f 18/21/14 24/28/14 19/22/14 13/15/14" + ent +
+						"f 19/29/3 25/30/3 26/31/3 20/32/3" + ent +
+						"f 20/32/2 26/31/2 27/33/2 21/34/2" + ent +
+						"f 21/34/1 27/33/1 28/35/1 22/36/1" + ent +
+						"f 22/37/6 28/38/6 29/39/6 23/40/6" + ent +
+						"f 23/40/5 29/39/5 30/41/5 24/42/5" + ent +
+						"f 24/42/4 30/41/4 25/30/4 19/29/4" + ent +
+						"f 25/30/8 31/43/8 32/44/8 26/31/8" + ent +
+						"f 26/31/2 32/44/2 33/45/2 27/33/2" + ent +
+						"f 27/33/7 33/45/7 34/46/7 28/35/7" + ent +
+						"f 28/38/10 34/47/10 35/48/10 29/39/10" + ent +
+						"f 29/39/5 35/48/5 36/49/5 30/41/5" + ent +
+						"f 30/41/9 36/49/9 31/43/9 25/30/9" + ent +
+						"f 31/43/12 1/1/12 4/4/12 32/44/12" + ent +
+						"f 32/44/2 4/4/2 6/6/2 33/45/2" + ent +
+						"f 33/45/11 6/6/11 8/8/11 34/46/11" + ent +
+						"f 34/47/14 8/9/14 10/12/14 35/48/14" + ent +
+						"f 35/48/5 10/12/5 12/14/5 36/49/5" + ent +
+						"f 36/49/13 12/14/13 1/1/13 31/43/13";
+				if (this.saveFile(modelFile, fileData)) {
+					LogWriter.debug("Create Default OBJ Model for \""+name+".obj\" particle");
+				}
+			}
+			File mtlFile = new File(modelDir, name+".mtl");
+			if(!mtlFile.exists()) {
+				String fileData = "newmtl material" + ent + 
+						"Kd 1.000000 1.000000 1.000000" + ent + 
+						"d 1.000000";
+				if (this.saveFile(mtlFile, fileData)) {
+					LogWriter.debug("Create Default OBJ Material Library for \""+name+".mtl\" particle");
+				}
+			}
+		} else {
+			String textureName = nbt.getString("Texture");
+			File texturesDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/textures/particle");
+			if (!texturesDir.exists()) { texturesDir.mkdirs(); }
+			File texture = new File(texturesDir, textureName+".png");
+			if (texture!=null && !texture.exists()) {
+				boolean has = false;
+				try {
+					IResource baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/particle/particles.png"));
+					if (baseTexrure!=null) {
+						try {
+							BufferedImage particlesImage = new BufferedImage(128, 128, 6);
+							BufferedImage bufferedImage = ImageIO.read(baseTexrure.getInputStream());
+							for (int u=0; u<128; u++) {
+								for (int v=0; v<128; v++) {
+									Color c = new Color(bufferedImage.getRGB(u, v));
+									if (c.getRGB()!=-16777216) {
+										float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+										hsb[0] += 0.25f;
+										if (hsb[0]>1.0f) { hsb[0] -= 1.0f; }
+										c = Color.getHSBColor(hsb[0] - (hsb[0]>1.0f ? 1.0f : 0.0f), hsb[1], hsb[2]);
+										c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 171);
+										particlesImage.setRGB(u, v, c.getRGB());
+									}
 								}
 							}
+							ImageIO.write(particlesImage, "png", texture);
+							has = true;
 						}
-						ImageIO.write(particlesImage, "png", texture);
+						catch (IOException e) { }
+					}
+				}
+				catch (IOException e) { }
+				if (!has) {
+					try {
+						BufferedImage bufferedImage = new BufferedImage(128, 128, 6);
+						ImageIO.write(bufferedImage, "png", texture);
 						has = true;
 					}
 					catch (IOException e) { }
 				}
+				if (has) { LogWriter.debug("Create Default Texture for \""+name+"\" particle"); }
 			}
-			catch (IOException e) { }
-			if (!has) {
-				try {
-					BufferedImage bufferedImage = new BufferedImage(128, 128, 6);
-					ImageIO.write(bufferedImage, "png", texture);
-					has = true;
-				}
-				catch (IOException e) { }
-			}
-			if (has) { LogWriter.debug("Create Default Texture for \""+name+"\" particle"); }
 		}
 	}
 	
@@ -1556,6 +1719,22 @@ extends CommonProxy {
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(CustomRegisters.scripted_item, entry.getKey(), mrl);
 			ModelLoader.setCustomModelResourceLocation(CustomRegisters.scripted_item, entry.getKey(), mrl);
 		}
+	}
+
+	private boolean saveFile(File file, String text) {
+		if (file==null || text==null || text.isEmpty()) { return false; }
+		OutputStreamWriter writer = null;
+		try {
+			writer = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8"));
+			writer.write(text);
+		} catch (IOException e) {
+			LogWriter.debug("Error Save Default Item File \""+file+"\"");
+			return false;
+		}
+		finally {
+			try { if (writer != null) { writer.close(); } } catch (IOException e) { }
+		}
+		return true;
 	}
 	
 }
