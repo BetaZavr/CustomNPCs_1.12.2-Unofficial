@@ -161,7 +161,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			if (!button.enabled && button.isMouseOver()) {
 				if (this.locSel==null) {
 					this.setHoverText(new TextComponentTranslation("transporter.hover.not.select").getFormattedText());
-				} else if (this.locSel.money > ClientProxy.playerData.game.money) {
+				} else if (this.locSel.money > ClientProxy.playerData.game.getMoney()) {
 					this.setHoverText(new TextComponentTranslation("transporter.hover.not.money").getFormattedText());
 				} else {
 					this.setHoverText(new TextComponentTranslation("transporter.hover.not.item").getFormattedText());
@@ -206,7 +206,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 					if (loc.money>0 || !loc.inventory.isEmpty()) {
 						if (loc.money>0) {
 							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false)+" "+CustomNpcs.charCurrencies.charAt(0);
-							if (loc.money>0 && loc.money>ClientProxy.playerData.game.money) { color = 0xFFFF0000; }
+							if (loc.money>0 && loc.money>ClientProxy.playerData.game.getMoney()) { color = 0xFFFF0000; }
 						}
 					}
 					if (!loc.inventory.isEmpty() && color != 0xFFFF0000) {

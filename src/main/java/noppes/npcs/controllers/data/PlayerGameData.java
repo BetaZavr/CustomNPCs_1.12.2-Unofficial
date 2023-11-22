@@ -12,7 +12,7 @@ import noppes.npcs.util.AdditionalMethods;
 
 public class PlayerGameData {
 	
-	public long money;
+	private long money;
 	public boolean update; // ServerTickHandler
 	public boolean op = false;
 	public final List<MarkupData> marketData = Lists.<MarkupData>newArrayList(); // ID market, slot

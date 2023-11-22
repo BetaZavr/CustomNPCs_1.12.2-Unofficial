@@ -1,6 +1,8 @@
 package noppes.npcs.client;
 
-import java.util.Collections;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +21,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -49,6 +53,7 @@ import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
@@ -257,6 +262,35 @@ public class ClientTickHandler {
 		}
 	}
 
+	
+	@SubscribeEvent
+	public void cnpcLoadAllOBJTextures(TextureStitchEvent.Pre event) {
+		File assets = new File(CustomNpcs.Dir, "assets/customnpcs");
+		if (!assets.exists()) { return; }
+		List<ResourceLocation> objTextures = Lists.<ResourceLocation>newArrayList();
+		for (File file : AdditionalMethods.getFiles(assets, ".mtl")) {
+			try {
+				for (String line : Files.readAllLines(file.toPath())) {
+					if (line.indexOf("map_Kd")==-1) { continue; }
+					int endIndex = line.indexOf(""+((char) 10), line.indexOf("map_Kd"));
+					if (endIndex == -1) { endIndex = line.length(); }
+					String txtr = line.substring(line.indexOf(" ", line.indexOf("map_Kd"))+1, endIndex);
+					String domain = "", path = "";
+					if (txtr.indexOf(":")==-1) { path = txtr; }
+					else {
+						domain = txtr.substring(0, txtr.indexOf(":"));
+						path = txtr.substring(txtr.indexOf(":")+1);
+					}
+					objTextures.add(new ResourceLocation(domain, path));
+				}
+			} catch (IOException e) { e.printStackTrace(); }
+		}
+		for (ResourceLocation res : objTextures) {
+			if (event.getMap().getTextureExtry(res.toString())!=null) { continue; }
+			event.getMap().registerSprite(res);
+		}
+	}
+	
 	@SubscribeEvent
 	public void cnpcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
@@ -294,10 +328,10 @@ public class ClientTickHandler {
 			e.printStackTrace();
 		}*/
 		
-		List<String> list = Lists.newArrayList("IsInstant", "IsBeneficial", "MaxStackSize", "ItemType", "RegistryName", "BaseDelay", "IsBadEffect",
+		/*List<String> list = Lists.newArrayList("IsInstant", "IsBeneficial", "MaxStackSize", "ItemType", "RegistryName", "BaseDelay", "IsBadEffect",
 				"Duration", "CureItem", "CreateAllFiles", "LiquidColor", "Modifiers");
 		Collections.sort(list);
-		System.out.println("list: ["+list+"]");
+		System.out.println("list: ["+list+"]");*/
 		
 		/*for (PotionEffect pe : player.getActivePotionEffects()) {
 			try {

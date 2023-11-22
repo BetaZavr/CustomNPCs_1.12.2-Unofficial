@@ -175,7 +175,7 @@ public class DataTransform {
 			NBTTagCompound compound = this.npc.ais.writeToNBT(new NBTTagCompound());
 			this.npc.ais.readToNBT(NBTTags.NBTMerge(compound, this.ai));
 			this.ai = compound;
-			this.npc.setCurrentAnimation(0);
+			this.npc.setCurrentAnimation(this.npc.ais.animationType);
 		}
 		if (this.hasInv) {
 			NBTTagCompound compound = this.npc.inventory.writeEntityToNBT(new NBTTagCompound());

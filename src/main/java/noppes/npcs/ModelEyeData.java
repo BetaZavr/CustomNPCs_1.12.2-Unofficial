@@ -55,6 +55,7 @@ extends ModelPartData {
 		if (this.blinkStart < 0L) {
 			++this.blinkStart;
 		} else if (this.blinkStart == 0L) {
+			if (npc.isDead || npc.isPlayerSleeping()) { return; }
 			if (this.r.nextInt(140) == 1) {
 				this.blinkStart = System.currentTimeMillis();
 				if (npc != null) {

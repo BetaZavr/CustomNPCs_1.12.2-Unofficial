@@ -137,13 +137,16 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		GuiNpcButton button = new GuiButtonBiDirectional(1, this.guiLeft+4, this.guiTop+14, 120, 20, AnimationKind.getNames(), GuiNpcAnimation.type.get());
 		((GuiButtonBiDirectional) button).showShedow = false;
 		this.addButton(button);
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 4, this.guiTop + 194, 58, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 64, this.guiTop + 194, 58, 20, "gui.remove"));
+		this.addButton(new GuiNpcButton(2, this.guiLeft + 4, this.guiTop + 194, 59, 20, "gui.add"));
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 65, this.guiTop + 194, 59, 20, "gui.remove"));
 		this.getButton(3).enabled = anim!=null;
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 4, this.guiTop + 216, 58, 20, "gui.load"));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 4, this.guiTop + 216, 59, 20, "gui.load"));
 		this.getButton(4).enabled = aData!=null;
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 64, this.guiTop + 216, 58, 20, "gui.save"));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 65, this.guiTop + 216, 59, 20, "gui.save"));
 		this.getButton(5).layerColor = anim!=null && aData.getAnimation(anim.name)==null ? 0xFF00FF00 : 0xFFFFFFFF;
+		
+		this.addButton(new GuiNpcButton(19, this.guiLeft + 65, this.guiTop + 1, 59, 12, "gui.base"));
+		if (this.animation.baseAnim!=null) { this.getButton(19).layerColor = 0xFF00FF00; }
 		
 		AnimationFrameConfig frame = null;
 		PartConfig part = null;
@@ -443,6 +446,10 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				this.resetAnims();
 				break;
 			}
+			case 19: { // load טפûף
+				this.setSubGui(new SubGuiLoadAnimation(3, this.npc));
+				break;
+			}
 			case 60: { // reset animation rotation
 				if (this.getSlider(70)==null || this.getSlider(74)==null) { return; }
 				this.rots[0] = 180;
@@ -649,6 +656,8 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.load").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.save").getFormattedText());
+		} else if (this.getButton(19)!=null && this.getButton(19).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("animation.hover.anim.base").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (anim!=null) {
@@ -926,10 +935,8 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiEditText && ((SubGuiEditText) subgui).cancelled) {
-			return;
-		}
 		if (subgui.id == 1) { // add new
+			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) { return; }
 			String name = ((SubGuiEditText) subgui).text[0];
 			this.selectFrame = 0;
 			this.selectPart = 0;
@@ -954,7 +961,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.initGui();
 		}
 		else if (subgui.id == 2) { // load
-			if (((SubGuiLoadAnimation) subgui).animation==null) { return; }
+			if (!(subgui instanceof SubGuiLoadAnimation) || ((SubGuiLoadAnimation) subgui).cancelled || ((SubGuiLoadAnimation) subgui).animation==null) { return; }
 			AnimationConfig ac = ((SubGuiLoadAnimation) subgui).animation.copy();
 			ac.type = GuiNpcAnimation.type;
 			ac.id = this.animation.data.get(ac.type).size();
@@ -962,6 +969,14 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.selectAnim = this.c+"7"+ac.id+": "+this.c+"r"+ac.name;
 			this.selectFrame = 0;
 			this.selectPart = 0;
+			this.initGui();
+		}
+		else if (subgui.id == 3) { // load
+			if (!(subgui instanceof SubGuiLoadAnimation)) { return; }
+			if (((SubGuiLoadAnimation) subgui).cancelled || ((SubGuiLoadAnimation) subgui).animation==null) {
+				this.animation.baseAnim = null;
+			}
+			else { this.animation.baseAnim = ((SubGuiLoadAnimation) subgui).animation.copy(); }
 			this.initGui();
 		}
 	}

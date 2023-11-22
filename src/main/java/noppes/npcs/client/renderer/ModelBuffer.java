@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -22,18 +23,20 @@ import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import noppes.npcs.LogWriter;
+import noppes.npcs.client.model.ModelOBJArmor;
 import noppes.npcs.client.renderer.data.ParameterizedModel;
 
 public class ModelBuffer {
 
-	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList(); // список параметризированных отрисованных моделей
-	public static List<ResourceLocation> NOT_FOUND = Lists.<ResourceLocation>newArrayList(); // список отсутствующих моделей, чтобы не фризить клиент
+	public static Map<ResourceLocation, ModelOBJArmor> ARMORS = Maps.<ResourceLocation, ModelOBJArmor>newHashMap();
+	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList(); // list of parameterized rendered models
+	public static List<ResourceLocation> NOT_FOUND = Lists.<ResourceLocation>newArrayList(); // list of missing models so as not to freeze the client
 	
-	/** Собственно попытка получить ID листа:
-     * @param objModel - ресурс на расположение OBJ модели
-     * @param visibleMeshes - список имён мешей/сеток, которые нужно отобразить из модели
-     * @param replacesMaterialTextures - карта замены текстур. Ключ-ресурс на текстуру из материала, Значение-новый ресурс текстура
-     * @return ID листа для рисовки
+	/** Actually trying to get the sheet ID:
+      * @param objModel - resource for the location of the OBJ model
+      * @param visibleMeshes - list of names of meshes/grids that need to be displayed from the model
+      * @param replacesMaterialTextures - texture replacement map. Key is a resource for a texture from a material, Value is a new resource texture
+      * @return ID of the drawing sheet
      */
 	public static int getDisplayList(ResourceLocation objModel, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		if (ModelBuffer.NOT_FOUND.contains(objModel)) { return -1; }
@@ -66,7 +69,7 @@ public class ModelBuffer {
 					}
 					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
 					if (sprite==Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
-						LogWriter.debug("Not found texture sprite: "+loc);
+						LogWriter.debug("Not load or found texture sprite: "+loc+" to "+objModel);
 					}
 			        return sprite;
 				};
@@ -83,7 +86,8 @@ public class ModelBuffer {
 			}
 			catch (Exception e) {
 				ModelBuffer.NOT_FOUND.add(objModel);
-				LogWriter.error("Error create OBJ render list: "+e);
+				LogWriter.error("Error create OBJ \""+objModel+"\" render list");
+				e.printStackTrace();
 			}
 		}
 		return model.listId;

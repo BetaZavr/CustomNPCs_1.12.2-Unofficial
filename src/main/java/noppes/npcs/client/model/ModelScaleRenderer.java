@@ -95,12 +95,37 @@ extends ModelRenderer {
 		model.rotateAngleY = y;
 		model.rotateAngleZ = z;
 	}
-
-	public void setAnim(Float[] values) {
+	
+	public void clearAnim() {
 		for (int i=0; i<3; i++) {
-			this.config.rotateAnimation[i] = values==null || i>=values.length || values[i]==null ? 0.0f : values[i];
-			this.config.offsetAnimation[i] = values==null || i+3>=values.length || values[i+3]==null ? 0.0f : values[i+3];
-			this.config.scaleAnimation[i] = values==null || i+6>=values.length || values[i+6]==null ? 1.0f : values[i+6];
+			this.config.rotateAnimation[i] = 0.0f;
+			this.config.offsetAnimation[i] = 0.0f;
+			this.config.scaleAnimation[i] = 1.0f;
+		}
+	}
+	
+	public void setAnim(Float[] values) {
+		if (values==null) {
+			this.clearAnim();
+			return;
+		}
+		for (int i=0; i<3; i++) {
+			this.config.rotateAnimation[i] = i>=values.length || values[i]==null ? 0.0f : values[i];
+			this.config.offsetAnimation[i] = i+3>=values.length || values[i+3]==null ? 0.0f : values[i+3];
+			this.config.scaleAnimation[i] = i+6>=values.length || values[i+6]==null ? 1.0f : values[i+6];
+		}
+	}
+
+	public void setAnim(ModelScaleRenderer source) {
+		if (source==null) {
+			this.clearAnim();
+			return;
+		}
+		if (this.config==null) { this.config = new ModelPartConfig(); }
+		for (int i=0; i<3; i++) {
+			this.config.rotateAnimation[i] = source.config.rotateAnimation[i];
+			this.config.offsetAnimation[i] = source.config.offsetAnimation[i];
+			this.config.scaleAnimation[i] = source.config.scaleAnimation[i];
 		}
 	}
 

@@ -168,7 +168,7 @@ implements ICustomScrollListener, IGuiData {
 				if (this.wait || this.selectDealData.deal.getType() == 1) { this.canBuy = 1; }
 				if (this.canBuy==0 && this.selectDealData.deal.getAmount() <= 0) { this.canBuy = 6; }
 				if (this.canBuy==0 && !this.selectDealData.deal.availability.isAvailable(this.player)) { this.canBuy = 2; }
-				if (this.canBuy==0 && this.selectDealData.buyMoney > 0 && ClientProxy.playerData.game.money < this.selectDealData.buyMoney) { this.canBuy = 3; }
+				if (this.canBuy==0 && this.selectDealData.buyMoney > 0 && ClientProxy.playerData.game.getMoney() < this.selectDealData.buyMoney) { this.canBuy = 3; }
 				if (this.canBuy==0 && !AdditionalMethods.canRemoveItems(this.player.inventory.mainInventory, this.selectDealData.buyItems, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canBuy = 4; }
 				if (this.canBuy==0 && !AdditionalMethods.canAddItemAfterRemoveItems(this.player.inventory.mainInventory, this.selectDealData.main, this.selectDealData.buyItems, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canBuy = 5; }
 			}
@@ -254,7 +254,7 @@ implements ICustomScrollListener, IGuiData {
 			// Currency Colored
 			if (this.getLabel(4) != null && this.getLabel(4).enabled && this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 				int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
-				if (ClientProxy.playerData.game.money >= this.selectDealData.deal.getMoney()) { color = 0x8000FF00; }
+				if (ClientProxy.playerData.game.getMoney() >= this.selectDealData.deal.getMoney()) { color = 0x8000FF00; }
 				Gui.drawRect(this.guiLeft + 138, this.guiTop + 112, this.guiLeft + 218, this.guiTop + 136, color);
 			}
 			// Items
@@ -387,7 +387,7 @@ implements ICustomScrollListener, IGuiData {
 			if (this.selectDealData!=null && this.selectDealData.buyMoney > 0) {
 				buyMoney = (int) this.selectDealData.buyMoney;
 			}
-			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { ""+buyMoney, CustomNpcs.charCurrencies.charAt(0), "" + ClientProxy.playerData.game.money, CustomNpcs.charCurrencies.charAt(0) });
+			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { ""+buyMoney, CustomNpcs.charCurrencies.charAt(0), "" + ClientProxy.playerData.game.getMoney(), CustomNpcs.charCurrencies.charAt(0) });
 			if (this.marcet.isLimited) {
 				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", ""+this.marcet.money));
 			}

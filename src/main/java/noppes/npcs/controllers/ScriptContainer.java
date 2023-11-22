@@ -105,7 +105,7 @@ public class ScriptContainer {
 				Method m = e.getClass().getMethod("get");
 				if (m==null || m.getReturnType()!=int.class) { continue; }
 				ScriptContainer.Data.put(c.getSimpleName() + "_" + ((Enum<?>) e).name(), (int) m.invoke(e));
-				LogWriter.debug("Add Base Script Constant: \"" + c.getSimpleName() + "_" + ((Enum<?>) e).name() + "\" == " + ((int) m.invoke(e)));
+				//LogWriter.debug("Add Base Script Constant: \"" + c.getSimpleName() + "_" + ((Enum<?>) e).name() + "\" == " + ((int) m.invoke(e)));
 			}
 			catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException error) {
 				error.printStackTrace();
@@ -120,7 +120,7 @@ public class ScriptContainer {
 			Object value = getNBTValue(tag);
 			if (value != null) {
 				ScriptContainer.Data.put(key, value);
-				LogWriter.debug("Add Custom Script Constant: " + key + " == " + value);
+				//LogWriter.debug("Add Custom Script Constant: " + key + " == " + value);
 			}
 		}
 	}

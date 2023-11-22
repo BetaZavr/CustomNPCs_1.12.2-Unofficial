@@ -643,7 +643,7 @@ public class ScriptPlayerEventHandler {
 						register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
 						CustomNpcs.forgeClientEventNames.put(c, eventName);
 						if (!isClient) { CustomNpcs.forgeEventNames.put(c, eventName); }
-						LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event "+c.getName());
+						//LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event "+c.getName());
 					}
 				} catch (Throwable t) {
 					System.out.println("CustomNpcs Error Register Forge Event: " + t);

@@ -22,7 +22,10 @@ public enum EnumParts
 	ARM_RIGHT("armright"), 
 	LEG_LEFT("legleft"), 
 	LEG_RIGHT("legright"), 
-	EYES("eyes");
+	EYES("eyes"),
+	BELT("belt"), 
+	FEET_LEFT("legleft"), 
+	FEET_RIGHT("legright"), ;
 	
 	public String name;
 	public int patterns;

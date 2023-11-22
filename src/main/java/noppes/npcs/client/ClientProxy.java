@@ -276,8 +276,7 @@ extends CommonProxy {
 			this.useCustomFont = !fontType.equalsIgnoreCase("minecraft");
 			try {
 				if (!this.useCustomFont || fontType.isEmpty() || fontType.equalsIgnoreCase("default")) {
-					this.textFont = new TrueTypeFont(new ResourceLocation(CustomNpcs.MODID, "opensans.ttf"), fontSize,
-							1.0f);
+					this.textFont = new TrueTypeFont(new ResourceLocation(CustomNpcs.MODID, "opensans.ttf"), fontSize, 1.0f);
 				}
 			} catch (Exception e) {
 				LogWriter.info("Failed loading font so using Arial");
@@ -561,6 +560,7 @@ extends CommonProxy {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void load() {
+		Minecraft mc = Minecraft.getMinecraft();
 		MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
 		if (CustomNpcs.InventoryGuiEnabled) {
 			MinecraftForge.EVENT_BUS.register(new TabRegistry());
@@ -580,8 +580,8 @@ extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class, new RenderNPCInterface((ModelBase) new ModelNPCGolem(0.0f), 0.0f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, true)));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc((ModelBiped) new ModelClassicPlayer(0.0f)));
-		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
-		Minecraft.getMinecraft().getItemColors().registerItemColorHandler((stack, tintIndex) -> {
+		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
+		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> {
 			IItemStack item = NpcAPI.Instance().getIItemStack(stack);
 			if (stack.getItem() == CustomRegisters.scripted_item) {
 				return ((IItemScripted) item).getColor();
@@ -591,20 +591,20 @@ extends CommonProxy {
 		ClientProxy.checkLocalization();
 		new GuiTextureSelection(null, "", "png", 0);
 		
-		Map<Integer, IParticleFactory> map = ObfuscationHelper.getValue(ParticleManager.class, Minecraft.getMinecraft().effectRenderer, Map.class);
+		Map<Integer, IParticleFactory> map = ObfuscationHelper.getValue(ParticleManager.class, mc.effectRenderer, Map.class);
 		for (int id : CustomRegisters.customparticles.keySet()) {
 			if (map.containsKey(id)) { continue; }
 			map.put(id, new IParticleFactory() {
 				public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
 					CustomParticleSettings ps = CustomRegisters.customparticles.get(particleID);
-					return new CustomParticle(ps == null ? new NBTTagCompound() : ps.nbtData, Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
+					return new CustomParticle(ps == null ? new NBTTagCompound() : ps.nbtData, mc.getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, parametrs);
 				}
 			});
 		}
 	}
 	
 	@Override
-	public void postload() {  }
+	public void postload() { }
 
 	@Override
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
@@ -1072,6 +1072,7 @@ extends CommonProxy {
 		super.checkItemFiles(customitem);
 		String name = customitem.getCustomName().toLowerCase();
 		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
+		NBTTagCompound nbtData = customitem.getCustomNbt().getMCNBT();
 		
 		String n = name;
 		if (name.equals("itemexample")) { n = "Example simple Custom Item"; }
@@ -1080,6 +1081,10 @@ extends CommonProxy {
 		else if (name.equals("armorexample")) {
 			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
 			n = "Example Custom Armor "+(""+slot.charAt(0)).toUpperCase()+slot.toLowerCase().substring(1);
+		}
+		else if (name.equals("armorobjexample")) {
+			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
+			n = "Example Custom 3D Armor "+(""+slot.charAt(0)).toUpperCase()+slot.toLowerCase().substring(1);
 		}
 		else if (name.equals("shieldexample")) { n = "Example Custom Shield"; }
 		else if (name.equals("bowexample")) { n = "Example Custom Bow"; }
@@ -1127,22 +1132,32 @@ extends CommonProxy {
 			if (!armorDir.exists()) { armorDir.mkdirs(); }
 			// Models
 			boolean[] has = new boolean[] { false, false };
-			for (int i=1; i<=2; i++) {
-				texture = new File(armorDir, name+"_layer_"+i+".png");
-				if (!texture.exists()) {
-					try {
-						baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/models/armor/iron_layer_"+i+".png"));
-						if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 40, 40, 255), "png", texture); has[i-1] = true; }
-					}
-					catch (IOException e) { }
-				} else { continue; }
-				if (has[i-1]) { continue; }
+			if (nbtData.hasKey("OBJData", 9)) {
 				try {
-					BufferedImage bufferedImage = new BufferedImage(64, 32, 6);
+					texture = new File(armorDir, name+".png");
+					BufferedImage bufferedImage = new BufferedImage(64, 64, 6);
 					ImageIO.write(bufferedImage, "png", texture);
-					has[i-1] = true;
+					has[0] = true;
 				}
 				catch (IOException e) { }
+			} else {
+				for (int i=1; i<=2; i++) {
+					texture = new File(armorDir, name+"_layer_"+i+".png");
+					if (!texture.exists()) {
+						try {
+							baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/models/armor/iron_layer_"+i+".png"));
+							if (baseTexrure!=null) { ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 40, 40, 255), "png", texture); has[i-1] = true; }
+						}
+						catch (IOException e) { }
+					} else { continue; }
+					if (has[i-1]) { continue; }
+					try {
+						BufferedImage bufferedImage = new BufferedImage(64, 32, 6);
+						ImageIO.write(bufferedImage, "png", texture);
+						has[i-1] = true;
+					}
+					catch (IOException e) { }
+				}
 			}
 			if (has[0] || has[1]) { LogWriter.debug("Create Default Armor Model Texture for \""+name+"\" item"); }
 			texture = new File(texturesDir, textureName+".png");

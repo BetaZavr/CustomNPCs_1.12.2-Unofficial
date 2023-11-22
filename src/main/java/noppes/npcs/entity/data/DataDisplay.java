@@ -45,6 +45,7 @@ implements INPCDisplay {
 	private byte showBossBar;
 	private int markovGender, markovGeneratorId, modelSize, showName, skinColor, visible;
 	private String cloakTexture, texture, title, url, glowTexture, name;
+	public Object renderModel;
 
 	public DataDisplay(EntityNPCInterface npc) {
 		this.title = "";

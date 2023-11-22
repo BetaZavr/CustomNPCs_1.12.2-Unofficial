@@ -980,5 +980,5 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			area.errorLine = -1;
 		}
 	}
-
+	
 }

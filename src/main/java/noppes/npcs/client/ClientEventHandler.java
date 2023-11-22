@@ -60,6 +60,7 @@ import noppes.npcs.CustomPacketHandler;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileBuilder;
+import noppes.npcs.client.gui.GuiNpcPather;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.MarkRenderer;
@@ -110,6 +111,11 @@ public class ClientEventHandler {
 		ClientEventHandler.subgui = null;
 		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
 		Client.sendDataDelayCheck(EnumPlayerPacket.OpenGui, this, 0, event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(), mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
+		
+		if (mc.currentScreen instanceof GuiNpcPather) {
+			ClientGuiEventHandler.listPath.clear();
+		}
+		
 		if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;

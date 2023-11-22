@@ -281,7 +281,7 @@ implements IRecipeHandler {
 			}
 			map.get(recipe.getNpcGroup()).add(recipe);
 		}
-		LogWriter.debug((needAdd ? "Add New" : "Reset")+" recipe: "+((IRecipe) recipe).getRegistryName());
+		//LogWriter.debug((needAdd ? "Add New" : "Reset")+" recipe: "+((IRecipe) recipe).getRegistryName());
 		CustomNpcs.proxy.updateRecipes(recipe, true, false, "RecipeController.putRecipe()");
 		int id = RecipeController.Registry.getID((IRecipe) recipe);
 		if (recipe instanceof NpcShapedRecipes) { ((NpcShapedRecipes) recipe).id = id; }

@@ -284,7 +284,7 @@ implements IPlayer {
 
 	@Override
 	public long getMoney() {
-		return this.getData().game.money;
+		return this.getData().game.getMoney();
 	}
 
 	@Override

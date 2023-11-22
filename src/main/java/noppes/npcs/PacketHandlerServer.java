@@ -1544,7 +1544,7 @@ public class PacketHandlerServer {
 				}
 				case Game: {
 					if (t==3) {
-						playerdata.game.money = 0L;
+						playerdata.game.setMoney(0L);
 						playerdata.game.marketData.clear();
 						playerdata.game.update = true;
 					} else {

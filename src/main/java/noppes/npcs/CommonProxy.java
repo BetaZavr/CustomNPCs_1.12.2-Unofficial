@@ -1035,14 +1035,31 @@ implements IGuiHandler {
 	public void checkItemFiles(ICustomElement customitem) {
 		String name = customitem.getCustomName();
 		String fileName = ((Item) customitem).getRegistryName().getResourcePath();
+		NBTTagCompound nbtData = customitem.getCustomNbt().getMCNBT();
 
 		File itemModelsDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/item");
 		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
+		
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase()+".json");
-
 		String crEnt = ""+((char) 10);
 		String crTab = ""+((char) 9);
 		String jsonModel = "";
+		if (customitem instanceof CustomArmor && nbtData.hasKey("OBJData", 9)) {
+			File armorModelsDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/models/armor");
+			if (!armorModelsDir.exists()) { armorModelsDir.mkdirs(); }
+			
+			File objModel = new File(armorModelsDir, name.toLowerCase()+".obj");
+			if (!objModel.exists()) {
+				String model = "mtllib " + name + ".mtl";
+				this.saveFile(objModel, model);
+				
+				String mat_lib = "newmtl material" + crEnt +
+						"Kd 1.000000 1.000000 1.000000" + crEnt +
+						"d 1.000000" + crEnt +
+						"map_Kd customnpcs:models/armor/"+name;
+				this.saveFile(new File(armorModelsDir, name.toLowerCase()+".mtl"), mat_lib);
+			}
+		}
 		if (!itemModel.exists()) {
 			if (customitem instanceof CustomShield || customitem instanceof CustomBow) {
 				boolean isBow = (customitem instanceof CustomBow);

@@ -17,7 +17,6 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.LogWriter;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
 import noppes.npcs.api.handler.IMarcetHandler;
@@ -355,7 +354,7 @@ implements IMarcetHandler {
 	}
 	
 	public void sendTo(EntityPlayerMP player, int marcetID) {
-		LogWriter.debug("CustomNpcs: Send marked data to \""+player.getName()+"\"");
+		//LogWriter.debug("CustomNpcs: Send marked data to \""+player.getName()+"\"");
 		if (this.marcets.containsKey(marcetID)) { // market
 			this.marcets.get(marcetID).sendTo(player);
 			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 250, 2);

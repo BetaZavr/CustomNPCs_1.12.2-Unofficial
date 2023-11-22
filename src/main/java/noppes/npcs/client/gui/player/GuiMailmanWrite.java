@@ -300,7 +300,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 			this.getTextField(3)
 					.setMinMaxDefault(0,
 							(int) (this.player.capabilities.isCreativeMode ? Integer.MAX_VALUE
-									: CustomNpcs.proxy.getPlayerData(this.player).game.money),
+									: CustomNpcs.proxy.getPlayerData(this.player).game.getMoney()),
 							GuiMailmanWrite.mail.money);
 		} else {
 			if (!this.canSend && GuiMailmanWrite.mail.money > 0) {

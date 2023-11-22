@@ -615,7 +615,6 @@ public class CustomRegisters {
 				}
 			}
 		}
-		System.out.println("hPE: " + hPE + "; hPOE: " + hPOE);
 		if (!prtcsFile.exists() || !nbtParticles.hasKey("Particles", 9) || !hPE || !hPOE) {
 			if (!nbtParticles.hasKey("Particles", 9)) {
 				nbtParticles.setTag("Particles", new NBTTagList());
@@ -1119,8 +1118,7 @@ public class CustomRegisters {
 			case (byte) 3: // Armor
 				ArmorMaterial mat = CustomArmor.getMaterialArmor(nbtItem);
 				for (int a = 0; a < nbtItem.getTagList("EquipmentSlots", 8).tagCount(); a++) {
-					EntityEquipmentSlot slot = CustomArmor
-							.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
+					EntityEquipmentSlot slot = CustomArmor.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
 					int maxStDam = 0, rx = 2;
 					if (nbtItem.hasKey("MaxStackDamage", 11) && a < nbtItem.getIntArray("MaxStackDamage").length) {
 						maxStDam = nbtItem.getIntArray("MaxStackDamage")[a];
@@ -1144,8 +1142,7 @@ public class CustomRegisters {
 					if (rx > 4) {
 						rx %= 5;
 					}
-					this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items,
-							nbtItem);
+					this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items, nbtItem);
 				}
 				break;
 			case (byte) 4: // Shield
@@ -1394,7 +1391,6 @@ public class CustomRegisters {
 		}
 		event.getRegistry()
 				.registerAll(CustomRegisters.custompotions.toArray(new Potion[CustomRegisters.custompotions.size()]));
-		System.out.println("Potions: " + CustomRegisters.custompotiontypes.size());
 	}
 
 	@SubscribeEvent

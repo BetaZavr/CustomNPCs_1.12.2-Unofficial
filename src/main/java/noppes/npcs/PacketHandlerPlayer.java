@@ -579,7 +579,7 @@ public class PacketHandlerPlayer {
 			DealMarkup dm = MarcetController.getInstance().getBuyData(m, deal, data.game.getMarcetLevel(m.getId()));
 			if (!player.capabilities.isCreativeMode) {
 				// Has Money
-				if (canGiveItem && (data!=null && dm.buyMoney > data.game.money)) {
+				if (canGiveItem && (data!=null && dm.buyMoney > data.game.getMoney())) {
 					canGiveItem = false;
 				}
 				// Has Items
@@ -800,7 +800,7 @@ public class PacketHandlerPlayer {
 		} else if (type == EnumPlayerPacket.CustomGuiKeyPressed) {
 			IPlayer<?> pl = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
 			if (pl.getCustomGui()==null || ((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler()==null) { return; }
-			EventHooks.onEvent(((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler(), EnumScriptType.KEY_UP, new CustomGuiEvent.KeyPressedEvent(pl, pl.getCustomGui(), buffer.readInt()));
+			EventHooks.onEvent(((CustomGuiWrapper) pl.getCustomGui()).getScriptHandler(), EnumScriptType.KEY_GUI_UP, new CustomGuiEvent.KeyPressedEvent(pl, pl.getCustomGui(), buffer.readInt()));
 		} else if (type == EnumPlayerPacket.MarketTime) {
 			MarcetController.getInstance().sendTo(player, buffer.readInt());
 		}

@@ -7,7 +7,6 @@ import java.util.Random;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -45,6 +44,8 @@ implements INPCAnimation {
 	public boolean isComplete;
 	private long startFrameTick;
 	private float val, valNext;
+	public boolean isAnimated;
+	public AnimationConfig playableAnimation;
 	
 	public DataAnimation(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -377,7 +378,7 @@ implements INPCAnimation {
 		return ac;
 	}
 	
-	public Map<Integer, Float[]> getValues(EntityCustomNpc npc, AnimationConfig anim) {
+	public Map<Integer, Float[]> getValues(EntityCustomNpc npc, AnimationConfig anim, float pt) {
 		if (anim==null || anim.frames.isEmpty()) {
 			return null;
 		}
@@ -472,7 +473,7 @@ implements INPCAnimation {
 							break;
 						}
 					}
-					values[t * 3 + a] = this.calcValue(value_0, value_1, speed, frame_0.isSmooth(), ticks);
+					values[t * 3 + a] = this.calcValue(value_0, value_1, speed, frame_0.isSmooth(), ticks, pt);
 					if (t!=0) { values[t * 3 + a] /= 2 * (float) Math.PI; } // offsets, scales - correction
 				}
 			}
@@ -492,8 +493,7 @@ implements INPCAnimation {
 		return map;
 	}
 	
-	private float calcValue(float value_0, float value_1, int speed, boolean isSmooth, float ticks) {
-		float pt = Minecraft.getMinecraft().getRenderPartialTicks();
+	private float calcValue(float value_0, float value_1, int speed, boolean isSmooth, float ticks, float pt) {
 		if (ticks > speed) { ticks = speed; pt = 1.0f; }
 		float pi = (float) Math.PI;
 		if (isSmooth) {

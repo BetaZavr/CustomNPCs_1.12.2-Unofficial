@@ -26,7 +26,8 @@ import noppes.npcs.containers.ContainerEmpty;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiContainerNPCInterface
-extends GuiContainer {
+extends GuiContainer
+implements IEditNPC {
 	
 	public static ResourceLocation ball = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 	
@@ -396,5 +397,8 @@ extends GuiContainer {
 		this.textfields.clear();
 		this.topbuttons.clear();
 	}
+
+	@Override
+	public EntityNPCInterface getNPC() { return this.npc; }
 	
 }

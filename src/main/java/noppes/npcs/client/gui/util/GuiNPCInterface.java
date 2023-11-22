@@ -30,7 +30,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface
-extends GuiScreen {
+extends GuiScreen
+implements IEditNPC {
 
 	public boolean closeOnEsc, drawDefaultBackground;
 	public int guiLeft, guiTop, mouseX, mouseY, xSize, ySize;
@@ -541,4 +542,8 @@ extends GuiScreen {
 			super.updateScreen();
 		}
 	}
+
+	@Override
+	public EntityNPCInterface getNPC() { return this.npc; }
+	
 }

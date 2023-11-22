@@ -39,10 +39,13 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathNavigateFlying;
 import net.minecraft.pathfinding.PathNavigateGround;
@@ -221,7 +224,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public ICustomNpc<?> wrappedNPC;
 	public boolean updateAI;
 	public DataAnimation animation;
-	public boolean isNavigating;
+	public Vec3d navigatingPos = null;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -1157,9 +1160,16 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		super.onUpdate();
 		if (this.ticksExisted % 10 == 0) {
 			this.resetBackPos();
-			if (this.isNavigating == this.getNavigator().noPath()) {
-				this.isNavigating = !this.getNavigator().noPath();
-				this.updateClient = true;
+			Path path = this.getNavigator().getPath();
+			if (this.isServerWorld()) {
+				if (path!=null && path.getCurrentPathLength()>0 && !path.isFinished() && (this.navigatingPos==null || !path.getPosition(this).equals(this.navigatingPos))) {
+					this.navigatingPos = path.getPosition(this);
+					this.updateClient = true;
+				}
+				else if (this.navigatingPos!=null) {
+					this.navigatingPos = null;
+					this.updateClient = true;
+				}
 			}
 			if (this.ais.getMovingType()!=2 && this.stats.calmdown && this.world != null && !this.world.isRemote) { // New
 				double d0 = this.posX - this.backPos.getX();
@@ -1174,7 +1184,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						return;
 					}
 					super.setAttackTarget(null);
-					this.getNavigator().clearPath();
+					if (path!=null) { this.getNavigator().clearPath(); }
 					/*
 					 * boolean bo = this.getNavigator().tryMoveToXYZ(this.backPos.getX(),
 					 * this.backPos.getY(), this.backPos.getZ(), 1.0d); if (bo) { this.isRunHome =
@@ -1185,6 +1195,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				} else if (this.isRunHome && distance <= 2.0d) {
 					this.isRunHome = false;
 				}
+			}
+			if (this.isServerWorld() && (this.ais.animationType != this.currentAnimation)) {
+				this.currentAnimation = this.ais.animationType;
+				this.dataManager.set(EntityNPCInterface.Animation, this.ais.animationType);
+				this.updateClient = true;
 			}
 			this.startYPos = this.calculateStartYPos(this.ais.startPos()) + 1.0;
 			if ((this.startYPos < 0.0 || this.startYPos > 255.0) && !this.isRemote()) {
@@ -1292,10 +1307,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void readSpawnData(ByteBuf buf) {
-		try {
-			this.readSpawnData(Server.readNBT(buf));
-		} catch (IOException ex) {
-		}
+		try { this.readSpawnData(Server.readNBT(buf)); }
+		catch (IOException ex) { }
 	}
 
 	public void removeTrackingPlayer(EntityPlayerMP player) {
@@ -1778,7 +1791,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
 		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
 		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
-		this.isNavigating = compound.getBoolean("IsNavigating");
+		
+		if (compound.hasKey("NavigatingPos", 9)) {
+			NBTTagList list = compound.getTagList("NavigatingPos", 6);
+			this.navigatingPos = new Vec3d(list.getDoubleAt(0), list.getDoubleAt(1), list.getDoubleAt(2));
+		}
+		else { this.navigatingPos = null; }
+		this.setCurrentAnimation(compound.getInteger("CurrentAnimation"));
+		
 		this.ais.setStandingType(compound.getInteger("StandingState"));
 		this.ais.setMovingType(compound.getInteger("MovingState"));
 		this.ais.orientation = compound.getInteger("Orientation");
@@ -1831,7 +1851,17 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.inventory.weapons));
 		compound.setInteger("Speed", this.ais.getWalkingSpeed());
 		compound.setBoolean("DeadBody", this.stats.hideKilledBody);
-		compound.setBoolean("IsNavigating", this.isNavigating);
+		compound.setBoolean("IsNavigating", this.navigatingPos!=null);
+		
+		if (this.navigatingPos!=null) {
+			NBTTagList list = new NBTTagList();
+			list.appendTag(new NBTTagDouble(this.navigatingPos.x));
+			list.appendTag(new NBTTagDouble(this.navigatingPos.y));
+			list.appendTag(new NBTTagDouble(this.navigatingPos.z));
+			compound.setTag("NavigatingPos", list);
+		}
+		compound.setInteger("CurrentAnimation", this.currentAnimation);
+		
 		compound.setInteger("StandingState", this.ais.getStandingType());
 		compound.setInteger("MovingState", this.ais.getMovingType());
 		compound.setInteger("Orientation", this.ais.orientation);

@@ -105,7 +105,7 @@ implements IRoleTransporter {
 		TransportLocation locEvent = (TransportLocation) event.location;
 		if (!player.capabilities.isCreativeMode) {
 			if (locEvent.money>0) {
-				if (locEvent.money > playerdata.game.money) {
+				if (locEvent.money > playerdata.game.getMoney()) {
 					player.sendMessage(new TextComponentTranslation("transporter.hover.not.money"));
 					return;
 				}

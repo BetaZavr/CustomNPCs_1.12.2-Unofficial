@@ -41,9 +41,7 @@ implements IJobBard {
 	}
 
 	@Override
-	public String getSong() {
-		return this.song;
-	}
+	public String getSong() { return this.song; }
 
 	@Override
 	public void killed() {

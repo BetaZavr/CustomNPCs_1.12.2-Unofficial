@@ -113,7 +113,7 @@ extends Gui
 	private double dx, dy, dz;
 	private int qt=0;
 	private List<int[]> listMovingPath;
-	private List<double[]> listPath = Lists.<double[]>newArrayList();
+	public static List<double[]> listPath = Lists.<double[]>newArrayList();
 	public static RayTraceResult result;
 	public static List<CustomParticle> customParticle = Lists.<CustomParticle>newArrayList();
 	
@@ -652,7 +652,7 @@ extends Gui
 	public void onDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
 		Minecraft mc = event.getGui().mc;
 		if (event.getGui() instanceof GuiInventory && CustomNpcs.showMoney) {
-			String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.money, true, true, false) + CustomNpcs.charCurrencies;
+			String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false) + CustomNpcs.charCurrencies;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			int x=0, y=0;
@@ -675,7 +675,7 @@ extends Gui
 			if (xm>x&& ym>y && xm<x+50  && ym<y+12) {
 				List<String> hoverText = new ArrayList<String>();
 				hoverText.add(new TextComponentTranslation("inventory.hover.currency").getFormattedText());
-				hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.money);
+				hoverText.add("" + CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney());
 				event.getGui().drawHoveringText(hoverText, xm, ym);
 			}
 		}
@@ -819,7 +819,7 @@ extends Gui
 				}
 				else {
 					this.listMovingPath = null;
-					this.listPath.clear();
+					ClientGuiEventHandler.listPath.clear();
 				}
 			}
 		}
@@ -1404,7 +1404,7 @@ extends Gui
 		List<int[]> list = npc.ais.getMovingPath();
 		if (list.size()<1) {
 			this.listMovingPath = null;
-			this.listPath.clear();
+			ClientGuiEventHandler.listPath.clear();
 			return;
 		}
 		boolean type = npc.ais.getMovingPathType()==0;
@@ -1428,20 +1428,20 @@ extends Gui
 				}
 			}
 		}
-		if (!bo || this.listPath.isEmpty()) {
+		if (!bo || ClientGuiEventHandler.listPath.isEmpty()) {
 			NBTTagCompound npcNbt = new NBTTagCompound();
 			npc.writeToNBTAtomically(npcNbt);
 			Entity entity = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
 			entity.setUniqueId(UUID.randomUUID());
 			if (entity instanceof EntityCustomNpc) {
-				this.listPath.clear();
+				ClientGuiEventHandler.listPath.clear();
 				EntityCustomNpc newNpc = (EntityCustomNpc) entity;
 				int[] pos = list.get(0);
 				double yo = 0.0d;
 				IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
 				if (state!=null && state.isFullBlock() || state.isFullCube()) { yo = 1.0d; }
 				newNpc.setPosition(pos[0], pos[1]+yo, pos[2]);
-				this.listPath.add(new double[] { pos[0] + 0.5d, pos[1] + yo + 0.4d, pos[2] + 0.5d});
+				ClientGuiEventHandler.listPath.add(new double[] { pos[0] + 0.5d, pos[1] + yo + 0.4d, pos[2] + 0.5d});
 				newNpc.display.setVisible(1);
 				newNpc.display.setSize(1);
 				newNpc.display.setShowName(1);
@@ -1455,7 +1455,7 @@ extends Gui
 					newNpc.motionZ = 0.0d;
 					Path path = nv.getPathToXYZ(pos[0], pos[1], pos[2]);
 					if (path == null) {
-						this.listPath.add(new double[0]);
+						ClientGuiEventHandler.listPath.add(new double[0]);
 						yo = 0.0d;
 						state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
 						if (state!=null && state.isFullBlock() || state.isFullCube()) { yo = 1.0d; }
@@ -1464,7 +1464,7 @@ extends Gui
 					}
 					for (int p = 0; p < path.getCurrentPathLength(); p++) {
 						PathPoint pp = path.getPathPointFromIndex(p);
-						this.listPath.add(new double[] { pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d});
+						ClientGuiEventHandler.listPath.add(new double[] { pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d});
 					}
 					yo = 0.0d;
 					state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
@@ -1486,7 +1486,7 @@ extends Gui
 					if (path != null) {
 						for (int p = 0; p < path.getCurrentPathLength(); p++) {
 							PathPoint pp = path.getPathPointFromIndex(p);
-							this.listPath.add(new double[] { pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d});
+							ClientGuiEventHandler.listPath.add(new double[] { pp.x + 0.5d, pp.y + 0.4d, pp.z + 0.5d});
 						}
 					}
 				}
@@ -1498,7 +1498,7 @@ extends Gui
 		double[] pre = null;
 		float r, g, b, ag = 15.0f;
 		// Can Way
-		if (this.listPath.size()>1) {
+		if (ClientGuiEventHandler.listPath.size()>1) {
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -1511,8 +1511,8 @@ extends Gui
 			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 			r = 0.8f; g = 0.8f; b = 0.8f;
 			pre = null;
-			for (int i = 0; i < this.listPath.size(); i++) {
-				double[] pos = this.listPath.get(i);
+			for (int i = 0; i < ClientGuiEventHandler.listPath.size(); i++) {
+				double[] pos = ClientGuiEventHandler.listPath.get(i);
 				if (pos.length==0) { pre = null; continue; }
 				double[] newPre = new double[] { pos[0], pos[1], pos[2] };
 				if (pre!=null) {
