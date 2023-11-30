@@ -48,8 +48,7 @@ implements ISliderListener, ICustomScrollListener {
 			this.scroll = new GuiCustomScroll(this, 0);
 		}
 		List<String> list = new ArrayList<String>();
-		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT,
-				EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
+		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT, EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
 		this.data.clear();
 		for (EnumParts part : parts) {
 			Label_0210: {
@@ -70,8 +69,7 @@ implements ISliderListener, ICustomScrollListener {
 			}
 		}
 		this.scroll.setUnsortedList(list);
-		this.scroll
-				.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
+		this.scroll.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
 		this.scroll.guiLeft = this.guiLeft;
 		this.scroll.guiTop = this.guiTop + 46;
 		this.scroll.setSize(100, this.ySize - 74);

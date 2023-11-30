@@ -24,6 +24,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.containers.ContainerEmpty;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.ObfuscationHelper;
 
 public abstract class GuiContainerNPCInterface
 extends GuiContainer
@@ -400,5 +401,10 @@ implements IEditNPC {
 
 	@Override
 	public EntityNPCInterface getNPC() { return this.npc; }
+
+	@Override
+	public int getEventButton() {
+		return (int) ObfuscationHelper.getValue(GuiScreen.class, this, 12);
+	}
 	
 }

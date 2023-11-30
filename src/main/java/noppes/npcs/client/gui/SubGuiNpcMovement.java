@@ -184,6 +184,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.initGui();
 		} else if (textfield.getId() == 5) {
 			this.ai.orientation = textfield.getInteger();
+			this.npc.rotationYaw = textfield.getInteger();
 		} else if (textfield.getId() == 4) {
 			this.ai.walkingRange = textfield.getInteger();
 		} else if (textfield.getId() == 14) {

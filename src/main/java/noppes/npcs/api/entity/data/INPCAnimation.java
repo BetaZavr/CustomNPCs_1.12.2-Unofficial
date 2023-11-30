@@ -37,6 +37,4 @@ public interface INPCAnimation {
 
 	AnimationConfig createAnimation(int animationType);
 	
-	void setBaseAnimation(IAnimation animation);
-	
 }

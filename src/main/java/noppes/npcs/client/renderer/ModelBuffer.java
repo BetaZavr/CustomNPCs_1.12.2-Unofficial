@@ -1,16 +1,19 @@
 package noppes.npcs.client.renderer;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -18,19 +21,27 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import noppes.npcs.LogWriter;
-import noppes.npcs.client.model.ModelOBJArmor;
+import noppes.npcs.client.model.ModelBipedAlt;
+import noppes.npcs.client.model.ModelOBJPlayerArmor;
 import noppes.npcs.client.renderer.data.ParameterizedModel;
+import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.items.CustomArmor;
 
 public class ModelBuffer {
 
-	public static Map<ResourceLocation, ModelOBJArmor> ARMORS = Maps.<ResourceLocation, ModelOBJArmor>newHashMap();
 	private static List<ParameterizedModel> MODELS = Lists.<ParameterizedModel>newArrayList(); // list of parameterized rendered models
 	public static List<ResourceLocation> NOT_FOUND = Lists.<ResourceLocation>newArrayList(); // list of missing models so as not to freeze the client
+	private static ModelOBJPlayerArmor objModel;
 	
 	/** Actually trying to get the sheet ID:
       * @param objModel - resource for the location of the OBJ model
@@ -91,6 +102,37 @@ public class ModelBuffer {
 			}
 		}
 		return model.listId;
+	}
+
+	public static ModelBiped getOBJModelBiped(CustomArmor armor, EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped defModel) {
+		if (!(entity instanceof EntityPlayer) && !(entity instanceof EntityNPCInterface)) { return null; }
+		if (entity instanceof EntityNPCInterface) { return ((ModelBipedAlt) defModel).setShowSlot(slot); }
+		if (ModelBuffer.objModel==null) { ModelBuffer.objModel = new ModelOBJPlayerArmor(armor); }
+		return ModelBuffer.objModel;
+	}
+
+	public static ResourceLocation getMainOBJTexture(ResourceLocation objModel) {
+		try {
+			ResourceLocation location = new ResourceLocation(objModel.getResourceDomain(), objModel.getResourcePath().replace(".obj", ".mtl"));
+			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
+			if (res!=null) {
+				String mat_lib = IOUtils.toString(res.getInputStream(), Charset.forName("UTF-8"));
+				if (mat_lib.indexOf("map_Kd")!=-1) {
+					int endIndex = mat_lib.indexOf(""+((char) 10), mat_lib.indexOf("map_Kd"));
+					if (endIndex == -1) { endIndex = mat_lib.length(); }
+					String txtr = mat_lib.substring(mat_lib.indexOf(" ", mat_lib.indexOf("map_Kd"))+1, endIndex);
+					String domain = "", path = "";
+					if (txtr.indexOf(":")==-1) { path = txtr; }
+					else {
+						domain = txtr.substring(0, txtr.indexOf(":"));
+						path = txtr.substring(txtr.indexOf(":")+1);
+					}
+					return new ResourceLocation(domain, path);
+				}
+			}
+		}
+		catch (IOException e) {}
+		return null;
 	}
 
 }

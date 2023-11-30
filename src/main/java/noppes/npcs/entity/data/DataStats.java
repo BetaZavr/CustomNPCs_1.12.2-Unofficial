@@ -2,6 +2,7 @@ package noppes.npcs.entity.data;
 
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Resistances;
@@ -284,6 +285,9 @@ implements INPCStats {
 		this.rarity = EnumCreatureRarity.values()[compound.getInteger("NPCRarity")];
 		this.rarityTitle = compound.getString("RarityTitle");
 		this.calmdown = compound.getBoolean("CalmdownRange");
+		if (this.aggroRange < 1) { this.aggroRange = 1; }
+		IAttributeInstance follow_range = this.npc.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+		if (follow_range!=null) { follow_range.setBaseValue(this.aggroRange); }
 	}
 	
 	@Override

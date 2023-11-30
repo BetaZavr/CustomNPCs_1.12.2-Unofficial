@@ -40,7 +40,8 @@ implements IPermission {
 		this.maxStackSize = 1;
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
-
+	
+	/** Registred in EntityNPCInterface.processInteract() */
 	private EntityNPCInterface getNpc(ItemStack item, World world) {
 		if (world.isRemote || item.getTagCompound() == null) {
 			return null;
@@ -57,17 +58,22 @@ implements IPermission {
 	}
 
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-		ItemStack itemstack = player.getHeldItem(hand);
-		if (!world.isRemote) {
-			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
-				EntityNPCInterface npc = this.getNpc(itemstack, world);
-				if (npc != null) {
-					NoppesUtilServer.sendOpenGui(player, EnumGuiType.MovingPath, npc);
-				}
-				return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
+		ItemStack stack;
+		if (hand == EnumHand.OFF_HAND) {
+			stack = player.getHeldItem(EnumHand.MAIN_HAND);
+			if (!stack.isEmpty()) {
+				return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
 			}
 		}
-		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.PASS, itemstack);
+		stack = player.getHeldItem(hand);
+		if (!world.isRemote) {
+			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
+				EntityNPCInterface npc = this.getNpc(stack, world);
+				if (npc != null && (player.isSneaking() || npc.ais.getMovingType()==2)) { NoppesUtilServer.sendOpenGui(player, EnumGuiType.MovingPath, npc); }
+				return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+			}
+		}
+		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
 	}
 
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos bpos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
@@ -83,14 +89,25 @@ implements IPermission {
 				int x = bpos.getX();
 				int y = bpos.getY();
 				int z = bpos.getZ();
-				list.add(new int[] { x, y, z });
-				double d3 = x - pos[0];
-				double d4 = y - pos[1];
-				double d5 = z - pos[2];
-				double distance = MathHelper.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
-				player.sendMessage(new TextComponentTranslation("message.pather.add", "" + ((char) 167) + "6" + x, "" + ((char) 167) + "6" + y, "" + ((char) 167) + "6" + z, npc.getName()));
-				if (distance > CustomNpcs.NpcNavRange) {
-					player.sendMessage(new TextComponentTranslation("message.pather.warn.add", "" + ((char) 167) + "6" + CustomNpcs.NpcNavRange));
+				if (npc.ais.getMovingType()!=2) {
+					npc.setHomePosAndDistance(new BlockPos(x, y, z), (int) npc.getMaximumHomeDistance());
+					player.sendMessage(new TextComponentTranslation("message.pather.home", "" + ((char) 167) + "6" + x, "" + ((char) 167) + "6" + y, "" + ((char) 167) + "6" + z, npc.getName()));
+				}
+				else {
+					boolean added = true;
+					if (!list.isEmpty()) {
+						int[] p = list.get(list.size()-1);
+						added = !(p[0]==x && p[1]==y && p[2]==z);
+					}
+					if (added) {
+						list.add(new int[] { x, y, z });
+						double d3 = x - pos[0];
+						double d4 = y - pos[1];
+						double d5 = z - pos[2];
+						double distance = MathHelper.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
+						player.sendMessage(new TextComponentTranslation("message.pather.add", "" + ((char) 167) + "6" + x, "" + ((char) 167) + "6" + y, "" + ((char) 167) + "6" + z, npc.getName()));
+						if (distance > CustomNpcs.NpcNavRange) { player.sendMessage(new TextComponentTranslation("message.pather.warn.add", "" + ((char) 167) + "6" + CustomNpcs.NpcNavRange)); }
+					}
 				}
 				return EnumActionResult.SUCCESS;
 			}
@@ -104,7 +121,7 @@ implements IPermission {
 		if (list==null) { return; }
 		list.add(new TextComponentTranslation("info.item.moving.path").getFormattedText());
 		for (int i=0; i<3; i++) {
-			if (i==2) {
+			if (i==1 || i==2) {
 				list.add(new TextComponentTranslation("info.item.moving.path."+i, new TextComponentTranslation("ai.movingpath").getFormattedText()).getFormattedText());
 				continue;
 			}

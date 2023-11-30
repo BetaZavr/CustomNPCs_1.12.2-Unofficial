@@ -98,19 +98,6 @@ extends LayerInterface<T> {
 		}
 		GlStateManager.pushMatrix();
 		
-		if (this.npc.isPlayerSleeping() && this.npc.getHealth()>0.0f) {
-			int yaw = this.npc.ais.orientation;
-			double x = -1.0625d * Math.cos(2.0d * yaw * Math.PI / 180.0d);
-			double z = -0.5 + (- 1.0625d * Math.sin(2.0d * yaw * Math.PI / 180.0d));
-			GlStateManager.translate(x, 1.5d, z);
-			GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
-			GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
-		}
-		else if (this.npc.currentAnimation == 7) {
-			GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
-			GlStateManager.translate(0.0f, 0.0f, -1.375f);
-		}
-		
 		this.model.bipedHead.postRender(0.0625f);
 		GlStateManager.scale(par7, par7, -par7);
 		GlStateManager.translate(0.0f, (((this.playerdata.eyes.type == 1) ? 1 : 2) - this.playerdata.eyes.eyePos), 0.0f);

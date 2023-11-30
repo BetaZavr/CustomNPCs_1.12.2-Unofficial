@@ -24,14 +24,8 @@ public class EntityAIDodgeShoot extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		EntityLivingBase var1 = this.entity.getAttackTarget();
-		if (var1 == null || !var1.isEntityAlive()) {
-			return false;
-		}
-		if (this.entity.inventory.getProjectile() == null) {
-			return false;
-		}
-		if (this.entity.getRangedTask() == null) {
+		EntityLivingBase target = this.entity.getAttackTarget();
+		if (target == null || !target.isEntityAlive() || this.entity.inventory.getProjectile() == null || this.entity.getRangedTask() == null) {
 			return false;
 		}
 		Vec3d vec = this.entity.getRangedTask().hasFired()

@@ -159,11 +159,6 @@ implements IEntityLivingBase {
 		return pf.getAmplifier();
 	}
 
-	@Override
-	public float getRotation() {
-		return this.entity.renderYawOffset;
-	}
-
 	private EntityEquipmentSlot getSlot(int slot) {
 		if (slot == 3) {
 			return EntityEquipmentSlot.HEAD;
@@ -255,11 +250,6 @@ implements IEntityLivingBase {
 	@Override
 	public void setOffhandItem(IItemStack item) {
 		this.entity.setHeldItem(EnumHand.OFF_HAND, (item == null) ? ItemStack.EMPTY : item.getMCItemStack());
-	}
-
-	@Override
-	public void setRotation(float rotation) {
-		this.entity.renderYawOffset = rotation;
 	}
 
 	@Override

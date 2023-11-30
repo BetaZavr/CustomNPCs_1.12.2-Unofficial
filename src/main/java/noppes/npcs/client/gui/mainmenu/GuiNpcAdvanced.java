@@ -272,7 +272,7 @@ implements IGuiData, ISubGuiListener {
 		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.marks").getFormattedText());
 		}
-		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+		else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.anim").getFormattedText());
 		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.eye",

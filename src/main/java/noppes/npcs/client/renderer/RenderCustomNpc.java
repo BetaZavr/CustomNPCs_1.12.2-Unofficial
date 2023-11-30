@@ -210,20 +210,24 @@ extends RenderNPCInterface<T> {
 	}
 	
 	@Override
-	protected void applyRotations(T entityLiving, float handleRotation, float rotationYaw, float partialTicks) {
+	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
+		if (npc.isEntityAlive()) {
+			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
+			return;
+		}
 		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
-        if (entityLiving.deathTime > 0) {
-        	boolean flag = entityLiving.animation.activeAnim!=null ? entityLiving.animation.activeAnim.type == AnimationKind.DIES: entityLiving.animation.getActiveAnimation(AnimationKind.DIES)!=null;
+        if (npc.deathTime > 0) {
+        	boolean flag = npc.animation.activeAnim!=null ? npc.animation.activeAnim.type == AnimationKind.DIES: npc.animation.getActiveAnimation(AnimationKind.DIES)!=null;
             if (flag) { return; }
-        	float f = ((float)entityLiving.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
+        	float f = ((float) npc.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
             f = MathHelper.sqrt(f);
             if (f > 1.0F) { f = 1.0F; }
-            GlStateManager.rotate(f * this.getDeathMaxRotation(entityLiving), 0.0F, 0.0F, 1.0F);
+            GlStateManager.rotate(f * this.getDeathMaxRotation(npc), 0.0F, 0.0F, 1.0F);
         }
         else {
-            String s = TextFormatting.getTextWithoutFormattingCodes(entityLiving.getName());
+            String s = TextFormatting.getTextWithoutFormattingCodes(npc.getName());
             if (s != null && ("Dinnerbone".equals(s) || "Grumm".equals(s))) {
-                GlStateManager.translate(0.0F, entityLiving.height + 0.1F, 0.0F);
+                GlStateManager.translate(0.0F, npc.height + 0.1F, 0.0F);
                 GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
             }
         }

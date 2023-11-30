@@ -33,7 +33,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class DataAnimation
 implements INPCAnimation {
 
-	public AnimationConfig activeAnim, changeAnim, baseAnim;
+	public AnimationConfig activeAnim;
 	public EmotionConfig activeEmtn;
 	public final Map<AnimationKind, List<AnimationConfig>> data;
 	public final List<EmotionConfig> emotion;
@@ -45,7 +45,6 @@ implements INPCAnimation {
 	private long startFrameTick;
 	private float val, valNext;
 	public boolean isAnimated;
-	public AnimationConfig playableAnimation;
 	
 	public DataAnimation(EntityNPCInterface npc) {
 		this.npc = npc;
@@ -57,7 +56,6 @@ implements INPCAnimation {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.data.clear();
 		this.emotion.clear();
-		this.baseAnim = null;
 		if (!compound.hasKey("AllAnimations", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
 			AnimationKind type = compound.getBoolean("PuppetMoving") ? AnimationKind.WALKING : compound.getBoolean("PuppetAttacking") ? AnimationKind.ATTACKING : AnimationKind.STANDING;
 			int speed;
@@ -128,10 +126,6 @@ implements INPCAnimation {
 				}
 				this.data.put(type, list);
 			}
-			if (compound.hasKey("BaseAnimation", 10)) {
-				this.baseAnim = new AnimationConfig(0);
-				this.baseAnim.readFromNBT(compound.getCompoundTag("BaseAnimation"));
-			}
 		}
 		for (AnimationKind eat : AnimationKind.values()) {
 			if (!this.data.containsKey(eat)) { this.data.put(eat, Lists.<AnimationConfig>newArrayList()); }
@@ -155,12 +149,6 @@ implements INPCAnimation {
 			allAnimations.appendTag(nbtCategory);
 		}
 		compound.setTag("AllAnimations", allAnimations);
-		if (this.baseAnim!=null) {
-			NBTTagCompound nbtBase = new NBTTagCompound();
-			this.baseAnim.writeToNBT(nbtBase);
-			nbtBase.setInteger("Type", 0);
-			compound.setTag("BaseAnimation", nbtBase);
-		}
 		
 		compound.setTag("AllEmotions", allEmotions);
 		
@@ -213,7 +201,7 @@ implements INPCAnimation {
 		return this.activeAnim;
 	}
 
-	private void updateClient(int type, int ... var) {
+	public void updateClient(int type, int ... var) {
 		if (this.npc.world==null || this.npc.world.isRemote) {
 			if (type==1) { Client.sendDataDelayCheck(EnumPlayerPacket.StopNPCAnimation, this, 0, this.npc.getEntityId(), var[0], var[1]); }
 			return;
@@ -506,13 +494,6 @@ implements INPCAnimation {
 		float f = this.val + (this.valNext - this.val) * pt;
 		float value = (value_0 + (value_1 - value_0) * f) * 2.0f * pi;
 		return value;
-	}
-
-	@Override
-	public void setBaseAnimation(IAnimation animation) {
-		if ((this.baseAnim == null && animation == null) || this.baseAnim.equals(animation)) { return; }
-		this.baseAnim = (AnimationConfig) animation;
-		this.updateClient(0);
 	}
 	
 }

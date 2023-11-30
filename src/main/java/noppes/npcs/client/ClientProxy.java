@@ -402,7 +402,10 @@ extends CommonProxy {
 				return null;
 			}
 			case QuestRewardItem: { return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x); }
-			case MovingPath: { return new GuiNpcPather(npc); }
+			case MovingPath: {
+				if (npc == null) { return null; }
+				return new GuiNpcPather(npc);
+			}
 			case ManageFactions: { return new GuiNPCManageFactions(npc); }
 			case ManageLinked: { return new GuiNPCManageLinkedNpc(npc); }
 			case BuilderBlock: { return new GuiBlockBuilder(x, y, z); }

@@ -309,16 +309,14 @@ public class ObfuscationHelper {
 	public static Object invoke(Class<?> clazz, Object instance, Class<?> methodReturnType, Object... args) {
 		Method m = ObfuscationHelper.getMethod(clazz, methodReturnType, args);
 		if (m == null) {
-			FMLLog.log.info("Unable to locate any metod {} on type {}", methodReturnType.getSimpleName(),
-					clazz.getSimpleName());
+			FMLLog.log.info("Unable to locate any metod {} on type {}", methodReturnType.getSimpleName(), clazz.getSimpleName());
 			return null;
 		}
 		m.setAccessible(true);
 		try {
 			return m.invoke(instance, args);
 		} catch (IllegalAccessException e) {
-			FMLLog.log.error("Unable to access any metod {} on class {}", methodReturnType.getSimpleName(),
-					clazz.getSimpleName(), e);
+			FMLLog.log.error("Unable to access any metod {} on class {}", methodReturnType.getSimpleName(), clazz.getSimpleName(), e);
 			try {
 				throw e;
 			} catch (IllegalAccessException e1) {

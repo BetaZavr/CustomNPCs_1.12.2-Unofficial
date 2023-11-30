@@ -327,11 +327,6 @@ implements IPlayer {
 	}
 
 	@Override
-	public float getRotation() {
-		return this.entity.rotationYaw;
-	}
-
-	@Override
 	public IBlock getSpawnPoint() {
 		BlockPos pos = this.entity.getBedLocation();
 		if (pos == null) {
@@ -600,11 +595,6 @@ implements IPlayer {
 	public void setPosition(double x, double y, double z) {
 		if (!(this.entity instanceof EntityPlayerMP)) { return; }
 		NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) this.entity, x, y, z, this.entity.dimension, this.entity.rotationYaw, this.entity.rotationPitch);
-	}
-
-	@Override
-	public void setRotation(float rotation) {
-		this.entity.rotationYaw = rotation;
 	}
 
 	@Override

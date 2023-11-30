@@ -211,7 +211,6 @@ public class ServerTickHandler {
 		CustomNpcs.debugData.endDebug("Server", event.player, "ServerTickHandler_playerLogin");
 	}
 	
-
 	@SubscribeEvent
 	public void playerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
 		CustomNpcs.debugData.startDebug("Server", event.player, "ServerTickHandler_playerLogout");

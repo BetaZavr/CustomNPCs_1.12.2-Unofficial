@@ -38,7 +38,7 @@ public class EntityAIMovingPath extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		if (this.npc.isAttacking() || this.npc.isInteracting()
+		if ((this.npc.isAttacking() && this.npc.ais.getRetaliateType()!=3) || this.npc.isInteracting()
 				|| (this.npc.getRNG().nextInt(40) != 0 && this.npc.ais.movingPause)
 				|| !this.npc.getNavigator().noPath()) {
 			return false;
@@ -54,7 +54,7 @@ public class EntityAIMovingPath extends EntityAIBase {
 	}
 
 	public void startExecuting() {
-		this.npc.getNavigator().tryMoveToXYZ(this.pos[0] + 0.5, this.pos[1], this.pos[2] + 0.5, 1.0);
-		this.npc.resetBackPos(); // New
+		this.npc.getNavigator().tryMoveToXYZ(this.pos[0] + 0.5, this.pos[1], this.pos[2] + 0.5, 1.0d);
+		this.npc.resetBackPos();
 	}
 }

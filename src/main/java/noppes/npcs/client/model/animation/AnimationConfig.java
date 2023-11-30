@@ -211,5 +211,11 @@ implements IAnimation {
 		ac.readFromNBT(this.writeToNBT(new NBTTagCompound()));
 		return ac;
 	}
+	
+	
+	public String getSettingName() {
+		String c = "" + ((char) 167);
+		return c+"7"+this.id+": "+c+"r"+this.name;
+	}
 
 }

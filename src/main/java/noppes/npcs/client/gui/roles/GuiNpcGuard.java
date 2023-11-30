@@ -2,6 +2,10 @@ package noppes.npcs.client.gui.roles;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.Entity;
@@ -10,6 +14,7 @@ import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
@@ -29,10 +34,12 @@ extends GuiNPCInterface2 {
 	private JobGuard role;
 	private GuiCustomScroll scroll1;
 	private GuiCustomScroll scroll2;
+	private final Map<String, String> data;
 
 	public GuiNpcGuard(EntityNPCInterface npc) {
 		super(npc);
 		this.role = (JobGuard) npc.advanced.jobInterface;
+		this.data = Maps.<String, String>newHashMap();
 	}
 
 	@Override
@@ -76,13 +83,13 @@ extends GuiNPCInterface2 {
 			this.initGui();
 		}
 		if (button.id == 11 && this.scroll1.hasSelected()) {
-			this.role.targets.add(this.scroll1.getSelected());
+			this.role.targets.add(this.data.get(this.scroll1.getSelected()));
 			this.scroll1.selected = -1;
 			this.scroll2.selected = -1;
 			this.initGui();
 		}
 		if (button.id == 12 && this.scroll2.hasSelected()) {
-			this.role.targets.remove(this.scroll2.getSelected());
+			this.role.targets.remove(this.data.get(this.scroll2.getSelected()));
 			this.scroll2.selected = -1;
 			this.initGui();
 		}
@@ -129,7 +136,8 @@ extends GuiNPCInterface2 {
 		this.scroll2.guiTop = this.guiTop + 58;
 		this.addScroll(this.scroll2);
 		this.addLabel(new GuiNpcLabel(12, "guard.currentTargets", this.guiLeft + 235, this.guiTop + 48));
-		List<String> all = new ArrayList<String>();
+		List<String> all = Lists.<String>newArrayList();
+		this.data.clear();
 		for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();
 			String name = "entity." + ent.getName() + ".name";
@@ -140,11 +148,19 @@ extends GuiNPCInterface2 {
 				if (!EntityLivingBase.class.isAssignableFrom(cl)) {
 					continue;
 				}
-				all.add(name);
+				String key = new TextComponentTranslation(name).getFormattedText();
+				all.add(key);
+				this.data.put(key, name);
 			}
 		}
 		this.scroll1.setList(all);
-		this.scroll2.setList(this.role.targets);
+		List<String> trgs = Lists.<String>newArrayList();
+		for (String name : this.role.targets) {
+			String key = new TextComponentTranslation(name).getFormattedText();
+			trgs.add(key);
+			this.data.put(key, name);
+		}
+		this.scroll2.setList(trgs);
 		this.addButton(new GuiNpcButton(11, this.guiLeft + 180, this.guiTop + 80, 55, 20, ">"));
 		this.addButton(new GuiNpcButton(12, this.guiLeft + 180, this.guiTop + 102, 55, 20, "<"));
 		this.addButton(new GuiNpcButton(13, this.guiLeft + 180, this.guiTop + 130, 55, 20, ">>"));

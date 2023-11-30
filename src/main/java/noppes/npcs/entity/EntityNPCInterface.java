@@ -27,6 +27,7 @@ import net.minecraft.entity.ai.EntityAIOpenDoor;
 import net.minecraft.entity.ai.EntityAIRestrictSun;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.EntityMoveHelper;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityBat;
@@ -39,9 +40,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -155,6 +154,7 @@ import noppes.npcs.roles.JobBard;
 import noppes.npcs.roles.JobFollower;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleFollower;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
 import noppes.npcs.util.ObfuscationHelper;
@@ -187,8 +187,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public EntityAIAnimation animateAi;
 	public int animationStart;
 	private BlockPos backPos;
-	private EntityAIBase aiAttackTarget;
-	private EntityAIRangedAttack aiRange;
+	public EntityAIBase aiAttackTarget;
 	public float baseHeight;
 	public BossInfoServer bossInfo;
 	public CombatHandler combatHandler;
@@ -224,7 +223,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public ICustomNpc<?> wrappedNPC;
 	public boolean updateAI;
 	public DataAnimation animation;
-	public Vec3d navigatingPos = null;
+	public boolean isNavigating;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -284,19 +283,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void addRegularEntries() {
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIReturn(this));
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIFollow(this));
+		this.tasks.addTask(this.taskCount++, new EntityAIReturn(this));
+		this.tasks.addTask(this.taskCount++, new EntityAIFollow(this));
 		if (this.ais.getStandingType() != 1 && this.ais.getStandingType() != 3) {
-			this.tasks.addTask(this.taskCount++,
-					(EntityAIBase) new EntityAIWatchClosest(this, EntityLivingBase.class, 5.0f));
+			this.tasks.addTask(this.taskCount++, new EntityAIWatchClosest(this, EntityLivingBase.class, 5.0f));
 		}
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) (this.lookAi = new EntityAILook(this)));
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIWorldLines(this));
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIJob(this));
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIRole(this));
-		this.tasks.addTask(this.taskCount++, (EntityAIBase) (this.animateAi = new EntityAIAnimation(this)));
+		this.tasks.addTask(this.taskCount++, (this.lookAi = new EntityAILook(this)));
+		this.tasks.addTask(this.taskCount++, new EntityAIWorldLines(this));
+		this.tasks.addTask(this.taskCount++, new EntityAIJob(this));
+		this.tasks.addTask(this.taskCount++, new EntityAIRole(this));
+		this.tasks.addTask(this.taskCount++, (this.animateAi = new EntityAIAnimation(this)));
 		if (this.transform.isValid()) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAITransform(this));
+			this.tasks.addTask(this.taskCount++, new EntityAITransform(this));
 		}
 	}
 
@@ -454,11 +452,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				if (stack.getItem() == CustomRegisters.soulstoneFull) {
 					Entity e = ItemSoulstoneFilled.Spawn(null, stack, this.world, pos);
 					if (e instanceof EntityLivingBase && entity1 instanceof EntityLivingBase) {
-						if (e instanceof EntityLiving) {
-							((EntityLiving) e).setAttackTarget((EntityLiving) entity1);
-						} else {
-							((EntityLivingBase) e).setRevengeTarget((EntityLivingBase) entity1);
-						}
+						((EntityLivingBase) e).setRevengeTarget((EntityLivingBase) entity1);
+					}
+					else if (e instanceof EntityLiving && entity1 instanceof EntityLiving) {
+						((EntityLiving) e).setRevengeTarget((EntityLiving) entity1);
 					}
 				}
 				projectile1.playSound(this.stats.ranged.getSoundEvent((entity1 != null) ? 1 : 2), 1.0f, 1.2f / (this.getRNG().nextFloat() * 0.2f + 0.9f));
@@ -529,6 +526,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean canSee(Entity entity) {
+		if (entity instanceof EntityLivingBase) {
+			return AdditionalMethods.npcCanSeeTarget(this, (EntityLivingBase) entity);
+		}
 		return this.getEntitySenses().canSee(entity);
 	}
 
@@ -610,9 +610,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		EntityAIBase aiDoor = null;
 		if (this.ais.doorInteract == 1) {
-			this.tasks.addTask(this.taskCount++, aiDoor = (EntityAIBase) new EntityAIOpenDoor(this, true));
+			this.tasks.addTask(this.taskCount++, aiDoor = new EntityAIOpenDoor(this, true));
 		} else if (this.ais.doorInteract == 0) {
-			this.tasks.addTask(this.taskCount++, aiDoor = (EntityAIBase) new EntityAIBustDoor(this));
+			this.tasks.addTask(this.taskCount++, aiDoor = new EntityAIBustDoor(this));
 		}
 		if (this.getNavigator() instanceof PathNavigateGround) {
 			((PathNavigateGround) this.getNavigator()).setBreakDoors(aiDoor != null);
@@ -821,7 +821,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public EntityAIRangedAttack getRangedTask() {
-		return this.aiRange;
+		return this.aiAttackTarget instanceof EntityAIRangedAttack ? (EntityAIRangedAttack) this.aiAttackTarget : null;
 	}
 
 	public String getRoleData() {
@@ -948,7 +948,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isPlayerSleeping() {
-		return this.currentAnimation == 2 && !this.isAttacking();
+		return this.getHealth()<=0.0f || this.currentAnimation == 2 && !this.isAttacking() && !this.isNavigating;
 	}
 
 	public boolean isPotionApplicable(PotionEffect effect) {
@@ -1162,12 +1162,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.resetBackPos();
 			Path path = this.getNavigator().getPath();
 			if (this.isServerWorld()) {
-				if (path!=null && path.getCurrentPathLength()>0 && !path.isFinished() && (this.navigatingPos==null || !path.getPosition(this).equals(this.navigatingPos))) {
-					this.navigatingPos = path.getPosition(this);
+				if (path!=null && !this.isNavigating) {
+					this.isNavigating = true;
 					this.updateClient = true;
 				}
-				else if (this.navigatingPos!=null) {
-					this.navigatingPos = null;
+				else if (this.isNavigating) {
+					this.isNavigating = false;
 					this.updateClient = true;
 				}
 			}
@@ -1176,9 +1176,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				double d2 = this.posY - this.backPos.getY();
 				double d3 = this.posZ - this.backPos.getZ();
 				double distance = Math.sqrt(d0 * d0 + d2 * d2 + d3 * d3);
-				double d4 = (double) this.stats.aggroRange;
-				if (d4<16.0d) { d4 = 16.0d; }
-				double d5 = d4 - Math.pow(d4, 2) * 0.000521d + d4 * 0.09375d + 1.6333d;
+				double dist = (double) this.stats.aggroRange;
+				if (dist < 16.0d) { dist = 16.0d; }
+				double d5 = dist - Math.pow(dist, 2) * 0.000521d + dist * 0.09375d + 1.6333d;
 				if (!this.isRunHome && distance > d5) {
 					if (this.getEntityData().hasKey("NpcSpawnerEntityId", 3)) {
 						return;
@@ -1380,7 +1380,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		EventHooks.onNPCInit(this);
 	}
 
-	// New
 	public void resetBackPos() {
 		this.backPos = new BlockPos(this.ais.startPos()); // home
 		
@@ -1435,12 +1434,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void seekShelter() {
 		if (this.ais.findShelter == 0) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIMoveIndoors(this));
+			this.tasks.addTask(this.taskCount++, new EntityAIMoveIndoors(this));
 		} else if (this.ais.findShelter == 1) {
 			if (!this.canFly()) {
-				this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIRestrictSun((EntityCreature) this));
+				this.tasks.addTask(this.taskCount++, new EntityAIRestrictSun((EntityCreature) this));
 			}
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIFindShade(this));
+			this.tasks.addTask(this.taskCount++, new EntityAIFindShade(this));
 		}
 	}
 
@@ -1448,7 +1447,19 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void setAttackTarget(EntityLivingBase entity) {
-		if ((entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.disableDamage) || (entity != null && entity == this.getOwner()) || this.getAttackTarget() == entity) {
+		// Attack AI correct:
+		if (this.aiAttackTarget!=null && this.getAttackTarget()!=null && entity==null) {
+			EntityLivingBase target;
+			if (this.aiAttackTarget instanceof EntityAIAttackTarget) { target = ((EntityAIAttackTarget) this.aiAttackTarget).getTarget(); }
+			else { target = ((EntityAIRangedAttack) this.aiAttackTarget).getTarget(); }
+			if (target!=null && target.equals(this.getAttackTarget()) && this.aiAttackTarget.shouldExecute()) {
+				if (new NPCAttackSelector(this).apply(target)) { entity = target; }
+			}
+		}
+		// Next sets
+		if ((entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.disableDamage)
+				|| (entity != null && entity == this.getOwner())
+				|| this.getAttackTarget() == entity) {
 			return;
 		}
 		if (entity instanceof EntityNPCInterface) {
@@ -1532,6 +1543,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public void setHomePosAndDistance(BlockPos pos, int range) {
 		super.setHomePosAndDistance(pos, range);
 		this.ais.setStartPos(pos);
+		this.resetBackPos();
+		this.updateClient = true;
 	}
 
 	public void setImmuneToFire(boolean immuneToFire) {
@@ -1561,10 +1574,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public void setMoveType() {
 		if (this.ais.getMovingType() == 1) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIWander(this));
+			this.tasks.addTask(this.taskCount++, new EntityAIWander(this));
 		}
 		if (this.ais.getMovingType() == 2) {
-			this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIMovingPath(this));
+			this.tasks.addTask(this.taskCount++, new EntityAIMovingPath(this));
 		}
 	}
 
@@ -1572,9 +1585,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	private void setResponse() {
-		EntityAIRangedAttack entityAIRangedAttack = null;
-		this.aiRange = entityAIRangedAttack;
-		this.aiAttackTarget = entityAIRangedAttack;
+		this.aiAttackTarget = null;
 		if (this.ais.canSprint) {
 			this.tasks.addTask(this.taskCount++,  new EntityAISprintToTarget(this));
 		}
@@ -1584,64 +1595,61 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		else if (this.ais.onAttack == 2) {
 			this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
 		} else if (this.ais.onAttack == 0) {
-			if (this.ais.canLeap) {
+			if (this.ais.canLeap) { // can Jump
 				this.tasks.addTask(this.taskCount++, new EntityAIPounceTarget(this));
 			}
+			// 0-Натиск; 1-Уворот; 2-Окружать; 3-Ударить и бежать; 4-Засада; 5-подкрадываться; 6-Нет
 			if (this.inventory.getProjectile() == null) { // meele
 				switch (this.ais.tacticalVariant) {
 					case 1: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIZigZagTarget(this, 1.3));
+						this.tasks.addTask(this.taskCount++, new EntityAIZigZagTarget(this, 1.3));
 						break;
 					}
 					case 2: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIOrbitTarget(this, 1.3, true));
+						this.tasks.addTask(this.taskCount++, new EntityAIOrbitTarget(this, 1.3, true));
 						break;
 					}
 					case 3: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
+						this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
 						break;
 					}
 					case 4: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAmbushTarget(this, 1.2));
+						this.tasks.addTask(this.taskCount++, new EntityAIAmbushTarget(this, 1.2));
 						break;
 					}
 					case 5: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIStalkTarget(this));
+						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
 						break;
 					}
 				}
+				this.tasks.addTask(this.taskCount, (this.aiAttackTarget = new EntityAIAttackTarget(this)));
 			} else { // ranged
 				switch (this.ais.tacticalVariant) {
 					case 1: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIDodgeShoot(this));
+						this.tasks.addTask(this.taskCount++, new EntityAIDodgeShoot(this));
 						break;
 					}
 					case 2: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIOrbitTarget(this, 1.3, false));
+						this.tasks.addTask(this.taskCount++, new EntityAIOrbitTarget(this, 1.3, false));
 						break;
 					}
 					case 3: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAvoidTarget(this));
+						this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
 						break;
 					}
 					case 4: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIAmbushTarget(this, 1.3));
+						this.tasks.addTask(this.taskCount++, new EntityAIAmbushTarget(this, 1.3));
 						break;
 					}
 					case 5: {
-						this.tasks.addTask(this.taskCount++, (EntityAIBase) new EntityAIStalkTarget(this));
+						this.tasks.addTask(this.taskCount++, new EntityAIStalkTarget(this));
 						break;
 					}
 				}
+				this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAIRangedAttack((IRangedAttackMob) this)));
 			}
-			this.tasks.addTask(this.taskCount, this.aiAttackTarget = new EntityAIAttackTarget(this));
-			((EntityAIAttackTarget) this.aiAttackTarget).navOverride(this.ais.tacticalVariant == 6);
-			if (this.inventory.getProjectile() != null) {
-				this.tasks.addTask(this.taskCount++, (EntityAIBase) (this.aiRange = new EntityAIRangedAttack((IRangedAttackMob) this)));
-				this.aiRange.navOverride(this.ais.tacticalVariant == 6);
-			}
-		} else if (this.ais.onAttack == 3) {
 		}
+		else if (this.ais.onAttack == 3) { }
 	}
 
 	public void setRoleData(String s) {
@@ -1768,7 +1776,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		} else {
 			this.moveHelper = new EntityMoveHelper(this);
 			this.navigator = (PathNavigate) new PathNavigateGround(this, this.world);
-			this.tasks.addTask(0, (EntityAIBase) new EntityAIWaterNav(this));
+			this.tasks.addTask(0, new EntityAIWaterNav(this));
 		}
 		pwl.onEntityAdded(this);
 		this.taskCount = 1;
@@ -1787,18 +1795,31 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.stats.setLevel(compound.getInteger("NPCLevel"));
 		this.stats.setRarity(compound.getInteger("NPCRarity"));
 		this.stats.setRarityTitle(compound.getString("NPCRarityTitle"));
-		
 		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
-		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
 		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
+		this.stats.aggroRange = compound.getInteger("AggroRange");
+		if (this.stats.aggroRange < 1) { this.stats.aggroRange = 1; }
+		IAttributeInstance follow_range = this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+		if (follow_range!=null) { follow_range.setBaseValue(this.stats.aggroRange); }
 		
-		if (compound.hasKey("NavigatingPos", 9)) {
-			NBTTagList list = compound.getTagList("NavigatingPos", 6);
-			this.navigatingPos = new Vec3d(list.getDoubleAt(0), list.getDoubleAt(1), list.getDoubleAt(2));
+		if (compound.hasKey("Navigating", 10)) {
+			Path path = Server.readPathToNBT(compound.getCompoundTag("Navigating"));
+			this.isNavigating = path!=null;
+			this.getNavigator().setPath(path, 1.0d);
 		}
-		else { this.navigatingPos = null; }
+		else {
+			this.isNavigating = false;
+			this.getNavigator().setPath(null, 1.0d);
+		}
 		this.setCurrentAnimation(compound.getInteger("CurrentAnimation"));
-		
+		if (compound.hasKey("CurrentTarget", 3)) {
+			Entity entity = this.world.getEntityByID(compound.getInteger("CurrentTarget"));
+			if (entity instanceof EntityLivingBase) {
+				super.setAttackTarget((EntityLivingBase) entity);
+			} else { super.setAttackTarget(null); }
+		} else { super.setAttackTarget(null); }
+
+		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
 		this.ais.setStandingType(compound.getInteger("StandingState"));
 		this.ais.setMovingType(compound.getInteger("MovingState"));
 		this.ais.orientation = compound.getInteger("Orientation");
@@ -1847,19 +1868,20 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setInteger("NPCRarity", this.stats.getRarity());
 		compound.setString("NPCRarityTitle", this.stats.getRarityTitle());
 		compound.setDouble("MaxHealth", this.stats.maxHealth);
+		compound.setBoolean("DeadBody", this.stats.hideKilledBody);
+		compound.setInteger("AggroRange", this.stats.aggroRange);
+		
 		compound.setTag("Armor", NBTTags.nbtIItemStackMap(this.inventory.armor));
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(this.inventory.weapons));
 		compound.setInteger("Speed", this.ais.getWalkingSpeed());
-		compound.setBoolean("DeadBody", this.stats.hideKilledBody);
-		compound.setBoolean("IsNavigating", this.navigatingPos!=null);
 		
-		if (this.navigatingPos!=null) {
-			NBTTagList list = new NBTTagList();
-			list.appendTag(new NBTTagDouble(this.navigatingPos.x));
-			list.appendTag(new NBTTagDouble(this.navigatingPos.y));
-			list.appendTag(new NBTTagDouble(this.navigatingPos.z));
-			compound.setTag("NavigatingPos", list);
+		Path path = this.getNavigator().getPath();
+		compound.setBoolean("IsNavigating", path != null);
+		if (path != null) {
+			compound.setTag("Navigating", Server.writePathToNBT(path));
 		}
+		if (this.getAttackTarget()!=null) { compound.setInteger("CurrentTarget", this.getAttackTarget().getEntityId()); }
+		
 		compound.setInteger("CurrentAnimation", this.currentAnimation);
 		
 		compound.setInteger("StandingState", this.ais.getStandingType());

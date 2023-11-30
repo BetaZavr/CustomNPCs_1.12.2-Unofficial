@@ -1266,8 +1266,7 @@ public class CustomRegisters {
 					CustomNpcs.MODID + ":npcbuilder_" + EnumBuilder.values()[i].name(), "inventory"));
 		}
 		for (Item item : CustomRegisters.customitems) {
-			ModelLoader.setCustomModelResourceLocation(item, 0,
-					new ModelResourceLocation(item.getRegistryName(), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
 		}
 
 		// Render Tiles

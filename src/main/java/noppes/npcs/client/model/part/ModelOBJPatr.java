@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import noppes.npcs.client.model.ModelOBJArmor;
+import noppes.npcs.client.model.ModelOBJPlayerArmor;
 import noppes.npcs.client.model.ModelScaleRenderer;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
@@ -18,13 +18,14 @@ public class ModelOBJPatr
 extends ModelRenderer {
 
 	public float x, y, z;
-	public ModelOBJArmor modelBase;
+	public ModelOBJPlayerArmor modelBase;
 	public List<String> meshes;
 	public List<String> feetMesh = Lists.<String>newArrayList();
 	public ModelScaleRenderer msr;
 	public EnumParts part;
+	public boolean smallArms;
     
-    public ModelOBJPatr(ModelOBJArmor modelBase, EnumParts part, List<String> meshs, float x, float y, float z){
+    public ModelOBJPatr(ModelOBJPlayerArmor modelBase, EnumParts part, List<String> meshs, float x, float y, float z){
         super(modelBase);
         this.modelBase  = modelBase;
         this.meshes = meshs;
@@ -50,7 +51,7 @@ extends ModelRenderer {
 				this.msr.postRender(scale);
 			}
 			float addX = 0.0f;
-			if (this.modelBase.smallArms && (this.part==EnumParts.ARM_LEFT || this.part==EnumParts.ARM_RIGHT)) {
+			if (this.smallArms && (this.part==EnumParts.ARM_LEFT || this.part==EnumParts.ARM_RIGHT)) {
 				GlStateManager.scale(0.75f, 1.0f, 1.0f);
 				addX = this.part==EnumParts.ARM_LEFT ? -0.0175f : 0.0175f;
 			}

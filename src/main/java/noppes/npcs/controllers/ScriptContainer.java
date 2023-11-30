@@ -283,7 +283,6 @@ public class ScriptContainer {
 	}
 
 	public void setEngine(String scriptLanguage) {
-		this.console.clear();
 		this.engine = ScriptController.Instance.getEngineByName(scriptLanguage);
 		if (this.engine == null) {
 			this.errored = true;
@@ -317,9 +316,11 @@ public class ScriptContainer {
 			}
 			catch (Exception e) { }
 		}
-		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
-			this.engine.put(entry.getKey(), entry.getValue());
-		}
+		try {
+			for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
+				this.engine.put(entry.getKey(), entry.getValue());
+			}
+		} catch (Exception e) { }
 		this.engine.put("currentThread", Thread.currentThread().getName());
 		this.init = false;
 	}

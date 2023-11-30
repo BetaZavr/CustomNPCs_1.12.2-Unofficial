@@ -28,6 +28,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.ObfuscationHelper;
 
 public abstract class GuiNPCInterface
 extends GuiScreen
@@ -197,8 +198,6 @@ implements IEditNPC {
 			orientation = npc.ais.orientation;
 			npc.ais.orientation = rotation;
 		}
-		GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
-		GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
 		entity.renderYawOffset = rotation;
 		entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + rotation);
@@ -545,5 +544,10 @@ implements IEditNPC {
 
 	@Override
 	public EntityNPCInterface getNPC() { return this.npc; }
+
+	@Override
+	public int getEventButton() {
+		return (int) ObfuscationHelper.getValue(GuiScreen.class, this, 12);
+	}
 	
 }

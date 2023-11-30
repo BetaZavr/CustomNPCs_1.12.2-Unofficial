@@ -89,6 +89,7 @@ import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
+import noppes.npcs.util.ObfuscationHelper;
 
 @SideOnly(Side.CLIENT)
 public class ClientGuiEventHandler
@@ -101,12 +102,6 @@ extends Gui
 	private static final ResourceLocation[] BORDER;
 	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
 	public static final CrashesData crashes = new CrashesData();
-	
-	static {
-		BORDER = new ResourceLocation[16];
-		for (int i=0; i<16; i++) { BORDER[i] = new ResourceLocation(CustomNpcs.MODID, "textures/util/border/"+(i<10 ? "0"+i : i)+".png"); }
-	}
-	
 	private Minecraft mc;
 	private ScaledResolution sw;
 	private BorderController bData;
@@ -116,7 +111,11 @@ extends Gui
 	public static List<double[]> listPath = Lists.<double[]>newArrayList();
 	public static RayTraceResult result;
 	public static List<CustomParticle> customParticle = Lists.<CustomParticle>newArrayList();
-	
+
+	static {
+		BORDER = new ResourceLocation[16];
+		for (int i=0; i<16; i++) { BORDER[i] = new ResourceLocation(CustomNpcs.MODID, "textures/util/border/"+(i<10 ? "0"+i : i)+".png"); }
+	}
 
 	/** HUD Bar Interfase Canceled */
 	@SubscribeEvent
@@ -810,17 +809,20 @@ extends Gui
 				this.drawZone(builder, ClientGuiEventHandler.result.getBlockPos());
 			}
 		}
-		else if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcMovingPath) {
-			NBTTagCompound nbt = this.mc.player.getHeldItemMainhand().getTagCompound();
-			if (nbt!=null && nbt.hasKey("NPCID", 3)) {
-				Entity entity = this.mc.player.world.getEntityByID(nbt.getInteger("NPCID"));
-				if (entity instanceof EntityCustomNpc) {
-					this.drawNpcMovingPath((EntityCustomNpc) entity);
-				}
-				else {
-					this.listMovingPath = null;
-					ClientGuiEventHandler.listPath.clear();
-				}
+		NBTTagCompound nbtMP = null;
+		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNpcMovingPath) {
+			nbtMP = this.mc.player.getHeldItemMainhand().getTagCompound();
+		} else if (this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNpcMovingPath) {
+			nbtMP = this.mc.player.getHeldItemOffhand().getTagCompound();
+		}
+		if (nbtMP!=null && nbtMP.hasKey("NPCID", 3)) {
+			Entity entity = this.mc.player.world.getEntityByID(nbtMP.getInteger("NPCID"));
+			if (entity instanceof EntityCustomNpc) {
+				this.drawNpcMovingPath((EntityCustomNpc) entity);
+			}
+			else {
+				this.listMovingPath = null;
+				ClientGuiEventHandler.listPath.clear();
 			}
 		}
 		int id = -1;
@@ -1497,6 +1499,74 @@ extends Gui
 		
 		double[] pre = null;
 		float r, g, b, ag = 15.0f;
+		// Target
+		if (npc.getAttackTarget()!=null) {
+			EntityLivingBase target = npc.getAttackTarget();
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(2.0f);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+			Tessellator tessellator = Tessellator.getInstance();
+			BufferBuilder buffer = tessellator.getBuffer();
+			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+			
+			r = 0.8f; g = 0.0f; b = 0.8f;
+			buffer.pos(target.posX, target.posY + target.getEyeHeight(), target.posZ).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ).color(r, g, b, 1.0f).endVertex();
+			
+			tessellator.draw();
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+		}
+		// Now way
+		Path path = npc.getNavigator().getPath();
+		if (path != null) {
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth(3.0f);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+			Tessellator tessellator = Tessellator.getInstance();
+			BufferBuilder buffer = tessellator.getBuffer();
+			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+
+			r = 0.156862f; g = 0.705882f; b = 0.352941f;
+			pre = null;
+			PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
+			pre = new double[] { npc.posX, npc.posY+(double) npc.getEyeHeight(), npc.posZ };
+			int currentPath = points.length - 1;
+			double md = -1.0d;
+			for (int i = 0; i < points.length; i++) {
+				double d = npc.getDistance((double) points[i].x + 0.5d, (double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d);
+				if (md == -1.0d || d<=md) {
+					md = d;
+					currentPath = i;
+				}
+				//System.out.println("i["+i+"/"+currentPath+"]; dist: "+d+"; next: "+dn);
+			}
+			for (int i = currentPath; i < points.length; i++) {
+				double[] pos = new double[] { (double) points[i].x + 0.5d, (double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d };
+				if (pos.length==0) { pre = null; continue; }
+				double[] newPre = new double[] { pos[0], pos[1], pos[2] };
+				if (pre!=null) {
+					buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
+					buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
+				}
+				pre = newPre;
+			}
+			tessellator.draw();
+			GlStateManager.depthMask(true);
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+			GlStateManager.popMatrix();
+		}
 		// Can Way
 		if (ClientGuiEventHandler.listPath.size()>1) {
 			GlStateManager.pushMatrix();
@@ -1567,7 +1637,7 @@ extends Gui
 				}
 			}
 			pre = newPre;
-			if (type && i == list.size()-1) {
+			if (type && i == list.size()-1 && list.size() > 1) {
 				pos = list.get(0);
 				newPre = new double[] { pos[0]+0.5d, pos[1]+0.5d+yo, pos[2]+0.5d };
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
@@ -1588,8 +1658,8 @@ extends Gui
 		
 		// block poses
 		for (int i = 0; i < list.size(); i++) {
-			if (i==0) { r = 1.0f; g = 1.0f; b = 1.0f; }
-			else { r = 1.0f; g = 1.0f; b = 0.0f; }
+			if (i==0) { r = 0.8f; g = 0.8f; b = 0.8f; }
+			else { r = 0.8f; g = 0.8f; b = 0.0f; }
 			int[] pos = list.get(i);
 			double yo = 0.0d;
 			IBlockState state = this.mc.world.getBlockState(new BlockPos(pos[0], pos[1], pos[2]));
@@ -1597,11 +1667,13 @@ extends Gui
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			GlStateManager.glLineWidth(1.0F);
+			GlStateManager.glLineWidth(i==0 ? 3.0f : 2.0F);
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(pos[0]-this.dx+0.5d, pos[1]-this.dy+0.5d+yo, pos[2]-this.dz+0.5d);
-			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.25d, -0.25d, -0.25d, 0.25d, 0.25d, 0.25d)), r, g, b, 1.0f);
+			double m = i==0 ? -0.33d : -0.25d;
+			double n = i==0 ? 0.33d : 0.25d;
+			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(m, m, m, n, n, n)), r, g, b, 1.0f);
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();

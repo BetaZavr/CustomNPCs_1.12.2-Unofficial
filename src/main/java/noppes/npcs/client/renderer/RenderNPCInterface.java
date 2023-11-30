@@ -41,20 +41,21 @@ extends RenderLiving<T> {
 	public RenderNPCInterface(ModelBase model, float f) {
 		super(Minecraft.getMinecraft().getRenderManager(), model, f);
 	}
-
-	protected void applyRotations(T npc, float f, float f1, float f2) {
-		if (npc.isEntityAlive() && npc.isPlayerSleeping()) {
+	
+	@Override
+	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
+		if (npc.isPlayerSleeping()) {
 			GlStateManager.rotate(npc.ais.orientation, 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate(this.getDeathMaxRotation(npc), 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
-		} else if (npc.isEntityAlive() && npc.currentAnimation == 7) {
-			GlStateManager.rotate(270.0f - f1, 0.0f, 1.0f, 0.0f);
+		} else if (npc.currentAnimation == 7) {
+			GlStateManager.rotate(270.0f - rotationYaw, 0.0f, 1.0f, 0.0f);
 			float scale = ((EntityCustomNpc) npc).display.getSize() / 5.0f;
 			GlStateManager.translate(-scale + ((EntityCustomNpc) npc).modelData.getLegsY() * scale, 0.14f, 0.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 0.0f, 1.0f);
 			GlStateManager.rotate(270.0f, 0.0f, 1.0f, 0.0f);
 		} else {
-			super.applyRotations(npc, f, f1, f2);
+			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
 		}
 	}
 

@@ -253,9 +253,8 @@ implements ICustomNpc {
 	@Override
 	public void setRotation(float rotation) {
 		super.setRotation(rotation);
-		int r = (int) rotation;
-		if (this.entity.ais.orientation != r) {
-			this.entity.ais.orientation = r;
+		if (this.entity.ais.orientation != (int) this.entity.rotationYaw) {
+			this.entity.ais.orientation = (int) this.entity.rotationYaw;
 			this.entity.updateClient = true;
 		}
 	}

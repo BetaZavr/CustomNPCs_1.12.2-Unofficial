@@ -14,11 +14,11 @@ implements IAnimationFrame {
 	public class PartConfig implements IAnimationPart {
 		
 		public float[] rotation, offset, scale;
-		public int part;
+		public int id;
 		public boolean disable;
 
 		public PartConfig() {
-			this.part = 0;
+			this.id = 0;
 			this.disable = false;
 			this.clear();
 		}
@@ -84,7 +84,7 @@ implements IAnimationFrame {
 				try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
 				try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { }
 			}
-			this.part = compound.getInteger("Part");
+			this.id = compound.getInteger("Part");
 			this.disable = compound.getBoolean("Disabled");
 		}
 		
@@ -101,7 +101,7 @@ implements IAnimationFrame {
 			compound.setTag("Rotation", listRot);
 			compound.setTag("Offset", listOff);
 			compound.setTag("Scale", listSc);
-			compound.setInteger("Part", this.part);
+			compound.setInteger("Part", this.id);
 			compound.setBoolean("Disabled", this.disable);
 			return compound;
 		}
@@ -118,7 +118,7 @@ implements IAnimationFrame {
 		this.parts = new PartConfig[6];
 		for (int i=0; i<6; i++) {
 			this.parts[i] = new PartConfig();
-			this.parts[i].part = i;
+			this.parts[i].id = i;
 		}
 		this.id = 0;
 		this.clear();
@@ -137,7 +137,7 @@ implements IAnimationFrame {
 		this.setEndDelay(compound.getInteger("EndDelay"));
 		for (int i=0; i<6 && i<compound.getTagList("PartConfigs", 10).tagCount(); i++) {
 			this.parts[i].readNBT(compound.getTagList("PartConfigs", 10).getCompoundTagAt(i));
-			this.parts[i].part = i;
+			this.parts[i].id = i;
 		}
 	}
 	
@@ -198,7 +198,7 @@ implements IAnimationFrame {
 		newAfc.delay = this.delay;
 		for (int i=0; i<6; i++) {
 			newAfc.parts[i].readNBT(this.parts[i].writeNBT());
-			newAfc.parts[i].part = i;
+			newAfc.parts[i].id = i;
 		}
 		return newAfc;
 	}

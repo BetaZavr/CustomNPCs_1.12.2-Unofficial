@@ -24,7 +24,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.pathfinding.Path;
+import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -39,6 +43,7 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.util.CustomNPCsScheduler;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class Server {
 
@@ -58,6 +63,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.BORDER_DATA);
 		Server.list.add(EnumPacketClient.MARCET_DATA);
 		Server.list.add(EnumPacketClient.SYNC_END);
+		Server.list.add(EnumPacketClient.NPC_MOVINGPATH);
 	}
 	
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {
@@ -333,5 +339,66 @@ public class Server {
 	public static void writeWorldInfo(ByteBuf buffer, WorldInfo wi) {
 		ByteBufUtils.writeTag(buffer, wi.cloneNBTCompound(null));
 	}
-	
+
+	public static NBTTagCompound writePathToNBT(Path path) {
+		NBTTagCompound nbt = new NBTTagCompound();
+		PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
+		PathPoint[] openSet = ObfuscationHelper.getValue(Path.class, path, 1);
+	    PathPoint[] closedSet = ObfuscationHelper.getValue(Path.class, path, 2);
+	    
+	    NBTTagList ps = new NBTTagList();
+	    for (PathPoint p : points) { ps.appendTag(Server.writePathPoint(p)); }
+	    nbt.setTag("ps", ps);
+	    
+	    NBTTagList op = new NBTTagList();
+	    for (PathPoint p : openSet) { op.appendTag(Server.writePathPoint(p)); }
+	    nbt.setTag("op", op);
+
+	    NBTTagList cp = new NBTTagList();
+	    for (PathPoint p : closedSet) { cp.appendTag(Server.writePathPoint(p)); }
+	    nbt.setTag("cp", cp);
+	    
+	    nbt.setInteger("ci", ObfuscationHelper.getValue(Path.class, path, int.class));
+		return nbt;
+	}
+
+	public static Path readPathToNBT(NBTTagCompound nbt) {
+		PathPoint[] points = new PathPoint[nbt.getTagList("ps", 10).tagCount()];
+		PathPoint[] openSet = new PathPoint[nbt.getTagList("op", 10).tagCount()];
+	    PathPoint[] closedSet = new PathPoint[nbt.getTagList("cp", 10).tagCount()];
+		for (int i = 0; i < nbt.getTagList("ps", 10).tagCount(); i++) { points[i] = Server.readPathPoint(nbt.getTagList("ps", 10).getCompoundTagAt(i)); }
+		for (int i = 0; i < nbt.getTagList("op", 10).tagCount(); i++) { openSet[i] = Server.readPathPoint(nbt.getTagList("op", 10).getCompoundTagAt(i)); }
+		for (int i = 0; i < nbt.getTagList("cp", 10).tagCount(); i++) { closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i)); }
+		Path navigating = new Path(points);
+		ObfuscationHelper.setValue(Path.class, navigating, openSet, 1);
+		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
+		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
+		ObfuscationHelper.setValue(Path.class, navigating, nbt.getInteger("ci"), 4); // currentPathIndex
+		return navigating;
+	}
+
+	private static PathPoint readPathPoint(NBTTagCompound nbt) {
+		PathPoint point = new PathPoint(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+		point.distanceFromOrigin = nbt.getFloat("dfo");
+		point.cost = nbt.getFloat("c");
+		point.costMalus = nbt.getFloat("cm");
+		point.visited = nbt.getBoolean("dfo");
+		point.nodeType = PathNodeType.values()[nbt.getInteger("nt")];
+		point.distanceToTarget = nbt.getFloat("d");
+		return point;
+	}
+
+	private static NBTTagCompound writePathPoint(PathPoint point) {
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setInteger("x", point.x);
+		nbt.setInteger("y", point.y);
+		nbt.setInteger("z", point.z);
+		nbt.setFloat("dfo", point.distanceFromOrigin);
+		nbt.setFloat("c", point.cost);
+		nbt.setFloat("cm", point.costMalus);
+		nbt.setFloat("d", point.distanceToTarget);
+		nbt.setBoolean("dfo", point.visited);
+		nbt.setInteger("nt", point.nodeType.ordinal());
+		return nbt;
+	}
 }

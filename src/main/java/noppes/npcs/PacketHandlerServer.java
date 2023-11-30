@@ -839,7 +839,9 @@ public class PacketHandlerServer {
 				npc.transform.transform(buffer.readBoolean());
 			}
 		} else if (type == EnumPacketServer.MovingPathGet) {
-			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.ais.writeToNBT(new NBTTagCompound()));
+			NBTTagCompound compound = new NBTTagCompound();
+			compound .setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(npc.ais.getMovingPath()));
+			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.MovingPathSave) {
 			npc.ais.setMovingPath(NBTTags.getIntegerArraySet(Server.readNBT(buffer).getTagList("MovingPathNew", 10)));
 		} else if (type == EnumPacketServer.SpawnRider) {

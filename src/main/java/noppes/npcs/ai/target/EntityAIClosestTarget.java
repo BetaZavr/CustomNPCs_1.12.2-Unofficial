@@ -21,14 +21,13 @@ public class EntityAIClosestTarget extends EntityAITarget {
 	private Predicate<EntityLivingBase> targetEntitySelector;
 	private EntityAINearestAttackableTarget.Sorter theNearestAttackableTargetSorter;
 
-	public EntityAIClosestTarget(EntityNPCInterface npc, Class<EntityLivingBase> par2Class, int par3, boolean par4,
-			boolean par5, Predicate<EntityLivingBase> par6IEntitySelector) {
-		super((EntityCreature) npc, par4, par5);
-		this.targetClass = par2Class;
-		this.targetChance = par3;
+	public EntityAIClosestTarget(EntityNPCInterface npc, Class<EntityLivingBase> targetClass, int targetChance, boolean directLOS, boolean onlyNearby, Predicate<EntityLivingBase> attackEntitySelector) {
+		super((EntityCreature) npc, directLOS, onlyNearby);
+		this.targetClass = targetClass;
+		this.targetChance = targetChance;
 		this.theNearestAttackableTargetSorter = new EntityAINearestAttackableTarget.Sorter(npc);
 		this.setMutexBits(1);
-		this.targetEntitySelector = par6IEntitySelector;
+		this.targetEntitySelector = attackEntitySelector;
 		this.npc = npc;
 	}
 
@@ -36,14 +35,12 @@ public class EntityAIClosestTarget extends EntityAITarget {
 		if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0) {
 			return false;
 		}
-		double d0 = this.getTargetDistance();
-		List<EntityLivingBase> list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass,
-				this.taskOwner.getEntityBoundingBox().grow(d0, MathHelper.ceil(d0 / 2.0), d0),
+		double dist = this.getTargetDistance();
+		List<EntityLivingBase>  list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass,
+				this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist),
 				this.targetEntitySelector);
 		Collections.sort(list, this.theNearestAttackableTargetSorter);
-		if (list.isEmpty()) {
-			return false;
-		}
+		if (list.isEmpty()) { return false; }
 		this.targetEntity = list.get(0);
 		return true;
 	}

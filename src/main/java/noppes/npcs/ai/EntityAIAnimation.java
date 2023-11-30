@@ -4,6 +4,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIAnimation extends EntityAIBase {
+	
 	public static int getWalkingAnimationGuiIndex(int animation) {
 		if (animation == 4) {
 			return 1;
@@ -83,10 +84,10 @@ public class EntityAIAnimation extends EntityAIBase {
 	}
 
 	public void updateTask() {
-		if (this.npc.stats.ranged.getHasAimAnimation() && this.npc.isAttacking()) {
+		/*if (this.npc.stats.ranged.getHasAimAnimation() && this.npc.isAttacking()) { // shoot anim
 			this.setAnimation(6);
 			return;
-		}
+		}*/
 		int type = this.npc.ais.animationType;
 		if (this.isDead) {
 			type = 2;

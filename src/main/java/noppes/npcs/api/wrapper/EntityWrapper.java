@@ -116,11 +116,11 @@ implements IEntity {
 		this.entity.extinguish();
 	}
 
-	private IEntity[] findEntityOnPath(double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = this.entity.world.getEntitiesWithinAABBExcludingEntity(this.entity, this.entity.getEntityBoundingBox().grow(distance));
+	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
+		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, entity.getEntityBoundingBox().grow(distance));
 		List<IEntity> result = new ArrayList<IEntity>();
 		for (Entity entity1 : list) {
-			if (entity1.canBeCollidedWith() && entity1 != this.entity) {
+			if (entity1.canBeCollidedWith() && entity1 != entity) {
 				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
 				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
 				if (raytraceresult1 == null) {
@@ -130,8 +130,8 @@ implements IEntity {
 			}
 		}
 		result.sort((o1, o2) -> {
-			double d1 = this.entity.getDistance(o1.getMCEntity());
-			double d2 = this.entity.getDistance(o2.getMCEntity());
+			double d1 = entity.getDistance(o1.getMCEntity());
+			double d2 = entity.getDistance(o2.getMCEntity());
 			if (d1 == d2) {
 				return 0;
 			} else {
@@ -417,7 +417,7 @@ implements IEntity {
 		if (result != null) {
 			vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
 		}
-		return this.findEntityOnPath(distance, vec3d, vec3d3);
+		return EntityWrapper.findEntityOnPath(this.entity, distance, vec3d, vec3d3);
 	}
 
 	@Override
@@ -497,7 +497,7 @@ implements IEntity {
 
 	@Override
 	public void setRotation(float rotation) {
-		this.entity.rotationYaw = rotation;
+		this.entity.rotationYaw = rotation % 360.0f;
 	}
 
 	@Override

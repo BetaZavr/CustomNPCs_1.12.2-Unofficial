@@ -3,8 +3,12 @@ package noppes.npcs.client.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import noppes.npcs.NBTTags;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -13,66 +17,62 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.entity.data.DataAI;
 
 public class GuiNpcPather
 extends GuiNPCInterface
 implements IGuiData {
 	
-	private DataAI ai;
+	private List<int[]> path;
 	private GuiCustomScroll scroll;
 
 	public GuiNpcPather(EntityNPCInterface npc) {
+		super(npc);
 		this.drawDefaultBackground = false;
 		this.xSize = 176;
 		this.title = "Npc Pather";
 		this.setBackground("smallbg.png");
-		this.ai = npc.ais;
+		this.path = npc.ais.getMovingPath();
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		if (this.scroll.selected < 0) {
-			return;
-		}
+		if (this.scroll.selected < 0) { return; }
 		int id = guibutton.id;
-		if (id == 0) {
-			List<int[]> list = this.ai.getMovingPath();
+		if (id == 0) { // down
+			List<int[]> list = Lists.newArrayList(this.path);
 			int selected = this.scroll.selected;
-			if (list.size() <= selected + 1) {
-				return;
-			}
+			if (list.size() <= selected + 1) { return; }
 			int[] a = list.get(selected);
 			int[] b = list.get(selected + 1);
 			list.set(selected, b);
 			list.set(selected + 1, a);
-			this.ai.setMovingPath(list);
+			this.path = list;
 			this.initGui();
 			this.scroll.selected = selected + 1;
 		}
-		if (id == 1) {
-			if (this.scroll.selected - 1 < 0) {
-				return;
-			}
-			List<int[]> list = this.ai.getMovingPath();
+		if (id == 1) { // up
+			if (this.scroll.selected - 1 < 0) { return; }
+			List<int[]> list = Lists.newArrayList(this.path);
 			int selected = this.scroll.selected;
 			int[] a = list.get(selected);
 			int[] b = list.get(selected - 1);
 			list.set(selected, b);
 			list.set(selected - 1, a);
-			this.ai.setMovingPath(list);
+			this.path = list;
 			this.initGui();
 			this.scroll.selected = selected - 1;
 		}
-		if (id == 2) {
-			List<int[]> list = this.ai.getMovingPath();
-			if (list.size() <= 1) {
-				return;
-			}
+		if (id == 2) { // remove
+			List<int[]> list = Lists.newArrayList(this.path);
+			if (list.size() <= 1) { return; }
 			list.remove(this.scroll.selected);
-			this.ai.setMovingPath(list);
+			int selected = this.scroll.selected - 1;
+			if (selected == -1 && list.isEmpty()) { selected = 0; }
+			this.scroll.selected = selected;
+			this.path = list;
 			this.initGui();
 		}
+		this.npc.ais.setMovingPath(this.path);
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
@@ -80,15 +80,38 @@ implements IGuiData {
 
 	@Override
 	public void initGui() {
+		int sel;
+		if (this.scroll!=null) { sel = this.scroll.selected; }
+		else {
+			sel = 0;
+			Vec3d vec3d = this.player.getPositionEyes(1.0f);
+			Vec3d vec3d2 = this.player.getLook(1.0f);
+			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 6.0d, vec3d2.y * 6.0d, vec3d2.z * 6.0d);
+			RayTraceResult result = this.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
+			if (result!=null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.getBlockPos()!=null) {
+				int x = result.getBlockPos().getX();
+				int y = result.getBlockPos().getY();
+				int z = result.getBlockPos().getZ();
+				int i = 0;
+				for (int[] arr : this.path) {
+					if (arr[0] == x && y == arr[1] && z == arr[2]) {
+						sel = i;
+						break;
+					}
+					i++;
+				}
+			}
+		}
 		super.initGui();
 		(this.scroll = new GuiCustomScroll(this, 0)).setSize(160, 164);
 		List<String> list = new ArrayList<String>();
-		for (int[] arr : this.ai.getMovingPath()) {
+		for (int[] arr : this.path) {
 			list.add("x:" + arr[0] + " y:" + arr[1] + " z:" + arr[2]);
 		}
 		this.scroll.setUnsortedList(list);
 		this.scroll.guiLeft = this.guiLeft + 7;
 		this.scroll.guiTop = this.guiTop + 12;
+		this.scroll.selected = sel;
 		this.addScroll(this.scroll);
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, this.guiTop + 178, 52, 20, "gui.down"));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 62, this.guiTop + 178, 52, 20, "gui.up"));
@@ -116,13 +139,14 @@ implements IGuiData {
 	@Override
 	public void save() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(this.ai.getMovingPath()));
+		compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(this.path));
 		Client.sendData(EnumPacketServer.MovingPathSave, compound);
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.ai.readToNBT(compound);
+		this.path = NBTTags.getIntegerArraySet(compound.getTagList("MovingPathNew", 10));
+		this.npc.ais.setMovingPath(this.path);
 		this.initGui();
 	}
 }

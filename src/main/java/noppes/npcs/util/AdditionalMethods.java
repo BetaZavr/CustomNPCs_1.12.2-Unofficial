@@ -35,6 +35,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
@@ -51,8 +52,12 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IProjectile;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntitySenses;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
@@ -76,9 +81,11 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.RecipeBook;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.Loader;
@@ -194,6 +201,7 @@ import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
+import noppes.npcs.entity.EntityNPCInterface;
 
 public class AdditionalMethods
 implements IMetods {
@@ -800,10 +808,10 @@ implements IMetods {
 			if (!has) { list.add(stack.copy()); }
 		}
 		Collections.sort(list, new Comparator<ItemStack>() {
-	        public int compare(ItemStack st_0, ItemStack st_1) {
-	            return ((Integer) st_1.getCount()).compareTo((Integer) st_0.getCount());
-	        }
-	    });
+			public int compare(ItemStack st_0, ItemStack st_1) {
+				return ((Integer) st_1.getCount()).compareTo((Integer) st_0.getCount());
+			}
+		});
 		for (ItemStack stack : list) {
 			for (ItemStack s : counts.keySet()) {
 				if (NoppesUtilPlayer.compareItems(stack, s, false, false)) {
@@ -1018,13 +1026,13 @@ implements IMetods {
 			}
 			List<Entry<ItemStack, Integer>> list = Lists.newArrayList(map.entrySet());
 			Collections.sort(list, new Comparator<Entry<ItemStack, Integer>>() {
-		        public int compare(Entry<ItemStack, Integer> st_0, Entry<ItemStack, Integer> st_1) {
-		            return ((Integer) st_1.getValue()).compareTo((Integer) st_0.getValue());
-		        }
-		    });
-	        for (Entry<ItemStack, Integer> entry : list) {
-	        	inv.put(entry.getKey(), entry.getValue());
-	        }
+				public int compare(Entry<ItemStack, Integer> st_0, Entry<ItemStack, Integer> st_1) {
+					return ((Integer) st_1.getValue()).compareTo((Integer) st_0.getValue());
+				}
+			});
+			for (Entry<ItemStack, Integer> entry : list) {
+				inv.put(entry.getKey(), entry.getValue());
+			}
 		}
 		return AdditionalMethods.canRemoveItems(inventory, inv, ignoreDamage, ignoreNBT);
 	}
@@ -1840,6 +1848,146 @@ implements IMetods {
 			list.add(f);
 		}
 		return list;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static boolean npcCanSeeTarget(EntityNPCInterface npc, EntityLivingBase target) {
+		if (npc == null || target == null) { return false; }
+		IAttributeInstance follow_range = npc.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+		double aggroRange = (follow_range == null ? 16.0d : follow_range.getAttributeValue());
+		if (npc.isPlayerSleeping()) { aggroRange /= 4.0d; }
+		if (aggroRange < 1.0d) { aggroRange = 1.0d; }
+		double[] data = AdditionalMethods.instance.getAngles3D(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
+		EntitySenses senses = npc.getEntitySenses();
+		List<Entity> seenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 1);
+		List<Entity> unseenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 2);
+		if (data[3] > aggroRange) {
+			if (seenEntities.contains(target)) { seenEntities.remove(target); }
+			if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+			return false;
+		}
+		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(npc, data[0], data[1], data[3]);
+		for (IBlock bi : rtrs.blocks) {
+			if (bi.getMCBlock().isOpaqueCube(npc.world.getBlockState(bi.getPos().getMCBlockPos()))) {
+				if (seenEntities.contains(target)) { seenEntities.remove(target); }
+				if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+				return false;
+			}
+		}
+		if (npc.ais.directLOS) {
+			double yaw = npc.rotationYaw - data[0];
+			double pitch = npc.rotationPitch - data[1];
+			if (yaw < 0.0d) { yaw += 360.0d; }
+			if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
+				if (seenEntities.contains(target)) { seenEntities.remove(target); }
+				if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+				return false;
+			}
+		}
+		
+		int invis =  1 +(!target.isPotionActive(MobEffects.INVISIBILITY) ? -1 : target.getActivePotionEffect(MobEffects.INVISIBILITY).getAmplifier());
+		double chance = invis == 0 ? 1.0d : -0.00026d * Math.pow((double) invis, 3.0d) + 0.00489d * Math.pow((double) invis, 2.0d) - 0.03166 * (double) invis + 0.08d;
+		if (chance > 1.0d) { chance = 1.0d; }
+		if (chance < 0.002d) { chance = 0.002d; }
+		if (chance != 1.0d) { chance *= -1.0d * (data[3] / aggroRange) + 1.0d; } // distance
+		if (chance != 1.0d) { chance *= 0.3d; } // is sneaks
+		
+		if (chance > 1.0d) { chance = 1.0d; }
+		if (chance < 0.0005d) { chance = 0.0005d; }
+		boolean canSee = chance > Math.random();
+		if (canSee) {
+			if (!seenEntities.contains(target)) { seenEntities.add(target); }
+			if (unseenEntities.contains(target)) { unseenEntities.remove(target); }
+		} else {
+			if (seenEntities.contains(target)) { seenEntities.remove(target); }
+			if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+		}
+		return canSee;
+	}
+
+	public RayTraceResults rayTraceBlocksAndEntitys(Entity entity, double yaw, double pitch, double distance) {
+		if (entity == null || entity.world == null || distance <= 0.0d) { return null; }
+		RayTraceResults rtrs = new RayTraceResults();
+		
+		Vec3d vecStart = entity.getPositionEyes(1.0f);
+		double f = Math.cos(-yaw * 0.017453292d - Math.PI);
+		double f1 = Math.sin(-yaw * 0.017453292d - Math.PI);
+        double f2 = - Math.cos(-pitch * 0.017453292d);
+        double f3 = Math.sin(-pitch * 0.017453292d);
+        Vec3d vecLook = new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
+		Vec3d vecEnd = vecStart.addVector(vecLook.x * distance, vecLook.y * distance, vecLook.z * distance);
+		rtrs.add(entity, distance, vecStart, vecEnd);
+
+		int x0 = MathHelper.floor(vecStart.x);
+		int y0 = MathHelper.floor(vecStart.y);
+		int z0 = MathHelper.floor(vecStart.z);
+		int x1 = MathHelper.floor(vecEnd.x);
+		int y1 = MathHelper.floor(vecEnd.y);
+		int z1 = MathHelper.floor(vecEnd.z);
+		
+		BlockPos pos = new BlockPos(x0, y0, z0);
+		IBlockState state = entity.world.getBlockState(pos);
+		rtrs.add(entity.world, pos, state);
+		
+		int k1 = 200;
+		while (k1-- >= 0) {
+			if (x0 == x1 && y0 == y1 && z0 == z1) { return rtrs; }
+
+			boolean butEqualX = true;
+			boolean butEqualY = true;
+			boolean butEqualZ = true;
+			double d0 = 999.0D;
+			double d1 = 999.0D;
+			double d2 = 999.0D;
+
+			if (x1 > x0) { d0 = (double) x0 + 1.0D; }
+			else if (x1 < x0) { d0 = (double) x0 + 0.0D; }
+			else { butEqualX = false; }
+
+			if (y1 > y0) { d1 = (double)y0 + 1.0D; }
+			else if (y1 < y0) { d1 = (double)y0 + 0.0D; }
+			else { butEqualY = false; }
+
+			if (z1 > z0) { d2 = (double)z0 + 1.0D; }
+			else if (z1 < z0) { d2 = (double) z0 + 0.0D; }
+			else { butEqualZ = false; }
+
+			double d3 = 999.0D;
+			double d4 = 999.0D;
+			double d5 = 999.0D;
+			double d6 = vecEnd.x - vecStart.x;
+			double d7 = vecEnd.y - vecStart.y;
+			double d8 = vecEnd.z - vecStart.z;
+
+			if (butEqualX) { d3 = (d0 - vecStart.x) / d6; }
+			if (butEqualY) { d4 = (d1 - vecStart.y) / d7; }
+			if (butEqualZ) { d5 = (d2 - vecStart.z) / d8; }
+
+			if (d3 == -0.0D) { d3 = -1.0E-4D; }
+			if (d4 == -0.0D) { d4 = -1.0E-4D; }
+			if (d5 == -0.0D) { d5 = -1.0E-4D; }
+
+			EnumFacing enumfacing;
+			if (d3 < d4 && d3 < d5) {
+				enumfacing = x1 > x0 ? EnumFacing.WEST : EnumFacing.EAST;
+				vecStart = new Vec3d(d0, vecStart.y + d7 * d3, vecStart.z + d8 * d3);
+			}
+			else if (d4 < d5) {
+				enumfacing = y1 > y0 ? EnumFacing.DOWN : EnumFacing.UP;
+				vecStart = new Vec3d(vecStart.x + d6 * d4, d1, vecStart.z + d8 * d4);
+			} else {
+				enumfacing = z1 > z0 ? EnumFacing.NORTH : EnumFacing.SOUTH;
+				vecStart = new Vec3d(vecStart.x + d6 * d5, vecStart.y + d7 * d5, d2);
+			}
+			
+			x0 = MathHelper.floor(vecStart.x) - (enumfacing == EnumFacing.EAST ? 1 : 0);
+			y0 = MathHelper.floor(vecStart.y) - (enumfacing == EnumFacing.UP ? 1 : 0);
+			z0 = MathHelper.floor(vecStart.z) - (enumfacing == EnumFacing.SOUTH ? 1 : 0);
+			pos = new BlockPos(x0, y0, z0);
+			state = entity.world.getBlockState(pos);
+			rtrs.add(entity.world, pos, state);
+		}
+		return rtrs;
 	}
 	
 }

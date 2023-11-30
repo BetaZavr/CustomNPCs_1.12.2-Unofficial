@@ -1,6 +1,10 @@
 package noppes.npcs.client.model;
 
+import java.util.Map;
+
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
@@ -8,15 +12,19 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.ModelPartConfig;
+import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
+import noppes.npcs.items.CustomArmor;
 
 public class ModelScaleRenderer
 extends ModelRenderer {
 	
 	public ModelPartConfig config;
-	public int displayList;
-	public boolean isCompiled;
+	public int displayList, displayOBJList;
+	public boolean isCompiled, smallArms;
 	public EnumParts part;
 
 	public ModelScaleRenderer(ModelBase modelBase, EnumParts part) {
@@ -45,13 +53,11 @@ extends ModelRenderer {
 
 	public void postRender(float scale) {
 		if (this.config != null) {
-			GlStateManager.translate(this.config.offsetBase[0], this.config.offsetBase[1], this.config.offsetBase[2]);
-			GlStateManager.translate(this.config.offsetAnimation[0], this.config.offsetAnimation[1], this.config.offsetAnimation[2]);
+			GlStateManager.translate(this.config.offsetBase[0] + this.config.offsetAnimation[0], this.config.offsetBase[1] + this.config.offsetAnimation[1], this.config.offsetBase[2] + this.config.offsetAnimation[2]);
 		}
-		this.postRenderAnimRotate(scale); // translate model
+		this.postRenderAnimRotate(scale);
 		if (this.config != null) {
-			GlStateManager.scale(this.config.scaleBase[0], this.config.scaleBase[1], this.config.scaleBase[2]);
-			GlStateManager.scale(this.config.scaleAnimation[0], this.config.scaleAnimation[1], this.config.scaleAnimation[2]);
+			GlStateManager.scale(this.config.scaleBase[0] * this.config.scaleAnimation[0], this.config.scaleBase[1] * this.config.scaleAnimation[1], this.config.scaleBase[2] * this.config.scaleAnimation[2]);
 		}
 	}
 
@@ -81,7 +87,35 @@ extends ModelRenderer {
 		}
 		GlStateManager.pushMatrix();
 		this.postRender(scale);
-		GlStateManager.callList(this.displayList); // main
+		// render
+		if (this.displayOBJList <= 0) { GlStateManager.callList(this.displayList); } // Vanila Render
+		else { // OBJ Render
+			switch(this.part) {
+				case HEAD: { GlStateManager.translate(0.0f, 1.5f, 0.0f); break; }
+				case MOHAWK: { GlStateManager.translate(0.0f, 1.5f, 0.0f); break; }
+				case BODY: { GlStateManager.translate(0.0f, 1.5f, 0.0f); break; }
+				case ARM_RIGHT: {
+					if (this.smallArms) { GlStateManager.scale(0.75f, 1.0f, 1.0f); }
+					float addX = this.smallArms ? 0.0175f : 0.0f;
+					GlStateManager.translate(0.3175f + addX, 1.375f, 0.0f);
+					break;
+				}
+				case ARM_LEFT: {
+					if (this.smallArms) { GlStateManager.scale(0.75f, 1.0f, 1.0f); }
+					float addX = this.smallArms ? -0.0175f : 0.0f;
+					GlStateManager.translate(-0.3175f + addX, 1.375f, 0.0f);
+					break;
+				}
+				case BELT: { GlStateManager.translate(0.0f, 1.5f, 0.0f); break; }
+				case LEG_RIGHT: { GlStateManager.translate(0.125f, 0.75f, 0.0f); break; }
+				case LEG_LEFT: { GlStateManager.translate(-0.115f, 0.75f, 0.0f); break; }
+				case FEET_RIGHT: { GlStateManager.translate(0.125f, 0.75f, 0.0f); break; }
+				case FEET_LEFT: { GlStateManager.translate(-0.115f, 0.75f, 0.0f); break; }
+				default: { break; }
+			}
+			GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
+			GlStateManager.callList(this.displayOBJList);
+		}
 		if (this.childModels != null) {
 			for (int i = 0; i < this.childModels.size(); ++i) {
 				this.childModels.get(i).render(scale);
@@ -133,6 +167,19 @@ extends ModelRenderer {
 		this.rotateAngleX = 0.0f;
 		this.rotateAngleY = 0.0f;
 		this.rotateAngleZ = 0.0f;
+	}
+
+	public void setOBJModel(ItemStack stack, EnumParts part2) {
+		CustomArmor armor = (CustomArmor) stack.getItem();
+		Map<String, String> map = null;
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("OBJTexture")) {
+			ResourceLocation mainTexture = ModelBuffer.getMainOBJTexture(armor.objModel);
+			if (mainTexture != null) {
+				map = Maps.<String, String>newHashMap();
+				map.put(mainTexture.toString(), stack.getTagCompound().getString("OBJTexture"));
+			}
+		}
+		this.displayOBJList = ModelBuffer.getDisplayList(armor.objModel, armor.getMeshNames(part2 != null ? part2 : this.part), map);
 	}
 	
 }

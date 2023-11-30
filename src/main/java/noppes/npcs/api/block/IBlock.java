@@ -62,4 +62,5 @@ public interface IBlock {
 	void setMetadata(int i);
 
 	void setTileEntityNBT(INbt nbt);
+
 }

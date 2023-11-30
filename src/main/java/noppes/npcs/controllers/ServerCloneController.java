@@ -234,6 +234,7 @@ implements ICloneHandler {
 
 	@Override
 	public IEntity<?> spawn(double x, double y, double z, int tab, String name, IWorld world) {
+		if (world==null || world.getMCWorld().isRemote) { return null; }
 		NBTTagCompound compound = this.getCloneData(null, name, tab);
 		if (compound == null) {
 			throw new CustomNPCsException("Unknown clone tab:" + tab + " name:" + name, new Object[0]);

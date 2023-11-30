@@ -91,6 +91,7 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.StopNPCAnimation);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetTileData);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetFilePart);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.MovingPathGet);
 	}
 	
 	@SubscribeEvent

@@ -26,8 +26,7 @@ implements ITextfieldListener, IGuiData {
 
 	public GuiNpcAI(EntityNPCInterface npc) {
 		super(npc, 6);
-		this.tacts = new String[] { "aitactics.rush", "aitactics.stagger", "aitactics.orbit", "aitactics.hitandrun",
-				"aitactics.ambush", "aitactics.stalk", "gui.none" };
+		this.tacts = new String[] { "aitactics.rush", "aitactics.stagger", "aitactics.orbit", "aitactics.hitandrun", "aitactics.ambush", "aitactics.stalk", "gui.none" };
 		this.ai = npc.ais;
 		Client.sendData(EnumPacketServer.MainmenuAIGet, new Object[0]);
 	}
@@ -89,6 +88,10 @@ implements ITextfieldListener, IGuiData {
 		if (this.ai.tacticalVariant != 0 && this.ai.tacticalVariant != 6) {
 			String label = "";
 			switch (this.ai.tacticalVariant) {
+				case 1: {
+					label = "gui.dodgedistance";
+					break;
+				}
 				case 2: {
 					label = "gui.orbitdistance";
 					break;
@@ -102,7 +105,7 @@ implements ITextfieldListener, IGuiData {
 					break;
 				}
 				case 5: {
-					label = "gui.ambushdistance";
+					label = "gui.orbitdistance";
 					break;
 				}
 				default: {
@@ -165,10 +168,12 @@ implements ITextfieldListener, IGuiData {
 		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.jump").getFormattedText());
 		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.attack.type").getFormattedText());
-		}/* else if (this.getButton(23)!=null && this.getButton(23).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.attack.type", this.getButton(17).displayString).
+					appendSibling(new TextComponentTranslation("ai.hover.attack.type."+this.ai.tacticalVariant)).
+					getFormattedText());
+		} else if (this.getButton(23)!=null && this.getButton(23).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.stealth").getFormattedText());
-		}*/
+		}
 	}
 	
 }

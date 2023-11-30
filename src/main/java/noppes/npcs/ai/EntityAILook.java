@@ -38,18 +38,13 @@ public class EntityAILook extends EntityAIBase {
 
 	public void rotate(int degrees) {
 		this.forced = true;
-		EntityNPCInterface npc = this.npc;
-		EntityNPCInterface npc2 = this.npc;
-		EntityNPCInterface npc3 = this.npc;
-		float rotationYawHead = degrees;
-		npc3.renderYawOffset = rotationYawHead;
-		npc2.rotationYaw = rotationYawHead;
-		npc.rotationYawHead = rotationYawHead;
+		this.npc.renderYawOffset = degrees;
+		this.npc.rotationYaw = degrees;
+		this.npc.rotationYawHead = degrees;
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isAttacking() && this.npc.getNavigator().noPath() && !this.npc.isPlayerSleeping()
-				&& this.npc.isEntityAlive();
+		return !this.npc.isAttacking() && this.npc.getNavigator().noPath() && !this.npc.isPlayerSleeping() && this.npc.isEntityAlive();
 	}
 
 	public void startExecuting() {
@@ -102,13 +97,9 @@ public class EntityAILook extends EntityAIBase {
 			}
 		}
 		if (this.npc.ais.getStandingType() == 1 && !this.forced) {
-			EntityNPCInterface npc = this.npc;
-			EntityNPCInterface npc2 = this.npc;
-			EntityNPCInterface npc3 = this.npc;
-			float rotationYawHead = this.npc.ais.orientation;
-			npc3.renderYawOffset = rotationYawHead;
-			npc2.rotationYaw = rotationYawHead;
-			npc.rotationYawHead = rotationYawHead;
+			this.npc.renderYawOffset = this.npc.ais.orientation;
+			this.npc.rotationYaw = this.npc.ais.orientation;
+			this.npc.rotationYawHead = this.npc.ais.orientation;
 		}
 	}
 }

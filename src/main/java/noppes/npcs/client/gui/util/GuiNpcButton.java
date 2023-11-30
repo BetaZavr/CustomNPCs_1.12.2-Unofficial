@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.util;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -18,6 +19,7 @@ extends GuiButton {
 	private ResourceLocation texture = null;
 	public String lable = "";
 	public boolean dropShadow;
+	public boolean hasSound;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -40,6 +42,7 @@ extends GuiButton {
 		this.id = id;
 		this.layerColor = 0;
 		this.dropShadow = true;
+		this.hasSound = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, String string, boolean enabled) {
@@ -60,6 +63,7 @@ extends GuiButton {
 		this.layerColor = 0;
 		this.id = id;
 		this.dropShadow = true;
+		this.hasSound = true;
 	}
 
 	public GuiNpcButton(int id, int x, int y, String[] display, int val) {
@@ -142,6 +146,10 @@ extends GuiButton {
 			this.setDisplayText(this.display[this.displayValue]);
 		}
 		return bo;
+	}
+	
+	public void playPressSound(SoundHandler soundHandlerIn) {
+		if (this.hasSound) { super.playPressSound(soundHandlerIn); }
 	}
 
 	public void setDisplay(int value) {

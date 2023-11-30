@@ -6,17 +6,21 @@ import net.minecraft.util.math.MathHelper;
 
 public class AniCrawling {
 	
-	public static void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6, Entity entity, ModelBiped model) {
-		model.bipedHead.rotateAngleZ = -par4 / 57.295776f;
+	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
+		model.bipedHead.rotateAngleZ = netHeadYaw / -57.295776f;
+		if (model.bipedHead.rotateAngleZ < -0.707106f) { model.bipedHead.rotateAngleZ = -0.707106f; } 
+		else if (model.bipedHead.rotateAngleZ > 0.707106f) { model.bipedHead.rotateAngleZ = 0.707106f; } 
 		model.bipedHead.rotateAngleY = 0.0f;
-		model.bipedHead.rotateAngleX = -0.95993114f;
+		
+		model.bipedHead.rotateAngleX = -0.95993114f - (0.4f * (float) Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
+		
 		model.bipedHeadwear.rotateAngleX = model.bipedHead.rotateAngleX;
 		model.bipedHeadwear.rotateAngleY = model.bipedHead.rotateAngleY;
 		model.bipedHeadwear.rotateAngleZ = model.bipedHead.rotateAngleZ;
-		if (par2 > 0.25) {
-			par2 = 0.25f;
+		if (limbSwingAmount > 0.25) {
+			limbSwingAmount = 0.25f;
 		}
-		float movement = MathHelper.cos(par1 * 0.8f + 3.1415927f) * par2;
+		float movement = MathHelper.cos(limbSwing * 0.8f + 3.1415927f) * limbSwingAmount;
 		model.bipedLeftArm.rotateAngleX = 3.1415927f - movement * 0.25f;
 		model.bipedLeftArm.rotateAngleY = movement * -0.46f;
 		model.bipedLeftArm.rotateAngleZ = movement * -0.2f;

@@ -5,12 +5,12 @@ import com.google.common.base.Predicate;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.MobEffects;
 import noppes.npcs.constants.EnumCompanionJobs;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobGuard;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.companion.CompanionGuard;
+import noppes.npcs.util.AdditionalMethods;
 
 public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	private EntityNPCInterface npc;
@@ -24,15 +24,10 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	}
 
 	public boolean isEntityApplicable(EntityLivingBase entity) {
-		if (!entity.isEntityAlive() || entity == this.npc || !this.npc.isInRange(entity, this.npc.stats.aggroRange)
-				|| entity.getHealth() < 1.0f) {
+		if (!entity.isEntityAlive() || entity == this.npc || !this.npc.isInRange(entity, this.npc.stats.aggroRange) || entity.getHealth() < 1.0f) {
 			return false;
 		}
-		if (this.npc.ais.directLOS && !this.npc.getEntitySenses().canSee(entity)) {
-			return false;
-		}
-		if (!this.npc.ais.attackInvisible && entity.isPotionActive(MobEffects.INVISIBILITY)
-				&& !this.npc.isInRange(entity, 3.0)) {
+		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity)) {
 			return false;
 		}
 		if (!this.npc.isFollower() && this.npc.ais.shouldReturnHome()) {
@@ -55,8 +50,7 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 		}
 		if (this.npc.advanced.roleInterface instanceof RoleCompanion) {
 			RoleCompanion role = (RoleCompanion) this.npc.advanced.roleInterface;
-			if (role.job == EnumCompanionJobs.GUARD
-					&& ((CompanionGuard) role.jobInterface).isEntityApplicable(entity)) {
+			if (role.job == EnumCompanionJobs.GUARD && ((CompanionGuard) role.jobInterface).isEntityApplicable(entity)) {
 				return true;
 			}
 		}

@@ -1,10 +1,5 @@
 package noppes.npcs.client.model;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
-import org.apache.commons.io.IOUtils;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
@@ -12,27 +7,25 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.client.model.part.ModelOBJPatr;
-import noppes.npcs.client.renderer.RenderCustomNpc;
+import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
-import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class ModelOBJArmor
+public class ModelOBJPlayerArmor
 extends ModelBiped
 {
 	public ResourceLocation objModel, mainTexture;
 	public ModelRenderer bipedBelt, bipedRightFeet, bipedLeftFeet;
-	public boolean smallArms;
+	private ModelOBJPatr childRightArm, childLeftArm;
 
-	public ModelOBJArmor(CustomArmor armor) {
+	public ModelOBJPlayerArmor(CustomArmor armor) {
 		super(0, 0, 128, 128);
 		// Clear Basic Armor Pieces
 		this.bipedHeadwear.cubeList.clear();
@@ -49,34 +42,14 @@ extends ModelBiped
 		this.bipedRightFeet = new ModelRenderer(this);
 		this.bipedLeftFeet = new ModelRenderer(this);
 		this.objModel = armor.objModel;
-		
-		try {
-			ResourceLocation location = new ResourceLocation(armor.objModel.getResourceDomain(), armor.objModel.getResourcePath().replace(".obj", ".mtl"));
-			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
-			if (res!=null) {
-				String mat_lib = IOUtils.toString(res.getInputStream(), Charset.forName("UTF-8"));
-				if (mat_lib.indexOf("map_Kd")!=-1) {
-					int endIndex = mat_lib.indexOf(""+((char) 10), mat_lib.indexOf("map_Kd"));
-					if (endIndex == -1) { endIndex = mat_lib.length(); }
-					String txtr = mat_lib.substring(mat_lib.indexOf(" ", mat_lib.indexOf("map_Kd"))+1, endIndex);
-					String domain = "", path = "";
-					if (txtr.indexOf(":")==-1) { path = txtr; }
-					else {
-						domain = txtr.substring(0, txtr.indexOf(":"));
-						path = txtr.substring(txtr.indexOf(":")+1);
-					}
-					this.mainTexture = new ResourceLocation(domain, path);
-				}
-			}
-		}
-		catch (IOException e) {}
+		this.mainTexture = ModelBuffer.getMainOBJTexture(armor.objModel);
 		
 		addLayer(armor);
 		setVisible(true);
 	}
 	
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		if (!(entityIn instanceof EntityPlayerSP) && !(entityIn instanceof EntityNPCInterface)) { return; }
+		if (!(entityIn instanceof EntityPlayerSP)) { return; }
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 		GlStateManager.pushMatrix();
 		if (this.isChild) {
@@ -116,36 +89,31 @@ extends ModelBiped
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		Render<?> re = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entityIn);
 		ModelBiped source = null;
-		boolean isAnimated = false;
-		if (re instanceof RenderCustomNpc && ((RenderCustomNpc<?>) re).npcmodel instanceof ModelPlayerAlt) {
-			source = ((RenderCustomNpc<?>) re).npcmodel;
-			if (entityIn instanceof EntityNPCInterface) {
-				isAnimated = ((EntityNPCInterface) entityIn).animation.isAnimated;
-			}
-		}
 		if (re instanceof RenderPlayer) { source = ((RenderPlayer) re).getMainModel(); }
 		if (source == null) { return; }
 		this.reset((EntityLivingBase) entityIn);
 		//System.out.println("isAnimated: "+isAnimated+" / "+source);
-		resetPos(this.bipedHead, source.bipedHead, isAnimated);
-		resetPos(this.bipedBody, source.bipedBody, isAnimated);
-		resetPos(this.bipedBelt, source.bipedBody, isAnimated);
-		resetPos(this.bipedLeftArm, source.bipedLeftArm, isAnimated);
-		resetPos(this.bipedRightArm, source.bipedRightArm, isAnimated);
-		resetPos(this.bipedLeftLeg, source.bipedLeftLeg, isAnimated);
-		resetPos(this.bipedRightLeg, source.bipedRightLeg, isAnimated);
+		resetPos(this.bipedHead, source.bipedHead);
+		resetPos(this.bipedBody, source.bipedBody);
+		resetPos(this.bipedBelt, source.bipedBody);
+		resetPos(this.bipedLeftArm, source.bipedLeftArm);
+		resetPos(this.bipedRightArm, source.bipedRightArm);
+		resetPos(this.bipedLeftLeg, source.bipedLeftLeg);
+		resetPos(this.bipedRightLeg, source.bipedRightLeg);
 
-		resetPos(this.bipedBelt, source.bipedBody, isAnimated);
-		resetPos(this.bipedLeftFeet, source.bipedLeftLeg, isAnimated);
-		resetPos(this.bipedRightFeet, source.bipedRightLeg, isAnimated);
+		resetPos(this.bipedBelt, source.bipedBody);
+		resetPos(this.bipedLeftFeet, source.bipedLeftLeg);
+		resetPos(this.bipedRightFeet, source.bipedRightLeg);
 	}
 	
 	public void addLayer(CustomArmor armor) {
 		this.bipedHead.addChild(new ModelOBJPatr(this, EnumParts.FEET_LEFT, armor.getMeshNames(EnumParts.HEAD), 0.0f, 1.5f, 0.0f));
 
 		this.bipedBody.addChild(new ModelOBJPatr(this, EnumParts.BODY, armor.getMeshNames(EnumParts.BODY), 0.0f, 1.5f, 0.0f));
-		this.bipedRightArm.addChild(new ModelOBJPatr(this, EnumParts.ARM_RIGHT, armor.getMeshNames(EnumParts.ARM_RIGHT), 0.3175f, 1.375f, 0.0f));
-		this.bipedLeftArm.addChild(new ModelOBJPatr(this, EnumParts.ARM_LEFT, armor.getMeshNames(EnumParts.ARM_LEFT), -0.3175f, 1.375f, 0.0f));
+		this.childRightArm = new ModelOBJPatr(this, EnumParts.ARM_RIGHT, armor.getMeshNames(EnumParts.ARM_RIGHT), 0.3175f, 1.375f, 0.0f);
+		this.bipedRightArm.addChild(this.childRightArm);
+		this.childLeftArm = new ModelOBJPatr(this, EnumParts.ARM_LEFT, armor.getMeshNames(EnumParts.ARM_LEFT), -0.3175f, 1.375f, 0.0f);
+		this.bipedLeftArm.addChild(this.childLeftArm);
 
 		this.bipedBelt.addChild(new ModelOBJPatr(this, EnumParts.BELT, armor.getMeshNames(EnumParts.BELT), 0.0f, 1.5f, 0.0f));
 		this.bipedRightLeg.addChild(new ModelOBJPatr(this, EnumParts.LEG_RIGHT, armor.getMeshNames(EnumParts.LEG_RIGHT), 0.125f, 0.75f, 0.0f));
@@ -156,15 +124,12 @@ extends ModelBiped
 	}
 	
 	public void reset(EntityLivingBase entity) {
-		this.smallArms = false;
-		if (entity instanceof EntityNPCInterface) {
-			String m = ((EntityNPCInterface) entity).display.getModel();
-			this.smallArms = m != null && m.equals("minecraft:customnpcs.customnpcalex");
-		} else if (entity instanceof EntityPlayerSP) {
+		boolean smallArms = false;
+		if (entity instanceof EntityPlayerSP) {
 			Minecraft mc = Minecraft.getMinecraft();
 			Render<?> rp = mc.getRenderManager().getEntityRenderObject(entity);
 			if (rp instanceof RenderPlayer) {
-				this.smallArms = ObfuscationHelper.getValue(RenderPlayer.class, (RenderPlayer) rp, boolean.class);
+				smallArms = ObfuscationHelper.getValue(RenderPlayer.class, (RenderPlayer) rp, boolean.class);
 			}
 		}
 		
@@ -186,6 +151,9 @@ extends ModelBiped
 			this.bipedBody.showModel = true;
 			this.bipedLeftArm.showModel = true;
 			this.bipedRightArm.showModel = true;
+
+			this.childLeftArm.smallArms = smallArms;
+			this.childRightArm.smallArms = smallArms;
 		}
 
 		ItemStack legsItem = entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS);
@@ -212,21 +180,11 @@ extends ModelBiped
 		
 	}
 	
-	private void resetPos(ModelRenderer part, ModelRenderer source, boolean isAnimated) {
+	private void resetPos(ModelRenderer part, ModelRenderer source) {
 		part.offsetX = source.offsetX;
 		part.offsetY = source.offsetY;
 		part.offsetZ = source.offsetZ;
 		copyModelAngles(source, part);
-		
-		ModelOBJPatr mr = null;
-		if (part.childModels!=null && part.childModels.get(0) instanceof ModelOBJPatr) {
-			mr = ((ModelOBJPatr) part.childModels.get(0));
-			if (!isAnimated && mr.msr != null) { mr.msr = null; }
-		}
-		if (isAnimated && mr != null && source instanceof ModelScaleRenderer) {
-			if (mr.msr==null) { mr.msr = new ModelScaleRenderer(this, mr.part); }
-			mr.msr.setAnim((ModelScaleRenderer) source);
-		}
 	}
 	
 	public void setVisible(boolean visible) {

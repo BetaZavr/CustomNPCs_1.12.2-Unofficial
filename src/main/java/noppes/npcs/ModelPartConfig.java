@@ -9,6 +9,7 @@ public class ModelPartConfig {
 	public float[] scaleBase, scaleAnimation;
 	public float[] offsetBase, offsetAnimation;
 	public float[] rotateAnimation;
+	public float scaleY;
 
 	public ModelPartConfig() {
 		this.scaleBase = new float[] { 1.0f, 1.0f, 1.0f };

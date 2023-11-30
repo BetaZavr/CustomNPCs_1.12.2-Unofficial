@@ -18,10 +18,11 @@ extends EntityAIBase {
 	private boolean navOverride;
 	private EntityNPCInterface npc;
 
-	public EntityAIAttackTarget(EntityNPCInterface par1EntityLiving) {
+	public EntityAIAttackTarget(EntityNPCInterface npc) {
 		this.navOverride = false;
 		this.attackTick = 0;
-		this.npc = par1EntityLiving;
+		this.npc = npc;
+		this.navOverride = npc.ais.tacticalVariant == 6;
 		this.setMutexBits(this.navOverride ? AiMutex.PATHING : (AiMutex.LOOK + AiMutex.PASSIVE));
 	}
 
@@ -38,9 +39,7 @@ extends EntityAIBase {
 
 	public boolean shouldContinueExecuting() {
 		this.entityTarget = this.npc.getAttackTarget();
-		if (this.entityTarget == null) {
-			this.entityTarget = this.npc.getRevengeTarget();
-		}
+		if (this.entityTarget == null) { this.entityTarget = this.npc.getRevengeTarget(); }
 		if (this.entityTarget == null || !this.entityTarget.isEntityAlive()) {
 			return false;
 		}
@@ -53,16 +52,14 @@ extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		EntityLivingBase entitylivingbase = this.npc.getAttackTarget();
-		if (entitylivingbase == null || !entitylivingbase.isEntityAlive()) {
+		EntityLivingBase target = this.npc.getAttackTarget();
+		if (target == null || !target.isEntityAlive()) { return false; }
+		int ranged = this.npc.stats.ranged.getMeleeRange();
+		if (this.npc.inventory.getProjectile()!=null && (ranged <= 0 || !this.npc.isInRange(target, ranged))) {
 			return false;
 		}
-		int melee = this.npc.stats.ranged.getMeleeRange();
-		if (this.npc.inventory.getProjectile() != null && (melee <= 0 || !this.npc.isInRange(entitylivingbase, melee))) {
-			return false;
-		}
-		this.entityTarget = entitylivingbase;
-		this.entityPathEntity = this.npc.getNavigator().getPathToEntityLiving(entitylivingbase);
+		this.entityTarget = target;
+		this.entityPathEntity = this.npc.getNavigator().getPathToEntityLiving(target);
 		return this.entityPathEntity != null;
 	}
 
@@ -93,4 +90,7 @@ extends EntityAIBase {
 			this.npc.attackEntityAsMob(this.entityTarget);
 		}
 	}
+
+	public EntityLivingBase getTarget() { return this.entityTarget; }
+	
 }

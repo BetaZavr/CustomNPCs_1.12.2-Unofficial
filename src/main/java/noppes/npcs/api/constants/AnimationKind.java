@@ -1,9 +1,5 @@
 package noppes.npcs.api.constants;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
 public enum AnimationKind {
 
 	ATTACKING(0, false),
@@ -18,7 +14,8 @@ public enum AnimationKind {
 	WATER_WALK(9, true),
 	REVENGE_STAND(10, false),
 	REVENGE_WALK(11, true),
-	HIT(12, true);
+	HIT(12, true),
+	BASE(13, false);
 	
 	boolean isMoving;
 	int type;
@@ -29,9 +26,9 @@ public enum AnimationKind {
 	}
 
 	public static String[] getNames() {
-		List<String> list = Lists.<String>newArrayList();
-		for (AnimationKind eat : AnimationKind.values()) { list.add("puppet."+eat.name().toLowerCase().replace("_", "")); }
-		return list.toArray(new String[list.size()]);
+		String[] list = new String[AnimationKind.values().length];
+		for (AnimationKind enm : AnimationKind.values()) { list[enm.type] = "puppet."+enm.name().toLowerCase().replace("_", ""); }
+		return list;
 	}
 	
 	public int get() { return this.type; }

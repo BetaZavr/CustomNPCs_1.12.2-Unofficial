@@ -1,18 +1,36 @@
 package noppes.npcs.client.gui.animation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -52,23 +70,25 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	public static int backColor = 0xFF000000;
 	private static AnimationKind type = AnimationKind.STANDING;
+	private static int blockType = 0; // 0 - stone, 1-stairs, 2-stone_slab, 3-carpet, 4 - non
+	private static int blockSize = 0; // 0 - x1, 1 - x3, 2 - x5
 
+	// data
 	private GuiScreen parent;
 	private DataAnimation animation;
-	private GuiCustomScroll scroll;
-	
-	// current
-	private int selectFrame, selectPart;
-	private String selectAnim;
+	private GuiCustomScroll scroll, scrollSet;
+	private AnimationConfig anim;
+	private AnimationFrameConfig frame;
+	private PartConfig part;
 	private final Map<String, AnimationConfig> dataAnim;
 	private boolean onlyCurrentPart;
-	
-	// data
-	private int[] rots;
-	private long ticksExisted;
-	private EntityNPCInterface[] npcs;
-	private float scaleFrame;
-	private char c;
+	private EntityNPCInterface npcAnim, npcPart;
+	// display
+	private final float[] dispRot, dispPos;
+	private float dispScale;
+	private final int[] mouseC;
+	private ScaledResolution sw;
+	private Framebuffer framebuffer;
 
 	public GuiNpcAnimation(GuiScreen parent, EntityCustomNpc npc) {
 		super(npc);
@@ -78,22 +98,25 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		this.animation = npc.animation;
 		this.closeOnEsc = true;
 		
-		this.c = ((char) 167);
-		this.scaleFrame = 0.5f;
-		this.selectAnim = "";
+		// Display
+		this.dispScale = 1.0f;
+		this.dispRot = new float[] { 0.0f, 0.0f, 0.0f };
+		this.dispPos = new float[] { 0.0f, 0.0f, 0.0f };
+		this.mouseC = new int[] { -1, 0, 0, -1, -1, 0 };
+		
+		this.anim = null;
+		this.frame = null;
+		this.part = null;
 		this.onlyCurrentPart = false;
 		this.dataAnim = Maps.<String, AnimationConfig>newHashMap();
 		this.setBackground("bgfilled.png");
-		this.rots = new int[] { 180, 180, 180, 180, 0, 0, 0, 0 };
-		this.ticksExisted = this.mc.world.getTotalWorldTime();
-		this.npcs = new EntityNPCInterface[5];
 		NBTTagCompound npcNbt = new NBTTagCompound();
 		npc.writeEntityToNBT(npcNbt);
 		npc.writeToNBTOptional(npcNbt);
 		Entity animNpc = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
 		if (animNpc instanceof EntityNPCInterface) {
-			this.npcs[4] = (EntityNPCInterface) animNpc;
-			this.npcs[4].display.setShowName(1);
+			this.npcAnim = (EntityNPCInterface) animNpc;
+			this.npcAnim.display.setShowName(1);
 			MarkData.get(this.npc).marks.clear();
 		}
 		Client.sendData(EnumPacketServer.AnimationGet);
@@ -103,224 +126,181 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	public void initGui() {
 		super.initGui();
 		AnimationController aData = AnimationController.getInstance();
-		AnimationConfig first = null, anim = null;
+		AnimationConfig tempAnim = null;
 		this.dataAnim.clear();
-		for (AnimationKind t : this.animation.data.keySet()) {
-			if (t!=GuiNpcAnimation.type) { continue; }
-			List<AnimationConfig> list = this.animation.data.get(t);
-			int id = 0;
-			for (AnimationConfig ac : list) {
-				ac.id = id;
-				String key = this.c+"7"+id+": "+this.c+"r"+ac.name;
-				this.dataAnim.put(key, ac);
-				if (first == null) { first= ac; }
-				if (!this.selectAnim.isEmpty() && this.selectAnim.equals(key) && ac.type==GuiNpcAnimation.type) { anim = ac; }
-				id++;
-			}
+		int id = 0;
+		for (AnimationConfig ac : this.animation.data.get(GuiNpcAnimation.type)) {
+			ac.id = id;
+			this.dataAnim.put(ac.getSettingName(), ac);
+			if (this.anim==null || this.anim.equals(tempAnim)) { tempAnim = ac; }
+			id++;
 		}
-		if (anim==null && first!=null) {
-			anim = first;
-			this.selectAnim = this.c+"7"+anim.id+": "+this.c+"r"+anim.name;
-		}
+		if (this.anim==null && tempAnim!=null) { this.anim = tempAnim; }
 		
-		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
+		if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(120, 156); }
 		this.scroll.setList(new ArrayList<String>(this.dataAnim.keySet()));
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 36;
-		this.scroll.setSize(120, 156);
 		this.addScroll(this.scroll);
-		if (!this.selectAnim.isEmpty()) { this.scroll.setSelected(this.selectAnim); }
+		if (this.anim!=null) { this.scroll.setSelected(this.anim.getSettingName()); }
 		
-		this.addButton(new GuiNpcButton(65, this.guiLeft + this.xSize - 25, this.guiTop+3, 10, 10, this.onlyCurrentPart ? "_" : "^"));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 13, this.guiTop+3, 10, 10, "X"));
 		this.addLabel(new GuiNpcLabel(0, "animation.type", this.guiLeft+4, this.guiTop+4));
 		GuiNpcButton button = new GuiButtonBiDirectional(1, this.guiLeft+4, this.guiTop+14, 120, 20, AnimationKind.getNames(), GuiNpcAnimation.type.get());
 		((GuiButtonBiDirectional) button).showShedow = false;
 		this.addButton(button);
+
+		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 17, this.guiTop + 5, 12, 12, "X"));
+		
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 4, this.guiTop + 194, 59, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 65, this.guiTop + 194, 59, 20, "gui.remove"));
-		this.getButton(3).enabled = anim!=null;
+		this.addButton(new GuiNpcButton(3, this.guiLeft + 64, this.guiTop + 194, 59, 20, "gui.remove"));
+		this.getButton(3).enabled = this.anim!=null;
 		this.addButton(new GuiNpcButton(4, this.guiLeft + 4, this.guiTop + 216, 59, 20, "gui.load"));
 		this.getButton(4).enabled = aData!=null;
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 65, this.guiTop + 216, 59, 20, "gui.save"));
-		this.getButton(5).layerColor = anim!=null && aData.getAnimation(anim.name)==null ? 0xFF00FF00 : 0xFFFFFFFF;
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 64, this.guiTop + 216, 59, 20, "gui.save"));
+		this.getButton(5).layerColor = this.anim!=null && aData.getAnimation(this.anim.name)==null ? 0xFF00FF00 : 0xFFFFFFFF;
 		
-		this.addButton(new GuiNpcButton(19, this.guiLeft + 65, this.guiTop + 1, 59, 12, "gui.base"));
-		if (this.animation.baseAnim!=null) { this.getButton(19).layerColor = 0xFF00FF00; }
-		
-		AnimationFrameConfig frame = null;
-		PartConfig part = null;
-		if (anim!=null) {
-			if (anim.frames.size()==0) { anim.frames.put(0, new AnimationFrameConfig()); }
-			if (anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
-			else {
-				this.selectFrame = 0;
-				frame = anim.frames.get(0);
+		if (this.anim!=null) {
+			if (this.anim.frames.size()==0) {
+				this.frame = new AnimationFrameConfig();
+				this.anim.frames.put(0, this.frame);
 			}
-			if (frame!=null) {
-				if (this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
-				else {
-					this.selectPart = 0;
-					part = frame.parts[0];
-				}
+			if (!this.anim.frames.containsValue(this.frame)) { this.frame = this.anim.frames.get(0); }
+			
+			if (this.frame!=null) {
+				if (this.part == null || this.part.id < 0 || this.part.id >= this.frame.parts.length) { this.part = this.frame.parts[0]; }
 			}
-			else { this.selectPart = 0; }
+			else { this.part = null; }
 		}
 		else {
-			this.selectFrame = 0;
-			this.selectPart = 0;
+			this.frame = null;
+			this.part = null;
 		}
-		if (anim!=null && frame!=null && part!=null) {
-			List<String> list = Lists.newArrayList();
-			for (int i=0; i<anim.frames.size(); i++) { list.add(""+(i+1)+"/"+anim.frames.size()); }
+		this.mouseC[3] = -1;
+		this.mouseC[4] = -1;
+		this.mouseC[5] = 0;
+		if (this.anim!=null && this.frame!=null && this.part!=null) {
+
+			this.mouseC[3] = this.scroll.guiLeft + this.scroll.width + 141;
+			this.mouseC[4] = this.guiTop + 33;
+			this.mouseC[5] = 155;
 			
-			int u = this.guiLeft+230, v = this.guiTop + 14, s = 65;
-			// Display
-			button = new GuiNpcCheckBox(18, u - 103, v + this.height - 30, 65, 14, anim.isDisable() ? "gui.disabled" : "gui.enabled");
-			((GuiNpcCheckBox) button).setSelected(anim.isDisable());
-			this.addButton(button);
+			// Mini
+			int u = this.scroll.guiLeft + this.scroll.width + 3;
+			int v = this.guiTop + this.ySize - 47;
+			int sel = 0;
 			
-			for (int i=0; i<4; i++) {
-				int un = i%4>2 ? s*2 : i*s, vn = i>2 ? 191 : 91;
-				if (this.onlyCurrentPart && i>0) {
-					un = s*2 - 7; vn = 176;
-					this.addSlider(new GuiNpcSlider(this, 73, u+un-45, v+vn, 100, 7, (float) this.rots[3] / 360.0f));
-					this.addSlider(new GuiNpcSlider(this, 77, u+s+un-9, v+vn-177, 7, 176, 0.005556f * (float) this.rots[7] + 0.5f));
-					this.addSlider(new GuiNpcSlider(this, 78, u+s+un-2, v+vn-177, 7, 176, this.scaleFrame));
-					button = new GuiNpcButton(63, u+s+un-10, v+vn-1, 8, 8, "x");
-					button.packedFGColour = 0xFFC0C0C0;
-					button.dropShadow = false;
-					button.layerColor = 0xFFF080F0;
-					this.addButton(button);
-					break;
-				}
-				this.addSlider(new GuiNpcSlider(this, 70+i, u+un-1, v+vn, 56, 7, (float) this.rots[i] / 360.0f));
-				this.addSlider(new GuiNpcSlider(this, 74+i, u+s+un-9, v+vn-91, 7, 90, 0.005556f * (float) this.rots[4+i] + 0.5f));
-				button = new GuiNpcButton(60+i, u+s+un-10, v+vn-1, 8, 8, "x");
-				button.packedFGColour = 0xFFC0C0C0;
-				button.dropShadow = false;
-				button.layerColor = i==0 ? 0xFFF08080 : i==1 ? 0xFF80F080 : i==2 ? 0xFF8080F0 : 0xFFF080F0;
-				this.addButton(button);
-			}
-			u = this.guiLeft + 127;
+			if (this.scrollSet == null) { (this.scrollSet = new GuiCustomScroll(this, 1)).setSize(50, 43); }
+			else { sel = this.scrollSet.selected; }
+			this.scrollSet.setListNotSorted(Lists.<String>newArrayList(new String[] { "movement.rotation", "type.offset", "model.scale" }));
+			this.scrollSet.guiLeft = u;
+			this.scrollSet.guiTop = v;
+			this.scrollSet.selected = sel;
+			this.addScroll(this.scrollSet);
+
+			this.addButton(new GuiNpcButton(65, u + 53, v - 17, 50, 14, this.onlyCurrentPart ? "animation.frame" : "movement.animation"));
+			
+			v -= 74;
+			u += 16;
+			this.addButton(new GuiNpcButton(7, u, v, 18, 18, "")); // head
+			this.addButton(new GuiNpcButton(8, u+19, v+19, 8, 24, "")); // left arm
+			this.addButton(new GuiNpcButton(9, u-9, v+19, 8, 24, "")); // right arm
+			this.addButton(new GuiNpcButton(10, u, v+19, 18, 24, "")); // body
+			this.addButton(new GuiNpcButton(11, u+10, v+44, 8, 24, "")); // left leg
+			this.getButton(11).visible = ((ModelPartData) ((EntityCustomNpc) this.npc).modelData.getPartData(EnumParts.LEGS)).type == (byte) 0;
+			this.addButton(new GuiNpcButton(12, u, v+44, 8, 24, "")); // right leg
+			this.getButton(12).visible = ((ModelPartData) ((EntityCustomNpc) this.npc).modelData.getPartData(EnumParts.LEGS)).type == (byte) 0;
+			this.getButton(7+this.part.id).layerColor = 0xFF70FF70;
+			
+			// Work place
+			u = this.scroll.guiLeft + this.scroll.width + 56;
 			v = this.guiTop + 4;
 			this.addLabel(new GuiNpcLabel(1, "type.name", u+2, v));
-			GuiNpcTextField textField = new GuiNpcTextField(0, this, u+1, v += 10, 97, 15, anim.name);
+			GuiNpcTextField textField = new GuiNpcTextField(0, this, u+1, v += 10, 120, 15, this.anim.name);
 			this.addTextField(textField);
 			
-			this.addLabel(new GuiNpcLabel(3, "animation.frame", u+2, v += 17));
-			this.addButton(new GuiButtonBiDirectional(6, u, v += 10, 99, 20, list.toArray(new String[list.size()]), frame.id));
-			
-			int u1 = u + 186;
-			if (!this.onlyCurrentPart) {
-				this.addButton(new GuiNpcButton(7, u1, v+84, 18, 18, "")); // head
-				this.addButton(new GuiNpcButton(8, u1+19, v+103, 8, 24, "")); // left arm
-				this.addButton(new GuiNpcButton(9, u1-9, v+103, 8, 24, "")); // right arm
-				this.addButton(new GuiNpcButton(10, u1, v+103, 18, 24, "")); // body
-				this.addButton(new GuiNpcButton(11, u1+10, v+128, 8, 24, "")); // left leg
-				this.getButton(11).visible = ((ModelPartData) ((EntityCustomNpc) this.npc).modelData.getPartData(EnumParts.LEGS)).type == (byte) 0;
-				this.addButton(new GuiNpcButton(12, u1, v+128, 8, 24, "")); // right leg
-				this.getButton(12).visible = ((ModelPartData) ((EntityCustomNpc) this.npc).modelData.getPartData(EnumParts.LEGS)).type == (byte) 0;
-				this.getButton(7+part.part).layerColor = 0xFF70FF70;
+			String[] blocks = new String[5];
+			blocks[4] = "gui.none";
+			for (int i = 0; i<4; i++) {
+				Block block;
+				switch(i) {
+					case 1: block = Blocks.STONE_STAIRS; break;
+					case 2: block = Blocks.STONE_SLAB; break;
+					case 3: block = Blocks.CARPET; break;
+					default: block = Blocks.STONE; break;
+				}
+				blocks[i] = new ItemStack(block).getDisplayName();
 			}
-			
-			this.addButton(new GuiNpcButton(13, u, v += 22, 48, 12, "gui.add"));
-			this.addButton(new GuiNpcButton(14, u + 51, v, 48, 12, "gui.remove"));
-			this.getButton(14).enabled = anim.frames.size()>1;
-			
-			this.addLabel(new GuiNpcLabel(17, "gui.time", u+2, v += 14));
-			textField = new GuiNpcTextField(10, this, u+1, v += 10, 45, 12, ""+frame.getSpeed());
-			textField.setNumbersOnly();
-			textField.setMinMaxDefault(0, 3600, frame.getSpeed());
-			this.addTextField(textField);
-			textField = new GuiNpcTextField(11, this, u + 52, v, 45, 12, ""+frame.getEndDelay());
-			textField.setNumbersOnly();
-			textField.setMinMaxDefault(0, 3600, frame.getEndDelay());
-			this.addTextField(textField);
-			
-			v += 21;
-			// rotation, offset, scale
-			button = new GuiNpcButton(78, u + 76, v - 2, 10, 10, "x");
-			button.packedFGColour = 0xFFC00000;
-			button.dropShadow = false;
+			this.addButton(new GuiNpcButton(20, u + 123, v -= 1, 80, 17, blocks, GuiNpcAnimation.blockType));
+			String[] sizes = new String[] { "x1", "x3", "x5" };
+			this.addButton(new GuiNpcButton(21, u + 204, v, 25, 17, sizes, GuiNpcAnimation.blockSize));
+
+			v += 17;
+			button = new GuiNpcCheckBox(18, u, v, 65, 14, this.anim.isDisable() ? "Off" : "On");
+			((GuiNpcCheckBox) button).setSelected(this.anim.isDisable());
 			this.addButton(button);
-			button = new GuiNpcButton(79, u + 89, v - 2, 10, 10, "x");
-			button.packedFGColour = 0xFF000000;
-			button.dropShadow = false;
-			this.addButton(button);
-			for (int i=0; i<3; i++) {
-				this.addLabel(new GuiNpcLabel(4+i, i==0 ? "movement.rotation" : i==1 ? "type.offset" : "model.scale", u+2, v+1));
-				v += 10;
-				for (int j=0; j<3; j++) {
-					float valueSlider = part.rotation[j];
-					float value = (float) (Math.round(3600.0f * valueSlider) / 10.0d);
-					if (i==1) {
-						valueSlider = part.offset[j];
-						value = (float) (Math.round((10.0f * valueSlider - 5.0f) * 1000.0f) / 1000.0d);
+			
+			v += 180;
+			if (this.scrollSet.selected>-1) {
+				int s = scrollSet.selected;
+				for (int i = 0; i < 3; i++) {
+					this.addLabel(new GuiNpcLabel(7 + i, i==0 ? "X:" : i==1 ? "Y:" : "Z:", u, v + i * 10));
+					float[] values = s == 0 ? this.part.rotation : s == 1 ? this.part.offset : this.part.scale;
+					float[] datas = new float[3];
+					switch(s) {
+						case 1: {
+							for (int j = 0; j < 3; j++) { datas[j] = (float) (Math.round((10.0f * values[i] - 5.0f) * 1000.0f) / 1000.0d); }
+							break;
+						}
+						case 2: {
+							for (int j = 0; j < 3; j++) { datas[j] = (float) (Math.round(5000.0f * values[i]) / 1000.0d); }
+							break;
+						}
+						default: {
+							for (int j = 0; j < 3; j++) { datas[j] = (float) (Math.round(3600.0f * values[i]) / 10.0d); }
+							break;
+						}
 					}
-					else if (i==2) {
-						valueSlider = part.scale[j];
-						value = (float) (Math.round(5000.0f * valueSlider) / 1000.0d);
-					}
-					GuiNpcSlider slider = new GuiNpcSlider(this, i * 3 + j, u, v+j*10, 98, 8, valueSlider);
-					this.addSlider(slider);
-					textField = new GuiNpcTextField(i * 3 + j + 1, this, u+110, v + j*10, 42, 8, ""+value);
+					this.addSlider(new GuiNpcSlider(this, i, u + 8, v + i * 10, 168, 8, values[i]));
+					
+					textField = new GuiNpcTextField(i * 3 + 1, this, u + 179, v + i * 10, 51, 8, ""+datas[i]);
 					textField.setDoubleNumbersOnly();
 					switch(i) {
-						case 1: textField.setMinMaxDoubleDefault(-5.0d, 5.0d, (double) value); break;
-						case 2: textField.setMinMaxDoubleDefault(0.0d, 5.0d, (double) value); break;
-						default: textField.setMinMaxDoubleDefault(0.0d, 360.0d, (double) value); break;
+						case 1: textField.setMinMaxDoubleDefault(-5.0d, 5.0d, (double) datas[i]); break;
+						case 2: textField.setMinMaxDoubleDefault(0.0d, 5.0d, (double) datas[i]); break;
+						default: textField.setMinMaxDoubleDefault(0.0d, 360.0d, (double) datas[i]); break;
 					}
-					this.addLabel(new GuiNpcLabel(7 + i * 3 + j, j==0 ? "X:" : j==1 ? "Y:" : "Z:", u+100, v + j*10));
 					this.addTextField(textField);
 					
-					button = new GuiNpcButton(80 + i * 3 + j, u+154, v - 1 + j*10, 10, 10, "x");
-					button.packedFGColour = 0xFF000000;
+					button = new GuiNpcButton(80 + i, u + 232, v - 1 + i * 10, 10, 10, "x");
 					button.dropShadow = false;
 					this.addButton(button);
 				}
-				v += 30;
 			}
-			u = this.guiLeft+296;
-			v = this.guiTop+205;
-			button = new GuiNpcCheckBox(15, u, v, 65, 14, part.isDisable() ? "gui.disabled" : "gui.enabled");
-			((GuiNpcCheckBox) button).setSelected(part.isDisable());
-			this.addButton(button);
-			button = new GuiNpcCheckBox(16, u, v += 14, 65, 14, frame.isSmooth() ? "gui.smooth" : "gui.linearly");
-			((GuiNpcCheckBox) button).setSelected(frame.isSmooth());
-			this.addButton(button);
-			this.addButton(new GuiNpcButton(17, u, v - 26, 10, 10, new String[] { "b", "w" }, GuiNpcAnimation.backColor==0xFF000000 ? 0 : 1));
 			
-			if (GuiNpcAnimation.type == AnimationKind.DIES) {
-				this.addLabel(new GuiNpcLabel(16, "gui.repeat", (u += 60) + 2, v -= 5));
-				if (anim.repeatLast < 0) { anim.repeatLast *= -1; }
-				if (anim.repeatLast > anim.frames.size()) { anim.repeatLast = anim.frames.size(); }
-				
-				textField = new GuiNpcTextField(12, this, u, v += 10, 45, 12, ""+anim.repeatLast);
-				textField.setNumbersOnly();
-				textField.setMinMaxDefault(0, anim.frames.size(), anim.repeatLast);
-				this.addTextField(textField);
-			}
-		}
+			// display
+			button = new GuiNpcButton(63, this.guiLeft + this.xSize - 17, this.guiTop + 19, 12, 12, "x");
+			button.packedFGColour = 0xFFC0C0C0;
+			button.dropShadow = false;
+			button.layerColor = 0xFFF080F0;
+			this.addButton(button);
+			
+			List<String> list = Lists.newArrayList();
+			for (int i=0; i<this.anim.frames.size(); i++) { list.add(""+(i+1)+"/"+this.anim.frames.size()); }
+		} else { this.clearDisplay(); }
 		this.resetAnims();
 	}
+
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if (!(button instanceof GuiNpcButton)) { return; }
 		GuiNpcButton npcButton = (GuiNpcButton) button;
-		AnimationConfig anim = null;
-		AnimationFrameConfig frame = null;
-		PartConfig part = null;
-		if (this.dataAnim.containsKey(this.selectAnim)) { anim = this.dataAnim.get(this.selectAnim); }
-		if (anim!=null && anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
-		if (frame!=null && this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
 		switch(npcButton.id) {
 			case 1: { // set type
 				GuiNpcAnimation.type = AnimationKind.values()[npcButton.getValue()];
-				this.selectAnim = "";
-				this.selectFrame = 0;
-				this.selectPart = 0;
+				this.anim = null;
+				this.frame = null;
+				this.part = null;
 				this.initGui();
 				break;
 			}
@@ -329,12 +309,12 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				break;
 			}
 			case 3: { // del anim
-				if (anim==null) { return; }
-				boolean bo = this.animation.removeAnimation(GuiNpcAnimation.type.get(), anim.name);
+				if (this.anim==null) { return; }
+				boolean bo = this.animation.removeAnimation(GuiNpcAnimation.type.get(), this.anim.name);
 				if (bo) {
-					this.selectAnim = "";
-					this.selectFrame = 0;
-					this.selectPart = 0;
+					this.anim = null;
+					this.frame = null;
+					this.part = null;
 				}
 				this.initGui();
 				break;
@@ -344,35 +324,107 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				break;
 			}
 			case 5: { // save
-				if (anim==null) { return; }
+				if (this.anim==null) { return; }
 				AnimationController aData = AnimationController.getInstance();
 				AnimationConfig ac = (AnimationConfig) aData.createNew(GuiNpcAnimation.type.get());
-				ac.readFromNBT(anim.writeToNBT(new NBTTagCompound()));
+				ac.readFromNBT(this.anim.writeToNBT(new NBTTagCompound()));
 				this.player.sendMessage(new TextComponentTranslation("animation.message.save", ac.name));
 				Client.sendData(EnumPacketServer.AnimationGlobalSave, ac.writeToNBT(new NBTTagCompound()));
 				this.initGui();
 				break;
 			}
+			case 18: { // disable
+				if (this.anim==null) { return; }
+				this.anim.setDisable(((GuiNpcCheckBox) button).isSelected());
+				((GuiNpcCheckBox) button).setText(this.anim.isDisable() ? "Off" : "On");
+				break;
+			}
+			case 20: { // block type
+				GuiNpcAnimation.blockType = npcButton.getValue();
+				break;
+			}
+			case 21: { // block size
+				GuiNpcAnimation.blockSize = npcButton.getValue();
+				break;
+			}
+			case 63: { // reset now rotation
+				this.dispScale = 1.0f;
+				for (int i = 0; i < 3; i++) {
+					this.dispRot[i] = 0.0f;
+					this.dispPos[i] = 0.0f;
+					this.mouseC[i] =  i == 0 ? -1 : 0;
+				}
+				break;
+			}
+			case 65: { // exit
+				this.onlyCurrentPart = !this.onlyCurrentPart;
+				this.initGui();
+				break;
+			}
+			case 66: { // exit
+				this.close();
+				break;
+			}
+			case 80: { // reset part X
+				if (this.dispRot[0]==0.0f) {
+					this.dispRot[0] = 180.0f;
+				} else if (this.dispRot[0]==180.0f) {
+					this.dispRot[0] = 0.0f;
+				} else {
+					this.dispRot[0] = 0.0f;
+				}
+				this.dispRot[1] = 0.0f;
+				
+				if (this.part==null || this.scrollSet==null || this.scrollSet.selected<0 || this.scrollSet.selected>2) { return; }
+				switch(this.scrollSet.selected) {
+					case 0: this.part.rotation[0] = 0.5f; break;
+					case 1: this.part.offset[0] = 0.5f; break;
+					case 2: this.part.scale[0] = 0.2f; break;
+				}
+				this.initGui();
+				break;
+			}
+			case 81: { // reset part Y
+				if (this.part==null || this.scrollSet==null || this.scrollSet.selected<0 || this.scrollSet.selected>2) { return; }
+				switch(this.scrollSet.selected) {
+					case 0: this.part.rotation[1] = 0.5f; break;
+					case 1: this.part.offset[1] = 0.5f; break;
+					case 2: this.part.scale[1] = 0.2f; break;
+				}
+				this.initGui();
+				break;
+			}
+			case 82: { // reset part Z
+				if (this.part==null || this.scrollSet==null || this.scrollSet.selected<0 || this.scrollSet.selected>2) { return; }
+				switch(this.scrollSet.selected) {
+					case 0: this.part.rotation[2] = 0.5f; break;
+					case 1: this.part.offset[2] = 0.5f; break;
+					case 2: this.part.scale[2] = 0.2f; break;
+				}
+				this.initGui();
+				break;
+			}
+			/*
 			case 6: { // select frame
-				if (anim==null) { return; }
+				if (this.anim==null) { return; }
 				this.selectFrame = npcButton.getValue();
 				this.initGui();
 				break;
 			}
 			case 7: { // select head
-				if (frame==null) { return; }
+				if (this.frame==null) { return; }
 				this.selectPart = 0;
 				this.initGui();
 				break;
 			}
 			case 8: { // select left arm
-				if (frame==null) { return; }
+				if (this.frame==null) { return; }
 				this.selectPart = 1;
 				this.initGui();
 				break;
 			}
 			case 9: { // select right arm
-				if (frame==null) { return; }
+				if (this.frame==null) { return; }
 				this.selectPart = 2;
 				this.initGui();
 				break;
@@ -396,16 +448,16 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				break;
 			}
 			case 13: { // add frame
-				if (anim==null) { return; }
-				this.selectFrame = ((AnimationFrameConfig) anim.addFrame(frame)).id;
+				if (this.anim==null) { return; }
+				this.selectFrame = ((AnimationFrameConfig) this.anim.addFrame(frame)).id;
 				this.initGui();
 				break;
 			}
 			case 14: { // del frame
-				if (anim==null || frame==null) { return; }
+				if (this.anim==null || frame==null) { return; }
 				int f = frame.id--;
 				if (f<0) { f = 0; }
-				if (!anim.removeFrame(frame)) { return; }
+				if (!this.anim.removeFrame(frame)) { return; }
 				this.selectFrame = 0;
 				this.selectPart = 0;
 				this.initGui();
@@ -439,13 +491,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				GuiNpcAnimation.backColor = GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF: 0xFF000000;
 				break;
 			}
-			case 18: { // disable
-				if (anim==null) { return; }
-				anim.setDisable(((GuiNpcCheckBox) button).isSelected());
-				((GuiNpcCheckBox) button).setText(anim.isDisable() ? "gui.disabled" : "gui.enabled");
-				this.resetAnims();
-				break;
-			}
 			case 19: { // load טפûף
 				this.setSubGui(new SubGuiLoadAnimation(3, this.npc));
 				break;
@@ -474,25 +519,6 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				this.getSlider(76).sliderValue = 0.5f;
 				break;
 			}
-			case 63: { // reset now rotation
-				if (this.getSlider(73)==null || this.getSlider(77)==null) { return; }
-				this.rots[3] = 180;
-				this.rots[7] = 0;
-				this.getSlider(73).sliderValue = 0.5f;
-				this.getSlider(77).sliderValue = 0.5f;
-				this.scaleFrame = 0.5f;
-				if (this.getSlider(78)!=null) { this.getSlider(78).sliderValue = this.scaleFrame; }
-				break;
-			}
-			case 65: { // exit
-				this.onlyCurrentPart = !this.onlyCurrentPart;
-				this.initGui();
-				break;
-			}
-			case 66: { // exit
-				this.close();
-				break;
-			}
 			case 78: { // reset All Parts
 				if (frame==null) { return; }
 				for (int j=0; j<6; j++) {
@@ -508,146 +534,107 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				part.clear();
 				this.initGui();
 				break;
-			}
-			case 80: { // reset part rotX
-				if (part==null) { return; }
-				part.rotation[0] = 0.5f;
-				this.initGui();
-				break;
-			}
-			case 81: { // reset part rotY
-				if (part==null) { return; }
-				part.rotation[1] = 0.5f;
-				this.initGui();
-				break;
-			}
-			case 82: { // reset part rotZ
-				if (part==null) { return; }
-				part.rotation[2] = 0.5f;
-				this.initGui();
-				break;
-			}
-			case 83: { // reset part ofsX
-				if (part==null) { return; }
-				part.offset[0] = 0.5f;
-				this.initGui();
-				break;
-			}
-			case 84: { // reset part ofsY
-				if (part==null) { return; }
-				part.offset[1] = 0.5f;
-				this.initGui();
-				break;
-			}
-			case 85: { // reset part ofsZ
-				if (part==null) { return; }
-				part.offset[2] = 0.5f;
-				this.initGui();
-				break;
-			}
-			case 86: { // reset part scX
-				if (part==null) { return; }
-				part.scale[0] = 0.2f;
-				this.initGui();
-				break;
-			}
-			case 87: { // reset part scY
-				if (part==null) { return; }
-				part.scale[1] = 0.2f;
-				this.initGui();
-				break;
-			}
-			case 88: { // reset part scZ
-				if (part==null) { return; }
-				part.scale[2] = 0.2f;
-				this.initGui();
-				break;
-			}
+			}*/
 		}
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		AnimationConfig anim = null;
-		AnimationFrameConfig frame = null;
-		PartConfig part = null;
-		if (this.dataAnim.containsKey(this.selectAnim)) {
-			anim = this.dataAnim.get(this.selectAnim);
-			if (anim!=null && anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
-			if (frame!=null && this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
-			int x = this.guiLeft+230, y = this.guiTop+14;
-			int s=65;
-			for (int i=0; i<4; i++) {
-				if (this.npcs[i]!=null) {
-					this.npcs[i].ticksExisted = (int) (this.mc.world.getTotalWorldTime() - this.ticksExisted);
+		if (this.getEventButton() != this.mouseC[0]) { this.mouseC[0] = -1; }
+		if (this.anim != null) {
+			if (this.mouseC[0] != -1) {
+				int x = mouseX - this.mouseC[1];
+				int y = mouseY - this.mouseC[2];
+				if (x!=0 || y!=0) {
+					if (this.mouseC[0]==0) { this.displayOffset(x, y); }// LMB
+					else if (this.mouseC[0]==1) { this.displayRotate(x, y); } // RMB
+					this.mouseC[1] = mouseX;
+					this.mouseC[2] = mouseY;
 				}
 			}
+			int wheel = Mouse.getDWheel();
+			if (wheel!=0) {
+				this.dispScale += this.dispScale * (wheel < 0 ? 0.1f : -0.1f);
+				if (this.dispScale < 0.5f) { this.dispScale = 0.5f; }
+				else if (this.dispScale > 5.0f) { this.dispScale = 5.0f; }
+				this.dispScale = (float) (Math.round(this.dispScale * 20.0d) / 20.0d);
+				if (this.dispScale == 0.95f || this.dispScale == 1.05f) { this.dispScale = 1.0f; }
+			}
+			this.sw = new ScaledResolution(this.mc);
+			int u, v;
+			// NPC
+			EntityNPCInterface npc = this.onlyCurrentPart ? this.npcPart : this.npcAnim;
+			if (npc!=null) {
+				int current = GlStateManager.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+				if (this.framebuffer == null) {
+					this.framebuffer = new Framebuffer(this.mc.displayWidth, this.mc.displayHeight, false);
+					this.framebuffer.setFramebufferColor(0.0f, 0.0f, 0.0f, 0.0f);
+				}
+				if (this.mc.displayWidth != this.framebuffer.framebufferWidth || this.mc.displayHeight != this.framebuffer.framebufferHeight) {
+					this.framebuffer.createBindFramebuffer(this.mc.displayWidth, this.mc.displayHeight);
+				}
+				this.framebuffer.bindFramebuffer(false);
+				GlStateManager.bindTexture(-1);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				this.mc.getFramebuffer().bindFramebuffer(false);
+				this.drawWork(npc);
+				this.framebuffer.framebufferClear();
+				//this.framebuffer.deleteFramebuffer();
+				this.mc.getFramebuffer().bindFramebuffer(false);
+				GlStateManager.bindTexture(current);
+			}
+			
+			// GUI
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			for (int i=0; i<3; i++) { // up
-				if (this.onlyCurrentPart && i>0) {
-					Gui.drawRect(x-1+i*s, y-1, x+179, y+176, 0xFFF080F0);
-					Gui.drawRect(x+i*s, y, x+178, y+175, GuiNpcAnimation.backColor);
-					break;
-				}
-				Gui.drawRect(x-1+i*s, y-1, x+56+i*s, y+91, i==0 ? 0xFFF08080 : i==1 ? 0xFF80F080 : 0xFF8080F0);
-				Gui.drawRect(x+i*s, y, x+55+i*s, y+90, GuiNpcAnimation.backColor);
-				if (this.npcs[i]!=null && this.subgui==null) {
-					GlStateManager.pushMatrix();
-					if (this.rots[i+4]>=-10 && this.rots[i+4]<=10) {
-						this.drawHorizontalLine(x+65, x+123, y+73, 0x20FFFFFF);
-					}
-					GlStateManager.translate(i*s+259.0f, 85.0f, 100.0f);
-					this.drawNpc(this.npcs[i], 0, 0, 1.0f, this.rots[i]-180, this.rots[i+4], false);
-					GlStateManager.popMatrix();
-				}
+			if (this.scroll!=null && this.scrollSet!=null) {
+				u = this.scroll.guiLeft + this.scroll.width + 1;
+				v = this.guiTop + this.ySize - 1;
+				this.drawVerticalLine(u, this.guiTop+3, v, 0xFF808080);
+				v -= this.scrollSet.height + 5;
+				this.drawHorizontalLine(u, u + 297, v, 0xFF808080);
+				this.drawVerticalLine(u+53, v - 78, v, 0xFF808080);
+				u += 3; v -= 74;
+				Gui.drawRect(u, v, u + 48, v + 72, 0xFF202020);
+				u += 1; v += 1;
+				this.drawGradientRect(u, v, u + 46, v + 70, 0xFFC0C0C0, 0xFF808080);
+				u -= 4; v -= 4;
+				this.drawHorizontalLine(u, u + 52, v, 0xFF808080);
 			}
-			x += s;
-			y += 100;
-			for (int i=0; i<2; i++) { // down
-				if (!this.onlyCurrentPart) {
-					Gui.drawRect(x-1+i*s, y-1, x+56+i*s, y+91, i==0 ? 0xFF808080 :  0xFFF080F0);
-					Gui.drawRect(x+i*s, y, x+55+i*s, y+90, i==0 ? 0xFFF0F0F0 : GuiNpcAnimation.backColor);
-				}
-				if (i==1 && this.npcs[3]!=null && this.subgui==null) {
-					GlStateManager.pushMatrix();
-					float scale, xPos, yPos;
-					if (!this.onlyCurrentPart) {
-						scale = 1.0f;
-						xPos = 388.0f;
-						yPos = 187.0f;
-					}
-					else {
-						scale = 2.75f * this.scaleFrame + 0.25f;
-						xPos = 352.0f;
-						yPos = 28.0f * scale + 103.0f;
-					}
-					if (this.rots[7]>=-10 && this.rots[7]<=10) {
-						this.drawHorizontalLine(x+65, x+123, y+73, 0x20FFFFFF);
-					}
-					GlStateManager.translate(xPos, yPos, 100.0f);
-					this.drawNpc(this.npcs[3], 0, 0, scale, this.rots[3]-180, this.rots[7], false);
-					GlStateManager.popMatrix();
-				}
-			}
+			
+			u = this.mouseC[3];
+			v = this.mouseC[4];
+			Gui.drawRect(u, v, u + this.mouseC[5], v + this.mouseC[5], 0xFFF080F0);
+			u += 1; v += 1;
+			Gui.drawRect(u, v, u + this.mouseC[5] - 2, v + this.mouseC[5] - 2, GuiNpcAnimation.backColor);
 			GlStateManager.popMatrix();
-
+			
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(u + 1, v + 1, 1.0f);
+			this.drawString(this.fontRenderer, "text", 0, 0, 0xFFFFFFFF);
+			GlStateManager.popMatrix();
+			
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			this.drawVerticalLine(this.guiLeft+125, this.guiTop+3, this.guiTop+this.ySize-3, 0xFF404040);
-			this.drawVerticalLine(this.guiLeft+227, this.guiTop+3, this.guiTop+114, 0xFF404040);
-			this.drawHorizontalLine(this.guiLeft+126, this.guiLeft+226, this.guiTop+101, 0xFF404040);
-			this.drawHorizontalLine(this.guiLeft+227, this.guiLeft+291, this.guiTop+113, 0xFF404040);
-			this.drawVerticalLine(this.guiLeft+292, this.guiTop+112, this.guiTop+this.ySize-3, 0xFF404040);
-			this.drawHorizontalLine(this.guiLeft+126, this.guiLeft+226, this.guiTop+76, 0xFF404040);
+			String ts = "x"+this.dispScale;
+			this.fontRenderer.drawString(ts, u + this.mouseC[5] - 3 - this.fontRenderer.getStringWidth(ts), v + 1, 0xFFFFFF, false);
+			ts = (int) this.dispRot[0] + "" + ((char) 176) + "/" + (int) this.dispRot[1] + ((char) 176);
+			this.fontRenderer.drawString(ts, u + this.mouseC[5] - 3 - this.fontRenderer.getStringWidth(ts), v + this.mouseC[5] - 11, 0xFFFFFF, false);
+			ts = (int) this.dispPos[0] + "/" + (int) this.dispPos[1];
+			this.fontRenderer.drawString(ts, u + 1, v + this.mouseC[5] - 11, 0xFFFFFF, false);
 			GlStateManager.popMatrix();
 		}
+		
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		
 		if (!CustomNpcs.showDescriptions) { return; }
-		if (this.isMouseHover(mouseX, mouseY, this.guiLeft+4, this.guiTop+36, 120, 156)) {
+		if (this.scroll!=null && this.isMouseHover(mouseX, mouseY, this.scroll.guiLeft, this.scroll.guiTop, this.scroll.width, this.scroll.height)) { // scroll anim
 			this.setHoverText(new TextComponentTranslation("animation.hover.list").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("animation.hover.type").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("animation.type", "\""+AdditionalMethods.instance.deleteColor(this.getButton(1).displayString)+"\"").
+					appendSibling(new TextComponentTranslation("animation.hover.type."+GuiNpcAnimation.type.get())).
+					appendSibling(new TextComponentTranslation("animation.hover.type.15"))
+					.getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.add").getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
@@ -660,17 +647,12 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.base").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else if (anim!=null) {
-			if (this.isMouseHover(mouseX, mouseY, this.guiLeft+232, this.guiTop+10, 55, 90)) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.animated").getFormattedText());
-			} else if (this.isMouseHover(mouseX, mouseY, this.guiLeft+297, this.guiTop+10, 55, 90)) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.pre.part").getFormattedText());
-			} else if (this.isMouseHover(mouseX, mouseY, this.guiLeft+362, this.guiTop+10, 55, 90)) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.post.part").getFormattedText());
-			} else if (this.isMouseHover(mouseX, mouseY, this.guiLeft+362, this.guiTop+110, 55, 90)) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.now.part").getFormattedText());
-			}
-			else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		} else if (this.anim!= null) {
+			if (this.isMouseHover(mouseX, mouseY, this.mouseC[3], this.mouseC[4], this.mouseC[5], this.mouseC[5])) { // scroll anim
+				this.setHoverText(new TextComponentTranslation("animation.hover.work."+this.onlyCurrentPart, ""+(this.frame!=null ? this.frame.id : -1))
+						.appendSibling(new TextComponentTranslation("animation.hover.work"))
+						.getFormattedText());
+			} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("animation.hover.name").getFormattedText());
 			} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("animation.hover.rotation", "X").getFormattedText());
@@ -678,121 +660,232 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				this.setHoverText(new TextComponentTranslation("animation.hover.rotation", "Y").getFormattedText());
 			} else if (this.getTextField(3)!=null && this.getTextField(3).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("animation.hover.rotation", "Z").getFormattedText());
-			} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.offset", "X").getFormattedText());
-			} else if (this.getTextField(5)!=null && this.getTextField(5).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.offset", "Y").getFormattedText());
-			} else if (this.getTextField(6)!=null && this.getTextField(6).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.offset", "Z").getFormattedText());
-			} else if (this.getTextField(7)!=null && this.getTextField(7).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.scale", "X").getFormattedText());
-			} else if (this.getTextField(8)!=null && this.getTextField(8).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.scale", "Y").getFormattedText());
-			} else if (this.getTextField(9)!=null && this.getTextField(9).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.scale", "Z").getFormattedText());
-			} else if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part.ticks").getFormattedText());
-			} else if (this.getTextField(11)!=null && this.getTextField(11).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part.delay").getFormattedText());
-			} else if (this.getTextField(12)!=null && this.getTextField(12).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.anim.repeat").getFormattedText());
 			}
-			else if (frame!=null && this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.frame", ""+frame.id).getFormattedText());
-			} else if (part!=null && this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(part.part==0)).appendSibling(new TextComponentTranslation("model.head")).getFormattedText());
-			} else if (part!=null && this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(part.part==1)).appendSibling(new TextComponentTranslation("model.larm")).getFormattedText());
-			} else if (part!=null && this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(part.part==2)).appendSibling(new TextComponentTranslation("model.rarm")).getFormattedText());
-			} else if (part!=null && this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(part.part==3)).appendSibling(new TextComponentTranslation("model.body")).getFormattedText());
-			} else if (part!=null && this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(part.part==4)).appendSibling(new TextComponentTranslation("model.lleg")).getFormattedText());
-			} else if (part!=null && this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(part.part==5)).appendSibling(new TextComponentTranslation("model.rleg")).getFormattedText());
+			else if (this.frame!=null && this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.frame", ""+this.frame.id).getFormattedText());
+			} else if (this.part!=null && this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(this.part.id==0)).appendSibling(new TextComponentTranslation("model.head")).getFormattedText());
+			} else if (this.part!=null && this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(this.part.id==1)).appendSibling(new TextComponentTranslation("model.larm")).getFormattedText());
+			} else if (this.part!=null && this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(this.part.id==2)).appendSibling(new TextComponentTranslation("model.rarm")).getFormattedText());
+			} else if (this.part!=null && this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(this.part.id==3)).appendSibling(new TextComponentTranslation("model.body")).getFormattedText());
+			} else if (this.part!=null && this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(this.part.id==4)).appendSibling(new TextComponentTranslation("model.lleg")).getFormattedText());
+			} else if (this.part!=null && this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part."+(this.part.id==5)).appendSibling(new TextComponentTranslation("model.rleg")).getFormattedText());
 			} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("animation.hover.frame.add").getFormattedText());
 			} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("animation.hover.frame.del").getFormattedText());
-			} else if (part!=null && this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part.disabled."+part.isDisable()).appendSibling(new TextComponentTranslation("animation.hover.shift")).getFormattedText());
-			} else if (frame!=null && this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.part.smooth."+frame.isSmooth()).appendSibling(new TextComponentTranslation("animation.hover.shift")).getFormattedText());
+			} else if (this.part!=null && this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part.disabled."+this.part.isDisable()).appendSibling(new TextComponentTranslation("animation.hover.shift")).getFormattedText());
+			} else if (this.frame!=null && this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("animation.hover.part.smooth."+this.frame.isSmooth()).appendSibling(new TextComponentTranslation("animation.hover.shift")).getFormattedText());
 			} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
 				this.setHoverText(new TextComponentTranslation("animation.hover.color").getFormattedText());
 			} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.disabled."+anim.isDisable()).getFormattedText());
+				this.setHoverText(new TextComponentTranslation("animation.hover.disabled."+this.anim.isDisable()).getFormattedText());
 			} else if ((this.getButton(60)!=null && this.getButton(60).isMouseOver()) ||
 					(this.getButton(61)!=null && this.getButton(61).isMouseOver()) ||
 					(this.getButton(62)!=null && this.getButton(62).isMouseOver()) ||
 					(this.getButton(63)!=null && this.getButton(63).isMouseOver())) {
 				this.setHoverText(new TextComponentTranslation("quest.reset").getFormattedText());
-			} else if (this.getButton(78)!=null && this.getButton(78).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.parts").getFormattedText());
-			} else if (this.getButton(79)!=null && this.getButton(79).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part").getFormattedText());
-			} else if (this.getButton(80)!=null && this.getButton(80).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.0", "X").getFormattedText());
-			} else if (this.getButton(81)!=null && this.getButton(81).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.0", "Y").getFormattedText());
-			} else if (this.getButton(82)!=null && this.getButton(82).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.0", "Z").getFormattedText());
-			} else if (this.getButton(83)!=null && this.getButton(83).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.1", "X").getFormattedText());
-			} else if (this.getButton(84)!=null && this.getButton(84).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.1", "Y").getFormattedText());
-			} else if (this.getButton(85)!=null && this.getButton(85).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.1", "Z").getFormattedText());
-			} else if (this.getButton(86)!=null && this.getButton(86).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.2", "X").getFormattedText());
-			} else if (this.getButton(87)!=null && this.getButton(87).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.2", "Y").getFormattedText());
-			} else if (this.getButton(88)!=null && this.getButton(88).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.reset.part.2", "Z").getFormattedText());
 			}
-			else if (this.getSlider(0)!=null && this.getSlider(0).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.rotation", "X").getFormattedText());
-			} else if (this.getSlider(1)!=null && this.getSlider(1).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.rotation", "Y").getFormattedText());
-			} else if (this.getSlider(2)!=null && this.getSlider(2).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.rotation", "Z").getFormattedText());
-			} else if (this.getSlider(3)!=null && this.getSlider(3).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.offset", "X").getFormattedText());
-			} else if (this.getSlider(4)!=null && this.getSlider(4).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.offset", "Y").getFormattedText());
-			} else if (this.getSlider(5)!=null && this.getSlider(5).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.offset", "Z").getFormattedText());
-			} else if (this.getSlider(6)!=null && this.getSlider(6).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.scale", "X").getFormattedText());
-			} else if (this.getSlider(7)!=null && this.getSlider(7).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.scale", "Y").getFormattedText());
-			} else if (this.getSlider(8)!=null && this.getSlider(8).isMouseOver()) {
-				this.setHoverText(new TextComponentTranslation("animation.hover.scale", "Z").getFormattedText());
-			} else if ((this.getSlider(70)!=null && this.getSlider(70).isMouseOver()) ||
-					(this.getSlider(71)!=null && this.getSlider(71).isMouseOver()) ||
-					(this.getSlider(72)!=null && this.getSlider(72).isMouseOver()) ||
-					(this.getSlider(73)!=null && this.getSlider(73).isMouseOver())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").appendSibling(new TextComponentTranslation("animation.hover.hor")).getFormattedText());
-			} else if ((this.getSlider(74)!=null && this.getSlider(74).isMouseOver()) ||
-					(this.getSlider(75)!=null && this.getSlider(75).isMouseOver()) ||
-					(this.getSlider(76)!=null && this.getSlider(76).isMouseOver()) ||
-					(this.getSlider(77)!=null && this.getSlider(77).isMouseOver())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").appendSibling(new TextComponentTranslation("animation.hover.vert")).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+
+	private void drawWork(EntityNPCInterface npc) {
+		// npc
+		GlStateManager.pushMatrix();
+		this.postRender(true);
+		this.drawNpc(npc);
+		GlStateManager.popMatrix();
+		// blocks
+		if (GuiNpcAnimation.blockType < 4) {
+			Block block = Blocks.STONE;
+			switch(GuiNpcAnimation.blockType) {
+				case 1: block = Blocks.STONE_STAIRS; break;
+				case 2: block = Blocks.STONE_SLAB; break;
+				case 3: block = Blocks.CARPET; break;
+				default: block = Blocks.STONE; break;
+			}
+			ItemStack stack = new ItemStack(block);
+			if (!stack.isEmpty()) {
+				GlStateManager.pushMatrix();
+				this.postRender(false);
+				RenderHelper.enableGUIStandardItemLighting();
+				this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+				this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+				GlStateManager.enableRescaleNormal();
+				GlStateManager.enableAlpha();
+				GlStateManager.alphaFunc(516, 0.1F);
+				GlStateManager.enableBlend();
+				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				IBakedModel bakedmodel = this.mc.getRenderItem().getItemModelWithOverrides(stack, this.mc.world, this.mc.player);
+				GlStateManager.translate(0.0f, 7.95f, 0.0f);
+				if (GuiNpcAnimation.blockType==1) {
+					GlStateManager.rotate(90.0f, 0.0f, 1.0f, 0.0f);
+				} else if (GuiNpcAnimation.blockType==2) {
+					GlStateManager.translate(0.0f, -8.0f, 0.0f);
+				} else if (GuiNpcAnimation.blockType==3) {
+					GlStateManager.translate(0.0f, -15.0f, 0.0f);
+				}
+				GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
+				GlStateManager.scale(-16.0f, -16.0f, -16.0f);
+				this.mc.getRenderItem().renderItem(stack, bakedmodel);
+				float s = 1.0f;
+				if (GuiNpcAnimation.blockSize > 0) {
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(-s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(-s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, -s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, -s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+				}
+				if (GuiNpcAnimation.blockSize > 1) {
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(-s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(-s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(-s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(-s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, -s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, -s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, -s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(0.0f, 0.0f, -s);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+					GlStateManager.translate(s, 0.0f, 0.0f);
+					this.mc.getRenderItem().renderItem(stack, bakedmodel);
+				}
+				GlStateManager.disableAlpha();
+				GlStateManager.disableRescaleNormal();
+				GlStateManager.disableLighting();
+				this.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+				this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+				RenderHelper.disableStandardItemLighting();
+				GlStateManager.popMatrix();
 			}
 		}
 	}
 
+	private void drawNpc(EntityNPCInterface npc) {
+		if (npc == null) { return; }
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.enableColorMaterial();
+		GlStateManager.pushMatrix();
+		
+		float scale = 1.0f;
+		if (npc.height > 2.4) {
+			scale = 2.0f / npc.height;
+		}
+		GlStateManager.scale(-30.0f * scale, 30.0f * scale, 30.0f * scale);
+		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
+		RenderHelper.enableStandardItemLighting();
+		float f2 = npc.renderYawOffset;
+		float f3 = npc.rotationYaw;
+		float f4 = npc.rotationPitch;
+		float f5 = npc.rotationYawHead;
+		npc.ais.orientation = 0;
+		npc.renderYawOffset = 0;
+		npc.rotationYaw = 0.0f;
+		npc.rotationPitch = 0.0f;
+		npc.rotationYawHead = npc.rotationYaw;
+		this.mc.getRenderManager().playerViewY = 180.0f;
+		this.mc.getRenderManager().renderEntity(npc, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
+		npc.renderYawOffset = f2;
+		npc.prevRenderYawOffset = f2;
+		npc.rotationYaw = f3;
+		npc.prevRotationYaw = f3;
+		npc.rotationPitch = f4;
+		npc.prevRotationPitch = f4;
+		npc.rotationYawHead = f5;
+		npc.prevRotationYawHead = f5;
+		npc.ais.orientation = 0;
+		
+		GlStateManager.popMatrix();
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.disableRescaleNormal();
+		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+		GlStateManager.disableTexture2D();
+		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+	}
+
+	private void postRender(boolean forNpc) {
+		float u = (float) this.mouseC[3];
+		float v = (float) this.mouseC[4];
+		GlStateManager.translate(u + 81.5f, v + 73.0f, 100.0f * this.dispScale); // center
+		GlStateManager.translate(this.dispPos[0], this.dispPos[1], 0.0f);
+		GlStateManager.rotate(this.dispRot[0], 0.0f, 1.0f, 0.0f);
+		GlStateManager.rotate(this.dispRot[1], 1.0f, 0.0f, 0.0f);
+		GlStateManager.scale(this.dispScale, this.dispScale, this.dispScale);
+		if (GuiNpcAnimation.blockType == 4) { GlStateManager.translate(0.0f, 29.0f, 0.0f); }
+		else { GlStateManager.translate(0.0f, 25.0f, 0.0f); }
+	}
+
+	private void clearDisplay() {
+		this.dispScale = 1.0f;
+		for (int i = 0; i < 3; i++) {
+			this.dispRot[i] = 0.0f;
+			this.dispPos[i] = 0.0f;
+		}
+	}
+	
+	private void displayOffset(int x, int y) {
+		for (int i = 0; i < 2; i++) {
+			this.dispPos[i] += (i == 0 ? x : y);
+			if (this.dispPos[i] > 75.0f * this.dispScale) { this.dispPos[i] = 75.0f * this.dispScale; }
+			else if (this.dispPos[i] < -75.0f * this.dispScale) { this.dispPos[i] = -75.0f * this.dispScale; }
+		}
+	}
+
+	private void displayRotate(int x, int y) {
+		for (int i = 0; i < 2; i++) {
+			this.dispRot[i] += (i == 0 ? x : y);
+			if (this.dispRot[i] > 360.0f) { this.dispRot[i] -= 360.0f; }
+			else if (this.dispRot[i] < 0.0f) { this.dispRot[i] += 360.0f; }
+		}
+	}
+	
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
-		AnimationConfig anim = null;
-		AnimationFrameConfig frame = null;
-		PartConfig part = null;
-		if (this.dataAnim.containsKey(this.selectAnim)) { anim = this.dataAnim.get(this.selectAnim); }
-		if (anim!=null && anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
-		if (frame!=null && this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
 		switch(slider.id) {
-			case 0: {
+			/*case 0: {
 				if (part==null || this.getTextField(1)==null) { return; }
 				part.rotation[0] = slider.sliderValue;
 				float value = Math.round(3600.0f * slider.sliderValue) / 10.0f;
@@ -891,15 +984,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			case 76: {
 				this.rots[6] = (int) (180.0f * slider.sliderValue - 90.0f);
 				break;
-			}
-			case 77: {
-				this.rots[7] = (int) (180.0f * slider.sliderValue - 90.0f);
-				break;
-			}
-			case 78: {
-				this.scaleFrame = slider.sliderValue;
-				break;
-			}
+			}*/
 		}
 		this.npc.updateHitbox();
 	}
@@ -910,6 +995,17 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	@Override
 	public void mouseReleased(GuiNpcSlider slider) { }
 
+	@Override
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
+		if ((mouseBottom==0 || mouseBottom==1) && this.isMouseHover(mouseX, mouseY, this.mouseC[3], this.mouseC[4], this.mouseC[5], this.mouseC[5])) {
+			this.mouseC[0] = mouseBottom;
+			this.mouseC[1] = mouseX;
+			this.mouseC[2] = mouseY;
+		}
+		else { this.mouseC[0] = -1; }
+		super.mouseClicked(mouseX, mouseY, mouseBottom);
+	}
+	
 	@Override
 	public void save() {
 		Client.sendData(EnumPacketServer.AnimationSave, this.animation.writeToNBT(new NBTTagCompound()));
@@ -924,9 +1020,15 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
-		if (!this.selectAnim.isEmpty() && this.selectAnim.equals(scroll.getSelected())) { return; }
-		this.selectAnim = scroll.getSelected();
-		this.resetAnims();
+		if (scroll.id == 0) { // animation
+			if (!this.dataAnim.containsKey(scroll.getSelected())) { return; }
+			this.anim = this.dataAnim.get(scroll.getSelected());
+			this.frame = null;
+			this.part = null;
+			this.clearDisplay();
+		} else if (scroll.id == 1) { // setting
+			
+		}
 		this.initGui();
 	}
 
@@ -938,8 +1040,8 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		if (subgui.id == 1) { // add new
 			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) { return; }
 			String name = ((SubGuiEditText) subgui).text[0];
-			this.selectFrame = 0;
-			this.selectPart = 0;
+			this.frame = null;
+			this.part = null;
 			boolean next = true;
 			while(next) {
 				next = false;
@@ -951,60 +1053,40 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 					}
 				}
 			}
-			AnimationConfig ac = this.animation.createAnimation(GuiNpcAnimation.type.get());
-			ac.name = name;
-			this.selectAnim = this.c+"7"+ac.id+": "+this.c+"r"+ac.name;
-			for (int i = 0; i<4; i++) {
-				this.rots[i] = 180;
-				this.rots[i+4] = 0;
-			}
+			this.anim = this.animation.createAnimation(GuiNpcAnimation.type.get());
+			this.anim.name = name;
+			this.dataAnim.put(this.anim.getSettingName(), this.anim);
 			this.initGui();
 		}
 		else if (subgui.id == 2) { // load
 			if (!(subgui instanceof SubGuiLoadAnimation) || ((SubGuiLoadAnimation) subgui).cancelled || ((SubGuiLoadAnimation) subgui).animation==null) { return; }
-			AnimationConfig ac = ((SubGuiLoadAnimation) subgui).animation.copy();
-			ac.type = GuiNpcAnimation.type;
-			ac.id = this.animation.data.get(ac.type).size();
-			this.animation.data.get(ac.type).add(ac);
-			this.selectAnim = this.c+"7"+ac.id+": "+this.c+"r"+ac.name;
-			this.selectFrame = 0;
-			this.selectPart = 0;
-			this.initGui();
-		}
-		else if (subgui.id == 3) { // load
-			if (!(subgui instanceof SubGuiLoadAnimation)) { return; }
-			if (((SubGuiLoadAnimation) subgui).cancelled || ((SubGuiLoadAnimation) subgui).animation==null) {
-				this.animation.baseAnim = null;
-			}
-			else { this.animation.baseAnim = ((SubGuiLoadAnimation) subgui).animation.copy(); }
+			this.anim = ((SubGuiLoadAnimation) subgui).animation.copy();
+			this.anim.type = GuiNpcAnimation.type;
+			this.anim.id = this.animation.data.get(this.anim.type).size();
+			this.animation.data.get(this.anim.type).add(this.anim);
+			this.dataAnim.put(this.anim.getSettingName(), this.anim);
+			this.frame = null;
+			this.part = null;
 			this.initGui();
 		}
 	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		if (this.hasSubGui()) { return; }
-		AnimationConfig anim = null;
-		AnimationFrameConfig frame = null;
-		PartConfig part = null;
-		if (this.dataAnim.containsKey(this.selectAnim)) { anim = this.dataAnim.get(this.selectAnim); }
-		if (anim!=null && anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
-		if (frame!=null && this.selectPart>=0 && this.selectPart<6) { part = frame.parts[this.selectPart]; }
-		
-		if (anim==null) { return; }
+		if (this.hasSubGui() || this.anim==null) { return; }
 		switch(textField.getId()) {
 			case 0: { // new name
 				String name = textField.getText();
+				this.dataAnim.remove(this.anim.getSettingName());
 				for (AnimationConfig ac : this.dataAnim.values()) {
-					if (ac.equals(anim)) { continue; }
 					while (ac.name.equals(name)) { name += "_"; }
 				}
-				anim.name = name;
-				this.selectAnim = this.c+"7"+anim.id+": "+this.c+"r"+anim.name;
+				this.anim.name = name;
+				this.dataAnim.put(this.anim.getSettingName(), this.anim);
 				this.initGui();
 				break;
 			}
-			case 1: { // rotation X
+			/*case 1: { // rotation X
 				if (part==null || this.getSlider(0)==null) { return; }
 				float value = (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d);
 				textField.setText(""+value);
@@ -1101,70 +1183,49 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				anim.setRepeatLast(textField.getInteger());
 				this.resetAnims();
 				break;
-			}
+			}*/
 		}
 	}
 	
 	private void resetAnims() {
-		AnimationConfig anim = null;
-		AnimationFrameConfig frame = null;
-		if (this.dataAnim.containsKey(this.selectAnim)) { anim = this.dataAnim.get(this.selectAnim); }
-		if (anim!=null && anim.frames.containsKey(this.selectFrame)) { frame = anim.frames.get(this.selectFrame); }
-		
-		if (anim == null || frame==null || this.npcs[4] == null) {
-			this.npcs[0] = null;
-			this.npcs[1] = null;
-			this.npcs[2] = null;
-			this.npcs[3] = null;
+		if (this.anim == null || this.frame==null || this.npcAnim == null) {
+			this.npcPart = null;
 			return;
 		}
-		AnimationConfig ac = anim.copy();
+		AnimationConfig ac = this.anim.copy();
 		ac.isEdit = true;
 		ac.disable = false;
 		ac.type = AnimationKind.STANDING;
 		NBTTagCompound npcNbt = new NBTTagCompound();
-		this.npcs[4].writeEntityToNBT(npcNbt);
-		this.npcs[4].writeToNBTOptional(npcNbt);
-		if (this.npcs[0]==null) {
+		this.npcAnim.writeEntityToNBT(npcNbt);
+		this.npcAnim.writeToNBTOptional(npcNbt);
+		if (this.npcAnim==null) {
 			Entity animNpc = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
 			if (animNpc instanceof EntityNPCInterface) {
-				this.npcs[0] = (EntityNPCInterface) animNpc;
-				this.npcs[0].animation.clear();
+				this.npcPart = (EntityNPCInterface) animNpc;
+				this.npcPart.animation.clear();
 			}
 		}
-		if (this.npcs[0]!=null) {
-			((EntityNPCInterface) this.npcs[0]).display.setName("0_"+this.npc.getName());
-			this.npcs[0].animation.activeAnim = ac;
+		if (this.npcPart!=null) {
+			((EntityNPCInterface) this.npcPart).display.setName("0_"+this.npc.getName());
+			this.npcPart.animation.activeAnim = ac;
 		}
-		
-		// Pre, Post, Now
-		for (int p=1; p<4; p++) {
-			int frameID = frame.id;
-			if (p==1) { frameID -= 1; } else if (p==2) { frameID += 1; }
-			if (!ac.frames.containsKey(frameID) || (p!=3 && frameID == frame.id)) {
-				this.npcs[p] = null;
-				continue;
+		if (!ac.frames.containsKey(this.frame.id)) {
+			this.npcPart = null;
+			return;
+		}
+		if (this.npcPart!=null) {
+			((EntityNPCInterface) this.npcPart).display.setName("0_"+this.npc.getName());
+			if (this.npcPart.animation.activeAnim==null) {
+				if (this.npcPart.animation.data.get(AnimationKind.STANDING).isEmpty()) {
+					this.npcPart.animation.activeAnim = new AnimationConfig(AnimationKind.STANDING.get());
+					this.npcPart.animation.data.get(AnimationKind.STANDING).add(this.npcPart.animation.activeAnim);
+				}
+				else { this.npcPart.animation.activeAnim = this.npcPart.animation.data.get(AnimationKind.STANDING).get(0); }
 			}
-			if (this.npcs[p]==null) {
-				Entity animNpc = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-				if (animNpc instanceof EntityNPCInterface) {
-					this.npcs[p] = (EntityNPCInterface) animNpc;
-					this.npcs[p].animation.clear();
-				}
-			}
-			if (this.npcs[p]!=null) {
-				((EntityNPCInterface) this.npcs[p]).display.setName(p+"_"+this.npc.getName());
-				if (this.npcs[p].animation.activeAnim==null) {
-					if (this.npcs[p].animation.data.get(AnimationKind.STANDING).isEmpty()) {
-						this.npcs[p].animation.activeAnim = new AnimationConfig(AnimationKind.STANDING.get());
-						this.npcs[p].animation.data.get(AnimationKind.STANDING).add(this.npcs[p].animation.activeAnim);
-					}
-					else { this.npcs[p].animation.activeAnim = this.npcs[p].animation.data.get(AnimationKind.STANDING).get(0); }
-				}
-				if (!this.npcs[p].animation.activeAnim.frames.containsKey(0)) { this.npcs[p].animation.activeAnim.addFrame(); }
-				for (int i=0; i<6; i++) {
-					this.npcs[p].animation.activeAnim.frames.get(0).parts[i].readNBT(ac.frames.get(frameID).parts[i].writeNBT());
-				}
+			if (!this.npcPart.animation.activeAnim.frames.containsKey(0)) { this.npcPart.animation.activeAnim.addFrame(); }
+			for (int i=0; i<6; i++) {
+				this.npcPart.animation.activeAnim.frames.get(0).parts[i].readNBT(ac.frames.get(this.frame.id).parts[i].writeNBT());
 			}
 		}
 	}

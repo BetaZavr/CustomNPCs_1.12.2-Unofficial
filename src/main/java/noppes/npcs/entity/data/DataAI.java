@@ -190,8 +190,16 @@ implements INPCAi {
 	}
 
 	public List<int[]> getMovingPath() {
-		if (this.movingPath.isEmpty() && this.startPos != null) {
-			this.movingPath.add(this.getStartArray());
+		if (this.startPos != null) {
+			if (this.movingPath.isEmpty()) {
+				this.movingPath.add(this.getStartArray());
+			} else {
+				int[] arr = this.movingPath.get(0);
+				if (arr[0]!=this.startPos.getX() || arr[1]!=this.startPos.getY() || arr[2]!=this.startPos.getZ()) {
+					this.movingPath.remove(0);
+					this.movingPath.add(0, this.getStartArray());
+				}
+			}
 		}
 		return this.movingPath;
 	}

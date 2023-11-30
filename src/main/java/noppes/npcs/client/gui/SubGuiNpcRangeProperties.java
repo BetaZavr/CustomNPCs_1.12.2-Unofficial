@@ -56,14 +56,12 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 	public void initGui() {
 		super.initGui();
 		int y = this.guiTop + 4;
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18,
-				this.ranged.getAccuracy() + ""));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18, this.ranged.getAccuracy() + ""));
 		this.addLabel(new GuiNpcLabel(1, "stats.accuracy", this.guiLeft + 5, y + 5));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, 100, 90);
-		this.addTextField(new GuiNpcTextField(8, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18,
-				this.ranged.getShotCount() + ""));
-		this.addLabel(new GuiNpcLabel(8, "stats.shotcount", this.guiLeft + 135, y + 5));
+		this.addTextField(new GuiNpcTextField(8, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18, this.ranged.getShotCount() + ""));
+		this.addLabel(new GuiNpcLabel(8, "stats.burstcount", this.guiLeft + 135, y + 5));
 		this.getTextField(8).setNumbersOnly();
 		this.getTextField(8).setMinMaxDefault(1, 10, 1);
 		y += 22;
@@ -71,8 +69,7 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 		this.addLabel(new GuiNpcLabel(2, "gui.range", this.guiLeft + 5, y + 5));
 		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 64, 2);
-		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 200, y, 30, 20,
-				this.ranged.getMeleeRange() + ""));
+		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 200, y, 30, 20, this.ranged.getMeleeRange() + ""));
 		this.addLabel(new GuiNpcLabel(16, "stats.meleerange", this.guiLeft + 135, y + 5));
 		this.getTextField(9).setNumbersOnly();
 		this.getTextField(9).setMinMaxDefault(0, this.stats.aggroRange, 5);
@@ -82,18 +79,16 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 		this.addLabel(new GuiNpcLabel(3, "stats.mindelay", this.guiLeft + 5, y + 5));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(1, 9999, 20);
-		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18,
-				this.ranged.getDelayMax() + ""));
+		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18, this.ranged.getDelayMax() + ""));
 		this.addLabel(new GuiNpcLabel(4, "stats.maxdelay", this.guiLeft + 135, y + 5));
 		this.getTextField(4).setNumbersOnly();
 		this.getTextField(4).setMinMaxDefault(1, 9999, 20);
 		y += 22;
 		this.addTextField(new GuiNpcTextField(6, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18, this.ranged.getBurst() + ""));
-		this.addLabel(new GuiNpcLabel(6, "stats.burstcount", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(6, "stats.shotcount", this.guiLeft + 5, y + 5));
 		this.getTextField(6).setNumbersOnly();
 		this.getTextField(6).setMinMaxDefault(1, 100, 20);
-		this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18,
-				this.ranged.getBurstDelay() + ""));
+		this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18, this.ranged.getBurstDelay() + ""));
 		this.addLabel(new GuiNpcLabel(5, "stats.burstspeed", this.guiLeft + 135, y + 5));
 		this.getTextField(5).setNumbersOnly();
 		this.getTextField(5).setMinMaxDefault(0, 30, 0);
@@ -113,8 +108,7 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 		this.addButton(new GuiNpcButtonYesNo(9, this.guiLeft + 100, y, this.ranged.getHasAimAnimation()));
 		this.addLabel(new GuiNpcLabel(9, "stats.aimWhileShooting", this.guiLeft + 5, y + 5));
 		y += 22;
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 100, y, 80, 20,
-				new String[] { "gui.no", "gui.whendistant", "gui.whenhidden" }, this.ranged.getFireType()));
+		this.addButton(new GuiNpcButton(13, this.guiLeft + 100, y, 80, 20, new String[] { "gui.no", "gui.whendistant", "gui.whenhidden" }, this.ranged.getFireType()));
 		this.addLabel(new GuiNpcLabel(13, "stats.indirect", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, this.guiTop + 190, 60, 20, "gui.done"));
 	}
