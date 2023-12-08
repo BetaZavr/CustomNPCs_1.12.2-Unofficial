@@ -59,6 +59,7 @@ public enum EnumPacketServer
 	LinkedAdd(CustomNpcsPermissions.GLOBAL_LINKED), 
 	PlayerDataRemove(CustomNpcsPermissions.GLOBAL_PLAYERDATA),
 	PlayerDataSet(CustomNpcsPermissions.GLOBAL_PLAYERDATA),
+	PlayerData—leaning(CustomNpcsPermissions.GLOBAL_PLAYERDATA),
 	BankSave(CustomNpcsPermissions.GLOBAL_BANK), 
 	BanksGet, 
 	BankGet, 

@@ -1,5 +1,6 @@
 package noppes.npcs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -1430,20 +1431,19 @@ public class PacketHandlerServer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.animation.writeToNBT(new NBTTagCompound()));
 			AnimationController.getInstance().sendTo(player);
 		} else if (type == EnumPacketServer.AnimationSave) {
+			System.out.println(npc.getName());
 			npc.animation.readFromNBT(Server.readNBT(buffer));
 			npc.updateClient = true;
 		} else if (type == EnumPacketServer.AnimationGlobalSave) {
 			AnimationController aData = AnimationController.getInstance();
 			NBTTagCompound compound = Server.readNBT(buffer);
-			AnimationConfig ac;
-			if (compound.hasKey("ID", 3) && aData.animations.containsKey(compound.getInteger("ID"))) {
-				ac = (AnimationConfig) aData.animations.get(compound.getInteger("ID"));
-			} else {
-				ac = (AnimationConfig) aData.createNew(0);
-			}
+			AnimationConfig ac = (AnimationConfig) aData.createNew(compound.getInteger("Type"));
+			int id = ac.id;
 			ac.readFromNBT(compound);
+			ac.id = id;
 			aData.save();
-
+			player.sendMessage(new TextComponentTranslation("animation.message.save", ac.name));
+			aData.sendTo(player);
 		} else if (type == EnumPacketServer.PlayerDataSet) {
 			EnumPlayerData datatype = EnumPlayerData.values()[buffer.readInt()];
 			String playerName = Server.readString(buffer);
@@ -1564,6 +1564,50 @@ public class PacketHandlerServer {
 					pl.sendMessage(new TextComponentTranslation("message.change.mod.data"));
 				}
 				NoppesUtilServer.sendPlayerData(datatype, player, playerName);
+			}
+		} else if (type == EnumPacketServer.PlayerData—leaning) {
+			long time = buffer.readLong();
+			File dirGame = CustomNpcs.getWorldSaveDirectory().getParentFile();
+			File dirMod = CustomNpcs.getWorldSaveDirectory("playerdata");
+			
+			int i = 0, s = dirMod.listFiles().length;
+			List<String> opn = Lists.<String>newArrayList(player.getServer().getPlayerList().getOnlinePlayerNames());
+			for (File file : dirMod.listFiles()) {
+				if (file.lastModified() < time) {
+					String uuid = file.getName().substring(0, file.getName().length() - 5);
+					boolean found = false;
+					for (String name : PlayerDataController.instance.nameUUIDs.keySet()) {
+						if (PlayerDataController.instance.nameUUIDs.get(name).equals(uuid)) {
+							found = true;
+							if (!opn.contains(name) && file.delete()) {
+								File advancements = new File(dirGame, "advancements/" + file.getName());
+								if (advancements.exists()) { advancements.delete(); }
+								File stats = new File(dirGame, "stats/" + file.getName());
+								if (stats.exists()) { stats.delete(); }
+								File playerdata = new File(dirGame, "playerdata/" + uuid + ".dat");
+								if (playerdata.exists()) { playerdata.delete(); }
+								PlayerDataController.instance.nameUUIDs.remove(name);
+								i++;
+							}
+							break;
+						}
+					}
+					if (!found && file.delete()) {
+						File advancements = new File(dirGame, "advancements/" + file.getName());
+						if (advancements.exists()) { advancements.delete(); }
+						File stats = new File(dirGame, "stats/" + file.getName());
+						if (stats.exists()) { stats.delete(); }
+						File playerdata = new File(dirGame, "playerdata/" + uuid + ".dat");
+						if (playerdata.exists()) { playerdata.delete(); }
+						i++;
+					}
+				}
+			}
+			if (i > 0) {
+				player.sendMessage(new TextComponentTranslation("message.data.cleaning.true", "" + i, "" + s));
+				NoppesUtilServer.sendPlayerData(EnumPlayerData.Players, player, null);
+			} else {
+				player.sendMessage(new TextComponentTranslation("message.data.cleaning.false", "" + s));
 			}
 		}
 		CustomNpcs.debugData.endDebug("Server", player, "PacketHandlerServer_Received_"+type.toString());

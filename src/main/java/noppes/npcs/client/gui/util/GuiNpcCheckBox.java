@@ -85,22 +85,25 @@ extends GuiNpcButton
 		int colorGray = 0xFF808080;
 		int colorLGray = 0xD4D0C8;
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.drawHorizontalLine(0, 11, 0, colorGray); // top 1
-		this.drawHorizontalLine(1, 10, 1, colorDGray); // top 2
-		this.drawVerticalLine(0, 0, 11, colorGray); // left 1
-		this.drawVerticalLine(1, 1, 11, colorDGray); // left 2
-		this.drawVerticalLine(11, -1, 12, colorWhite); // right 1
-		this.drawVerticalLine(10, 1, 11, colorLGray); // right 2
-		this.drawHorizontalLine(2, 9, 10, colorLGray); // bottop 1
-		this.drawHorizontalLine(0, 10, 11, colorWhite); // bottop 2
-		Gui.drawRect(2, 2, 10, 10, colorWhite); // work
+        if (this.hovered) {
+        	Gui.drawRect(-1, -2, this.width, this.height - 2, 0x200000FF);
+        }
+		this.drawHorizontalLine(0, 11, -1, colorGray); // top 1
+		this.drawHorizontalLine(1, 10, 0, colorDGray); // top 2
+		this.drawVerticalLine(0, -1, 10, colorGray); // left 1
+		this.drawVerticalLine(1, 0, 10, colorDGray); // left 2
+		this.drawVerticalLine(11, -2, 11, colorWhite); // right 1
+		this.drawVerticalLine(10, 0, 10, colorLGray); // right 2
+		this.drawHorizontalLine(2, 9, 0, colorLGray); // bottop 1
+		this.drawHorizontalLine(0, 10, 10, colorWhite); // bottop 2
+		Gui.drawRect(2, 1, 10, 9, colorWhite); // work
 		if (this.check) {
-			this.drawVerticalLine(3, 3, 7, colorBlack); // left 1
-			this.drawVerticalLine(4, 4, 8, colorBlack); // left 2
-			this.drawVerticalLine(5, 5, 9, colorBlack); // center
-			this.drawVerticalLine(6, 4, 8, colorBlack); // right 3
-			this.drawVerticalLine(7, 3, 7, colorBlack); // right 2
-			this.drawVerticalLine(8, 2, 6, colorBlack); // right 1
+			this.drawVerticalLine(3, 2, 6, colorBlack); // left 1
+			this.drawVerticalLine(4, 3, 7, colorBlack); // left 2
+			this.drawVerticalLine(5, 4, 8, colorBlack); // center
+			this.drawVerticalLine(6, 3, 7, colorBlack); // right 3
+			this.drawVerticalLine(7, 2, 6, colorBlack); // right 2
+			this.drawVerticalLine(8, 1, 5, colorBlack); // right 1
 		}
 		GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -127,7 +130,7 @@ extends GuiNpcButton
     @Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
     	if (!this.visible) { return; }
-    	this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+    	this.hovered = mouseX >= this.x - 1 && mouseY >= this.y + 1 && mouseX < this.x + this.width && mouseY < this.y + this.height + 2;
         this.drawBox(mc, mouseX, mouseY);
 	}
     

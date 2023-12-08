@@ -113,11 +113,9 @@ extends LayerInterface<T> {
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, i % 65536, i / 65536);
 		Minecraft.getMinecraft().entityRenderer.setupFogColor(true);
 		(this.buffer = Tessellator.getInstance().getBuffer()).begin(7, DefaultVertexFormats.POSITION_COLOR);
-
 		this.drawLeft();
 		this.drawRight();
 		this.drawBrows();
-		
 		Tessellator.getInstance().draw();
 		Minecraft.getMinecraft().entityRenderer.setupFogColor(false);
 		GlStateManager.depthMask(true);

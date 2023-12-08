@@ -574,7 +574,7 @@ implements IGui, IKeyListener, IMouseListener
 	}
 	
 	static {
-		GuiTextArea.font = new TrueTypeFont(new Font("Arial Unicode MS", 0, CustomNpcs.FontSize), 1.0f);
+		GuiTextArea.font = new TrueTypeFont(new Font(CustomNpcs.FontType, 0, CustomNpcs.FontSize), 1.0f);
 	}
 	
 	class UndoData

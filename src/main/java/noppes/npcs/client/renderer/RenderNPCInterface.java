@@ -78,7 +78,7 @@ extends RenderLiving<T> {
 
 	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8, float par9) {
 		EntityNPCInterface npc = (EntityNPCInterface) par1Entity;
-		this.shadowSize = npc.width / 1.25f;
+		this.shadowSize = npc.width / 1.25f * npc.display.shadowSize;
 		if (!npc.isKilled()) {
 			super.doRenderShadowAndFire(par1Entity, par2, par4, par6, par8, par9);
 		}
@@ -145,7 +145,7 @@ extends RenderLiving<T> {
 	}
 
 	protected void renderColor(EntityNPCInterface npc) {
-		if (npc.hurtTime <= 0 && npc.deathTime <= 0) {
+		if (npc.hurtTime <= 0 && npc.deathTime <= 0 && (npc.animation.activeAnim==null || npc.animation.activeAnim.type!=AnimationKind.DIES)) {
 			float red = (npc.display.getTint() >> 16 & 0xFF) / 255.0f;
 			float green = (npc.display.getTint() >> 8 & 0xFF) / 255.0f;
 			float blue = (npc.display.getTint() & 0xFF) / 255.0f;

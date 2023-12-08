@@ -102,4 +102,12 @@ public class Lines {
 		return nbt;
 	}
 
+	public Lines copy() {
+		Lines lines = new Lines();
+		for (int i : this.lines.keySet()) {
+			lines.lines.put(i, this.lines.get(i));
+		}
+		return lines;
+	}
+
 }

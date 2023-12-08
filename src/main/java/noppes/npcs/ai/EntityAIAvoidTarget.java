@@ -68,7 +68,7 @@ public class EntityAIAvoidTarget extends EntityAIBase {
 				new Vec3d(this.closestLivingEntity.posX, this.closestLivingEntity.posY, this.closestLivingEntity.posZ));
 		boolean var3 = this.npc.inventory.getProjectile() == null;
 		boolean var4 = var3 ? (this.health == this.npc.getHealth())
-				: (this.npc.getRangedTask() != null && !this.npc.getRangedTask().hasFired());
+				: (this.npc.aiAttackTarget != null && !this.npc.aiAttackTarget.hasAttack);
 		if (var2 == null) {
 			return false;
 		}

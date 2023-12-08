@@ -112,10 +112,7 @@ public class ClientEventHandler {
 		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
 		Client.sendDataDelayCheck(EnumPlayerPacket.OpenGui, this, 0, event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(), mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		
-		if (mc.currentScreen instanceof GuiNpcPather) {
-			ClientGuiEventHandler.listPath.clear();
-		}
-		
+		if (mc.currentScreen instanceof GuiNpcPather) { ClientGuiEventHandler.movingPath.clear(); }
 		if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;

@@ -39,7 +39,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener  {
 		super();
 		this.id = id;
 		this.npc = npc;
-		this.lines = lines;
+		this.lines = lines.copy();
 		this.setBackground("menubg.png");
 		this.xSize = 256;
 		this.ySize = 217;

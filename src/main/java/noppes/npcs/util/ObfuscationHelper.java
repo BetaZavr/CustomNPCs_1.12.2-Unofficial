@@ -140,8 +140,7 @@ public class ObfuscationHelper {
 			}
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}", fieldType.getSimpleName(), f.getType().getSimpleName(),
-						e);
+				FMLLog.log.error("Field type mismatch {} on {}", fieldType.getSimpleName(), f.getType().getSimpleName(), e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -461,12 +460,21 @@ public class ObfuscationHelper {
 			return;
 		}
 		f.setAccessible(true);
+		if (Modifier.isFinal(f.getModifiers())) {
+			Field modifiersField;
+			try {
+				modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
+			}
+		}
 		try {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}", "Type:" + fieldType.getSimpleName(),
-						f.getType().getSimpleName(), e);
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Type:" + fieldType.getSimpleName(), f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -503,11 +511,21 @@ public class ObfuscationHelper {
 			return;
 		}
 		f.setAccessible(true);
+		if (Modifier.isFinal(f.getModifiers())) {
+			Field modifiersField;
+			try {
+				modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
+			}
+		}
 		try {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getType().getSimpleName(), e);
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index, f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -544,11 +562,21 @@ public class ObfuscationHelper {
 			return;
 		}
 		f.setAccessible(true);
+		if (Modifier.isFinal(f.getModifiers())) {
+			Field modifiersField;
+			try {
+				modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
+			}
+		}
 		try {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}", "Name:" + fieldName, f.getType().getSimpleName(), e);
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + fieldName, f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -566,14 +594,16 @@ public class ObfuscationHelper {
 		if (field==null) { return; }
 		field.setAccessible(true);
 		try {
-			Field modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+			if (Modifier.isFinal(field.getModifiers())) {
+				Field modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(field, field.getModifiers() & ~ Modifier.FINAL);
+			}
 			field.set(null, newValue);
 		} catch (NoSuchFieldException | SecurityException e) {
 			FMLLog.log.error("Unable to locate field {}", "Name:" + field.getName(), e);
 		} catch (IllegalArgumentException e) {
-			FMLLog.log.error("Field type mismatch {}", "Name:" + field.getName(), e);
+			FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + field.getName(), field.getType().getSimpleName(), newValue, e);
 			throw e;
 		} catch (IllegalAccessException e) {
 			FMLLog.log.error("Mismatch change field access on {}", field.getName(), e);

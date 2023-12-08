@@ -1851,36 +1851,46 @@ implements IMetods {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static boolean npcCanSeeTarget(EntityNPCInterface npc, EntityLivingBase target) {
-		if (npc == null || target == null) { return false; }
-		IAttributeInstance follow_range = npc.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+	public static boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot) {
+		if (entity == null || target == null) { return false; }
+		IAttributeInstance follow_range = entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
 		double aggroRange = (follow_range == null ? 16.0d : follow_range.getAttributeValue());
-		if (npc.isPlayerSleeping()) { aggroRange /= 4.0d; }
+		if (entity.isPlayerSleeping()) { aggroRange /= 4.0d; }
 		if (aggroRange < 1.0d) { aggroRange = 1.0d; }
-		double[] data = AdditionalMethods.instance.getAngles3D(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
-		EntitySenses senses = npc.getEntitySenses();
-		List<Entity> seenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 1);
-		List<Entity> unseenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 2);
+		double[] data = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
+		List<Entity> seenEntities = null, unseenEntities = null;
+		if (entity instanceof EntityLiving) {
+			EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
+			seenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 1);
+			unseenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 2);
+		}
 		if (data[3] > aggroRange) {
-			if (seenEntities.contains(target)) { seenEntities.remove(target); }
-			if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+			if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
+			if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 			return false;
 		}
-		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(npc, data[0], data[1], data[3]);
-		for (IBlock bi : rtrs.blocks) {
-			if (bi.getMCBlock().isOpaqueCube(npc.world.getBlockState(bi.getPos().getMCBlockPos()))) {
-				if (seenEntities.contains(target)) { seenEntities.remove(target); }
-				if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
-				return false;
+		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(entity, data[0], data[1], data[3]);
+		if (rtrs != null) {
+			for (IBlock bi : rtrs.blocks) {
+				if (toShoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
+					if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
+					if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
+					return false;
+				}
+				else if (bi.getMCBlock().isOpaqueCube(entity.world.getBlockState(bi.getPos().getMCBlockPos()))) {
+					if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
+					if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
+					return false;
+				}
 			}
 		}
-		if (npc.ais.directLOS) {
-			double yaw = npc.rotationYaw - data[0];
-			double pitch = npc.rotationPitch - data[1];
+		if (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS) {
+			double yaw = entity.rotationYaw - data[0];
+			double pitch = entity.rotationPitch - data[1];
 			if (yaw < 0.0d) { yaw += 360.0d; }
 			if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
-				if (seenEntities.contains(target)) { seenEntities.remove(target); }
-				if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+				if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
+				if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 				return false;
 			}
 		}
@@ -1896,11 +1906,11 @@ implements IMetods {
 		if (chance < 0.0005d) { chance = 0.0005d; }
 		boolean canSee = chance > Math.random();
 		if (canSee) {
-			if (!seenEntities.contains(target)) { seenEntities.add(target); }
-			if (unseenEntities.contains(target)) { unseenEntities.remove(target); }
+			if (seenEntities!=null && !seenEntities.contains(target)) { seenEntities.add(target); }
+			if (unseenEntities!=null && unseenEntities.contains(target)) { unseenEntities.remove(target); }
 		} else {
-			if (seenEntities.contains(target)) { seenEntities.remove(target); }
-			if (!unseenEntities.contains(target)) { unseenEntities.add(target); }
+			if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
+			if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 		}
 		return canSee;
 	}

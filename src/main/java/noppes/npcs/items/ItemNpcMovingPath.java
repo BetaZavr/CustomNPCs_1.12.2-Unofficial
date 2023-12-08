@@ -60,10 +60,7 @@ implements IPermission {
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		ItemStack stack;
 		if (hand == EnumHand.OFF_HAND) {
-			stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if (!stack.isEmpty()) {
-				return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-			}
+			return new ActionResult<ItemStack>(EnumActionResult.PASS, player.getHeldItem(EnumHand.OFF_HAND));
 		}
 		stack = player.getHeldItem(hand);
 		if (!world.isRemote) {
@@ -77,7 +74,7 @@ implements IPermission {
 	}
 
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos bpos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (!world.isRemote) {
+		if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
 			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
 				ItemStack stack = player.getHeldItem(hand);
 				EntityNPCInterface npc = this.getNpc(stack, world);

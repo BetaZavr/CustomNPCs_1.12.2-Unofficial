@@ -276,7 +276,7 @@ extends ModelBiped
 			if (anim==null || !anim.isEdit) {
 				// Moving or Standing
 				if (anim==null) {
-					boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
+					boolean isNavigate = npc.navigating!=null || npc.motionX!=0.0d || npc.motionZ!=0.0d;
 					// Revenge Target
 					if (npc.isAttacking()) {
 						if (isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_WALK)) {

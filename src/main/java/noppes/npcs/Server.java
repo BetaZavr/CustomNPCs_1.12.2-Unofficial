@@ -58,12 +58,16 @@ public class Server {
 		Server.list.add(EnumPacketClient.SEND_FILE_PART);
 		Server.list.add(EnumPacketClient.PLAY_SOUND);
 		Server.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
+		Server.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);
+		Server.list.add(EnumPacketClient.UPDATE_NPC_TARGET);
 		Server.list.add(EnumPacketClient.CHATBUBBLE);
 		Server.list.add(EnumPacketClient.SYNC_ADD);
 		Server.list.add(EnumPacketClient.BORDER_DATA);
 		Server.list.add(EnumPacketClient.MARCET_DATA);
 		Server.list.add(EnumPacketClient.SYNC_END);
 		Server.list.add(EnumPacketClient.NPC_MOVINGPATH);
+		Server.list.add(EnumPacketClient.VISIBLE_TRUE);
+		Server.list.add(EnumPacketClient.VISIBLE_FALSE);
 	}
 	
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {
@@ -184,10 +188,8 @@ public class Server {
 						LogWriter.debug("SendAssociatedData: " + type);
 					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
-					;
 					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
-								iterator.next());
+						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"), iterator.next());
 					}
 				}
 			} catch (IOException e) {

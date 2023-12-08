@@ -111,4 +111,13 @@ implements INPCMelee {
 		compound.setInteger("PotionAmp", this.potionAmp);
 		return compound;
 	}
+
+	public int getDelayRNG() {
+		int delay = this.attackSpeed;
+		if (this.attackSpeed < 120) {
+			delay += this.npc.world.rand.nextInt((int) ((double) this.attackSpeed * 0.15d));
+		}
+		return delay;
+	}
+	
 }

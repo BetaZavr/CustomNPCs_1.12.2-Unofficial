@@ -18,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.client.model.animation.AnimationConfig;
@@ -189,6 +190,9 @@ implements IAnimationHandler {
 	public IAnimation createNew(int animationType) {
 		AnimationConfig ac = new AnimationConfig(0);
 		int id = this.getUnusedId();
+		if (animationType < 0) { animationType = 0; }
+		else if (animationType > AnimationKind.values().length) { animationType = AnimationKind.values().length; }
+		ac.type = AnimationKind.values()[animationType];
 		this.animations.put(id, ac);
 		this.save();
 		return this.animations.get(id);

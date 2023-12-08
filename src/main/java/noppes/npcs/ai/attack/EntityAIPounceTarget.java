@@ -1,4 +1,4 @@
-package noppes.npcs.ai;
+package noppes.npcs.ai.attack;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;

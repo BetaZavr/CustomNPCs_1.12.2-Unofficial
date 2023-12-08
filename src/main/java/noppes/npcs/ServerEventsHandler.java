@@ -459,7 +459,11 @@ public class ServerEventsHandler {
 		for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
 			for (Entity e : map) {
 				if (e instanceof EntityLivingBase) {
-					MarkData.get((EntityLivingBase) e).save();
+					MarkData md = MarkData.get((EntityLivingBase) e);
+					if (md != null) {
+						if (md.entity == null) { md.entity = (EntityLivingBase) e; }
+						md.save();
+					}
 				}
 			}
 		}
@@ -477,56 +481,6 @@ public class ServerEventsHandler {
 	public void registryRecipes(RegistryEvent.Register<IRecipe> event) {
 		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
 	}
-
-	/*@SubscribeEvent
-	public void registrySounds(RegistryEvent.Register<SoundEvent> event) {
-		List<String> list = Lists.<String>newArrayList();
-		Option<JSONType> mainSounds = null, customSounds = null;
-		try { customSounds = JSON.parseRaw(IOUtils.toString(new FileInputStream( new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID+"/sounds.json")),  StandardCharsets.UTF_8)); }
-		catch (IOException e1) {}
-				
-		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mainSounds!=null) { break; }
-			if (mod.getSource().exists()) {
-				try {
-					if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
-						ZipFile zip = new ZipFile(mod.getSource());
-						ZipEntry entry = zip.getEntry("assets/customnpcs/sounds.json");
-					    if (entry == null) { entry = zip.getEntry("assets\\customnpcs\\sounds.json"); }
-					    try (InputStream is = zip.getInputStream(entry)) {
-					        try (@SuppressWarnings("resource")
-							Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A")) {
-					            Object fileAsString = s.hasNext() ? s.next() : "";
-					            mainSounds = JSON.parseRaw(fileAsString.toString());
-					        }
-					    }
-						zip.close();
-					} else if (mod.getSource().isDirectory()) {
-						File file = new File(mod.getSource(), "assets/customnpcs/sounds.json");
-						if (file.exists()) {
-							try { mainSounds = JSON.parseRaw(IOUtils.toString(new FileInputStream(file),  StandardCharsets.UTF_8)); }
-							catch (IOException e1) {}
-						}
-					}
-				}
-				catch (Exception e) { }
-			}
-		}
-		if (mainSounds!=null) {
-			String keys = ((JSONObject) mainSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")", "");
-			for (String key : keys.split(", ")) { list.add(key); }
-		}
-		if (customSounds!=null) {
-			String keys = ((JSONObject) customSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")", "");
-			for (String key : keys.split(", ")) { list.add(key); }
-		}
-		for (String str : list) {
-			ResourceLocation name = new ResourceLocation(CustomNpcs.MODID, str);
-			SoundEvent se = new SoundEvent(name);
-			se.setRegistryName(name);
-			event.getRegistry().register(se);
-		}
-	}*/
 	
 	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {

@@ -24,10 +24,10 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	}
 
 	public boolean isEntityApplicable(EntityLivingBase entity) {
-		if (!entity.isEntityAlive() || entity == this.npc || !this.npc.isInRange(entity, this.npc.stats.aggroRange) || entity.getHealth() < 1.0f) {
+		if (!entity.isEntityAlive() || entity == this.npc || this.npc.isRunHome || !this.npc.isInRange(entity, this.npc.stats.aggroRange) || entity.getHealth() < 1.0f) {
 			return false;
 		}
-		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity)) {
+		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity, false)) {
 			return false;
 		}
 		if (!this.npc.isFollower() && this.npc.ais.shouldReturnHome()) {

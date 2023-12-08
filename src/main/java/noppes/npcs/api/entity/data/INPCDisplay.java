@@ -39,6 +39,8 @@ public interface INPCDisplay {
 	int getVisible();
 
 	boolean isVisibleTo(IPlayer<?> player);
+	
+	int getShadowType();
 
 	void setBossbar(int type);
 
@@ -73,5 +75,7 @@ public interface INPCDisplay {
 	void setTitle(String title);
 
 	void setVisible(int type);
+	
+	void setShadowType(int type);
 
 }

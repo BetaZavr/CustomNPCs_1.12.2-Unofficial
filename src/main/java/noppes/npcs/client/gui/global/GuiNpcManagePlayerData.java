@@ -21,6 +21,7 @@ import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.SubGuiDataSend;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
@@ -91,6 +92,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		this.addButton(new GuiNpcButton(6, x, (y += 22), w, 20, "menu.factions"));
 		this.addButton(new GuiNpcButton(9, x, (y += 22), w, 20, "gui.game"));
 		this.addButton(new GuiNpcButton(7, x, (y += 22), w, 20, "gui.wipe"));
+		this.addButton(new GuiNpcButton(12, x, (y += 22), w, 20, "gui.cleaning"));
 		y = this.guiTop + 170;
 		this.addLabel(new GuiNpcLabel(1, "gui.found", this.guiLeft + 10, y + 5));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 66, y, 240, 20, this.search));
@@ -153,6 +155,10 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		}
 		else if (id == 7) {
 			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("gui.wipe").getFormattedText()+"?", new TextComponentTranslation("data.hover.wipe").getFormattedText().replace("<br>", ""+((char) 10)), 7);
+			this.displayGuiScreen((GuiScreen) guiyesno);
+		}
+		else if (id == 12) {
+			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("gui.cleaning").getFormattedText()+"?", new TextComponentTranslation("data.hover.cleaning").getFormattedText().replace("<br>", ""+((char) 10)), 12);
 			this.displayGuiScreen((GuiScreen) guiyesno);
 		}
 		else if (id == 8) { // Add
@@ -243,6 +249,8 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			this.setHoverText(new TextComponentTranslation("hover.delete.all").getFormattedText());
 		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.edit").getFormattedText());
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("data.hover.cleaning").getFormattedText());
 		} else if (this.getTextField(0)!=null && this.getTextField(0).getVisible() && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("data.hover.found").getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).getVisible() && this.getTextField(1).isMouseOver()) {
@@ -453,6 +461,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		this.getButton(8).setVisible(true);
 		this.getButton(10).setVisible(true);
 		this.getButton(11).setVisible(true);
+		this.getButton(12).setEnabled(this.selection == EnumPlayerData.Players);
 		
 		if (this.scroll!=null) {
 			if (this.selection != EnumPlayerData.Game) {
@@ -515,8 +524,8 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 				this.getButton(11).setVisible(false);
 			}
 		}
-		if (!hasPlayer) { this.getLabel(0).setLabel("data.all.players"); }
-		else { this.getLabel(0).setLabel(new TextComponentTranslation("data.sel.player", ((char) 167)+(this.isOnline ? "2" : "4")+((char) 167)+"l"+this.selectedPlayer).getFormattedText()); }
+		if (!hasPlayer) { this.getLabel(0).setLabel(new TextComponentTranslation("data.all.players").getFormattedText() + " ("+(this.scroll.getList()==null ? "1" : this.scroll.getList().size())+")"); }
+		else { this.getLabel(0).setLabel(new TextComponentTranslation("data.sel.player", ((char) 167) + (this.isOnline ? "2" : "4") + ((char) 167) + "l" + this.selectedPlayer).getFormattedText() + ((char) 167) + "r ("+(this.scroll.getList()==null ? "1" : this.scroll.getList().size())+")"); }
 	}
 
 	@Override
@@ -674,28 +683,36 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			this.selectedPlayer = null;
 			this.scroll.selected = -1;
 		}
+		else if (id == 12) {
+			SubGuiDataSend subgui = new SubGuiDataSend(0);
+			this.setSubGui(subgui);
+		}
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (!(subgui instanceof SubGuiEditText)) { return; }
-		if (((SubGuiEditText) subgui).id==1) { // set
-			try { Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 2, this.data.get(this.scrollData.get(this.scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0])); }
-			catch (Exception e) { }
-		} else if (((SubGuiEditText) subgui).id==2) { // change market slot
-			if (this.gameData==null || !this.data.containsKey(this.scroll.getSelected())) { return; }
-			int id = this.data.get(this.scroll.getSelected());
-			for (int i = 0; i < this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
-				NBTTagCompound nbt = this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
-				if (id!=nbt.getInteger("MarketID")) { continue; }
-				nbt.setInteger("Slot", ((SubGuiEditText) subgui).getTextField(0).getInteger());
-				break;
+		if (subgui instanceof SubGuiEditText) {
+			if (((SubGuiEditText) subgui).id==0) { // add
+				try { Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0])); }
+				catch (Exception e) { }
+			} else if (((SubGuiEditText) subgui).id==1) { // set
+				try { Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 2, this.data.get(this.scrollData.get(this.scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0])); }
+				catch (Exception e) { }
+			} else if (((SubGuiEditText) subgui).id==2) { // change market slot
+				if (this.gameData==null || !this.data.containsKey(this.scroll.getSelected())) { return; }
+				int id = this.data.get(this.scroll.getSelected());
+				for (int i = 0; i < this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).tagCount(); i++) {
+					NBTTagCompound nbt = this.gameData.getCompoundTag("GameData").getTagList("MarketData", 10).getCompoundTagAt(i);
+					if (id!=nbt.getInteger("MarketID")) { continue; }
+					nbt.setInteger("Slot", ((SubGuiEditText) subgui).getTextField(0).getInteger());
+					break;
+				}
+				this.setGuiData(this.gameData);
 			}
-			this.setGuiData(this.gameData);
-			
-		} else if (((SubGuiEditText) subgui).id==0) { // add
-			try { Client.sendData(EnumPacketServer.PlayerDataSet, this.selection.ordinal(), this.selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0])); }
-			catch (Exception e) { }
+			return;
+		}
+		if (subgui instanceof SubGuiDataSend) {
+			Client.sendData(EnumPacketServer.PlayerDataÑleaning, ((SubGuiDataSend) subgui).time);
 		}
 	}
 
@@ -728,6 +745,10 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
+		if (this.subgui!=null && this.subgui instanceof SubGuiDataSend) {
+			((SubGuiDataSend) this.subgui).unFocused(textField);
+			return;
+		}
 		if (textField.getId()!=1 || this.gameData==null || !textField.isLong()) { return; }
 		this.gameData.getCompoundTag("GameData").setLong("Money", textField.getLong());
 	}

@@ -105,7 +105,7 @@ implements INbtHandler, ICapabilityProvider {
 		event.addCapability(MarkData.CNPCS_CAPKEY, (ICapabilityProvider) new MarkData());
 	}
 
-	private EntityLivingBase entity;
+	public EntityLivingBase entity;
 
 	public List<Mark> marks;
 

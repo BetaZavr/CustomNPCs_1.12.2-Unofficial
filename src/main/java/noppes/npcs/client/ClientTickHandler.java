@@ -314,6 +314,13 @@ public class ClientTickHandler {
 		//TempClass.deobfucation();
 		//TempClass.cheakLang();
 		
+		/*AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(entity.getPosition()).grow(3.0d, 3.0d, 3.0d);
+		List<Entity> entities = entity.world.getEntitiesWithinAABB(Entity.class, bb);
+		System.out.println("entities: "+entities.size());
+		for (Entity e : entities) {
+			System.out.println("Entity: "+e.getName());
+		}*/
+		
 		/*try {
 			@SuppressWarnings("unchecked")
 			Class<GraalJSEngineFactory> c = (Class<GraalJSEngineFactory>) Class.forName("com.oracle.truffle.js.scriptengine.GraalJSEngineFactory");

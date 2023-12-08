@@ -46,6 +46,7 @@ implements INPCDisplay {
 	private int markovGender, markovGeneratorId, modelSize, showName, skinColor, visible;
 	private String cloakTexture, texture, title, url, glowTexture, name;
 	public Object renderModel;
+	public float shadowSize;
 
 	public DataDisplay(EntityNPCInterface npc) {
 		this.title = "";
@@ -68,6 +69,7 @@ implements INPCDisplay {
 		this.npc = npc;
 		this.markovGeneratorId = new Random().nextInt(CustomNpcs.MARKOV_GENERATOR.length - 1);
 		this.name = this.getRandomName();
+		this.shadowSize = 1.0f;
 	}
 
 	public Availability getAvailability() {
@@ -231,42 +233,42 @@ implements INPCDisplay {
 		}
 	}
 
-	public void readToNBT(NBTTagCompound nbttagcompound) {
-		this.setName(nbttagcompound.getString("Name"));
-		this.setMarkovGeneratorId(nbttagcompound.getInteger("MarkovGeneratorId"));
-		this.setMarkovGender(nbttagcompound.getInteger("MarkovGender"));
-		this.title = nbttagcompound.getString("Title");
+	public void readToNBT(NBTTagCompound displayNbt) {
+		this.setName(displayNbt.getString("Name"));
+		this.setMarkovGeneratorId(displayNbt.getInteger("MarkovGeneratorId"));
+		this.setMarkovGender(displayNbt.getInteger("MarkovGender"));
+		this.title = displayNbt.getString("Title");
 		int prevSkinType = this.skinType;
 		String prevTexture = this.texture;
 		String prevUrl = this.url;
 		String prevPlayer = this.getSkinPlayer();
-		this.url = nbttagcompound.getString("SkinUrl");
-		this.skinType = nbttagcompound.getByte("UsingSkinUrl");
-		this.texture = nbttagcompound.getString("Texture");
-		this.cloakTexture = nbttagcompound.getString("CloakTexture");
-		this.glowTexture = nbttagcompound.getString("GlowTexture");
+		this.url = displayNbt.getString("SkinUrl");
+		this.skinType = displayNbt.getByte("UsingSkinUrl");
+		this.texture = displayNbt.getString("Texture");
+		this.cloakTexture = displayNbt.getString("CloakTexture");
+		this.glowTexture = displayNbt.getString("GlowTexture");
 		this.playerProfile = null;
 		if (this.skinType == 1) {
-			if (nbttagcompound.hasKey("SkinUsername", 10)) {
-				this.playerProfile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkinUsername"));
-			} else if (nbttagcompound.hasKey("SkinUsername", 8)
-					&& !StringUtils.isNullOrEmpty(nbttagcompound.getString("SkinUsername"))) {
-				this.playerProfile = new GameProfile((UUID) null, nbttagcompound.getString("SkinUsername"));
+			if (displayNbt.hasKey("SkinUsername", 10)) {
+				this.playerProfile = NBTUtil.readGameProfileFromNBT(displayNbt.getCompoundTag("SkinUsername"));
+			} else if (displayNbt.hasKey("SkinUsername", 8)
+					&& !StringUtils.isNullOrEmpty(displayNbt.getString("SkinUsername"))) {
+				this.playerProfile = new GameProfile((UUID) null, displayNbt.getString("SkinUsername"));
 			}
 			this.loadProfile();
 		}
-		this.modelSize = ValueUtil.correctInt(nbttagcompound.getInteger("Size"), 1, 30);
-		this.showName = nbttagcompound.getInteger("ShowName");
-		if (nbttagcompound.hasKey("SkinColor")) {
-			this.skinColor = nbttagcompound.getInteger("SkinColor");
+		this.modelSize = ValueUtil.correctInt(displayNbt.getInteger("Size"), 1, 30);
+		this.showName = displayNbt.getInteger("ShowName");
+		if (displayNbt.hasKey("SkinColor")) {
+			this.skinColor = displayNbt.getInteger("SkinColor");
 		}
-		this.visible = nbttagcompound.getInteger("NpcVisible");
-		this.availability.readFromNBT(nbttagcompound.getCompoundTag("VisibleAvailability"));
+		this.visible = displayNbt.getInteger("NpcVisible");
+		this.availability.readFromNBT(displayNbt.getCompoundTag("VisibleAvailability"));
 		VisibilityController.trackNpc(this.npc);
-		this.disableLivingAnimation = nbttagcompound.getBoolean("NoLivingAnimation");
-		this.noHitbox = nbttagcompound.getBoolean("IsStatue");
-		this.setBossbar(nbttagcompound.getByte("BossBar"));
-		this.setBossColor(nbttagcompound.getInteger("BossColor"));
+		this.disableLivingAnimation = displayNbt.getBoolean("NoLivingAnimation");
+		this.noHitbox = displayNbt.getBoolean("IsStatue");
+		this.setBossbar(displayNbt.getByte("BossBar"));
+		this.setBossColor(displayNbt.getInteger("BossColor"));
 		if (prevSkinType != this.skinType || !this.texture.equals(prevTexture) || !this.url.equals(prevUrl)
 				|| !this.getSkinPlayer().equals(prevPlayer)) {
 			this.npc.textureLocation = null;
@@ -274,6 +276,8 @@ implements INPCDisplay {
 		this.npc.textureGlowLocation = null;
 		this.npc.textureCloakLocation = null;
 		this.npc.updateHitbox();
+		if (displayNbt.hasKey("ShadowSize", 5)) { this.shadowSize = ValueUtil.correctFloat(displayNbt.getFloat("ShadowSize"), 0, 1.5f); }
+		else { this.shadowSize = 1.0f; }
 	}
 
 	@Override
@@ -472,36 +476,56 @@ implements INPCDisplay {
 		this.npc.updateClient = true;
 	}
 
+	@Override
+	public int getShadowType() {
+		if (this.shadowSize<0.5f) { return 0; }
+		if (this.shadowSize<1.0f) { return 1; }
+		if (this.shadowSize<1.5f) { return 2; }
+		return 3;
+	}
+
+	@Override
+	public void setShadowType(int type) {
+		if (type < 0) { type *= -1; }
+		switch(type % 4) {
+			case 0: this.shadowSize = 0.0f; break;
+			case 1: this.shadowSize = 0.5f; break;
+			case 2: this.shadowSize = 1.0f; break;
+			default: this.shadowSize = 1.5f; break;
+		}
+	}
+
 	public boolean showName() {
 		return !this.npc.isKilled() && (this.showName == 0 || (this.showName == 2 && this.npc.isAttacking()));
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setString("Name", this.name);
-		nbttagcompound.setInteger("MarkovGeneratorId", this.markovGeneratorId);
-		nbttagcompound.setInteger("MarkovGender", this.markovGender);
-		nbttagcompound.setString("Title", this.title);
-		nbttagcompound.setString("SkinUrl", this.url);
-		nbttagcompound.setString("Texture", this.texture);
-		nbttagcompound.setString("CloakTexture", this.cloakTexture);
-		nbttagcompound.setString("GlowTexture", this.glowTexture);
-		nbttagcompound.setByte("UsingSkinUrl", this.skinType);
+	public NBTTagCompound writeToNBT(NBTTagCompound displayNbt) {
+		displayNbt.setString("Name", this.name);
+		displayNbt.setInteger("MarkovGeneratorId", this.markovGeneratorId);
+		displayNbt.setInteger("MarkovGender", this.markovGender);
+		displayNbt.setString("Title", this.title);
+		displayNbt.setString("SkinUrl", this.url);
+		displayNbt.setString("Texture", this.texture);
+		displayNbt.setString("CloakTexture", this.cloakTexture);
+		displayNbt.setString("GlowTexture", this.glowTexture);
+		displayNbt.setByte("UsingSkinUrl", this.skinType);
 		if (this.playerProfile != null) {
-			NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-			NBTUtil.writeGameProfile(nbttagcompound2, this.playerProfile);
-			nbttagcompound.setTag("SkinUsername", nbttagcompound2);
+			NBTTagCompound displayNbt2 = new NBTTagCompound();
+			NBTUtil.writeGameProfile(displayNbt2, this.playerProfile);
+			displayNbt.setTag("SkinUsername", displayNbt2);
 		}
-		nbttagcompound.setInteger("Size", this.modelSize);
-		nbttagcompound.setInteger("ShowName", this.showName);
-		nbttagcompound.setInteger("SkinColor", this.skinColor);
-		nbttagcompound.setInteger("NpcVisible", this.visible);
-		nbttagcompound.setTag("VisibleAvailability", this.availability.writeToNBT(new NBTTagCompound()));
-		nbttagcompound.setBoolean("NoLivingAnimation", this.disableLivingAnimation);
-		nbttagcompound.setBoolean("IsStatue", this.noHitbox);
-		nbttagcompound.setByte("BossBar", this.showBossBar);
-		nbttagcompound.setInteger("BossColor", this.bossColor.ordinal());
-		nbttagcompound.setBoolean("EnableInvisibleNpcs", CustomNpcs.EnableInvisibleNpcs);
-		return nbttagcompound;
+		displayNbt.setInteger("Size", this.modelSize);
+		displayNbt.setInteger("ShowName", this.showName);
+		displayNbt.setInteger("SkinColor", this.skinColor);
+		displayNbt.setInteger("NpcVisible", this.visible);
+		displayNbt.setTag("VisibleAvailability", this.availability.writeToNBT(new NBTTagCompound()));
+		displayNbt.setBoolean("NoLivingAnimation", this.disableLivingAnimation);
+		displayNbt.setBoolean("IsStatue", this.noHitbox);
+		displayNbt.setByte("BossBar", this.showBossBar);
+		displayNbt.setInteger("BossColor", this.bossColor.ordinal());
+		displayNbt.setBoolean("EnableInvisibleNpcs", CustomNpcs.EnableInvisibleNpcs);
+		displayNbt.setFloat("ShadowSize", this.shadowSize);
+		return displayNbt;
 	}
 
 }

@@ -1,4 +1,4 @@
-package noppes.npcs.ai;
+package noppes.npcs.ai.movement;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;

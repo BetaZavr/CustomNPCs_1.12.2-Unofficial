@@ -63,6 +63,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerScriptData;
+import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemBuilder;
@@ -122,13 +123,12 @@ public class ScriptPlayerEventHandler {
 
 	@SubscribeEvent
 	public void cnpcItemPickupEvent(EntityItemPickupEvent event) {
-		if (!(event.getEntityPlayer().world instanceof WorldServer)) {
-			return;
-		}
-		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
-		event.setCanceled(EventHooks.onPlayerPickUp(handler, event.getItem()));
+		if (!(event.getEntityPlayer().world instanceof WorldServer)) { return; }
+		PlayerData pd = PlayerData.get(event.getEntityPlayer());
+		for (QuestData qd : pd.questData.activeQuests.values()) { pd.questData.checkQuestCompletion(event.getEntityPlayer(), qd); }
+		event.setCanceled(EventHooks.onPlayerPickUp(pd.scriptData, event.getItem()));
 	}
-
+	
 	@SubscribeEvent
 	public void cnpcItemCraftedEvent(ItemCraftedEvent event) {
 		if (!(event.player.world instanceof WorldServer)) {
@@ -149,11 +149,10 @@ public class ScriptPlayerEventHandler {
 
 	@SubscribeEvent
 	public void cnpcItemTossEvent(ItemTossEvent event) {
-		if (!(event.getPlayer().world instanceof WorldServer)) {
-			return;
-		}
-		PlayerScriptData handler = PlayerData.get(event.getPlayer()).scriptData;
-		event.setCanceled(EventHooks.onPlayerToss(handler, event.getEntityItem()));
+		if (!(event.getPlayer().world instanceof WorldServer)) { return; }
+		PlayerData pd = PlayerData.get(event.getPlayer());
+		for (QuestData qd : pd.questData.activeQuests.values()) { pd.questData.checkQuestCompletion(event.getPlayer(), qd); }
+		event.setCanceled(EventHooks.onPlayerToss(pd.scriptData, event.getEntityItem()));
 	}
 
 	@SubscribeEvent

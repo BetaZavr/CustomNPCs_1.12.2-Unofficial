@@ -128,7 +128,9 @@ implements INPCAnimation {
 			}
 		}
 		for (AnimationKind eat : AnimationKind.values()) {
-			if (!this.data.containsKey(eat)) { this.data.put(eat, Lists.<AnimationConfig>newArrayList()); }
+			if (!this.data.containsKey(eat)) {
+				this.data.put(eat, Lists.<AnimationConfig>newArrayList());
+			}
 		}
 		for (int c=0; c<compound.getTagList("AllEmotions", 10).tagCount(); c++) {
 			
@@ -272,8 +274,8 @@ implements INPCAnimation {
 		}
 		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
 		if (list.isEmpty()) { return null; }
-		if (variant>=list.size()) {
-			throw new CustomNPCsException("Variant must be between 0 and " + list.size() + " You have: "+variant);
+		if (variant >= list.size()) {
+			throw new CustomNPCsException("Variant must be between 0 and " + (list.size()-1) + " You have: "+variant);
 		}
 		return list.get(variant);
 	}
@@ -367,9 +369,7 @@ implements INPCAnimation {
 	}
 	
 	public Map<Integer, Float[]> getValues(EntityCustomNpc npc, AnimationConfig anim, float pt) {
-		if (anim==null || anim.frames.isEmpty()) {
-			return null;
-		}
+		if (anim==null || anim.frames.isEmpty()) { return null; }
 		if (this.startFrameTick<=0) { this.startFrameTick = npc.world.getTotalWorldTime(); }
 		int ticks = (int) (npc.world.getTotalWorldTime() - this.startFrameTick);
 		AnimationFrameConfig frame_0 = null, frame_1 = null;
@@ -400,9 +400,14 @@ implements INPCAnimation {
 			frame_1 = anim.frames.get(anim.frame + 1);
 		}
 		else if (anim.isEdit) {
-			anim.frame = 0;
-			frame_0 = anim.frames.get(anim.frames.size()-1);
-			frame_1 = anim.frames.get(anim.frame);
+			if (anim.frame == anim.frames.size() - 1) {
+				frame_0 = anim.frames.get(anim.frames.size()-1);
+				frame_1 = anim.frames.get(anim.frame);
+			} else {
+				anim.frame = 0;
+				frame_0 = anim.frames.get(anim.frame);
+				frame_1 = anim.frames.get(anim.frame + 1);
+			}
 		}
 		else if (anim.repeatLast>0 || anim.type==AnimationKind.DIES) { // repeat end
 			int f = anim.repeatLast<=0 ? 1 : anim.repeatLast;

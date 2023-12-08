@@ -87,7 +87,7 @@ extends SubGuiInterface {
 	public void initGui() {
 		super.initGui();
 		for (int i = 0; i < this.text.length && i < 5; i++) { // Changed
-			this.addTextField(new GuiNpcTextField(i, this.parent, this.guiLeft + 4, this.guiTop + 14 + i * 22 + (this.lable!=null ? 2 : 0), 168, 20, this.text[i]));
+			this.addTextField(new GuiNpcTextField(i, this.parent, this.guiLeft + 4, this.guiTop + 16 + i * 22 + (this.lable!=null ? 2 : 0), 168, 20, this.text[i]));
 		}
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.done"));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.cancel"));

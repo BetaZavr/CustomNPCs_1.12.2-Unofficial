@@ -83,6 +83,7 @@ implements IAnimationFrame {
 				try { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
 				try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
 				try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { }
+				//System.out.println("i["+i+"]: "+this.rotation[i]);
 			}
 			this.id = compound.getInteger("Part");
 			this.disable = compound.getBoolean("Disabled");

@@ -30,10 +30,10 @@ implements IGuiData, ISubGuiListener {
 		switch(guibutton.id) {
 			case 0: { this.setSubGui(new SubGuiNPCLinesEdit(0, this.npc, this.npc.advanced.worldLines, "lines.world")); break; }
 			case 1: { this.setSubGui(new SubGuiNPCLinesEdit(1, this.npc, this.npc.advanced.attackLines, "lines.attack")); break; }
-			case 2: { this.setSubGui(new SubGuiNPCLinesEdit(1, this.npc, this.npc.advanced.interactLines, "lines.interact")); break; }
-			case 3: { this.setSubGui(new SubGuiNPCLinesEdit(1, this.npc, this.npc.advanced.killedLines, "lines.killed")); break; }
-			case 4: { this.setSubGui(new SubGuiNPCLinesEdit(1, this.npc, this.npc.advanced.killLines, "lines.kill")); break; }
-			case 5: { this.setSubGui(new SubGuiNPCLinesEdit(1, this.npc, this.npc.advanced.npcInteractLines, "lines.npcinteract")); break; }
+			case 2: { this.setSubGui(new SubGuiNPCLinesEdit(2, this.npc, this.npc.advanced.interactLines, "lines.interact")); break; }
+			case 3: { this.setSubGui(new SubGuiNPCLinesEdit(3, this.npc, this.npc.advanced.killedLines, "lines.killed")); break; }
+			case 4: { this.setSubGui(new SubGuiNPCLinesEdit(4, this.npc, this.npc.advanced.killLines, "lines.kill")); break; }
+			case 5: { this.setSubGui(new SubGuiNPCLinesEdit(5, this.npc, this.npc.advanced.npcInteractLines, "lines.npcinteract")); break; }
 			case 6: { this.npc.advanced.orderedLines = !((GuiNpcButtonYesNo) guibutton).getBoolean(); break; }
 		}
 	}

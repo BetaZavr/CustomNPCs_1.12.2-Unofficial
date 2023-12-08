@@ -101,9 +101,7 @@ extends GuiScreen {
 		for (int i = 0; i < this.list.size(); ++i) {
 			int j = 4;
 			int k = 14 * i + 4 - this.scrollY;
-			if (k < 4 || k + 10 >= this.height) {
-				continue;
-			}
+			if (k < 4 || k + 10 > this.height) { continue; }
 			String displayString = this.list.get(i).toString();
 			try { 
 				displayString = new TextComponentTranslation(this.list.get(i).toString()).getFormattedText();

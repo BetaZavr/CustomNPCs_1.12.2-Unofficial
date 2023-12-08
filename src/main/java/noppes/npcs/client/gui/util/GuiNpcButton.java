@@ -88,12 +88,12 @@ extends GuiButton {
 			this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
 			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
 			if (this.height<20 && this.height>=6) {
-				this.drawTexturedModalRect(this.x, this.y+this.height-3, 0, 63 + i * 20, this.width / 2, 3);
+				this.drawTexturedModalRect(this.x, this.y + this.height - 3, 0, 63 + i * 20, this.width / 2, 3);
 				this.drawTexturedModalRect(this.x + this.width / 2, this.y+this.height-3, 200 - this.width / 2, 63 + i * 20, this.width / 2, 3);
 			}
 			if (this.height>20 && this.height<=40) {
 				int h = this.height-17;
-				this.drawTexturedModalRect(this.x, this.y+17, 0, 66 - h + i * 20, this.width / 2, h);
+				this.drawTexturedModalRect(this.x, this.y + 17, 0, 66 - h + i * 20, this.width / 2, h);
 				this.drawTexturedModalRect(this.x + this.width / 2, this.y+17, 200 - this.width / 2, 66 - h + i * 20, this.width / 2, h);
 			}
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

@@ -187,12 +187,12 @@ implements INPCAdvanced {
 
 	public void readToNBT(NBTTagCompound compound) {
 		if (!compound.hasKey("Role")) { return; }
-		this.interactLines.readNBT(compound.getCompoundTag("NpcInteractLines"));
-		this.worldLines.readNBT(compound.getCompoundTag("NpcLines"));
-		this.attackLines.readNBT(compound.getCompoundTag("NpcAttackLines"));
-		this.killedLines.readNBT(compound.getCompoundTag("NpcKilledLines"));
-		this.killLines.readNBT(compound.getCompoundTag("NpcKillLines"));
-		this.npcInteractLines.readNBT(compound.getCompoundTag("NpcInteractNPCLines"));
+		this.worldLines.readNBT(compound.getCompoundTag("NpcLines")); // 0
+		this.attackLines.readNBT(compound.getCompoundTag("NpcAttackLines")); // 1
+		this.interactLines.readNBT(compound.getCompoundTag("NpcInteractLines")); // 2
+		this.killedLines.readNBT(compound.getCompoundTag("NpcKilledLines")); // 3
+		this.killLines.readNBT(compound.getCompoundTag("NpcKillLines")); // 4
+		this.npcInteractLines.readNBT(compound.getCompoundTag("NpcInteractNPCLines")); // 5
 		this.orderedLines = compound.getBoolean("OrderedLines");
 		this.idleSound = compound.getString("NpcIdleSound");
 		this.angrySound = compound.getString("NpcAngrySound");
@@ -240,12 +240,12 @@ implements INPCAdvanced {
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setTag("NpcLines", this.worldLines.writeToNBT());
-		compound.setTag("NpcKilledLines", this.killedLines.writeToNBT());
-		compound.setTag("NpcInteractLines", this.interactLines.writeToNBT());
-		compound.setTag("NpcAttackLines", this.attackLines.writeToNBT());
-		compound.setTag("NpcKillLines", this.killLines.writeToNBT());
-		compound.setTag("NpcInteractNPCLines", this.npcInteractLines.writeToNBT());
+		compound.setTag("NpcLines", this.worldLines.writeToNBT()); // 0
+		compound.setTag("NpcAttackLines", this.attackLines.writeToNBT()); // 1
+		compound.setTag("NpcInteractLines", this.interactLines.writeToNBT()); // 2
+		compound.setTag("NpcKilledLines", this.killedLines.writeToNBT()); // 3
+		compound.setTag("NpcKillLines", this.killLines.writeToNBT()); // 4
+		compound.setTag("NpcInteractNPCLines", this.npcInteractLines.writeToNBT()); // 5
 		compound.setBoolean("OrderedLines", this.orderedLines);
 		compound.setString("NpcIdleSound", this.idleSound);
 		compound.setString("NpcAngrySound", this.angrySound);

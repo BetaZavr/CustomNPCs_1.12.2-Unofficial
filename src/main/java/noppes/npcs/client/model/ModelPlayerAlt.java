@@ -8,7 +8,6 @@ import java.util.Random;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
@@ -91,14 +90,14 @@ extends ModelPlayer {
 	@Override
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		EntityCustomNpc npc = (EntityCustomNpc) entityIn;
-		if (npc.isNavigating && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
+		if (npc.navigating!=null && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
 			npc.turn(netHeadYaw / 3.0f, headPitch / 3.0f);
 			ObfuscationHelper.setValue(EntityLivingBase.class, npc, npc.rotationYaw, 58);
 			ObfuscationHelper.setValue(EntityLivingBase.class, npc, npc.rotationPitch, 59);
 		}
-		ModelData playerdata = npc.modelData;
+		ModelData modelData = npc.modelData;
 		for (EnumParts part : this.map.keySet()) {
-			ModelPartConfig config = playerdata.getPartConfig(part);
+			ModelPartConfig config = modelData.getPartConfig(part);
 			for (ModelScaleRenderer model : this.map.get(part)) { model.config = config; }
 		}
 		if (!this.isRiding) { this.isRiding = (npc.currentAnimation == 1); }
@@ -174,10 +173,6 @@ extends ModelPlayer {
 		else if (npc.currentAnimation == 8) {
 			AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
 		}
-		else if (this.isSneak) {
-			this.bipedBody.rotateAngleX = 0.5f / playerdata.getPartConfig(EnumParts.BODY).scaleY;
-		}
-		
 		AnimationConfig anim = npc.animation.activeAnim != null ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
 		// Dies
 		if (npc.isKilled() && !npc.stats.hideKilledBody) {
@@ -226,7 +221,7 @@ extends ModelPlayer {
 			if (anim==null || !anim.isEdit) {
 				// Moving or Standing
 				if (anim==null) {
-					boolean isNavigate = npc.isNavigating || npc.motionX!=0.0d || npc.motionZ!=0.0d;
+					boolean isNavigate = npc.navigating!=null || npc.motionX!=0.0d || npc.motionZ!=0.0d;
 					// Revenge Target
 					if (npc.isAttacking()) {
 						if (isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_WALK)) {
@@ -356,7 +351,7 @@ extends ModelPlayer {
 		}
 		float pt = 0.0f;
 		Minecraft mc = Minecraft.getMinecraft();
-		if (!(mc.currentScreen instanceof GuiIngameMenu)) { pt = mc.getRenderPartialTicks(); }
+		if (mc.currentScreen == null  || mc.currentScreen.isFocused()) { pt = mc.getRenderPartialTicks(); }
 		Map<Integer, Float[]> animData = npc.animation.getValues(npc, anim, pt);
 		if (animData == null) { return false; }
 		// Head

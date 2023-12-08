@@ -119,9 +119,10 @@ implements ICustomScrollListener {
 			case 2:
 				if (!this.data.containsKey(this.selected)) { return; }
 				if (AnimationController.getInstance().removeAnimation(this.data.get(this.selected))) { this.initGui(); }
+				this.animation = null;
+				this.resetAnim();
 				break;
 			case 3: GuiNpcAnimation.backColor = GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF: 0xFF000000; break;
-			default: break;
 		}
 	}
 	
@@ -159,6 +160,8 @@ implements ICustomScrollListener {
 	}
 
 	private void resetAnim() {
+		if (this.getButton(0)!=null) { this.getButton(0).enabled = this.animation != null; }
+		if (this.getButton(2)!=null) { this.getButton(2).enabled = this.animation != null; }
 		if (this.animation==null) { return; }
 		AnimationConfig ac = this.animation.copy();
 		ac.isEdit = true;

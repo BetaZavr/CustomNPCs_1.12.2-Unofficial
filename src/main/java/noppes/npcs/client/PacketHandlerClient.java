@@ -13,6 +13,7 @@ import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.IToast;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -21,6 +22,7 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.pathfinding.Path;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -113,11 +115,16 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.PLAY_SOUND);
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_MOVINGPATH);
 		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_ANIMATION);
+		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_NAVIGATION);
+		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_AI_TARGET);
+		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_NPC_TARGET);
 		PacketHandlerClient.list.add(EnumPacketClient.CHATBUBBLE);
 		PacketHandlerClient.list.add(EnumPacketClient.SYNC_ADD);
 		PacketHandlerClient.list.add(EnumPacketClient.SYNC_END);
 		PacketHandlerClient.list.add(EnumPacketClient.BORDER_DATA);
 		PacketHandlerClient.list.add(EnumPacketClient.MARCET_DATA);
+		PacketHandlerClient.list.add(EnumPacketClient.VISIBLE_TRUE);
+		PacketHandlerClient.list.add(EnumPacketClient.VISIBLE_FALSE);
 	}
 
 	@SubscribeEvent
@@ -695,7 +702,57 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					((EntityNPCInterface) entity).animation.activeAnim = ac;
 					break;
 				}
+				case 4: { // mod Animation
+					((EntityNPCInterface) entity).setCurrentAnimation(compound.getInteger("baseanim"));
+					break;
+				}
 			}
+		} else if (type == EnumPacketClient.UPDATE_NPC_NAVIGATION) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
+			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
+				return;
+			}
+			EntityNPCInterface npc = (EntityNPCInterface) entity;
+			if (compound.hasKey("Navigating", 10)) {
+				Path path = Server.readPathToNBT(compound.getCompoundTag("Navigating"));
+				npc.navigating = path;
+				npc.getNavigator().setPath(path, 1.0d);
+			}
+			else {
+				npc.navigating = null;
+				npc.getNavigator().setPath(null, 1.0d);
+			}
+		} else if (type == EnumPacketClient.UPDATE_NPC_AI_TARGET) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
+			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
+				return;
+			}
+			EntityNPCInterface npc = (EntityNPCInterface) entity;
+			if (compound.hasKey("aiIsSneak", 1)) {
+				npc.aiIsSneak = compound.getBoolean("aiIsSneak");
+				npc.setSneaking(npc.aiIsSneak);
+			}
+				
+		} else if (type == EnumPacketClient.UPDATE_NPC_TARGET) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
+			if (entity == null || !(entity instanceof EntityNPCInterface)) {
+				CustomNpcs.debugData.endDebug("Client", player, "PackageReceived_" + type.toString());
+				return;
+			}
+			EntityNPCInterface npc = (EntityNPCInterface) entity;
+			if (compound.hasKey("target", 3)) {
+				Entity target = npc.world.getEntityByID(compound.getInteger("target"));
+				if (target instanceof EntityLivingBase) {
+					((EntityLiving) npc).setAttackTarget((EntityLivingBase) target);
+				}
+				else { ((EntityLiving) npc).setAttackTarget(null); }
+			}
+			else { ((EntityLiving) npc).setAttackTarget(null); }
 		} else if (type == EnumPacketClient.SCRIPT_PACKAGE) {
 			EventHooks.onScriptPackage(player, Server.readNBT(buffer));
 		} else if (type == EnumPacketClient.SCRIPT_CLIENT) {

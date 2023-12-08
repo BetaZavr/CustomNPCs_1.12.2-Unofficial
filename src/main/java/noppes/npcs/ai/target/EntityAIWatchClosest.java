@@ -1,4 +1,4 @@
-package noppes.npcs.ai;
+package noppes.npcs.ai.target;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.EntityAIBase;
