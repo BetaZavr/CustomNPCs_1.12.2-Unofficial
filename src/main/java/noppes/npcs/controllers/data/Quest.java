@@ -1,6 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
@@ -36,17 +37,19 @@ import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.constants.EnumRewardType;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
+import noppes.npcs.util.AdditionalMethods;
 
 public class Quest
 implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	
 	public boolean cancelable = false;
-	public int id, level, nextQuestid, rewardExp, step, version;
+	public int id, level, nextQuestid, rewardExp, rewardMoney, step, version;
 	public int[] forgetDialogues, forgetQuests, completerPos;
 	public String command, completeText, logText, nextQuestTitle, rewardText, title;
 	public QuestCategory category;
@@ -59,7 +62,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	public EnumQuestCompletion completion;
 	public EnumRewardType rewardType;
 	public EntityNPCInterface completer;
-	public World world;
+	private UUID completerUUID;
 
 	public Quest(QuestCategory category) {
 		this.version = VersionCompatibility.ModRev;
@@ -77,6 +80,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		this.texture = null;
 		this.questInterface = new QuestInterface();
 		this.rewardExp = 0;
+		this.rewardMoney = 0;
 		this.rewardItems = new NpcMiscInventory(9);
 		this.rewardType = EnumRewardType.RANDOM_ONE;
 		this.factionOptions = new FactionOptions();
@@ -89,9 +93,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		this.forgetQuests = new int[0];
 		this.completerPos = new int[] { 0, 0, 0, 0 };
 		this.completer = null;
-		this.world = null;
-		if (CustomNpcs.Server!=null) { this.world = CustomNpcs.Server.getEntityWorld(); }
-		else if (CustomNpcs.proxy.getPlayer()!=null) { this.world = CustomNpcs.proxy.getPlayer().world; }
+		this.completerUUID = null;
 	}
 
 	@Override
@@ -169,7 +171,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 			}
 			if (!has) { rewardist.put(item, item.getCount()); }
 		}
-		if (rewardist.size() > 0 || this.rewardExp > 0 || !this.rewardText.isEmpty()) {
+		if (rewardist.size() > 0 || this.rewardExp > 0 || this.rewardMoney > 0 || !this.rewardText.isEmpty()) {
 			allTextLogs += ent + ent + new TextComponentTranslation("questlog.reward").getFormattedText();
 		}
 		if (rewardist.size() > 0) {
@@ -180,6 +182,9 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 				allTextLogs += ent + (rewardist.size() > 1 ? "" + j + " - " : "") + item.getDisplayName()+(c>1 ? " x"+c : "");
 				j++;
 			}
+		}
+		if (this.rewardMoney > 0) {
+			allTextLogs += ent + new TextComponentTranslation("questlog.rewardmoney", AdditionalMethods.getTextReducedNumber(this.rewardMoney, true, true, false), CustomNpcs.charCurrencies).getFormattedText();
 		}
 		if (this.rewardExp > 0) {
 			allTextLogs += ent + new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText();
@@ -304,10 +309,11 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		}
 		this.rewardType = EnumRewardType.values()[compound.getInteger("RewardType")];
 		this.rewardExp = compound.getInteger("RewardExp");
+		this.rewardMoney = compound.getInteger("RewardMoney");
 		this.rewardItems.setFromNBT(compound.getCompoundTag("Rewards"));
 		this.completion = EnumQuestCompletion.values()[compound.getInteger("QuestCompletion")];
 		this.repeat = EnumQuestRepeat.values()[compound.getInteger("QuestRepeat")];
-		this.questInterface.readEntityFromNBT(compound);
+		this.questInterface.readEntityFromNBT(compound, this.id);
 		this.factionOptions.readFromNBT(compound.getCompoundTag("QuestFactionPoints"));
 		this.mail.readNBT(compound.getCompoundTag("QuestMail"));
 		this.level = compound.getInteger("QuestLevel");
@@ -318,45 +324,86 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		this.forgetDialogues = compound.getIntArray("ForgetDialogues");
 		this.forgetQuests = compound.getIntArray("ForgetQuests");
 		this.completer = null;
+		this.completerUUID = null;
+		if (compound.hasKey("CompleterPos", 11)) {
+			this.completerPos = compound.getIntArray("CompleterPos");
+		}
 		try {
+			// New
 			if (compound.hasKey("CompleterNpc", 10)) {
 				if (compound.getCompoundTag("CompleterNpc").hasKey("UUIDMost", 4) && compound.getCompoundTag("CompleterNpc").hasKey("UUIDLeast", 4)) {
-					Entity e = this.world.getPlayerEntityByUUID(compound.getCompoundTag("CompleterNpc").getUniqueId("UUID"));
-					if (e instanceof EntityNPCInterface) { this.completer = (EntityNPCInterface) e; }
+					this.completerUUID = compound.getCompoundTag("CompleterNpc").getUniqueId("UUID");
 				}
-				if (this.completer == null) {
-					Entity e = EntityList.createEntityFromNBT(compound.getCompoundTag("CompleterNpc"), this.world);
-					if (e instanceof EntityNPCInterface) { this.completer = (EntityNPCInterface) e; }
-				}
-			}
-			else if (compound.hasKey("CompleterNpc", 8) && CustomNpcs.FixUpdateFromPre_1_12) {
-				String name = compound.getString("CompleterNpc");
-				this.completer = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), this.world);
-				this.completer.display.setName(name);
-				if (CustomNpcs.Server!=null) {
+				String name = compound.getCompoundTag("CompleterNpc").getString("Name");
+				if (CustomNpcs.Server != null) {
 					for (WorldServer w : CustomNpcs.Server.worlds) {
-						boolean found = false;
-						for (Entity e : w.getEntities(EntityNPCInterface.class, this)) {
-							if (e.getName().equals(name)) {
-								this.completer = (EntityNPCInterface) e;
-								found = true;
+						for (EntityNPCInterface entity : w.getEntities(EntityNPCInterface.class, this)) {
+							if (entity.getName().equals(name)) {
+								this.completer = entity;
+								if (this.completerUUID==null) { this.completerUUID = entity.getUniqueID(); }
 								break;
 							}
+							break;
 						}
-						if (found) { break; }
+						if (this.completer !=null) { break; }
+					}
+				}
+				else if (CustomNpcs.proxy.getPlayer()!=null) {
+					for (EntityNPCInterface entity : CustomNpcs.proxy.getPlayer().world.getEntities(EntityNPCInterface.class, this)) {
+						if (entity.getName().equals(name)) {
+							this.completer = entity;
+							if (this.completerUUID==null) { this.completerUUID = entity.getUniqueID(); }
+							break;
+						}
+						break;
+					}
+				}
+				if (this.completer == null) {
+					World world = null;
+					if (CustomNpcs.Server!=null) { world = CustomNpcs.Server.getEntityWorld(); }
+					else if (CustomNpcs.proxy.getPlayer()!=null) { world = CustomNpcs.proxy.getPlayer().world; }
+					Entity e = EntityList.createEntityFromNBT(compound.getCompoundTag("CompleterNpc"), world);
+					if (e instanceof EntityNPCInterface) {
+						this.completer = (EntityNPCInterface) e;
+						this.completerUUID = e.getUniqueID();
 					}
 				}
 			}
-		} catch (Exception e) {}
-		if (CustomNpcs.Server!=null && this.completer!=null) {
-			for (WorldServer w : CustomNpcs.Server.worlds) {
-				Entity e = w.getEntityFromUuid(this.completer.getUniqueID());
-				if (e instanceof EntityNPCInterface) {
-					this.completer = (EntityNPCInterface) e;
-					break;
+			// OLD
+			else if (compound.hasKey("CompleterNpc", 8) && CustomNpcs.FixUpdateFromPre_1_12) {
+				String name = compound.getString("CompleterNpc");
+				if (CustomNpcs.Server != null) {
+					for (WorldServer w : CustomNpcs.Server.worlds) {
+						for (EntityNPCInterface entity : w.getEntities(EntityNPCInterface.class, this)) {
+							if (entity.getName().equals(name)) {
+								this.completer = entity;
+								this.completerUUID = entity.getUniqueID();
+								break;
+							}
+						}
+						if (this.completer !=null) { break; }
+					}
+				}
+				else if (CustomNpcs.proxy.getPlayer()!=null) {
+					for (EntityNPCInterface entity : CustomNpcs.proxy.getPlayer().world.getEntities(EntityNPCInterface.class, this)) {
+						if (entity.getName().equals(name)) {
+							this.completer = entity;
+							this.completerUUID = entity.getUniqueID();
+							break;
+						}
+					}
+				}
+				if (this.completer == null) {
+					World world = null;
+					if (CustomNpcs.Server!=null) { world = CustomNpcs.Server.getEntityWorld(); }
+					else if (CustomNpcs.proxy.getPlayer()!=null) { world = CustomNpcs.proxy.getPlayer().world; }
+					this.completer = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
+					this.completer.display.setName(name);
+					this.completerUUID = this.completer.getUniqueID();
 				}
 			}
 		}
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	@Override
@@ -372,7 +419,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	@SideOnly(Side.SERVER)
 	@Override
 	public void sendChangeToAll() {
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 2, this.writeToNBT(new NBTTagCompound()), this.category.id);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData, this.writeToNBT(new NBTTagCompound()), this.category.id);
 	}
 
 	@Override
@@ -450,7 +497,6 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Id", this.id);
-		compound.setInteger("Level", this.level);
 		return this.writeToNBTPartial(compound);
 	}
 
@@ -462,6 +508,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		compound.setInteger("NextQuestId", this.nextQuestid);
 		compound.setString("NextQuestTitle", this.nextQuestTitle);
 		compound.setInteger("RewardExp", this.rewardExp);
+		compound.setInteger("RewardMoney", this.rewardMoney);
 		compound.setTag("Rewards", this.rewardItems.getToNBT());
 		compound.setString("QuestCommand", this.command);
 		compound.setString("QuestIcon", this.icon.toString());
@@ -483,7 +530,14 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 			NBTTagCompound npcNbt = new NBTTagCompound();
 			this.completer.writeToNBTOptional(npcNbt);
 			compound.setTag("CompleterNpc", npcNbt);
+			if (this.completerPos[0]==0 && this.completerPos[1]==0 && this.completerPos[2]==0 && this.completerPos[3]==0) {
+				 this.completerPos[0] = (int) this.completer.posX;
+				 this.completerPos[1] = (int) (this.completer.posY + 0.5d);
+				 this.completerPos[2] = (int) this.completer.posZ;
+				 this.completerPos[3] = this.completer.world.provider.getDimension();
+			}
 		}
+		compound.setIntArray("CompleterPos", this.completerPos);
 		
 		return compound;
 	}
@@ -510,7 +564,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 
 	@Override
 	public boolean apply(EntityNPCInterface entity) {
-		return this.completer == null || this.completer.getName().equals(entity.getName());
+		return this.completerUUID == null || entity.getUniqueID().equals(this.completerUUID);
 	}
 
 }

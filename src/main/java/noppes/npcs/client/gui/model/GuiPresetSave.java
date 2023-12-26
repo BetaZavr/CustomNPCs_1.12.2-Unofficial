@@ -4,12 +4,12 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelData;
 import noppes.npcs.client.controllers.Preset;
 import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.model.part.ModelData;
 
 public class GuiPresetSave
 extends SubGuiInterface {

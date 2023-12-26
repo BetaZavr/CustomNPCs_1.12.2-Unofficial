@@ -20,6 +20,7 @@ import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogCategory;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DialogOption;
@@ -248,7 +249,7 @@ implements IDialogHandler {
 			this.dialogs.remove(dia);
 		}
 		this.categories.remove(category);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 5, category);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.DialogCategoriesData, category);
 	}
 
 	public void removeDialog(Dialog dialog) {
@@ -259,7 +260,7 @@ implements IDialogHandler {
 		}
 		category.dialogs.remove(dialog.id);
 		this.dialogs.remove(dialog.id);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 4, dialog.id);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.DialogData, dialog.id);
 	}
 
 	public void saveCategory(DialogCategory category) {
@@ -295,7 +296,7 @@ implements IDialogHandler {
 			}
 		}
 		this.categories.put(category.id, category);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 5, category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData, category.writeNBT(new NBTTagCompound()));
 	}
 
 	public Dialog saveDialog(DialogCategory category, Dialog dialog) {
@@ -324,7 +325,7 @@ implements IDialogHandler {
 				file2.delete();
 			}
 			file.renameTo(file2);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 4, compound, category.id);
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogData, compound, category.id);
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}

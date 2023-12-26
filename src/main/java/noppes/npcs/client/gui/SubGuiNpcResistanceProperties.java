@@ -3,12 +3,12 @@ package noppes.npcs.client.gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.Resistances;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcSlider;
 import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.entity.data.Resistances;
 
 public class SubGuiNpcResistanceProperties
 extends SubGuiInterface

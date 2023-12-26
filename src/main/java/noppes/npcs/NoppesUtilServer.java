@@ -59,6 +59,7 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerManageBanks;
 import noppes.npcs.containers.ContainerManageRecipes;
 import noppes.npcs.controllers.BankController;
@@ -74,7 +75,6 @@ import noppes.npcs.controllers.TransportController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.Faction;
-import noppes.npcs.controllers.data.PlayerBankData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerDialogData;
 import noppes.npcs.controllers.data.PlayerFactionData;
@@ -91,6 +91,7 @@ import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.roles.data.SpawnNPCData;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class NoppesUtilServer {
@@ -192,7 +193,7 @@ public class NoppesUtilServer {
 	}
 
 	private static Map<String, Integer> getScrollData(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc) {
-		Map<String, Integer> map = Maps.newHashMap();
+		Map<String, Integer> map = Maps.<String, Integer>newHashMap();
 		if (gui == EnumGuiType.PlayerTransporter) {
 			RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 			TransportLocation location = role.getLocation();
@@ -204,9 +205,9 @@ public class NoppesUtilServer {
 			}
 			PlayerTransportData playerdata = PlayerData.get(player).transportData;
 			for (int i : playerdata.transports) {
-				TransportLocation loc2 = TransportController.getInstance().getTransport(i);
-				if (loc2 != null && location.category.locations.containsKey(loc2.id) && !map.containsKey(loc2.name)) {
-					map.put(loc2.name, loc2.id);
+				TransportLocation loc = TransportController.getInstance().getTransport(i);
+				if (loc != null && location.category.locations.containsKey(loc.id) && !map.containsKey(loc.name)) {
+					map.put(loc.name, loc.id);
 				}
 			}
 			map.remove(name);
@@ -333,10 +334,10 @@ public class NoppesUtilServer {
 		} else {
 			playerdata = PlayerData.get(pl);
 		}
-		if (type == EnumPlayerData.Players) {
-			File file = new File(CustomNpcs.getWorldSaveDirectory("playerdata"), playerdata.uuid + ".json");
-			if (file.exists()) {
-				file.delete();
+		if (type == EnumPlayerData.Players) { // Wipe
+			File playerDir = new File(CustomNpcs.getWorldSaveDirectory("playerdata"), playerdata.uuid);
+			if (playerDir.exists()) {
+				AdditionalMethods.removeFile(playerDir);
 			}
 			if (pl != null) {
 				playerdata.setNBT(new NBTTagCompound());
@@ -344,7 +345,8 @@ public class NoppesUtilServer {
 				playerdata.save(true);
 				return;
 			}
-			PlayerDataController.instance.nameUUIDs.remove(name);
+		} else if (type == EnumPlayerData.Wipe) {
+			
 		}
 		if (pl != null) {
 			SyncController.syncPlayer((EntityPlayerMP) pl);
@@ -426,12 +428,13 @@ public class NoppesUtilServer {
 		return tile;
 	}
 
-	public static void sendBank(EntityPlayerMP player, Bank bank) {
+	public static void sendBank(EntityPlayerMP player, Bank bank, int ceil) {
 		NBTTagCompound compound = new NBTTagCompound();
-		bank.writeEntityToNBT(compound);
+		bank.writeToNBT(compound);
+		compound.setInteger("CurrentCeil", ceil < 0 ? 0 : ceil);
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		if (player.openContainer instanceof ContainerManageBanks) {
-			((ContainerManageBanks) player.openContainer).setBank(bank);
+			((ContainerManageBanks) player.openContainer).setBank(bank, ceil);
 		}
 		player.sendAllContents(player.openContainer, player.openContainer.getInventory());
 	}
@@ -571,12 +574,8 @@ public class NoppesUtilServer {
 	public static void sendPlayerData(EnumPlayerData type, EntityPlayerMP player, String name) {
 		Map<String, Integer> map = new HashMap<String, Integer>();
 		if (type == EnumPlayerData.Players) {
-			for (String username : PlayerDataController.instance.nameUUIDs.keySet()) {
-				map.put(username, player.getServer().getPlayerList().getPlayerByUsername(username)==null ? 0 : 1);
-			}
-			for (String username : player.getServer().getPlayerList().getOnlinePlayerNames()) {
-				map.put(username, player.getServer().getPlayerList().getPlayerByUsername(username)==null ? 0 : 1);
-			}
+			for (String username : PlayerDataController.instance.getPlayerNames()) { map.put(username, 0); }
+			for (String username : player.getServer().getPlayerList().getOnlinePlayerNames()) { map.put(username, 1); }
 		} else {
 			PlayerData playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
 			if (type == EnumPlayerData.Dialog) {
@@ -614,12 +613,12 @@ public class NoppesUtilServer {
 					map.put(location.category.title + ": " + location.name, transportId);
 				}
 			} else if (type == EnumPlayerData.Bank) {
-				PlayerBankData data4 = playerdata.bankData;
+				/*PlayerBankData data4 = playerdata.bankData;
 				for (int bankId : data4.banks.keySet()) {
 					Bank bank = BankController.getInstance().banks.get(bankId);
 					if (bank == null) { continue; }
 					map.put(bank.name, bankId);
-				}
+				}*/
 			} else if (type == EnumPlayerData.Factions) {
 				PlayerFactionData data5 = playerdata.factionData;
 				for (int factionId : data5.factionData.keySet()) {
@@ -677,13 +676,13 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendTransportData(EntityPlayerMP player) {
-		Server.sendData(player, EnumPacketClient.SYNC_END, 11, TransportController.getInstance().getNBT());
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.TransportData, TransportController.getInstance().getNBT());
 		Server.sendData(player, EnumPacketClient.GUI_DATA, new NBTTagCompound());
 	}
 	
 	public static void sendTransportData(EntityPlayerMP player, int categoryid) {
 		TransportCategory category = TransportController.getInstance().categories.get(categoryid);
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		HashMap<String, Integer> map = Maps.<String, Integer>newHashMap();
 		if (category != null) {
 			for (TransportLocation transport : category.locations.values()) {
 				map.put(transport.name, transport.id);

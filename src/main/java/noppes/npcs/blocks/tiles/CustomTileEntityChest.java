@@ -18,6 +18,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.containers.ContainerChestCustom;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomTileEntityChest
 extends TileEntityLockableLoot
@@ -170,8 +171,8 @@ implements ITickable {
 		if (this.chestTexture!=null) { compound.setString("Texture", this.chestTexture.toString()); }
 		if (this.guiColor!=-1) { compound.setInteger("GUIColor", this.guiColor); }
 		if (this.guiColorArr!=null) { compound.setIntArray("GUIColor", this.guiColorArr); }
-		compound.setString("SoundOpen", this.sound_open.getSoundName().toString());
-		compound.setString("SoundClose", this.sound_close.getSoundName().toString());
+		compound.setString("SoundOpen", ObfuscationHelper.getValue(SoundEvent.class, this.sound_open, 1).toString());
+		compound.setString("SoundClose", ObfuscationHelper.getValue(SoundEvent.class, this.sound_close, 1).toString());
 		ItemStackHelper.saveAllItems(compound, this.inventory);
 		return compound;
 	}

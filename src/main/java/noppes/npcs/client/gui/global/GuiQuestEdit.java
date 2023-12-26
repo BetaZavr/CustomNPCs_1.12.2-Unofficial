@@ -135,7 +135,13 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		// completion
 		this.addButton(new GuiNpcButton(9, this.guiLeft + 172, this.guiTop + 30, 90, 20, "gui.extraoptions"));
 		this.getButton(9).layerColor = 0xFF00FFF0;
-		if (this.quest.completer==null) { this.quest.completer = this.npc; }
+		if (this.quest.completer==null) {
+			this.quest.completer = this.npc;
+			this.quest.completerPos[0] = (int) this.npc.posX;
+			this.quest.completerPos[1] = (int) (this.npc.posY + 0.5d);
+			this.quest.completerPos[2] = (int) this.npc.posZ;
+			this.quest.completerPos[3] = this.npc.world.provider.getDimension();
+		}
 		// faction
 		this.addLabel(new GuiNpcLabel(10, "faction.options", this.guiLeft + 4, this.guiTop + 101));
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 120, this.guiTop + 96, 50, 20, this.quest.factionOptions.hasOptions() ? "advanced.editingmode" : "selectServer.edit"));

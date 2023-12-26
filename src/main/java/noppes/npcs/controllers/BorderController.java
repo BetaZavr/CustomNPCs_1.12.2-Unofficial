@@ -24,7 +24,6 @@ import noppes.npcs.api.handler.IBorderHandler;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.Zone3D;
-import noppes.npcs.util.NBTJsonUtil;
 
 public class BorderController
 implements IBorderHandler {
@@ -34,8 +33,8 @@ implements IBorderHandler {
 	private String filePath;
 
 	public BorderController() {
-		this.filePath = "";
 		BorderController.instance = this;
+		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
 		this.regions = Maps.<Integer, Zone3D>newHashMap();
 		this.loadRegions();
 	}
@@ -144,9 +143,9 @@ implements IBorderHandler {
 			if (file3.exists()) { file3.delete(); }
 			file.renameTo(file3);
 			if (file.exists()) { file.delete(); }
-			if (CustomNpcs.VerboseDebug) {
+			/*if (CustomNpcs.VerboseDebug) {
 				NBTJsonUtil.SaveFile(new File(saveDir, "borders.json"), this.getNBT());
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

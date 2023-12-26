@@ -18,33 +18,30 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.oredict.OreDictionary;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.event.QuestEvent.QuestTurnedInEvent;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
-import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.containers.ContainerNPCFollower;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
-import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.Line;
-import noppes.npcs.controllers.data.PlayerBankData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
@@ -53,76 +50,110 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.roles.RoleDialog;
 import noppes.npcs.roles.RoleFollower;
+import noppes.npcs.util.AdditionalMethods;
 
 public class NoppesUtilPlayer {
 
 	private static Map<Object, Long> delaySendMap = new HashMap<Object, Long>();
 
 	public static void bankUnlock(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
-			return;
+		if (!(player.openContainer instanceof ContainerNPCBank) || npc == null) { return; }
+		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
+		BankData bd = ((ContainerNPCBank) player.openContainer).data;
+		if (player.capabilities.isCreativeMode || AdditionalMethods.removeItem(player, bd.bank.ceilSettings.get(ceilId).openStack, false, false)) {
+			bd.ceils.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCeils));
+			bd.save();
+			RoleEvent.BankUnlockedEvent event = new RoleEvent.BankUnlockedEvent(player, npc.wrappedNPC, ceilId);
+			EventHooks.onNPCRole(npc, event);
+			NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 		}
-		if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) {
-			return;
-		}
-		ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
-		Bank bank = BankController.getInstance().getBank(container.bankid);
-		ItemStack item = bank.currencyInventory.getStackInSlot(container.slot);
-		if (item == null || item.isEmpty()) {
-			return;
-		}
-		int price = item.getCount();
-		ItemStack currency = container.currencyMatrix.getStackInSlot(0);
-		if (currency == null || currency.isEmpty() || price > currency.getCount()) {
-			return;
-		}
-		if (currency.getCount() - price == 0) {
-			container.currencyMatrix.setInventorySlotContents(0, ItemStack.EMPTY);
-		} else {
-			currency = currency.splitStack(price);
-		}
-		player.closeContainer();
-		PlayerBankData data = PlayerDataController.instance.getBankData(player, bank.id);
-		BankData bankData = data.getBank(bank.id);
-		if (bankData.unlockedSlots + 1 <= bank.maxSlots) {
-			BankData bankData2 = bankData;
-			++bankData2.unlockedSlots;
-		}
-		RoleEvent.BankUnlockedEvent event = new RoleEvent.BankUnlockedEvent(player, npc.wrappedNPC, container.slot);
-		EventHooks.onNPCRole(npc, event);
-		bankData.openBankGui(player, npc, bank.id, container.slot);
 	}
 
 	public static void bankUpgrade(EntityPlayerMP player, EntityNPCInterface npc) {
-		if (npc.advanced.roleInterface.getEnumType() != RoleType.BANK) {
+		if (!(player.openContainer instanceof ContainerNPCBank) || npc == null) { return; }
+		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
+		BankData bd = ((ContainerNPCBank) player.openContainer).data;
+		if (!bd.ceils.containsKey(ceilId)) { return; }
+		if (player.capabilities.isCreativeMode || AdditionalMethods.removeItem(player, bd.bank.ceilSettings.get(ceilId).upgradeStack, false, false)) {
+			NpcMiscInventory inv = bd.ceils.get(ceilId);
+			bd.ceils.put(ceilId, new NpcMiscInventory(inv.getSizeInventory() + 1).fill(inv));
+			bd.save();
+			RoleEvent.BankUpgradedEvent event = new RoleEvent.BankUpgradedEvent(player, npc.wrappedNPC, ceilId);
+			EventHooks.onNPCRole(npc, event);
+			NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+		}
+	}
+
+	public static void bankRegrade(EntityPlayerMP player, EntityNPCInterface npc) {
+		if (!player.capabilities.isCreativeMode || !(player.openContainer instanceof ContainerNPCBank)) { return; }
+		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
+		BankData bd = ((ContainerNPCBank) player.openContainer).data;
+		if (!bd.ceils.containsKey(ceilId) || bd.ceils.get(ceilId).getSizeInventory()<0) { return; }
+		if (bd.ceils.get(ceilId).getSizeInventory() == 1) {
+			NoppesUtilPlayer.bankLock(player, npc);
 			return;
 		}
-		if (player.openContainer == null || !(player.openContainer instanceof ContainerNPCBankInterface)) {
-			return;
+		NpcMiscInventory inv = bd.ceils.get(ceilId);
+		bd.ceils.put(ceilId, new NpcMiscInventory(inv.getSizeInventory() - 1).fill(inv));
+		bd.save();
+		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+	}
+
+	public static void bankLock(EntityPlayerMP player, EntityNPCInterface npc) {
+		if (!player.capabilities.isCreativeMode || !(player.openContainer instanceof ContainerNPCBank)) { return; }
+		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
+		BankData bd = ((ContainerNPCBank) player.openContainer).data;
+		if (!bd.bank.ceilSettings.containsKey(ceilId) || bd.bank.ceilSettings.get(ceilId).openStack.isEmpty()) { return; }
+		bd.ceils.put(ceilId, new NpcMiscInventory(0));
+		bd.save();
+		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+	}
+
+	public static void bankClearCeil(EntityPlayerMP player, EntityNPCInterface npc) {
+		if (!player.capabilities.isCreativeMode || !(player.openContainer instanceof ContainerNPCBank)) { return; }
+		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
+		BankData bd = ((ContainerNPCBank) player.openContainer).data;
+		if (!bd.ceils.containsKey(ceilId)) { return; }
+		((ContainerNPCBank) player.openContainer).items.clear();
+		player.openContainer.detectAndSendChanges();
+		bd.save();
+		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+	}
+	
+	public static void bankResetCeil(EntityPlayerMP player, EntityNPCInterface npc) {
+		if (!player.capabilities.isCreativeMode || !(player.openContainer instanceof ContainerNPCBank)) { return; }
+		int ceilId = ((ContainerNPCBank) player.openContainer).ceil;
+		BankData bd = ((ContainerNPCBank) player.openContainer).data;
+		if (!bd.ceils.containsKey(ceilId) || !bd.bank.ceilSettings.containsKey(ceilId)) { return; }
+		((ContainerNPCBank) player.openContainer).items.clear();
+		player.openContainer.detectAndSendChanges();
+		bd.ceils.put(ceilId, new NpcMiscInventory(bd.bank.ceilSettings.get(ceilId).startCeils));
+		bd.save();
+		NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
+	}
+	
+	public static void openBankGui(BankData bd, EntityPlayerMP player, EntityNPCInterface npc, int ceilId) {
+		bd.openBankGui(player, npc, bd.bank.id, ceilId);
+		if (CustomNpcs.Server != null) {
+			if (bd.bank.isPublic) {
+				for (EntityPlayerMP pl : CustomNpcs.Server.getPlayerList().getPlayers()) {
+					if (!pl.equals(player) && pl.openContainer instanceof ContainerNPCBank && ((ContainerNPCBank) pl.openContainer).bank.id == bd.bank.id && ((ContainerNPCBank) pl.openContainer).ceil == ceilId) {
+						if (!bd.bank.access.isEmpty() && !bd.bank.access.contains(pl.getName())) {
+							pl.closeContainer();
+							player.sendMessage(new TextComponentTranslation("message.bank.changed"));
+							continue;
+						}
+						bd.openBankGui(pl, npc, bd.bank.id, ceilId);
+					}
+				}
+			}
+			else if (!player.getUniqueID().equals(bd.getUUID())) {
+				EntityPlayerMP pl = CustomNpcs.Server.getPlayerList().getPlayerByUUID(bd.getUUID());
+				if (pl!=null && !pl.equals(player) && pl.openContainer instanceof ContainerNPCBank && ((ContainerNPCBank) pl.openContainer).bank.id == bd.bank.id && ((ContainerNPCBank) pl.openContainer).ceil == ceilId) {
+					bd.openBankGui(pl, npc, bd.bank.id, ceilId);
+				}
+			}
 		}
-		ContainerNPCBankInterface container = (ContainerNPCBankInterface) player.openContainer;
-		Bank bank = BankController.getInstance().getBank(container.bankid);
-		ItemStack item = bank.upgradeInventory.getStackInSlot(container.slot);
-		if (item == null || item.isEmpty()) {
-			return;
-		}
-		int price = item.getCount();
-		ItemStack currency = container.currencyMatrix.getStackInSlot(0);
-		if (currency == null || currency.isEmpty() || price > currency.getCount()) {
-			return;
-		}
-		if (currency.getCount() - price == 0) {
-			container.currencyMatrix.setInventorySlotContents(0, ItemStack.EMPTY);
-		} else {
-			currency = currency.splitStack(price);
-		}
-		player.closeContainer();
-		PlayerBankData data = PlayerDataController.instance.getBankData(player, bank.id);
-		BankData bankData = data.getBank(bank.id);
-		bankData.upgradedSlots.put(container.slot, true);
-		RoleEvent.BankUpgradedEvent event = new RoleEvent.BankUpgradedEvent(player, npc.wrappedNPC, container.slot);
-		EventHooks.onNPCRole(npc, event);
-		bankData.openBankGui(player, npc, bank.id, container.slot);
 	}
 
 	public static void changeFollowerState(EntityPlayerMP player, EntityNPCInterface npc) {

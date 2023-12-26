@@ -47,7 +47,6 @@ implements INbtHandler, ICapabilityProvider {
 	public PlayerOverlayHUD hud;
 	public EntityPlayer player;
 	public int playerLevel;
-	public String playername;
 	public ItemStack prevHeldItem;
 	public PlayerQuestData questData;
 	public PlayerScriptData scriptData;
@@ -56,7 +55,7 @@ implements INbtHandler, ICapabilityProvider {
 	public DataTimers timers;
 	public PlayerTransportData transportData;
 	public boolean updateClient; // send to -> ServerTickHandler.onPlayerTick()
-	public String uuid;
+	public String uuid, playername;
 
 	public PlayerData() {
 		this.dialogData = new PlayerDialogData();
@@ -90,47 +89,63 @@ implements INbtHandler, ICapabilityProvider {
 			data.player = player;
 			data.playerLevel = player.experienceLevel;
 			data.scriptData = new PlayerScriptData(player);
-			NBTTagCompound compound = loadPlayerData(player.getPersistentID().toString());
+			NBTTagCompound compound = PlayerData.loadPlayerData(player.getPersistentID().toString(), player.getName());
 			if (compound.getKeySet().size() == 0) {
-				compound = loadPlayerDataOld(player.getName());
+				compound = loadPlayerDataOld(player.getPersistentID().toString(), player.getName());
 			}
 			data.setNBT(compound);
 		}
 		return data;
 	}
 
-	public static NBTTagCompound loadPlayerData(String player) {
-		File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-		String filename = player;
-		if (filename.isEmpty()) {
-			filename = "noplayername";
-		}
-		filename += ".json";
-		File file = null;
-		try {
-			file = new File(saveDir, filename);
-			if (file.exists()) {
-				return NBTJsonUtil.LoadFile(file);
+	public static NBTTagCompound loadPlayerData(String uuid, String name) {
+		File dir = CustomNpcs.getWorldSaveDirectory("playerdata");
+		File saveDir = new File(dir, uuid);
+		File file = new File(saveDir, name + ".json");
+		if (!saveDir.exists()) {
+			saveDir.mkdirs();
+			File oldVersionFile = new File(dir, uuid + ".json");
+			try {
+				if (oldVersionFile.exists()) {
+					NBTTagCompound nbt = NBTJsonUtil.LoadFile(oldVersionFile);
+					oldVersionFile.delete();
+					if (!file.exists()) {
+						try {
+							file.createNewFile();
+							NBTJsonUtil.SaveFile(file, nbt);
+						}
+						catch (Exception e) { LogWriter.error("Error create player data: " + file.getAbsolutePath(), e); }
+					}
+					return nbt;
+				}
 			}
+			catch (Exception e) { LogWriter.error("Error old loading: " + oldVersionFile.getAbsolutePath(), e); }
+		}
+		if (!file.exists()) {
+			try { file.createNewFile(); }
+			catch (Exception e) {
+				LogWriter.error("Error create player data: " + file.getAbsolutePath(), e);
+			}
+			return new NBTTagCompound();
+		}
+		try {
+			if (file.exists()) { return NBTJsonUtil.LoadFile(file); }
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 		}
 		return new NBTTagCompound();
 	}
 
-	public static NBTTagCompound loadPlayerDataOld(String player) {
-		File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-		String filename = player;
-		if (filename.isEmpty()) {
-			filename = "noplayername";
-		}
-		filename += ".dat";
+	public static NBTTagCompound loadPlayerDataOld(String uuid, String name) {
+		File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/"+uuid);
+		if (name.isEmpty()) { name = "noplayername"; }
+		name += ".dat";
 		try {
-			File file = new File(saveDir, filename);
+			File file = new File(saveDir, name);
 			if (file.exists()) {
 				NBTTagCompound comp = CompressedStreamTools.readCompressed(new FileInputStream(file));
 				file.delete();
-				file = new File(saveDir, filename + "_old");
+				file = new File(saveDir, name + "_old");
 				if (file.exists()) {
 					file.delete();
 				}
@@ -140,7 +155,7 @@ implements INbtHandler, ICapabilityProvider {
 			LogWriter.except(e);
 		}
 		try {
-			File file = new File(saveDir, filename + "_old");
+			File file = new File(saveDir, name + "_old");
 			if (file.exists()) {
 				return CompressedStreamTools.readCompressed(new FileInputStream(file));
 			}
@@ -171,7 +186,6 @@ implements INbtHandler, ICapabilityProvider {
 		}
 		NBTTagCompound compound = new NBTTagCompound();
 		this.dialogData.saveNBTData(compound);
-		this.bankData.saveNBTData(compound);
 		this.questData.saveNBTData(compound);
 		this.transportData.saveNBTData(compound);
 		this.factionData.saveNBTData(compound);
@@ -180,8 +194,6 @@ implements INbtHandler, ICapabilityProvider {
 		this.hud.saveNBTData(compound);
 		this.game.saveNBTData(compound); // New
 		this.timers.writeToNBT(compound);
-		compound.setString("PlayerName", this.playername);
-		compound.setString("UUID", this.uuid);
 		compound.setInteger("PlayerCompanionId", this.companionID);
 		compound.setTag("ScriptStoreddata", this.scriptStoreddata);
 		if (this.hasCompanion()) {
@@ -210,10 +222,12 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	public synchronized void save(boolean update) {
-		String filename = this.uuid + ".json";
 		CustomNPCsScheduler.runTack(() -> {
 			try {
-				File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata");
+				if (this.uuid.isEmpty()) { this.uuid = "noplayeruuid"; }
+				if (this.playername.isEmpty()) { this.playername = "noplayername"; }
+				File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/"+this.uuid);
+				String filename = this.playername + ".json";
 				File file = new File(saveDir, filename + "_new");
 				File file1 = new File(saveDir, filename);
 				NBTTagCompound nbt = this.getNBT();
@@ -241,8 +255,15 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	public void setNBT(NBTTagCompound data) {
+		if (this.player != null) {
+			this.playername = this.player.getName();
+			this.uuid = this.player.getPersistentID().toString();
+		} else {
+			this.playername = data.getString("PlayerName");
+			this.uuid = data.getString("UUID");
+		}
 		this.dialogData.loadNBTData(data);
-		this.bankData.loadNBTData(data);
+		this.bankData.loadNBTData(data, this.uuid);
 		this.questData.loadNBTData(data);
 		this.transportData.loadNBTData(data);
 		this.factionData.loadNBTData(data);
@@ -251,13 +272,6 @@ implements INbtHandler, ICapabilityProvider {
 		this.hud.loadNBTData(data);
 		this.timers.readFromNBT(data);
 		this.game.readFromNBT(data); // New
-		if (this.player != null) {
-			this.playername = this.player.getName();
-			this.uuid = this.player.getPersistentID().toString();
-		} else {
-			this.playername = data.getString("PlayerName");
-			this.uuid = data.getString("UUID");
-		}
 		this.companionID = data.getInteger("PlayerCompanionId");
 		if (data.hasKey("PlayerCompanion") && !this.hasCompanion()) {
 			EntityCustomNpc npc = new EntityCustomNpc(this.player.world);

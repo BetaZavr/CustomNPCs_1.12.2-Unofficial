@@ -37,7 +37,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerConnectionFromClientEvent;
 import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.api.NpcAPI;
@@ -63,79 +62,9 @@ import noppes.npcs.items.ItemSoulstoneEmpty;
 import noppes.npcs.quests.QuestObjective;
 
 public class ServerEventsHandler {
+	
 	public static EntityVillager Merchant;
 	public static Entity mounted;
-
-	private void doCraftQuest(ItemCraftedEvent event) {
-		EntityPlayer player = event.player;
-		PlayerData pdata = PlayerData.get(player);
-		PlayerQuestData playerdata = pdata.questData;
-		for (QuestData data : playerdata.activeQuests.values()) {
-			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) { continue; }
-			boolean bo = data.quest.step==1;
-			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-				if (data.quest.step==1 && !bo) { break; }
-				bo = obj.isCompleted();
-				if (((QuestObjective) obj).getEnumType() != EnumQuestTask.CRAFT) { continue; }
-				int size = 0;
-				if (!NoppesUtilServer.IsItemStackNull(event.crafting) && NoppesUtilPlayer.compareItems(
-						obj.getItem().getMCItemStack(), event.crafting, obj.isIgnoreDamage(), obj.isItemIgnoreNBT())) {
-					size = event.crafting.getCount();
-				}
-				if (size == 0) {
-					continue;
-				}
-				HashMap<ItemStack, Integer> crafted = ((QuestObjective) obj).getCrafted(data);
-				int amount = 0;
-				ItemStack key = obj.getItem().getMCItemStack();
-				for (ItemStack inData : crafted.keySet()) {
-					if (NoppesUtilPlayer.compareItems(obj.getItem().getMCItemStack(), inData, obj.isIgnoreDamage(),
-							obj.isItemIgnoreNBT())) {
-						amount = crafted.get(inData);
-						key = inData;
-						break;
-					}
-				}
-				if (amount >= obj.getMaxProgress()) {
-					continue;
-				}
-				if (amount + size > obj.getMaxProgress()) {
-					size = obj.getMaxProgress() - amount;
-				}
-				amount += size;
-				crafted.put(key, amount);
-				((QuestObjective) obj).setCrafted(data, crafted);
-
-				NBTTagCompound compound = new NBTTagCompound();
-				compound.setInteger("QuestID", data.quest.id);
-				compound.setString("Type", "craft");
-				compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
-				compound.setTag("Item", event.crafting.writeToNBT(new NBTTagCompound()));
-				compound.setInteger("MessageType", 0);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
-				if (amount >= obj.getMaxProgress()) {
-					player.sendMessage(new TextComponentTranslation("quest.message.craft.1", event.crafting.getDisplayName(),
-							data.quest.getTitle()));
-				} else {
-					player.sendMessage(new TextComponentTranslation("quest.message.craft.0", event.crafting.getDisplayName(),
-							"" + amount, "" + obj.getMaxProgress(), data.quest.getTitle()));
-				}
-
-				pdata.updateClient = true;
-				if (obj.isItemLeave()) {
-					boolean ch = player.inventory.getItemStack().isItemEqual(event.crafting);
-					event.crafting.splitStack(size);
-					player.openContainer.detectAndSendChanges();
-					if (ch) {
-						NBTTagCompound nbtStack = new NBTTagCompound();
-						player.inventory.getItemStack().writeToNBT(nbtStack);
-						Server.sendData((EntityPlayerMP) player, EnumPacketClient.DETECT_HELD_ITEM, nbtStack);
-					}
-				}
-				playerdata.checkQuestCompletion(player, data);
-			}
-		}
-	}
 
 	private void doFactionPoints(EntityPlayer player, EntityNPCInterface npc) {
 		if (npc.advanced.factions.hasOptions()) {
@@ -211,16 +140,14 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcCommands(CommandEvent event) {
-		CustomNpcs.debugData.startDebug(event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
+		CustomNpcs.debugData.startDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
 		if (event.getCommand() instanceof CommandGive) {
 			if (!(event.getSender().getEntityWorld() instanceof WorldServer)) {
-				CustomNpcs.debugData.endDebug(event.getSender().getEntityWorld().isRemote ? "Server" : "Client",
-							event.getSender(), "ServerEventsHandler_npcCommands");
+				CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
 				return;
 			}
 			try {
-				EntityPlayer player = (EntityPlayer) CommandBase.getPlayer(event.getSender().getServer(),
-						event.getSender(), event.getParameters()[0]);
+				EntityPlayer player = (EntityPlayer) CommandBase.getPlayer(event.getSender().getServer(), event.getSender(), event.getParameters()[0]);
 				player.getServer().futureTaskQueue.add(ListenableFutureTask.create(Executors.callable(() -> {
 					PlayerQuestData playerdata = PlayerData.get(player).questData;
 					for (QuestData data : playerdata.activeQuests.values()) {
@@ -233,43 +160,22 @@ public class ServerEventsHandler {
 						}
 					}
 				})));
-			} catch (Throwable t) {
-			}
+			} catch (Throwable t) { }
 		} else if (event.getCommand() instanceof CommandTime) {
 			try {
-				List<EntityPlayerMP> players = (List<EntityPlayerMP>) FMLCommonHandler.instance()
-						.getMinecraftServerInstance().getPlayerList().getPlayers();
+				List<EntityPlayerMP> players = (List<EntityPlayerMP>) FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
 				for (EntityPlayerMP playerMP : players) {
 					VisibilityController.onUpdate(playerMP);
 				}
-			} catch (Throwable t) {
-			}
+			} catch (Throwable t) { }
 		}
-		CustomNpcs.debugData.endDebug(event.getSender().getEntityWorld().isRemote ? "Server" : "Client",
-					event.getSender(), "ServerEventsHandler_npcCommands");
-	}
-
-	@SubscribeEvent
-	public void npcCraftedItem(ItemCraftedEvent event) {
-		if (event.player.world.isRemote) {
-			return;
-		}
-		CustomNpcs.debugData.startDebug(event.player.world.isRemote ? "Server" : "Client", event.player,
-					"ServerEventsHandler_npcCraftedItem");
-		if (event.crafting != null && !event.crafting.isEmpty()) {
-			this.doCraftQuest(event);
-		}
-		CustomNpcs.debugData.endDebug(event.player.world.isRemote ? "Server" : "Client", event.player,
-					"ServerEventsHandler_npcCraftedItem");
+		CustomNpcs.debugData.endDebug(!event.getSender().getEntityWorld().isRemote ? "Server" : "Client", event.getSender(), "ServerEventsHandler_npcCommands");
 	}
 
 	@SubscribeEvent
 	public void npcDeath(LivingDeathEvent event) {
-		if (event.getEntityLiving().world.isRemote) {
-			return;
-		}
-		CustomNpcs.debugData.startDebug(event.getEntityLiving().world.isRemote ? "Server" : "Client",
-					event.getEntityLiving(), "ServerEventsHandler_npcDeath");
+		if (event.getEntityLiving().world.isRemote) { return; }
+		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "ServerEventsHandler_npcDeath");
 		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
 		if (source != null) {
 			if (source instanceof EntityNPCInterface && event.getEntityLiving() != null) {
@@ -298,14 +204,13 @@ public class ServerEventsHandler {
 			PlayerData data = PlayerData.get((EntityPlayer) event.getEntityLiving());
 			data.save(false);
 		}
-		CustomNpcs.debugData.endDebug(event.getEntityLiving().world.isRemote ? "Server" : "Client",
-					event.getEntityLiving(), "ServerEventsHandler_npcDeath");
+		CustomNpcs.debugData.endDebug("Server", event.getEntityLiving(), "ServerEventsHandler_npcDeath");
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public void npcEntityCapabilities(AttachCapabilitiesEvent<Entity> event) {
 		String side = "Common";
-		if (event.getObject()!=null && event.getObject().world!=null) { side = (event.getObject()).world.isRemote ? "Server" : "Client"; }
+		if (event.getObject()!=null && event.getObject().world!=null) { side = !(event.getObject()).world.isRemote ? "Server" : "Client"; }
 		CustomNpcs.debugData.startDebug(side, event.getObject(), "ServerEventsHandler_npcEntityCapabilities");
 		if (event.getObject() instanceof EntityPlayer) { PlayerData.register(event); }
 		if (event.getObject() instanceof EntityLivingBase) { MarkData.register(event); }
@@ -317,58 +222,48 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcEntityJoin(EntityJoinWorldEvent event) {
-		if (event.getWorld().isRemote || !(event.getEntity() instanceof EntityPlayer)) {
-			return;
-		}
-		CustomNpcs.debugData.startDebug(event.getEntity().world.isRemote ? "Server" : "Client", event.getEntity(),
-					"ServerEventsHandler_npcEntityJoin");
+		if (event.getWorld().isRemote || !(event.getEntity() instanceof EntityPlayer)) { return; }
+		CustomNpcs.debugData.startDebug("Server", event.getEntity(), "ServerEventsHandler_npcEntityJoin");
 		PlayerData data = PlayerData.get((EntityPlayer) event.getEntity());
 		data.updateCompanion(event.getWorld());
-		CustomNpcs.debugData.endDebug(event.getEntity().world.isRemote ? "Server" : "Client", event.getEntity(),
-					"ServerEventsHandler_npcEntityJoin");
+		CustomNpcs.debugData.endDebug("Server", event.getEntity(), "ServerEventsHandler_npcEntityJoin");
 	}
 
 	@SubscribeEvent
 	public void npcItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
-		CustomNpcs.debugData.startDebug("Common", null, "ServerEventsHandler_npcItemCapabilities");
+		CustomNpcs.debugData.startDebug(CustomNpcs.proxy.getPlayer() != null ? "Client" : "Server", null, "ServerEventsHandler_npcItemCapabilities");
 		ItemStackWrapper.register(event);
-		CustomNpcs.debugData.endDebug("Common", null, "ServerEventsHandler_npcItemCapabilities");
+		CustomNpcs.debugData.endDebug(CustomNpcs.proxy.getPlayer() != null ? "Client" : "Server", null, "ServerEventsHandler_npcItemCapabilities");
 	}
 
 	@SubscribeEvent
 	public void npcPlayerInteract(PlayerInteractEvent.EntityInteract event) {
 		ItemStack item = event.getEntityPlayer().getHeldItemMainhand();
-		if (item == null) {
-			return;
-		}
-		boolean isRemote = event.getEntityPlayer().world.isRemote;
-		CustomNpcs.debugData.startDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-					"ServerEventsHandler_npcPlayerInteract");
+		if (item == null) { return; }
+		boolean isClient = event.getEntityPlayer().world.isRemote;
+		CustomNpcs.debugData.startDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 		boolean npcInteracted = event.getTarget() instanceof EntityNPCInterface;
-		if (!isRemote && CustomNpcs.OpsOnly && !event.getEntityPlayer().getServer().getPlayerList()
-				.canSendCommands(event.getEntityPlayer().getGameProfile())) {
-			CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-						"ServerEventsHandler_npcPlayerInteract");
+		if (!isClient && CustomNpcs.OpsOnly && !event.getEntityPlayer().getServer().getPlayerList().canSendCommands(event.getEntityPlayer().getGameProfile())) {
+			CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 			return;
 		}
-		if (!isRemote && item.getItem() == CustomRegisters.soulstoneEmpty
+		if (!isClient && item.getItem() == CustomRegisters.soulstoneEmpty
 				&& event.getTarget() instanceof EntityLivingBase) {
 			((ItemSoulstoneEmpty) item.getItem()).store((EntityLivingBase) event.getTarget(), item,
 					event.getEntityPlayer());
 		}
-		if (item.getItem() == CustomRegisters.wand && npcInteracted && !isRemote) {
+		if (item.getItem() == CustomRegisters.wand && npcInteracted && !isClient) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-							"ServerEventsHandler_npcPlayerInteract");
+				CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
 			event.setCanceled(true);
 			NoppesUtilServer.sendOpenGui(event.getEntityPlayer(), EnumGuiType.MainMenuDisplay,
 					(EntityNPCInterface) event.getTarget());
-		} else if (item.getItem() == CustomRegisters.cloner && !isRemote && !(event.getTarget() instanceof EntityPlayer)) {
+		} else if (item.getItem() == CustomRegisters.cloner && !isClient && !(event.getTarget() instanceof EntityPlayer)) {
 			NBTTagCompound compound = new NBTTagCompound();
 			if (!(event.getTarget() instanceof EntityCustomNpc) || !((EntityCustomNpc) event.getTarget()).writeToNBTAtomically(compound)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
+				CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
 			String s = compound.getString("id");
@@ -382,9 +277,9 @@ public class ServerEventsHandler {
 			}
 			data.cloned = compound;
 			event.setCanceled(true);
-		} else if (item.getItem() == CustomRegisters.scripter && !isRemote && npcInteracted) {
+		} else if (item.getItem() == CustomRegisters.scripter && !isClient && npcInteracted) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
+				CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
 			NoppesUtilServer.setEditingNpc(event.getEntityPlayer(), (EntityNPCInterface) event.getTarget());
@@ -393,13 +288,12 @@ public class ServerEventsHandler {
 					EnumGuiType.Script.ordinal(), 0, 0, 0);
 		} else if (item.getItem() == CustomRegisters.mount) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.TOOL_MOUNTER)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-							"ServerEventsHandler_npcPlayerInteract");
+				CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
 			event.setCanceled(true);
 			ServerEventsHandler.mounted = event.getTarget();
-			if (isRemote) {
+			if (isClient) {
 				CustomNpcs.proxy.openGui(MathHelper.floor(ServerEventsHandler.mounted.posX),
 						MathHelper.floor(ServerEventsHandler.mounted.posY),
 						MathHelper.floor(ServerEventsHandler.mounted.posZ), EnumGuiType.MobSpawnerMounter,
@@ -407,13 +301,12 @@ public class ServerEventsHandler {
 			}
 		} else if (item.getItem() == CustomRegisters.wand && event.getTarget() instanceof EntityVillager) {
 			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.EDIT_VILLAGER)) {
-				CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(),
-							"ServerEventsHandler_npcPlayerInteract");
+				CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 				return;
 			}
 			event.setCanceled(true);
 			ServerEventsHandler.Merchant = (EntityVillager) event.getTarget();
-			if (!isRemote) {
+			if (!isClient) {
 				EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
 				player.openGui(CustomNpcs.instance, EnumGuiType.MerchantAdd.ordinal(), player.world, 0, 0, 0);
 				MerchantRecipeList merchantrecipelist = ServerEventsHandler.Merchant.getRecipes((EntityPlayer) player);
@@ -422,13 +315,7 @@ public class ServerEventsHandler {
 				}
 			}
 		}
-		CustomNpcs.debugData.endDebug(isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
-	}
-
-	@SubscribeEvent
-	public void npcPlayerStopTracking(PlayerEvent.StopTracking event) {
-		CustomNpcs.debugData.startDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerStopTracking");
-		CustomNpcs.debugData.endDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerStopTracking");
+		CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 	}
 
 	@SubscribeEvent
@@ -436,26 +323,29 @@ public class ServerEventsHandler {
 		if (!(event.getTarget() instanceof EntityLivingBase) || event.getTarget().world.isRemote) {
 			return;
 		}
-		CustomNpcs.debugData.startDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerTracking");
+		CustomNpcs.debugData.startDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerTracking");
 		if (event.getTarget() instanceof EntityNPCInterface && CustomNpcs.EnableInvisibleNpcs) {
 			VisibilityController.checkIsVisible((EntityNPCInterface) event.getTarget(), (EntityPlayerMP) event.getEntityPlayer());
 		}
 		MarkData data = MarkData.get((EntityLivingBase) event.getTarget());
-		CustomNpcs.debugData.endDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerTracking");
-		if (data.marks.isEmpty()) { return; }
+		if (data.marks.isEmpty()) {
+			CustomNpcs.debugData.endDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerTracking");
+			return;
+		}
 		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.MARK_DATA, event.getTarget().getEntityId(), data.getNBT());
+		CustomNpcs.debugData.endDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerTracking");
 	}
 
 	@SubscribeEvent
 	public void npcPopulateChunk(PopulateChunkEvent.Post event) {
-		CustomNpcs.debugData.startDebug(event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
+		CustomNpcs.debugData.startDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
 		NPCSpawning.performWorldGenSpawning(event.getWorld(), event.getChunkX(), event.getChunkZ(), event.getRand());
-		CustomNpcs.debugData.endDebug(event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
+		CustomNpcs.debugData.endDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
 	}
 
 	@SubscribeEvent
 	public void npcSaveChunk(ChunkDataEvent.Save event) {
-		CustomNpcs.debugData.startDebug(event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcSaveChunk");
+		CustomNpcs.debugData.startDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcSaveChunk");
 		for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
 			for (Entity e : map) {
 				if (e instanceof EntityLivingBase) {
@@ -467,14 +357,14 @@ public class ServerEventsHandler {
 				}
 			}
 		}
-		CustomNpcs.debugData.endDebug(event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcSaveChunk");
+		CustomNpcs.debugData.endDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcSaveChunk");
 	}
 
 	@SubscribeEvent
 	public void npcSavePlayer(PlayerEvent.SaveToFile event) {
-		CustomNpcs.debugData.startDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
+		CustomNpcs.debugData.startDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
 		PlayerData.get(event.getEntityPlayer()).save(false);
-		CustomNpcs.debugData.endDebug(event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
+		CustomNpcs.debugData.endDebug(!event.getEntityPlayer().world.isRemote ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcSavePlayer");
 	}
 
 	@SubscribeEvent

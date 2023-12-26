@@ -41,6 +41,7 @@ import net.minecraftforge.fml.common.network.internal.EntitySpawnMessageHelper;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
@@ -65,6 +66,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.BORDER_DATA);
 		Server.list.add(EnumPacketClient.MARCET_DATA);
 		Server.list.add(EnumPacketClient.SYNC_END);
+		Server.list.add(EnumPacketClient.SYNC_UPDATE);
 		Server.list.add(EnumPacketClient.NPC_MOVINGPATH);
 		Server.list.add(EnumPacketClient.VISIBLE_TRUE);
 		Server.list.add(EnumPacketClient.VISIBLE_FALSE);
@@ -73,6 +75,9 @@ public class Server {
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {
 		buffer.writeInt(enu.ordinal());
 		for (Object ob : obs) {
+			if (enu == EnumPacketServer.SpawnMob) {
+				System.out.println("ob: "+ob.getClass());
+			}
 			if (ob != null) {
 				if (ob instanceof Map) {
 					@SuppressWarnings("unchecked")

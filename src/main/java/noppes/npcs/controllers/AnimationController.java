@@ -23,6 +23,7 @@ import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.util.AdditionalMethods;
 
 public class AnimationController
@@ -34,8 +35,8 @@ implements IAnimationHandler {
 	private String filePath;
 	
 	public AnimationController() {
-		this.filePath = "";
 		AnimationController.instance = this;
+		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
 		this.animations = Maps.<Integer, IAnimation>newTreeMap();
 		this.loadAnimations();
 	}
@@ -131,9 +132,9 @@ implements IAnimationHandler {
 	
 	public void sendTo(EntityPlayerMP player) {
 		if (CustomNpcs.Server!=null && CustomNpcs.Server.isSinglePlayer()) { return; }
-		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 7, new NBTTagCompound());
+		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, new NBTTagCompound());
 		for (IAnimation ac : this.animations.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 7, ((AnimationConfig) ac).writeToNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, ((AnimationConfig) ac).writeToNBT(new NBTTagCompound()));
 		}
 	}
 

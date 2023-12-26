@@ -18,6 +18,7 @@ public class PlayerQuestData {
 	
 	public HashMap<Integer, QuestData> activeQuests = new HashMap<Integer, QuestData>();
 	public HashMap<Integer, Long> finishedQuests = new HashMap<Integer, Long>();
+	public boolean updateClient; // ServerTickHandler.onPlayerTick()
 
 	public PlayerQuestData() {
 	}
@@ -31,6 +32,7 @@ public class PlayerQuestData {
 				Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.completed", ": ", data.quest.getTitle());
 			}
 			data.isCompleted = true;
+			this.updateClient = true;
 			EventHooks.onQuestFinished(PlayerData.get(player).scriptData, data.quest);
 			return true;
 		}

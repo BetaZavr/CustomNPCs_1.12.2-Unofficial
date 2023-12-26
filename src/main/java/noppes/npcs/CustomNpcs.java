@@ -285,6 +285,7 @@ public class CustomNpcs {
 	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
 	@Mod.EventHandler
 	public void preload(FMLPreInitializationEvent ev) {
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
 		CustomNpcs.Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCs");
 		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
 		(CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs")).mkdir();
@@ -341,15 +342,17 @@ public class CustomNpcs {
 
 		CustomNpcs.proxy.preload();
 		ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE, 1);
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 
 	@Mod.EventHandler
 	public void load(FMLInitializationEvent ev) {
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_load");
 		PixelmonHelper.load();
 		ScriptController controller = new ScriptController();
 		if (CustomNpcs.EnableScripting && controller.languages.size() > 0) {
 			MinecraftForge.EVENT_BUS.register(controller);
-			MinecraftForge.EVENT_BUS.register(new ScriptPlayerEventHandler().registerForgeEvents());
+			MinecraftForge.EVENT_BUS.register(new PlayerEventHandler().registerForgeEvents());
 			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
 		}
 		ForgeModContainer.fullBoundingBoxLadders = true;
@@ -365,10 +368,12 @@ public class CustomNpcs {
 		CustomNpcs.MARKOV_GENERATOR[8] = new MarkovCustomNPCsClassic(3);
 		CustomNpcs.MARKOV_GENERATOR[9] = new MarkovSpanish(3);
 		CustomNpcs.proxy.load();
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_load");
 	}
 	
 	@Mod.EventHandler
 	public static void postload(FMLPostInitializationEvent ev) { // New
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_postload");
 		if (CustomNpcs.maxLv < 1) { CustomNpcs.maxLv = 1; }
 		else if (CustomNpcs.maxLv > 999) { CustomNpcs.maxLv = 999; }
 		if (CustomNpcs.maxBuilderBlocks < 20) { CustomNpcs.maxBuilderBlocks = 20; }
@@ -381,7 +386,6 @@ public class CustomNpcs {
 				CustomNpcs.charCurrencies = new String(Character.toChars(0x20AC));
 			}
 		}
-		
 		CustomNpcs.proxy.postload();
 		new AdditionalMethods();
 		for (ModContainer mod : Loader.instance().getModList()) {
@@ -395,10 +399,12 @@ public class CustomNpcs {
 		CustomNpcs.forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
 		CustomNpcs.forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_postload");
 	}
 
 	@Mod.EventHandler
 	public void serverstart(FMLServerStartingEvent event) {
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_serverstart");
 		event.registerServerCommand((ICommand) CustomNpcs.NoppesCommand);
 		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0), (GameProfile) EntityNPCInterface.ChatEventProfile);
 		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0), (GameProfile) EntityNPCInterface.CommandProfile);
@@ -435,28 +441,27 @@ public class CustomNpcs {
 			});
 		}
 		DimensionHandler.getInstance().loadDimensions();
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_serverstart");
 	}
 
 	@Mod.EventHandler
 	public void setAboutToStart(FMLServerAboutToStartEvent event) {
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_setAboutToStart");
 		CustomNpcs.Server = event.getServer();
 		ChunkController.instance.clear();
 		FactionController.instance.load();
 		ScriptController.Instance.load();
-		
 		new DropController();
 		new RecipeController();
 		new AnimationController();
 		new KeyController();
 		new TransportController();
-		
 		new PlayerDataController();
 		new GlobalDataController();
 		new SpawnController();
 		new LinkedNpcController();
 		new MassBlockController();;
 		new VisibilityController();
-		
 		WrapperNpcAPI.clearCache();
 		Set<ResourceLocation> names = Block.REGISTRY.getKeys();
 		for (ResourceLocation name : names) {
@@ -471,6 +476,7 @@ public class CustomNpcs {
 				block.setTickRandomly(CustomNpcs.IceMeltsEnabled);
 			}
 		}
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_setAboutToStart");
 	}
 
 	@Mod.EventHandler
@@ -495,15 +501,18 @@ public class CustomNpcs {
 		DropController.getInstance().save();
 		ScriptController.Instance.saveItemTextures();
 		ItemScripted.Resources.clear();
+		BankController.getInstance().update();
+		if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
 		CustomNpcs.Server = null;
 	}
 
 	public static void showDebugs() {
-		if (!CustomNpcs.VerboseDebug) { return; }
-		LogWriter.debug("Debug Server Datas Event: { [Target name, Runs, Average time] }");
+		LogWriter.debug("Debug information output:");
 		CustomNpcs.debugData.stopAll();
+		boolean start = false;
 		for (String side : CustomNpcs.debugData.data.keySet()) {
-			LogWriter.debug("Showing Monitoring results for the "+side+" side. |Number - EventName: { [Target name, Runs, Average time] }|:");
+			if (start) {LogWriter.debug(""); }
+			LogWriter.debug("Showing Monitoring results for \""+side+"\" side. |Number - EventName: { [Target name, Runs, Average time] }|:");
 			List<String> events = Lists.newArrayList(CustomNpcs.debugData.data.get(side).times.keySet());
 			Collections.sort(events);
 			int i = 0;
@@ -522,10 +531,12 @@ public class CustomNpcs {
 					if (time[1]==dd.max) { maxName[0] = "\""+eventName+"|"+target+"\": "+AdditionalMethods.ticksToElapsedTime(dd.max, true, false, false); }
 					if (max<time[0]) { max = time[0]; maxName[1] = "\""+eventName+"|"+target+"\": "+time[0]+" runs"; }
 				}
-				if (!log.isEmpty()) { LogWriter.debug("["+(i+1)+"/"+targets.size()+"] - \""+eventName+"\": { "+log+" }"); }
+				LogWriter.debug("["+(i+1)+"/"+events.size()+"] - \""+eventName+"\": { "+log+" }");
 				i++;
 			}
-			LogWriter.debug(side+" a long time ["+maxName[0]+"]; Most often: ["+maxName[1]+"]");
+			LogWriter.debug("\""+side+"\" a long time ["+maxName[0]+"]");
+			LogWriter.debug("\""+side+"\" most often: ["+maxName[1]+"]");
+			start = true;
 		}
 	}
 

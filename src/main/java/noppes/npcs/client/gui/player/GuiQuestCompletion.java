@@ -38,10 +38,7 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 	}
 
 	private void drawQuestText() {
-		// int xoffset = this.guiLeft + 4;
-		TextBlockClient block = new TextBlockClient(this.quest.getCompleteText(), 172, true,
-				new Object[] { this.player });
-		// int yoffset = this.guiTop + 20;
+		TextBlockClient block = new TextBlockClient(this.quest.getCompleteText(), 172, true, this.npc, new Object[] { this.player });
 		for (int i = 0; i < block.lines.size(); ++i) {
 			String text = block.lines.get(i).getFormattedText();
 			this.fontRenderer.drawString(text, this.guiLeft + 4, this.guiTop + 16 + i * this.fontRenderer.FONT_HEIGHT,

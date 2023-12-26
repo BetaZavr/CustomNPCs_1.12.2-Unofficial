@@ -1,9 +1,10 @@
-package noppes.npcs;
+package noppes.npcs.entity.data;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 
 public class Resistances {
+	
 	public float arrow;
 	public float explosion;
 	public float knockback;

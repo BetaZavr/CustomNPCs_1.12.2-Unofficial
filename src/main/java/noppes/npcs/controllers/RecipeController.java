@@ -27,14 +27,15 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistry;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.handler.IRecipeHandler;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 
@@ -50,10 +51,10 @@ implements IRecipeHandler {
 	public static int version = 2;
 
 	public RecipeController() {
-		this.filePath = "";
 		this.globalList = Maps.<String, List<INpcRecipe>>newHashMap();
 		this.modList = Maps.<String, List<INpcRecipe>>newHashMap();
 		RecipeController.instance = this;
+		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		this.load();
 	}
 	
@@ -432,11 +433,11 @@ implements IRecipeHandler {
 
 	public void sendTo(EntityPlayerMP player) {
 		if (CustomNpcs.Server!=null && CustomNpcs.Server.isSinglePlayer()) { return; }
-		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 6, new NBTTagCompound());
+		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, new NBTTagCompound());
 		for (int i = 0; i < 2; i++) {
 			for (List<INpcRecipe> rs : (i == 0 ? this.globalList.values() : this.modList.values())) {
 				for (INpcRecipe recipe : rs) {
-					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 6, recipe.getNbt().getMCNBT());
+					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, recipe.getNbt().getMCNBT());
 				}
 			}
 		}

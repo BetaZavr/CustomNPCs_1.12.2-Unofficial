@@ -1,124 +1,129 @@
 package noppes.npcs.controllers.data;
 
-import java.util.HashMap;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Map;
+import java.util.UUID;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.NBTTags;
+import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
-import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.BankController;
+import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.CustomNPCsScheduler;
 
 public class BankData {
 	
-	public int bankId;
-	public HashMap<Integer, NpcMiscInventory> itemSlots;
-	public int unlockedSlots;
-	public HashMap<Integer, Boolean> upgradedSlots;
+	public Bank bank;
+	public final Map<Integer, NpcMiscInventory> ceils;
+	private String uuid;
+	
+	public BankData(Bank bank, String uuid) {
+		this.bank = bank;
+		this.uuid = uuid;
+		if (this.bank == null) { this.bank = new Bank(); }
+		this.ceils = Maps.<Integer, NpcMiscInventory>newTreeMap();
+		this.clear();
+	}
 
-	public BankData() {
-		this.unlockedSlots = 0;
-		this.bankId = -1;
-		this.itemSlots = new HashMap<Integer, NpcMiscInventory>();
-		this.upgradedSlots = new HashMap<Integer, Boolean>();
-		for (int i = 0; i < 6; ++i) {
-			this.itemSlots.put(i, new NpcMiscInventory(54));
-			this.upgradedSlots.put(i, false);
+	public void readNBT(NBTTagCompound nbtBD) {
+		this.bank = BankController.getInstance().banks.get(nbtBD.getInteger("id"));
+		NBTTagList list = nbtBD.getTagList("ceils", 10);
+		this.ceils.clear();
+		for (int ceil = 0; ceil < list.tagCount(); ceil++) {
+			NBTTagCompound nbtCeil = list.getCompoundTagAt(ceil);
+			NpcMiscInventory inv = new NpcMiscInventory(nbtCeil.getInteger("slots"));
+			inv.setFromNBT(nbtCeil);
+			this.ceils.put(nbtCeil.getInteger("ceil"), inv);
 		}
 	}
 
-	private ContainerNPCBankInterface getContainer(EntityPlayer player) {
-		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCBankInterface)) {
-			return null;
+	public void setNBT(NBTTagCompound nbtBD) {
+		this.bank = BankController.getInstance().banks.get(nbtBD.getInteger("id"));
+		NBTTagList list = nbtBD.getTagList("ceils", 10);
+		for (int ceil = 0; ceil < list.tagCount(); ceil++) {
+			NBTTagCompound nbtCeil = list.getCompoundTagAt(ceil);
+			NpcMiscInventory inv = new NpcMiscInventory(nbtCeil.getInteger("slots"));
+			inv.setFromNBT(nbtCeil);
+			this.ceils.put(nbtCeil.getInteger("ceil"), inv);
 		}
-		return (ContainerNPCBankInterface) con;
 	}
 
-	private HashMap<Integer, NpcMiscInventory> getItemSlots(NBTTagList tagList) {
-		HashMap<Integer, NpcMiscInventory> list = new HashMap<Integer, NpcMiscInventory>();
-		for (int i = 0; i < tagList.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
-			int slot = nbttagcompound.getInteger("Slot");
-			NpcMiscInventory inv = new NpcMiscInventory(54);
-			inv.setFromNBT(nbttagcompound.getCompoundTag("BankItems"));
-			list.put(slot, inv);
-		}
-		return list;
-	}
-
-	public boolean isUpgraded(Bank bank, int slot) {
-		return bank.isUpgraded(slot) || (bank.canBeUpgraded(slot) && this.upgradedSlots.get(slot));
-	}
-
-	private NBTTagList nbtItemSlots(HashMap<Integer, NpcMiscInventory> items) {
+	public NBTTagCompound getNBT() {
+		NBTTagCompound nbtBD = new NBTTagCompound();
+		nbtBD.setInteger("id", this.bank.id);
 		NBTTagList list = new NBTTagList();
-		for (int slot : items.keySet()) {
-			NBTTagCompound nbttagcompound = new NBTTagCompound();
-			nbttagcompound.setInteger("Slot", slot);
-			nbttagcompound.setTag("BankItems", items.get(slot).getToNBT());
-			list.appendTag(nbttagcompound);
+		for (int ceil : this.ceils.keySet()) {
+			NBTTagCompound nbtCeil = new NBTTagCompound();
+			nbtCeil.setInteger("ceil", ceil);
+			nbtCeil.setInteger("slots", this.ceils.get(ceil).getSizeInventory());
+			NBTTagCompound invNbt = this.ceils.get(ceil).getToNBT();
+			nbtCeil.setTag("NpcMiscInv", invNbt.getTag("NpcMiscInv"));
+			list.appendTag(nbtCeil);
 		}
-		return list;
+		nbtBD.setTag("ceils", list);
+		return nbtBD;
 	}
 
-	public void openBankGui(EntityPlayer player, EntityNPCInterface npc, int bankId, int slot) {
-		Bank bank = BankController.getInstance().getBank(bankId);
-		if (bank.getMaxSlots() <= slot) {
-			return;
-		}
-		if (bank.startSlots > this.unlockedSlots) {
-			this.unlockedSlots = bank.startSlots;
-		}
-		ItemStack currency = ItemStack.EMPTY;
-		if (this.unlockedSlots <= slot) {
-			currency = bank.currencyInventory.getStackInSlot(slot);
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBankUnlock, npc, slot, bank.id, 0);
-		} else if (this.isUpgraded(bank, slot)) {
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBankLarge, npc, slot, bank.id, 0);
-		} else if (bank.canBeUpgraded(slot)) {
-			currency = bank.upgradeInventory.getStackInSlot(slot);
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBankUprade, npc, slot, bank.id, 0);
-		} else {
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBankSmall, npc, slot, bank.id, 0);
-		}
-		ItemStack cr = currency;
-		CustomNPCsScheduler.runTack(() -> {
-			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("MaxSlots", bank.getMaxSlots());
-			compound.setInteger("UnlockedSlots", this.unlockedSlots);
-			if (cr != null && !cr.isEmpty()) {
-				compound.setTag("Currency", cr.writeToNBT(new NBTTagCompound()));
-				ContainerNPCBankInterface container = this.getContainer(player);
-				if (container != null) {
-					container.setCurrency(cr);
-				}
+	public void openBankGui(EntityPlayer player, EntityNPCInterface npc, int bankId, int ceil) {
+		if (!this.ceils.containsKey(ceil) || !(player instanceof EntityPlayerMP)) { return; }
+		if (this.bank.isPublic &&
+				!player.capabilities.isCreativeMode &&
+				!this.bank.access.isEmpty() &&
+				!this.bank.owner.equals(player.getName())
+				) {
+			if ((this.bank.isWhiteList && !this.bank.access.contains(player.getName())) ||
+					(!this.bank.isWhiteList && this.bank.access.contains(player.getName()))) {
+				player.sendMessage(new TextComponentTranslation("message.bank.not.accsess"));
+				return;
 			}
-			Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.GUI_DATA, compound);
-		}, 300);
+		}
+		NBTTagCompound nbtBank = new NBTTagCompound();
+		this.bank.writeToNBT(nbtBank);
+		Server.sendData((EntityPlayerMP) player, EnumPacketClient.SYNC_UPDATE, EnumSync.BankData, nbtBank);
+		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerBank, npc, this.bank.id, ceil, this.ceils.get(ceil).getSizeInventory());
 	}
 
-	public void readNBT(NBTTagCompound nbttagcompound) {
-		this.bankId = nbttagcompound.getInteger("DataBankId");
-		this.unlockedSlots = nbttagcompound.getInteger("UnlockedSlots");
-		this.itemSlots = this.getItemSlots(nbttagcompound.getTagList("BankInv", 10));
-		this.upgradedSlots = NBTTags.getBooleanList(nbttagcompound.getTagList("UpdatedSlots", 10));
+	public void save() {
+		File bankFile;
+		if (this.bank.isPublic) {
+			File dir = CustomNpcs.getWorldSaveDirectory("banks");
+			bankFile = new File(dir, this.bank.id + ".dat");
+		} else {
+			File dir = CustomNpcs.getWorldSaveDirectory("playerdata/"+this.uuid+"/banks");
+			bankFile = new File(dir, this.bank.id + ".dat");
+		}
+		if (!bankFile.exists()) {
+			try { bankFile.createNewFile(); } catch (Exception e) { e.printStackTrace(); }
+		}
+		LogWriter.debug("Bank ID: "+this.bank.id+" save "+(this.bank.isPublic ? "Public" : "Player \""+this.uuid+"\"")+" Inventoryes");
+		try { CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(bankFile)); }
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
-	public void writeNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("DataBankId", this.bankId);
-		nbttagcompound.setInteger("UnlockedSlots", this.unlockedSlots);
-		nbttagcompound.setTag("UpdatedSlots", NBTTags.nbtBooleanList(this.upgradedSlots));
-		nbttagcompound.setTag("BankInv", this.nbtItemSlots(this.itemSlots));
+	public void clear() {
+		this.ceils.clear();
+		boolean isStart = true;
+		for (int ceil : this.bank.ceilSettings.keySet()) {
+			CeilSettings cs = this.bank.ceilSettings.get(ceil);
+			if (isStart) { isStart = cs.openStack.isEmpty(); }
+			this.ceils.put(ceil, new NpcMiscInventory(isStart ? cs.startCeils : 0));
+		}
 	}
+
+	public UUID getUUID() { return UUID.fromString(this.uuid); }
+
 }

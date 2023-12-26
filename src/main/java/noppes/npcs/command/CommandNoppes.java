@@ -38,6 +38,7 @@ extends CommandBase {
 		this.registerCommand(new CmdMark());
 		this.registerCommand(new CmdDimensions());
 		this.registerCommand(new CmdPlayers());
+		this.registerCommand(new CmdDebug());
 	}
 
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {

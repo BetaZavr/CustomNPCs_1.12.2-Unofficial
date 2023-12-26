@@ -73,7 +73,6 @@ import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
@@ -106,7 +105,7 @@ public class ClientEventHandler {
 	@SubscribeEvent
 	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
-		CustomNpcs.debugData.startDebug("Client", mc.player, "ClientEventHandler_onOpenGUIEvent");
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
 		ClientEventHandler.gui = event.getGui();
 		ClientEventHandler.subgui = null;
 		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
@@ -141,12 +140,10 @@ public class ClientEventHandler {
 		if (event.getGui() instanceof GuiIngameMenu) {
 			if (!this.inGame) {
 				this.inGame = true;
-				CustomNPCsScheduler.runTack(() -> {
-					LogWriter.debug("Login: Get Server Data");
-					Client.sendDataDelayCheck(EnumPlayerPacket.GetSyncData, this, 0);
-				}, 1000);
+				LogWriter.debug("Login: Start game");
 			}
-		} else if (event.getGui() instanceof GuiMainMenu) {
+		}
+		else if (mc.player==null && event.getGui() instanceof GuiMainMenu || mc.currentScreen instanceof GuiIngameMenu) {
 			/*if (mc.currentScreen == null && !this.postLoad) {
 				this.postLoad = true;
 				List<String> list = Lists.<String>newArrayList();
@@ -200,10 +197,10 @@ public class ClientEventHandler {
 			if (this.inGame) {
 				LogWriter.debug("Logout: Exit game");
 				this.inGame = false;
-				CustomNpcs.showDebugs();
+				if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
 			}
 		}
-		CustomNpcs.debugData.endDebug("Client", mc.player, "ClientEventHandler_onOpenGUIEvent");
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
 	}
 
 	@SubscribeEvent

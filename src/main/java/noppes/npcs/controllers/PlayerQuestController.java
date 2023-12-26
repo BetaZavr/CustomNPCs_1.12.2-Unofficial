@@ -22,12 +22,10 @@ public class PlayerQuestController {
 
 	public static void addActiveQuest(Quest quest, EntityPlayer player) {
 		PlayerData playerdata = PlayerData.get(player);
-		LogWriter.debug("AddActiveQuest: " + quest.getTitle() + " + " + playerdata);
 		PlayerQuestData data = playerdata.questData;
+		LogWriter.debug("AddActiveQuest: " + quest.getTitle() + "; data: " + data);
 		if (playerdata.scriptData.getPlayer().canQuestBeAccepted(quest.id)) {
-			if (EventHooks.onQuestStarted(playerdata.scriptData, quest)) {
-				return;
-			}
+			if (EventHooks.onQuestStarted(playerdata.scriptData, quest)) { return; }
 			data.activeQuests.put(quest.id, new QuestData(quest));
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.newquest", quest.getTitle(), 2);
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.newquest", ": ", quest.getTitle());

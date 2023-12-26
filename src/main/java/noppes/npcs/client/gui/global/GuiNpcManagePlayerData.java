@@ -37,7 +37,7 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerData;
-import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
@@ -556,7 +556,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 
 	@Override
 	public void save() {
-		ContainerNPCBankInterface.editBank = null;
+		ContainerNPCBank.editPlayerBankData = null;
 		if (this.selection == EnumPlayerData.Game) {
 			boolean hasPlayer = this.selectedPlayer!=null && !this.selectedPlayer.isEmpty();
 			if (hasPlayer && this.gameData!=null) {
@@ -643,9 +643,9 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			this.selection = EnumPlayerData.Players;
 		}
 		this.initButtons();
-		if (ContainerNPCBankInterface.editBank!=null) {
+		if (ContainerNPCBank.editPlayerBankData != null) {
 			this.actionPerformed(new GuiNpcButton(5, 0, 0, ""));
-			ContainerNPCBankInterface.editBank = null;
+			ContainerNPCBank.editPlayerBankData = null;
 		}
 	}
 

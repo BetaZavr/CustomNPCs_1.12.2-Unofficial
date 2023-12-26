@@ -296,7 +296,7 @@ implements INPCAdvanced {
 	}
 
 	public void tryDefendFaction(int id, EntityLivingBase possibleAriend, EntityLivingBase attacked) {
-		if (this.npc.isKilled() || !this.defendFaction) { return; }
+		if (this.npc.isKilled() || !this.defendFaction || possibleAriend.equals(attacked)) { return; }
 		boolean canSee = this.npc.canSee(possibleAriend);
 		if (!canSee && this.throughWalls) {
 			float dist = this.npc.getDistance(possibleAriend);

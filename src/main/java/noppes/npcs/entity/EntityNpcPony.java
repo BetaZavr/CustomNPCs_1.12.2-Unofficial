@@ -5,7 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelData;
+import noppes.npcs.client.model.part.ModelData;
 
 public class EntityNpcPony extends EntityNPCInterface {
 	public ResourceLocation checked;

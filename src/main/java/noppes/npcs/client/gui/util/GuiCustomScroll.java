@@ -207,20 +207,22 @@ extends GuiScreen {
 			}
 		}
 		if (this.hover >= 0 && this.hover < this.list.size()) {
-			String[] texts = new String[0];
-			if (this.hoverText != null) {
-				texts = this.hoverText;
-			} else if (this.hoversTexts != null && this.hover < this.hoversTexts.length) {
-				texts = this.hoversTexts[this.hover];
-			} else if (this.stacks != null && this.hover < this.stacks.size()) {
-				List<String> l = this.stacks.get(this.hover).getTooltip(this.mc.player, TooltipFlags.NORMAL);
-				texts = l.toArray(new String[l.size()]);
-			}
-			if (texts != null) {
-				if (this.parent instanceof GuiNPCInterface) {
-					((GuiNPCInterface) this.parent).hoverText = texts;
-				} else if (this.parent instanceof GuiContainerNPCInterface) {
-					((GuiContainerNPCInterface) this.parent).hoverText = texts;
+			if (!(this.parent instanceof IEditNPC) && !((IEditNPC) this.parent).hasSubGui()) {
+				String[] texts = new String[0];
+				if (this.hoverText != null) {
+					texts = this.hoverText;
+				} else if (this.hoversTexts != null && this.hover < this.hoversTexts.length) {
+					texts = this.hoversTexts[this.hover];
+				} else if (this.stacks != null && this.hover < this.stacks.size()) {
+					List<String> l = this.stacks.get(this.hover).getTooltip(this.mc.player, TooltipFlags.NORMAL);
+					texts = l.toArray(new String[l.size()]);
+				}
+				if (texts != null) {
+					if (this.parent instanceof GuiNPCInterface) {
+						((GuiNPCInterface) this.parent).hoverText = texts;
+					} else if (this.parent instanceof GuiContainerNPCInterface) {
+						((GuiContainerNPCInterface) this.parent).hoverText = texts;
+					}
 				}
 			}
 		}

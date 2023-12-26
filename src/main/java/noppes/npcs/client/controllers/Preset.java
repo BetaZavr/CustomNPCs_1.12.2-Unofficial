@@ -3,8 +3,8 @@ package noppes.npcs.client.controllers;
 import java.util.HashMap;
 
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.ModelData;
-import noppes.npcs.ModelPartData;
+import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.constants.EnumParts;
 
 public class Preset {

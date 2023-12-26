@@ -13,8 +13,8 @@ import noppes.npcs.util.AdditionalMethods;
 public class PlayerGameData {
 	
 	private long money;
-	public boolean update; // ServerTickHandler
-	public boolean op = false;
+	public boolean updateClient; // ServerTickHandler.onPlayerTick()
+	public boolean op = false; // ServerTickHandler.onPlayerTick()
 	public final List<MarkupData> marketData = Lists.<MarkupData>newArrayList(); // ID market, slot
 
 	public long getMoney() { return this.money; }
@@ -26,7 +26,7 @@ public class PlayerGameData {
 		} else if (this.money > Long.MAX_VALUE) {
 			this.money = Long.MAX_VALUE;
 		}
-		this.update = true;
+		this.updateClient = true;
 	}
 
 	public NBTTagCompound getNBT() {
@@ -70,7 +70,7 @@ public class PlayerGameData {
 			money = Long.MAX_VALUE;
 		}
 		this.money = money;
-		this.update = true;
+		this.updateClient = true;
 	}
 
 	public MarkupData getMarkupData(int marketID) {
@@ -108,7 +108,7 @@ public class PlayerGameData {
 				md.xp = 0;
 			}
 		}
-		this.update = true;
+		this.updateClient = true;
 	}
 	
 }

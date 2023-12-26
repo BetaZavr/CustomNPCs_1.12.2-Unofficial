@@ -73,7 +73,13 @@ implements ITextfieldListener, ISubGuiListener {
 			if (e instanceof EntityNPCInterface) { this.npc = (EntityNPCInterface) e; }
 			else { this.npc.readEntityFromNBT(compound); }
 		}
-		else { this.quest.completer = this.npc; }
+		else {
+			this.quest.completer = this.npc;
+			this.quest.completerPos[0] = (int) this.npc.posX;
+			this.quest.completerPos[1] = (int) (this.npc.posY + 0.5d);
+			this.quest.completerPos[2] = (int) this.npc.posZ;
+			this.quest.completerPos[3] = this.npc.world.provider.getDimension();
+		}
 		MarkData data = MarkData.get(this.npc);
 		if(data!=null) { data.marks.clear(); }
 		this.npc.display.setShowName(1);
@@ -284,6 +290,10 @@ implements ITextfieldListener, ISubGuiListener {
 			Entity e = EntityList.createEntityFromNBT(compound, this.mc.world);
 			if (e instanceof EntityNPCInterface) {
 				this.quest.completer = (EntityNPCInterface) e;
+				this.quest.completerPos[0] = (int) e.posX;
+				this.quest.completerPos[1] = (int) (e.posY + 0.5d);
+				this.quest.completerPos[2] = (int) e.posZ;
+				this.quest.completerPos[3] = e.world.provider.getDimension();
 			}
 			MarkData data = MarkData.get(this.quest.completer);
 			if(data!=null) { data.marks.clear(); }

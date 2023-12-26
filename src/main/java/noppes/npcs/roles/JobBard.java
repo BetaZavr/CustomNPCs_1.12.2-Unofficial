@@ -96,8 +96,24 @@ implements IJobBard {
 				}
 				List<EntityPlayer> list = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
 				if (list.contains(CustomNpcs.proxy.getPlayer())) {
-					mData.stopSound(this.isStreamer ? mData.song : mData.music, this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
-					mData.bardPlaySound(this.song, this.isStreamer, this.npc);
+					String mSong = this.isStreamer ? mData.song : mData.music;
+					if (mSong.equals(this.song)) {
+						if (this.isStreamer) {
+							mData.songBard = this.npc;
+							mData.music = "";
+							mData.musicBard = null;
+						}
+						else {
+							mData.song = "";
+							mData.songBard = null;
+							mData.musicBard = this.npc;
+						}
+						mData.setNewPosSong(mSong, (float) this.npc.posX, (float) this.npc.posY, (float) this.npc.posZ);
+					}
+					else {
+						mData.stopSound(mSong, this.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC);
+						mData.bardPlaySound(this.song, this.isStreamer, this.npc);
+					}
 				}
 			}
 		}

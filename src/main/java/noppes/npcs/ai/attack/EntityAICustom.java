@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
@@ -57,6 +58,7 @@ extends EntityAIBase {
 	
 	@Override
 	public boolean shouldExecute() {
+		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 		this.distance = -1.0d;
 		this.canSeeToAttack = false;
 		this.hasAttack = false;
@@ -69,6 +71,7 @@ extends EntityAIBase {
 				if (this.target != null) { this.npc.setAttackTarget(null); }
 				this.npc.getLookHelper().setLookPositionWithEntity(this.npc.aiOwnerNPC, 30.0f, 30.0f);
 			}
+			CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 			return false;
 		}
 		if (this.target == null || !this.target.isEntityAlive()) {
@@ -76,9 +79,11 @@ extends EntityAIBase {
 				this.delay--;
 				if (this.delay == 0) { this.npc.runBack(); }
 			}
+			CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 			return false;
 		}
 		this.delay = 20;
+		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 		return true;
 	}
 
@@ -88,6 +93,7 @@ extends EntityAIBase {
 
 	@Override
 	public void updateTask() {
+		CustomNpcs.debugData.startDebug("Server", this.npc, "EntityAICustom_updateTask");
 		this.npc.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
 		this.inMove = !this.npc.getNavigator().noPath();
 		this.tacticalRange = this.npc.ais.getTacticalRange();
@@ -102,6 +108,7 @@ extends EntityAIBase {
 			double minRange = this.npc.width * 2.0f + this.target.width;
 			if (minRange > this.range) { this.range = minRange; }
 		}
+		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_updateTask");
 	}
 
 	public EntityLivingBase getTarget() { return this.target; }

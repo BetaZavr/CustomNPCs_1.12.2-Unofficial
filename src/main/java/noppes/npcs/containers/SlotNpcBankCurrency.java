@@ -5,12 +5,14 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesUtilServer;
 
-public class SlotNpcBankCurrency extends Slot {
-	public ItemStack item;
+public class SlotNpcBankCurrency
+extends Slot {
+	
+	public ItemStack stack;
 
-	public SlotNpcBankCurrency(ContainerNPCBankInterface containerplayer, IInventory iinventory, int i, int j, int k) {
+	public SlotNpcBankCurrency(ContainerNPCBank container, IInventory iinventory, int i, int j, int k) {
 		super(iinventory, i, j, k);
-		this.item = ItemStack.EMPTY;
+		this.stack = ItemStack.EMPTY;
 	}
 
 	public int getSlotStackLimit() {
@@ -18,7 +20,8 @@ public class SlotNpcBankCurrency extends Slot {
 	}
 
 	public boolean isItemValid(ItemStack itemstack) {
-		return !NoppesUtilServer.IsItemStackNull(itemstack) && (this.item.getItem() == itemstack.getItem()
-				&& (!this.item.getHasSubtypes() || this.item.getItemDamage() == itemstack.getItemDamage()));
+		return !NoppesUtilServer.IsItemStackNull(itemstack) && (this.stack.getItem() == itemstack.getItem()
+				&& (!this.stack.getHasSubtypes() || this.stack.getItemDamage() == itemstack.getItemDamage()));
 	}
+	
 }

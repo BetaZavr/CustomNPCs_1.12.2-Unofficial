@@ -14,6 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIClosestTarget extends EntityAITarget {
+	
 	public EntityNPCInterface npc;
 	private int targetChance;
 	private Class<EntityLivingBase> targetClass;

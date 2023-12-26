@@ -88,22 +88,23 @@ extends GuiNpcButton
         if (this.hovered) {
         	Gui.drawRect(-1, -2, this.width, this.height - 2, 0x200000FF);
         }
-		this.drawHorizontalLine(0, 11, -1, colorGray); // top 1
-		this.drawHorizontalLine(1, 10, 0, colorDGray); // top 2
-		this.drawVerticalLine(0, -1, 10, colorGray); // left 1
-		this.drawVerticalLine(1, 0, 10, colorDGray); // left 2
-		this.drawVerticalLine(11, -2, 11, colorWhite); // right 1
-		this.drawVerticalLine(10, 0, 10, colorLGray); // right 2
-		this.drawHorizontalLine(2, 9, 0, colorLGray); // bottop 1
-		this.drawHorizontalLine(0, 10, 10, colorWhite); // bottop 2
-		Gui.drawRect(2, 1, 10, 9, colorWhite); // work
+        int yC = this.height / 2 - 7;
+		this.drawHorizontalLine(0, 11, -1 + yC, colorGray); // top 1
+		this.drawHorizontalLine(1, 10, 0 + yC, colorDGray); // top 2
+		this.drawVerticalLine(0, -1 + yC, 10 + yC, colorGray); // left 1
+		this.drawVerticalLine(1, 0 + yC, 10 + yC, colorDGray); // left 2
+		this.drawVerticalLine(11, -2 + yC, 11 + yC, colorWhite); // right 1
+		this.drawVerticalLine(10, yC, 10 + yC, colorLGray); // right 2
+		this.drawHorizontalLine(2, 9, yC, colorLGray); // bottop 1
+		this.drawHorizontalLine(0, 10, 10 + yC, colorWhite); // bottop 2
+		Gui.drawRect(2, 1 + yC, 10, 9 + yC, colorWhite); // work
 		if (this.check) {
-			this.drawVerticalLine(3, 2, 6, colorBlack); // left 1
-			this.drawVerticalLine(4, 3, 7, colorBlack); // left 2
-			this.drawVerticalLine(5, 4, 8, colorBlack); // center
-			this.drawVerticalLine(6, 3, 7, colorBlack); // right 3
-			this.drawVerticalLine(7, 2, 6, colorBlack); // right 2
-			this.drawVerticalLine(8, 1, 5, colorBlack); // right 1
+			this.drawVerticalLine(3, 2 + yC, 6 + yC, colorBlack); // left 1
+			this.drawVerticalLine(4, 3 + yC, 7 + yC, colorBlack); // left 2
+			this.drawVerticalLine(5, 4 + yC, 8 + yC, colorBlack); // center
+			this.drawVerticalLine(6, 3 + yC, 7 + yC, colorBlack); // right 3
+			this.drawVerticalLine(7, 2 + yC, 6 + yC, colorBlack); // right 2
+			this.drawVerticalLine(8, 1 + yC, 5 + yC, colorBlack); // right 1
 		}
 		GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -111,8 +112,8 @@ extends GuiNpcButton
         int j = i - this.labels.size() * 10 / 2;
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         for (int k = 0; k < this.labels.size(); ++k) {
-            if (this.centered) { mc.fontRenderer.drawString(this.labels.get(k), 14 + this.width / 2 - mc.fontRenderer.getStringWidth(this.labels.get(k)) / 2, j + k * 10 - (this.height/4), this.textColor, this.showShadow); }
-            else { mc.fontRenderer.drawString(this.labels.get(k), 14, j + k * 10 - (this.height/4), this.textColor, this.showShadow); }
+            if (this.centered) { mc.fontRenderer.drawString(this.labels.get(k), 14 + this.width / 2 - mc.fontRenderer.getStringWidth(this.labels.get(k)) / 2, j + k * 10 - (this.height/2) + yC + 4, this.textColor, this.showShadow); }
+            else { mc.fontRenderer.drawString(this.labels.get(k), 14, j + k * 10 - (this.height/2) + yC + 4, this.textColor, this.showShadow); }
         }
         GlStateManager.popMatrix();
 	}

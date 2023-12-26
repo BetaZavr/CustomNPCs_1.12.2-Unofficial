@@ -22,6 +22,7 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -52,6 +53,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -91,6 +93,9 @@ import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ObfuscationHelper;
+import noppes.npcs.util.RayTraceRotate;
+import noppes.npcs.util.RayTraceVec;
+import noppes.npcs.util.ValueUtil;
 
 @SideOnly(Side.CLIENT)
 public class ClientGuiEventHandler
@@ -121,18 +126,35 @@ extends Gui
 
 	/** HUD Bar Interfase Canceled */
 	@SubscribeEvent
-	public void cnpcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
+	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcScreenRenderPre");
 		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcScreenRenderPre");
 	}
 	
 	/** HUD Bar Interfase */
 	@SuppressWarnings("unused")
 	@SubscribeEvent
-	public void cnpcRenderOverlay(RenderGameOverlayEvent.Text event) {
+	public void npcRenderOverlay(RenderGameOverlayEvent.Text event) {
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
 		this.mc = Minecraft.getMinecraft();
 		this.sw = new ScaledResolution(this.mc);
-		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiCompassSetings)) { return; }
-
+		if (!this.tempEntity.isEmpty()) {
+			for (Entity entity : this.tempEntity) {
+				((WorldClient) entity.world).removeEntity(entity);
+				((WorldClient) entity.world).removeEntityDangerously(entity);
+				Chunk chunk = ((WorldClient) entity.world).getChunkFromChunkCoords(entity.chunkCoordX, entity.chunkCoordZ);
+				if (entity.addedToChunk && chunk.isLoaded()) {
+					chunk.removeEntity(entity);
+					entity.addedToChunk = false;
+		        }
+			}
+			this.tempEntity.clear();
+		}
+		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiCompassSetings)) {
+			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
+			return;
+		}
 		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
 		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = hud.getGuiComponents();
 		GuiCustom gui   = new GuiCustom(null);
@@ -167,7 +189,6 @@ extends Gui
 				GlStateManager.popMatrix();
 			}
 		}
-		
 		if (CustomNpcs.showQuestCompass) {
 			String name = "", title = "";
 			double[] p = null;
@@ -255,7 +276,8 @@ extends Gui
 								title = new TextComponentTranslation("gui.kill").getFormattedText()+": "+n+ ": " + select.getProgress() + "/" + select.getMaxProgress();
 							}
 						}
-					} else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && qData.quest.getCompleterNpc()!=null){
+					} 
+					else if (qData.isCompleted && qData.quest.completion==EnumQuestCompletion.Npc && qData.quest.getCompleterNpc()!=null){
 						p = new double[] { qData.quest.completerPos[0]-0.5d, qData.quest.completerPos[1]+0.5d, qData.quest.completerPos[2]+0.5d };
 						type = EnumQuestTask.DIALOG.ordinal();
 						if (this.mc.world.provider.getDimension()!=qData.quest.completerPos[3]) { type = 7; }
@@ -336,7 +358,7 @@ extends Gui
 			}
 			
 			if (p!=null && p.length>=3) {
-				double[] angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
+				RayTraceRotate angles = AdditionalMethods.instance.getAngles3D(this.mc.player.posX, this.mc.player.posY+this.mc.player.eyeHeight, this.mc.player.posZ, p[0], p[1], p[2]);
 				float scale = -30.0f * hud.compassData.scale;
 				float incline = -45.0f + hud.compassData.incline;
 				double[] uvPos = new double[] { this.sw.getScaledWidth_double() * hud.compassData.screenPos[0], this.sw.getScaledHeight_double() * hud.compassData.screenPos[1] };
@@ -392,10 +414,10 @@ extends Gui
 				
 				// Arrow_0
 				GlStateManager.pushMatrix();
-				if (angles!=null && (range==1 || angles[3]>range)) {
+				if (angles!=null && (range==1 || angles.distance>range)) {
 					float yaw = this.mc.player.rotationYaw % 360.0f;
 					if (yaw<0) { yaw += 360.0f; }
-					GlStateManager.rotate(180.0f + yaw - (float) angles[0], 0.0f, 1.0f, 0.0f);
+					GlStateManager.rotate(180.0f + yaw - (float) angles.yaw, 0.0f, 1.0f, 0.0f);
 					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Lists.<String>newArrayList("arrow_0"), null));
 				} else {
 					double t = System.currentTimeMillis()%4000.0d;
@@ -557,6 +579,7 @@ extends Gui
 			}
 			
 		}
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
 	}
 
 	private void drawNpc(Entity entityIn, int x, int y, float zoomed, int rotation, int vertical) {
@@ -651,6 +674,7 @@ extends Gui
 	
 	@SubscribeEvent
 	public void onDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onDrawScreenEvent");
 		Minecraft mc = event.getGui().mc;
 		if (event.getGui() instanceof GuiInventory && CustomNpcs.showMoney) {
 			String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false) + CustomNpcs.charCurrencies;
@@ -718,13 +742,14 @@ extends Gui
 			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/book_normal.png"));
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
-			
 		}
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onDrawScreenEvent");
 	}
 
 	@SubscribeEvent
 	public void onInitGuiEvent(GuiScreenEvent.InitGuiEvent.Post event) {
 		if (event.getGui() instanceof GuiContainerCreative) {
+			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onInitGuiEvent");
 			int x=0, y=0;
 			try {
 				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;
@@ -733,12 +758,14 @@ extends Gui
 			catch (Exception e) { return; }
 			event.getButtonList().add(new GuiNpcButton(150, x, y, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
 			event.getButtonList().add(new GuiNpcButton(151, x, y + 28, 32, 28, 0, 128, ClientGuiEventHandler.CREATIVE_TABS));
+			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onInitGuiEvent");
 		}
 	}
 	
 	@SubscribeEvent
 	public void onButtonEvent(GuiScreenEvent.ActionPerformedEvent.Post event) {
 		if (event.getGui() instanceof GuiContainerCreative) {
+			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
 			switch(event.getButton().id) {
 				case 150: {
 					this.mc.displayGuiScreen(new GuiCompassSetings(event.getGui()));
@@ -749,18 +776,18 @@ extends Gui
 					break;
 				}
 			}
+			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
 		}
 	}
 	
 	/** Any Regions */
 	@SubscribeEvent
-	public void cnpcRenderWorldLastEvent(RenderWorldLastEvent event) {
+	public void npcRenderWorldLastEvent(RenderWorldLastEvent event) {
 		if (this.mc==null) { this.mc = Minecraft.getMinecraft(); return; }
 		if (this.sw==null) { this.sw = new ScaledResolution(this.mc); return; }
 		this.bData = BorderController.getInstance();
 		if (this.mc.player.world==null) { return; }
-
-		//if (!this.mc.player.capabilities.isCreativeMode || !ClientProxy.playerData.game.op) { return; }
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 		// position
 		this.dx = this.mc.player.lastTickPosX + (this.mc.player.posX - this.mc.player.lastTickPosX) * (double) event.getPartialTicks();
 		this.dy = this.mc.player.lastTickPosY + (this.mc.player.posY - this.mc.player.lastTickPosY) * (double) event.getPartialTicks();
@@ -799,10 +826,15 @@ extends Gui
 			int id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("ID");
 			if (!CommonProxy.dataBuilder.containsKey(id)) {
 				Client.sendDataDelayCheck(EnumPlayerPacket.GetBuildData, this.mc.player, 1000);
+				CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 				return;
 			}
 			BuilderData builder = CommonProxy.dataBuilder.get(id);
-			if (builder.type==4) { this.drawZone(builder, null); return; }
+			if (builder.type==4) {
+				this.drawZone(builder, null);
+				CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
+				return;
+			}
 			Vec3d vec3d = this.mc.player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
@@ -874,11 +906,13 @@ extends Gui
 				this.drawRegion(reg, -1);
 			}
 		}
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 	}
 	
 	@SubscribeEvent
-	public void cnpcCameraSetupEvent(EntityViewRenderEvent.CameraSetup event) {
+	public void npcCameraSetupEvent(EntityViewRenderEvent.CameraSetup event) {
 		if (event.getEntity() instanceof EntityLivingBase && ClientGuiEventHandler.crashes.isActive) { // camera shaking
+			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcCameraSetupEvent");
 			float amplitude = ClientGuiEventHandler.crashes.get();
 			switch(ClientGuiEventHandler.crashes.type) {
 				case 0: { // vertical only
@@ -910,6 +944,7 @@ extends Gui
 					break;
 				}
 			}
+			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcCameraSetupEvent");
 		}
 	}
 
@@ -1480,7 +1515,72 @@ extends Gui
 		}
 		
 		double[] pre = null;
-		float r, g, b, ag = 15.0f;
+		float r = 0.75f, g = 0.75f, b = 0.75f, ag = 15.0f;
+		
+		// HitBox
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.glLineWidth(1);
+		GlStateManager.disableTexture2D();
+		GlStateManager.depthMask(false);
+		GlStateManager.translate(npc.posX-this.dx, npc.posY-this.dy, npc.posZ-this.dz);
+		double w = npc.width / 2;
+		RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(w * -1.0d, 0.0d, w * -1.0d, w, npc.height, w)), r, g, b, 1.0f);
+		GlStateManager.depthMask(true);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();
+		
+		// Eyes + Head rotation
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.glLineWidth(2.0f);
+		GlStateManager.disableTexture2D();
+		GlStateManager.depthMask(false);
+		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
+		RayTraceVec pHh = AdditionalMethods.instance.getPosition(npc.posX, npc.posY + npc.getEyeHeight(), npc.posZ, npc.rotationYawHead, 0.0d, npc.width / 2.0d);
+		RayTraceVec pEr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead, npc.rotationPitch * -1.0d, 0.7d / 5.0d * npc.display.getSize());
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder buffer = tessellator.getBuffer();
+		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+		r = 0.25f;
+		g = 0.5f;
+		b = 0.75f;
+		buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
+		buffer.pos(pEr.x, pEr.y, pEr.z).color(r, g, b, 1.0f).endVertex();
+		if (npc.ais.directLOS) {
+			RayTraceVec mr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead + 60.0d, 0.0d, 0.7d / 5.0d * npc.display.getSize());
+			RayTraceVec nr = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYawHead - 60.0d, 0.0d, 0.7d / 5.0d * npc.display.getSize());
+			RayTraceVec mp = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw, ValueUtil.correctDouble(npc.rotationPitch * -1.0d + 60.0d, -90.0d, 90.0d), 1.4d / 5.0d * npc.display.getSize());
+			RayTraceVec np = AdditionalMethods.instance.getPosition(pHh.x, pHh.y, pHh.z, npc.rotationYaw, ValueUtil.correctDouble(npc.rotationPitch * -1.0d - 60.0d, -90.0d, 90.0d), 1.4d / 5.0d * npc.display.getSize());
+			r = 0.525f;
+			g = 0.725f;
+			b = 0.125f;
+			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.x, mp.y, mr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.x, np.y, mr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.x, mp.y, mr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.x, np.y, mr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.x, mp.y, nr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(pHh.x, pHh.y, pHh.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.x, np.y, nr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.x, mp.y, nr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.x, np.y, nr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.x, mp.y, mr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.x, mp.y, nr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(mr.x, np.y, mr.z).color(r, g, b, 1.0f).endVertex();
+			buffer.pos(nr.x, np.y, nr.z).color(r, g, b, 1.0f).endVertex();
+		}
+		tessellator.draw();
+		GlStateManager.depthMask(true);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();
+		
 		// Target
 		if (npc.getAttackTarget()!=null) {
 			EntityLivingBase target = npc.getAttackTarget();
@@ -1491,8 +1591,8 @@ extends Gui
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder buffer = tessellator.getBuffer();
+			tessellator = Tessellator.getInstance();
+			buffer = tessellator.getBuffer();
 			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 			
 			r = 0.8f; g = 0.0f; b = 0.8f;
@@ -1505,6 +1605,7 @@ extends Gui
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
+		
 		// Now way
 		Path path = npc.getNavigator().getPath();
 		if (path != null) {
@@ -1515,8 +1616,8 @@ extends Gui
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder buffer = tessellator.getBuffer();
+			tessellator = Tessellator.getInstance();
+			buffer = tessellator.getBuffer();
 			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
 			r = 0.156862f; g = 0.705882f; b = 0.352941f;
@@ -1531,7 +1632,6 @@ extends Gui
 					md = d;
 					currentPath = i;
 				}
-				//System.out.println("i["+i+"/"+currentPath+"]; dist: "+d+"; next: "+dn);
 			}
 			for (int i = currentPath; i < points.length; i++) {
 				double[] pos = new double[] { (double) points[i].x + 0.5d, (double) points[i].y + (double) npc.getEyeHeight() / 2.0d, (double) points[i].z + 0.5d };
@@ -1549,6 +1649,7 @@ extends Gui
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
+		
 		// Can Way
 		if (ClientGuiEventHandler.movingPath.size()>1) {
 			GlStateManager.pushMatrix();
@@ -1558,8 +1659,8 @@ extends Gui
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder buffer = tessellator.getBuffer();
+			tessellator = Tessellator.getInstance();
+			buffer = tessellator.getBuffer();
 			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 			r = 0.8f; g = 0.8f; b = 0.8f;
 			pre = null;
@@ -1579,6 +1680,7 @@ extends Gui
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
+		
 		// Way
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
@@ -1587,8 +1689,8 @@ extends Gui
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-this.dx, -this.dy, -this.dz);
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buffer = tessellator.getBuffer();
+		tessellator = Tessellator.getInstance();
+		buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 		r = 1.0f; g = 0.0f; b = 0.0f;
 		pre = null;
@@ -1602,18 +1704,18 @@ extends Gui
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
 				if (i!=0) {
-					double[] d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
+					RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
 					for (int h = 0; h < 4; h++) {
-						double[] p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d-d[0]+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d[1]+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
+						RayTraceVec p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d-d.yaw+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d.pitch+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
 						buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-						buffer.pos(p[0], p[1], p[2]).color(r, g, b, 1.0f).endVertex();
+						buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
 					}
 					if (!type) {
 						d = AdditionalMethods.instance.getAngles3D(newPre[0], newPre[1], newPre[2], pre[0], pre[1], pre[2]);
 						for (int h = 0; h < 4; h++) {
-							double[] p = AdditionalMethods.instance.getPosition(pre[0], pre[1], pre[2], 360.0d-d[0]+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d[1]+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
+							RayTraceVec p = AdditionalMethods.instance.getPosition(pre[0], pre[1], pre[2], 360.0d-d.yaw+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d.pitch+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
 							buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
-							buffer.pos(p[0], p[1], p[2]).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
+							buffer.pos(p.x, p.y, p.z).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex();
 						}
 					}
 				}
@@ -1624,11 +1726,11 @@ extends Gui
 				newPre = new double[] { pos[0]+0.5d, pos[1]+0.5d+yo, pos[2]+0.5d };
 				buffer.pos(pre[0], pre[1], pre[2]).color(r, g, b, 1.0f).endVertex();
 				buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-				double[] d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
+				RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pre[0], pre[1], pre[2], newPre[0], newPre[1], newPre[2]);
 				for (int h = 0; h < 4; h++) {
-					double[] p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d-d[0]+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d[1]+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
+					RayTraceVec p = AdditionalMethods.instance.getPosition(newPre[0], newPre[1], newPre[2], 360.0d-d.yaw+(h==0 ? ag : h==1 ? -1.0d * ag : 0.0d), 0.0-d.pitch+(h==2 ? ag : h==3 ? -1.0d * ag : 0.0d), 0.5d);
 					buffer.pos(newPre[0], newPre[1], newPre[2]).color(r, g, b, 1.0f).endVertex();
-					buffer.pos(p[0], p[1], p[2]).color(r, g, b, 1.0f).endVertex();
+					buffer.pos(p.x, p.y, p.z).color(r, g, b, 1.0f).endVertex();
 				}
 			}
 		}
@@ -1638,7 +1740,7 @@ extends Gui
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
 		
-		// block poses
+		// Block Poses
 		for (int i = 0; i < list.size(); i++) {
 			if (i==0) { r = 0.8f; g = 0.8f; b = 0.8f; }
 			else { r = 0.8f; g = 0.8f; b = 0.0f; }
@@ -1653,8 +1755,8 @@ extends Gui
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(pos[0]-this.dx+0.5d, pos[1]-this.dy+0.5d+yo, pos[2]-this.dz+0.5d);
-			double m = i==0 ? -0.33d : -0.25d;
-			double n = i==0 ? 0.33d : 0.25d;
+			double m = i==0 ? -0.125d : -0.075d;
+			double n = i==0 ? 0.125d : 0.075d;
 			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(m, m, m, n, n, n)), r, g, b, 1.0f);
 			GlStateManager.depthMask(true);
 			GlStateManager.enableTexture2D();

@@ -5,9 +5,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.role.IRoleBank;
 import noppes.npcs.controllers.BankController;
-import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RoleBank
@@ -24,15 +24,14 @@ implements IRoleBank {
 
 	public Bank getBank() {
 		Bank bank = BankController.getInstance().banks.get(this.bankId);
-		if (bank != null) {
-			return bank;
-		}
+		if (bank != null) { return bank; }
 		return BankController.getInstance().banks.values().iterator().next();
 	}
 
 	@Override
 	public void interact(EntityPlayer player) {
-		BankData data = PlayerDataController.instance.getBankData(player, this.bankId).getBankOrDefault(this.bankId);
+		BankData data = PlayerData.get(player).bankData.get(this.bankId);
+		if (data == null) { return; }
 		data.openBankGui(player, this.npc, this.bankId, 0);
 		this.npc.say(player, this.npc.advanced.getInteractLine());
 	}

@@ -355,6 +355,7 @@ implements IEditNPC {
 		return this.leftbuttons.get(i);
 	}
 
+	@Override
 	public boolean hasSubGui() {
 		return this.subgui != null;
 	}

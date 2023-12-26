@@ -3,8 +3,8 @@ package noppes.npcs.client.layer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
-import noppes.npcs.ModelPartData;
 import noppes.npcs.client.model.Model2DRenderer;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.constants.EnumParts;
 

@@ -75,6 +75,8 @@ implements IScrollData, ICustomScrollListener {
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+		this.close();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override

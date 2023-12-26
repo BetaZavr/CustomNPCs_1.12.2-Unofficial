@@ -75,7 +75,7 @@ public class CmdPlayers extends CommandNoppesBase {
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		List<String> list = Lists.<String>newArrayList();
 		if (args.length==2) {
-			list = Lists.newArrayList(PlayerDataController.instance.nameUUIDs.keySet());
+			list = PlayerDataController.instance.getPlayerNames();
 		}
 		return list;
 	}

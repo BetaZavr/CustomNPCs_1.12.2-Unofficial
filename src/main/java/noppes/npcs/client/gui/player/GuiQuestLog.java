@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -1146,9 +1147,9 @@ implements GuiYesNoCallback, IGuiData {
 		
 		public QuestInfo(Quest q) {
 			this.q = q;
-			this.npc = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), q.world);
+			this.npc = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), Minecraft.getMinecraft().world);
 			this.map = Maps.<String, Map<Integer, List<String>>>newHashMap();
-			if (q.completer!=null) {
+			if (q.completer != null) {
 				NBTTagCompound compound = new NBTTagCompound();
 				q.completer.writeToNBTOptional(compound);
 				compound.setUniqueId("UUID", UUID.randomUUID());
@@ -1156,7 +1157,13 @@ implements GuiYesNoCallback, IGuiData {
 				if (e instanceof EntityNPCInterface) { this.npc = (EntityNPCInterface) e; }
 				else { this.npc.readEntityFromNBT(compound); }
 			}
-			else { this.q.completer = this.npc; }
+			else {
+				this.q.completer = this.npc;
+				this.q.completerPos[0] = (int) this.npc.posX;
+				this.q.completerPos[1] = (int) (this.npc.posY + 0.5d);
+				this.q.completerPos[2] = (int) this.npc.posZ;
+				this.q.completerPos[3] = this.npc.world.provider.getDimension();
+			}
 			MarkData data = MarkData.get(this.npc);
 			if(data!=null) { data.marks.clear(); }
 			this.npc.display.setShowName(1);

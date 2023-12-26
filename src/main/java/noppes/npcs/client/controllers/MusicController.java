@@ -141,6 +141,7 @@ public class MusicController {
 				break;
 			}
 		}
+		System.out.println("New pos song uuid: \""+song+"\" to ["+(int)x+", "+(int)y+", "+(int)z+"]");
 		if (uuid!=null) {
 			SoundSystem sndSystem = ObfuscationHelper.getValue(SoundManager.class, sm, SoundSystem.class);
 			Library soundLibrary = ObfuscationHelper.getValue(SoundSystem.class, sndSystem, 4);

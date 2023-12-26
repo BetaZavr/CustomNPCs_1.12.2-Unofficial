@@ -30,6 +30,8 @@ import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.RayTraceRotate;
+import noppes.npcs.util.RayTraceVec;
 
 public class Zone3D
 implements IBorder, Predicate<Entity> {
@@ -307,9 +309,9 @@ implements IBorder, Predicate<Entity> {
 		else { pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		for (int key :this.points.keySet()) {
 			Point v = this.points.get(key);
-			double[] data = AdditionalMethods.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
-			double[] newPoint = AdditionalMethods.instance.getPosition(pos.getX(), 0, pos.getZ(), data[0], data[1], radius + data[2]);
-			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
+			RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pos.getX(), 0, pos.getZ(), v.x, 0, v.y);
+			RayTraceVec p = AdditionalMethods.instance.getPosition(pos.getX(), 0, pos.getZ(), d.yaw, d.pitch, radius + d.radiusXZ);
+			this.points.put(key, new Point((int) p.x, (int) p.z));
 		}
 		this.update = true;
 	}
@@ -327,11 +329,11 @@ implements IBorder, Predicate<Entity> {
 		else { pos = NpcAPI.Instance().getIPos(this.getMinX(), this.y[0], this.getMinZ()); }
 		for (int key :this.points.keySet()) {
 			Point v = this.points.get(key);
-			double[] data = AdditionalMethods.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
-			double[] newPoint = AdditionalMethods.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), data[0], data[1], (double) scale * data[2]);
-			this.points.put(key, new Point((int) newPoint[0], (int) newPoint[2]));
-			if (this.y[0] > (int) newPoint[2]) { this.y[0] = (int) newPoint[1]; }
-			if (this.y[1] < (int) newPoint[2]) { this.y[1] = (int) newPoint[1]; }
+			RayTraceRotate d = AdditionalMethods.instance.getAngles3D(pos.getX(), pos.getY(), pos.getZ(), v.x, pos.getY(), v.y);
+			RayTraceVec p = AdditionalMethods.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), d.yaw, d.pitch, (double) scale * d.radiusXZ);
+			this.points.put(key, new Point((int) p.x, (int) p.z));
+			if (this.y[0] > (int) p.y) { this.y[0] = (int) p.y; }
+			if (this.y[1] < (int) p.y) { this.y[1] = (int) p.y; }
 		}
 		this.update = true;
 	}
@@ -718,12 +720,12 @@ implements IBorder, Predicate<Entity> {
 		}
 		double y = ((double) this.y[1] - (double) this.y[0]) / 2.0d;
 		
-		double[] data = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
+		RayTraceRotate d = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY, entity.posZ, x, y, z);
 		double[] p = new double[] { (x-entity.posX), (y-entity.posY), (z-entity.posZ) };
 		for (int i=0; i<4; i++) {
-			double radiusXZ = data[2]+((double) (i+1) * (this.keepOut ? 0.5d : -0.5d));
-			p[0] = Math.sin(data[0]*Math.PI/180.0d) * radiusXZ * -1.0d;
-			p[2] = Math.cos(data[0]*Math.PI/180.0d) * radiusXZ;
+			double radiusXZ = d.radiusXZ+((double) (i+1) * (this.keepOut ? 0.5d : -0.5d));
+			p[0] = Math.sin(d.yaw * Math.PI/180.0d) * radiusXZ * -1.0d;
+			p[2] = Math.cos(d.yaw * Math.PI/180.0d) * radiusXZ;
 			if (this.keepOut==this.contains(entity.posX, this.y[0], entity.posZ, 0.0d)) {
 				break;
 			}

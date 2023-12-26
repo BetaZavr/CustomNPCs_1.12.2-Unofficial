@@ -117,9 +117,9 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		if (this.locSel.isEmpty()) { return; }
 		x = this.guiLeft + 214;
 		y = this.guiTop + 8;
-		this.addLabel(new GuiNpcLabel(3, "gui.market.barter", x + 2, y));
+		this.addLabel(new GuiNpcLabel(3, "market.barter", x + 2, y));
 		y += 80;
-		this.addLabel(new GuiNpcLabel(4, "gui.market.currency", x + 2, y - 10));
+		this.addLabel(new GuiNpcLabel(4, "market.currency", x + 2, y - 10));
 		this.addTextField(new GuiNpcTextField(1, this, x, y, 50, 20, "" + this.container.location.money));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, Integer.MAX_VALUE, (int) this.container.location.money);
@@ -136,8 +136,8 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 		this.addLabel(new GuiNpcLabel(7, "parameter.world", x + 2, y - 11));
 		this.addLabel(new GuiNpcLabel(8, "ID:", x + 2, y + 6));
 		this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 15, y, 42, 20, ""+this.container.location.dimension));
-		this.getTextField(2).setNumbersOnly();
-		this.getTextField(2).setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, this.container.location.dimension);
+		this.getTextField(4).setNumbersOnly();
+		this.getTextField(4).setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, this.container.location.dimension);
 		
 		y += 34;
 		this.addLabel(new GuiNpcLabel(9, "parameter.position", x + 2, y - 11));
@@ -187,7 +187,8 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 
 	private void transfer(TransportLocation loc) {
 		if (loc == null) { return; }
-		Client.sendData(EnumPacketServer.TeleportTo, loc.dimension, loc.pos.getX(), loc.pos.getY(), loc.pos.getZ());
+		try { Client.sendData(EnumPacketServer.TeleportTo, loc.dimension, loc.pos.getX(), loc.pos.getY(), loc.pos.getZ()); }
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	@Override

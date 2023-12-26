@@ -111,16 +111,13 @@ public class QuestInterface {
 	}
 
 	public boolean getFound(QuestData data, QuestObjective object) {
-		boolean isFound = true;
-
+		boolean isFound = false;
 		for (NBTBase dataNBT : data.extraData.getTagList("Locations", 10)) {
-			if (object.getTargetName().equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))
-					&& !((NBTTagCompound) dataNBT).getBoolean("Found")) {
-				isFound = false;
+			if (object.getTargetName().equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location")) && ((NBTTagCompound) dataNBT).getBoolean("Found")) {
+				isFound = true;
 				break;
 			}
 		}
-
 		return isFound;
 	}
 
@@ -307,9 +304,7 @@ public class QuestInterface {
 				}
 				case KILL: {
 					HashMap<String, Integer> killed = to.getKilled(data);
-					if (killed.size() == 0) {
-						complete = false;
-					}
+					if (killed.size() == 0) { complete = false; }
 					for (String entity : killed.keySet()) {
 						if (entity.equalsIgnoreCase(to.getTargetName())) {
 							if (killed.get(entity) < to.getMaxProgress()) {
@@ -382,8 +377,8 @@ public class QuestInterface {
 		return complete;
 	}
 
-	public void readEntityFromNBT(NBTTagCompound compound) {
-		this.id = compound.getInteger("Id");
+	public void readEntityFromNBT(NBTTagCompound compound, int id) {
+		this.id = id;
 		if (compound.hasKey("Tasks", 9)) { // New
 			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
 			List<ItemStack> stacks = new ArrayList<ItemStack>();
@@ -423,9 +418,9 @@ public class QuestInterface {
 			} else if (compound.getInteger("Type") == 1) { // Dialogs
 				HashMap<Integer, Integer> dialogs = NBTTags
 						.getIntegerIntegerMap(compound.getTagList("QuestDialogs", 10));
-				for (int id : dialogs.values()) {
+				for (int dId : dialogs.values()) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.DIALOG);
-					to.setTargetID(id); // DialogID
+					to.setTargetID(dId); // DialogID
 					oldTasks.add(to);
 				}
 			} else if (compound.getInteger("Type") == 2 || compound.getInteger("Type") == 4) { // Kill or Area Kill

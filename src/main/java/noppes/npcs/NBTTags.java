@@ -134,11 +134,11 @@ public class NBTTags {
 	public static void getItemStackList(NBTTagList tagList, NonNullList<ItemStack> items) {
 		items.clear();
 		for (int i = 0; i < tagList.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
+			NBTTagCompound nbtStack = tagList.getCompoundTagAt(i);
 			try {
-				items.set(nbttagcompound.getByte("Slot") & 0xFF, new ItemStack(nbttagcompound));
+				items.set(nbtStack.getByte("Slot") & 0xFF, new ItemStack(nbtStack));
 			} catch (ClassCastException e) {
-				items.set(nbttagcompound.getInteger("Slot"), new ItemStack(nbttagcompound));
+				items.set(nbtStack.getInteger("Slot"), new ItemStack(nbtStack));
 			}
 		}
 	}

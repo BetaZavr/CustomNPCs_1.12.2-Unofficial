@@ -27,8 +27,7 @@ extends BlockRendererInterface<T> {
 
 	private void drawText(TileScripted.TextPlane text1, double x, double y, double z) {
 		if (text1.textBlock == null || text1.textHasChanged) {
-			text1.textBlock = new TextBlockClient(text1.text, 336, true,
-					new Object[] { Minecraft.getMinecraft().player });
+			text1.textBlock = new TextBlockClient(text1.text, 336, true, null, new Object[] { Minecraft.getMinecraft().player });
 			text1.textHasChanged = false;
 		}
 		GlStateManager.disableBlend();

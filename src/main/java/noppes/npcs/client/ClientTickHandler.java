@@ -70,19 +70,21 @@ public class ClientTickHandler {
 	}
 	
 	@SubscribeEvent
-	public void cnpcLivingUpdate(LivingUpdateEvent event) {
+	public void npcLivingUpdate(LivingUpdateEvent event) {
 		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) { return; }
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
 		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
 		if (ClientProxy.notVisibleNPC.containsKey(dimID) && ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
 			Minecraft.getMinecraft().world.removeEntity(event.getEntity());
 		}
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
 	}
 	
 	@SubscribeEvent
-	public void cnpcMouseInput(MouseEvent event) {
+	public void npcMouseInput(MouseEvent event) {
 		int key = event.getButton();
 		if (key == -1) { return; }
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_cnpcMouseInput");
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
 		if (Minecraft.getMinecraft().currentScreen==null) {
 			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
 			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
@@ -98,19 +100,19 @@ public class ClientTickHandler {
 			ClientProxy.playerData.hud.mousePress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_cnpcMouseInput");
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
 	}
 
 	@SubscribeEvent
-	public void cnpcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+	public void npcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
 		if (event.getHand() != EnumHand.MAIN_HAND) { return; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick, new Object[0]);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void cnpcClientTick(TickEvent.ClientTickEvent event) {
+	public void npcClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase == TickEvent.Phase.END) { return; }
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcClientTick");
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && mc.player.openContainer instanceof ContainerPlayer) {
 			if (this.otherContainer) {
@@ -184,12 +186,12 @@ public class ClientTickHandler {
 				ClientEventHandler.subgui = subGui;
 			}
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnClientTick");
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcClientTick");
 	}
 
 	@SubscribeEvent
-	public void cnpcKeyInputEvent(InputEvent.KeyInputEvent event) {
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcOnKey");
+	public void npcKeyInputEvent(InputEvent.KeyInputEvent event) {
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcKeyInputEvent");
 		if (CustomNpcs.SceneButtonsEnabled) {
 			if (ClientProxy.Scene1.isPressed()) {
 				Client.sendData(EnumPacketServer.SceneStart, 1);
@@ -232,7 +234,7 @@ public class ClientTickHandler {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcOnKey");
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcKeyInputEvent");
 	}
 
 	public static void loadFiles() {
@@ -262,11 +264,14 @@ public class ClientTickHandler {
 		}
 	}
 
-	
 	@SubscribeEvent
-	public void cnpcLoadAllOBJTextures(TextureStitchEvent.Pre event) {
+	public void npcLoadAllOBJTextures(TextureStitchEvent.Pre event) {
+		CustomNpcs.debugData.startDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
 		File assets = new File(CustomNpcs.Dir, "assets/customnpcs");
-		if (!assets.exists()) { return; }
+		if (!assets.exists()) {
+			CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
+			return;
+		}
 		List<ResourceLocation> objTextures = Lists.<ResourceLocation>newArrayList();
 		for (File file : AdditionalMethods.getFiles(assets, ".mtl")) {
 			try {
@@ -289,10 +294,11 @@ public class ClientTickHandler {
 			if (event.getMap().getTextureExtry(res.toString())!=null) { continue; }
 			event.getMap().registerSprite(res);
 		}
+		CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
 	}
 	
 	@SubscribeEvent
-	public void cnpcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
+	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
 		EntityLivingBase entity = event.getEntityLiving();
 		/*if (entity instanceof EntityCustomNpc) { // on sever side
 			AnimationConfig anim = ((EntityCustomNpc) entity).animation.getActiveAnimation(AnimationKind.JUMP);

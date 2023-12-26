@@ -7,8 +7,6 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelEyeData;
-import noppes.npcs.ModelPartData;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiColorButton;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -18,6 +16,8 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.model.part.ModelEyeData;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 

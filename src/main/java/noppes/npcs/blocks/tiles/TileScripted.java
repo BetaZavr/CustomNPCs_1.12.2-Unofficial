@@ -26,7 +26,6 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.TextBlock;
 import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.block.ITextPlane;
@@ -35,6 +34,7 @@ import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.data.DataTimers;
+import noppes.npcs.entity.data.TextBlock;
 import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ValueUtil;
 

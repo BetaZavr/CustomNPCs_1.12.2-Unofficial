@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
@@ -96,7 +97,7 @@ implements IGuiClose {
 			catch (IOException e) {}
 		}
 		for (int i=0; i<h; i++) { dText += ""+((char) 10); }
-		this.lines.add(new TextBlockClient(this.npc, dText, 280, 0xE0E0E0, new Object[] { this.player, this.npc }));
+		this.lines.add(new TextBlockClient(this.npc, dText, 280, 0xE0E0E0, this.npc, new Object[] { this.player, this.npc }));
 		if (h>0 && txtr!=null && txtrSize!=null) {
 			int c = 0, s = 0;
 			for (TextBlockClient t : this.lines) {
@@ -129,19 +130,42 @@ implements IGuiClose {
 	}
 
 	private void calculateRowHeight() {
+		int fh = this.getFontHeight(null);
 		if (this.dialog.showWheel) {
 			this.dialogHeight = this.ySize - 58;
 		} else {
-			this.dialogHeight = this.ySize - 3 * this.getFontHeight(null) - 4;
-			if (this.dialog.options.size() > 3) {
-				this.dialogHeight -= (this.dialog.options.size() - 3) * this.getFontHeight(null);
+			int line = 0;
+			int w = (this.mc.displayWidth / 2) - this.guiLeft - 50;
+			for (DialogOption option : this.dialog.options.values()) {
+				if (option.optionType == 2) { continue;}
+				String text = NoppesStringUtils.formatText(option.title, this.player, this.npc);
+				if (this.fontRenderer.getStringWidth(text) > w) {
+					List<String> lines = Lists.newArrayList();
+					String total = "";
+					for (String sct : text.split(" ")) {
+						if (this.fontRenderer.getStringWidth(total + " " + sct) > w) {
+							lines.add(total);
+							total = sct;
+						}
+						else {
+							if (!total.isEmpty()) { total += " "; }
+							total += sct;
+						}
+					}
+					if (!total.isEmpty()) { lines.add(total); }
+					line += lines.size();
+				} else {
+					line++;
+				}
 			}
+			if (line < 3) { line = 3; } // min
+			this.dialogHeight = this.ySize - line * fh - 4;
 		}
 		this.rowTotal = 0;
 		for (TextBlockClient block : this.lines) {
 			this.rowTotal += block.lines.size() + 1;
 		}
-		int max = this.dialogHeight / this.getFontHeight(null);
+		int max = this.dialogHeight / fh;
 		this.rowStart = this.rowTotal - max;
 		if (this.rowStart < 0) {
 			this.rowStart = 0;
@@ -153,34 +177,76 @@ implements IGuiClose {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 	}
 
-	private void drawLinedOptions(int j) {
-		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - this.getFontHeight(null) / 3, -1);
+	private void drawLinedOptions(int mouseY) {
+		int fh = this.getFontHeight(null);
+		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - fh / 3, -1);
 		int offset = this.dialogHeight;
-		if (j >= this.guiTop + offset) {
-			int selected = (j - (this.guiTop + offset)) / this.getFontHeight(null);
-			if (selected < this.options.size()) {
-				this.selected = selected;
-			}
-		}
 		if (this.selected >= this.options.size()) {
 			this.selected = 0;
 		}
 		if (this.selected < 0) {
 			this.selected = 0;
 		}
+		int addLine = 0;
+		int sel = this.fontRenderer.getStringWidth("-->") + 4;
+		int var = this.fontRenderer.getStringWidth("*") + 4;
 		for (int k = 0; k < this.options.size(); ++k) {
 			int id = this.options.get(k);
 			DialogOption option = this.dialog.options.get(id);
-			int y = this.guiTop + offset + k * this.getFontHeight(null);
-			if (this.selected == k) {
-				this.drawString(this.fontRenderer, ">", this.guiLeft - 38, y, 14737632);
+			int y = this.guiTop + offset + (k + addLine) * fh;
+			String text = NoppesStringUtils.formatText(option.title, this.player, this.npc);
+			if (this.fontRenderer.getStringWidth(text) > (this.mc.displayWidth / 2) - this.guiLeft - 50) {
+				int w = (this.mc.displayWidth / 2) - this.guiLeft - 50;
+				List<String> lines = Lists.newArrayList();
+				String total = "";
+				for (String sct : text.split(" ")) {
+					if (this.fontRenderer.getStringWidth(total + " " + sct) > w) {
+						lines.add(total);
+						total = sct;
+					}
+					else {
+						if (!total.isEmpty()) { total += " "; }
+						total += sct;
+					}
+				}
+				if (!total.isEmpty()) { lines.add(total); }
+				addLine += lines.size() - 1;
+				int i = 0;
+				for (String sct : lines) {
+					this.drawString(this.fontRenderer, sct, this.guiLeft - 30, y + i * fh, option.optionColor);
+					i++;
+				}
+				if (mouseY >= y && mouseY <= y + lines.size() * fh) {
+					int selected = k;
+					if (selected < this.options.size()) {
+						this.selected = selected;
+					}
+				}
+				if (this.selected == k) {
+					this.drawString(this.fontRenderer, "-->", this.guiLeft - 30 - sel, y, 14737632);
+				} else {
+					this.drawString(this.fontRenderer, "*", this.guiLeft - 30 - var, y, 14737632);
+				}
 			}
-			this.drawString(this.fontRenderer, NoppesStringUtils.formatText(option.title, this.player, this.npc), this.guiLeft - 30, y, option.optionColor);
+			else {
+				this.drawString(this.fontRenderer, text, this.guiLeft - 30, y, option.optionColor);
+				if (mouseY >= y && mouseY <= y + fh) {
+					int selected = k;
+					if (selected < this.options.size()) {
+						this.selected = selected;
+					}
+				}
+				if (this.selected == k) {
+					this.drawString(this.fontRenderer, "-->", this.guiLeft - 30 - sel, y, 14737632);
+				} else {
+					this.drawString(this.fontRenderer, "*", this.guiLeft - 30 - var, y, 14737632);
+				}
+			}
 		}
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
+	public void drawScreen(int mouseX, int mouseY, float f) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.drawGradientRect(0, 0, this.width, this.height, -587202560, -587202560);
 		if (!this.dialog.hideNPC) {
@@ -188,7 +254,7 @@ implements IGuiClose {
 			int i2 = this.ySize;
 			this.drawNpc(this.npc, l, i2, 1.4f, 0, 0, false);
 		}
-		super.drawScreen(i, j, f);
+		super.drawScreen(mouseX, mouseY, f);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 		GlStateManager.enableAlpha();
@@ -212,7 +278,7 @@ implements IGuiClose {
 				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.wait - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
 			}
 			else if (!this.dialog.showWheel) {
-				this.drawLinedOptions(j);
+				this.drawLinedOptions(mouseY);
 			} else {
 				this.drawWheel();
 			}
@@ -375,7 +441,7 @@ implements IGuiClose {
 			}
 			return;
 		}
-		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, new Object[] { this.player, this.npc }));
+		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, this.npc, new Object[] { this.player, this.npc }));
 		this.calculateRowHeight();
 		NoppesUtil.clickSound();
 	}

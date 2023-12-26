@@ -24,7 +24,10 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class BlockWaypoint extends BlockInterface implements IPermission {
+public class BlockWaypoint
+extends BlockInterface
+implements IPermission {
+	
 	public BlockWaypoint() {
 		super(Material.IRON);
 		this.setName("npcwaypoint");

@@ -4,7 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelData;
+import noppes.npcs.client.model.part.ModelData;
 
 public class EntityNpcSlime extends EntityNPCInterface {
 	public EntityNpcSlime(World world) {

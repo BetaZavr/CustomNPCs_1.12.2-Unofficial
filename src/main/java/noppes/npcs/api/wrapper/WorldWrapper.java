@@ -234,25 +234,30 @@ implements IWorld {
 
 	@Override
 	public IEntity<?> getEntity(String uuid) {
-		try {
-			UUID id = UUID.fromString(uuid);
-			Entity e = null;
-			for (Entity entity : this.world.getLoadedEntityList()) {
+		UUID id = null;
+		try { id = UUID.fromString(uuid); } catch (Exception e2) { }
+		if (id == null) {
+			throw new CustomNPCsException("Given uuid was invalid " + uuid);
+		}
+		Entity e = null;
+		for (Entity entity : this.world.loadedEntityList) {
+			if (entity.getUniqueID().equals(id)) {
+				e = entity;
+				break;
+			}
+		}
+		if (e == null) {
+			List<Entity> unloadedEntityList = ObfuscationHelper.getValue(World.class, this.world, 4);
+			for (Entity entity : unloadedEntityList) {
 				if (entity.getUniqueID().equals(id)) {
 					e = entity;
 					break;
 				}
 			}
-			if (e == null) {
-				e = this.world.getPlayerEntityByUUID(id);
-			}
-			if (e == null) {
-				return null;
-			}
-			return NpcAPI.Instance().getIEntity(e);
-		} catch (Exception e2) {
-			throw new CustomNPCsException("Given uuid was invalid " + uuid, new Object[0]);
 		}
+		if (e == null) { e = this.world.getPlayerEntityByUUID(id); }
+		if (e == null) { return null; }
+		return NpcAPI.Instance().getIEntity(e);
 	}
 	
 	@Override
@@ -438,15 +443,10 @@ implements IWorld {
 	@Override
 	public void spawnEntity(IEntity<?> entity) {
 		Entity e = entity.getMCEntity();
-		Entity ew = null;
-		for (Entity el : this.world.getLoadedEntityList()) {
+		for (Entity el : this.world.loadedEntityList) {
 			if (el.getUniqueID().equals(e.getUniqueID())) {
-				ew = el;
-				break;
+				throw new CustomNPCsException("Entity with this UUID already exists");
 			}
-		}
-		if (ew != null) {
-			throw new CustomNPCsException("Entity with this UUID already exists", new Object[0]);
 		}
 		e.setPosition(e.posX, e.posY, e.posZ);
 		this.world.spawnEntity(e);

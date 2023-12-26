@@ -98,7 +98,7 @@ public abstract class NpcAPI {
 
 	public abstract String getRandomName(int dictionary, int gender);
 
-	public abstract INbt getRawPlayerData(String uuid);
+	public abstract INbt getRawPlayerData(String uuid, String name);
 
 	public abstract IRecipeHandler getRecipes();
 

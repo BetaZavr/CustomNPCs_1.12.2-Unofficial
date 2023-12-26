@@ -23,7 +23,7 @@ extends GuiContainerNPCInterface
 implements ITextfieldListener {
 	
 	// new
-	int maxXp = 99999;
+	int maxXp = 99999, maxMoney = 99999999;
 	private Quest quest;
 	private ResourceLocation resource;
 
@@ -31,14 +31,15 @@ implements ITextfieldListener {
 		super(npc, container);
 		this.quest = NoppesUtilServer.getEditingQuest(this.player);
 		this.resource = this.getResource("questreward.png");
+		this.closeOnEsc = true;
 	}
 
 	public void actionPerformed(GuiButton guibutton) {
 		int id = guibutton.id;
 		if (id == 5) {
-			NoppesUtil.openGUI((EntityPlayer) this.player, GuiNPCManageQuest.Instance);
+			this.close();
 		}
-		if (id == 0) {
+		else if (id == 0) {
 			this.quest.setRewardType(((GuiNpcButton) guibutton).getValue());
 		}
 	}
@@ -57,39 +58,46 @@ implements ITextfieldListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null) {
-			return;
-		}
+		if (this.subgui != null) { return; }
 		if (!CustomNpcs.showDescriptions) { return; }
-		if (isMouseHover(i, j, this.guiLeft + 4, this.guiTop + 14, 60, 20)) {
+		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.reward.type").getFormattedText());
-		} else if (isMouseHover(i, j, this.guiLeft + 4, this.guiTop + 55, 60, 20)) {
-			this.setHoverText(
-					new TextComponentTranslation("quest.hover.edit.reward.xp", "" + this.maxXp).getFormattedText());
+		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+			this.setHoverText( new TextComponentTranslation("quest.hover.edit.reward.xp", "" + this.maxXp).getFormattedText());
+		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
+			this.setHoverText( new TextComponentTranslation("quest.hover.edit.reward.money", "" + this.maxMoney).getFormattedText());
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(0, "quest.reward.get.item", this.guiLeft + 4, this.guiTop + 4));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 14, 60, 20,
-				new String[] { "drop.type.all", "drop.type.one", "drop.type.random" },
-				this.quest.rewardType.ordinal()));
-		this.addButton(new GuiNpcButton(5, this.guiLeft, this.guiTop + this.ySize, 98, 20, "gui.back"));
-		this.addLabel(new GuiNpcLabel(1, "quest.exp", this.guiLeft + 4, this.guiTop + 45));
-		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 4,
-				this.guiTop + 55, 60, 20, this.quest.rewardExp + ""));
+		int x = this.guiLeft + 4;
+		int y = this.guiTop + 14;
+		this.addLabel(new GuiNpcLabel(0, "quest.reward.get.item", x, y - 10));
+		this.addButton(new GuiNpcButton(0, x, y, 60, 20, new String[] { "drop.type.all", "drop.type.one", "drop.type.random" }, this.quest.rewardType.ordinal()));
+		
+		this.addButton(new GuiNpcButton(5, x + this.xSize - 23, y - 8, 16, 16, "X"));
+		this.addLabel(new GuiNpcLabel(1, "quest.exp", x, this.guiTop + 45));
+		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, x, this.guiTop + 55, 60, 20, this.quest.rewardExp + ""));
 		this.getTextField(0).setNumbersOnly();
-		this.getTextField(0).setMinMaxDefault(0, this.maxXp, 0); // Change
+		this.getTextField(0).setMinMaxDefault(0, this.maxXp, 0);
+		
+		
 	}
-
+	
 	@Override
-	public void save() {
+	public void close() {
+		NoppesUtil.openGUI((EntityPlayer) this.player, GuiNPCManageQuest.Instance);
 	}
+	
+	@Override
+	public void save() { }
 
 	@Override
 	public void unFocused(GuiNpcTextField textfield) {
-		this.quest.rewardExp = textfield.getInteger();
+		if (textfield.getId() == 0) { this.quest.rewardExp = textfield.getInteger(); }
+		else if (textfield.getId() == 1) { this.quest.rewardMoney = textfield.getInteger(); }
 	}
+	
 }

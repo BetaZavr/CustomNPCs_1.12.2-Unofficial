@@ -3,7 +3,7 @@ package noppes.npcs.entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelData;
+import noppes.npcs.client.model.part.ModelData;
 
 public class EntityNpcCrystal extends EntityNPCInterface {
 	public EntityNpcCrystal(World world) {

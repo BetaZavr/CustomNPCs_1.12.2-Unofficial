@@ -42,7 +42,7 @@ implements ICustomScrollListener {
 		this.closeOnEsc = true;
 		this.id = id;
 		this.name = name;
-		this.selectFactions = setFactions;
+		this.selectFactions = Sets.<Integer>newHashSet(setFactions);
 		this.base = base;
 		this.data = Maps.<String, Integer>newLinkedHashMap();
 	}
@@ -50,7 +50,6 @@ implements ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
-		System.out.println(GuiNPCManageFactions.isName+"; initGui" + this.base);
 		List<Entry<String, Integer>> newList = Lists.newArrayList(this.base.entrySet());
 		Collections.sort(newList, new Comparator<Entry<String, Integer>>() {
 	        public int compare(Entry<String, Integer> f_0, Entry<String, Integer> f_1) {
@@ -102,6 +101,10 @@ implements ICustomScrollListener {
 				break;
 			}
 		}
+	}
+
+	@Override
+	public void save() {
 	}
 	
 	@Override

@@ -43,6 +43,7 @@ import noppes.npcs.blocks.CustomLiquid;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerBuilderSettings;
 import noppes.npcs.containers.ContainerCarpentryBench;
 import noppes.npcs.containers.ContainerCustomChest;
@@ -51,10 +52,7 @@ import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.containers.ContainerManageBanks;
 import noppes.npcs.containers.ContainerManageRecipes;
 import noppes.npcs.containers.ContainerMerchantAdd;
-import noppes.npcs.containers.ContainerNPCBankLarge;
-import noppes.npcs.containers.ContainerNPCBankSmall;
-import noppes.npcs.containers.ContainerNPCBankUnlock;
-import noppes.npcs.containers.ContainerNPCBankUpgrade;
+import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.containers.ContainerNPCDropSetup;
 import noppes.npcs.containers.ContainerNPCFollower;
@@ -68,9 +66,11 @@ import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.containers.ContainerNpcQuestReward;
 import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
+import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.TransportController;
+import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.PlayerData;
@@ -130,10 +130,11 @@ implements IGuiHandler {
 				return new ContainerNPCTransportSetup(player, loc, y);
 			}
 			case PlayerAnvil: { return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z)); }
-			case PlayerBankSmall: { return new ContainerNPCBankSmall(player, x, y); }
-			case PlayerBankUnlock: { return new ContainerNPCBankUnlock(player, x, y); }
-			case PlayerBankUprade: { return new ContainerNPCBankUpgrade(player, x, y); }
-			case PlayerBankLarge: { return new ContainerNPCBankLarge(player, x, y); }
+			case PlayerBank: {
+				Bank bank = BankController.getInstance().getBank(x);
+				if (bank == null) { bank = new Bank(); }
+				return new ContainerNPCBank(player, bank, y, z);
+			}
 			case PlayerFollowerHire: { return new ContainerNPCFollowerHire(npc, player); }
 			case PlayerFollower: { return new ContainerNPCFollower(npc, player); }
 			case PlayerTrader: { return new ContainerNPCTrader(npc, player); }
@@ -214,12 +215,6 @@ implements IGuiHandler {
 	public void updateGUI() {
 	}
 
-	/**
-	 * Common ForgeRegistry<IRecipe>
-	 * @param recipe
-	 * @param needSend
-	 * @param delete
-	 */
 	public void updateRecipes(INpcRecipe recipe, boolean needSend, boolean delete, String debug) {
 		List<EntityPlayerMP> players = CustomNpcs.Server != null && CustomNpcs.Server.getPlayerList() != null ? CustomNpcs.Server.getPlayerList().getPlayers() : Lists.<EntityPlayerMP>newArrayList();
 		/** Update Recipe */
@@ -253,7 +248,7 @@ implements IGuiHandler {
 				if (delete) { nbt.setBoolean("delete", true); }
 				for (EntityPlayerMP player : players) {
 					this.updateRecipeBook(player);
-					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, 6, nbt);
+					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.RecipesData, nbt);
 				}
 			}
 		}

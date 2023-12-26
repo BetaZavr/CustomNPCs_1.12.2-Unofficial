@@ -1,8 +1,9 @@
-package noppes.npcs;
+package noppes.npcs.client.model.part;
 
 import java.util.Random;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityNPCInterface;
 

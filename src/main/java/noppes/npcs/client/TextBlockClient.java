@@ -3,27 +3,33 @@ package noppes.npcs.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.TextBlock;
+import noppes.npcs.entity.data.TextBlock;
 import noppes.npcs.util.AdditionalMethods;
 
 public class TextBlockClient extends TextBlock {
+	
 	public int color;
 	private String name;
 	private ICommandSender sender;
 	private Style style;
+	public Entity entity;
+	public String text;
 
-	public TextBlockClient(ICommandSender sender, String text, int lineWidth, int color, Object... obs) {
-		this(text, lineWidth, false, obs);
+	public TextBlockClient(ICommandSender sender, String text, int lineWidth, int color, Entity entity, Object... obs) {
+		this(text, lineWidth, false, entity, obs);
 		this.color = color;
 		this.sender = sender;
 	}
 
-	public TextBlockClient(String text, int lineWidth, boolean mcFont, Object... obs) {
+	public TextBlockClient(String text, int lineWidth, boolean mcFont, Entity entity, Object... obs) {
 		this.color = 0xE0E0E0;
 		this.style = new Style();
+		this.entity = entity;
+		this.text = text;
 		text = NoppesStringUtils.formatText(text, obs);
 		String line = "";
 		text = text.replace("\n", " \n ");
@@ -60,8 +66,8 @@ public class TextBlockClient extends TextBlock {
 		}
 	}
 
-	public TextBlockClient(String name, String text, int lineWidth, int color, Object... obs) {
-		this(text, lineWidth, false, obs);
+	public TextBlockClient(String name, String text, int lineWidth, int color, Entity entity, Object... obs) {
+		this(text, lineWidth, false, entity, obs);
 		this.color = color;
 		this.name = name;
 	}

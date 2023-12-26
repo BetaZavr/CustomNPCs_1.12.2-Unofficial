@@ -14,7 +14,10 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataRanged;
 import noppes.npcs.entity.data.DataStats;
 
-public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfieldListener, ISubGuiListener {
+public class SubGuiNpcRangeProperties
+extends SubGuiInterface
+implements ITextfieldListener, ISubGuiListener {
+	
 	private DataRanged ranged;
 	private GuiNpcTextField soundSelected;
 	private DataStats stats;

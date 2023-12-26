@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemShield;
 import noppes.npcs.CustomNpcs;
@@ -80,13 +81,14 @@ extends EntityAIBase {
 				}
 			}
 		}
-		if (this.target != null && !this.npc.getAttackTarget().equals(this.target)) {
+		if (this.target != null && (this.npc.getAttackTarget() == null || !this.npc.getAttackTarget().equals(this.target))) {
 			this.npc.setAttackTarget(this.target);
 			this.delay = 60;
 		}
 	}
 
 	public void addDamageFromEntity(EntityLivingBase attackingEntity, double damage) {
+		if (attackingEntity instanceof EntityPlayer && ((EntityPlayer) attackingEntity).capabilities.disableDamage) { return; }
 		if (!this.map.containsKey(attackingEntity)) {
 			this.map.put(attackingEntity, damage);
 			return;

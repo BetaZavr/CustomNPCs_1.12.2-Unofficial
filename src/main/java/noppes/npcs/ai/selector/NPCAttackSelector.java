@@ -15,6 +15,8 @@ import noppes.npcs.util.AdditionalMethods;
 public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	private EntityNPCInterface npc;
 
+	// EntityAIClosestTarget <- EntityNPCInterface.updateTasks()
+	
 	public NPCAttackSelector(EntityNPCInterface npc) {
 		this.npc = npc;
 	}

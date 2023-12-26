@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.ModelPartData;
 import noppes.npcs.client.model.Model2DRenderer;
 import noppes.npcs.client.model.ModelPlaneRenderer;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.constants.EnumParts;
 
 public class LayerBody<T extends EntityLivingBase> extends LayerInterface<T> {

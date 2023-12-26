@@ -12,10 +12,12 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.world.WorldServer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.controllers.data.TransportCategory;
@@ -223,7 +225,24 @@ public class TransportController {
 		if (id < 0) { id = this.getUniqueIdCategory(); }
 		if (this.categories.containsKey(id)) {
 			this.categories.get(id).readNBT(compound);
-		} else {
+			if (CustomNpcs.Server != null) {
+				for (int locID : this.categories.get(id).locations.keySet()) {
+					TransportLocation loc = this.categories.get(id).locations.get(locID);
+					if (loc.npc != null) {
+						WorldServer w = CustomNpcs.Server.getWorld(loc.dimension);
+						if (w == null) { continue; }
+						Entity entity = w.getEntityFromUuid(loc.npc);
+						if (entity instanceof EntityNPCInterface &&
+								((EntityNPCInterface) entity).advanced.roleInterface instanceof RoleTransporter &&
+								((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).transportId == locID &&
+								!((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).name.equals(loc.name)) {
+							((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).name = loc.name;
+						}
+					}
+				}
+			}
+		}
+		else {
 			TransportCategory category = new TransportCategory();
 			category.readNBT(compound);
 			category.id = id;

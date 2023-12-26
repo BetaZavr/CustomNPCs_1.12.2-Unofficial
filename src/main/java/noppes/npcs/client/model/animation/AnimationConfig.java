@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.ModelDataShared;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
@@ -15,6 +14,7 @@ import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
+import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;

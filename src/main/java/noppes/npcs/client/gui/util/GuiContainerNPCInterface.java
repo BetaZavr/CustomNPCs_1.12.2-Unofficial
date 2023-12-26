@@ -280,6 +280,7 @@ implements IEditNPC {
 		return this.topbuttons.get(i);
 	}
 
+	@Override
 	public boolean hasSubGui() {
 		return this.subgui != null;
 	}

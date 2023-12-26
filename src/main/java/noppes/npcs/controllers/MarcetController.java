@@ -36,24 +36,20 @@ implements IMarcetHandler {
 	public final Map<Integer, Deal> deals;
 
 	public MarcetController() {
-		this.filePath = "";
 		MarcetController.instance = this;
+		this.filePath = CustomNpcs.getWorldSaveDirectory().getAbsolutePath();
 		this.marcets = Maps.<Integer, Marcet>newTreeMap();
 		this.deals = Maps.<Integer, Deal>newTreeMap();
 		this.load();
 	}
 
 	public static MarcetController getInstance() {
-		if (newInstance()) {
-			MarcetController.instance = new MarcetController();
-		}
+		if (newInstance()) { MarcetController.instance = new MarcetController(); }
 		return MarcetController.instance;
 	}
 
 	private static boolean newInstance() {
-		if (MarcetController.instance == null) {
-			return true;
-		}
+		if (MarcetController.instance == null) { return true; }
 		File file = CustomNpcs.getWorldSaveDirectory();
 		return file != null && !MarcetController.instance.filePath.equals(file.getAbsolutePath());
 	}
@@ -354,11 +350,11 @@ implements IMarcetHandler {
 	}
 	
 	public void sendTo(EntityPlayerMP player, int marcetID) {
-		//LogWriter.debug("CustomNpcs: Send marked data to \""+player.getName()+"\"");
+		//LogWriter.debug("CustomNpcs: Send marked data to \""+player.getName()+"\"; marcetID: "+marcetID);
 		if (this.marcets.containsKey(marcetID)) { // market
 			this.marcets.get(marcetID).sendTo(player);
 			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 250, 2);
-		} else if (marcetID<0) { // all
+		} else if (marcetID < 0) { // all
 			if (this.marcets.isEmpty() || !this.marcets.containsKey(0)) { this.loadDefaultMarcets(); }
 			Map<Integer, Marcet> mapM = Maps.<Integer, Marcet>newHashMap(this.marcets);
 			Map<Integer, Deal> mapD = Maps.<Integer, Deal>newHashMap(this.deals);
@@ -376,7 +372,6 @@ implements IMarcetHandler {
 					if (deal == null) { continue; }
 					Server.sendData(player, EnumPacketClient.MARCET_DATA, 3, deal.writeToNBT());
 				}
-				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 			}
 			Server.sendDataDelayed(player, EnumPacketClient.MARCET_DATA, 250, 2);
 		}

@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class PlayerTransportData {
+	
 	public HashSet<Integer> transports;
 
 	public PlayerTransportData() {

@@ -14,7 +14,6 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.BlockBorder;
@@ -79,51 +78,49 @@ implements Predicate, ITickable {
 		super.readFromNBT(compound);
 		this.readExtraNBT(compound);
 		if (this.getWorld() != null) {
-			this.getWorld().setBlockState(this.getPos(),
-					CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
+			this.getWorld().setBlockState(this.getPos(), CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
 		}
 	}
 
 	public void update() {
-		if (this.world.isRemote) {
-			return;
+		if (this.world.isRemote) { return; }
+		for (int i = 1; i < this.height && i < 3; i++) {
+			if (this.world.getBlockState(this.pos.up(i)).getBlock() instanceof BlockBorder) {
+				return;
+			}
 		}
-		AxisAlignedBB box = new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1),
-				(this.pos.getY() + this.height + 1), (this.pos.getZ() + 1));
+		AxisAlignedBB box = new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1), (this.pos.getY() + this.height + 1), (this.pos.getZ() + 1));
 		@SuppressWarnings("unchecked")
 		List<Entity> list = this.world.getEntitiesWithinAABB(Entity.class, box, (Predicate) this);
 		for (Entity entity : list) {
 			if (entity instanceof EntityEnderPearl) {
 				EntityEnderPearl pearl = (EntityEnderPearl) entity;
-				if (!(pearl.getThrower() instanceof EntityPlayer) || this.availability.isAvailable((EntityPlayer) pearl.getThrower())) {
-					continue;
+				if (pearl.getThrower() instanceof EntityPlayer) {
+					entity.isDead = this.cheakPlayer((EntityPlayer) pearl.getThrower(), (int) (entity.posY + 0.5d));
 				}
-				entity.isDead = true;
-			} else {
-				EntityPlayer player = (EntityPlayer) entity;
-				if (this.availability.isAvailable(player)) {
-					continue;
-				}
-				BlockPos pos2 = new BlockPos((Vec3i) this.pos);
-				if (this.rotation == 2) {
-					pos2 = pos2.south();
-				} else if (this.rotation == 0) {
-					pos2 = pos2.north();
-				} else if (this.rotation == 1) {
-					pos2 = pos2.east();
-				} else if (this.rotation == 3) {
-					pos2 = pos2.west();
-				}
-				while (!this.world.isAirBlock(pos2) || !entity.world.isAirBlock(pos.up())) {
-					pos2 = pos2.up();
-				}
-				player.setPositionAndUpdate(pos2.getX() + 0.5, pos2.getY(), pos2.getZ() + 0.5);
-				if (this.message.isEmpty()) {
-					continue;
-				}
-				player.sendStatusMessage(new TextComponentTranslation(this.message, new Object[0]), true);
+			} else if (entity instanceof EntityPlayer) {
+				this.cheakPlayer((EntityPlayer) entity, (int) (entity.posY + 0.5d));
 			}
 		}
+	}
+
+	private boolean cheakPlayer(EntityPlayer player, int startY) {
+		if (player.capabilities.isCreativeMode || this.availability.isAvailable(player)) { return false; }
+		BlockPos newPos = new BlockPos(this.pos.getX(), startY, this.pos.getZ());
+		if (this.rotation == 2) { newPos = newPos.south(); }
+		else if (this.rotation == 0) { newPos = newPos.north(); }
+		else if (this.rotation == 1) { newPos = newPos.east(); }
+		else if (this.rotation == 3) { newPos = newPos.west(); }
+		int i = startY - this.pos.getY();
+		while (i < this.height && (!this.world.isAirBlock(newPos) || !this.world.isAirBlock(newPos.up()))) {
+			newPos = newPos.up();
+			i++;
+		}
+		player.setPositionAndUpdate(newPos.getX() + 0.5, newPos.getY(), newPos.getZ() + 0.5);
+		if (!this.message.isEmpty()) {
+			player.sendStatusMessage(new TextComponentTranslation(this.message, new Object[0]), true);
+		}
+		return true;
 	}
 
 	public void writeExtraNBT(NBTTagCompound compound) {

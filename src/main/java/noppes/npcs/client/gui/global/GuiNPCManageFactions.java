@@ -230,7 +230,6 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		System.out.println("list: "+list);
 		this.base = data;
 		String select = this.scrollFactions==null || this.scrollFactions.getSelected() == null ? "" : this.scrollFactions.getSelected();
 		this.data.clear();

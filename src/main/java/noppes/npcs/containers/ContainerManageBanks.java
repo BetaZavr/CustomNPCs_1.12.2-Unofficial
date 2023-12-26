@@ -5,42 +5,41 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.data.Bank;
 
 public class ContainerManageBanks extends Container {
-	public Bank bank;
+	
+	private IInventory inv;
 
 	public ContainerManageBanks(EntityPlayer player) {
-		this.bank = new Bank();
-		for (int i = 0; i < 6; ++i) {
-			int x = 36;
-			int y = 38;
-			y += i * 22;
-			this.addSlotToContainer(new Slot((IInventory) this.bank.currencyInventory, i, x, y));
+		this.inv = new NpcMiscInventory(2);
+		this.addSlotToContainer(new Slot(this.inv, 0, -5000, -5000));
+		this.addSlotToContainer(new Slot(this.inv, 1, -5000, -5000));
+		for (int i = 0; i < 3; ++i) {
+			for (int j = 0; j < 9; ++j) {
+				this.addSlotToContainer(new Slot(player.inventory, j + i * 9 + 9, j * 18 + 8, 113 + i * 18));
+			}
 		}
-		for (int i = 0; i < 6; ++i) {
-			int x = 142;
-			int y = 38;
-			y += i * 22;
-			this.addSlotToContainer(new Slot((IInventory) this.bank.upgradeInventory, i, x, y));
-		}
-		for (int j1 = 0; j1 < 9; ++j1) {
-			this.addSlotToContainer(new Slot((IInventory) player.inventory, j1, 8 + j1 * 18, 171));
+		for (int j = 0; j < 9; ++j) {
+			this.addSlotToContainer(new Slot(player.inventory, j, j * 18 + 8, 171));
 		}
 	}
 
 	public boolean canInteractWith(EntityPlayer entityplayer) {
 		return true;
 	}
-
-	public void setBank(Bank bank2) {
-		for (int i = 0; i < 6; ++i) {
-			this.bank.currencyInventory.setInventorySlotContents(i, bank2.currencyInventory.getStackInSlot(i));
-			this.bank.upgradeInventory.setInventorySlotContents(i, bank2.upgradeInventory.getStackInSlot(i));
-		}
+	
+	// Server
+	public void setBank(Bank bank, int ceil) {
+		if (!bank.ceilSettings.containsKey(ceil)) { return; }
+		this.getSlot(0).putStack(bank.ceilSettings.get(ceil).openStack);
+		this.getSlot(1).putStack(bank.ceilSettings.get(ceil).upgradeStack);
+		this.detectAndSendChanges();
 	}
 
 	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
 		return ItemStack.EMPTY;
 	}
+	
 }

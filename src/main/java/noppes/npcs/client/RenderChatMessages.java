@@ -1,9 +1,12 @@
 package noppes.npcs.client;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -35,15 +38,13 @@ implements IChatMessages {
 
 	@Override
 	public void addMessage(String message, Entity entity) {
-		if (!CustomNpcs.EnableChatBubbles) {
-			return;
-		}
+		if (!CustomNpcs.EnableChatBubbles) { return; }
 		long time = System.currentTimeMillis();
 		if (message.equals(this.lastMessage) && this.lastMessageTime + 5000L > time) {
 			return;
 		}
 		Map<Long, TextBlockClient> messages = new TreeMap<Long, TextBlockClient>(this.messages);
-		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, new Object[] { Minecraft.getMinecraft().player, entity }));
+		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, entity, new Object[] { Minecraft.getMinecraft().player, entity}));
 		if (messages.size() > 3) { messages.remove(messages.keySet().iterator().next()); }
 		this.messages = messages;
 		this.lastMessage = message;
@@ -91,11 +92,23 @@ implements IChatMessages {
 		FontRenderer font = Minecraft.getMinecraft().fontRenderer;
 		float var13 = 1.6f;
 		float var14 = 0.016666668f * var13;
-		GlStateManager.pushMatrix();
 		int size = 0;
-		for (TextBlockClient block : this.messages.values()) {
+		List<Long> del = Lists.<Long>newArrayList();
+		for (Long time : this.messages.keySet()) {
+			TextBlockClient block = this.messages.get(time);
+			if (block.entity != null && !block.entity.isEntityAlive()) {
+				del.add(time);
+				if (this.lastMessage.equals(block.text)) {
+					this.lastMessage = "";
+					this.lastMessageTime = 0L;
+				}
+				continue;
+			}
 			size += block.lines.size();
 		}
+		for (Long key : del) { this.messages.remove(key); }
+		if (size == 0) { return; }
+		GlStateManager.pushMatrix();
 		Minecraft mc = Minecraft.getMinecraft();
 		int textYSize = (int) (size * font.FONT_HEIGHT * this.scale);
 		GlStateManager.translate(x + 0.0f, y + textYSize * textscale * var14, z);

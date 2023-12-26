@@ -758,7 +758,7 @@ implements IMetods {
 		if (notPfx) {
 			sufc = "";
 		}
-		String num = isInteger ? ("" + (int) corr) : ("" + corr).replace(".", ",");
+		String num = isInteger ? ("" + (long) corr) : ("" + corr).replace(".", ",");
 		return sufc + num + type + end;
 	}
 
@@ -1241,105 +1241,63 @@ implements IMetods {
 		return AdditionalMethods.instance.distanceTo(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
 	}
 
-	/**
-	 * @param dx - posX from look angles
-	 * @param dy - posY from look angles
-	 * @param dz - posZ from look angles
-	 * @param mx - posX to look angles
-	 * @param my - posY to look angles
-	 * @param mz - posZ to look angles
-	 * @return {yaw, pitch, radiusXZ, dist}
-	 */
 	@Override
-	public double[] getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
-		double yaw, pitch, dist, xVal = mx - dx, yVal = my - dy, zVal = mz - dz;
-		double radiusXZ = Math.sqrt(Math.pow(xVal, 2) + Math.pow(zVal, 2));
-		pitch = Math.atan(yVal / radiusXZ) * 180 / Math.PI;
-		if (!(pitch >= -90 && pitch <= 90)) {pitch = 0;}
-		if (xVal <= 0) {yaw=90 + Math.atan(zVal / xVal) * 180 / Math.PI;}
-		else {yaw = 270 + Math.atan(zVal / xVal) * 180 / Math.PI;}
-		if (!(yaw >= 0 && yaw <= 360)) {yaw = 0;}
-		dist = Math.sqrt(Math.pow(radiusXZ, 2) + Math.pow(yVal, 2));
-		return new double[] {yaw, pitch, radiusXZ, dist};
-	}
-
-	@Override
-	public double[] getAngles3D(IEntity<?> entity, IEntity<?> target) {
-		return this.getAngles3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
+	public RayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz) {
+		RayTraceRotate rtr = new RayTraceRotate();
+		rtr.calculate(dx, dy, dz, mx, my, mz);
+		return rtr;
 	}
 	
-	/**
-	 * @param pos0 - block position from look angles
-	 * @param pos1 - block position to look angles
-	 * @return {yaw, pitch, radiusXZ, dist}
-	 */
-	public static double[] getAngles3D(BlockPos pos0, BlockPos pos1) {
-		return AdditionalMethods.instance.getAngles3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+	public static RayTraceRotate getAngles3D(Entity entity, Entity target) {
+		return AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
 	}
 	
 	@Override
-	public double[] getPosition(IEntity<?> entity, double yaw, double pitch, double radius) {
+	public RayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target) {
+		return AdditionalMethods.getAngles3D(entity.getMCEntity(), target.getMCEntity());
+	}
+	
+	public static RayTraceRotate getAngles3D(BlockPos pos0, BlockPos pos1) {
+		return AdditionalMethods.instance.getAngles3D(pos0.getX() + 0.5d, pos0.getY() + 0.5d, pos0.getZ() + 0.5d, pos1.getX() + 0.5d, pos1.getY() + 0.5d, pos1.getZ() + 0.5d);
+	}
+	
+	@Override
+	public RayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius) {
 		return this.getPosition(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, yaw, pitch, radius);
 	}
 	
-	/**
-	 * @param cx - X-axis position center
-	 * @param cy - Y-axis position center
-	 * @param cz - Z-axis position center
-	 * @param radius
-	 * @return {x, y, z}
-	 */
 	@Override
-	public double[] getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
-		if (radius<0.0d) { radius *= -1.0d; }
-		double x = Math.sin(yaw * Math.PI / 180) * radius * -1;
-		double y = Math.sin(pitch * Math.PI / 180) * radius;
-		double z = Math.cos(yaw * Math.PI / 180) * radius;
-		return new double[] {cx+x, cy+y, cz+z};
+	public RayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius) {
+		RayTraceVec rtv = new RayTraceVec();
+		rtv.calculatePos(cx, cy, cz, yaw, pitch, radius);
+		return rtv;
 	}
 
-	/**
-	 * @param pos - block position center
-	 * @param radius
-	 * @return {x, y, z}
-	 */
-	public static double[] getPosition(BlockPos pos, double yaw, double pitch, double radius) {
-		return AdditionalMethods.instance.getPosition(pos.getX(), pos.getY(), pos.getZ(), yaw, pitch, radius);
+	public static RayTraceVec getPosition(BlockPos pos, double yaw, double pitch, double radius) {
+		return AdditionalMethods.instance.getPosition(pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, yaw, pitch, radius);
 	}
 	
 	@Override
-	public double[] getVector3D(IEntity<?> entity, IEntity<?> target) {
+	public RayTraceVec getVector3D(IEntity<?> entity, IEntity<?> target) {
 		return this.getVector3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
 	}
 	
 	@Override
-	public double[] getVector3D(IEntity<?> entity, IPos pos) {
+	public RayTraceVec getVector3D(IEntity<?> entity, IPos pos) {
 		return this.getVector3D(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, pos.getX() + 0.5d,  pos.getY(),  pos.getZ() + 0.5d);
 	}
 	
 	@Override
-	public double[] getVector3D(double dx, double dy, double dz, double mx, double my, double mz) {
-		double ax,ay,az, yaw, hVal = 1.5D + my - dy;
-		if (hVal < 0.35D) {hVal = 0.35D;}
-		double xVal = mx - dx, zVal = mz - dz;
-		ay = (-3.0D + Math.sqrt(9.0D - 16.0D * (-0.75D - hVal))) / 8.0D;
-		double radiusXZ = Math.sqrt(Math.pow(xVal, 2.0D) + Math.pow(zVal, 2.0D));
-		double impXZ = -4.5D + Math.sqrt(20.25D + 4.0D * radiusXZ);
-		if (xVal <= 0) {yaw = 90.0D + Math.atan(zVal / xVal) * 180 / Math.PI;}
-		else {yaw = 270.0D + Math.atan(zVal / xVal) * 180 / Math.PI;}
-		if (!(yaw >= 0 && yaw <= 360)) {yaw = 0;}
-		if (yaw == 0.0D) {yaw = 180.0D;}
-		else if (yaw == 180.0D) {yaw = 0.0D;}
-		ax = Math.sin(yaw * Math.PI / 180) * impXZ * -1;
-		az = Math.cos(yaw * Math.PI / 180) * impXZ;
-		return new double[] {ax, ay, az, yaw};
+	public RayTraceVec getVector3D(double dx, double dy, double dz, double mx, double my, double mz) {
+		RayTraceVec rtv = new RayTraceVec();
+		rtv.calculateVec(dx, dy, dz, mx, my, mz);
+		return rtv;
 	}
 
-	public static double[] getVector3D(BlockPos pos0, BlockPos pos1) {
-		return AdditionalMethods.instance.getVector3D(pos0.getX(), pos0.getY(), pos0.getZ(), pos1.getX(), pos1.getY(), pos1.getZ());
+	public static RayTraceVec getVector3D(BlockPos pos0, BlockPos pos1) {
+		return AdditionalMethods.instance.getVector3D(pos0.getX() + 0.5d, pos0.getY() + 0.5d, pos0.getZ() + 0.5d, pos1.getX() + 0.5d, pos1.getY() + 0.5d, pos1.getZ() + 0.5d);
 	}
 
-	/* Teleport Entity to Spawn next Dimensions */
 	public static Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
 		World world = server.getWorld(dimension);
 		if (world == null) { throw new CommandException("Couldn't find dimension " + dimension); }
@@ -1857,19 +1815,19 @@ implements IMetods {
 		double aggroRange = (follow_range == null ? 16.0d : follow_range.getAttributeValue());
 		if (entity.isPlayerSleeping()) { aggroRange /= 4.0d; }
 		if (aggroRange < 1.0d) { aggroRange = 1.0d; }
-		double[] data = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
+		RayTraceRotate rtr = AdditionalMethods.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
 		List<Entity> seenEntities = null, unseenEntities = null;
 		if (entity instanceof EntityLiving) {
 			EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
 			seenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 1);
 			unseenEntities = ObfuscationHelper.getValue(EntitySenses.class, senses, 2);
 		}
-		if (data[3] > aggroRange) {
+		if (rtr.distance > aggroRange) {
 			if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
 			if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 			return false;
 		}
-		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(entity, data[0], data[1], data[3]);
+		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch, rtr.distance);
 		if (rtrs != null) {
 			for (IBlock bi : rtrs.blocks) {
 				if (toShoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
@@ -1884,9 +1842,9 @@ implements IMetods {
 				}
 			}
 		}
-		if (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS) {
-			double yaw = entity.rotationYaw - data[0];
-			double pitch = entity.rotationPitch - data[1];
+		if (!toShoot && !(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS) {
+			double yaw = (entity.rotationYawHead - rtr.yaw) % 360.0d;
+			double pitch = (entity.rotationPitch - rtr.pitch) % 360.0d;
 			if (yaw < 0.0d) { yaw += 360.0d; }
 			if (!(yaw <= 60.0d || yaw >= 300.0d) || !(pitch <= 60.0d || pitch >= -60.0d)) {
 				if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
@@ -1899,7 +1857,7 @@ implements IMetods {
 		double chance = invis == 0 ? 1.0d : -0.00026d * Math.pow((double) invis, 3.0d) + 0.00489d * Math.pow((double) invis, 2.0d) - 0.03166 * (double) invis + 0.08d;
 		if (chance > 1.0d) { chance = 1.0d; }
 		if (chance < 0.002d) { chance = 0.002d; }
-		if (chance != 1.0d) { chance *= -1.0d * (data[3] / aggroRange) + 1.0d; } // distance
+		if (chance != 1.0d) { chance *= -1.0d * (rtr.distance / aggroRange) + 1.0d; } // distance
 		if (chance != 1.0d) { chance *= 0.3d; } // is sneaks
 		
 		if (chance > 1.0d) { chance = 1.0d; }
@@ -1920,10 +1878,11 @@ implements IMetods {
 		RayTraceResults rtrs = new RayTraceResults();
 		
 		Vec3d vecStart = entity.getPositionEyes(1.0f);
-		double f = Math.cos(-yaw * 0.017453292d - Math.PI);
-		double f1 = Math.sin(-yaw * 0.017453292d - Math.PI);
-        double f2 = - Math.cos(-pitch * 0.017453292d);
-        double f3 = Math.sin(-pitch * 0.017453292d);
+		double rad = Math.PI / 180.0d;
+		double f = Math.cos(-yaw * rad - Math.PI);
+		double f1 = Math.sin(-yaw * rad - Math.PI);
+        double f2 = - Math.cos(-pitch * rad);
+        double f3 = Math.sin(-pitch * rad);
         Vec3d vecLook = new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
 		Vec3d vecEnd = vecStart.addVector(vecLook.x * distance, vecLook.y * distance, vecLook.z * distance);
 		rtrs.add(entity, distance, vecStart, vecEnd);

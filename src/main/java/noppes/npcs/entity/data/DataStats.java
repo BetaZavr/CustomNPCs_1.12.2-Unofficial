@@ -5,7 +5,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.Resistances;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.data.INPCMelee;
 import noppes.npcs.api.entity.data.INPCRanged;

@@ -87,8 +87,6 @@ import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.LogWriter;
-import noppes.npcs.ModelData;
-import noppes.npcs.ModelPartData;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
@@ -175,6 +173,8 @@ import noppes.npcs.client.model.ModelNpcCrystal;
 import noppes.npcs.client.model.ModelNpcDragon;
 import noppes.npcs.client.model.ModelNpcSlime;
 import noppes.npcs.client.model.ModelPlayerAlt;
+import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.client.renderer.RenderCustomNpc;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.renderer.RenderNPCPony;
@@ -194,7 +194,7 @@ import noppes.npcs.containers.ContainerCustomGui;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.containers.ContainerManageBanks;
 import noppes.npcs.containers.ContainerManageRecipes;
-import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.containers.ContainerNPCDropSetup;
 import noppes.npcs.containers.ContainerNPCFollower;
@@ -420,10 +420,16 @@ extends CommonProxy {
 			case PlayerFollowerHire: { return new GuiNpcFollowerHire(npc, (ContainerNPCFollowerHire) container); }
 			case PlayerFollower: { return new GuiNpcFollower(npc, (ContainerNPCFollower) container); }
 			case PlayerTrader: { return new GuiNPCTrader(npc, (ContainerNPCTrader) container); }
-			case PlayerBankSmall: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
-			case PlayerBankUnlock: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
-			case PlayerBankUprade: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
-			case PlayerBankLarge: { return new GuiNPCBankChest(npc, (ContainerNPCBankInterface) container); }
+			case PlayerBank: {
+				GuiNPCBankChest openGui = new GuiNPCBankChest(npc, (ContainerNPCBank) container);
+				Minecraft mc = Minecraft.getMinecraft();
+				if (mc.currentScreen instanceof GuiNPCBankChest &&
+						((GuiNPCBankChest) mc.currentScreen).cont.bank.id == ((ContainerNPCBank) container).bank.id &&
+						((GuiNPCBankChest) mc.currentScreen).cont.ceil == ((ContainerNPCBank) container).ceil) {
+					openGui.row = ((GuiNPCBankChest) mc.currentScreen).row;
+				}
+				return openGui;
+			}
 			case PlayerTransporter: { return new GuiTransportSelection(npc); }
 			case Script: { return new GuiScript(npc); }
 			case ScriptBlock: { return new GuiScriptBlock(x, y, z); }

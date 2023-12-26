@@ -8,9 +8,9 @@ import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import noppes.npcs.ModelData;
-import noppes.npcs.ModelPartData;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.entity.EntityCustomNpc;
 
 public abstract class LayerInterface<T extends EntityLivingBase>

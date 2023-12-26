@@ -21,6 +21,7 @@ import noppes.npcs.Server;
 import noppes.npcs.api.handler.IFactionHandler;
 import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Faction;
 
 public class FactionController
@@ -64,7 +65,7 @@ implements IFactionHandler {
 		}
 		this.saveFactions();
 		faction.id = -1;
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 1, id);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.FactionsData, id);
 		return faction;
 	}
 
@@ -226,7 +227,7 @@ implements IFactionHandler {
 		}
 		this.factions.remove(faction.id);
 		this.factions.put(faction.id, faction);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 1, faction.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData, faction.writeNBT(new NBTTagCompound()));
 		this.saveFactions();
 	}
 

@@ -46,6 +46,7 @@ implements IInventory {
 	}
 
 	public void clear() {
+		this.items.clear();
 	}
 
 	public void closeInventory(EntityPlayer player) {
@@ -179,6 +180,22 @@ implements IInventory {
 			if (this.getStackInSlot(slot).isEmpty()) { return false; }
 		}
 		return true;
+	}
+
+	public NpcMiscInventory fill(NpcMiscInventory inv) {
+		this.items.clear();
+		for (int i = 0; i < this.items.size() && i < inv.items.size(); i++) {
+			this.items.set(i, inv.items.get(i));
+		}
+		return this;
+	}
+
+	public int getCountEmpty() {
+		int c = 0;
+		for (int s = 0; s < this.items.size(); ++s) {
+			if (this.items.get(s).isEmpty()) { c++; }
+		}
+		return c;
 	}
 
 }

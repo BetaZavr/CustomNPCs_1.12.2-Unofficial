@@ -4,7 +4,7 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ModelData;
+import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 

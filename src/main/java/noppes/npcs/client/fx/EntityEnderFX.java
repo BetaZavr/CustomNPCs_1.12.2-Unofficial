@@ -7,8 +7,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.ModelPartData;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.entity.EntityCustomNpc;
 
 public class EntityEnderFX extends ParticlePortal {

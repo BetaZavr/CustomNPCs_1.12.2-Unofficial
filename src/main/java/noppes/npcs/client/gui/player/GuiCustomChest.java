@@ -11,6 +11,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomChest;
 
 public class GuiCustomChest extends GuiContainer {
+	
 	private static ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
 	private int inventoryRows;
 	public String title;

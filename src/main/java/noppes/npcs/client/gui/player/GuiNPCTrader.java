@@ -54,6 +54,7 @@ implements ICustomScrollListener, IGuiData {
 	private int canBuy = 0, canSell = 0;
 	private DealMarkup selectDealData;
 	private Marcet marcet;
+	private long money;
 
 	public GuiNPCTrader(EntityNPCInterface npc, ContainerNPCTrader container) {
 		super(npc, container);
@@ -63,6 +64,7 @@ implements ICustomScrollListener, IGuiData {
 		this.title = "role.trader";
 		this.marcet = container.marcet;
 		this.data = Maps.<String, Deal>newTreeMap();
+		this.money = 0L;
 	}
 
 	@Override
@@ -133,11 +135,11 @@ implements ICustomScrollListener, IGuiData {
 		this.addLabel(new GuiNpcLabel(4, "", this.guiLeft + 140, this.guiTop + 126)); // Money
 		this.getLabel(3).color = 0xFF202020;
 		this.getLabel(4).color = 0xFF202020;
+		this.money = ClientProxy.playerData.game.getMoney();
 		if (this.selectDealData.buyMoney > 0) {
 			this.getLabel(3).enabled = true;
 			this.getLabel(4).enabled = true;
-			String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.charCurrencies.charAt(0) +
-					" / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.charCurrencies.charAt(0);
+			String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.charCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.charCurrencies.charAt(0);
 			if (this.marcet.isLimited) {
 				text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false) + CustomNpcs.charCurrencies.charAt(0);
 			}
@@ -168,7 +170,7 @@ implements ICustomScrollListener, IGuiData {
 				if (this.wait || this.selectDealData.deal.getType() == 1) { this.canBuy = 1; }
 				if (this.canBuy==0 && this.selectDealData.deal.getAmount() <= 0) { this.canBuy = 6; }
 				if (this.canBuy==0 && !this.selectDealData.deal.availability.isAvailable(this.player)) { this.canBuy = 2; }
-				if (this.canBuy==0 && this.selectDealData.buyMoney > 0 && ClientProxy.playerData.game.getMoney() < this.selectDealData.buyMoney) { this.canBuy = 3; }
+				if (this.canBuy==0 && this.selectDealData.buyMoney > 0 && this.money < this.selectDealData.buyMoney) { this.canBuy = 3; }
 				if (this.canBuy==0 && !AdditionalMethods.canRemoveItems(this.player.inventory.mainInventory, this.selectDealData.buyItems, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canBuy = 4; }
 				if (this.canBuy==0 && !AdditionalMethods.canAddItemAfterRemoveItems(this.player.inventory.mainInventory, this.selectDealData.main, this.selectDealData.buyItems, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canBuy = 5; }
 			}
@@ -252,10 +254,23 @@ implements ICustomScrollListener, IGuiData {
 			Gui.drawRect(this.px + 1, this.py + 1, this.px + 24, this.py + 24, this.colorP);
 			GlStateManager.disableRescaleNormal();
 			// Currency Colored
-			if (this.getLabel(4) != null && this.getLabel(4).enabled && this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-				int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
-				if (ClientProxy.playerData.game.getMoney() >= this.selectDealData.deal.getMoney()) { color = 0x8000FF00; }
-				Gui.drawRect(this.guiLeft + 138, this.guiTop + 112, this.guiLeft + 218, this.guiTop + 136, color);
+			if (this.getLabel(4) != null && this.getLabel(4).enabled) {
+				if (this.money != ClientProxy.playerData.game.getMoney()) {
+					this.money = ClientProxy.playerData.game.getMoney();
+					if (this.selectDealData.buyMoney > 0) {
+						String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.charCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.charCurrencies.charAt(0);
+						if (this.marcet.isLimited) {
+							text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false) + CustomNpcs.charCurrencies.charAt(0);
+						}
+						this.getLabel(4).setLabel(text);
+					}
+				}
+				//System.out.println("CNPCs: "+this.money);
+				if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+					int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
+					if (this.money >= this.selectDealData.deal.getMoney()) { color = 0x8000FF00; }
+					Gui.drawRect(this.guiLeft + 138, this.guiTop + 112, this.guiLeft + 218, this.guiTop + 136, color);
+				}
 			}
 			// Items
 			if (!this.selectDealData.buyHasPlayerItems.isEmpty()) {
@@ -387,7 +402,7 @@ implements ICustomScrollListener, IGuiData {
 			if (this.selectDealData!=null && this.selectDealData.buyMoney > 0) {
 				buyMoney = (int) this.selectDealData.buyMoney;
 			}
-			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { ""+buyMoney, CustomNpcs.charCurrencies.charAt(0), "" + ClientProxy.playerData.game.getMoney(), CustomNpcs.charCurrencies.charAt(0) });
+			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { ""+buyMoney, CustomNpcs.charCurrencies.charAt(0), "" + this.money, CustomNpcs.charCurrencies.charAt(0) });
 			if (this.marcet.isLimited) {
 				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", ""+this.marcet.money));
 			}

@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,9 +18,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -43,16 +41,15 @@ implements IPermission {
 	public boolean isAllowed(EnumPacketServer e) {
 		return e == EnumPacketServer.CloneList || e == EnumPacketServer.SpawnMob || e == EnumPacketServer.MobSpawner
 				|| e == EnumPacketServer.ClonePreSave || e == EnumPacketServer.CloneRemove
-				|| e == EnumPacketServer.CloneSave || e == EnumPacketServer.GetClone;
+				|| e == EnumPacketServer.CloneSave || e == EnumPacketServer.GetClone || e == EnumPacketServer.Gui;
 	}
 
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (!world.isRemote && player instanceof EntityPlayerMP) {
-			boolean summon = false;
+		if (world.isRemote) {
 			PlayerData data = CustomNpcs.proxy.getPlayerData(player);
-			if (data==null) { return EnumActionResult.SUCCESS; }
+			boolean summon = false;
 			ItemStack stackCloner = player.getHeldItemMainhand();
-			if (!data.hud.hasOrKeysPressed(42, 54) && stackCloner!=null && stackCloner.getItem()==this) {
+			if (stackCloner != null && stackCloner.getItem() instanceof ItemNpcCloner && data!=null && data.hud.hasOrKeysPressed(42, 54)) {
 				NBTTagCompound nbt = stackCloner.getTagCompound();
 				if (nbt!=null && nbt.hasKey("Settings", 10)) {
 					NBTTagCompound nbtData = nbt.getCompoundTag("Settings");
@@ -65,7 +62,7 @@ implements IPermission {
 					}
 				}
 			}
-			if (!summon) { NoppesUtilServer.sendOpenGui(player, EnumGuiType.MobSpawner, null, pos.getX(), pos.getY(), pos.getZ()); }
+			if (!summon) { Client.sendData(EnumPacketServer.Gui, EnumGuiType.MobSpawner, pos.getX(), pos.getY(), pos.getZ()); }
 		}
 		return EnumActionResult.SUCCESS;
 	}

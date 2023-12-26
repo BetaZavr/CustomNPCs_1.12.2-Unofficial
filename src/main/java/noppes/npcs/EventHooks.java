@@ -65,7 +65,7 @@ import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.containers.ContainerNPCBankInterface;
+import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.IScriptHandler;
@@ -652,7 +652,7 @@ public class EventHooks {
 	public static void onPlayerOpenGui(EntityPlayerMP player, String newGUI, String oldGUI) {
 		if (player==null) { return; }
 		if (newGUI.equals("GuiNPCBankChest") && oldGUI.equals("GuiIngame")) {
-			ContainerNPCBankInterface.editBank = null;
+			ContainerNPCBank.editPlayerBankData = null;
 			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, new NBTTagCompound());
 		}
 		PlayerScriptData handler = PlayerData.get(player).scriptData;

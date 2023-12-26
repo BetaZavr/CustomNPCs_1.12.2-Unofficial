@@ -40,19 +40,18 @@ implements IGuiData, ICustomScrollListener {
 	private static int showingClones = 0;
 	private int activeTab;
 	private List<String> list;
-	private int posX;
-	private int posY;
-	private int posZ;
+	private int posX, posY, posZ, sel;
 	private GuiCustomScroll scroll;
 	// New
 	public EntityLivingBase selectNpc;
 
-	public GuiNpcMobSpawner(int i, int j, int k) {
+	public GuiNpcMobSpawner(int x, int y, int z) {
 		this.activeTab = 1;
 		this.xSize = 256;
-		this.posX = i;
-		this.posY = j;
-		this.posZ = k;
+		this.posX = x;
+		this.posY = y;
+		this.posZ = z;
+		this.sel = -1;
 		this.closeOnEsc = true;
 		this.setBackground("menubg.png");
 	}
@@ -119,10 +118,15 @@ implements IGuiData, ICustomScrollListener {
 				this.initGui();
 				break;
 			}
-			case 6: {
+			case 6: { // delete
 				String name = this.scroll.getSelected();
 				if (name==null || name.isEmpty()) { return; }
-				this.scroll.selected = -1;
+				this.scroll.selected--;
+				if (this.scroll.selected < 0) {
+					if (this.scroll.getList() == null || this.scroll.getList().isEmpty()) { this.scroll.selected = -1; }
+					else { this.scroll.selected = 0; }
+				}
+				this.sel = this.scroll.selected;
 				this.selectNpc = null;
 				if (GuiNpcMobSpawner.showingClones == 2) {
 					Client.sendData(EnumPacketServer.CloneRemove, this.activeTab, name);
@@ -181,14 +185,12 @@ implements IGuiData, ICustomScrollListener {
 	public void initGui() {
 		super.initGui();
 		this.guiTop += 10;
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(165, 188);
-		} else {
-			this.scroll.clear();
-		}
+		if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(165, 188); }
+		else { this.scroll.clear(); }
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 26;
 		this.addScroll(this.scroll);
+		this.scroll.selected = this.sel;
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 4, 165, 20, GuiNpcMobSpawner.search));
 		GuiMenuTopButton button;
 		this.addTopButton(button = new GuiMenuTopButton(3, this.guiLeft + 4, this.guiTop - 17, "spawner.clones"));
@@ -223,6 +225,7 @@ implements IGuiData, ICustomScrollListener {
 		if (!GuiNpcMobSpawner.search.equals(this.getTextField(1).getText())) { // filter
 			GuiNpcMobSpawner.search = this.getTextField(1).getText().toLowerCase();
 			this.scroll.setList(this.getSearchList());
+			this.scroll.selected = this.sel;
 		}
 		if (i==200 || i==208 || i==ClientProxy.frontButton.getKeyCode() || i==ClientProxy.backButton.getKeyCode()) {
 			this.resetEntity();
@@ -246,6 +249,7 @@ implements IGuiData, ICustomScrollListener {
 		}
 		this.list = list;
 		this.scroll.setList(this.getSearchList());
+		this.scroll.selected = this.sel;
 	}
 
 	private void showClones() {
@@ -255,6 +259,8 @@ implements IGuiData, ICustomScrollListener {
 		}
 		this.list = ClientCloneController.Instance.getClones(this.activeTab);
 		this.scroll.setList(this.getSearchList());
+		this.scroll.selected = this.sel;
+		this.resetEntity();
 	}
 
 	private void showEntities() {
@@ -278,6 +284,7 @@ implements IGuiData, ICustomScrollListener {
 		}
 		this.list = list;
 		this.scroll.setList(this.getSearchList());
+		this.scroll.selected = this.sel;
 	}
 
 	@Override

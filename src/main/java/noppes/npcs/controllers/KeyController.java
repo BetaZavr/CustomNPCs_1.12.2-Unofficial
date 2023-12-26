@@ -16,6 +16,7 @@ import noppes.npcs.Server;
 import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.KeyConfig;
 
 public class KeyController
@@ -27,8 +28,8 @@ implements IKeyBinding {
 	private String filePath;
 	
 	public KeyController() {
-		this.filePath = "";
 		KeyController.instance = this;
+		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		this.keybindings = Maps.<Integer, IKeySetting>newTreeMap();
 		this.loadKeys();
 	}
@@ -40,8 +41,7 @@ implements IKeyBinding {
 
 	private static boolean newInstance() {
 		if (KeyController.instance == null ) { return true; }
-		File file = CustomNpcs.Dir;
-		return file != null && !KeyController.instance.filePath.equals(file.getName());
+		return CustomNpcs.Dir != null && !KeyController.instance.filePath.equals(CustomNpcs.Dir.getAbsolutePath());
 	}
 	
 	public NBTTagCompound getNBT() {
@@ -124,8 +124,8 @@ implements IKeyBinding {
 
 	public void update(int id) {
 		IKeySetting kb = this.keybindings.get(id);
-		if (kb!=null) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 10, ((KeyConfig) kb).write()); } // change or add
-		else { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 10, id); } // remove
+		if (kb!=null) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.KeysData, ((KeyConfig) kb).write()); } // change or add
+		else { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.KeysData, id); } // remove
 	}
 	
 	@Override

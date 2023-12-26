@@ -6,15 +6,16 @@ public enum EnumPlayerPacket
 	FollowerExtend, 
 	Trader, 
 	FollowerState, 
-	Transport, 
+	Transport,
 	BankUnlock,
 	Banklock,
 	BankUpgrade,
 	BankRegrade,
+	BankResetCeil,
+	BankClearCeil,
 	Dialog, 
 	QuestCompletion,
 	CheckQuestCompletion, 
-	BankSlotOpen, 
 	FactionsGet, 
 	MailGet, 
 	MailDelete, 
@@ -62,6 +63,7 @@ public enum EnumPlayerPacket
 	GetSyncData,
 	TransportCategoriesGet,
 	CustomGuiKeyPressed,
-	MarketTime;
+	MarketTime,
+	OpenCeilBank;
 	
 }

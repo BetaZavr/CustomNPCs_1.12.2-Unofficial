@@ -1,4 +1,4 @@
-package noppes.npcs;
+package noppes.npcs.entity.data;
 
 import java.util.ArrayList;
 import java.util.List;

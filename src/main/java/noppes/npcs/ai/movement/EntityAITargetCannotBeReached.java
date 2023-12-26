@@ -11,12 +11,12 @@ extends EntityAIBase {
 
 	protected final EntityNPCInterface npc;
 	protected EntityLivingBase target;
-	private int delay;
+	//private int delay;
 	private EntityAICustom aiat;
 	
 	public EntityAITargetCannotBeReached(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.delay = 0;
+		//this.delay = 0;
 		this.setMutexBits(AiMutex.PASSIVE + AiMutex.LOOK);
 	}
 

@@ -193,7 +193,7 @@ implements IPlayer {
 		return null;
 	}
 
-	private PlayerData getData() {
+	public PlayerData getData() {
 		if (this.data == null) {
 			this.data = PlayerData.get((EntityPlayer) this.entity);
 		}

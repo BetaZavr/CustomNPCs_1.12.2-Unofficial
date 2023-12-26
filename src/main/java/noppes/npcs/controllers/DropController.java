@@ -39,8 +39,8 @@ public class DropController {
 	public final Map<String, DropsTemplate> templates;
 
 	public DropController() {
-		this.filePath = "";
 		this.templates = Maps.<String, DropsTemplate>newTreeMap();
+		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		DropController.instance = this;
 		this.load();
 	}

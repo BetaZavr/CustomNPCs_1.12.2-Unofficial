@@ -10,35 +10,11 @@ import noppes.npcs.util.ValueUtil;
 public class DataRanged
 implements INPCRanged {
 	
-	private int accuracy;
-	private boolean aimWhileShooting;
-	private int burstCount;
-	private int canFireIndirect;
-	private int fireRate;
-	private String fireSound;
-	private String groundSound;
-	private String hitSound;
-	private int maxDelay;
-	private int meleeDistance;
-	private int minDelay;
+	private boolean aimWhileShooting, pGlows, pPhysics, pRender3D, pSpin, pStick, pXlr8;
+	private int accuracy, burstCount, canFireIndirect, fireRate, maxDelay, meleeDistance,
+	minDelay, pImpact, pArea, pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, rangedRange, shotCount;
+	private String fireSound, groundSound, hitSound;
 	private EntityNPCInterface npc;
-	private int pArea;
-	private int pDamage;
-	private int pDur;
-	private int pEffAmp;
-	private int pEffect;
-	private boolean pGlows;
-	private int pImpact;
-	private boolean pPhysics;
-	private boolean pRender3D;
-	private int pSize;
-	private int pSpeed;
-	private boolean pSpin;
-	private boolean pStick;
-	private int pTrail;
-	private boolean pXlr8;
-	private int rangedRange;
-	private int shotCount;
 
 	public DataRanged(EntityNPCInterface npc) {
 		this.burstCount = 1;
@@ -198,15 +174,8 @@ implements INPCRanged {
 
 	public SoundEvent getSoundEvent(int type) {
 		String sound = this.getSound(type);
-		if (sound == null) {
-			return null;
-		}
-		ResourceLocation res = new ResourceLocation(sound);
-		SoundEvent ev = SoundEvent.REGISTRY.getObject(res);
-		if (ev != null) {
-			return ev;
-		}
-		return new SoundEvent(res);
+		if (sound == null || sound.isEmpty()) { return null; }
+		return SoundEvent.REGISTRY.getObject(new ResourceLocation(sound));
 	}
 
 	@Override

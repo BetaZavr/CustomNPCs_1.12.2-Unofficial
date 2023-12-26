@@ -2,9 +2,9 @@ package noppes.npcs.client.gui.mainmenu;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.global.GuiNpcManagePlayerData;
@@ -73,27 +73,22 @@ extends GuiNPCInterface2 {
 	public void initGui() {
 		super.initGui();
 		int r0 = this.guiLeft + 75;
+		int r1 = this.guiLeft + 240;
 		int y = this.guiTop + 10;
 		this.addButton(new GuiNpcButton(2, r0, y, 110, 20, "global.banks"));
-		y += 22;
-		this.addButton(new GuiNpcButton(3, r0, y, 110, 20, "menu.factions"));
-		y += 22;
-		this.addButton(new GuiNpcButton(4, r0, y, 110, 20, "dialog.dialogs"));
-		y += 22;
-		this.addButton(new GuiNpcButton(11, r0, y, 110, 20, "quest.quests"));
-		y += 22;
-		this.addButton(new GuiNpcButton(12, r0, y, 110, 20, "global.transport"));
-		y += 22;
-		this.addButton(new GuiNpcButton(13, r0, y, 110, 20, "global.playerdata"));
-		y += 22;
-		this.addButton(new GuiNpcButton(14, r0, y, 110, 20, "global.recipes")); // Changed
-		y += 22;
-		this.addButton( new GuiNpcButton(15, r0, y, 110, 20, NoppesStringUtils.translate("global.naturalspawn", "(WIP)")));
-		y += 22;
-		this.addButton(new GuiNpcButton(16, r0, y, 110, 20, "global.linked"));
-		int r1 = this.guiLeft + 240;
+		this.addButton(new GuiNpcButton(3, r0, (y += 22), 110, 20, "menu.factions"));
+		this.addButton(new GuiNpcButton(4, r0, (y += 22), 110, 20, "dialog.dialogs"));
+		this.addButton(new GuiNpcButton(11, r0, (y += 22), 110, 20, "quest.quests"));
+		this.addButton(new GuiNpcButton(12, r0, (y += 22), 110, 20, "global.transport"));
+		this.addButton(new GuiNpcButton(13, r0, (y += 22), 110, 20, "global.playerdata"));
+		this.addButton(new GuiNpcButton(14, r0, (y += 22), 110, 20, "global.recipes"));
+		this.addButton(new GuiNpcButton(15, r0, (y += 22), 110, 20, "global.naturalspawn"));
+		this.getButton(15).enabled = false;
+		this.addButton(new GuiNpcButton(16, r0, (y += 22), 110, 20, "global.linked"));
 		y = this.guiTop + 10;
 		this.addButton(new GuiNpcButton(17, r1, y, 110, 20, "global.market"));
+		this.addButton(new GuiNpcButton(18, r1, (y += 22), 110, 20, "global.auctions"));
+		this.getButton(18).enabled = false;
 	}
 
 	@Override
@@ -120,11 +115,17 @@ extends GuiNPCInterface2 {
 		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.recipes").getFormattedText());
 		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns").
+					appendSibling(new TextComponentString("<br>")).
+					appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
 		} else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.linkeds").getFormattedText());
 		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.markets").getFormattedText());
+		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.auctions").
+					appendSibling(new TextComponentString("<br>")).
+					appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
 		}
 	}
 	

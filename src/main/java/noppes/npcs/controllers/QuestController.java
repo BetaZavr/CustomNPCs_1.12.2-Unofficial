@@ -19,6 +19,7 @@ import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.util.AdditionalMethods;
@@ -181,7 +182,7 @@ implements IQuestHandler {
 			this.quests.remove(dia);
 		}
 		this.categories.remove(category);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 3, category);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestCategoriesData, category);
 	}
 
 	public void removeQuest(Quest quest) {
@@ -192,7 +193,7 @@ implements IQuestHandler {
 		for (QuestCategory cat : this.categories.values()) {
 			if (cat.quests.containsKey(quest.id)) { cat.quests.remove(quest.id); }
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, 2, quest.id);
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestData, quest.id);
 	}
 
 	public void saveCategory(QuestCategory category) {
@@ -218,7 +219,7 @@ implements IQuestHandler {
 			if (!dir.exists()) { dir.mkdirs(); }
 		}
 		this.categories.put(category.id, category);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 3, category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
 	}
 
 	public void saveQuest(QuestCategory category, Quest quest) {
@@ -244,7 +245,7 @@ implements IQuestHandler {
 				file2.delete();
 			}
 			file.renameTo(file2);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, 2, quest.writeToNBT(new NBTTagCompound()), category.id);
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData, quest.writeToNBT(new NBTTagCompound()), category.id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

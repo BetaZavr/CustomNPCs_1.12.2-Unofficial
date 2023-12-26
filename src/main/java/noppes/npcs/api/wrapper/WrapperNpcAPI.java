@@ -260,8 +260,8 @@ extends NpcAPI {
 	}
 
 	@Override
-	public INbt getRawPlayerData(String uuid) {
-		return this.getINbt(PlayerData.loadPlayerData(uuid));
+	public INbt getRawPlayerData(String uuid, String name) {
+		return this.getINbt(PlayerData.loadPlayerData(uuid, name));
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class EntityAIOwnerHurtTarget extends EntityAITarget {
 	}
 
 	public void startExecuting() {
-		this.taskOwner.setAttackTarget(this.theTarget);
+		this.npc.setAttackTarget(this.theTarget);
 		EntityLivingBase entitylivingbase = this.npc.getOwner();
 		if (entitylivingbase != null) {
 			this.timestamp = entitylivingbase.getLastAttackedEntityTime();
