@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -496,8 +495,8 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		switch (guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch (button.id) {
 			case 0: { // color
 				if (this.region==null) { return; }
 				this.setSubGui(new SubGuiColorSelector(this.region.color));
@@ -627,12 +626,12 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			}
 			case 25: { // Keep Out Type
 				if (this.region==null) { return; }
-				this.region.keepOut = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.region.keepOut = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 26: { // Show In Client
 				if (this.region==null) { return; }
-				this.region.showInClient = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.region.showInClient = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 		}

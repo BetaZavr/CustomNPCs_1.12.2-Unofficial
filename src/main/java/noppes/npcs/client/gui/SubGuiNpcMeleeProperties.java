@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -26,8 +25,7 @@ public class SubGuiNpcMeleeProperties extends SubGuiInterface implements ITextfi
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 5) {
 			this.stats.setEffect(button.getValue(), this.stats.getEffectStrength(), this.stats.getEffectTime());
 			this.initGui();

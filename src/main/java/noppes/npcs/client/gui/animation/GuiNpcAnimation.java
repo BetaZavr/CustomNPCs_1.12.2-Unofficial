@@ -12,7 +12,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -31,6 +30,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
@@ -52,7 +52,6 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig.PartConfig;
-import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.AnimationController;
@@ -203,7 +202,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			u -= 16;
 			v = this.guiTop + 4;
 			this.addLabel(new GuiNpcLabel(1, new TextComponentTranslation("type.name").getFormattedText() + ":", u+2, v));
-			GuiNpcTextField textField = new GuiNpcTextField(0, this, u+1, v += 10, 134, 15, anim.name);
+			GuiNpcTextField textField = new GuiNpcTextField(1, this, u+1, v += 10, 134, 15, anim.name);
 			this.addTextField(textField);
 			
 			String[] blocks = new String[5];
@@ -234,7 +233,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 			this.getButton(19).enabled = anim.frames.size() > 1;
 			
 			this.addLabel(new GuiNpcLabel(2, new TextComponentTranslation("gui.time").getFormattedText() + ":", u+2, v += 23));
-			textField = new GuiNpcTextField(10, this, u + 39, v, 45, 12, ""+frame.getSpeed());
+			textField = new GuiNpcTextField(2, this, u + 39, v, 45, 12, ""+frame.getSpeed());
 			textField.setNumbersOnly();
 			textField.setMinMaxDefault(0, 3600, frame.getSpeed());
 			this.addTextField(textField);
@@ -353,15 +352,13 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
-		if (!(button instanceof GuiNpcButton)) { return; }
-		GuiNpcButton npcButton = (GuiNpcButton) button;
+	public void buttonEvent(GuiNpcButton button) {
 		AnimationConfig anim = this.getAnim();
 		AnimationFrameConfig frame = this.getFrame(anim);
 		PartConfig part = this.getPart(frame);
-		switch(npcButton.id) {
+		switch(button.id) {
 			case 1: { // set type
-				GuiNpcAnimation.type = AnimationKind.values()[npcButton.getValue()];
+				GuiNpcAnimation.type = AnimationKind.values()[button.getValue()];
 				this.selAnim = "";
 				this.selFrame = 0;
 				this.selPart = 0;
@@ -440,17 +437,17 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 				break;
 			}
 			case 15: { // block type
-				GuiNpcAnimation.blockType = npcButton.getValue();
+				GuiNpcAnimation.blockType = button.getValue();
 				if (this.getButton(16)!=null) { this.getButton(16).setVisible(GuiNpcAnimation.blockType != 4); }
 				break;
 			}
 			case 16: { // block size
-				GuiNpcAnimation.blockSize = npcButton.getValue();
+				GuiNpcAnimation.blockSize = button.getValue();
 				break;
 			}
 			case 17: { // select frame
 				if (anim==null) { return; }
-				this.selFrame = npcButton.getValue();
+				this.selFrame = button.getValue();
 				frame = this.getFrame(anim);
 				if (frame==null) { this.selPart = 0; }
 				this.initGui();
@@ -1098,6 +1095,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
+		System.out.println("CNPCs: "+textField.getId());
 		AnimationConfig anim = this.getAnim();
 		AnimationFrameConfig frame = this.getFrame(anim);
 		PartConfig part = this.getPart(frame);

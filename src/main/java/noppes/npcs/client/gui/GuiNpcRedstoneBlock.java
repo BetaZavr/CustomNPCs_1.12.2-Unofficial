@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -22,16 +21,15 @@ public class GuiNpcRedstoneBlock extends GuiNPCInterface implements IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.close();
 		}
-		if (id == 1) {
-			this.tile.isDetailed = (((GuiNpcButton) guibutton).getValue() == 1);
+		if (button.id == 1) {
+			this.tile.isDetailed = button.getValue() == 1;
 			this.initGui();
 		}
-		if (id == 4) {
+		if (button.id == 4) {
 			this.save();
 			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
 		}

@@ -2,7 +2,6 @@ package noppes.npcs.client.gui;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -99,8 +98,8 @@ implements ITextfieldListener {
 		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 24, 60, 20, "gui.done"));
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: {
 				this.marcet.limitedType = button.getValue();

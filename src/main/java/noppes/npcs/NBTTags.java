@@ -232,12 +232,10 @@ public class NBTTags {
 		return nbttaglist;
 	}
 
-	public static NBTTagList nbtDoubleList(double... par1ArrayOfDouble) {
+	public static NBTTagList nbtDoubleList(double... values) {
 		NBTTagList nbttaglist = new NBTTagList();
-		double[] adouble = par1ArrayOfDouble;
-		for (int i = par1ArrayOfDouble.length, j = 0; j < i; ++j) {
-			double d1 = adouble[j];
-			nbttaglist.appendTag(new NBTTagDouble(d1));
+		for (int i = values.length, j = 0; j < i; ++j) {
+			nbttaglist.appendTag(new NBTTagDouble(values[j]));
 		}
 		return nbttaglist;
 	}

@@ -6,7 +6,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -52,8 +51,10 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener  {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
+		if (this.select.isEmpty() && this.scroll.hasSelected()) {
+			this.select = this.scroll.getSelected();
+		}
 		switch(button.id) {
 			case 0: { // add
 				this.setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine));

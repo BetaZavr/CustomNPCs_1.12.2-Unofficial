@@ -125,6 +125,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.MARCET_DATA);
 		PacketHandlerClient.list.add(EnumPacketClient.VISIBLE_TRUE);
 		PacketHandlerClient.list.add(EnumPacketClient.VISIBLE_FALSE);
+		PacketHandlerClient.list.add(EnumPacketClient.NPC_DATA);
 	}
 
 	@SubscribeEvent
@@ -640,6 +641,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			int z = ClientEventHandler.schemaPos.getZ();
 			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z, ClientEventHandler.rotaion,
 					ClientEventHandler.schema.getNBT());
+		} else if (type == EnumPacketClient.SET_SCHEMATIC) {
+			NBTTagCompound nbtData = Server.readNBT(buffer);
+			BuilderData builder = CommonProxy.dataBuilder.get(nbtData.getInteger("ID"));
+			if (builder != null) { builder.read(nbtData); }
 		} else if (type == EnumPacketClient.UPDATE_HUD) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			ClientProxy.playerData.hud.loadNBTData(compound);
@@ -659,8 +664,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			DropController.getInstance().templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
 		} else if (type == EnumPacketClient.SET_TILE_DATA) {
 			NBTTagCompound compound = Server.readNBT(buffer);
-			TileEntity tile = player.world.getTileEntity(
-					new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
+			TileEntity tile = player.world.getTileEntity(new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z")));
 			if (tile != null) {
 				tile.readFromNBT(compound);
 			}
@@ -829,6 +833,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			((ContainerNPCBank) player.openContainer).dataCeil = buffer.readInt();
+		} else if (type == EnumPacketClient.NPC_DATA) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			Entity e = player.world.getEntityByID(compound.getInteger("EntityID"));
+			if (e instanceof EntityNPCInterface) {
+				e.readFromNBT(compound);
+			}
 		}
 		CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 	}

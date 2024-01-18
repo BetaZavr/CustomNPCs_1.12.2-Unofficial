@@ -84,6 +84,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.IChatMessages;
+import noppes.npcs.ModelPartConfig;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcDamageSource;
@@ -137,11 +138,12 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
+import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.model.part.ModelData;
-import noppes.npcs.client.model.part.ModelPartConfig;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumParts;
+import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.LinkedNpcController;
@@ -243,6 +245,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public boolean updateAI;
 	public DataAnimation animation;
 	public Path navigating;
+	private long initTime;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public EntityNPCInterface(World world) {
@@ -285,6 +288,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		// New
 		this.resetBackPos();
 		this.getNavigator();
+		if (this.world.isRemote) {
+			this.initTime = System.currentTimeMillis();
+		}
 	}
 
 	public void addInteract(EntityLivingBase entity) {
@@ -546,7 +552,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public boolean canBeCollidedWith() {
 		return !this.isKilled() && this.display.getHasHitbox();
 	}
-
+	
 	public boolean canBeLeashedTo(EntityPlayer player) {
 		return false;
 	}
@@ -959,7 +965,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isInvisible() {
-		return this.display.getVisible() != 0 && !this.display.hasVisibleOptions();
+		return this.display.getVisible() == 1;
 	}
 
 	public boolean isInvisibleToPlayer(EntityPlayer player) {
@@ -1120,6 +1126,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.faction = this.getFaction();
 		}
 		if (!this.world.isRemote) {
+			if (this.aiAttackTarget != null) {
+				this.aiAttackTarget.update();
+			}
 			if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
 				this.advanced.scenes.update();
 				if (this.getHealth() < this.getMaxHealth()) {
@@ -1198,6 +1207,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		CustomNpcs.debugData.startDebug(!this.world.isRemote ? "Server" : "Client", this, "NPCUpdate");
 		super.onUpdate();
 		if (this.ticksExisted % 10 == 0) {
+			if (this.initTime != 0L && this.world.isRemote && this.initTime < System.currentTimeMillis() - 1000L) {
+				Client.sendDataDelayCheck(EnumPlayerPacket.NpcData, this, 0, this.getEntityId());
+				this.initTime = 0L;
+			}
 			if (this.isKilled()) {
 				if (this.aiTargetAnalysis != null) {
 					this.aiTargetAnalysis.resetTask();
@@ -1207,10 +1220,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 			this.resetBackPos();
 			// Run Home
-			if (this.isRunHome || this.stats.calmdown &&
+			if (this.ais.returnToStart &&
+					(this.isRunHome || this.stats.calmdown &&
 					!this.getEntityData().hasKey("NpcSpawnerEntityId", 3) &&
 					this.ais.getMovingType()!=2
-					&& this.world != null && !this.world.isRemote) {
+					&& this.world != null && !this.world.isRemote)) {
 				double distance = this.getDistance(this.backPos.getX() + 0.5d, this.backPos.getY() + 0.5d, this.backPos.getZ() + 0.5d);
 				if (!this.isRunHome && distance > (double) CustomNpcs.NpcNavRange * 0.9d) {
 					this.runBack();
@@ -1268,7 +1282,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		CustomNpcs.debugData.endDebug(!this.world.isRemote ? "Server" : "Client", this, "NPCUpdate");
 	}
 	
-	// Checking for vanilla movement to a corner
 	public boolean isMoving() {
 		return this.motionX != 0.0d || this.motionZ != 0.0d || this.motionY <= -0.085d || this.motionY > 0.0d;
 	}
@@ -1715,8 +1728,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public EntityProjectile shoot(EntityLivingBase entity, int accuracy, ItemStack proj, boolean indirect) {
-		return this.shoot(entity.posX, entity.getEntityBoundingBox().minY + entity.height / 2.0f, entity.posZ, accuracy,
-				proj, indirect);
+		return this.shoot(entity.posX, entity.getEntityBoundingBox().minY + entity.height / 2.0f, entity.posZ, accuracy, proj, indirect);
 	}
 
 	public boolean shouldDismountInWater(Entity rider) {
@@ -1815,7 +1827,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.width = 0.6f;
 			this.height = this.baseHeight;
 		}
-		if (this.display.getModel()==null) {
+		if (this.display.getModel()==null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
 			ModelPartConfig model = modeldata.getPartConfig(EnumParts.HEAD);
 			float scaleHead = model.scaleBase[0] > model.scaleBase[2] ? model.scaleBase[0] : model.scaleBase[2];
@@ -1828,7 +1840,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (!this.display.getHasHitbox() || (this.isKilled() && this.stats.hideKilledBody)) {
 			this.width = 1.0E-5f;
 		}
-		
 		double n = this.width / 2.0f;
 		if (n > World.MAX_ENTITY_RADIUS) { World.MAX_ENTITY_RADIUS = n; }
 		this.setPosition(this.posX, this.posY, this.posZ);

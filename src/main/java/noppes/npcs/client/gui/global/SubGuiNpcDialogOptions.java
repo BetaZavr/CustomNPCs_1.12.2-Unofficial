@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.global;
 
-import net.minecraft.client.gui.GuiButton;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.SubGuiInterface;
@@ -19,17 +18,16 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id < 6) {
-			DialogOption option = this.dialog.options.get(id);
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id < 6) {
+			DialogOption option = this.dialog.options.get(button.id);
 			if (option == null) {
-				this.dialog.options.put(id, option = new DialogOption());
+				this.dialog.options.put(button.id, option = new DialogOption());
 				option.optionColor = SubGuiNpcDialogOption.LastColor;
 			}
 			this.setSubGui(new SubGuiNpcDialogOption(option));
 		}
-		if (id == 66) {
+		if (button.id == 66) {
 			this.close();
 		}
 	}

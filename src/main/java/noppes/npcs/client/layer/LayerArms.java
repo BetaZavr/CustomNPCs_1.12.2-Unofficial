@@ -3,8 +3,8 @@ package noppes.npcs.client.layer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.client.model.Model2DRenderer;
-import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.constants.EnumParts;
 
@@ -31,9 +31,7 @@ public class LayerArms<T extends EntityLivingBase> extends LayerInterface<T> {
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
 		ModelPartData data = this.playerdata.getPartData(EnumParts.CLAWS);
-		if (data == null) {
-			return;
-		}
+		if (data == null || data.pattern < 0 || data.pattern > 2) { return; }
 		this.preRender(data);
 		if (data.pattern == 0 || data.pattern == 1) {
 			GlStateManager.pushMatrix();

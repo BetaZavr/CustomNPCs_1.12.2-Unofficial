@@ -752,11 +752,15 @@ public class NoppesUtilServer {
 	}
 
 	public static Entity spawnClone(NBTTagCompound compound, double x, double y, double z, World world) {
-		if (compound==null) { return null; }
+		if (compound == null || world == null) {
+			LogWriter.debug("Clone summoning Error: Missing NBT Tags: "+(compound == null ? "null" : compound.toString().length())+" or World: "+(world == null ? "null" : world.provider.getDimension()));
+			return null;
+		}
 		ServerCloneController.Instance.cleanTags(compound);
 		compound.setTag("Pos", NBTTags.nbtDoubleList(x, y, z));
 		Entity entity = EntityList.createEntityFromNBT(compound, world);
 		if (entity == null) {
+			LogWriter.debug("Clone summoning error: Failed to create an entity based on the passed NBT tags");
 			return null;
 		}
 		if (entity instanceof EntityNPCInterface) {
@@ -764,6 +768,7 @@ public class NoppesUtilServer {
 			npc.ais.setStartPos(new BlockPos(npc));
 		}
 		world.spawnEntity(entity);
+		LogWriter.debug("Summon Clone: Successful \""+entity.getName()+"\"");
 		return entity;
 	}
 

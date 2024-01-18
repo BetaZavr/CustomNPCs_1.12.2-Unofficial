@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Vector;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -43,13 +42,12 @@ public abstract class GuiNpcSelectionInterface extends GuiNPCInterface {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 2) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 2) {
 			this.close();
 			NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
 		}
-		if (id == 3) {
+		if (button.id == 3) {
 			this.root = this.root.substring(0, this.root.lastIndexOf("/"));
 			this.assets = new AssetsBrowser(this.root, this.getExtension());
 			this.initGui();

@@ -71,10 +71,11 @@ implements IEditNPC {
 	}
 
 	protected void actionPerformed(GuiButton guibutton) {
+		if (!(guibutton instanceof GuiNpcButton)) { return; }
 		if (this.subgui != null) {
-			this.subgui.buttonEvent(guibutton);
+			this.subgui.buttonEvent((GuiNpcButton) guibutton);
 		} else {
-			this.buttonEvent(guibutton);
+			this.buttonEvent((GuiNpcButton) guibutton);
 		}
 	}
 
@@ -106,7 +107,7 @@ implements IEditNPC {
 		this.buttonList.add(button);
 	}
 
-	public void buttonEvent(GuiButton guibutton) {
+	public void buttonEvent(GuiNpcButton guibutton) {
 	}
 	
 	public void close() {

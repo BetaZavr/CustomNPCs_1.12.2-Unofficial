@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -104,8 +103,7 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: {
 				this.display.setShowName(button.getValue());

@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
 import net.minecraft.dispenser.IBlockSource;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.init.Blocks;
@@ -57,6 +58,9 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -100,6 +104,35 @@ import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
 import noppes.npcs.client.renderer.blocks.BlockPortalRenderer;
 import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
 import noppes.npcs.constants.EnumBuilder;
+import noppes.npcs.entity.EntityChairMount;
+import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.entity.EntityNPC64x32;
+import noppes.npcs.entity.EntityNPCGolem;
+import noppes.npcs.entity.EntityNpcAlex;
+import noppes.npcs.entity.EntityNpcClassicPlayer;
+import noppes.npcs.entity.EntityNpcCrystal;
+import noppes.npcs.entity.EntityNpcDragon;
+import noppes.npcs.entity.EntityNpcPony;
+import noppes.npcs.entity.EntityNpcSlime;
+import noppes.npcs.entity.EntityProjectile;
+import noppes.npcs.entity.old.EntityNPCDwarfFemale;
+import noppes.npcs.entity.old.EntityNPCDwarfMale;
+import noppes.npcs.entity.old.EntityNPCElfFemale;
+import noppes.npcs.entity.old.EntityNPCElfMale;
+import noppes.npcs.entity.old.EntityNPCEnderman;
+import noppes.npcs.entity.old.EntityNPCFurryFemale;
+import noppes.npcs.entity.old.EntityNPCFurryMale;
+import noppes.npcs.entity.old.EntityNPCHumanFemale;
+import noppes.npcs.entity.old.EntityNPCHumanMale;
+import noppes.npcs.entity.old.EntityNPCOrcFemale;
+import noppes.npcs.entity.old.EntityNPCOrcMale;
+import noppes.npcs.entity.old.EntityNPCVillager;
+import noppes.npcs.entity.old.EntityNpcEnderchibi;
+import noppes.npcs.entity.old.EntityNpcMonsterFemale;
+import noppes.npcs.entity.old.EntityNpcMonsterMale;
+import noppes.npcs.entity.old.EntityNpcNagaFemale;
+import noppes.npcs.entity.old.EntityNpcNagaMale;
+import noppes.npcs.entity.old.EntityNpcSkeleton;
 import noppes.npcs.fluids.CustomFluid;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.items.CustomBow;
@@ -192,8 +225,8 @@ public class CustomRegisters {
 	public static List<Item> customitems = Lists.<Item>newArrayList();
 	public static List<Potion> custompotions = Lists.<Potion>newArrayList();
 	public static Map<PotionType, PotionData> custompotiontypes = Maps.<PotionType, PotionData>newHashMap();
-	public static Map<Integer, CustomParticleSettings> customparticles = Maps
-			.<Integer, CustomParticleSettings>newTreeMap();
+	public static Map<Integer, CustomParticleSettings> customparticles = Maps.<Integer, CustomParticleSettings>newTreeMap();
+	private static int newEntityStartId = 0;
 
 	/*
 	 * RegistryEvent.Register<?> Types: Biome; Block; Enchantment; Item; Potion;
@@ -1189,7 +1222,54 @@ public class CustomRegisters {
 			}
 		});
 	}
+	
+	@SubscribeEvent
+	public void register(RegistryEvent.Register<EntityEntry> event) {
+		EntityEntry[] entries = { this.registerNpc(EntityNPCHumanMale.class, "npchumanmale"),
+				this.registerNpc(EntityNPCVillager.class, "npcvillager"),
+				this.registerNpc(EntityNpcPony.class, "npcpony"),
+				this.registerNpc(EntityNPCHumanFemale.class, "npchumanfemale"),
+				this.registerNpc(EntityNPCDwarfMale.class, "npcdwarfmale"),
+				this.registerNpc(EntityNPCFurryMale.class, "npcfurrymale"),
+				this.registerNpc(EntityNpcMonsterMale.class, "npczombiemale"),
+				this.registerNpc(EntityNpcMonsterFemale.class, "npczombiefemale"),
+				this.registerNpc(EntityNpcSkeleton.class, "npcskeleton"),
+				this.registerNpc(EntityNPCDwarfFemale.class, "npcdwarffemale"),
+				this.registerNpc(EntityNPCFurryFemale.class, "npcfurryfemale"),
+				this.registerNpc(EntityNPCOrcMale.class, "npcorcfmale"),
+				this.registerNpc(EntityNPCOrcFemale.class, "npcorcfemale"),
+				this.registerNpc(EntityNPCElfMale.class, "npcelfmale"),
+				this.registerNpc(EntityNPCElfFemale.class, "npcelffemale"),
+				this.registerNpc(EntityNpcCrystal.class, "npccrystal"),
+				this.registerNpc(EntityNpcEnderchibi.class, "npcenderchibi"),
+				this.registerNpc(EntityNpcNagaMale.class, "npcnagamale"),
+				this.registerNpc(EntityNpcNagaFemale.class, "npcnagafemale"),
+				this.registerNpc(EntityNpcSlime.class, "NpcSlime"),
+				this.registerNpc(EntityNpcDragon.class, "NpcDragon"),
+				this.registerNpc(EntityNPCEnderman.class, "npcEnderman"),
+				this.registerNpc(EntityNPCGolem.class, "npcGolem"),
+				this.registerNpc(EntityCustomNpc.class, "CustomNpc"),
+				this.registerNpc(EntityNPC64x32.class, "CustomNpc64x32"),
+				this.registerNpc(EntityNpcAlex.class, "CustomNpcAlex"),
+				this.registerNpc(EntityNpcClassicPlayer.class, "CustomNpcClassic"),
+				this.registerNewentity("CustomNpcChairMount", 64, 10, false).entity(EntityChairMount.class).build(),
+				this.registerNewentity("CustomNpcProjectile", 64, 3, true).entity(EntityProjectile.class).build() };
+		event.getRegistry().registerAll(entries);
+	}
 
+	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int range, int update, boolean velocity) {
+		EntityEntryBuilder<E> builder = EntityEntryBuilder.create();
+		ResourceLocation registryName = new ResourceLocation(CustomNpcs.MODID, name);
+		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(range, update, velocity);
+	}
+
+	private EntityEntry registerNpc(Class<? extends Entity> cl, String name) {
+		if (CustomNpcs.FixUpdateFromPre_1_12) {
+			ForgeRegistries.ENTITIES.register(new EntityEntry(cl, name).setRegistryName(new ResourceLocation(CustomNpcs.MODID + "." + name)));
+		}
+		return this.registerNewentity(name, 64, 3, true).entity(cl).build();
+	}
+	
 	@SuppressWarnings({ "deprecation" })
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent

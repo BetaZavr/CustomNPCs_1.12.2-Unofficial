@@ -222,6 +222,7 @@ public class DataScenes {
 			ArrayList<SceneEvent> events = new ArrayList<SceneEvent>();
 			for (String line : this.lines.split("\r\n|\r|\n")) {
 				SceneEvent event = SceneEvent.parse(line);
+				System.out.println("event: \""+line+"\" = "+event);
 				if (event != null) {
 					events.add(event);
 				}
@@ -235,16 +236,10 @@ public class DataScenes {
 				return;
 			}
 			for (SceneEvent event : this.events) {
-				if (event.ticks > this.state.ticks) {
-					break;
-				}
-				if (event.ticks != this.state.ticks) {
-					continue;
-				}
-				try {
-					this.handle(event);
-				} catch (Exception ex) {
-				}
+				if (event.ticks > this.state.ticks) { break; }
+				if (event.ticks != this.state.ticks) { continue; }
+				try { this.handle(event); }
+				catch (Exception ex) { }
 			}
 			this.ticks = this.state.ticks;
 		}

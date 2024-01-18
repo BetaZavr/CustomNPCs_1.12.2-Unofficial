@@ -6,7 +6,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -70,8 +69,7 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 0: {
 			this.save();

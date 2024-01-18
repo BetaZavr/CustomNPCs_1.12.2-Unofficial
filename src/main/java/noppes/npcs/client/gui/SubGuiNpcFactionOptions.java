@@ -8,7 +8,6 @@ import java.util.Vector;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -42,11 +41,11 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id==1) {
-			this.change(((GuiNpcButton) guibutton).getValue()==1, this.getTextField(1)==null ? 0 : this.getTextField(1).getInteger());
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id==1) {
+			this.change(button.getValue()==1, this.getTextField(1)==null ? 0 : this.getTextField(1).getInteger());
 		}
-		if (guibutton.id==66) {
+		if (button.id==66) {
 			this.close();
 		}
 	}

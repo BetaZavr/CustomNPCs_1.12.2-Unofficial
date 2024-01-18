@@ -16,6 +16,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerNPCBank;
@@ -70,7 +71,7 @@ public class ServerTickHandler {
 				// open
 				if (c.items.getSizeInventory()==0) {
 					if (c.ceil > 0) {
-						for (int i = c.ceil - 1; i >= 0; i--) {
+						for (int i = c.ceil - 1; i >= 0 && c.data.ceils.containsKey(i); i--) {
 							NpcMiscInventory inv = c.data.ceils.get(i);
 							cs = c.bank.ceilSettings.get(i);
 							work = inv.getSizeInventory() > 0 && cs.upgradeStack.isEmpty() || cs.maxCeils == inv.getSizeInventory();
@@ -134,7 +135,6 @@ public class ServerTickHandler {
 			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			return;
 		}
-		if ((ServerTickHandler.ticks++) % 1200 == 0) { BankController.getInstance().update(); }
 		if ((ServerTickHandler.ticks++) % 20 == 0) {
 			Thread.currentThread();
 			SchematicController.Instance.updateBuilding();
@@ -170,6 +170,13 @@ public class ServerTickHandler {
 				for (int id :  del) { CommonProxy.dataBuilder.remove(id); }
 			}
 		}
+		if (ServerTickHandler.ticks % 10 == 0 && CustomNpcs.Server!=null && !CustomNpcs.Server.getPlayerList().getPlayers().isEmpty()) {
+			EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayers().get(0);
+			if (player != null) {
+				EventHooks.onEvent(PlayerData.get(player).scriptData, "worldtick", new WorldEvent.ServerTickEvent(event));
+			}
+		}
+		if (ServerTickHandler.ticks % 1200 == 0) { BankController.getInstance().update(); }
 		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 	}
 

@@ -15,6 +15,7 @@ import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldSettings;
 import noppes.npcs.CustomNpcs;
@@ -33,6 +34,7 @@ import noppes.npcs.api.ITimers;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.constants.EntityType;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.entity.data.IPixelmonPlayerData;
@@ -462,8 +464,10 @@ implements IPlayer {
 
 	@Override
 	public void message(String message) {
-		this.entity.sendMessage(new TextComponentTranslation(NoppesStringUtils.formatText(message, this.entity), new Object[0]));
+		this.entity.sendMessage(new TextComponentTranslation(NoppesStringUtils.formatText(message, this.entity)));
 	}
+	
+	public void message(ITextComponent message) { this.entity.sendMessage(message); }
 
 	@Override
 	public void playSound(String sound, float volume, float pitch) {
@@ -692,7 +696,7 @@ implements IPlayer {
 	}
 	
 	@Override
-	public void trigger(int id, Object[] arguments) {
+	public void trigger(int id, Object ... arguments) {
 		EventHooks.onScriptTriggerEvent(this.getData().scriptData, id, this.getWorld(), this.getPos(), this, arguments);
 	}
 
@@ -735,8 +739,8 @@ implements IPlayer {
 
 	@Override
 	public void cameraShakingPlay(int time, int amplitude, int type, boolean isFading) {
-		if (time <= 20 || time > 1200) {
-			throw new CustomNPCsException("Camera shake time should be between 20 and 1200 ticks. You have: " + time);
+		if (time <= 1 || time > 1200) {
+			throw new CustomNPCsException("Camera shake time should be between 1 and 1200 ticks. You have: " + time);
 		}
 		if (amplitude <= 1 || amplitude > 25) {
 			throw new CustomNPCsException("Amplitude should be between 1 and 25 value. You have: " + amplitude);
@@ -750,6 +754,16 @@ implements IPlayer {
 	@Override
 	public void cameraShakingStop() {
 		Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.STOP_CAMERA_SHAKING);
+	}
+
+	public IEntity<?> getRidingEntity() {
+		if (this.entity.getRidingEntity() == null) { return null; }
+		return NpcAPI.Instance().getIEntity(this.entity.getRidingEntity());
+	}
+	
+	public void startRiding(IEntity<?> e) {
+		if (e == null) { return; }
+		this.entity.startRiding(e.getMCEntity(), true);
 	}
 	
 }

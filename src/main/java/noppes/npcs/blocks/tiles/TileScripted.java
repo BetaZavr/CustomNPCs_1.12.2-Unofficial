@@ -78,7 +78,7 @@ implements ITickable, IScriptBlockHandler {
 	private short ticksExisted;
 
 	public DataTimers timers;
-	public ILayerModel[] layers; // New
+	public ILayerModel[] layers;
 
 	public TileScripted() {
 		this.scripts = new ArrayList<ScriptContainer>();
@@ -117,6 +117,7 @@ implements ITickable, IScriptBlockHandler {
 		// New
 		this.metaModel = 0;
 		this.layers = new ILayerModel[0];
+		System.out.println("New: "+this.pos);
 	}
 	
 	public class TextPlane implements ITextPlane {
@@ -385,12 +386,14 @@ implements ITickable, IScriptBlockHandler {
 		compound.setInteger("y", this.pos.getY());
 		compound.setInteger("z", this.pos.getZ());
 		this.getDisplayNBT(compound);
+		this.getNBT(compound);
 		return compound;
 	}
 
 	public void handleUpdateTag(NBTTagCompound tag) {
 		int light = this.lightValue;
 		this.setDisplayNBT(tag);
+		this.setNBT(tag);
 		if (light != this.lightValue) {
 			this.world.checkLight(this.pos);
 		}

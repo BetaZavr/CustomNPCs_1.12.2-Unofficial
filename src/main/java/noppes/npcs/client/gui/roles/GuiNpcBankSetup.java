@@ -3,12 +3,12 @@ package noppes.npcs.client.gui.roles;
 import java.util.HashMap;
 import java.util.Vector;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
+import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.constants.EnumGuiType;
@@ -32,7 +32,7 @@ implements IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	public void buttonEvent(GuiNpcButton button) {
 	}
 
 	@Override

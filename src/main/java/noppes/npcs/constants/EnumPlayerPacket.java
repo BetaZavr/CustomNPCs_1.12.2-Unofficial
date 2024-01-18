@@ -36,6 +36,7 @@ public enum EnumPlayerPacket
 	QuestRemoveActive,
 	QuestChooseReward,
 	QuestCompletionReward,
+	NpcData,
 	NpcVisualData,
 	MousesPressed,
 	IsMoved,

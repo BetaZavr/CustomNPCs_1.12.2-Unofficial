@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
@@ -22,7 +21,10 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Quest;
 
-public class SubGuiNpcAvailabilityQuest extends SubGuiInterface implements ICustomScrollListener, GuiSelectionListener {
+public class SubGuiNpcAvailabilityQuest
+extends SubGuiInterface
+implements ICustomScrollListener, GuiSelectionListener {
+	
 	private Availability availabitily;
 	private String chr = new String(Character.toChars(0x00A7));
 	private Map<String, EnumAvailabilityQuest> dataEnum;
@@ -32,23 +34,19 @@ public class SubGuiNpcAvailabilityQuest extends SubGuiInterface implements ICust
 	private String select;
 
 	public SubGuiNpcAvailabilityQuest(Availability availabitily) {
-		// this.selectFaction = false;
-		// this.slot = 0;
 		this.availabitily = availabitily;
-		this.setBackground("menubg.png");
-		this.xSize = 316;
-		this.ySize = 217;
-		this.closeOnEsc = true;
-		// New
-		this.dataIDs = new HashMap<String, Integer>();
-		this.dataEnum = new HashMap<String, EnumAvailabilityQuest>();
-		this.select = "";
-		this.closeOnEsc = true;
+		setBackground("menubg.png");
+		xSize = 316;
+		ySize = 217;
+		
+		dataIDs = new HashMap<String, Integer>();
+		dataEnum = new HashMap<String, EnumAvailabilityQuest>();
+		select = "";
+		closeOnEsc = true;
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			if (this.select.isEmpty()) {
 				return;

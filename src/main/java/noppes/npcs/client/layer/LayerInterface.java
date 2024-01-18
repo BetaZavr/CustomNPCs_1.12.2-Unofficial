@@ -8,9 +8,10 @@ import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import noppes.npcs.CustomRegisters;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.ModelData;
-import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.entity.EntityCustomNpc;
 
 public abstract class LayerInterface<T extends EntityLivingBase>
@@ -47,9 +48,7 @@ implements LayerRenderer<T> {
 
 	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		this.npc = (EntityCustomNpc) entity;
-		if (this instanceof LayerHeadwear && !this.npc.equals(((LayerHeadwear<?>) this).npc)) {
-			((LayerHeadwear<?>) this).preRender(this.npc);
-		}
+		if (this instanceof LayerHeadwear && !this.npc.equals(((LayerHeadwear<?>) this).npc)) { ((LayerHeadwear<?>) this).preRender(this.npc); }
 		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) { return; }
 		this.playerdata = this.npc.modelData;
 		this.model = (ModelBiped) this.render.getMainModel();
@@ -57,7 +56,6 @@ implements LayerRenderer<T> {
 		GlStateManager.pushMatrix();
 		if (entity.isInvisible()) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
-			GlStateManager.depthMask(false);
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(770, 771);
 			GlStateManager.alphaFunc(516, 0.003921569f);
@@ -76,14 +74,10 @@ implements LayerRenderer<T> {
 	}
 
 	public void preRender(ModelPartData data) {
-		if (data.playerTexture) {
-			ClientProxy.bindTexture(this.npc.textureLocation);
-		} else {
-			ClientProxy.bindTexture(data.getResource());
-		}
-		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) {
-			return;
-		}
+		if (data == null) { return; }
+		if (data.playerTexture) { ClientProxy.bindTexture(this.npc.textureLocation); }
+		else { ClientProxy.bindTexture(data.getResource()); }
+		if (this.npc.hurtTime > 0 || this.npc.deathTime > 0) { return; }
 		int color = data.color;
 		if (this.npc.display.getTint() != 16777215) {
 			if (data.color != 16777215) {
@@ -95,7 +89,17 @@ implements LayerRenderer<T> {
 		float red = (color >> 16 & 0xFF) / 255.0f;
 		float green = (color >> 8 & 0xFF) / 255.0f;
 		float blue = (color & 0xFF) / 255.0f;
-		GlStateManager.color(red, green, blue, this.npc.isInvisible() ? 0.15f : 0.99f);
+		boolean isInvisible = false;
+		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+		else if (this.npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+		if (isInvisible) {
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
+			GlStateManager.enableBlend();
+		}
+		else {
+			GlStateManager.color(red, green, blue, 1.0f);
+			GlStateManager.disableBlend();
+		}
 	}
 
 	public abstract void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale);

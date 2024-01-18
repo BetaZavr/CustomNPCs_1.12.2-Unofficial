@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -32,8 +31,7 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			this.ai.onAttack = button.getValue();
 			this.initGui();

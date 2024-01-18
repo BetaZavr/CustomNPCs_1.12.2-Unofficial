@@ -3,6 +3,7 @@ package noppes.npcs.client.model.part;
 import java.util.Random;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -11,17 +12,16 @@ public class ModelEyeData
 extends ModelPartData {
 	
 	public long blinkStart;
-	public int browColor;
-	public int browThickness;
-	public int eyePos;
-	public boolean glint;
+	public int browColor, browThickness, eyePos, skinColor;
+	public boolean glint, closed;
+	
 	private Random r;
-	public int skinColor;
 
 	public ModelEyeData() {
 		super("eyes");
 		this.r = new Random();
 		this.glint = true;
+		this.closed = false;
 		this.browThickness = 4;
 		this.eyePos = 1;
 		this.skinColor = 11830381;
@@ -43,6 +43,7 @@ extends ModelPartData {
 		}
 		super.readFromNBT(compound);
 		this.glint = compound.getBoolean("Glint");
+		this.closed = compound.getBoolean("Closed");
 		this.skinColor = compound.getInteger("SkinColor");
 		this.browColor = compound.getInteger("BrowColor");
 		this.eyePos = compound.getInteger("PositionY");
@@ -72,6 +73,7 @@ extends ModelPartData {
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound compound = super.writeToNBT();
 		compound.setBoolean("Glint", this.glint);
+		compound.setBoolean("Closed", this.closed);
 		compound.setInteger("SkinColor", this.skinColor);
 		compound.setInteger("BrowColor", this.browColor);
 		compound.setInteger("PositionY", this.eyePos);

@@ -69,5 +69,5 @@ extends IEntityLiving<T> {
 
 	void updateClient();
 
-	void trigger(int id, Object[] arguments);
+	void trigger(int id, Object ... arguments);
 }

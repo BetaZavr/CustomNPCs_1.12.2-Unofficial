@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -36,7 +35,7 @@ implements IScrollData, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 1) {
 			this.save();
 			this.setSubGui(new SubGuiEditText(0, "New"));

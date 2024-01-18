@@ -2,6 +2,7 @@ package noppes.npcs.blocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,14 +11,17 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.Server;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
@@ -101,18 +105,12 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 		if (world.isRemote) {
 			return true;
 		}
-		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos
-				: pos.down();
+		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos : pos.down();
 		IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
-		if (iblockstate1.getBlock() != this) {
-			return false;
-		}
+		if (iblockstate1.getBlock() != this) { return false; }
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null
-				&& (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter
-						|| currentItem.getItem() == CustomRegisters.scriptedDoorTool)) {
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1.getX(), blockpos1.getY(),
-					blockpos1.getZ());
+		if (currentItem != null && (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter || currentItem.getItem() == CustomRegisters.scriptedDoorTool)) {
+			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1.getX(), blockpos1.getY(), blockpos1.getZ());
 			return true;
 		}
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(blockpos1);
@@ -168,12 +166,22 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermiss
 		return super.removedByPlayer(state, world, pos, player, willHarvest);
 	}
 
-	public void toggleDoor(World worldIn, BlockPos pos, boolean open) {
-		TileScriptedDoor tile = (TileScriptedDoor) worldIn.getTileEntity(pos);
-		if (EventHooks.onScriptBlockDoorToggle(tile)) {
-			return;
+	public void toggleDoor(World world, BlockPos pos, boolean open) {
+		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(pos);
+		if (EventHooks.onScriptBlockDoorToggle(tile)) { return; }
+		//super.toggleDoor(world, pos, open);
+		IBlockState iblockstate = world.getBlockState(pos);
+		if (iblockstate.getBlock() == this) {
+			BlockPos blockpos = iblockstate.getValue(HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
+			IBlockState iblockstate1 = pos == blockpos ? iblockstate : world.getBlockState(blockpos);
+			if (iblockstate1.getBlock() == this && ((Boolean)iblockstate1.getValue(OPEN)).booleanValue() != open) {
+				world.setBlockState(blockpos, iblockstate1.withProperty(OPEN, Boolean.valueOf(open)), 10);
+				world.markBlockRangeForRenderUpdate(blockpos, pos);
+				String sound = open ? tile.openSound : tile.closeSound;
+				if (sound != null && !sound.isEmpty()) { Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f); }
+				else { world.playEvent((EntityPlayer)null, open ? this.blockMaterial == Material.IRON ? 1005 : 1006 : this.blockMaterial == Material.IRON ? 1011 : 1012, pos, 0); }
+			}
 		}
-		super.toggleDoor(worldIn, pos, open);
 	}
 
 }

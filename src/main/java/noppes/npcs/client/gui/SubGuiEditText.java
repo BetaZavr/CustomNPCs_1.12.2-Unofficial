@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -44,7 +43,7 @@ extends SubGuiInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			this.cancelled = false;
 			// Changed

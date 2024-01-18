@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -45,13 +44,11 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		int id = button.id;
-		if (id == 50) { // select
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 50) { // select
 			this.enchant.setEnchant(Integer.valueOf(button.getVariants()[button.getValue()]));
 			this.initGui();
-		} else if (id == 51) { // done
+		} else if (button.id == 51) { // done
 			this.close();
 		}
 	}

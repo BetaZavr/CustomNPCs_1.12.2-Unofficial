@@ -9,7 +9,6 @@ import java.util.Vector;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -114,8 +113,8 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
+	public void buttonEvent(GuiNpcButton button) {
+		int id = button.id;
 		GuiNpcTextField.unfocus();
 		String title = this.selectedPlayer;
 		switch(this.selection) {

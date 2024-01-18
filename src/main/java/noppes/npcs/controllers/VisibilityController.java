@@ -2,39 +2,48 @@ package noppes.npcs.controllers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class VisibilityController {
 	
-	public static Set<EntityNPCInterface> trackedEntityHashTable = Sets.<EntityNPCInterface>newHashSet();
+	public static Map<String, EntityNPCInterface> trackedEntityHashTable = Maps.<String, EntityNPCInterface>newHashMap();
 	public static Map<EntityPlayerMP, List<EntityNPCInterface>> invisibleNPCsTable = Maps.<EntityPlayerMP, List<EntityNPCInterface>>newHashMap();
 	
 	public static void trackNpc(EntityNPCInterface npc) { // trom DataDisplay
-		if (VisibilityController.trackedEntityHashTable.contains(npc)) { return; }
-		VisibilityController.trackedEntityHashTable.add(npc);
+		if (npc == null || npc.world == null) { return; }
+		String key = npc.world.provider.getDimension()+"_"+npc.getUniqueID().toString();
+		if (VisibilityController.trackedEntityHashTable.containsKey(key)) { return; }
+		VisibilityController.trackedEntityHashTable.put(key, npc);
 	}
 	
 	public static void onUpdate(EntityPlayerMP playerMP) { // cheak Visible to Player
 		if (!CustomNpcs.EnableInvisibleNpcs) { return; }
 		if (!VisibilityController.invisibleNPCsTable.containsKey(playerMP)) { VisibilityController.invisibleNPCsTable.put(playerMP, Lists.<EntityNPCInterface>newArrayList()); }
-		for (EntityNPCInterface npc : VisibilityController.trackedEntityHashTable) {
-			if (!npc.display.hasVisibleOptions()) { continue; }
-			if (npc==null || npc.world.provider.getDimension()!=playerMP.world.provider.getDimension()) { continue; }
-			checkIsVisible(npc, playerMP);
+		try {
+			List<String> del = Lists.<String>newArrayList();
+			for (String key : VisibilityController.trackedEntityHashTable.keySet()) {
+				EntityNPCInterface npc = VisibilityController.trackedEntityHashTable.get(key);
+				if (npc==null || npc.world.getEntityByID(npc.getEntityId()) == null) {
+					if (npc != null) { del.add(key); }
+					continue;
+				}
+				if (npc.world.provider.getDimension()!=playerMP.world.provider.getDimension() || !npc.display.hasVisibleOptions()) { continue; }
+				checkIsVisible(npc, playerMP);
+			}
+			for (String npc : del) { VisibilityController.trackedEntityHashTable.remove(npc); } // clear RAM
 		}
+		catch (Exception e) { }
 	}
 	
 	public static void checkIsVisible(EntityNPCInterface npc, EntityPlayerMP playerMP) {

@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.player;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -88,59 +87,59 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton par1GuiButton) {
-		if (par1GuiButton.enabled) {
-			switch (par1GuiButton.id) {
-			case 0: {
-				GuiMailmanWrite.mail.message.setTag("pages", this.bookPages);
-				if (this.canSend) {
-					if (!this.hasSend) {
-						this.hasSend = true;
-						NoppesUtilPlayer.sendData(EnumPlayerPacket.MailSend, this.username,
-								GuiMailmanWrite.mail.writeNBT());
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.enabled) {
+			switch (button.id) {
+				case 0: {
+					GuiMailmanWrite.mail.message.setTag("pages", this.bookPages);
+					if (this.canSend) {
+						if (!this.hasSend) {
+							this.hasSend = true;
+							NoppesUtilPlayer.sendData(EnumPlayerPacket.MailSend, this.username,
+									GuiMailmanWrite.mail.writeNBT());
+						}
+					} else {
+						this.close();
 					}
-				} else {
-					this.close();
+					break;
 				}
-				break;
-			}
-			case 1: {
-				if (this.currPage < this.bookTotalPages - 1) {
-					++this.currPage;
-				} else if (this.canEdit) {
-					this.addNewPage();
+				case 1: {
 					if (this.currPage < this.bookTotalPages - 1) {
 						++this.currPage;
+					} else if (this.canEdit) {
+						this.addNewPage();
+						if (this.currPage < this.bookTotalPages - 1) {
+							++this.currPage;
+						}
 					}
+					break;
 				}
-				break;
-			}
-			case 2: {
-				if (this.currPage > 0) {
-					--this.currPage;
+				case 2: {
+					if (this.currPage > 0) {
+						--this.currPage;
+					}
+					break;
 				}
-				break;
-			}
-			case 3: {
-				this.close();
-				break;
-			}
-			case 4: {
-				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
-						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-				this.displayGuiScreen(guiyesno);
-				break;
-			}
-			case 5: {
-				if (GuiMailmanWrite.mail.money <= 0) {
-					return;
+				case 3: {
+					this.close();
+					break;
 				}
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.TakeMoney, GuiMailmanWrite.mail.sender,
-						GuiMailmanWrite.mail.subject, GuiMailmanWrite.mail.time);
-				GuiMailmanWrite.mail.money = 0;
-				this.initGui();
-				break;
-			}
+				case 4: {
+					GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
+							new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+					this.displayGuiScreen(guiyesno);
+					break;
+				}
+				case 5: {
+					if (GuiMailmanWrite.mail.money <= 0) {
+						return;
+					}
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.TakeMoney, GuiMailmanWrite.mail.sender,
+							GuiMailmanWrite.mail.subject, GuiMailmanWrite.mail.time);
+					GuiMailmanWrite.mail.money = 0;
+					this.initGui();
+					break;
+				}
 			}
 			this.updateButtons();
 		}

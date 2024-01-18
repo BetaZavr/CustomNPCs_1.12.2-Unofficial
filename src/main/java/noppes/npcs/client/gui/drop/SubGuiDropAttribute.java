@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.drop;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -27,13 +26,11 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		int id = button.id;
-		if (id == 70) { // slot
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 70) { // slot
 			this.attribute.setSlot(button.getValue() - 1);
 			this.initGui();
-		} else if (id == 71) { // done
+		} else if (button.id == 71) { // done
 			this.close();
 		}
 	}

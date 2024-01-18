@@ -8,7 +8,6 @@ import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -179,8 +178,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 3: { // end text
 				// this.questlogTA = false; Change

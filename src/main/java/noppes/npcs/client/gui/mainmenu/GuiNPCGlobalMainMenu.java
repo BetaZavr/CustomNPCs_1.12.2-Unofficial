@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -22,8 +21,8 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch (guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch (button.id) {
 			case 2: {
 				NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
 				break;

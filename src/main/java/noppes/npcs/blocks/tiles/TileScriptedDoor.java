@@ -20,7 +20,10 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.data.DataTimers;
 
-public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBlockHandler {
+public class TileScriptedDoor
+extends TileDoor
+implements ITickable, IScriptBlockHandler {
+	
 	private IBlock blockDummy;
 	public float blockHardness;
 	public float blockResistance;
@@ -28,7 +31,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	public long lastInited;
 	public int newPower;
 	public int prevPower;
-	public String scriptLanguage;
+	public String scriptLanguage, closeSound, openSound;
 	public List<ScriptContainer> scripts;
 	public boolean shouldRefreshData;
 	private short ticksExisted;
@@ -38,6 +41,8 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		this.scripts = new ArrayList<ScriptContainer>();
 		this.shouldRefreshData = false;
 		this.scriptLanguage = "ECMAScript";
+		this.closeSound = "";
+		this.openSound = "";
 		this.enabled = false;
 		this.blockDummy = null;
 		this.timers = new DataTimers(this);
@@ -85,6 +90,8 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	public NBTTagCompound getNBT(NBTTagCompound compound) {
 		compound.setTag("Scripts", NBTTags.NBTScript(this.scripts));
 		compound.setString("ScriptLanguage", this.scriptLanguage);
+		compound.setString("CloseSound", this.closeSound);
+		compound.setString("OpenSound", this.openSound);
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		compound.setInteger("BlockPrevPower", this.prevPower);
 		compound.setFloat("BlockHardness", this.blockHardness);
@@ -106,8 +113,7 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 
 	public String noticeString() {
 		BlockPos pos = this.getPos();
-		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
-				.toString();
+		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ()).toString();
 	}
 
 	@Override
@@ -142,6 +148,8 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 	public void setNBT(NBTTagCompound compound) {
 		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
+		this.closeSound = compound.getString("CloseSound");
+		this.openSound = compound.getString("OpenSound");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		this.prevPower = compound.getInteger("BlockPrevPower");
 		if (compound.hasKey("BlockHardness")) {
@@ -171,4 +179,16 @@ public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBloc
 		this.timers.writeToNBT(compound);
 		return super.writeToNBT(compound);
 	}
+
+	public void setSound(boolean isOpen, String song) {
+		if (song == null) { song = ""; }
+		if (isOpen) { this.openSound = song; }
+		else { this.closeSound = song; }
+	}
+
+	public String getSoung(boolean isOpen) {
+		if (isOpen) { return this.openSound; }
+		return this.closeSound;
+	}
+	
 }

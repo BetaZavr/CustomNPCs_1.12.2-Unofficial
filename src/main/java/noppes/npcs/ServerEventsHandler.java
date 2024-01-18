@@ -34,6 +34,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -231,6 +232,7 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcItemCapabilities(AttachCapabilitiesEvent<ItemStack> event) {
+		if (event.getObject().getItem() instanceof UniversalBucket) { return; }
 		CustomNpcs.debugData.startDebug(CustomNpcs.proxy.getPlayer() != null ? "Client" : "Server", null, "ServerEventsHandler_npcItemCapabilities");
 		ItemStackWrapper.register(event);
 		CustomNpcs.debugData.endDebug(CustomNpcs.proxy.getPlayer() != null ? "Client" : "Server", null, "ServerEventsHandler_npcItemCapabilities");

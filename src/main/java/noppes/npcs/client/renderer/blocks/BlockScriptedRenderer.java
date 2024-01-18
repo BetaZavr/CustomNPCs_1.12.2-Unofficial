@@ -186,18 +186,15 @@ extends BlockRendererInterface<T> {
 	}
 
 	private void renderBlock(TileScripted tile, Block b, IBlockState state) {
-		
 		GlStateManager.pushMatrix();
 		this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 		GlStateManager.enableBlend();
 		GlStateManager.disableCull();
 		GlStateManager.translate(-0.5f, 0.0f, 0.5f);
-		
 		RenderHelper.disableStandardItemLighting();
 		Minecraft.getMinecraft().getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
 		RenderHelper.enableStandardItemLighting();
-		
 		GlStateManager.popMatrix();
 	}
 

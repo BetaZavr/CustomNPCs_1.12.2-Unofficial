@@ -23,4 +23,8 @@ extends IBlock {
 
 	void setResistance(float resistance);
 	
+	void setSound(boolean isOpen, String song);
+	
+	String getSoung(boolean isOpen);
+	
 }

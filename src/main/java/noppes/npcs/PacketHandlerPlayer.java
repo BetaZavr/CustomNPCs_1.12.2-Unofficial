@@ -91,6 +91,7 @@ public class PacketHandlerPlayer {
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.GetFilePart);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MovingPathGet);
 		PacketHandlerPlayer.list.add(EnumPlayerPacket.MarketTime);
+		PacketHandlerPlayer.list.add(EnumPlayerPacket.NpcData);
 	}
 	
 	@SubscribeEvent
@@ -762,8 +763,16 @@ public class PacketHandlerPlayer {
 				int ceilId = buffer.readInt();
 				NoppesUtilPlayer.openBankGui(bd, player, npc, ceilId);
 			}
+		} else if (type == EnumPlayerPacket.NpcData) {
+			int id = buffer.readInt();
+			Entity e = player.world.getEntityByID(id);
+			if (e instanceof EntityNPCInterface) {
+				NBTTagCompound compound = new NBTTagCompound();
+				e.writeToNBT(compound);
+				compound.setInteger("EntityID", id);
+				Server.sendData(player, EnumPacketClient.NPC_DATA, compound);
+			}
 		}
-		
 		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerPlayer_Received");
 	}
 }

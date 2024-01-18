@@ -3,7 +3,6 @@ package noppes.npcs.client.gui;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -78,7 +77,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) { this.cancelled = false; }
 		GuiNpcTextField.unfocus();
 		this.close();

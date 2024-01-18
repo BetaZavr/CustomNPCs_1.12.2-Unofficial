@@ -918,10 +918,6 @@ public class PacketHandlerServer {
 					if (!nbtData.hasKey("Name", 8) || nbtData.getString("Name").isEmpty()) {
 						nbtData.setString("Name", entity.getName());
 					}
-					if (nbt.hasKey("Settings") && nbt.getCompoundTag("Settings").getString("Name").equals(nbtData.getString("Name"))) {
-						CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
-						return;
-					}
 					nbt.setTag("Settings", nbtData);
 					player.openContainer.detectAndSendChanges();
 				}

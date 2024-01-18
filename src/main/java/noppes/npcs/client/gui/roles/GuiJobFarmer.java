@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.roles;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -23,9 +22,9 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 0) {
-			this.job.chestMode = ((GuiNpcButton) guibutton).getValue();
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
+			this.job.chestMode = button.getValue();
 		}
 	}
 

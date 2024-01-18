@@ -68,12 +68,8 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 	public ItemStackWrapper() { }
 	
 	private static ItemStackWrapper createNew(ItemStack item) {
-		if (item == null || item.isEmpty()) {
-			return ItemStackWrapper.AIR;
-		}
-		if (item.getItem() instanceof ItemScripted) {
-			return new ItemScriptedWrapper(item);
-		}
+		if (item == null || item.isEmpty()) { return ItemStackWrapper.AIR; }
+		if (item.getItem() instanceof ItemScripted) { return new ItemScriptedWrapper(item); }
 		if (item.getItem() == Items.WRITTEN_BOOK || item.getItem() == Items.WRITABLE_BOOK
 				|| item.getItem() instanceof ItemWritableBook || item.getItem() instanceof ItemWrittenBook) {
 			return new ItemBookWrapper(item);

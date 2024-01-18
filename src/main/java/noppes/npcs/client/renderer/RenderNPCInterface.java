@@ -1,5 +1,6 @@
 package noppes.npcs.client.renderer;
 
+import java.awt.Color;
 import java.io.File;
 import java.security.MessageDigest;
 import java.util.Map;
@@ -10,7 +11,6 @@ import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
@@ -23,11 +23,13 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ImageDownloadAlt;
+import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.constants.EnumParts;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -60,11 +62,8 @@ extends RenderLiving<T> {
 	}
 
 	public void doRender(T npc, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (!CustomNpcs.EnableInvisibleNpcs && npc.display.getVisible()==1) {
-			EntityPlayerSP player = Minecraft.getMinecraft().player;
-			if (!player.capabilities.isCreativeMode && player.getHeldItemMainhand().getItem()!=CustomRegisters.wand) { return; }
-		}
-		if (npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
+		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player) ||
+				npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
 		if (npc.ais.getStandingType() == 3 && !npc.isWalking() && !npc.isInteracting()) {
 			float n = npc.ais.orientation;
 			npc.renderYawOffset = n;
@@ -73,6 +72,7 @@ extends RenderLiving<T> {
 		try {
 			GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 			super.doRender(npc, x, y, z, entityYaw, partialTicks);
+			GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 		} catch (Throwable t) { }
 	}
 
@@ -80,6 +80,9 @@ extends RenderLiving<T> {
 		EntityNPCInterface npc = (EntityNPCInterface) par1Entity;
 		this.shadowSize = npc.width / 1.25f * npc.display.shadowSize;
 		if (!npc.isKilled()) {
+			if (npc.display.getVisible() == 1 && npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) { this.shadowOpaque = 0.0f; }
+			else if (npc.display.getVisible() == 2 && Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand) { this.shadowOpaque = 0.3f; }
+			else { this.shadowOpaque = 1.0f; }
 			super.doRenderShadowAndFire(par1Entity, par2, par4, par6, par8, par9);
 		}
 	}
@@ -123,9 +126,7 @@ extends RenderLiving<T> {
 	}
 
 	protected float handleRotationFloat(T npc, float par2) {
-		if (npc.isKilled() || !npc.display.getHasLivingAnimation()) {
-			return 0.0f;
-		}
+		if (npc.isKilled() || !npc.display.getHasLivingAnimation()) { return 0.0f; }
 		return super.handleRotationFloat(npc, par2);
 	}
 
@@ -173,51 +174,59 @@ extends RenderLiving<T> {
 		super.renderLivingAt(npc, d + xOffset, d1 + yOffset, d2 + zOffset);
 	}
 
-	protected void renderLivingLabel(EntityNPCInterface npc, double d, double e, double d2, int i, String name, String title) {
+	protected void renderLivingLabel(EntityNPCInterface npc, double x, double y, double z, int i, String name, String title) {
 		FontRenderer fontrenderer = this.getFontRendererFromRenderManager();
 		float f1 = npc.baseHeight / 5.0f * npc.display.getSize();
 		float f2 = 0.01666667f * f1;
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(d, e, d2);
+		GlStateManager.translate(x, y, z);
 		GL11.glNormal3f(0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate(-this.renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate(this.renderManager.playerViewX, 1.0f, 0.0f, 0.0f);
-		float height = f1 / 6.5f * 2.0f;
-		int color = npc.getFaction().color;
+		
+		ModelData modeldata = ((EntityCustomNpc) npc).modelData;
+		float height = (f1 + (modeldata!=null && (modeldata.getPartData(EnumParts.HORNS) != null || modeldata.getPartData(EnumParts.MOHAWK) != null) ? 1.0f : 0.0f)) / 6.5f * 2.0f;
+		Color c = new Color((float)(npc.getFaction().color >> 16 & 255) / 255.0F, (float)(npc.getFaction().color >> 8 & 255) / 255.0F, (float)(npc.getFaction().color & 255) / 255.0F, (float)(npc.getFaction().color >> 24 & 255) / 255.0F);
+		
+		boolean isInvisible = false;
+		if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+		else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+		
+		c = new Color(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, isInvisible ? 0.3f : 1.0f);
 		GlStateManager.disableLighting();
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(0.0f, height, 0.0f);
 		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-				GlStateManager.DestFactor.ZERO);
-		// New
-		if (name.isEmpty()) { // Rarity
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		// Rarity
+		if (name.isEmpty()) {
 			float f3 = 0.01666667f * f1 * 0.6f;
 			GlStateManager.translate(0.0f, -f1 / 6.5f * 0.9f, 0.0f);
 			GlStateManager.scale(-f3, -f3, f3);
-			fontrenderer.drawString(title, -fontrenderer.getStringWidth(title) / 2, 0, color);
+			fontrenderer.drawString(title, -fontrenderer.getStringWidth(title) / 2, 0, c.getRGB());
 			GlStateManager.scale(1.0f / -f3, 1.0f / -f3, 1.0f / f3);
 			GlStateManager.translate(0.0f, f1 / 6.5f * 0.85f, 0.0f);
-		} else if (!title.isEmpty()) {
+		}
+		else if (!title.isEmpty()) {
 			title = "<" + title + ">";
 			float f3 = 0.01666667f * f1 * 0.6f;
 			GlStateManager.translate(0.0f, -f1 / 6.5f * 0.4f, 0.0f);
 			GlStateManager.scale(-f3, -f3, f3);
-			fontrenderer.drawString(title, -fontrenderer.getStringWidth(title) / 2, 0, color);
+			fontrenderer.drawString(title, -fontrenderer.getStringWidth(title) / 2, 0, c.getRGB());
 			GlStateManager.scale(1.0f / -f3, 1.0f / -f3, 1.0f / f3);
 			GlStateManager.translate(0.0f, f1 / 6.5f * 0.85f, 0.0f);
 		}
 		GlStateManager.scale(-f2, -f2, f2);
 		if (npc.isInRange(this.renderManager.renderViewEntity, 4.0) && !name.isEmpty()) {
 			GlStateManager.disableDepth();
-			fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, 0, color + 1426063360);
+			c = new Color(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, isInvisible ? 0.225f : 1.0f);
+			fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, 0, c.getRGB());
 			GlStateManager.enableDepth();
 		}
 		GlStateManager.depthMask(true);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (!name.isEmpty()) {
-			fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, 0, color);
+			fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, 0, c.getRGB());
 		}
 		GlStateManager.enableLighting();
 		GlStateManager.disableBlend();
@@ -226,10 +235,15 @@ extends RenderLiving<T> {
 	}
 
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
-		
-		try { super.renderModel(npc, par2, par3, par4, par5, par6, par7); }
-		catch (Exception e) { }
-		
+		boolean isInvisible = false;
+		if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+		else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+		//System.out.println(npc.getName()+": "+npc.isInvisible());
+		if (this.bindEntityTexture(npc)) {
+			if (isInvisible) { GlStateManager.enableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL); }
+			this.mainModel.render(npc, par2, par3, par4, par5, par6, par7);
+			if (isInvisible) { GlStateManager.disableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL); }
+		}
 		if (!npc.display.getOverlayTexture().isEmpty()) {
 			GlStateManager.depthFunc(515);
 			if (npc.textureGlowLocation == null) {
@@ -240,11 +254,8 @@ extends RenderLiving<T> {
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(1, 1);
 			GlStateManager.disableLighting();
-			if (npc.isInvisible()) {
-				GlStateManager.depthMask(false);
-			} else {
-				GlStateManager.depthMask(true);
-			}
+			if (isInvisible) { GlStateManager.depthMask(false); }
+			else { GlStateManager.depthMask(true); }
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(1.001f, 1.001f, 1.001f);
@@ -272,6 +283,7 @@ extends RenderLiving<T> {
 		}
 		float scale = npc.baseHeight / 5.0f * npc.display.getSize();
 		if (npc.display.showName()) {
+			if (npc.currentAnimation == 1) { d1 -= 0.35f; }
 			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, npc.getName(), npc.display.getTitle());
 			if (!CustomNpcs.showLR) { return; }
 			Client.sendDataDelayCheck(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());

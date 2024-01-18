@@ -6,7 +6,6 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -57,8 +56,8 @@ implements IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 0: {
 				this.close();
 				break;
@@ -137,8 +136,8 @@ implements IGuiData, ICustomScrollListener {
 				break;
 			}
 			default: {
-				if (guibutton.id > 20) {
-					this.activeTab = guibutton.id - 20;
+				if (button.id > 20) {
+					this.activeTab = button.id - 20;
 					this.initGui();
 				}
 				break;

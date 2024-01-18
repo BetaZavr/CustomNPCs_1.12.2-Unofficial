@@ -1,6 +1,7 @@
 package noppes.npcs.controllers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -11,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
@@ -129,7 +131,8 @@ public class SyncController {
 				break;
 			}
 			case Debug: {
-				CustomNpcs.showDebugs();
+				List<String> list = CustomNpcs.showDebugs();
+				for (String str : list) { player.sendMessage(new TextComponentString(str)); }
 				break;
 			}
 			default: { break; }
@@ -197,6 +200,10 @@ public class SyncController {
 				if (bank!=null) {
 					bank.removeCeil(id);
 				}
+				break;
+			}
+			case Debug: {
+				CustomNpcs.debugData.clear();
 				break;
 			}
 			default: { break; }

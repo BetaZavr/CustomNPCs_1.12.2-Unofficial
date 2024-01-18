@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -111,9 +110,8 @@ implements ISubGuiListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (this.selectedMark == null) { return; }
-		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
 			case 0: {
 				this.selectedMark.type = ((GuiNpcButton) button).getValue();
@@ -162,7 +160,7 @@ implements ISubGuiListener, ICustomScrollListener {
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
-		this.drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, 0, true);
+		drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, 0, true);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);
 		Gui.drawRect(this.guiLeft + 319, this.guiTop + 30, this.guiLeft + 380, this.guiTop + 165, 0xFF808080);

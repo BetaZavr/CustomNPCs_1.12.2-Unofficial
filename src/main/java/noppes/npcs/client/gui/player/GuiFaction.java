@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabFactions;
 import micdoodle8.mods.galacticraft.api.client.tabs.TabRegistry;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -14,6 +13,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.gui.util.GuiButtonNextPage;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
+import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Faction;
@@ -44,11 +44,11 @@ public class GuiFaction extends GuiNPCInterface implements IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (!(guibutton instanceof GuiButtonNextPage)) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (!(button instanceof GuiButtonNextPage)) {
 			return;
 		}
-		int id = guibutton.id;
+		int id = button.id;
 		if (id == 1) {
 			++this.page;
 		}

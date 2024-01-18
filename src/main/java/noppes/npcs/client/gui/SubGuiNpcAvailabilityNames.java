@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -37,9 +36,8 @@ implements ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-			switch(button.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 0: {
 				if (this.select.isEmpty()) {
 					return;

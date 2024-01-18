@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
@@ -33,25 +32,24 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 7) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 7) {
 			this.soundSelected = this.getTextField(7);
 			this.setSubGui(new GuiSoundSelection(this.soundSelected.getText()));
 		}
-		if (id == 11) {
+		if (button.id == 11) {
 			this.soundSelected = this.getTextField(11);
 			this.setSubGui(new GuiSoundSelection(this.soundSelected.getText()));
 		}
-		if (id == 10) {
+		if (button.id == 10) {
 			this.soundSelected = this.getTextField(10);
 			this.setSubGui(new GuiSoundSelection(this.soundSelected.getText()));
-		} else if (id == 66) {
+		} else if (button.id == 66) {
 			this.close();
-		} else if (id == 9) {
-			this.ranged.setHasAimAnimation(((GuiNpcButtonYesNo) guibutton).getBoolean());
-		} else if (id == 13) {
-			this.ranged.setFireType(((GuiNpcButton) guibutton).getValue());
+		} else if (button.id == 9) {
+			this.ranged.setHasAimAnimation(((GuiNpcButtonYesNo) button).getBoolean());
+		} else if (button.id == 13) {
+			this.ranged.setFireType(button.getValue());
 		}
 	}
 
@@ -94,7 +92,7 @@ implements ITextfieldListener, ISubGuiListener {
 		this.addTextField(new GuiNpcTextField(5, this, this.fontRenderer, this.guiLeft + 200, y, 50, 18, this.ranged.getBurstDelay() + ""));
 		this.addLabel(new GuiNpcLabel(5, "stats.burstspeed", this.guiLeft + 135, y + 5));
 		this.getTextField(5).setNumbersOnly();
-		this.getTextField(5).setMinMaxDefault(0, 30, 0);
+		this.getTextField(5).setMinMaxDefault(1, 30, 5);
 		y += 22;
 		this.addTextField(new GuiNpcTextField(7, this, this.fontRenderer, this.guiLeft + 80, y, 100, 20, this.ranged.getSound(0)));
 		this.addLabel(new GuiNpcLabel(7, "stats.firesound", this.guiLeft + 5, y + 5));

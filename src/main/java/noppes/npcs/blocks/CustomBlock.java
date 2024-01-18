@@ -66,10 +66,10 @@ implements IPermission, ICustomElement {
 		if (nbtBlock.hasKey("Hardness", 5)) { this.setHardness(nbtBlock.getFloat("Hardness")); }
 		if (nbtBlock.hasKey("Resistance", 5)) { this.setResistance(nbtBlock.getFloat("Resistance")); }
 		if (nbtBlock.hasKey("LightLevel", 5)) { this.setLightLevel(nbtBlock.getFloat("LightLevel")); }
+		if (nbtBlock.hasKey("BlockRenderType", 8)) { this.renderType = CustomBlock.getNbtRenderType(nbtBlock.getString("BlockRenderType"));
 		this.setSoundType(CustomBlock.getNbtSoundType(nbtBlock.getString("SoundType")));
 		this.setAABB(nbtBlock.getTagList("AABB", 6));
-		
-		this.renderType = CustomBlock.getNbtRenderType(nbtBlock.getString("BlockRenderType"));
+		 }
 
 		this.BO = null;
 		this.INT = null;
@@ -214,10 +214,14 @@ implements IPermission, ICustomElement {
 	}
 
 	@Override
-	public boolean isOpaqueCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsOpaqueCube") ? true : this.nbtData.getBoolean("IsOpaqueCube"); }
+	public boolean isOpaqueCube(IBlockState state) {
+		return this.nbtData==null || !this.nbtData.hasKey("IsOpaqueCube") ? true : this.nbtData.getBoolean("IsOpaqueCube");
+	}
 
 	@Override
-	public boolean isFullCube(IBlockState state) { return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? true : this.nbtData.getBoolean("IsFullCube"); }
+	public boolean isFullCube(IBlockState state) {
+		return this.nbtData==null || !this.nbtData.hasKey("IsFullCube") ? true : this.nbtData.getBoolean("IsFullCube");
+	}
 
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state) { return this.renderType; }

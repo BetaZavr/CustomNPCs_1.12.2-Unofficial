@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.blocks.tiles.TileBorder;
@@ -21,12 +20,11 @@ public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.close();
 		}
-		if (id == 4) {
+		if (button.id == 4) {
 			this.save();
 			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
 		}

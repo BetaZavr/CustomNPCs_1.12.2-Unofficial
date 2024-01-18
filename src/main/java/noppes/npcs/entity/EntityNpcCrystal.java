@@ -6,6 +6,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.model.part.ModelData;
 
 public class EntityNpcCrystal extends EntityNPCInterface {
+	
 	public EntityNpcCrystal(World world) {
 		super(world);
 		this.scaleX = 0.7f;

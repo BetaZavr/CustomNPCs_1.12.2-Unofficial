@@ -219,22 +219,22 @@ public class CustomNpcs {
 	@ConfigProp(info = "Enables Vine Growth")
 	public static boolean VineGrowthEnabled = true;
 	@ConfigProp(info = "Maximum blocks to install per second with the Builder item")
-	public static int maxBuilderBlocks = 1000;
+	public static int maxBuilderBlocks = 10000;
 	@ConfigProp(info = "Color of Script code elements. "+((char) 167)+"[Numbers, Functions, Strings, Comments]")
 	public static String[] charCodeColor = new String[] { "6", "9", "7", "2" };
 	@ConfigProp(info = "Maximum number of items in one Drop group")
 	public static int maxItemInDropsNPC = 32;
 	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)")
 	public static boolean simplifiedForgeEvents = false;
-	@ConfigProp
+	@ConfigProp(info = "NPC scenes can be activated using special keys")
 	public static boolean SceneButtonsEnabled = true;
-	@ConfigProp
+	@ConfigProp(info="NPC speech can trigger a chat event")
 	public static boolean NpcSpeachTriggersChatEvent = false;
-	@ConfigProp
+	@ConfigProp(info = "Show faction, quest and compass tabs in player inventory")
 	public static boolean InventoryGuiEnabled = true;
-	@ConfigProp
+	@ConfigProp(info = "Used only when migrating from older versions of modification 1.12.2 and lower")
 	public static boolean FixUpdateFromPre_1_12 = true;
-	@ConfigProp
+	@ConfigProp(info = "Summon a new NPC with random custom eyes")
 	public static boolean EnableDefaultEyes = true;
 
 	public static String MODID = "customnpcs";
@@ -333,7 +333,6 @@ public class CustomNpcs {
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, CustomNpcs.proxy);
 		MinecraftForge.EVENT_BUS.register(new ServerEventsHandler());
 		MinecraftForge.EVENT_BUS.register(new ServerTickHandler());
-		MinecraftForge.EVENT_BUS.register(new CustomEntities());
 		MinecraftForge.EVENT_BUS.register(CustomNpcs.proxy);
 		NpcAPI.Instance().events().register(new AbilityEventHandler());
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, (ForgeChunkManager.LoadingCallback) new ChunkController());
@@ -352,7 +351,7 @@ public class CustomNpcs {
 		ScriptController controller = new ScriptController();
 		if (CustomNpcs.EnableScripting && controller.languages.size() > 0) {
 			MinecraftForge.EVENT_BUS.register(controller);
-			MinecraftForge.EVENT_BUS.register(new PlayerEventHandler().registerForgeEvents());
+			MinecraftForge.EVENT_BUS.register(new PlayerEventHandler().registerForgeEvents(ev.getSide()));
 			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
 		}
 		ForgeModContainer.fullBoundingBoxLadders = true;
@@ -506,13 +505,21 @@ public class CustomNpcs {
 		CustomNpcs.Server = null;
 	}
 
-	public static void showDebugs() {
-		LogWriter.debug("Debug information output:");
+	public static List<String> showDebugs() {
+		List<String> list = Lists.newArrayList();
+		String temp = "Debug information output:";
+		list.add(temp);
+		LogWriter.debug(temp);
 		CustomNpcs.debugData.stopAll();
 		boolean start = false;
 		for (String side : CustomNpcs.debugData.data.keySet()) {
-			if (start) {LogWriter.debug(""); }
-			LogWriter.debug("Showing Monitoring results for \""+side+"\" side. |Number - EventName: { [Target name, Runs, Average time] }|:");
+			if (start) {
+				list.add("----   ----  ----");
+				LogWriter.debug("");
+			}
+			temp = "Showing Monitoring results for \""+side+"\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
+			list.add(temp);
+			LogWriter.debug(temp);
 			List<String> events = Lists.newArrayList(CustomNpcs.debugData.data.get(side).times.keySet());
 			Collections.sort(events);
 			int i = 0;
@@ -531,13 +538,20 @@ public class CustomNpcs {
 					if (time[1]==dd.max) { maxName[0] = "\""+eventName+"|"+target+"\": "+AdditionalMethods.ticksToElapsedTime(dd.max, true, false, false); }
 					if (max<time[0]) { max = time[0]; maxName[1] = "\""+eventName+"|"+target+"\": "+time[0]+" runs"; }
 				}
-				LogWriter.debug("["+(i+1)+"/"+events.size()+"] - \""+eventName+"\": { "+log+" }");
+				temp = "["+(i+1)+"/"+events.size()+"] - \""+eventName+"\": { "+log+" }";
+				list.add(temp);
+				LogWriter.debug(temp);
 				i++;
 			}
-			LogWriter.debug("\""+side+"\" a long time ["+maxName[0]+"]");
-			LogWriter.debug("\""+side+"\" most often: ["+maxName[1]+"]");
+			temp = "\""+side+"\" a long time ["+maxName[0]+"]";
+			list.add(temp);
+			LogWriter.debug(temp);
+			temp = "\""+side+"\" most often: ["+maxName[1]+"]";
+			list.add(temp);
+			LogWriter.debug(temp);
 			start = true;
 		}
+		return list;
 	}
 
 }

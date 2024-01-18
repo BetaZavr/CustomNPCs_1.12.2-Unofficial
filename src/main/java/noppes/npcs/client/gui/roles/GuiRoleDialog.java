@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.roles;
 
 import java.util.HashMap;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -32,10 +31,10 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id <= 6) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id <= 6) {
 			this.save();
-			this.slot = guibutton.id;
+			this.slot = button.id;
 			String text = this.role.dialog;
 			if (this.slot >= 1) {
 				text = this.role.optionsTexts.get(this.slot);

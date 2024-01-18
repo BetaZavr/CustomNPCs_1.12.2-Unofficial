@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Vector;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -54,10 +53,9 @@ public class GuiBlockBuilder extends GuiNPCInterface
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 3) {
-			GuiNpcButtonYesNo button = (GuiNpcButtonYesNo) guibutton;
-			if (button.getBoolean()) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 3) {
+			if (((GuiNpcButtonYesNo) button).getBoolean()) {
 				TileBuilder.SetDrawPos(new BlockPos(this.x, this.y, this.z));
 				this.tile.setDrawSchematic(new SchematicWrapper(this.selected));
 			} else {
@@ -65,23 +63,23 @@ public class GuiBlockBuilder extends GuiNPCInterface
 				this.tile.setDrawSchematic(null);
 			}
 		}
-		if (guibutton.id == 4) {
-			this.tile.enabled = ((GuiNpcButtonYesNo) guibutton).getBoolean();
+		if (button.id == 4) {
+			this.tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (guibutton.id == 5) {
-			this.tile.rotation = ((GuiNpcButton) guibutton).getValue();
+		if (button.id == 5) {
+			this.tile.rotation = button.getValue();
 		}
-		if (guibutton.id == 6) {
+		if (button.id == 6) {
 			this.setSubGui(new SubGuiNpcAvailability(this.tile.availability));
 		}
-		if (guibutton.id == 7) {
-			this.tile.finished = ((GuiNpcButtonYesNo) guibutton).getBoolean();
+		if (button.id == 7) {
+			this.tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
 			Client.sendData(EnumPacketServer.SchematicsSet, this.x, this.y, this.z, this.scroll.getSelected());
 		}
-		if (guibutton.id == 8) {
-			this.tile.started = ((GuiNpcButtonYesNo) guibutton).getBoolean();
+		if (button.id == 8) {
+			this.tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (guibutton.id == 10) {
+		if (button.id == 10) {
 			this.save();
 			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
 					new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);

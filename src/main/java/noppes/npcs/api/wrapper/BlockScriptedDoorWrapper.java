@@ -79,4 +79,10 @@ implements IBlockScriptedDoor {
 		this.tile = (TileScriptedDoor) tile;
 		super.setTile(tile);
 	}
+
+	@Override
+	public void setSound(boolean isOpen, String song) { this.tile.setSound(isOpen, song); }
+
+	@Override
+	public String getSoung(boolean isOpen) { return this.tile.getSoung(isOpen); }
 }

@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
@@ -62,8 +61,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0 && this.locSel!=null) {
 			this.close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, this.locSel.id);
@@ -90,7 +88,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			x += 5;
 			y += 4;
 			if (!this.locSel.inventory.isEmpty()) {
-				this.fontRenderer.drawString(new TextComponentTranslation("gui.market.barter").getFormattedText(), x, y, CustomNpcs.lableColor, false);
+				this.fontRenderer.drawString(new TextComponentTranslation("market.barter").getFormattedText(), x, y, CustomNpcs.lableColor, false);
 			}
 			if (this.locSel.money>0L) {
 				y += 32;
@@ -108,7 +106,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			this.canTransport = true;
 			for (ItemStack stack : this.barterItems.keySet()) {
 				int u = this.guiLeft + this.xSize + 5 + (slot % 3) * 18;
-				int v = this.guiTop + 18 + (slot / 3) * 18;
+				int v = this.guiTop + 30 + (slot / 3) * 18;
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
 				if (this.canTransport) { this.canTransport = this.barterItems.get(stack); }
@@ -135,13 +133,13 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				int slot = 0;
 				for (ItemStack stack : this.barterItems.keySet()) {
 					int u = this.guiLeft + this.xSize + 5 + (slot % 3) * 18;
-					int v = this.guiTop + 18 + (slot / 3) * 18;
+					int v = this.guiTop + 31 + (slot / 3) * 18;
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(u, v, 50.0f);
 					RenderHelper.enableGUIStandardItemLighting();
 					this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
 					GlStateManager.translate(0.0f, 0.0f, 200.0f);
-					this.drawString(this.mc.fontRenderer, "" + stack.getCount(), (13 - (stack.getCount() > 9 ? 6 : 0)), 10, 0xFFFFFFFF);
+					this.drawString(this.mc.fontRenderer, "" + stack.getCount(), (13 - (stack.getCount() > 9 ? 6 : 0)), 9, 0xFFFFFFFF);
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(i, j, u, v, 18, 18)) {

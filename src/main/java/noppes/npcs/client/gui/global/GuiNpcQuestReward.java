@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.global;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,13 +33,13 @@ implements ITextfieldListener {
 		this.closeOnEsc = true;
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 5) {
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 5) {
 			this.close();
 		}
-		else if (id == 0) {
-			this.quest.setRewardType(((GuiNpcButton) guibutton).getValue());
+		else if (button.id == 0) {
+			this.quest.setRewardType(button.getValue());
 		}
 	}
 

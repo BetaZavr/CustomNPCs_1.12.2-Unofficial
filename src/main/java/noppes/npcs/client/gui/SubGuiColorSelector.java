@@ -6,7 +6,6 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
@@ -31,9 +30,9 @@ public class SubGuiColorSelector extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
-		super.actionPerformed(btn);
-		if (btn.id == 66) {
+	public void buttonEvent(GuiNpcButton button) {
+		super.buttonEvent(button);
+		if (button.id == 66) {
 			this.close();
 		}
 	}

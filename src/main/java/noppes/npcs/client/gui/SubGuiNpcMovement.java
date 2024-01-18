@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -22,8 +21,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: {
 				this.ai.setMovingType(button.getValue());

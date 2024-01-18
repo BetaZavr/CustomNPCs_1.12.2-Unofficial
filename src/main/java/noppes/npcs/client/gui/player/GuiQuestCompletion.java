@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.player;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -31,8 +30,8 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.close();
 		}
 	}

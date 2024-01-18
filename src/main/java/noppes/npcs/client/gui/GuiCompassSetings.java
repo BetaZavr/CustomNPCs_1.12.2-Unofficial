@@ -3,7 +3,6 @@ package noppes.npcs.client.gui;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -85,18 +84,18 @@ implements ISliderListener, ITextfieldListener {
 		
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 192, this.guiTop + 192, 60, 20, "gui.back"));
 	}
-	
+
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 0: {
-				if (!(guibutton instanceof GuiNpcCheckBox)) { return; }
-				this.compassData.showQuestName = ((GuiNpcCheckBox) guibutton).isSelected();
+				if (!(button instanceof GuiNpcCheckBox)) { return; }
+				this.compassData.showQuestName = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 1: {
-				if (!(guibutton instanceof GuiNpcCheckBox)) { return; }
-				this.compassData.showTaskProgress = ((GuiNpcCheckBox) guibutton).isSelected();
+				if (!(button instanceof GuiNpcCheckBox)) { return; }
+				this.compassData.showTaskProgress = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 66: {

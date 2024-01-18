@@ -114,7 +114,9 @@ extends EntityAICustom {
 		if (this.npc.currentAnimation != this.baseAnimation) { this.npc.setCurrentAnimation(this.baseAnimation); }
 		for (EntityNPCInterface n : this.npcs) {
 			n.aiOwnerNPC = null;
-			n.runBack();
+			if (n.ais.returnToStart) {
+				n.runBack();
+			}
 		}
 		this.npcs.clear();
 	}

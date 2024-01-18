@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -28,8 +27,7 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			this.stats.setHasGravity(button.getValue() == 1);
 			this.initGui();

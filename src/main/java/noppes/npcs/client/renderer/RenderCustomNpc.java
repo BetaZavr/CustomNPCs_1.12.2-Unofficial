@@ -140,12 +140,12 @@ extends RenderNPCInterface<T> {
 	@Override
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
 		if (this.renderEntity != null) {
-			boolean flag = !npc.isInvisible();
-			boolean flag2 = !flag && !npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player);
-			if (!flag && !flag2) {
+			boolean isVisible = !npc.isInvisible();
+			boolean isInvisible = !isVisible && !npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player);
+			if (!isVisible && !isInvisible) {
 				return;
 			}
-			if (flag2) {
+			if (isInvisible) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
 				GlStateManager.depthMask(false);
@@ -192,7 +192,7 @@ extends RenderNPCInterface<T> {
 				GlStateManager.depthFunc(515);
 				GlStateManager.disableBlend();
 			}
-			if (flag2) {
+			if (isInvisible) {
 				GlStateManager.disableBlend();
 				GlStateManager.alphaFunc(516, 0.1f);
 				GlStateManager.popMatrix();

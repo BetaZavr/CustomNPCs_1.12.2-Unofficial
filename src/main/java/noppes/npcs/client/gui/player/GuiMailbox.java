@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -38,19 +37,18 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
+	public void buttonEvent(GuiNpcButton button) {
 		if (this.scroll.selected < 0) {
 			return;
 		}
-		if (id == 0) {
+		if (button.id == 0) {
 			GuiMailmanWrite.parent = this;
 			GuiMailmanWrite.mail = this.selected;
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MailboxOpenMail, this.selected.time, this.selected.sender);
 			this.selected = null;
 			this.scroll.selected = -1;
 		}
-		if (id == 1) {
+		if (button.id == 1) {
 			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
 					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 			this.displayGuiScreen((GuiScreen) guiyesno);
@@ -158,6 +156,6 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
 		this.data = data;
 		this.scroll.clear();
 		this.selected = null;
-		this.scroll.setUnsortedList(list);
+		this.scroll.setListNotSorted(list);
 	}
 }

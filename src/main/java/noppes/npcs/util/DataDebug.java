@@ -76,5 +76,7 @@ public class DataDebug {
 			}
 		}
 	}
+
+	public void clear() { this.data.clear(); }
 	
 }

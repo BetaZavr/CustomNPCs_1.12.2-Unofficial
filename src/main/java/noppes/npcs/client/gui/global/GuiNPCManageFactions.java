@@ -11,7 +11,6 @@ import java.util.Vector;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -57,8 +56,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: {
 				this.save();
@@ -146,7 +144,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		if (this.faction.id == -1) { return; }
 		
 		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft + 40, this.guiTop + 4, 136, 20, AdditionalMethods.instance.deleteColor(this.faction.name)));
-		this.getTextField(0).setMaxStringLength(20);
+		this.getTextField(0).setMaxStringLength(50);
 		
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 8, this.guiTop + 9));
 		this.addLabel(new GuiNpcLabel(10, "ID", this.guiLeft + 178, this.guiTop + 4));

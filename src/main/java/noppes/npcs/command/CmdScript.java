@@ -140,7 +140,7 @@ extends CommandNoppesBase {
 		}
 		try { id  = Integer.parseInt(args[5]); }
 		catch (NumberFormatException ex) { throw new CommandException("TrigerID must be an integer"); }
-		String[] arguments = new String[args.length-6];
+		Object[] arguments = new String[args.length-6];
 		for (int i=0; i<args.length-6; i++) {
 			arguments[i] = args[6+i];
 		}

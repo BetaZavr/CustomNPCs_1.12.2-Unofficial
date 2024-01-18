@@ -3,7 +3,6 @@ package noppes.npcs.client.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.world.biome.Biome;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -26,8 +25,7 @@ public class SubGuiNpcBiomes extends SubGuiInterface {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 1 && this.scroll1.hasSelected()) {
 			this.data.biomes.add(this.scroll1.getSelected());
 			this.scroll1.selected = -1;

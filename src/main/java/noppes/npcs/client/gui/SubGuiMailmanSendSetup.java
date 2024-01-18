@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.Client;
@@ -26,25 +25,24 @@ public class SubGuiMailmanSendSetup extends SubGuiInterface implements ITextfiel
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.close();
 		}
-		if (id == 1) {
+		if (button.id == 1) {
 			this.mail.questId = -1;
 			this.mail.message = new NBTTagCompound();
 			this.close();
 		}
-		if (id == 2) {
+		if (button.id == 2) {
 			GuiMailmanWrite.parent = this.getParent();
 			GuiMailmanWrite.mail = this.mail;
 			Client.sendData(EnumPacketServer.MailOpenSetup, this.mail.writeNBT());
 		}
-		if (id == 3) {
+		if (button.id == 3) {
 			this.setSubGui(new GuiQuestSelection(this.mail.questId));
 		}
-		if (id == 4) {
+		if (button.id == 4) {
 			this.mail.questId = -1;
 			this.initGui();
 		}

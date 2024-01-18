@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -55,8 +54,8 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 0: {
 				if (!this.dataIDs.containsKey(this.scroll.getSelected())) { return; }
 				Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
@@ -112,7 +111,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				break;
 			}
 			case 6: {
-				GuiNpcRemoteEditor.all = ((GuiNpcCheckBox) guibutton).isSelected();
+				GuiNpcRemoteEditor.all = ((GuiNpcCheckBox) button).isSelected();
 				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 				break;
 			}

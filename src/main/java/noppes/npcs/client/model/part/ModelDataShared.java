@@ -8,6 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import noppes.npcs.ModelPartConfig;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.constants.EnumParts;
 
 public class ModelDataShared {

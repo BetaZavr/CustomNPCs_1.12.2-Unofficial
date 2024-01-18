@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.roles;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
@@ -33,8 +32,7 @@ implements ISubGuiListener, ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: {
 				MusicController.Instance.stopSound("", SoundCategory.MUSIC);

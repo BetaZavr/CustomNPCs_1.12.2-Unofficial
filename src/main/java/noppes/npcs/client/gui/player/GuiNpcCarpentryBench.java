@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.player;
 
 import java.io.IOException;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.recipebook.GuiRecipeBook;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
@@ -12,8 +11,8 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
 import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
@@ -53,8 +52,8 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface implements IR
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		if (guibutton.id == 10) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 10) {
 			this.recipeBookGui.initVisuals(this.widthTooNarrow,
 					((ContainerCarpentryBench) this.inventorySlots).craftMatrix);
 			this.recipeBookGui.toggleVisibility();

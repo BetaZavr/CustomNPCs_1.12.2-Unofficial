@@ -36,7 +36,7 @@ implements IDataHolder, IClickListener {
 		this.guiLeft = GuiCustom.guiLeft + component.getPosX();
 		this.guiTop = GuiCustom.guiTop + component.getPosY();
 		this.setSize(component.getWidth(), component.getHeight());
-		this.setUnsortedList(Arrays.asList(component.getList()));
+		this.setListNotSorted(Arrays.asList(component.getList()));
 		if (component.getDefaultSelection() >= 0) {
 			int defaultSelect = component.getDefaultSelection();
 			if (defaultSelect < this.getList().size()) {

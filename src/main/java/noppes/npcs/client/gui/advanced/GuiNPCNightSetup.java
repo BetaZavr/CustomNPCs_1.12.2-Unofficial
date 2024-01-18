@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.advanced;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -23,39 +22,23 @@ public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		if (button.id == 0) {
-			this.data.hasDisplay = (button.getValue() == 1);
-		}
-		if (button.id == 1) {
-			this.data.hasStats = (button.getValue() == 1);
-		}
-		if (button.id == 2) {
-			this.data.hasAi = (button.getValue() == 1);
-		}
-		if (button.id == 3) {
-			this.data.hasInv = (button.getValue() == 1);
-		}
-		if (button.id == 4) {
-			this.data.hasAdvanced = (button.getValue() == 1);
-		}
-		if (button.id == 5) {
-			this.data.hasRole = (button.getValue() == 1);
-		}
-		if (button.id == 6) {
-			this.data.hasJob = (button.getValue() == 1);
-		}
-		if (button.id == 10) {
-			this.data.editingModus = (button.getValue() == 1);
-			this.save();
-			this.initGui();
-		}
-		if (button.id == 11) {
-			Client.sendData(EnumPacketServer.TransformLoad, false);
-		}
-		if (button.id == 12) {
-			Client.sendData(EnumPacketServer.TransformLoad, true);
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
+			case 0: this.data.hasDisplay = button.getValue() == 1; break;
+			case 1: this.data.hasStats = button.getValue() == 1; break;
+			case 2: this.data.hasAi = button.getValue() == 1; break;
+			case 3: this.data.hasInv = button.getValue() == 1;break;
+			case 4: this.data.hasAdvanced = button.getValue() == 1;break;
+			case 5: this.data.hasRole = button.getValue() == 1; break;
+			case 6: this.data.hasJob = button.getValue() == 1; break;
+			case 10: {
+				this.data.editingModus = button.getValue() == 1;
+				this.save();
+				this.initGui();
+				break;
+			}
+			case 11: Client.sendData(EnumPacketServer.TransformLoad, false); break;
+			case 12: Client.sendData(EnumPacketServer.TransformLoad, true); break;
 		}
 	}
 

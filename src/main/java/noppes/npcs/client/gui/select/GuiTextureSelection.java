@@ -14,7 +14,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.DefaultResourcePack;
@@ -108,16 +107,16 @@ implements ICustomScrollListener {
 		}
 		this.selectDir = null;
 	}
-	
+
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id==3) {
-			this.dark = ((GuiNpcCheckBox) guibutton).isSelected();
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id==3) {
+			this.dark = ((GuiNpcCheckBox) button).isSelected();
 			return;
 		}
-		super.actionPerformed(guibutton);
+		super.actionPerformed(button);
 		String res = this.baseResource;
-		if (guibutton.id == 2 && this.resource!=null) {
+		if (button.id == 2 && this.resource!=null) {
 			res = this.resource.toString();
 		}
 		if (this.npc!=null && this.type>=0 && this.type<=2) {
@@ -258,7 +257,8 @@ implements ICustomScrollListener {
 			this.scroll.setColors(colors);
 			this.scroll.setSuffixs(suffixs);
 			this.scroll.setListNotSorted(list);
-			if (this.scroll.selected!=pos) { this.scroll.selected = pos; }
+			if (this.scroll.selected != pos) { this.scroll.selected = pos; }
+			this.scroll.resetRoll();
 			char chr = Character.toChars(0x00A7)[0];
 			domian =  chr+"l"+this.selectDir.getResourceDomain()+"/"+path;
 			while (this.mc.fontRenderer.getStringWidth(domian)>250 && path.indexOf("/")!=-1) {

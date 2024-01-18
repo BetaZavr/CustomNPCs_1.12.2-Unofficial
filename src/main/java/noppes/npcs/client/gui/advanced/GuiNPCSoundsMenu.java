@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.advanced;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -28,9 +27,9 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 6) {
-			this.npc.advanced.disablePitch = (((GuiNpcButton) button).getValue() == 0);
+			this.npc.advanced.disablePitch = button.getValue() == 0;
 		}
 		else if (button.id < 10) {
 			this.selectedField = this.getTextField(button.id);

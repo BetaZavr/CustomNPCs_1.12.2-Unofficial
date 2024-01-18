@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.NoppesUtil;
@@ -46,8 +45,7 @@ public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			if (this.select.isEmpty()) {
 				return;

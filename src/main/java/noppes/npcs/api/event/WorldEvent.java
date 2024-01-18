@@ -1,5 +1,6 @@
 package noppes.npcs.api.event;
 
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.IWorld;
 import noppes.npcs.api.entity.IEntity;
@@ -30,7 +31,7 @@ public class WorldEvent extends CustomNPCsEvent {
 		public IEntity<?> entity;
 		public int id;
 		
-		public ScriptTriggerEvent(int id, IWorld world, IPos pos, IEntity<?> entity, Object[] arguments) {
+		public ScriptTriggerEvent(int id, IWorld world, IPos pos, IEntity<?> entity, Object ... arguments) {
 			super(world);
 			this.id = id;
 			this.arguments = arguments;
@@ -39,5 +40,16 @@ public class WorldEvent extends CustomNPCsEvent {
 		}
 		
 	}
+
 	
+	public static class ServerTickEvent extends WorldEvent {
+		
+		public TickEvent.ServerTickEvent event;
+		
+		public ServerTickEvent(TickEvent.ServerTickEvent event) {
+			super(null);
+			this.event = event;
+		}
+		
+	}
 }

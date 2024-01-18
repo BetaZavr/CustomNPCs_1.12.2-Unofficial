@@ -84,7 +84,7 @@ implements ICustomScrollListener {
 		super.initGui();
 		this.addButton(new GuiNpcButton(10, this.guiLeft, this.guiTop + 46, 120, 20, "Reset To NPC"));
 		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setUnsortedList(this.list);
+			(this.scroll = new GuiCustomScroll(this, 0)).setListNotSorted(this.list);
 		}
 		this.scroll.guiLeft = this.guiLeft;
 		this.scroll.guiTop = this.guiTop + 68;

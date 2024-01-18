@@ -6,7 +6,6 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -105,7 +104,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0:
 				this.cancelled = false;

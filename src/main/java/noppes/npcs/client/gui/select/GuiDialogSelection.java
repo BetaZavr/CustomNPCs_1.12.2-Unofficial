@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -44,9 +43,8 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 2) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 2) {
 			if (this.selectedDialog != null) {
 				this.scrollDoubleClicked(null, null);
 			} else {
@@ -76,9 +74,7 @@ implements ICustomScrollListener {
 			}
 		}
 		this.dialogData = dialogData;
-		if (this.scrollCategories == null) {
-			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200);
-		}
+		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200); }
 		this.scrollCategories.setList(Lists.newArrayList(categoryData.keySet()));
 		if (this.selectedCategory != null) {
 			this.scrollCategories.setSelected(this.selectedCategory.title);

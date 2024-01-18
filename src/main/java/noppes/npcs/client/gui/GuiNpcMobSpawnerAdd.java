@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -38,14 +37,13 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			String name = this.getTextField(0).getText();
 			if (name.isEmpty()) {
 				return;
 			}
-			int tab = ((GuiNpcButton) guibutton).getValue() + 1;
+			int tab = button.getValue() + 1;
 			if (!GuiNpcMobSpawnerAdd.serverSide) {
 				if (ClientCloneController.Instance.getCloneData(null, name, tab) != null) {
 					this.displayGuiScreen((GuiScreen) new GuiYesNo((GuiYesNoCallback) this, "",
@@ -57,14 +55,14 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 				Client.sendData(EnumPacketServer.ClonePreSave, name, tab);
 			}
 		}
-		if (id == 1) {
+		if (button.id == 1) {
 			this.close();
 		}
-		if (id == 2) {
-			GuiNpcMobSpawnerAdd.tab = ((GuiNpcButton) guibutton).getValue() + 1;
+		if (button.id == 2) {
+			GuiNpcMobSpawnerAdd.tab = button.getValue() + 1;
 		}
-		if (id == 3) {
-			GuiNpcMobSpawnerAdd.serverSide = (((GuiNpcButton) guibutton).getValue() == 1);
+		if (button.id == 3) {
+			GuiNpcMobSpawnerAdd.serverSide = button.getValue() == 1;
 		}
 	}
 

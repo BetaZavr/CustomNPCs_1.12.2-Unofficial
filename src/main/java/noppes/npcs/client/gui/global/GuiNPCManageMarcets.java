@@ -7,7 +7,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -163,8 +162,8 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		this.getButton(5).setEnabled(this.selectedDeal!=null);
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: { // Add market
 				this.save();

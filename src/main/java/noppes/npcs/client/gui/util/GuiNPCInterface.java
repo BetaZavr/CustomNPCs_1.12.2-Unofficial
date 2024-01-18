@@ -86,12 +86,14 @@ implements IEditNPC {
 		this.itemRender = this.mc.getRenderItem();
 		this.fontRenderer = this.mc.fontRenderer;
 	}
-
+	
+	@Override
 	protected void actionPerformed(GuiButton guibutton) {
+		if (!(guibutton instanceof GuiNpcButton)) { return; }
 		if (this.subgui != null) {
-			this.subgui.buttonEvent(guibutton);
+			this.subgui.buttonEvent((GuiNpcButton) guibutton);
 		} else {
-			this.buttonEvent(guibutton);
+			this.buttonEvent((GuiNpcButton) guibutton);
 		}
 	}
 
@@ -142,7 +144,7 @@ implements IEditNPC {
 		this.buttonList.add(button);
 	}
 
-	public void buttonEvent(GuiButton guibutton) {
+	public void buttonEvent(GuiNpcButton button) {
 	}
 
 	public void close() {

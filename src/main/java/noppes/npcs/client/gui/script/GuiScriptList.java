@@ -7,7 +7,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -52,8 +51,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		String file = "";
 		if (button.id == 1 && this.base.hasSelected()) {
 			try { file = this.base.hoversTexts[this.base.selected][0]; } catch (Exception e) { return; }

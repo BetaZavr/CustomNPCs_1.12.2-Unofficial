@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -19,9 +18,8 @@ public class SubGuiNpcCommand extends SubGuiInterface implements ITextfieldListe
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 66) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 66) {
 			this.close();
 		}
 	}

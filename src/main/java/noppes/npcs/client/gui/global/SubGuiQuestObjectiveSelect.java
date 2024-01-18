@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.global;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -34,79 +33,78 @@ public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		QuestObjective task = null;
 		switch (button.id) {
-		case 66: {
-			this.close();
-			return;
-		}
-		case 71: { // collect item
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 66: {
+				this.close();
 				return;
 			}
-			task.setType(EnumQuestTask.ITEM);
-			Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-					this.quest.questInterface.getPos(task), task.slotID);
-			return;
-		}
-		case 72: {
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 71: { // collect item
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.ITEM);
+				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
+						this.quest.questInterface.getPos(task), task.slotID);
 				return;
 			}
-			task.setType(EnumQuestTask.CRAFT);
-			Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-					this.quest.questInterface.getPos(task), task.slotID);
-			return;
-		}
-		case 73: {
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 72: {
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.CRAFT);
+				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
+						this.quest.questInterface.getPos(task), task.slotID);
 				return;
 			}
-			task.setType(EnumQuestTask.KILL);
-			this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
-			return;
-		}
-		case 74: {
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 73: {
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.KILL);
+				this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
 				return;
 			}
-			task.setType(EnumQuestTask.AREAKILL);
-			this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
-			return;
-		}
-		case 75: {
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 74: {
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.AREAKILL);
+				this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
 				return;
 			}
-			task.setType(EnumQuestTask.DIALOG);
-			this.setSubGui(new GuiNpcQuestTypeDialog(this.npc, task, this.parent));
-			return;
-		}
-		case 76: {
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 75: {
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.DIALOG);
+				this.setSubGui(new GuiNpcQuestTypeDialog(this.npc, task, this.parent));
 				return;
 			}
-			task.setType(EnumQuestTask.LOCATION);
-			this.setSubGui(new GuiNpcQuestTypeLocation(this.npc, task, this.parent));
-			return;
-		}
-		case 77: {
-			task = (QuestObjective) this.quest.addTask();
-			if (task == null) {
+			case 76: {
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.LOCATION);
+				this.setSubGui(new GuiNpcQuestTypeLocation(this.npc, task, this.parent));
 				return;
 			}
-			task.setType(EnumQuestTask.MANUAL);
-			this.setSubGui(new GuiNpcQuestTypeManual(this.npc, task, this.parent));
-			return;
-		}
+			case 77: {
+				task = (QuestObjective) this.quest.addTask();
+				if (task == null) {
+					return;
+				}
+				task.setType(EnumQuestTask.MANUAL);
+				this.setSubGui(new GuiNpcQuestTypeManual(this.npc, task, this.parent));
+				return;
+			}
 		}
 	}
 

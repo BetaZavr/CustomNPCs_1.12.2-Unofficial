@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundRegistry;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -57,19 +56,19 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 1 && MusicController.Instance.isPlaying(this.oldPlay)) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 1 && MusicController.Instance.isPlaying(this.oldPlay)) {
 			MusicController.Instance.stopSound(this.oldPlay, SoundCategory.PLAYERS);
 			this.oldPlay = "";
 			return;
 		}
-		super.actionPerformed(guibutton);
-		if (guibutton.id == 1) {
+		super.actionPerformed(button);
+		if (button.id == 1) {
 			BlockPos pos = this.player.getPosition();
 			MusicController.Instance.playSound(SoundCategory.PLAYERS, this.selectedResource.toString(), pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
 			this.oldPlay = this.selectedResource.toString();
 		}
-		if (guibutton.id == 2) { this.close(); }
+		if (button.id == 2) { this.close(); }
 	}
 
 	@Override

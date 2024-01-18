@@ -61,12 +61,12 @@ public class PlayerScriptData implements IScriptHandler {
 
 	@Override
 	public boolean getEnabled() {
-		return ScriptController.Instance.playerScripts.enabled;
+		return this.enabled;
 	}
 
 	@Override
 	public String getLanguage() {
-		return ScriptController.Instance.playerScripts.scriptLanguage;
+		return this.scriptLanguage;
 	}
 
 	public IPlayer<?> getPlayer() {
@@ -85,7 +85,7 @@ public class PlayerScriptData implements IScriptHandler {
 	}
 
 	public boolean isEnabled() {
-		return ScriptController.Instance.playerScripts.enabled && ScriptController.HasStart
+		return this.enabled && ScriptController.HasStart
 				&& (this.player == null || !this.player.world.isRemote);
 	}
 
@@ -114,7 +114,7 @@ public class PlayerScriptData implements IScriptHandler {
 			PlayerScriptData.errored.clear();
 			if (this.player != null) {
 				this.scripts.clear();
-				for (ScriptContainer script : ScriptController.Instance.playerScripts.scripts) {
+				for (ScriptContainer script : this.scripts) {
 					ScriptContainer s = new ScriptContainer(this, false);
 					s.readFromNBT(script.writeToNBT(new NBTTagCompound()));
 					this.scripts.add(s);

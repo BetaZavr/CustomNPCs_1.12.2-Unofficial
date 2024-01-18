@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -49,8 +48,7 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: {
 				this.setSubGui(new SubGuiNpcRespawn(this.stats));
@@ -93,7 +91,7 @@ implements ITextfieldListener, IGuiData {
 				break;
 			}
 			case 17: {
-				this.stats.potionImmune = ((GuiNpcButtonYesNo) guibutton).getBoolean();
+				this.stats.potionImmune = ((GuiNpcButtonYesNo) button).getBoolean();
 				break;
 			}
 			case 22: {

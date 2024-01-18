@@ -15,10 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
@@ -26,7 +23,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -132,24 +128,34 @@ public class ClientTickHandler {
 		Map<String, ISound> playingSounds = ObfuscationHelper.getValue(SoundManager.class, sm, 8);
 		List<String> del = Lists.newArrayList();
 		for (String uuid : playingSounds.keySet()) { // is played
-			if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
-				ISound sound = playingSounds.get(uuid);
-				if (sound.getCategory()==SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
-					ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
+			try {
+				if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
+					ISound sound = playingSounds.get(uuid);
+					if (sound.getCategory()==SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
+						ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
+					}
+					this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
+					Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
 				}
-				this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
-				Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
+			} catch (Exception e) {
+				LogWriter.error("Error set played sound: "+e);
+				del.add(uuid);
 			}
 		}
 		for (String uuid : this.nowPlayingSounds.keySet()) { // is stoped
-			if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
-				ISound sound = this.nowPlayingSounds.get(uuid);
-				if (ClientTickHandler.musics.containsKey(sound)) {
-					ClientTickHandler.musics.remove(sound);
+			try {
+				if (!playingSounds.containsKey(uuid) || !playingSounds.containsValue(this.nowPlayingSounds.get(uuid))) {
+					ISound sound = this.nowPlayingSounds.get(uuid);
+					if (ClientTickHandler.musics.containsKey(sound)) {
+						ClientTickHandler.musics.remove(sound);
+					}
+					Client.sendData(EnumPacketServer.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
+					del.add(uuid);
 				}
-				Client.sendData(EnumPacketServer.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
+			} catch (Exception e) {
+				LogWriter.error("Error stop played sound: "+e);
 				del.add(uuid);
 			}
 		}
@@ -295,213 +301,6 @@ public class ClientTickHandler {
 			event.getMap().registerSprite(res);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
-	}
-	
-	@SubscribeEvent
-	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-		EntityLivingBase entity = event.getEntityLiving();
-		/*if (entity instanceof EntityCustomNpc) { // on sever side
-			AnimationConfig anim = ((EntityCustomNpc) entity).animation.getActiveAnimation(AnimationKind.JUMP);
-			if (anim!=null) {
-				anim.startToNpc((EntityCustomNpc) entity);
-			}
-		}*/
-		if (!(entity instanceof EntityPlayer)) { return; }
-		//System.out.println("Client: "+entity);
-		if (entity instanceof EntityPlayerMP) {
-			//EntityPlayerMP player = (EntityPlayerMP) entity;
-			//player.getActivePotionEffects().toArray();
-			//Server.sendData((EntityPlayerMP) entity, EnumPacketClient.SYNC_END, 10, KeyController.getInstance().getNBT());
-			//System.out.println("Server: "+entity);
-		}
-		if (!(entity instanceof EntityPlayerSP)) { return; }
-		//EntityPlayerSP player = (EntityPlayerSP) entity;
-		//TempClass.createAPIs(true);
-		//TempClass.deobfucation();
-		//TempClass.cheakLang();
-		
-		/*AxisAlignedBB bb = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0).offset(entity.getPosition()).grow(3.0d, 3.0d, 3.0d);
-		List<Entity> entities = entity.world.getEntitiesWithinAABB(Entity.class, bb);
-		System.out.println("entities: "+entities.size());
-		for (Entity e : entities) {
-			System.out.println("Entity: "+e.getName());
-		}*/
-		
-		/*try {
-			@SuppressWarnings("unchecked")
-			Class<GraalJSEngineFactory> c = (Class<GraalJSEngineFactory>) Class.forName("com.oracle.truffle.js.scriptengine.GraalJSEngineFactory");
-			Field f = c.getDeclaredField("LANGUAGE");
-			Field modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(f, f.getModifiers() - Modifier.FINAL - Modifier.PRIVATE + Modifier.PUBLIC);
-			f.set(c, new String("GraalJScript"));
-			modifiersField.setInt(f, f.getModifiers() -  Modifier.PUBLIC + Modifier.FINAL + Modifier.PRIVATE);
-		} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		
-		/*List<String> list = Lists.newArrayList("IsInstant", "IsBeneficial", "MaxStackSize", "ItemType", "RegistryName", "BaseDelay", "IsBadEffect",
-				"Duration", "CureItem", "CreateAllFiles", "LiquidColor", "Modifiers");
-		Collections.sort(list);
-		System.out.println("list: ["+list+"]");*/
-		
-		/*for (PotionEffect pe : player.getActivePotionEffects()) {
-			try {
-				System.out.println("Potion: "+pe.getPotion()+" = "+pe.getPotion().getAttributeModifierMap());
-			} catch (Exception e) {}
-		}*/
-		
-		/*Point[] arr = new Point[0];
-		System.out.println("Array: "+arr);
-		Class<?> c = arr.getClass();
-		System.out.println("Array class: "+c.getName());
-		String path = c.getTypeName();
-		path = path.substring(0, path.indexOf("[]"));
-		try { c = Class.forName(path); } catch (Exception e) {}
-		System.out.println("Class: "+c.getName());*/
-		
-		/*if (ClientTickHandler.music==null) { return; }
-		String name = ClientTickHandler.music.sound.getSound().getSoundAsOggLocation().toString();
-		System.out.println("name: "+name+"; uuid: "+ClientTickHandler.music.uuid);
-		System.out.println("length: "+ClientTickHandler.music.source.soundBuffer.audioData.length);
-
-		AudioFormat format = ClientTickHandler.music.source.soundBuffer.audioFormat;
-		System.out.println("length: "+ClientTickHandler.music.source.soundBuffer.audioData.length);
-		System.out.println("format: "+format);
-		System.out.println("delay: "+ClientTickHandler.music.millitotal);*/
-		
-		/*File dir = CustomNpcs.getWorldSaveDirectory();
-		if (dir.exists()) {
-			dir = dir.getParentFile();
-			File f = new File(dir, "level.dat");
-			try {
-				NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(f));
-				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:blocks").getTagList("ids", 10);
-				NBTTagList newList = new NBTTagList();
-				for (NBTBase tag : list) {
-					if (((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_fasingblockexample") ||
-							((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_flat_lamp_it") ||
-							((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_switch_0") ||
-							((NBTTagCompound) tag).getString("K").equals("customnpcs:custom_mini_free")) {
-						System.out.println("found: "+((NBTTagCompound) tag).getString("K"));
-						continue;
-					}
-					newList.appendTag(tag);
-				}
-				if (list.tagCount()!=newList.tagCount()) {
-					nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:blocks").setTag("ids", newList);
-					System.out.println("list: "+list.toString().length()+" // "+newList.toString().length());
-					CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(f));
-					System.out.println("save:");
-				}
-			}
-			catch (IOException e) { }
-		}*/
-		
-		/*for (KeyBinding kb : Minecraft.getMinecraft().gameSettings.keyBindings) {
-			System.out.println("key: "+kb.getDisplayName()+" _ "+kb.getKeyCategory()+" = "+kb.getKeyCode()+" // "+kb.getKeyModifier()+" /// "+kb.getKeyConflictContext().getClass()+"["+kb.getKeyConflictContext()+"]");
-		}*/
-		
-		/*String v = Integer.toHexString(CustomNpcs.mainColor).toUpperCase();
-		int i = (int) Long.parseLong(v, 16);
-		System.out.println("D: "+(int) CustomNpcs.mainColor+" to hex: \""+v+"\" next: "+i);*/
-		
-		/*System.out.println("try found chests:");
-		Iterator<Item> iter = Item.REGISTRY.iterator();
-		int i = 0;
-		while (iter.hasNext()) {
-			Item item = iter.next();
-			if (item.getRegistryName().toString().toLowerCase().indexOf("chest")!=-1 && item.getRegistryName().toString().toLowerCase().indexOf("chestplate")==-1) {
-				System.out.println("found["+i+"] - "+item.getRegistryName());
-			}
-			i++;
-		}
-		System.out.println("total["+i+"];");*/
-		
-		/*ItemStack stack = entity.getHeldItemMainhand();
-		Item item = entity.getHeldItemMainhand().getItem();
-		System.out.println("stack: "+stack.getTagCompound());
-		System.out.println("item: "+item.getClass().getName()+" - "+item.getRegistryName());*/
-		//System.out.println("item: "+entity.getHeldItemMainhand().getItem().onItemUse((EntityPlayer) entity, entity.world, new BlockPos(282, 60, 220), EnumHand.MAIN_HAND, EnumFacing.UP, 0.5f, 0.5f, 0.5f));
-		
-		//((EntityPlayerMP) entity).setPositionAndUpdate(5001.5d, 151.5d, 5001.5d);
-		
-		/*try {
-			Class<?> cl = Class.forName("net.minecraft.util.EnumParticleTypes");
-			System.out.println("Enum class: "+cl);
-			for (Field f : cl.getDeclaredFields()) {
-				if (!f.getType().isInterface()) { continue; }
-				System.out.println("Field name: "+f.getName()+"; type: "+f.getType());
-				try {
-					if (!f.isAccessible()) { f.setAccessible(true); }
-					Map<?, ?> map = (Map<?, ?>) f.get(cl);
-					for (Entry<?, ?> entry : map.entrySet()) {
-						System.out.println("Field map Key: "+entry.getKey().getClass());
-						break;
-					}
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		catch (ClassNotFoundException e) { e.printStackTrace(); }*/
-		
-		/*// Simple Placer
-		int d = 128, sx = -5000 - d, sy = 0, sz = 5000 - d, cx = 0, cy = 0, cz = 0, i = 0;
-		int nx = d*2, ny=9, nz = d*2;
-		long t = System.currentTimeMillis();
-		System.out.println("size: "+(nx*nz));
-		//Block block = Block.REGISTRY.getObject(new ResourceLocation(CustomNpcs.MODID, "custom_block_9"));
-		//System.out.println("block_9: "+block);
-		//if (block==null) { return; }
-		while(cy<ny) {
-			while(cz<nz) {
-				while(cx<nx) {
-					//IBlockState place = block.getDefaultState();
-					//if (cz>2 && cz<95 && cx>2 && cx<95) { place = Blocks.AIR.getDefaultState(); }
-					entity.world.setBlockState(new BlockPos(sx+cx, sy, sz+cz), Blocks.AIR.getDefaultState());
-					i++;
-					cx ++;
-					//if (sx+cx == -5000) { System.out.println("xyz["+cx+", "+cy+", "+cz+"]: ["+(sx+cx)+", "+sy+", "+(sz+cz)+"]"); }
-				}
-				cz ++;
-				cx = 0;
-				//System.out.println("y["+cy+"]: "+(sy + cy)+"; z["+cz+"]: "+(sz + cz)+"; ["+sx+"/"+(sx+nx)+"]");
-			}
-			cy ++;
-			cz = 0;
-		}
-		System.out.println("total["+i+"]: "+AdditionalMethods.ticksToElapsedTime(t-System.currentTimeMillis(), true, false, false));
-		*/
-		
-		/*// Radius Placer
-		int radius = 64, sx = -5000 - radius, sy = 3, sz = 5000 - radius, cx = 0 - radius, cz = 0 - radius, i = 0;
-		int nx = radius, nz = radius;
-		System.out.println("size: "+(4 * radius * radius)+" / "+Math.round(Math.PI * Math.pow(radius, 2.0d)));
-		long t = System.currentTimeMillis();
-		while(cz<nz) {
-			while(cx<nx) {
-				double tr = Math.sqrt(Math.pow((double) cx + 0.5d, 2.0d) +Math.pow((double) cz + 0.5d, 2.0d));
-				if (tr>radius) { cx ++; continue; }
-				int cy = tr>radius/3 ? tr>radius*2/3 ? 2 : 1 : 0;
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy, sz+cz+radius), Blocks.BEDROCK.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+1, sz+cz+radius), Blocks.STONE.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+2, sz+cz+radius), Blocks.STONE.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+3, sz+cz+radius), Blocks.STONE.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+4, sz+cz+radius), Blocks.DIRT.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+5, sz+cz+radius), Blocks.DIRT.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+6, sz+cz+radius), Blocks.DIRT.getDefaultState());
-				entity.world.setBlockState(new BlockPos(sx+cx+radius, sy+cy+7, sz+cz+radius), Blocks.GRASS.getDefaultState());
-				i++;
-				cx ++;
-			}
-			cz ++;
-			cx = 0 - radius;
-			System.out.println("z["+cz+"]: "+(sz + cz));
-		}
-		System.out.println("total["+i+"]: "+AdditionalMethods.ticksToElapsedTime(t-System.currentTimeMillis(), true, false, false));
-		*/
 	}
 
 }

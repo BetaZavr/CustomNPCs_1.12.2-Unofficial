@@ -13,7 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.reflect.ClassPath;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
@@ -30,9 +34,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -41,6 +47,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -70,6 +77,7 @@ import noppes.npcs.api.event.ForgeEvent;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.api.handler.data.IWorldInfo;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.client.AnalyticsTracking;
@@ -84,6 +92,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.QuestData;
+import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBoundary;
@@ -96,7 +105,6 @@ import noppes.npcs.util.ObfuscationHelper;
 public class PlayerEventHandler {
 	
 	public class ForgeEventHandler {
-		
 		@SubscribeEvent
 		public void forgeEntity(Event event) {
 			EventHooks.onForgeEvent(new ForgeEvent(event));
@@ -323,8 +331,8 @@ public class PlayerEventHandler {
 		CustomNpcs.proxy.updateRecipeBook(event.player);
 		if (event.player.world.isRemote) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
-		PlayerScriptData handler = PlayerData.get(event.player).scriptData;
-		EventHooks.onPlayerLogin(handler);
+		PlayerData data = PlayerData.get(event.player);
+		EventHooks.onPlayerLogin(data.scriptData);
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
 		MinecraftServer server = event.player.getServer();
 		for (WorldServer world : server.worlds) {
@@ -351,14 +359,12 @@ public class PlayerEventHandler {
 				if (player.world.isRemote) {
 					return;
 				}
-				PlayerQuestData playerdata = PlayerData.get(event.player).questData;
-				for (QuestData data : playerdata.activeQuests.values()) { // Changed
-					for (IQuestObjective obj : data.quest
-							.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+				for (QuestData qd : data.questData.activeQuests.values()) { // Changed
+					for (IQuestObjective obj : qd.quest .getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
 						if (obj.getType() != 0) {
 							continue;
 						}
-						playerdata.checkQuestCompletion(player, data);
+						data.questData.checkQuestCompletion(player, qd);
 					}
 				}
 			}
@@ -377,6 +383,9 @@ public class PlayerEventHandler {
 		}
 		Server.sendData(player, EnumPacketClient.DIMENSIOS_IDS, DimensionHandler.getInstance().getAllIDs());
 		SyncController.syncPlayer((EntityPlayerMP) event.player);
+		if (data.game.logPos != null) { // protection against remote measurements
+			NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, data.game.logPos[0], data.game.logPos[1], data.game.logPos[2], (int) data.game.logPos[3], event.player.rotationYaw, event.player.rotationPitch);
+		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
 	}
 
@@ -395,6 +404,26 @@ public class PlayerEventHandler {
 			data.bankData.lastBank.save();
 			data.bankData.lastBank = null;
 		}
+		IWorldInfo dim = DimensionHandler.getInstance().getMCWorldInfo(event.player.world.provider.getDimension());
+		if (dim instanceof CustomWorldInfo) { // protection against remote measurements
+			data.game.logPos = new double[] { event.player.posX, event.player.posY, event.player.posZ, event.player.world.provider.getDimension() };
+			WorldServer world = event.player.getServer().getWorld(0);
+			BlockPos coords = world.getSpawnCoordinate();
+			double x = 0, y = 70, z = 0;
+			if (coords == null) { coords = world.getSpawnPoint(); }
+			if (coords != null) {
+				if (!world.isAirBlock(coords)) { coords = world.getTopSolidOrLiquidBlock(coords); }
+				else if (!world.isAirBlock(coords.up())) {
+					while (world.isAirBlock(coords) && coords.getY() > 0) { coords = coords.down(); }
+					if (coords.getY() == 0) { coords = world.getTopSolidOrLiquidBlock(coords); }
+				}
+				x = coords.getX();
+				y = coords.getY();
+				z = coords.getZ();
+			}
+			NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, x, y, z, 0, event.player.rotationYaw, event.player.rotationPitch);
+		}
+		else { data.game.logPos = null; }
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLogoutEvent");
 	}
 
@@ -600,7 +629,7 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcServerTick");
 	}
 
-	public PlayerEventHandler registerForgeEvents() { // Changed
+	public PlayerEventHandler registerForgeEvents(Side side) { // Changed
 		ForgeEventHandler handler = new ForgeEventHandler();
 		LogWriter.info("CustomNpcs: Start load Forge Events:");
 		CustomNpcs.debugData.startDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
@@ -772,6 +801,8 @@ public class PlayerEventHandler {
 			isClientEvents.add(FMLNetworkEvent.ClientCustomPacketEvent.class);
 			// Set the main method of the mod for each event
 			for (Class<?> infoClass : listCalsses) {
+				boolean isClient = false;
+				Class<?> debugClass = null;
 				try {
 					String pfx = "";
 					//if (ms.containsKey(infoClass)) { pfx = ms.get(infoClass); }
@@ -780,6 +811,7 @@ public class PlayerEventHandler {
 
 					// Registering events from classes
 					for (Class<?> c : classes) {
+						debugClass = c;
 						// Cheak
 						boolean canAdd = true;
 						for (Class<?> nae : notAssingException) {
@@ -788,15 +820,19 @@ public class PlayerEventHandler {
 								break;
 							}
 						}
-						boolean isClient = false;
+						isClient = false;
 						for (Class<?> nae : isClientEvents) {
 							if (nae.isAssignableFrom(c)) {
 								isClient = true;
 								break;
 							}
 						}
-						if (!canAdd || !Event.class.isAssignableFrom(c) || Modifier.isAbstract(c.getModifiers())
-								|| !Modifier.isPublic(c.getModifiers()) || CustomNpcs.forgeEventNames.containsKey(c)) {
+						if ((side == Side.SERVER && isClient) ||
+								!canAdd ||
+								!Event.class.isAssignableFrom(c) ||
+								Modifier.isAbstract(c.getModifiers()) ||
+								!Modifier.isPublic(c.getModifiers()) ||
+								CustomNpcs.forgeEventNames.containsKey(c)) {
 							continue;
 						}
 						// Put Name
@@ -806,13 +842,15 @@ public class PlayerEventHandler {
 						eventName = pfx + StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
 						if (CustomNpcs.forgeEventNames.containsValue(eventName)) { continue; }
 						// Add
-						register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
+						if (side == Side.CLIENT || !isClient) {
+							register.invoke(MinecraftForge.EVENT_BUS, c, handler, m, Loader.instance().activeModContainer());
+						}
 						CustomNpcs.forgeClientEventNames.put(c, eventName);
 						if (!isClient) { CustomNpcs.forgeEventNames.put(c, eventName); }
 						//LogWriter.debug("Add Forge "+(isClient ? "client" : "common")+" Event "+c.getName());
 					}
-				} catch (Throwable t) {
-					System.out.println("CustomNpcs Error Register Forge Event: " + t);
+				} catch (Exception t) {
+					LogWriter.error("["+side+"] CustomNpcs Error Register Forge "+(isClient ? "client" : "server")+" Event: " + infoClass.getSimpleName() + (debugClass!=null ? "; subClass: "+debugClass.getSimpleName(): ""), t);
 				}
 			}
 			if (PixelmonHelper.Enabled) {
@@ -851,4 +889,93 @@ public class PlayerEventHandler {
 		return this;
 	}
 
+	
+	@SubscribeEvent
+	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
+		if (!(event.getEntityLiving() instanceof EntityPlayer)) { return; }
+		EntityLivingBase entity = event.getEntityLiving();
+		/*for (Entity e : entity.world.loadedEntityList) {
+			if (!(e instanceof EntityNPCInterface)) {continue;}
+			System.out.println("NPC: "+e.getName());
+		}*/
+		if (entity instanceof EntityPlayerMP) {
+			//EntityPlayerMP player = (EntityPlayerMP) entity;
+			/*// Delete
+			int x, y = 0, z;
+			while (y < 103) {
+				System.out.println("start y: "+y);
+				z = -128;
+				while (z < 109) {
+					x = -146;
+					while (x < 123) {
+						if (x==0 && y==63 && z==0) { x++; continue; }
+						player.world.setBlockToAir(new BlockPos(x, y, z));
+						x++;
+					}
+					z++;
+				}
+				y++;
+			}*/
+		} else {
+			/*File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
+			File dir16 = new File(dir.getParentFile().getParentFile(), "1.16.5/CustomNpcs Un");
+			File dir12 = new File(dir, "src/main/resources/assets/customnpcs/lang");
+			dir16 = new File(dir16, "src/main/resources/assets/customnpcs/lang");
+			dir = new File(dir, "src");
+			for (int i = 0; i < 2; i++) {
+				String name = (i == 0 ? "en_us" : "ru_ru");
+				File lang12 = new File(dir12, name + ".lang");
+				File lang16 = new File(dir16, name + ".json");
+				Map<String, String> map12 = Maps.<String, String>newTreeMap();
+				Map<String, String> map16 = Maps.<String, String>newTreeMap();
+				try {
+					String[] langs12 = Files.toString(lang12, Charset.forName("UTF-8")).split(""+((char) 10));
+					String[] langs16 = Files.toString(lang16, Charset.forName("UTF-8")).split(""+((char) 10));
+					for (String line : langs12) {
+						if (line.indexOf("=")==-1) { continue; }
+						String key = line.substring(0, line.indexOf("="));
+						if (key.startsWith("item.") && key.endsWith(".name")) {
+							key = key.replace(".name", "").replace("item.", "item.customnpcs.");
+						}
+						String value = line.indexOf("=")+1<=line.length() ? line.substring(line.indexOf("=")+1) : "";
+						if (value.isEmpty()) { continue; }
+						while (value.indexOf("\"")!=-1) { value = value.replace("\"", "''"); }
+						map12.put(key, value);
+					}
+					for (String line : langs16) {
+						if (line.indexOf("\": \"")==-1) { continue; }
+						String key = line.substring(line.indexOf("\"")+1, line.indexOf("\": \""));
+						String value = line.indexOf("\": \"")+4 <= line.length() ? line.substring(line.indexOf("\": \"")+4, line.indexOf("\"", line.indexOf("\": \"")+4)) : "";
+						if (value.isEmpty()) { continue; }
+						map16.put(key, value);
+					}
+				}
+				catch (IOException e) {}
+				for (String key : map12.keySet()) {
+					if (map16.containsKey(key)) { continue; }
+					map16.put(key, map12.get(key));
+				}
+				System.out.println("CNPCs new maps: "+map12.size()+" // "+map16.size());
+				String total = "{" + ((char) 10);
+				for (String key : map16.keySet()) {
+					total += ((char) 9) + "\"" + key + "\": \"" + map16.get(key) + "\"," + ((char) 10);
+				}
+				total = total.substring(0, total.length()-2) + ((char) 10)+"}";
+				try {
+					Files.write(total.getBytes(), new File(dir, name + ".json"));
+					System.out.println("CNPCs save: "+name);
+				}
+				catch (IOException e) {}
+			}*/
+		}
+	}
+
+	public boolean isReplaceable(World w, BlockPos pos) {
+		IBlockState state = w.getBlockState(pos);
+		Block b = state.getBlock();
+		return b.isLeaves(state, w, pos) || b.isWood(w, pos) ||
+				(state.getMaterial().isReplaceable() &&
+				!(b instanceof BlockLiquid));
+	}
+	
 }

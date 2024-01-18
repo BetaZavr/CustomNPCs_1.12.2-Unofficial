@@ -20,11 +20,11 @@ import net.minecraft.world.BossInfo;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.ModelPartConfig;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.INPCDisplay;
 import noppes.npcs.client.model.part.ModelData;
-import noppes.npcs.client.model.part.ModelPartConfig;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.VisibilityController;
 import noppes.npcs.controllers.data.Availability;
@@ -111,6 +111,7 @@ implements INPCDisplay {
 
 	@Override
 	public String getModel() {
+		if (!(this.npc instanceof EntityCustomNpc)) { return null; }
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		if (modeldata.entityClass == null) {
 			return null;
@@ -127,6 +128,7 @@ implements INPCDisplay {
 
 	@Override
 	public float[] getModelScale(int part) {
+		if (!(this.npc instanceof EntityCustomNpc)) { return new float[] { 1.0f, 1.0f, 1.0f }; }
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		ModelPartConfig model = null;
 		if (part == 0) {
@@ -208,7 +210,7 @@ implements INPCDisplay {
 
 	public boolean isVisibleTo(EntityPlayerMP player) {
 		if (this.visible == 1) { return !this.availability.isAvailable((EntityPlayer) player); }
-		return this.availability.isAvailable((EntityPlayer) player);
+		return true;
 	}
 
 	@Override
@@ -264,7 +266,6 @@ implements INPCDisplay {
 		}
 		this.visible = displayNbt.getInteger("NpcVisible");
 		this.availability.readFromNBT(displayNbt.getCompoundTag("VisibleAvailability"));
-		VisibilityController.trackNpc(this.npc);
 		this.disableLivingAnimation = displayNbt.getBoolean("NoLivingAnimation");
 		this.noHitbox = displayNbt.getBoolean("IsStatue");
 		this.setBossbar(displayNbt.getByte("BossBar"));
@@ -278,6 +279,8 @@ implements INPCDisplay {
 		this.npc.updateHitbox();
 		if (displayNbt.hasKey("ShadowSize", 5)) { this.shadowSize = ValueUtil.correctFloat(displayNbt.getFloat("ShadowSize"), 0, 1.5f); }
 		else { this.shadowSize = 1.0f; }
+		
+		VisibilityController.trackNpc(this.npc);
 	}
 
 	@Override
@@ -311,9 +314,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setHasHitbox(boolean bo) {
-		if (this.noHitbox != bo) {
-			return;
-		}
+		if (this.noHitbox != bo) { return; }
 		this.noHitbox = !bo;
 		this.npc.updateClient = true;
 	}
@@ -340,6 +341,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setModel(String id) {
+		if (!(this.npc instanceof EntityCustomNpc)) { return; }
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		if (id == null) {
 			if (modeldata.entityClass == null) {
@@ -360,6 +362,7 @@ implements INPCDisplay {
 
 	@Override
 	public void setModelScale(int part, float x, float y, float z) {
+		if (!(this.npc instanceof EntityCustomNpc)) { return; }
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		ModelPartConfig model = null;
 		if (part == 0) {

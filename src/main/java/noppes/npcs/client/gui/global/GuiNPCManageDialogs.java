@@ -10,7 +10,6 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -221,8 +220,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		}
 	}
 
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 1: { // new cat
 				this.setSubGui(new SubGuiEditText(1, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));

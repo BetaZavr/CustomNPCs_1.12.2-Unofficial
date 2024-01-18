@@ -398,8 +398,10 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 					if (CustomNpcs.Server!=null) { world = CustomNpcs.Server.getEntityWorld(); }
 					else if (CustomNpcs.proxy.getPlayer()!=null) { world = CustomNpcs.proxy.getPlayer().world; }
 					this.completer = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
-					this.completer.display.setName(name);
-					this.completerUUID = this.completer.getUniqueID();
+					if (this.completer != null) {
+						this.completer.display.setName(name);
+						this.completerUUID = this.completer.getUniqueID();
+					}
 				}
 			}
 		}

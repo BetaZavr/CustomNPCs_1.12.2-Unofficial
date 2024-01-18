@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.controllers.MarcetController;
@@ -16,6 +17,7 @@ public class PlayerGameData {
 	public boolean updateClient; // ServerTickHandler.onPlayerTick()
 	public boolean op = false; // ServerTickHandler.onPlayerTick()
 	public final List<MarkupData> marketData = Lists.<MarkupData>newArrayList(); // ID market, slot
+	public double[] logPos;
 
 	public long getMoney() { return this.money; }
 	
@@ -36,6 +38,11 @@ public class PlayerGameData {
 		NBTTagList markup = new NBTTagList();
 		for (MarkupData data : this.marketData) { markup.appendTag(data.getPlayerNBT()); }
 		compound.setTag("MarketData", markup);
+		if (this.logPos != null) {
+			NBTTagList pos = new NBTTagList();
+			for (double d : this.logPos) { pos.appendTag(new NBTTagDouble(d)); }
+			compound.setTag("LoginPos", pos);
+		}
 		return compound;
 	}
 
@@ -54,6 +61,11 @@ public class PlayerGameData {
 					NBTTagCompound nbt = gameNBT.getTagList("MarketData", 10).getCompoundTagAt(i);
 					this.marketData.add(new MarkupData(nbt.getInteger("id"), nbt.getInteger("slot"), nbt.getInteger("xp")));
 				}
+			}
+			this.logPos = null;
+			if (gameNBT.hasKey("LoginPos", 9) && gameNBT.getTagList("LoginPos", 6).tagCount() > 3) {
+				NBTTagList list = gameNBT.getTagList("LoginPos", 6);
+				this.logPos = new double[] { list.getDoubleAt(0), list.getDoubleAt(1), list.getDoubleAt(2), list.getDoubleAt(3) };
 			}
 		}
 	}

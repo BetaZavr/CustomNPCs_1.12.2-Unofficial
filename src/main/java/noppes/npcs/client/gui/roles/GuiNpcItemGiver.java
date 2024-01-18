@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.roles;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
@@ -31,8 +30,8 @@ extends GuiContainerNPCInterface2 {
 		this.setBackground("npcitemgiver.png");
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			this.role.givingMethod = button.getValue();
 		}

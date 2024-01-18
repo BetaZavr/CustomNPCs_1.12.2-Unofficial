@@ -96,6 +96,7 @@ implements ICloneHandler {
 	}
 
 	public NBTTagCompound getCloneData(ICommandSender player, String name, int tab) {
+		if (name == null || name.isEmpty()) { return null; }
 		File file = new File(new File(this.getDir(), tab + ""), name + ".json");
 		if (!file.exists()) {
 			if (player != null) {
@@ -234,13 +235,17 @@ implements ICloneHandler {
 
 	@Override
 	public IEntity<?> spawn(double x, double y, double z, int tab, String name, IWorld world) {
-		if (world==null || world.getMCWorld().isRemote) { return null; }
+		if (world == null || world.getMCWorld().isRemote) {
+			LogWriter.debug("CloneHandler summoning Error: World: "+(world == null ? "null" : world.getMCWorld().isRemote));
+			return null;
+		}
 		NBTTagCompound compound = this.getCloneData(null, name, tab);
 		if (compound == null) {
 			throw new CustomNPCsException("Unknown clone tab:" + tab + " name:" + name, new Object[0]);
 		}
 		Entity entity = NoppesUtilServer.spawnClone(compound, x, y, z, world.getMCWorld());
 		if (entity == null) {
+			LogWriter.debug("CloneHandler summoning error: Failed to create an entity based on tab: " + tab + "; name: \"" + name+ "\"; compound:" + (compound == null ? "null" : compound.toString().length()));
 			return null;
 		}
 		return NpcAPI.Instance().getIEntity(entity);

@@ -10,6 +10,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.SPacketSpawnPosition;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
@@ -100,7 +101,10 @@ extends CommandNoppesBase {
 		if (!DimensionManager.isDimensionRegistered(id)) {
 			throw new CommandException("DimensionID: "+id+" - not found");
 		}
-		DimensionManager.getProvider(id).setSpawnPoint(new BlockPos(x, y, z));
+		BlockPos pos = new BlockPos(x, y, z);
+		DimensionManager.getProvider(id).setSpawnPoint(pos);
+		DimensionManager.getWorld(id).setSpawnPoint(pos);
+        server.getPlayerList().sendPacketToAllPlayers(new SPacketSpawnPosition(pos));
 		sender.sendMessage(new TextComponentString("Set new spawn pos: ["+x+", "+y+", "+z+"] in dimension ID: "+id));
 	}
 	

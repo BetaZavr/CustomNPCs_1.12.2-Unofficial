@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
@@ -94,8 +93,8 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 1: { // add
 				this.selectedSlot = -1;
 				this.setSubGui(new GuiDialogSelection(-1, 0));

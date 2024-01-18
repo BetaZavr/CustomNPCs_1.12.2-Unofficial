@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.roles;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -36,20 +35,18 @@ implements ITextfieldListener, ISliderListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		if (guibutton.id == 0) {
-			GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.role.matureTo(EnumCompanionStage.values()[button.getValue()]);
 			if (this.role.canAge) {
 				this.role.ticksActive = this.role.stage.matureAge;
 			}
 			this.initGui();
 		}
-		if (guibutton.id == 1) {
+		if (button.id == 1) {
 			Client.sendData(EnumPacketServer.RoleCompanionUpdate, this.role.stage.ordinal());
 		}
-		if (guibutton.id == 2) {
-			GuiNpcButton button = (GuiNpcButton) guibutton;
+		if (button.id == 2) {
 			this.role.canAge = (button.getValue() == 1);
 			this.initGui();
 		}

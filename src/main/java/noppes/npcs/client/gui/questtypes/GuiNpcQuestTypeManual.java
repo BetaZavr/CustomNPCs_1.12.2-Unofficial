@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.questtypes;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.BlockPos;
@@ -46,9 +45,9 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		super.actionPerformed(guibutton);
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		super.buttonEvent(button);
+		switch(button.id) {
 			case 0: {
 				this.close();
 				break;

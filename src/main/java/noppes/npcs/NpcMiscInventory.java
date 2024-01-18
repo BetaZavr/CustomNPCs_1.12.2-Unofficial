@@ -113,6 +113,7 @@ implements IInventory {
 	}
 
 	public ItemStack getStackInSlot(int index) {
+		if (index < 0 || index >= this.items.size()) { return null; }
 		return this.items.get(index);
 	}
 

@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -193,11 +192,10 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		tf.setVisible(this.aliveScroll.getList().size()>0);
 		this.addTextField(tf);
 	}
-	
+
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 1: { // add alive
 				this.isDead = false;
 				this.slot = -1;
@@ -234,7 +232,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 				break;
 			}
 			case 7: { // targetLost alive
-				this.job.setDespawnOnTargetLost(false, ((GuiNpcCheckBox) guibutton).isSelected());
+				this.job.setDespawnOnTargetLost(false, ((GuiNpcCheckBox) button).isSelected());
 				break;
 			}
 			case 8: { // type alive
@@ -277,7 +275,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 				break;
 			}
 			case 15: { // targetLost Dead
-				this.job.setDespawnOnTargetLost(true, ((GuiNpcCheckBox) guibutton).isSelected());
+				this.job.setDespawnOnTargetLost(true, ((GuiNpcCheckBox) button).isSelected());
 				break;
 			}
 			case 16: { // type Dead
@@ -285,11 +283,11 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 				break;
 			}
 			case 17: { // exact
-				this.job.exact = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.job.exact = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 18: { // resetUpdate
-				this.job.resetUpdate = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.job.resetUpdate = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			default: {

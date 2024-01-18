@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.mainmenu;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentString;
@@ -81,8 +80,7 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id!=5 && button.id!=8) { this.save(); }
 		switch (button.id) {
 			case 3: {

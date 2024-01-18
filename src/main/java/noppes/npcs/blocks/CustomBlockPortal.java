@@ -30,8 +30,8 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.ICustomElement;
@@ -42,6 +42,7 @@ import noppes.npcs.api.event.PlayerEvent.CustomTeleport;
 import noppes.npcs.blocks.tiles.CustomTileEntityPortal;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class CustomBlockPortal
 extends BlockEndPortal
@@ -189,7 +190,7 @@ implements ICustomElement {
 			}
 			CustomTileEntityPortal adjacent = this.getTile(world, pos.south());
 			if (adjacent == null) {
-				for (int i=0; i<26; i++) {
+				for (int i=0; i<6; i++) {
 					switch(i) {
 						case 0: { adjacent = this.getTile(world, pos.south()); break; }
 						case 1: { adjacent = this.getTile(world, pos.north()); break; }
@@ -197,38 +198,32 @@ implements ICustomElement {
 						case 3: { adjacent = this.getTile(world, pos.west()); break; }
 						case 4: { adjacent = this.getTile(world, pos.up()); break; }
 						case 5: { adjacent = this.getTile(world, pos.down()); break; }
-						case 6: { adjacent = this.getTile(world, pos.south().east()); break; }
-						case 7: { adjacent = this.getTile(world, pos.south().west()); break; }
-						case 8: { adjacent = this.getTile(world, pos.north().east()); break; }
-						case 9: { adjacent = this.getTile(world, pos.north().west()); break; }
-						case 10: { adjacent = this.getTile(world, pos.down().south()); break; }
-						case 11: { adjacent = this.getTile(world, pos.down().north()); break; }
-						case 12: { adjacent = this.getTile(world, pos.down().east()); break; }
-						case 13: { adjacent = this.getTile(world, pos.down().west()); break; }
-						case 14: { adjacent = this.getTile(world, pos.down().south().east()); break; }
-						case 15: { adjacent = this.getTile(world, pos.down().south().west()); break; }
-						case 16: { adjacent = this.getTile(world, pos.down().north().east()); break; }
-						case 17: { adjacent = this.getTile(world, pos.down().north().west()); break; }
-						case 18: { adjacent = this.getTile(world, pos.up().south()); break; }
-						case 19: { adjacent = this.getTile(world, pos.up().north()); break; }
-						case 20: { adjacent = this.getTile(world, pos.up().east()); break; }
-						case 21: { adjacent = this.getTile(world, pos.up().west()); break; }
-						case 22: { adjacent = this.getTile(world, pos.up().south().east()); break; }
-						case 23: { adjacent = this.getTile(world, pos.up().south().west()); break; }
-						case 24: { adjacent = this.getTile(world, pos.up().north().east()); break; }
-						case 25: { adjacent = this.getTile(world, pos.up().north().west()); break; }
 					}
 					if (adjacent != null) { break; }
 				}
 			}
 			if (adjacent != null) {
-				if (adjacent.posTp.getY()>-1) { ((CustomTileEntityPortal) tile).posTp = NpcAPI.Instance().getIPos(adjacent.posTp.getX(), adjacent.posTp.getY(), adjacent.posTp.getZ()); }
-				if (adjacent.posHomeTp.getY()>-1) { ((CustomTileEntityPortal) tile).posHomeTp = NpcAPI.Instance().getIPos(adjacent.posHomeTp.getX(), adjacent.posHomeTp.getY(), adjacent.posHomeTp.getZ()); }
-				((CustomTileEntityPortal) tile).dimensionId = adjacent.dimensionId;
-				((CustomTileEntityPortal) tile).homeDimensionId = adjacent.homeDimensionId;
-				((CustomTileEntityPortal) tile).speed = adjacent.speed;
-				((CustomTileEntityPortal) tile).alpha = adjacent.alpha;
-				((CustomTileEntityPortal) tile).updateToClient();
+				final CustomTileEntityPortal ctep = adjacent;
+				CustomNPCsScheduler.runTack(() -> {
+					TileEntity t = world.getTileEntity(pos);
+					if (t instanceof CustomTileEntityPortal) {
+						if (ctep.posTp[1]>-1) {
+							((CustomTileEntityPortal) t).posTp[0] = ctep.posTp[0];
+							((CustomTileEntityPortal) t).posTp[1] = ctep.posTp[1];
+							((CustomTileEntityPortal) t).posTp[2] = ctep.posTp[2];
+						}
+						if (ctep.posHomeTp[1]>-1) {
+							((CustomTileEntityPortal) t).posHomeTp[0] = ctep.posHomeTp[0];
+							((CustomTileEntityPortal) t).posHomeTp[1] = ctep.posHomeTp[1];
+							((CustomTileEntityPortal) t).posHomeTp[2] = ctep.posHomeTp[2];
+						}
+						((CustomTileEntityPortal) t).dimensionId = ctep.dimensionId;
+						((CustomTileEntityPortal) t).homeDimensionId = ctep.homeDimensionId;
+						((CustomTileEntityPortal) t).speed = ctep.speed;
+						((CustomTileEntityPortal) t).alpha = ctep.alpha;
+						((CustomTileEntityPortal) t).updateToClient();
+					}
+				}, 250);
 			}
 		}
 		super.onBlockPlacedBy(world, pos, state, placer, stack);

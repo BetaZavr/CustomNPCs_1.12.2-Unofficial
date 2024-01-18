@@ -15,8 +15,6 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -67,8 +65,7 @@ public class ModelBuffer {
 					return -1;
 				}
 				//model.iModel.process(ImmutableMap.of("flip-v", "true"));
-				model.listId = GLAllocation.generateDisplayLists(1);
-				GlStateManager.glNewList(model.listId, GL11.GL_COMPILE);
+				GL11.glNewList(model.listId = GL11.glGenLists(1), GL11.GL_COMPILE);
 				Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
 					if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
 						return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
@@ -92,7 +89,7 @@ public class ModelBuffer {
 				worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
 				for (BakedQuad bakedquad : bakedmodel.getQuads(null, null, 0)) { worldrenderer.addVertexData(bakedquad.getVertexData()); }
 				tessellator.draw();
-				GlStateManager.glEndList();
+				GL11.glEndList();
 				ModelBuffer.MODELS.add(model);
 			}
 			catch (Exception e) {

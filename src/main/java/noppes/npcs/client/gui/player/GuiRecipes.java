@@ -5,7 +5,6 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
@@ -50,7 +49,7 @@ public class GuiRecipes extends GuiNPCInterface {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (!button.enabled) {
 			return;
 		}

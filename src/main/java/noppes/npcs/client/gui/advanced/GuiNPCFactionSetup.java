@@ -5,7 +5,6 @@ import java.util.Vector;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -38,8 +37,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: {
 				this.npc.advanced.attackOtherFactions = (button.getValue() == 1);

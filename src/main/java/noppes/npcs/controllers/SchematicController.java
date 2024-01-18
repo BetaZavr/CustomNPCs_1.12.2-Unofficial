@@ -56,20 +56,20 @@ public class SchematicController {
 		this.map = Maps.<String, SchematicWrapper>newHashMap();
 	}
 
-	public void build(SchematicWrapper schem, ICommandSender sender) {
-		if (schem == null) {
+	public void build(SchematicWrapper schema, ICommandSender sender) {
+		if (schema == null) {
 			this.sendMessage(sender, "schematic.info.notbuild");
 			return;
 		}
-		if (this.buildingList.contains(schem)) {
-			this.sendMessage(sender, "schematic.info.already", this.chr + "7" + schem.schema.getName(), this.chr + "7" + schem.getPercentage(), this.chr + "7%");
-			if (schem.sender != null) {
-				this.sendMessage(sender, "schematic.info.start.name", this.chr + "7" + schem.sender.getName());
+		if (this.buildingList.contains(schema)) {
+			this.sendMessage(sender, "schematic.info.already", this.chr + "7" + schema.schema.getName(), this.chr + "7" + schema.getPercentage(), this.chr + "7%");
+			if (schema.sender != null) {
+				this.sendMessage(sender, "schematic.info.start.name", this.chr + "7" + schema.sender.getName());
 			}
 			return;
 		}
-		schem.setBuilder(sender);
-		this.buildingList.add(schem);
+		schema.setBuilder(sender);
+		this.buildingList.add(schema);
 	}
 
 	public static File getDir() {

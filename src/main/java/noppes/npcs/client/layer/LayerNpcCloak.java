@@ -5,8 +5,8 @@ import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import noppes.npcs.ModelPartConfig;
 import noppes.npcs.client.model.ModelPlayerAlt;
-import noppes.npcs.client.model.part.ModelPartConfig;
 import noppes.npcs.constants.EnumParts;
 
 public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T> {

@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.roles;
 
 import java.util.HashMap;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,17 +31,17 @@ extends GuiContainerNPCInterface2 {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 7) {
-			this.role.infiniteDays = ((GuiNpcButtonYesNo) guibutton).getBoolean();
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 7) {
+			this.role.infiniteDays = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (guibutton.id == 8) {
-			this.role.disableGui = ((GuiNpcButtonYesNo) guibutton).getBoolean();
+		if (button.id == 8) {
+			this.role.disableGui = ((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (guibutton.id == 9) {
-			this.role.refuseSoulStone = !((GuiNpcButtonYesNo) guibutton).getBoolean();
+		if (button.id == 9) {
+			this.role.refuseSoulStone = !((GuiNpcButtonYesNo) button).getBoolean();
 		}
-		if (guibutton.id == 10) {
+		if (button.id == 10) {
 			this.role.killed();
 		}
 	}

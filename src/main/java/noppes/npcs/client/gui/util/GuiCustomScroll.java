@@ -176,7 +176,7 @@ extends GuiScreen {
 		if (this.stacks != null && this.parent!=null &&
 				((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) ||
 				(this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) { this.drawStacks(); }
-		if (this.scrollHeight < this.height - 8) {
+		if (this.scrollHeight <= this.height - 6) {
 			this.drawScrollBar(); // Changed
 			mouseX -= this.guiLeft;
 			mouseY -= this.guiTop;
@@ -228,7 +228,7 @@ extends GuiScreen {
 		}
 	}
 
-	private void drawScrollBar() { // Changed
+	private void drawScrollBar() {
 		int posX = this.guiLeft + this.width - 9;
 		int posY = this.guiTop + (int) ((float) this.scrollY / (float) this.listHeight * ((float) this.height - 18.0f)) + 1;
 		Gui.drawRect(posX, posY, posX + 8, posY + this.scrollHeight + 1, 0xA0FFF0F0);
@@ -281,7 +281,6 @@ extends GuiScreen {
 		return -1;
 	}
 
-	// New
 	public int getPos(String select) {
 		if (select == null || select.isEmpty() || this.list == null || this.list.size() == 0) {
 			return -1;
@@ -461,16 +460,6 @@ extends GuiScreen {
 	public GuiCustomScroll setUnselectable() {
 		this.selectable = false;
 		return this;
-	}
-
-	public void setUnsortedList(List<String> list) {
-		if (this.isSameList(list)) {
-			return;
-		}
-		this.isSorted = false;
-		this.scrollY = 0;
-		this.list = list;
-		this.setSize(this.width, this.height);
 	}
 	
 	@Override

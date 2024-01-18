@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.drop;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -50,16 +49,14 @@ implements ITextfieldListener, ITextChangeListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		int id = button.id;
-		if (id == 90) { // type
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 90) { // type
 			this.tag.setType(Integer.valueOf(button.getVariants()[button.getValue()].replace("tag.type.", "")));
 			this.initGui();
-		} else if (id == 91) { // done
+		} else if (button.id == 91) { // done
 			this.close();
 		}
-		if (id == 92) { // list type
+		if (button.id == 92) { // list type
 			this.tag.setTypeList(Integer.valueOf(button.getVariants()[button.getValue()].replace("tag.type.", "")));
 			this.initGui();
 		}

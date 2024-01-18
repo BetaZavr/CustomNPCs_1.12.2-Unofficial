@@ -1229,6 +1229,10 @@ implements IMetods {
 		return this.distanceTo(entity.getMCEntity().posX, entity.getMCEntity().posY, entity.getMCEntity().posZ, target.getMCEntity().posX, target.getMCEntity().posY, target.getMCEntity().posZ);
 	}
 	
+	public double distanceTo(Entity entity, Entity target) {
+		return this.distanceTo(entity.posX, entity.posY, entity.posZ, target.posX, target.posY, target.posZ);
+	}
+	
 	@Override
 	public double distanceTo(double x0, double y0, double z0, double x1, double y1, double z1) {
 		double d0 = x0 - x1;
@@ -1324,12 +1328,20 @@ implements IMetods {
 				newEntity.forceSpawn = true;
 				worldserverEnd.spawnEntity(newEntity);
 			}
-			worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
-			entity.isDead = true;
-			entity.world.profiler.endSection();
-			worldserverStart.resetUpdateEntityTick();
-			worldserverEnd.resetUpdateEntityTick();
-			entity.world.profiler.endSection();
+			try {
+				worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
+				entity.isDead = true;
+				entity.world.profiler.endSection();
+				worldserverStart.resetUpdateEntityTick();
+				worldserverEnd.resetUpdateEntityTick();
+				entity.world.profiler.endSection();
+			}
+			catch (Exception e) {
+				System.out.println("worldserverEnd: "+worldserverEnd);
+				System.out.println("newEntity: "+newEntity);
+				System.out.println("entity: "+entity);
+			}
+			
 			return newEntity;
 		}
 		return entity;
@@ -1829,6 +1841,16 @@ implements IMetods {
 		}
 		RayTraceResults rtrs = AdditionalMethods.instance.rayTraceBlocksAndEntitys(entity, rtr.yaw, rtr.pitch, rtr.distance);
 		if (rtrs != null) {
+			if (toShoot && rtrs.entitys.length > 0) {
+				double d = AdditionalMethods.instance.distanceTo(entity, target);
+				for (IEntity<?> ei : rtrs.entitys) {
+					if (d > AdditionalMethods.instance.distanceTo(entity, ei.getMCEntity())) {
+						if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
+						if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
+						return false;
+					}
+				}
+			}
 			for (IBlock bi : rtrs.blocks) {
 				if (toShoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
 					if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
@@ -1842,7 +1864,7 @@ implements IMetods {
 				}
 			}
 		}
-		if (!toShoot && !(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS) {
+		if (!toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
 			double yaw = (entity.rotationYawHead - rtr.yaw) % 360.0d;
 			double pitch = (entity.rotationPitch - rtr.pitch) % 360.0d;
 			if (yaw < 0.0d) { yaw += 360.0d; }
@@ -1852,7 +1874,6 @@ implements IMetods {
 				return false;
 			}
 		}
-		
 		int invis =  1 +(!target.isPotionActive(MobEffects.INVISIBILITY) ? -1 : target.getActivePotionEffect(MobEffects.INVISIBILITY).getAmplifier());
 		double chance = invis == 0 ? 1.0d : -0.00026d * Math.pow((double) invis, 3.0d) + 0.00489d * Math.pow((double) invis, 2.0d) - 0.03166 * (double) invis + 0.08d;
 		if (chance > 1.0d) { chance = 1.0d; }

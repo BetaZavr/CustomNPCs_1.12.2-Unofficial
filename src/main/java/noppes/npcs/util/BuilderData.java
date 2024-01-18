@@ -681,9 +681,11 @@ public class BuilderData {
 							listB.add(new SchematicBlockData(player.world, state, p));
 							bd.pos = new BlockPos(p);
 							bd.world = player.world;
-							if (state.getBlock() instanceof BlockSlab) {
-								bd.state.withProperty(BlockSlab.HALF, state.getValue(BlockSlab.HALF));
-							}
+							try {
+								if (state.getBlock() instanceof BlockSlab) {
+									bd.state.withProperty(BlockSlab.HALF, state.getValue(BlockSlab.HALF));
+								}
+							} catch (Exception e) {}
 							bd.set(bd.pos);
 						} else {
 							SchematicBlockData bd = tempBlocks.get(sum-1);
@@ -730,6 +732,7 @@ public class BuilderData {
 				}
 			}
 			this.lastWork = System.currentTimeMillis();
+			Server.sendData(player, EnumPacketClient.SET_SCHEMATIC, this.getNbt());
 			return;
 		}
 		this.lastWork = System.currentTimeMillis() - size;

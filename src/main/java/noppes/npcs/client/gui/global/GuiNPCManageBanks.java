@@ -6,7 +6,6 @@ import java.util.Vector;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
@@ -230,8 +229,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: { // ceil
 				if (this.ceil == button.getValue()) { return; }
@@ -260,7 +258,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 				break;
 			}
 			case 3: { // public
-				GuiNpcCheckBox checkBox = (GuiNpcCheckBox) guibutton;
+				GuiNpcCheckBox checkBox = (GuiNpcCheckBox) button;
 				this.bank.isPublic = checkBox.isSelected();
 				checkBox.setText("bank.public."+this.bank.isPublic);
 				this.initGui();

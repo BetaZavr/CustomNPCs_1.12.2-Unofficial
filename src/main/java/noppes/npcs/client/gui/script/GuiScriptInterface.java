@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiConfirmOpenLink;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -178,8 +177,7 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 						this.getScriptIndex()));
 				this.getButton(103).enabled = (this.languages.size() > 0);
 				this.addLabel(new GuiNpcLabel(2, "gui.enabled", left2, this.guiTop + 36));
-				this.addButton(new GuiNpcButton(104, left2 + 60, this.guiTop + 31, 50, 20,
-						new String[] { "gui.no", "gui.yes" }, (this.handler.getEnabled() ? 1 : 0)));
+				this.addButton(new GuiNpcButton(104, left2 + 60, this.guiTop + 31, 50, 20, new String[] { "gui.no", "gui.yes" }, (this.handler.getEnabled() ? 1 : 0)));
 				if (this.player.getServer() != null) {
 					this.addButton(new GuiNpcButton(106, left2, this.guiTop + 55, 150, 20, "script.openfolder"));
 				}
@@ -197,13 +195,13 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id >= 0 && guibutton.id < 12) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id >= 0 && button.id < 12) {
 			this.setScript();
-			this.activeTab = guibutton.id;
+			this.activeTab = button.id;
 			this.initGui();
 		}
-		if (guibutton.id == 12) {
+		if (button.id == 12) {
 			if (this instanceof GuiScriptClient) {
 				this.activeTab = 1;
 			} else {
@@ -212,25 +210,25 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			}
 			this.initGui();
 		}
-		if (guibutton.id == 109) {
+		if (button.id == 109) {
 			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.kodevelopment.nl/minecraft/customnpcs/scripting", 0, true));
 		}
-		if (guibutton.id == 110) {
+		if (button.id == 110) {
 			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "https://minecraft.fandom.com/ru/wiki/Custom_NPCs/Unoficial_API_1.12.2", 1, true));
 		}
-		if (guibutton.id == 111) {
+		if (button.id == 111) {
 			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "https://github.com/BetaZavr/CustomNPCs_1.12.2-Unofficial/releases", 2, true));
 		}
-		if (guibutton.id == 112) {
+		if (button.id == 112) {
 			this.displayGuiScreen((GuiScreen) new GuiConfirmOpenLink((GuiYesNoCallback) this, "http://www.minecraftforge.net/forum/index.php/board,122.0.html", 3, true));
 		}
-		if (guibutton.id == 100) {
+		if (button.id == 100) {
 			NoppesStringUtils.setClipboardContents(((GuiTextArea) this.get(2)).getText());
 		}
-		if (guibutton.id == 101) {
+		if (button.id == 101) {
 			((GuiTextArea) this.get(2)).setText(NoppesStringUtils.getClipboardContents());
 		}
-		if (guibutton.id == 102) {
+		if (button.id == 102) {
 			if (this.activeTab > 0) {
 				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 				container.script = "";
@@ -239,34 +237,34 @@ implements IGuiData, ITextChangeListener, ICustomScrollListener {
 			}
 			this.initGui();
 		}
-		if (guibutton.id == 103) {
-			this.handler.setLanguage(((GuiNpcButton) guibutton).displayString);
+		if (button.id == 103) {
+			this.handler.setLanguage(button.displayString);
 		}
-		if (guibutton.id == 104) {
-			this.handler.setEnabled(((GuiNpcButton) guibutton).getValue() == 1);
+		if (button.id == 104) {
+			this.handler.setEnabled(button.getValue() == 1);
 		}
-		if (guibutton.id == 105) {
+		if (button.id == 105) {
 			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 10);
 			this.displayGuiScreen((GuiScreen) guiyesno);
 		}
-		if (guibutton.id == 106) {
+		if (button.id == 106) {
 			NoppesUtil.openFolder(ScriptController.Instance.dir);
 		}
-		if (guibutton.id == 107) {
+		if (button.id == 107) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container == null) {
 				this.handler.getScripts().add(container = new ScriptContainer(this.handler, this instanceof GuiScriptClient));
 			}
 			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
 		}
-		if (guibutton.id == 108) {
+		if (button.id == 108) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
 			if (container != null) {
 				this.setScript();
 			}
 		}
-		if (guibutton.id == 120) {
-			this.var = ((GuiNpcButton) guibutton).getValue();
+		if (button.id == 120) {
+			this.var = button.getValue();
 			cheakVariables(50, null);
 		}
 	}

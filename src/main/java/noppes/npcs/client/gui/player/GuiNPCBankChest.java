@@ -8,7 +8,6 @@ import java.util.List;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
@@ -294,12 +293,11 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (this.isWait) { return; }
 		if (button.id > 2 && button.id < 8) {
 			this.close();
-			Client.sendDataDelayCheck(EnumPlayerPacket.OpenCeilBank, this, 0, this.cont.bank.id, ((GuiMenuLeftButton) guibutton).data);
+			Client.sendDataDelayCheck(EnumPlayerPacket.OpenCeilBank, this, 0, this.cont.bank.id, ((GuiMenuLeftButton) button).data);
 			return;
 		}
 		switch(button.id) {

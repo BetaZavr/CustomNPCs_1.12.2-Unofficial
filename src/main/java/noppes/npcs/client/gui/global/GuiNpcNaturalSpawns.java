@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.global;
 import java.util.HashMap;
 import java.util.Vector;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -43,8 +42,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		int id = guibutton.id;
+	public void buttonEvent(GuiNpcButton button) {
+		int id = button.id;
 		if (id == 1) {
 			this.save();
 			String name;
@@ -71,7 +70,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 			this.initGui();
 		}
 		if (id == 27) {
-			this.spawn.type = ((GuiNpcButton) guibutton).getValue();
+			this.spawn.type = button.getValue();
 		}
 	}
 

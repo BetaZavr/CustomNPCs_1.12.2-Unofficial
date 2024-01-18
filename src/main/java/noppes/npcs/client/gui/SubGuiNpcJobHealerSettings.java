@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -66,10 +65,9 @@ implements ITextfieldListener {
 		this.addButton(checkBox);
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 61, this.guiTop + this.ySize - 24, 45, 20, "gui.done"));
 	}
-	
+
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 1: {
 				this.hs.type = (byte) button.getValue();
@@ -80,13 +78,13 @@ implements ITextfieldListener {
 				break;
 			}
 			case 3: {
-				if (!(guibutton instanceof GuiNpcCheckBox)) { return; }
-				this.hs.onHimself = ((GuiNpcCheckBox) guibutton).isSelected();
+				if (!(button instanceof GuiNpcCheckBox)) { return; }
+				this.hs.onHimself = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 4: {
-				if (!(guibutton instanceof GuiNpcCheckBox)) { return; }
-				this.hs.possibleOnMobs = ((GuiNpcCheckBox) guibutton).isSelected();
+				if (!(button instanceof GuiNpcCheckBox)) { return; }
+				this.hs.possibleOnMobs = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 66: {

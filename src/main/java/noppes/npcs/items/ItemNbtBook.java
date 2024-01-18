@@ -44,8 +44,7 @@ implements IPermission {
 	}
 
 	public void blockEvent(PlayerInteractEvent.RightClickBlock event) {
-		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook,
-				event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
 		NBTTagCompound data = new NBTTagCompound();
 		TileEntity tile = event.getWorld().getTileEntity(event.getPos());
 		if (tile != null) {

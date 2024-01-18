@@ -135,7 +135,10 @@ implements IGuiClose {
 			this.dialogHeight = this.ySize - 58;
 		} else {
 			int line = 0;
-			int w = (this.mc.displayWidth / 2) - this.guiLeft - 50;
+			if (this.sw == null) {
+				this.sw = new ScaledResolution(this.mc);
+			}
+			int w = this.sw.getScaledWidth() - this.guiLeft - 50;
 			for (DialogOption option : this.dialog.options.values()) {
 				if (option.optionType == 2) { continue;}
 				String text = NoppesStringUtils.formatText(option.title, this.player, this.npc);
@@ -195,8 +198,8 @@ implements IGuiClose {
 			DialogOption option = this.dialog.options.get(id);
 			int y = this.guiTop + offset + (k + addLine) * fh;
 			String text = NoppesStringUtils.formatText(option.title, this.player, this.npc);
-			if (this.fontRenderer.getStringWidth(text) > (this.mc.displayWidth / 2) - this.guiLeft - 50) {
-				int w = (this.mc.displayWidth / 2) - this.guiLeft - 50;
+			if (this.fontRenderer.getStringWidth(text) > this.sw.getScaledWidth() - this.guiLeft - 50) {
+				int w = this.sw.getScaledWidth() - this.guiLeft - 50;
 				List<String> lines = Lists.newArrayList();
 				String total = "";
 				for (String sct : text.split(" ")) {

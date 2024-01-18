@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiTextArea;
@@ -37,21 +36,20 @@ public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeLis
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 100) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 100) {
 			NoppesStringUtils.setClipboardContents(this.textarea.getText());
 		}
-		if (id == 101) {
+		if (button.id == 101) {
 			this.textarea.setText(NoppesStringUtils.getClipboardContents());
 		}
-		if (id == 102) {
+		if (button.id == 102) {
 			this.textarea.setText("");
 		}
-		if (id == 103) {
+		if (button.id == 103) {
 			this.textarea.setText(this.originalText);
 		}
-		if (id == 0) {
+		if (button.id == 0) {
 			this.close();
 		}
 	}

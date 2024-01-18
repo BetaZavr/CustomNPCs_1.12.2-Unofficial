@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Vector;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.client.Client;
@@ -37,13 +36,12 @@ public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollDa
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 2) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 2) {
 			this.close();
 			NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
 		}
-		if (id == 4) {
+		if (button.id == 4) {
 			this.doubleClicked();
 		}
 	}

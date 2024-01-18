@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.global;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -144,8 +143,7 @@ public class GuiDialogEdit extends SubGuiInterface implements ISubGuiListener, I
 	}
 	
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 3: {
 				this.setSubGui(new SubGuiNpcTextArea(this.dialog.text));

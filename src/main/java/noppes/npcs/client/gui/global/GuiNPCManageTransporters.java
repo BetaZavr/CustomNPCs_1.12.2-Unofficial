@@ -7,7 +7,6 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -155,13 +154,12 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	public void buttonEvent(GuiNpcButton button) {
 		TransportCategory cat = null;
 		TransportLocation loc = this.container.location;
 		if (!this.catSel.isEmpty()) { 
 			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
 		}
-		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch (button.id) {
 			case 0: { // add cat
 				this.setSubGui(new SubGuiEditText(0, AdditionalMethods.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
@@ -178,7 +176,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 			}
 			case 3: {
 				if (loc == null) { return; }
-				loc.type = ((GuiNpcButton) guibutton).getValue();
+				loc.type = button.getValue();
 				break;
 			}
 		}

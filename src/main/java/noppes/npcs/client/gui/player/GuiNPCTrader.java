@@ -8,7 +8,6 @@ import java.util.Map;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
@@ -206,8 +205,7 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: { // buy
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.marcet.getId(), this.selectDealData.deal.getId(), this.npc.getEntityId());

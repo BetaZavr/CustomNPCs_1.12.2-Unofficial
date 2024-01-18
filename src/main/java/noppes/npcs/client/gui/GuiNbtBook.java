@@ -3,7 +3,6 @@ package noppes.npcs.client.gui;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.Entity;
@@ -55,16 +54,15 @@ implements IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			if (this.faultyText != null) {
 				this.setSubGui(new SubGuiNpcTextArea(this.compound.toString(), this.faultyText).enableHighlighting());
 			} else {
 				this.setSubGui(new SubGuiNpcTextArea(this.compound.toString()).enableHighlighting());
 			}
 		}
-		if (id == 67) {
+		if (button.id == 67) {
 			this.getLabel(0).setLabel("Saved");
 			if (this.compound.equals(this.originalCompound)) {
 				return;
@@ -81,7 +79,7 @@ implements IGuiData {
 			this.originalCompound = this.compound.copy();
 			this.getButton(67).enabled = false;
 		}
-		if (id == 66) {
+		if (button.id == 66) {
 			this.close();
 		}
 	}
@@ -194,4 +192,5 @@ implements IGuiData {
 		this.compound = this.originalCompound.copy();
 		this.initGui();
 	}
+	
 }

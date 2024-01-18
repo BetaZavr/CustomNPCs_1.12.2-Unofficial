@@ -5,9 +5,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.model.part.ModelData;
-import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.constants.EnumParts;
 
 public class EntityCustomNpc

@@ -1,5 +1,9 @@
 package noppes.npcs.api.wrapper;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
@@ -241,7 +245,7 @@ implements IBlockScripted {
 	}
 	
 	@Override
-	public void trigger(int id, Object[] arguments) {
+	public void trigger(int id, Object ... arguments) {
 		EventHooks.onScriptTriggerEvent(this.tile, id, this.getWorld(), this.getPos(), null, arguments);
 	}
 
@@ -252,7 +256,34 @@ implements IBlockScripted {
 		}
 		return this.tile.layers;
 	}
-
+	
+	@Override
+	public boolean removeLayerModel(int id) {
+		if (id < 0 || id >= this.tile.layers.length) { return false; }
+		List<ILayerModel> newLM = Lists.newArrayList();
+		for (int i=0; i < this.tile.layers.length; i++) {
+			if (this.tile.layers[i] == null) { continue; }
+			if (i != id) { newLM.add(this.tile.layers[i]); }
+		}
+		this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
+		return true;
+	}
+	
+	@Override
+	public boolean removeLayerModel(ILayerModel layer) {
+		List<ILayerModel> newLM = Lists.newArrayList();
+		boolean found = false;
+		for (int i=0; i < this.tile.layers.length; i++) {
+			if (this.tile.layers[i] == null) { continue; }
+			if (!this.tile.layers[i].equals(layer)) { newLM.add(this.tile.layers[i]); }
+			else { found = true; }
+		}
+		if (found) {
+			this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
+		}
+		return found;
+	}
+	
 	@Override
 	public ILayerModel createLayerModel() {
 		ILayerModel[] ls = new ILayerModel[this.tile.layers.length+1];

@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.questtypes;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -54,7 +53,9 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	public void initGui() {
 		super.initGui();
 		// int i = 0;
-		this.addLabel(new GuiNpcLabel(0, new TextComponentTranslation("quest.player.to").getFormattedText(), this.guiLeft + 6, this.guiTop + 50));
+		String text = new TextComponentTranslation("quest.player.to").getFormattedText();
+		while (text.indexOf("<br>") != -1) { text = text.replace("<br>", ""+((char) 10)); }
+		this.addLabel(new GuiNpcLabel(0, text, this.guiLeft + 6, this.guiTop + 40));
 		// New
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 70, 180, 20, this.task.getTargetName()));
 		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 186, this.guiTop + 70, 24, 20, this.task.getMaxProgress() + ""));
@@ -110,9 +111,9 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		super.actionPerformed(guibutton);
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		super.buttonEvent(button);
+		switch(button.id) {
 			case 0: {
 				this.close();
 				break;

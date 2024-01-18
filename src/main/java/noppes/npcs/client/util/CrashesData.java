@@ -4,19 +4,27 @@ public class CrashesData {
 
 	public boolean isActive = false, isFading = true, vector = false;
 	public int time = 0, maxTime = 0, amplitude = 0, type = 0;
+	public long endTime = 0;
 
-	public float get() {
-		if (this.time<=0 || this.maxTime==0 || this.amplitude==0) {
-			this.time = 0;
+	public float get(long time) {
+		if (this.endTime == 0) {
+			time *= -1;
+			this.endTime = time + this.time;
+		}
+		if (time <=0 || this.maxTime==0 || this.amplitude==0) {
+			this.endTime = 0;
 			this.isActive = false;
 			return 0.0f;
 		}
 		float value;
-		if (this.isFading) { value = (float) this.time * (float) this.amplitude / (float) this.maxTime; }
+		if (this.isFading) { value = (float) time * (float) this.amplitude / (float) this.maxTime; }
 		else { value = (float) this.amplitude; }
 		value *= this.vector ? 1.0f : -1.0f;
 		this.vector = !this.vector;
-		this.time--;
+		if (value == 0.0f) {
+			this.endTime = 0;
+			this.isActive = false;
+		}
 		return value;
 	}
 	
@@ -32,6 +40,7 @@ public class CrashesData {
 		this.type = type % 6;
 		this.isFading = isFading;
 		this.isActive = true;
+		this.endTime = 0;
 	}
 	
 }

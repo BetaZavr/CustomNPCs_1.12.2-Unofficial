@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiColorButton;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -17,7 +18,6 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.model.part.ModelEyeData;
-import noppes.npcs.client.model.part.ModelPartData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -146,22 +146,13 @@ implements ITextfieldListener, ICustomScrollListener {
 
 		@Override
 		protected void actionPerformed(GuiButton btn) {
-			if (btn.id == 34) {
-				this.eyes.glint = ((GuiNpcButtonYesNo) btn).getBoolean();
-			}
-			if (btn.id == 35) {
-				GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.browColor,
-						color -> this.eyes.browColor = color));
-			}
-			if (btn.id == 36) {
-				GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.skinColor,
-						color -> this.eyes.skinColor = color));
-			}
-			if (btn.id == 37) {
-				this.eyes.eyePos = ((GuiButtonBiDirectional) btn).getValue() - 1;
-			}
-			if (btn.id == 38) {
-				this.eyes.browThickness = ((GuiButtonBiDirectional) btn).getValue();
+			switch(btn.id) {
+				case 34: this.eyes.glint = ((GuiNpcButtonYesNo) btn).getBoolean(); break;
+				case 35: GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.browColor, color -> this.eyes.browColor = color)); break;
+				case 36: GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.skinColor, color -> this.eyes.skinColor = color)); break;
+				case 37: this.eyes.eyePos = ((GuiButtonBiDirectional) btn).getValue() - 1; break;
+				case 38: this.eyes.browThickness = ((GuiButtonBiDirectional) btn).getValue(); break;
+				case 39: this.eyes.closed = ((GuiNpcButtonYesNo) btn).getBoolean(); break;
 			}
 			super.actionPerformed(btn);
 		}
@@ -170,43 +161,24 @@ implements ITextfieldListener, ICustomScrollListener {
 		public int initGui() {
 			int y = super.initGui();
 			if (this.data != null && this.eyes.isEnabled()) {
-				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y,
-						100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(22, "gui.draw", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts this$0 = GuiCreationParts.this;
-				int id = 37;
-				int x = GuiCreationParts.this.guiLeft + 145;
+				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(22, "gui.draw", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
 				y += 25;
-				this$0.addButton(new GuiButtonBiDirectional(id, x, y, 100, 20,
-						new String[] { new TextComponentTranslation("gui.down").getFormattedText() + "x2", "gui.down",
-								"gui.normal", "gui.up" },
-						this.eyes.eyePos + 1));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(37, "gui.position", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts this$2 = GuiCreationParts.this;
-				int id2 = 34;
-				int x2 = GuiCreationParts.this.guiLeft + 145;
+				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(37, GuiCreationParts.this.guiLeft + 145, y, 100, 20, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + "x2", "gui.down", "gui.normal", "gui.up" }, this.eyes.eyePos + 1));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(37, "gui.position", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
 				y += 25;
-				this$2.addButton(new GuiNpcButtonYesNo(id2, x2, y, this.eyes.glint));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(34, "eye.glint", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts this$3 = GuiCreationParts.this;
-				int id3 = 35;
-				int x3 = GuiCreationParts.this.guiLeft + 170;
+				GuiCreationParts.this.addButton(new GuiNpcButtonYesNo(34, GuiCreationParts.this.guiLeft + 145, y, this.eyes.glint));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(34, "eye.glint", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
 				y += 25;
-				this$3.addButton(new GuiColorButton(id3, x3, y, this.eyes.browColor));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(35, "eye.brow", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(38, GuiCreationParts.this.guiLeft + 225, y,
-						50, 20, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, this.eyes.browThickness));
-				GuiCreationParts this$4 = GuiCreationParts.this;
-				int id4 = 36;
-				int x4 = GuiCreationParts.this.guiLeft + 170;
+				GuiCreationParts.this.addButton(new GuiColorButton(35, GuiCreationParts.this.guiLeft + 170, y, this.eyes.browColor));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(35, "eye.brow", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
+				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(38, GuiCreationParts.this.guiLeft + 225, y, 50, 20, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, this.eyes.browThickness));
 				y += 25;
-				this$4.addButton(new GuiColorButton(id4, x4, y, this.eyes.skinColor));
-				GuiCreationParts.this
-						.addLabel(new GuiNpcLabel(36, "eye.lid", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
+				GuiCreationParts.this.addButton(new GuiColorButton(36, GuiCreationParts.this.guiLeft + 170, y, this.eyes.skinColor));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(36, "eye.lid", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
+				y = GuiCreationParts.this.guiTop + 50;
+				GuiCreationParts.this.addButton(new GuiNpcButtonYesNo(39, GuiCreationParts.this.guiLeft + 300, y, this.eyes.closed));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(39, "eye.closed", GuiCreationParts.this.guiLeft + 255, y + 5, 16777215));
 			}
 			return y;
 		}
@@ -380,7 +352,7 @@ implements ITextfieldListener, ICustomScrollListener {
 			for (GuiPart part : this.parts) {
 				list.add(new TextComponentTranslation("part." + part.part.name).getFormattedText());
 			}
-			(this.scroll = new GuiCustomScroll(this, 0)).setUnsortedList(list);
+			(this.scroll = new GuiCustomScroll(this, 0)).setListNotSorted(list);
 		}
 		this.scroll.guiLeft = this.guiLeft;
 		this.scroll.guiTop = this.guiTop + 46;

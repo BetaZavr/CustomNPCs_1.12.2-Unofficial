@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -33,6 +32,7 @@ implements ISliderListener, ITextfieldListener {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
 		this.getLabel(1).center(this.xSize);
+		
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 34, this.guiTop + 14, 180, 20, "availability.selectdialog"));
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 34, this.guiTop + 36, 180, 20, "availability.selectquest"));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 34, this.guiTop + 58, 180, 20, "availability.selectfaction"));
@@ -70,8 +70,8 @@ implements ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 0: {
 				this.setSubGui(new SubGuiNpcAvailabilityDialog(this.availabitily));
 				break;
@@ -89,7 +89,7 @@ implements ISliderListener, ITextfieldListener {
 				break;
 			}
 			case 4: {
-				this.availabitily.healthType = ((GuiNpcButton) guibutton).getValue();
+				this.availabitily.healthType = button.getValue();
 				if (this.getSlider(5)!=null) {
 					this.getSlider(5).visible = this.availabitily.healthType!=0;
 				}
@@ -100,11 +100,11 @@ implements ISliderListener, ITextfieldListener {
 				break;
 			}
 			case 50: {
-				if (((GuiNpcButton) guibutton).getValue() == 0) {
+				if (button.getValue() == 0) {
 					this.getTextField(52).setText("" + this.availabitily.daytime[0]);
 					this.getTextField(53).setText("" + this.availabitily.daytime[1]);
 				} else {
-					switch (EnumDayTime.values()[((GuiNpcButton) guibutton).getValue() - 1]) {
+					switch (EnumDayTime.values()[button.getValue() - 1]) {
 						case Always: {
 							this.getTextField(52).setText("0");
 							this.getTextField(53).setText("0");

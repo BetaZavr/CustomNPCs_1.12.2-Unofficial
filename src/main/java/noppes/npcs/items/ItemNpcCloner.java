@@ -53,7 +53,7 @@ implements IPermission {
 				NBTTagCompound nbt = stackCloner.getTagCompound();
 				if (nbt!=null && nbt.hasKey("Settings", 10)) {
 					NBTTagCompound nbtData = nbt.getCompoundTag("Settings");
-					if (nbt.getBoolean("isServerClone")) {
+					if (nbtData.getBoolean("isServerClone")) {
 						Client.sendData(EnumPacketServer.SpawnMob, true, pos.getX(), pos.getY(), pos.getZ(), nbtData.getString("Name"), nbtData.getInteger("Tab"));
 						summon = true;
 					} else {

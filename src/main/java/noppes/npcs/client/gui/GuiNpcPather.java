@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -35,10 +34,9 @@ implements IGuiData {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (this.scroll.selected < 0) { return; }
-		int id = guibutton.id;
-		if (id == 0) { // down
+		if (button.id == 0) { // down
 			List<int[]> list = Lists.newArrayList(this.path);
 			int selected = this.scroll.selected;
 			if (list.size() <= selected + 1) { return; }
@@ -50,7 +48,7 @@ implements IGuiData {
 			this.initGui();
 			this.scroll.selected = selected + 1;
 		}
-		if (id == 1) { // up
+		if (button.id == 1) { // up
 			if (this.scroll.selected - 1 < 0) { return; }
 			List<int[]> list = Lists.newArrayList(this.path);
 			int selected = this.scroll.selected;
@@ -62,7 +60,7 @@ implements IGuiData {
 			this.initGui();
 			this.scroll.selected = selected - 1;
 		}
-		if (id == 2) { // remove
+		if (button.id == 2) { // remove
 			List<int[]> list = Lists.newArrayList(this.path);
 			if (list.size() <= 1) { return; }
 			list.remove(this.scroll.selected);
@@ -108,7 +106,7 @@ implements IGuiData {
 		for (int[] arr : this.path) {
 			list.add("x:" + arr[0] + " y:" + arr[1] + " z:" + arr[2]);
 		}
-		this.scroll.setUnsortedList(list);
+		this.scroll.setListNotSorted(list);
 		this.scroll.guiLeft = this.guiLeft + 7;
 		this.scroll.guiTop = this.guiTop + 12;
 		this.scroll.selected = sel;

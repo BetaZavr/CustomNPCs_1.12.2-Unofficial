@@ -1,4 +1,4 @@
-package noppes.npcs.client.model.part;
+package noppes.npcs;
 
 import java.util.HashMap;
 import java.util.Map;

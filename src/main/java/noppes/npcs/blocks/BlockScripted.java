@@ -89,11 +89,10 @@ implements IPermission {
 		EventHooks.onScriptBlockRainFill((TileScripted) tile);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public float getBlockHardness(IBlockState state, World world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return super.getBlockHardness(state, world, pos); }
+		if (!(tile instanceof TileScripted)) { return this.blockHardness; }
 		return ((TileScripted) tile).blockHardness;
 	}
 

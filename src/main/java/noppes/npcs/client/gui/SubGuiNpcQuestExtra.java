@@ -3,7 +3,6 @@ package noppes.npcs.client.gui;
 import java.util.Arrays;
 import java.util.UUID;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -87,8 +86,7 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: { // icon select
 				GuiTextureSelection subGui = new GuiTextureSelection(this.npc, this.quest.icon.toString(), "png", 3);

@@ -6,13 +6,13 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.ModelPartConfig;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcSlider;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ISliderListener;
-import noppes.npcs.client.model.part.ModelPartConfig;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -68,7 +68,7 @@ implements ISliderListener, ICustomScrollListener {
 				list.add(new TextComponentTranslation("part." + part.name).getFormattedText());
 			}
 		}
-		this.scroll.setUnsortedList(list);
+		this.scroll.setListNotSorted(list);
 		this.scroll.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
 		this.scroll.guiLeft = this.guiLeft;
 		this.scroll.guiTop = this.guiTop + 46;

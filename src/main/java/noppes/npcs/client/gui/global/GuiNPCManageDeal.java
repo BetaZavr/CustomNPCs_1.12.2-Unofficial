@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.global;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -16,7 +15,6 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
-import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
@@ -88,9 +86,9 @@ implements ITextfieldListener {
 		this.addButton(new GuiNpcButton(3, x, (y += 22), 200, 20, new String[] { "market.deal.type.0", "market.deal.type.1", "market.deal.type.2" }, this.deal.getType()));
 		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 10, 60, 20, "gui.back"));
 	}
-	
-	public void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 			case 0: {
 				this.deal.setIgnoreDamage(button.getValue() == 1);
@@ -101,7 +99,7 @@ implements ITextfieldListener {
 				break;
 			}
 			case 2: {
-				this.setSubGui(new SubGuiNpcAvailability((Availability) this.deal.availability));
+				this.setSubGui(new SubGuiNpcAvailability(this.deal.availability));
 				this.initGui();
 				break;
 			}

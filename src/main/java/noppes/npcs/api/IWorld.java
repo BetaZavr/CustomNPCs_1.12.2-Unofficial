@@ -105,7 +105,7 @@ public interface IWorld {
 
 	void thunderStrike(double x, double y, double z);
 
-	void trigger(int id, Object[] arguments);
+	void trigger(int id, Object ... arguments);
 
 	IEntity<?>[] getEntitys(int type);
 

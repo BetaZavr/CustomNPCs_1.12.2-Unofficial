@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.player;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
@@ -35,13 +34,13 @@ implements IGuiData {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.RoleGet, new Object[0]);
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		super.actionPerformed(guibutton);
-		int id = guibutton.id;
-		if (id == 4) {
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
+		super.buttonEvent(button);
+		if (button.id == 4) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, new Object[0]);
 		}
-		if (id == 5) {
+		if (button.id == 5) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, new Object[0]);
 		}
 	}

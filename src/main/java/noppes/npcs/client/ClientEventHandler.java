@@ -143,7 +143,7 @@ public class ClientEventHandler {
 				LogWriter.debug("Login: Start game");
 			}
 		}
-		else if (mc.player==null && event.getGui() instanceof GuiMainMenu || mc.currentScreen instanceof GuiIngameMenu) {
+		else if (mc.player==null && (event.getGui() instanceof GuiMainMenu || mc.currentScreen instanceof GuiIngameMenu)) {
 			/*if (mc.currentScreen == null && !this.postLoad) {
 				this.postLoad = true;
 				List<String> list = Lists.<String>newArrayList();

@@ -7,7 +7,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
@@ -43,8 +42,7 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				Class<? extends Entity> cl = (Class<? extends Entity>) ent.getEntityClass();

@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.advanced;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
@@ -29,11 +28,11 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void buttonEvent(GuiButton button) {
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id < 60) {
 			DataScenes.SceneContainer scene = this.scenes.scenes.get(button.id / 10);
 			if (button.id % 10 == 1) {
-				scene.enabled = (((GuiNpcButton) button).getValue() == 1);
+				scene.enabled = button.getValue() == 1;
 			}
 			if (button.id % 10 == 2) {
 				this.scene = scene;
@@ -44,7 +43,7 @@ extends GuiNPCInterface2 {
 				this.initGui();
 			}
 			if (button.id % 10 == 4) {
-				scene.btn = ((GuiNpcButton) button).getValue();
+				scene.btn = button.getValue();
 				this.initGui();
 			}
 		}

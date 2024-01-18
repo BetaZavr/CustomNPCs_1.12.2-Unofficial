@@ -129,7 +129,9 @@ implements ICustomElement {
 	}
 
 	public IBlockState getStateFromMeta(int meta) {
-		IBlockState iblockstate = getDefaultState().withProperty(VARIANT, CustomBlockTypes.TreeType.values()[meta & 7]);
+		IBlockState iblockstate = getDefaultState();
+		try { iblockstate = iblockstate.withProperty(VARIANT, CustomBlockTypes.TreeType.values()[meta & 7]); }
+		catch (Exception e) { }
 		if (!isDouble()) {
 			iblockstate = iblockstate.withProperty(HALF, (meta & 8) == 0 ? BlockSlab.EnumBlockHalf.BOTTOM : BlockSlab.EnumBlockHalf.TOP);
 		}

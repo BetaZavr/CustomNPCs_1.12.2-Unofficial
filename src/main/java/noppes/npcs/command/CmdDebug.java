@@ -1,16 +1,20 @@
 package noppes.npcs.command;
 
+import java.util.List;
+
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class CmdDebug extends CommandNoppesBase {
 
@@ -35,13 +39,26 @@ public class CmdDebug extends CommandNoppesBase {
 		sender.sendMessage(new TextComponentTranslation("command.debug."+CustomNpcs.VerboseDebug));
 	}
 
-	@SubCommand(desc = "Enable or disable debugging")
+	@SubCommand(desc = "Will display the current mod debug report")
 	public void report(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		CustomNpcs.showDebugs();
+		List<String> list = CustomNpcs.showDebugs();
 		if (sender instanceof EntityPlayerMP) {
-			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound());
+			CustomNPCsScheduler.runTack(() -> {
+				Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound());
+			}, 500);
 		}
+		for (String str : list) { sender.sendMessage(new TextComponentString(str)); }
 		sender.sendMessage(new TextComponentTranslation("command.debug.show"));
+	}
+
+
+	@SubCommand(desc = "Delete monitoring data")
+	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		CustomNpcs.debugData.clear();
+		if (sender instanceof EntityPlayerMP) {
+			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_REMOVE, EnumSync.Debug, new NBTTagCompound());
+		}
+		sender.sendMessage(new TextComponentTranslation("command.debug.clear"));
 	}
 	
 }

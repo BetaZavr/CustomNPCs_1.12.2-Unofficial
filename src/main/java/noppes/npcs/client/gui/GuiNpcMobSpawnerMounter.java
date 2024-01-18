@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -48,12 +47,11 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.close();
 		}
-		if (id == 1) {
+		if (button.id == 1) {
 			NBTTagCompound compound = this.getCompound();
 			if (compound != null) {
 				compound.setTag("Pos", this.newDoubleNBTList(this.posX + 0.5, this.posY + 1, this.posZ + 0.5));
@@ -61,24 +59,24 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 				this.close();
 			}
 		}
-		if (id == 2) {
+		if (button.id == 2) {
 			Client.sendData(EnumPacketServer.PlayerRider, new Object[0]);
 			this.close();
 		}
-		if (id == 3) {
+		if (button.id == 3) {
 			GuiNpcMobSpawnerMounter.showingClones = 0;
 			this.initGui();
 		}
-		if (id == 4) {
+		if (button.id == 4) {
 			GuiNpcMobSpawnerMounter.showingClones = 1;
 			this.initGui();
 		}
-		if (id == 5) {
+		if (button.id == 5) {
 			GuiNpcMobSpawnerMounter.showingClones = 2;
 			this.initGui();
 		}
-		if (id > 20) {
-			this.activeTab = id - 20;
+		if (button.id > 20) {
+			this.activeTab = button.id - 20;
 			this.initGui();
 		}
 	}

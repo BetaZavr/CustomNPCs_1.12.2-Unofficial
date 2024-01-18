@@ -12,7 +12,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -85,10 +84,9 @@ implements ICustomScrollListener {
 		checkBox.setSelected(GuiNPCManageFactions.isName);
 		this.addButton(checkBox);
 	}
-	
+
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 14: {
 				GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();

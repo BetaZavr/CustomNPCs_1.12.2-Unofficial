@@ -73,12 +73,16 @@ extends IBlock {
 
 	void setScale(float x, float y, float z);
 
-	void trigger(int id, Object[] arguments);
+	void trigger(int id, Object ... arguments);
 	
 	ILayerModel[] getLayerModels();
 	
 	ILayerModel createLayerModel();
 
 	void updateModel();
+
+	boolean removeLayerModel(int id);
+
+	boolean removeLayerModel(ILayerModel layer);
 	
 }

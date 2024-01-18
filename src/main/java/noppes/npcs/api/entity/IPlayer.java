@@ -150,7 +150,7 @@ extends IEntityLivingBase<T> {
 
 	IOverlayHUD getOverlayHUD();
 
-	void trigger(int id, Object[] arguments);
+	void trigger(int id, Object ... arguments);
 
 	String getLanguage();
 

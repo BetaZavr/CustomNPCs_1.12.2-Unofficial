@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -26,9 +25,7 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			this.stats.spawnCycle = button.getValue();
 			if (this.stats.spawnCycle == 3 || this.stats.spawnCycle == 4) {
@@ -40,7 +37,7 @@ implements ITextfieldListener {
 		} else if (button.id == 4) {
 			this.stats.hideKilledBody = (button.getValue() == 1);
 		}
-		if (id == 66) {
+		if (button.id == 66) {
 			this.close();
 		}
 	}

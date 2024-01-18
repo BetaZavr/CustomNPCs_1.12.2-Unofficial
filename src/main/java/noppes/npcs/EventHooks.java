@@ -586,7 +586,7 @@ public class EventHooks {
 		else { EventHooks.onEvent(ScriptController.Instance.forgeScripts, EnumScriptType.SCRIPT_TRIGGER, event); }
 	}
 	
-	public static void onScriptTriggerEvent(IScriptHandler handler, int id, IWorld world, IPos pos, IEntity<?> entity, Object[] arguments) {
+	public static void onScriptTriggerEvent(IScriptHandler handler, int id, IWorld world, IPos pos, IEntity<?> entity, Object ... arguments) {
 		ScriptTriggerEvent event = new ScriptTriggerEvent(id, world, pos, entity, arguments);
 		EventHooks.onEvent(handler, EnumScriptType.SCRIPT_TRIGGER, event);
 	}

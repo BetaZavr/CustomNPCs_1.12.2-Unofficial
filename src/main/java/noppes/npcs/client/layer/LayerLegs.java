@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.client.model.part.ModelPartConfig;
-import noppes.npcs.client.model.part.ModelPartData;
+import noppes.npcs.ModelPartConfig;
+import noppes.npcs.ModelPartData;
 import noppes.npcs.client.model.part.legs.ModelDigitigradeLegs;
 import noppes.npcs.client.model.part.legs.ModelHorseLegs;
 import noppes.npcs.client.model.part.legs.ModelMermaidLegs;
@@ -99,9 +99,7 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 
 	private void renderLegs(float par7) {
 		ModelPartData data = this.playerdata.getPartData(EnumParts.LEGS);
-		if (data.type <= 0) {
-			return;
-		}
+		if (data.type <= 0) { return; }
 		GlStateManager.pushMatrix();
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
 		this.preRender(data);

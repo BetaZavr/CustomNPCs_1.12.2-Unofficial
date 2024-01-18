@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.roles;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -32,8 +31,7 @@ implements ITextfieldListener, GuiSelectionListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		if (button.id >= 0 && button.id < 14) {
 			this.slot = button.id;
 			JobConversation.ConversationLine line = this.job.getLine(this.slot);

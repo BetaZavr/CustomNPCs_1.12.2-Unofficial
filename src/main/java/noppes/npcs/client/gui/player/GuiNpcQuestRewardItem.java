@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.player;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -32,8 +31,9 @@ extends GuiContainerNPCInterface {
 		this.ySize = 71;
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 0) {
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			this.close();
 		}
 	}

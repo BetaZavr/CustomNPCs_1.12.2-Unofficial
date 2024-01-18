@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -89,10 +88,9 @@ implements ICustomScrollListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("bank.hover.owner").getFormattedText());
 		}
 	}
-	
+
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		GuiNpcButton button = (GuiNpcButton) guibutton;
+	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
 			case 0: { // add
 				SubGuiEditText gui = new SubGuiEditText(3, "");
@@ -116,7 +114,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				break;
 			}
 			case 2: { // add
-				this.white = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.white = ((GuiNpcCheckBox) button).isSelected();
 				this.initGui();
 				break;
 			}

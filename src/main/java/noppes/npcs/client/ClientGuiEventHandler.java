@@ -586,7 +586,20 @@ extends Gui
 		if (!(entityIn instanceof EntityLivingBase)) { return; }
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
 		EntityNPCInterface npc = null;
-		if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
+		if (entity instanceof EntityNPCInterface) {
+			npc = (EntityNPCInterface) entity;
+			NBTTagCompound compound = new NBTTagCompound();
+			entity.writeToNBTOptional(compound);
+			Entity e = EntityList.createEntityFromNBT(compound, entity.world);
+			if (entity instanceof EntityNPCInterface) {
+				npc = (EntityNPCInterface) e;
+				e.setUniqueId(UUID.randomUUID());
+				e.setEntityId(-1);
+				if (npc.display.getVisible() == 1) { npc.display.setVisible(2); }
+				npc.display.setShowName(0);
+				entity = npc;
+			}
+		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
@@ -913,35 +926,37 @@ extends Gui
 	public void npcCameraSetupEvent(EntityViewRenderEvent.CameraSetup event) {
 		if (event.getEntity() instanceof EntityLivingBase && ClientGuiEventHandler.crashes.isActive) { // camera shaking
 			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_npcCameraSetupEvent");
-			float amplitude = ClientGuiEventHandler.crashes.get();
-			switch(ClientGuiEventHandler.crashes.type) {
-				case 0: { // vertical only
-					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
-					break;
-				}
-				case 1: { // horizont only
-					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
-					break;
-				}
-				case 2: { // arc only
-					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
-					break;
-				}
-				case 3: { // vertical and horizont
-					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
-					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
-					break;
-				}
-				case 4: { // vertical and arc
-					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
-					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
-					break;
-				}
-				default: { // all
-					event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude * -1.0f);
-					event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
-					event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
-					break;
+			float amplitude = ClientGuiEventHandler.crashes.get(ClientGuiEventHandler.crashes.endTime - event.getEntity().world.getTotalWorldTime());
+			if (amplitude != 0.0f) {
+				switch(ClientGuiEventHandler.crashes.type) {
+					case 0: { // vertical only
+						event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+						break;
+					}
+					case 1: { // horizont only
+						event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
+						break;
+					}
+					case 2: { // arc only
+						event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
+						break;
+					}
+					case 3: { // vertical and horizont
+						event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+						event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
+						break;
+					}
+					case 4: { // vertical and arc
+						event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude);
+						event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+						break;
+					}
+					default: { // all
+						event.setRoll(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude * -1.0f);
+						event.setPitch(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getPitch());
+						event.setYaw(Minecraft.getMinecraft().getRenderPartialTicks() * amplitude + event.getYaw()); 
+						break;
+					}
 				}
 			}
 			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcCameraSetupEvent");

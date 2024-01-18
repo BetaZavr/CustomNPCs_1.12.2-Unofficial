@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.questtypes;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -85,21 +84,22 @@ implements ITextfieldListener {
 		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, this.guiLeft + 106, this.guiTop + 95, 62, 13, this.task.entityName));
 	}
 
-	public void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
+		switch(button.id) {
 			case 0: {
 				if (this.task == null) { return; }
-				this.task.setItemLeave((((GuiNpcButton) guibutton).getValue() == 0));
+				this.task.setItemLeave(button.getValue() == 0);
 				break;
 			}
 			case 1: {
 				if (this.task == null) { return; }
-				this.task.setItemIgnoreDamage(((GuiNpcButtonYesNo) guibutton).getBoolean());
+				this.task.setItemIgnoreDamage(((GuiNpcButtonYesNo) button).getBoolean());
 				break;
 			}
 			case 2: {
 				if (this.task == null) { return; }
-				this.task.setItemIgnoreNBT(((GuiNpcButtonYesNo) guibutton).getBoolean());
+				this.task.setItemIgnoreNBT(((GuiNpcButtonYesNo) button).getBoolean());
 				break;
 			}
 			case 5: {

@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.blocks.tiles.TileCopy;
@@ -30,15 +29,15 @@ public class GuiBlockCopy extends GuiNPCInterface implements IGuiData, ITextfiel
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id == 0) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
 			NBTTagCompound compound = new NBTTagCompound();
 			this.tile.writeToNBT(compound);
 			Client.sendData(EnumPacketServer.SchematicStore, this.getTextField(5).getText(),
 					this.getButton(6).getValue(), compound);
 			this.close();
 		}
-		if (guibutton.id == 1) {
+		if (button.id == 1) {
 			this.close();
 		}
 	}

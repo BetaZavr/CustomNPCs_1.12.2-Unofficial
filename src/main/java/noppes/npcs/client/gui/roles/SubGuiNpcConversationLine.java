@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.roles;
 
-import net.minecraft.client.gui.GuiButton;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -26,16 +25,15 @@ implements ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton guibutton) {
-		int id = guibutton.id;
-		if (id == 1) {
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 1) {
 			this.setSubGui(new GuiSoundSelection(this.sound));
 		}
-		if (id == 2) {
+		if (button.id == 2) {
 			this.sound = "";
 			this.initGui();
 		}
-		if (id == 66) {
+		if (button.id == 66) {
 			this.close();
 		}
 	}

@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.inventory.ClickType;
@@ -24,6 +23,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -66,34 +66,32 @@ implements ICustomScrollListener, ITextfieldListener {
 		this.ySize = 216;
 		this.builder = cont.builderData;
 		this.maxRange = 10;
-		if (GuiBuilderSetting.basefiles==null) {
-			GuiBuilderSetting.basefiles = Maps.<String, SchematicWrapper>newTreeMap();
-			SchematicController sData = SchematicController.Instance;
-			for (String name : sData.included) {
-				InputStream stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
-				if (stream == null) {
-					File file = new File(SchematicController.getDir(), name);
-					if (!file.exists()) { continue; }
-					try { stream = new FileInputStream(file); } catch (FileNotFoundException e) { continue;}
-				}
-				try {
-					NBTTagCompound compound = CompressedStreamTools.readCompressed(stream);
-					stream.close();
-					if (name.toLowerCase().endsWith(".blueprint")) {
-						if (compound.getKeySet().isEmpty() || !compound.hasKey("size_x", 2) || !compound.hasKey("size_y", 2) || !compound.hasKey("size_z", 2)) { continue; }
-						if ((int) compound.getShort("size_x") * (int) compound.getShort("size_y") * (int) compound.getShort("size_z") > CustomNpcs.maxBuilderBlocks) { continue; }
-						Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
-						bp.setName(name);
-						GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(bp));
-					}
-					if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2) || !compound.hasKey("Height", 2)) { continue; }
-					if ((int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.maxBuilderBlocks) { continue; }
-					Schematic schema = new Schematic(name);
-					schema.load(compound);
-					GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(schema));
-				}
-				catch (IOException e) { }
+		GuiBuilderSetting.basefiles = Maps.<String, SchematicWrapper>newTreeMap();
+		SchematicController sData = SchematicController.Instance;
+		for (String name : sData.included) {
+			InputStream stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
+			if (stream == null) {
+				File file = new File(SchematicController.getDir(), name);
+				if (!file.exists()) { continue; }
+				try { stream = new FileInputStream(file); } catch (FileNotFoundException e) { continue;}
 			}
+			try {
+				NBTTagCompound compound = CompressedStreamTools.readCompressed(stream);
+				stream.close();
+				if (name.toLowerCase().endsWith(".blueprint")) {
+					if (compound.getKeySet().isEmpty() || !compound.hasKey("size_x", 2) || !compound.hasKey("size_y", 2) || !compound.hasKey("size_z", 2)) { continue; }
+					if (!ClientProxy.playerData.game.op && (int) compound.getShort("size_x") * (int) compound.getShort("size_y") * (int) compound.getShort("size_z") > CustomNpcs.maxBuilderBlocks) { continue; }
+					Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
+					bp.setName(name);
+					GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(bp));
+				}
+				if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2) || !compound.hasKey("Height", 2)) { continue; }
+				if ((int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.maxBuilderBlocks) { continue; }
+				Schematic schema = new Schematic(name);
+				schema.load(compound);
+				GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(schema));
+			}
+			catch (IOException e) { }
 		}
 		this.files = Maps.<String, SchematicWrapper>newTreeMap();
 		this.files.putAll(GuiBuilderSetting.basefiles);
@@ -104,7 +102,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				try {
 					NBTTagCompound compound = CompressedStreamTools.readCompressed(new FileInputStream(f));
 					if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2) || !compound.hasKey("Height", 2)) { continue; }
-					if ((int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.maxBuilderBlocks) { continue; }
+					if (!ClientProxy.playerData.game.op && (int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.maxBuilderBlocks) { continue; }
 					Schematic schema = new Schematic(f.getName());
 					schema.load(compound);
 					this.files.put(f.getName(), new SchematicWrapper(schema));
@@ -118,6 +116,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	public void initGui() {
 		super.initGui();
 		if (this.builder==null) { return; }
+		this.maxRange = ClientProxy.playerData.game.op ? 100 : 10;
 		int type = this.builder.type;
 		GuiNpcTextField textField;
 		GuiNpcCheckBox checkBox;
@@ -337,13 +336,13 @@ implements ICustomScrollListener, ITextfieldListener {
 			this.setHoverText("hover.save");
 		}
 	}
-	
+
 	@Override
-	public void buttonEvent(GuiButton guibutton) {
-		switch (guibutton.id) {
+	public void buttonEvent(GuiNpcButton button) {
+		switch (button.id) {
 			case 0: { // Type
 				if (this.builder==null) { return; }
-				this.builder.type = ((GuiNpcButton) guibutton).getValue();
+				this.builder.type = button.getValue();
 				Client.sendData(EnumPacketServer.OpenBuilder, this.builder.getNbt());
 				GuiNpcTextField.unfocus();
 				this.player.closeScreen();
@@ -354,37 +353,37 @@ implements ICustomScrollListener, ITextfieldListener {
 			}
 			case 1: { // Fasing
 				if (this.builder==null) { return; }
-				this.builder.fasing = ((GuiNpcButton) guibutton).getValue();
+				this.builder.fasing = button.getValue();
 				break;
 			}
 			case 2: { // reg[0]
 				if (this.builder==null) { return; }
-				this.builder.region[0] = ((GuiNpcButton) guibutton).getValue()+1;
+				this.builder.region[0] = button.getValue()+1;
 				break;
 			}
 			case 3: { // reg[1]
 				if (this.builder==null) { return; }
-				this.builder.region[1] = ((GuiNpcButton) guibutton).getValue()+1;
+				this.builder.region[1] = button.getValue()+1;
 				break;
 			}
 			case 4: { // reg[2]
 				if (this.builder==null) { return; }
-				this.builder.region[2] = ((GuiNpcButton) guibutton).getValue()+1;
+				this.builder.region[2] = button.getValue()+1;
 				break;
 			}
 			case 5: { // add Air
 				if (this.builder==null) { return; }
-				this.builder.addAir = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.builder.addAir = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 6: { // replase Air
 				if (this.builder==null) { return; }
-				this.builder.replaseAir = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.builder.replaseAir = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 7: { // is Solid
 				if (this.builder==null) { return; }
-				this.builder.isSolid = ((GuiNpcCheckBox) guibutton).isSelected();
+				this.builder.isSolid = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
 			case 61: { // exit
