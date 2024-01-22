@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.mainmenu;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -389,6 +390,10 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			} else {
 				this.setHoverText(new TextComponentTranslation("drop.hover.any.quest", new Object[0]).getFormattedText());
 			}
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

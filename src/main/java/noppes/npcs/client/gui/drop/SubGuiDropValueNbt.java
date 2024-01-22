@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.drop;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -162,6 +163,10 @@ implements ITextfieldListener, ITextChangeListener {
 					.getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 76, 16)) {
 			this.setHoverText(new TextComponentTranslation("hover.back", new Object[0]).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

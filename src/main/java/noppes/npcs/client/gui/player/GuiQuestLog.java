@@ -148,7 +148,7 @@ implements GuiYesNoCallback, IGuiData {
 	    			}
 	    			this.categoryColors.put(q.category.getName(), new Color((r * name.length()) % 256, (g * name.length()) % 256, (b * name.length()) % 256));
 	    		}
-	    		this.activeQuests.get(q.category.getName()).put( q.id, q);
+	    		this.activeQuests.get(q.category.getName()).put(q.id, q);
 	    	}
 		}
 		this.cheakActiveQuest();
@@ -281,7 +281,7 @@ implements GuiYesNoCallback, IGuiData {
 						for (Map<Integer, Quest> map : activeQuests.values()) {
 							for (Quest q : map.values()) {
 								if (q.id==this.hoverQuestID) {
-									if (GuiQuestLog.activeQuest==null || this.hoverQuestID!=GuiQuestLog.activeQuest.q.id) {
+									if (GuiQuestLog.activeQuest==null || this.hoverQuestID != GuiQuestLog.activeQuest.q.id) {
 										GuiQuestLog.activeQuest = new QuestInfo(q);
 									}
 									this.listType = true;
@@ -822,8 +822,8 @@ implements GuiYesNoCallback, IGuiData {
 			int u1 = (int) ((float) uC + 7.0f * this.scale);
 			int v = (int) ((float) vC + 10.0f * this.scale);
 			if (this.listType) {
-				int vc = GuiQuestLog.activeQuest.npc!=null ? (int) (43.0f * this.scale) : 0;
-				if (GuiQuestLog.activeQuest.q.texture!=null) {
+				int vc = GuiQuestLog.activeQuest!=null && GuiQuestLog.activeQuest.npc!=null ? (int) (43.0f * this.scale) : 0;
+				if (GuiQuestLog.activeQuest!=null && GuiQuestLog.activeQuest.q.texture!=null) {
 					GlStateManager.pushMatrix();
 					GlStateManager.enableBlend();
 					float scale = (64.0f / 256.0f);
@@ -839,7 +839,7 @@ implements GuiYesNoCallback, IGuiData {
 					GlStateManager.disableBlend();
 					GlStateManager.popMatrix();
 				}
-				if (this.currentList==0 && GuiQuestLog.activeQuest.npc!=null) {
+				if (this.currentList==0 && GuiQuestLog.activeQuest!=null && GuiQuestLog.activeQuest.npc!=null) {
 					float size = 0.6f / GuiQuestLog.activeQuest.npc.width;
 					int vH = (int) (1.9f - 4.6f * Math.pow(this.scale, 3));
 					vH = (int) ((float) vH * (-13.5f * size + 14.5f));
@@ -863,7 +863,7 @@ implements GuiYesNoCallback, IGuiData {
 				GlStateManager.enableBlend();
 				GlStateManager.translate(0.0f, 0.0f, 101.0f);
 				String key = ((int) (98.0f * this.scale))+"_"+((int) (150.0f * this.scale))+"_"+vc;
-				if ((GuiQuestLog.activeQuest.map.isEmpty() || !GuiQuestLog.activeQuest.map.containsKey(key)) &&
+				if (GuiQuestLog.activeQuest!=null && (GuiQuestLog.activeQuest.map.isEmpty() || !GuiQuestLog.activeQuest.map.containsKey(key)) &&
 						(!GuiQuestLog.activeQuest.q.logText.isEmpty() ||
 						!GuiQuestLog.activeQuest.q.rewardText.isEmpty() ||
 						GuiQuestLog.activeQuest.q.rewardExp>0 ||
@@ -1139,7 +1139,7 @@ implements GuiYesNoCallback, IGuiData {
 		
 	}
 	
-	private class QuestInfo {
+	public class QuestInfo {
 		
 		public final Quest q;
 		private EntityNPCInterface npc;
@@ -1168,6 +1168,10 @@ implements GuiYesNoCallback, IGuiData {
 			if(data!=null) { data.marks.clear(); }
 			this.npc.display.setShowName(1);
 			this.npc.animation.clear();
+		}
+		
+		public void reset() {
+			this.map.clear();
 		}
 
 		public Map<Integer, List<String>> getText(int width, int height, int first, EntityPlayer player, FontRenderer fontRenderer) { // [listID/2, lable texts]

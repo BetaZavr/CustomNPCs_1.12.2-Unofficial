@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Arrays;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -66,6 +68,10 @@ implements ITextfieldListener {
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText( new TextComponentTranslation("quest.hover.edit.reward.money", "" + this.maxMoney).getFormattedText());
 		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
 	}
 
 	@Override
@@ -73,16 +79,20 @@ implements ITextfieldListener {
 		super.initGui();
 		int x = this.guiLeft + 4;
 		int y = this.guiTop + 14;
-		this.addLabel(new GuiNpcLabel(0, "quest.reward.get.item", x, y - 10));
-		this.addButton(new GuiNpcButton(0, x, y, 60, 20, new String[] { "drop.type.all", "drop.type.one", "drop.type.random" }, this.quest.rewardType.ordinal()));
+		this.addLabel(new GuiNpcLabel(0, "quest.reward.get.item", x + 1, y - 10));
+		this.addButton(new GuiNpcButton(0, x + 19, y, 60, 20, new String[] { "drop.type.all", "drop.type.one", "drop.type.random" }, this.quest.rewardType.ordinal()));
 		
-		this.addButton(new GuiNpcButton(5, x + this.xSize - 23, y - 8, 16, 16, "X"));
-		this.addLabel(new GuiNpcLabel(1, "quest.exp", x, this.guiTop + 45));
-		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, x, this.guiTop + 55, 60, 20, this.quest.rewardExp + ""));
+		this.addButton(new GuiNpcButton(5, x + this.xSize - 20, y - 10, 12, 12, "X"));
+		
+		this.addLabel(new GuiNpcLabel(1, "quest.exp", x + 1, (y += 23) + 5));
+		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, x + 35, y, 60, 18, this.quest.rewardExp + ""));
 		this.getTextField(0).setNumbersOnly();
-		this.getTextField(0).setMinMaxDefault(0, this.maxXp, 0);
-		
-		
+		this.getTextField(0).setMinMaxDefault(0, this.maxXp, this.quest.rewardExp);
+
+		this.addLabel(new GuiNpcLabel(2, "gui.money", x + 1, (y += 22) + 5));
+		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, x + 35, y, 60, 18, this.quest.rewardMoney + ""));
+		this.getTextField(1).setNumbersOnly();
+		this.getTextField(1).setMinMaxDefault(0, this.maxMoney, this.quest.rewardMoney);
 	}
 	
 	@Override

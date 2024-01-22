@@ -657,6 +657,7 @@ extends CommonProxy {
 
 	public void updateGUI() {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
+		if (GuiQuestLog.activeQuest != null) { GuiQuestLog.activeQuest.reset(); }
 		if (gui == null) { return; }
 		gui.initGui();
 	}

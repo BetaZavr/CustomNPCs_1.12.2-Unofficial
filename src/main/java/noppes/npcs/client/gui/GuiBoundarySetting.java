@@ -348,12 +348,11 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		Gui.drawRect(side-6, side-hy-13, side-4, side-hy-11, 0xFFFFFFFF); // Y
 		GlStateManager.popMatrix();
 		// New
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
 		// hover text
 		if (!ht.isEmpty()) {
 			this.setHoverText(new TextComponentTranslation(ht).getFormattedText());
-		}
-		else if (this.getTextField(16)!=null && this.getTextField(16).isMouseOver()) {
+		} else if (this.getTextField(16)!=null && this.getTextField(16).isMouseOver()) {
 			this.setHoverText("X pos");
 		} else if (this.getTextField(17)!=null && this.getTextField(17).isMouseOver()) {
 			this.setHoverText("Z pos");
@@ -369,83 +368,58 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			this.setHoverText(new TextComponentTranslation("region.hover.home.axis", "Y").getFormattedText());
 		} else if (this.getTextField(27)!=null && this.getTextField(27).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.home.axis", "Z").getFormattedText());
-		}
-		else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
+		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.color").getFormattedText());
-		}
-		else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.delete").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.-x", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.+x", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.-z", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.+z", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.-y", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.+y", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.point.offSet.up", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.point.offSet.down", new TextComponentTranslation("gui.region").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.-x", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.+x", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.-z", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.+z", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
+		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.up.-y", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(19)!=null && this.getButton(19).isMouseOver()) {
+		} else if (this.getButton(19)!=null && this.getButton(19).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.up.+y", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(20)!=null && this.getButton(20).isMouseOver()) {
+		} else if (this.getButton(20)!=null && this.getButton(20).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.down.-y", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(21)!=null && this.getButton(21).isMouseOver()) {
+		} else if (this.getButton(21)!=null && this.getButton(21).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.offSet.down.+y", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(24)!=null && this.getButton(24).isMouseOver()) {
+		} else if (this.getButton(24)!=null && this.getButton(24).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.teleport", new TextComponentTranslation("gui.point").getFormattedText()).getFormattedText());
-		}
-		else if (this.getButton(25)!=null && this.getButton(25).isMouseOver()) {
+		} else if (this.getButton(25)!=null && this.getButton(25).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.keepout").getFormattedText());
-		}
-		else if (this.getButton(25)!=null && this.getButton(25).isMouseOver()) {
+		} else if (this.getButton(25)!=null && this.getButton(25).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("region.hover.show.in.client").getFormattedText());
-		}
-		else if (this.getLabel(103)!=null && this.getLabel(103).hovered) {
+		} else if (this.getLabel(103)!=null && this.getLabel(103).hovered) {
 			this.setHoverText(new TextComponentTranslation("region.hover.regions.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText()).getFormattedText());
-		}
-		else if (this.getLabel(104)!=null && this.getLabel(104).hovered) {
+		} else if (this.getLabel(104)!=null && this.getLabel(104).hovered) {
 			this.setHoverText(new TextComponentTranslation("region.hover.points.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText()).getFormattedText());
 		}
-		if (this.hoverText!=null) {
-			GlStateManager.pushMatrix();
+		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			GlStateManager.popMatrix();
+			this.hoverText = null;
 		}
 	}
 

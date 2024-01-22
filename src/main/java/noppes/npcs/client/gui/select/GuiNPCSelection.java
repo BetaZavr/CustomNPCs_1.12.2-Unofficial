@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.select;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -168,6 +169,10 @@ implements IGuiData, ICustomScrollListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.edit").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

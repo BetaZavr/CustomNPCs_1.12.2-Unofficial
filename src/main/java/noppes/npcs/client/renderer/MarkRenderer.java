@@ -32,74 +32,77 @@ public class MarkRenderer {
     private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D, 0.7D)).normalize();
 
 	public static void render(EntityLivingBase entity, double x, double y, double z, MarkData.Mark mark) {
-		GlStateManager.pushMatrix();
-		int color = mark.color;
-		float red = (color >> 16 & 0xFF) / 255.0f;
-		float green = (color >> 8 & 0xFF) / 255.0f;
-		float blue = (color & 0xFF) / 255.0f;
-		GlStateManager.color(red, green, blue);
-		GlStateManager.translate(x, y + entity.height + 0.6, z);
-		GlStateManager.rotate(-entity.rotationYawHead, 0.0f, 1.0f, 0.0f);
-		switch(mark.type) {
-			case 2: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markExclamation); break;
-			case 3: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markPointer); break;
-			case 4: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markSkull); break;
-			case 5: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markCross); break;
-			case 6: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markStar); break;
-			default: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markQuestion);
-		}
-		int list = mark.is3D() ? MarkRenderer.displayList[mark.type] : MarkRenderer.displayList[0];
-		if (MarkRenderer.needReload || list<0) {
-			MarkRenderer.needReload = false;
-			if (mark.is3D()) {
-				String name;
-				switch(mark.type) {
-					case 2: name = "exclamation"; break;
-					case 3: name = "pointer"; break;
-					case 4: name = "skull"; break;
-					case 5: name = "cross"; break;
-					case 6: name = "star"; break;
-					default: name = "question";
+		try {
+			GlStateManager.pushMatrix();
+			int color = mark.color;
+			float red = (color >> 16 & 0xFF) / 255.0f;
+			float green = (color >> 8 & 0xFF) / 255.0f;
+			float blue = (color & 0xFF) / 255.0f;
+			GlStateManager.color(red, green, blue);
+			GlStateManager.translate(x, y + entity.height + 0.6, z);
+			GlStateManager.rotate(-entity.rotationYawHead, 0.0f, 1.0f, 0.0f);
+			switch(mark.type) {
+				case 2: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markExclamation); break;
+				case 3: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markPointer); break;
+				case 4: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markSkull); break;
+				case 5: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markCross); break;
+				case 6: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markStar); break;
+				default: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markQuestion);
+			}
+			int list = mark.is3D() ? MarkRenderer.displayList[mark.type] : MarkRenderer.displayList[0];
+			if (MarkRenderer.needReload || list<0) {
+				MarkRenderer.needReload = false;
+				if (mark.is3D()) {
+					String name;
+					switch(mark.type) {
+						case 2: name = "exclamation"; break;
+						case 3: name = "pointer"; break;
+						case 4: name = "skull"; break;
+						case 5: name = "cross"; break;
+						case 6: name = "star"; break;
+						default: name = "question";
+					}
+					list = ModelBuffer.getDisplayList(new ResourceLocation(CustomNpcs.MODID+":models/util/"+name+".obj"), null, null);
+					MarkRenderer.displayList[mark.type] = list;
 				}
-				list = ModelBuffer.getDisplayList(new ResourceLocation(CustomNpcs.MODID+":models/util/"+name+".obj"), null, null);
-				MarkRenderer.displayList[mark.type] = list;
+				else {
+					GL11.glNewList(list = GLAllocation.generateDisplayLists(1), 4864);
+					GlStateManager.translate(-0.5, 0.0, 0.0);
+					Model2DRenderer.renderItemIn2D(Tessellator.getInstance().getBuffer(), 0.0f, 0.0f, 1.0f, 1.0f, 32, 32, 0.0625f);
+					GL11.glEndList();
+					MarkRenderer.displayList[0] = list;
+					if (mark.is3D()) { MarkRenderer.displayList[mark.type] = list; }
+				}
 			}
-			else {
-				GL11.glNewList(list = GLAllocation.generateDisplayLists(1), 4864);
-				GlStateManager.translate(-0.5, 0.0, 0.0);
-				Model2DRenderer.renderItemIn2D(Tessellator.getInstance().getBuffer(), 0.0f, 0.0f, 1.0f, 1.0f, 32, 32, 0.0625f);
-				GL11.glEndList();
-				MarkRenderer.displayList[0] = list;
-				if (mark.is3D()) { MarkRenderer.displayList[mark.type] = list; }
+			if (list >= 0) {
+				if (mark.isRotate()) { GlStateManager.rotate(entity.world.getTotalWorldTime() % 360 / 0.25f, 0.0f, 1.0f, 0.0f); } // New
+				if (mark.is3D() && MarkRenderer.displayList[mark.type]!=MarkRenderer.displayList[0]) {
+					Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+					GL11.glEnable(GL11.GL_LIGHTING);
+			        GL11.glEnable(GL11.GL_LIGHT0);
+			        GL11.glEnable(GL11.GL_LIGHT1);
+			        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+			        GlStateManager.colorMaterial(1032, 5634);
+			        red *= 0.5f;
+			        green *= 0.5f;
+			        blue *= 0.5f;
+			        GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, setColorBuffer((float) LIGHT0_POS.x, (float) LIGHT0_POS.y, (float) LIGHT0_POS.z, 0.0f));
+			        GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, setColorBuffer(red, green, blue, 1.0F));
+			        GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+			        GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_SPECULAR, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+			        GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, setColorBuffer((float) LIGHT1_POS.x, (float) LIGHT1_POS.y, (float) LIGHT1_POS.z, 0.0f));
+			        GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, setColorBuffer(red, green, blue, 1.0F));
+			        GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+			        GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+			        GL11.glShadeModel(GL11.GL_FLAT);
+			        GlStateManager.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, setColorBuffer(red, green, blue, 1.0F));
+				}
+				GlStateManager.callList(list);
 			}
+			GlStateManager.popMatrix();
+			RenderHelper.enableStandardItemLighting();
 		}
-		if (list >= 0) {
-			if (mark.isRotate()) { GlStateManager.rotate(entity.world.getTotalWorldTime() % 360 / 0.25f, 0.0f, 1.0f, 0.0f); } // New
-			if (mark.is3D() && MarkRenderer.displayList[mark.type]!=MarkRenderer.displayList[0]) {
-				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		        GlStateManager.enableLighting();
-		        GlStateManager.enableLight(0);
-		        GlStateManager.enableLight(1);
-		        GlStateManager.enableColorMaterial();
-		        GlStateManager.colorMaterial(1032, 5634);
-		        red *= 0.5f;
-		        green *= 0.5f;
-		        blue *= 0.5f;
-		        GlStateManager.glLight(16384, 4611, setColorBuffer((float) LIGHT0_POS.x, (float) LIGHT0_POS.y, (float) LIGHT0_POS.z, 0.0f));
-		        GlStateManager.glLight(16384, 4609, setColorBuffer(red, green, blue, 1.0F));
-		        GlStateManager.glLight(16384, 4608, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-		        GlStateManager.glLight(16384, 4610, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-		        GlStateManager.glLight(16385, 4611, setColorBuffer((float) LIGHT1_POS.x, (float) LIGHT1_POS.y, (float) LIGHT1_POS.z, 0.0f));
-		        GlStateManager.glLight(16385, 4609, setColorBuffer(red, green, blue, 1.0F));
-		        GlStateManager.glLight(16385, 4608, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-		        GlStateManager.glLight(16385, 4610, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-		        GlStateManager.shadeModel(7424);
-		        GlStateManager.glLightModel(2899, setColorBuffer(red, green, blue, 1.0F));
-			}
-			GlStateManager.callList(list);
-		}
-		GlStateManager.popMatrix();
-		RenderHelper.enableStandardItemLighting();
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	private static FloatBuffer setColorBuffer(float red, float green, float blue, float alpha) {

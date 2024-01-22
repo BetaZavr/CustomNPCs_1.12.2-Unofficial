@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.roles;
 
+import java.util.Arrays;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
@@ -135,6 +137,10 @@ implements ISubGuiListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("bard.hover.max").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("hover.scale.y")).getFormattedText());
 		} else if (this.getTextField(7)!=null && this.getTextField(7).enabled && this.getTextField(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bard.hover.max").appendSibling(new TextComponentString("<br>")).appendSibling(new TextComponentTranslation("hover.scale.z")).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

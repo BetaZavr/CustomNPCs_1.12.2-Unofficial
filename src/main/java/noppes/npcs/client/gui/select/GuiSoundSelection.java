@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundRegistry;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -20,7 +21,10 @@ import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollListener {
+public class GuiSoundSelection
+extends SubGuiInterface
+implements ICustomScrollListener {
+	
 	private HashMap<String, List<String>> domains;
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollQuests;
@@ -56,13 +60,14 @@ public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollL
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void actionPerformed(GuiButton guibutton) {
+		GuiNpcButton button = (GuiNpcButton) guibutton;
 		if (button.id == 1 && MusicController.Instance.isPlaying(this.oldPlay)) {
 			MusicController.Instance.stopSound(this.oldPlay, SoundCategory.PLAYERS);
 			this.oldPlay = "";
 			return;
 		}
-		super.actionPerformed(button);
+		super.actionPerformed(guibutton);
 		if (button.id == 1) {
 			BlockPos pos = this.player.getPosition();
 			MusicController.Instance.playSound(SoundCategory.PLAYERS, this.selectedResource.toString(), pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);

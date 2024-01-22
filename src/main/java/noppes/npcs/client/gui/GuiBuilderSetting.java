@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
@@ -334,6 +335,10 @@ implements ICustomScrollListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("schematic.schem.solid").getFormattedText());
 		} else if (this.getButton(61)!=null && this.getButton(61).isMouseOver()) {
 			this.setHoverText("hover.save");
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

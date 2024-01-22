@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -281,6 +282,10 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 			this.setHoverText(new TextComponentTranslation("inv.hover.del.drop", new Object[] { dropName }).getFormattedText());
 		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("inv.hover.auto.xp").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -130,6 +131,10 @@ implements IScrollData, ICustomScrollListener {
 			this.setHoverText("dimensions.hover.del");
 		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText("dimensions.hover.tp");
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

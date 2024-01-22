@@ -164,7 +164,7 @@ implements ITextfieldListener, ICustomScrollListener {
 				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
 				GuiCreationParts.this.addLabel(new GuiNpcLabel(22, "gui.draw", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
 				y += 25;
-				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(37, GuiCreationParts.this.guiLeft + 145, y, 100, 20, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + "x2", "gui.down", "gui.normal", "gui.up" }, this.eyes.eyePos + 1));
+				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(37, GuiCreationParts.this.guiLeft + 145, y, 100, 20, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + " x2", "gui.down", "gui.normal", "gui.up", new TextComponentTranslation("gui.up").getFormattedText() + " x2"}, this.eyes.eyePos + 1));
 				GuiCreationParts.this.addLabel(new GuiNpcLabel(37, "gui.position", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
 				y += 25;
 				GuiCreationParts.this.addButton(new GuiNpcButtonYesNo(34, GuiCreationParts.this.guiLeft + 145, y, this.eyes.glint));
@@ -419,6 +419,10 @@ implements ITextfieldListener, ICustomScrollListener {
 					if (b.id==500) { this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText()); }
 				}
 			}
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

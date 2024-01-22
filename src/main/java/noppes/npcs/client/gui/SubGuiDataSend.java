@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -128,6 +129,10 @@ implements ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("hover.data.month", "" + this.getTextField(1).max, new TextComponentTranslation("month."+this.month).getFormattedText()).getFormattedText());
 		} else if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.data.year", "" + this.getTextField(2).min, "" + this.getTextField(2).max).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

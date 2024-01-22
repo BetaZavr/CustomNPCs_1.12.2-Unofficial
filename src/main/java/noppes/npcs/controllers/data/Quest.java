@@ -190,10 +190,10 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 			allTextLogs += ent + new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText();
 		}
 		if (!this.rewardText.isEmpty()) {
-			allTextLogs += ent + new TextComponentTranslation(this.rewardText).getFormattedText();
+			allTextLogs += ent + (this.rewardText.indexOf("%")!=-1 ? this.rewardText : new TextComponentTranslation(this.rewardText).getFormattedText());
 		}
 		if (!this.logText.isEmpty()) {
-			allTextLogs += ent + ent + ((char) 167) + "l" + new TextComponentTranslation("gui.description").getFormattedText() + ent + new TextComponentTranslation(this.logText).getFormattedText();
+			allTextLogs += ent + ent + ((char) 167) + "l" + new TextComponentTranslation("gui.description").getFormattedText() + ent + (this.logText.indexOf("%")!=-1 ? this.logText : new TextComponentTranslation(this.logText).getFormattedText());
 		}
 		return allTextLogs;
 	}

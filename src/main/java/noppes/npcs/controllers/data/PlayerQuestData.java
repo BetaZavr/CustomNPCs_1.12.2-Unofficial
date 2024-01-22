@@ -18,7 +18,7 @@ public class PlayerQuestData {
 	
 	public HashMap<Integer, QuestData> activeQuests = new HashMap<Integer, QuestData>();
 	public HashMap<Integer, Long> finishedQuests = new HashMap<Integer, Long>();
-	public boolean updateClient; // ServerTickHandler.onPlayerTick()
+	public boolean updateClient; // ServerTickHandler.onPlayerTick() 114
 
 	public PlayerQuestData() {
 	}

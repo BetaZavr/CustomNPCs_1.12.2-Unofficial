@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +132,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 			name = name.substring(name.indexOf(" - ")+3);
 		}
 		List<String> newList = Lists.<String>newArrayList();
+		Map<String, String> hoverMap = Maps.<String, String>newHashMap();
 		Map<String, Integer> newData = Maps.<String, Integer>newHashMap();
 		char chr = Character.toChars(0x00A7)[0];
 		for (String key : data.keySet()) {
@@ -145,11 +147,20 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 				str = chr+"7ID:"+id+" - "+chr+(fo.decreaseFactionPoints ? "c" : "2")+newName;
 			}
 			newList.add(str);
+			hoverMap.put(str, newName);
 			newData.put(str, id);
 			if (name!=null && name.equals(newName)) { name = str; }
 		}
+		Collections.sort(newList);
 		this.data = newData;
-		this.scroll.setList(newList);
+		this.scroll.setListNotSorted(newList);
+		this.scroll.hoversTexts = new String[hoverMap.size()][];
+		int i = 0;
+		for (String key : newList) {
+			this.scroll.hoversTexts[i] = new String[] { hoverMap.get(key) };
+			i++;
+		}
+		
 		if (name != null) {
 			this.scroll.setSelected(name);
 		}
@@ -159,4 +170,5 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 	@Override
 	public void setSelected(String selected) {
 	}
+
 }

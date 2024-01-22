@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
@@ -83,6 +84,10 @@ implements IScrollData, IGuiData {
 			this.setHoverText(new TextComponentTranslation("manager.hover.transport.type").appendSibling(new TextComponentTranslation("manager.hover.transport.addinfo")).getFormattedText());
 		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.transport.loc.name").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

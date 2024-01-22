@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import java.util.Arrays;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -125,6 +127,10 @@ extends GuiNPCInterface2 {
 			this.setHoverText(new TextComponentTranslation("global.hover.auctions").
 					appendSibling(new TextComponentString("<br>")).
 					appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

@@ -325,6 +325,10 @@ implements ICustomScrollListener {
 				}
 			}
 		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
 	}
 	
 }

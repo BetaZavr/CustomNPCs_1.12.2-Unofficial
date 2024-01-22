@@ -14,8 +14,8 @@ import noppes.npcs.util.AdditionalMethods;
 public class PlayerGameData {
 	
 	private long money;
-	public boolean updateClient; // ServerTickHandler.onPlayerTick()
-	public boolean op = false; // ServerTickHandler.onPlayerTick()
+	public boolean updateClient; // ServerTickHandler.onPlayerTick() 122
+	public boolean op = false; // ServerTickHandler.onPlayerTick() 62
 	public final List<MarkupData> marketData = Lists.<MarkupData>newArrayList(); // ID market, slot
 	public double[] logPos;
 
@@ -59,8 +59,9 @@ public class PlayerGameData {
 				this.marketData.clear();
 				for (int i = 0; i < gameNBT.getTagList("MarketData", 10).tagCount(); i++) {
 					NBTTagCompound nbt = gameNBT.getTagList("MarketData", 10).getCompoundTagAt(i);
-					this.marketData.add(new MarkupData(nbt.getInteger("id"), nbt.getInteger("slot"), nbt.getInteger("xp")));
+					this.marketData.add(new MarkupData(nbt.getInteger("id"), nbt.getInteger("level"), nbt.getInteger("xp")));
 				}
+				
 			}
 			this.logPos = null;
 			if (gameNBT.hasKey("LoginPos", 9) && gameNBT.getTagList("LoginPos", 6).tagCount() > 3) {

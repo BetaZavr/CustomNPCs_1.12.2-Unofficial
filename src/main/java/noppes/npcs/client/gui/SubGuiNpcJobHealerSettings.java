@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui;
 
+import java.util.Arrays;
+
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -117,6 +119,10 @@ implements ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("beacon.hover.power", new TextComponentTranslation("enchantment.level." + p).getFormattedText()).getFormattedText());
 		} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("beacon.hover.time").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

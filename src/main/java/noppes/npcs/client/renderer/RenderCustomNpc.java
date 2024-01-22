@@ -14,12 +14,12 @@ import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.layer.LayerArms;
@@ -140,11 +140,10 @@ extends RenderNPCInterface<T> {
 	@Override
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
 		if (this.renderEntity != null) {
-			boolean isVisible = !npc.isInvisible();
-			boolean isInvisible = !isVisible && !npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player);
-			if (!isVisible && !isInvisible) {
-				return;
-			}
+			boolean isInvisible = npc.isInvisible();
+			if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+			else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+			//System.out.println(npc.getName()+"; isInvisible: "+isInvisible);
 			if (isInvisible) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);

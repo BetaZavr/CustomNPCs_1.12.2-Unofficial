@@ -1,9 +1,11 @@
 package noppes.npcs.client.layer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -39,7 +41,25 @@ implements LayerPreRender {
 		ClientProxy.bindTexture(this.npc.textureLocation);
 		this.model.bipedHead.postRender(scale);
 		GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
+
+		boolean isInvisible = false;
+		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
+		else if (this.npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+		if (isInvisible) {
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
+			GlStateManager.depthMask(false);
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(770, 771);
+			GlStateManager.alphaFunc(516, 0.003921569f);
+		}
 		this.headwear.render(scale);
+		if (isInvisible) {
+			GlStateManager.disableBlend();
+			GlStateManager.alphaFunc(516, 0.1f);
+			GlStateManager.popMatrix();
+			GlStateManager.depthMask(true);
+		}
 		GlStateManager.disableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 	}
 

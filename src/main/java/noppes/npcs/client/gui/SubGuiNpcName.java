@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui;
 
+import java.util.Arrays;
+
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -67,18 +69,18 @@ public class SubGuiNpcName extends SubGuiInterface implements ITextfieldListener
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.name").getFormattedText());
-		}
-		else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.group.name").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.group.either").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.random.name").getFormattedText());
-		}
-		else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

@@ -172,7 +172,11 @@ implements IQuestObjective {
 			return data.dialogData.dialogsRead.contains(this.id) ? 1 : 0;
 		}
 		if (this.type == EnumQuestTask.LOCATION) {
-
+			for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
+				if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
+					return ((NBTTagCompound) dataNBT).getBoolean("Found") ? 1 : 0;
+				}
+			}
 			return 0;
 		}
 		if (questData == null) {
@@ -264,19 +268,9 @@ implements IQuestObjective {
 		if (this.type == EnumQuestTask.ITEM) {
 			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT, this.maxProgress);
 		}
-		try {
-			PlayerData data = PlayerData.get(this.player);
-			QuestData questData = data.questData.activeQuests.get(this.parentID);
-			if (this.type == EnumQuestTask.DIALOG) {
-				return data.dialogData.dialogsRead.contains(this.id);
-			} else if (this.type == EnumQuestTask.LOCATION) {
-				for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
-					if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
-						return ((NBTTagCompound) dataNBT).getBoolean("Found");
-					}
-				}
-			}
-		} catch (Exception e) { return false; }
+		else if (this.type == EnumQuestTask.DIALOG) {
+			return PlayerData.get(this.player).dialogData.dialogsRead.contains(this.id);
+		}
 		return this.getProgress() >= this.maxProgress;
 	}
 
@@ -393,51 +387,68 @@ implements IQuestObjective {
 			if (progress == 0 && completed) {
 				data.dialogData.dialogsRead.remove(this.id);
 			}
-			if (progress == 1 && !completed) {
+			else if (progress == 1 && !completed) {
 				data.dialogData.dialogsRead.add(this.id);
 			}
+			else { return; }
 			// Message
-			String dialog = "N/A";
-			IDialog d = DialogController.instance.get(progress);
-			if (d != null) {
-				dialog = d.getName();
+			if (progress == 1) {
+				String dialog = "dialog ID:" + this.id;
+				IDialog d = DialogController.instance.get(this.id);
+				if (d != null) { dialog = d.getName(); }
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setInteger("QuestID", questData.quest.id);
+				compound.setString("Type", "dialog");
+				compound.setIntArray("Progress", new int[] { progress, 1 });
+				compound.setString("TargetName", dialog);
+				compound.setInteger("MessageType", 0);
+				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
+				this.player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress,
+						new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle()));
 			}
-			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("QuestID", questData.quest.id);
-			compound.setString("Type", "dialog");
-			compound.setIntArray("Progress", new int[] { progress, 1 });
-			compound.setString("TargetName", dialog);
-			compound.setInteger("MessageType", 0);
-			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-			this.player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress,
-					new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle()));
-
 			data.updateClient = true;
 		} else if (this.type == EnumQuestTask.LOCATION) {
 			if (progress < 0 || progress > 1) {
 				throw new CustomNPCsException("Progress has to be 0 or 1");
 			}
-			for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
-				if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
-					boolean completed = ((NBTTagCompound) dataNBT).getBoolean("Found");
-					if ((completed && progress == 1) || (!completed && progress == 0)) {
-						return;
+			if (!questData.extraData.hasKey("Locations", 9)) {
+				NBTTagList list = new NBTTagList();
+				NBTTagCompound dataNBT = new NBTTagCompound();
+				dataNBT.setString("Location", this.name);
+				dataNBT.setBoolean("Found", progress == 1);
+				list.appendTag(dataNBT);
+				questData.extraData.setTag("Locations", list);
+			} else {
+				boolean found = false;
+				for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
+					if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
+						boolean completed = ((NBTTagCompound) dataNBT).getBoolean("Found");
+						System.out.println("CNPCs: "+completed);
+						if ((completed && progress == 1) || (!completed && progress == 0)) { return; }
+						((NBTTagCompound) dataNBT).setBoolean("Found", progress == 1);
+						found = true;
+						break;
 					}
-					((NBTTagCompound) dataNBT).setBoolean("Found", progress == 1);
-					break;
+				}
+				if (!found) {
+					NBTTagCompound dataNBT = new NBTTagCompound();
+					dataNBT.setString("Location", this.name);
+					dataNBT.setBoolean("Found", progress == 1);
+					questData.extraData.getTagList("Locations", 10).appendTag(dataNBT);
 				}
 			}
 			// Message
-			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("QuestID", questData.quest.id);
-			compound.setString("Type", "location");
-			compound.setIntArray("Progress", new int[] { progress, 1 });
-			compound.setString("TargetName", this.name);
-			compound.setInteger("MessageType", 0);
-			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-			this.player.sendMessage(new TextComponentTranslation("quest.message.location." + progress,
-					new TextComponentTranslation(this.name).getFormattedText(), questData.quest.getTitle()));
-
+			if (progress == 1) {
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setInteger("QuestID", questData.quest.id);
+				compound.setString("Type", "location");
+				compound.setIntArray("Progress", new int[] { progress, 1 });
+				compound.setString("TargetName", this.name);
+				compound.setInteger("MessageType", 0);
+				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
+				this.player.sendMessage(new TextComponentTranslation("quest.message.location." + progress,
+						new TextComponentTranslation(this.name).getFormattedText(), questData.quest.getTitle()));
+			}
 			data.updateClient = true;
 		} else if (this.type == EnumQuestTask.KILL || this.type == EnumQuestTask.AREAKILL
 				|| this.type == EnumQuestTask.MANUAL) {
@@ -445,23 +456,23 @@ implements IQuestObjective {
 				throw new CustomNPCsException("Progress has to be between 0 and " + this.maxProgress);
 			}
 			HashMap<String, Integer> killed = this.getKilled(questData);
-			if (killed.containsKey(this.name) && killed.get(this.name) == progress) {
-				return;
+			if (killed.containsKey(this.name) && killed.get(this.name) == progress) { return; }
+			String key = this.type == EnumQuestTask.MANUAL ? "manual" : "kill";
+			// Message
+			if (killed.get(this.name) < progress) {
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setInteger("QuestID", questData.quest.id);
+				compound.setString("Type", key);
+				compound.setIntArray("Progress", new int[] { progress, this.maxProgress });
+				compound.setString("TargetName", this.name);
+				compound.setInteger("MessageType", 0);
+				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
+				this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".0",
+						new TextComponentTranslation(this.name).getFormattedText(), "" + progress, "" + this.maxProgress,
+						questData.quest.getTitle()));
 			}
 			killed.put(this.name, progress);
 			this.setKilled(questData, killed);
-			// Message
-			String key = this.type == EnumQuestTask.MANUAL ? "manual" : "kill";
-			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("QuestID", questData.quest.id);
-			compound.setString("Type", key);
-			compound.setIntArray("Progress", new int[] { progress, this.maxProgress });
-			compound.setString("TargetName", this.name);
-			compound.setInteger("MessageType", 0);
-			Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-			this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".0",
-					new TextComponentTranslation(this.name).getFormattedText(), "" + progress, "" + this.maxProgress,
-					questData.quest.getTitle()));
 			if (progress >= this.maxProgress) {
 				this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".1",
 						new TextComponentTranslation(this.name).getFormattedText(), questData.quest.getTitle()));

@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -199,6 +200,10 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			this.setHoverText(new TextComponentTranslation("faction.hover.color").getFormattedText());
 		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.sort", new TextComponentTranslation("global.factions").getFormattedText(), ((GuiNpcCheckBox) this.getButton(14)).getText()).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

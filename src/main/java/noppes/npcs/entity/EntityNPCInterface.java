@@ -1419,9 +1419,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						if (!state.getBlock().isPassable(this.world, pos)) {
 							pos = pos.up();
 							if (y - pos.getY() < 3) {
-								x = (double) pos.getX() + (double) (this.ais.bodyOffsetX / 10.0f);
-								y = (double) pos.getY() + (double) (this.ais.movementType==0 ? 0 : this.ais.bodyOffsetY / 10.0f);
-								z = (double) pos.getZ() + (double) (this.ais.bodyOffsetZ / 10.0f);
+								x = (double) pos.getX();
+								y = (double) pos.getY();
+								z = (double) pos.getZ();
 							}
 							break;
 						}
@@ -2004,5 +2004,21 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.backPos == null) { return new BlockPos(0, -1, 0); }
 		return this.backPos;
 	}
-
+	
+	@Override
+	public void setPosition(double x, double y, double z) {
+		if ((int) x == x && (int) z == z) {
+			double ox = 0.5d, oy = 0.5d, oz = 0.5d;
+			if (this.ais != null) {
+				ox = (double) (this.ais.bodyOffsetX / 10.0f);
+				oy = (double) (this.ais.movementType==0 ? 0 : this.ais.bodyOffsetY / 10.0f);
+				oz = (double) (this.ais.bodyOffsetZ / 10.0f);
+			}
+			x += ox;
+			y += oy;
+			z += oz;
+		}
+		super.setPosition(x, y, z);
+	}
+	
 }

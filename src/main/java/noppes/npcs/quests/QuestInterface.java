@@ -499,23 +499,34 @@ public class QuestInterface {
 			if (to.getEnumType() != EnumQuestTask.LOCATION || !location.equalsIgnoreCase(to.getTargetName())) {
 				continue;
 			}
+			NBTTagCompound dataNBT = new NBTTagCompound();
+			dataNBT.setString("Location", to.getTargetName());
+			dataNBT.setBoolean("Found", true);
+			
 			if (data.extraData.getTagList("Locations", 10).tagCount() == 0) {
-				NBTTagCompound dataNBT = new NBTTagCompound();
-				dataNBT.setString("Location", to.getTargetName());
-				dataNBT.setBoolean("Found", true);
 				NBTTagList list = new NBTTagList();
 				list.appendTag(dataNBT);
 				data.extraData.setTag("Locations", list);
 				return true;
 			}
+			boolean found = false;
 			for (int i = 0; i < data.extraData.getTagList("Locations", 10).tagCount(); i++) {
-				NBTTagCompound dataNBT = data.extraData.getTagList("Locations", 10).getCompoundTagAt(i);
-				if (location.equalsIgnoreCase(dataNBT.getString("Location")) && !dataNBT.getBoolean("Found")) {
-					data.extraData.getTagList("Locations", 10).getCompoundTagAt(i).setBoolean("Found", true);
-					return true;
+				NBTTagCompound dataLoc = data.extraData.getTagList("Locations", 10).getCompoundTagAt(i);
+				if (location.equalsIgnoreCase(dataLoc.getString("Location"))) {
+					if (!dataLoc.getBoolean("Found")) {
+						data.extraData.getTagList("Locations", 10).getCompoundTagAt(i).setBoolean("Found", true);
+					}
+					else {
+						return false;
+					}
+					found = true;
+					break;
 				}
 			}
-			break;
+			if (!found) {
+				data.extraData.getTagList("Locations", 10).appendTag(dataNBT);
+				return true;
+			}
 		}
 		return false;
 	}

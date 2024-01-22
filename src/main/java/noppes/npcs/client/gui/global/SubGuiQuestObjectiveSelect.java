@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Arrays;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -128,6 +130,10 @@ public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
 			this.setHoverText(new TextComponentTranslation("drop.hover.task.6", new Object[0]).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 144, 76, 16)) {
 			this.setHoverText(new TextComponentTranslation("hover.back", new Object[0]).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

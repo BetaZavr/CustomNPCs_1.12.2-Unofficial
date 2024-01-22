@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -225,6 +226,10 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			} else if (this.isMouseHover(mouseX, mouseY, x, y + 36, 60, 12)) {
 				this.setHoverText(new TextComponentTranslation("bank.upg.cost.info", ""+this.bank.ceilSettings.get(this.ceil).startCeils, ""+this.bank.ceilSettings.get(this.ceil).maxCeils).getFormattedText());
 			}
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

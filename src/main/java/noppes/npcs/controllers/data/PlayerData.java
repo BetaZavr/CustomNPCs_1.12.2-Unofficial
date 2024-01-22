@@ -54,7 +54,7 @@ implements INbtHandler, ICapabilityProvider {
 
 	public DataTimers timers;
 	public PlayerTransportData transportData;
-	public boolean updateClient; // send to -> ServerTickHandler.onPlayerTick()
+	public boolean updateClient; // send to -> ServerTickHandler.onPlayerTick() 112
 	public String uuid, playername;
 
 	public PlayerData() {

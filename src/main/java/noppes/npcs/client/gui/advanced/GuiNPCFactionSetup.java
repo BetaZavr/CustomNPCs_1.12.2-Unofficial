@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.advanced;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -174,6 +175,10 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 			this.setHoverText(new TextComponentTranslation("faction.hover.replace").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.through.walls").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

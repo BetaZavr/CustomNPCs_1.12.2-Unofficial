@@ -207,7 +207,7 @@ extends GuiScreen {
 			}
 		}
 		if (this.hover >= 0 && this.hover < this.list.size()) {
-			if (!(this.parent instanceof IEditNPC) && !((IEditNPC) this.parent).hasSubGui()) {
+			if (!(this.parent instanceof IEditNPC) || !((IEditNPC) this.parent).hasSubGui()) {
 				String[] texts = new String[0];
 				if (this.hoverText != null) {
 					texts = this.hoverText;

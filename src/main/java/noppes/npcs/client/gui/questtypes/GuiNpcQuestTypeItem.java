@@ -1,5 +1,8 @@
 package noppes.npcs.client.gui.questtypes;
 
+import java.util.Arrays;
+
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
@@ -85,7 +88,9 @@ implements ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void actionPerformed(GuiButton guibutton) {
+		super.actionPerformed(guibutton);
+		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch(button.id) {
 			case 0: {
 				if (this.task == null) { return; }
@@ -175,8 +180,7 @@ implements ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
-		}
-		else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.max", ""+this.getTextField(0).max).getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.leave").getFormattedText());
@@ -186,6 +190,10 @@ implements ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.item.ign.nbt").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

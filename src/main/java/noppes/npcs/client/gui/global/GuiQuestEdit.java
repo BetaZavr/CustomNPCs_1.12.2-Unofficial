@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.global;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -387,6 +388,10 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.reset").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("gui.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

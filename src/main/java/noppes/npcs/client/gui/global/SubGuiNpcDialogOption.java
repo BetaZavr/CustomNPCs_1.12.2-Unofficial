@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -115,36 +116,30 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.name").getFormattedText());
-		}
-		else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
+		} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.command").getFormattedText());
-		}
-		else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
+		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.type."+this.option.optionType).getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("color.hover").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.add").getFormattedText());
-		}
-		else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.del").getFormattedText());
-		}
-		else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.edit").getFormattedText());
-		}
-		else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.down").getFormattedText());
-		}
-		else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.up").getFormattedText());
-		}
-		else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.availability", this.select).getFormattedText());
-		}
-		else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

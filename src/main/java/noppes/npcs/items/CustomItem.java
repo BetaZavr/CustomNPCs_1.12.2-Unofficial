@@ -34,9 +34,9 @@ implements IPermission, ICustomElement {
 	protected Item.ToolMaterial toolMaterial;
 	protected Material collectionMaterial = null;
 	protected float speedCollectionMaterial = 1.0f;
+    protected float efficiency = 1.0f;
 
 	protected Set<Block> effectiveBlocks = Sets.<Block>newHashSet();
-    protected float efficiency = 1.0f;
     protected double attackDamage = 0.0f;
     protected double attackSpeed = -2.4d;
 

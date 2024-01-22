@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.global;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -220,6 +221,10 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.del").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.deal.settings").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.select;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.DefaultResourcePack;
@@ -109,14 +111,14 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id==3) {
-			this.dark = ((GuiNpcCheckBox) button).isSelected();
+	public void actionPerformed(GuiButton guibutton) {
+		if (guibutton.id==3) {
+			this.dark = ((GuiNpcCheckBox) guibutton).isSelected();
 			return;
 		}
-		super.actionPerformed(button);
+		super.actionPerformed(guibutton);
 		String res = this.baseResource;
-		if (button.id == 2 && this.resource!=null) {
+		if (guibutton.id == 2 && this.resource!=null) {
 			res = this.resource.toString();
 		}
 		if (this.npc!=null && this.type>=0 && this.type<=2) {
@@ -196,12 +198,14 @@ implements ICustomScrollListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("texture.hover.done").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("texture.hover.dark").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

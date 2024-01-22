@@ -2,7 +2,9 @@ package noppes.npcs.client.gui.questtypes;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -111,8 +113,9 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		super.buttonEvent(button);
+	public void actionPerformed(GuiButton guibutton) {
+		super.actionPerformed(guibutton);
+		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch(button.id) {
 			case 0: {
 				this.close();
@@ -154,8 +157,7 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
-		}
-		else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.kill.name").getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.kill.value", ""+this.getTextField(1).max).getFormattedText());
@@ -163,6 +165,10 @@ public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldLi
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

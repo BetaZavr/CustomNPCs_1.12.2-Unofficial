@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -256,6 +257,10 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 			this.setHoverText(new TextComponentTranslation("data.hover.money", ""+Long.MAX_VALUE).getFormattedText());
 		} else if (this.getLabel(3)!=null && this.getLabel(3).enabled && this.getLabel(3).hovered) {
 			this.setHoverText(new TextComponentTranslation("data.hover.markets").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 
@@ -643,7 +648,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 		}
 		this.initButtons();
 		if (ContainerNPCBank.editPlayerBankData != null) {
-			this.actionPerformed(new GuiNpcButton(5, 0, 0, ""));
+			this.buttonEvent(new GuiNpcButton(5, 0, 0, ""));
 			ContainerNPCBank.editPlayerBankData = null;
 		}
 	}

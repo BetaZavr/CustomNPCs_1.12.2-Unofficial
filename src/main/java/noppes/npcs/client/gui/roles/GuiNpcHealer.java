@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -292,6 +293,10 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 			int p = this.amplifier;
 			if (this.getTextField(3).isInteger()) { p = this.getTextField(3).getInteger() - 1; }
 			this.setHoverText(new TextComponentTranslation("beacon.hover.power", new TextComponentTranslation("enchantment.level." + p).getFormattedText()).appendSibling(new TextComponentTranslation("beacon.hover.toall")).getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -86,6 +87,10 @@ implements ICustomScrollListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.owner").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

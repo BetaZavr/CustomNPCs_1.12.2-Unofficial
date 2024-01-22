@@ -423,8 +423,6 @@ public class NoppesUtilPlayer {
 	}
 	
 	public static void questCompletion(EntityPlayerMP player, int questId, ItemStack stack) {
-		
-		
 		PlayerData data = PlayerData.get(player);
 		PlayerQuestData playerdata = data.questData;
 		QuestData activeData = playerdata.activeQuests.get(questId);
@@ -493,13 +491,13 @@ public class NoppesUtilPlayer {
 				NoppesUtilServer.GivePlayerItem(player, player, stackRew.getMCItemStack());
 			}
 		}
-		
 		PlayerQuestController.setQuestFinished(quest, player);
-		
 		Quest nextQuest = (QuestController.instance == null) ? null : QuestController.instance.quests.get(event.nextQuestId);
 		if (nextQuest!=null) {
 			PlayerQuestController.addActiveQuest(nextQuest, player);
 		}
+		Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.finished", quest.getTitle(), 2);
+		Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.finished", ": ", quest.getTitle());
 	}
 
 	public static void sendData(EnumPlayerPacket enu, Object... obs) {

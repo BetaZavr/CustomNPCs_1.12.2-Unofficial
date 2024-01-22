@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.advanced;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.Gui;
@@ -183,6 +184,10 @@ implements ISubGuiListener, ICustomScrollListener {
 			this.setHoverText(new TextComponentTranslation("mark.hover.rotate").getFormattedText());
 		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mark.hover.is3d").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

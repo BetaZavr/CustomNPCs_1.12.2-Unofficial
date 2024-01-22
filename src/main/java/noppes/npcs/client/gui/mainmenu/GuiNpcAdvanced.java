@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import java.util.Arrays;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentString;
@@ -242,35 +244,25 @@ implements IGuiData, ISubGuiListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.job."+this.npc.advanced.jobInterface.getType()).getFormattedText());
-		}
-		else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.says").getFormattedText());
-		}
-		else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.role."+this.npc.advanced.roleInterface.getType()).getFormattedText());
-		}
-		else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.faction").getFormattedText());
-		}
-		else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.dialogs").getFormattedText());
-		}
-		else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.sounds").getFormattedText());
-		}
-		else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.night").getFormattedText());
-		}
-		else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.lines").getFormattedText());
-		}
-		else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.scenes").getFormattedText());
-		}
-		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.marks").getFormattedText());
-		}
-		else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
+		} else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.anim").getFormattedText());
 		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.eye",
@@ -279,6 +271,10 @@ implements IGuiData, ISubGuiListener {
 					appendSibling(new TextComponentString("<br>")).
 					appendSibling(new TextComponentTranslation("gui.wip"))
 					.getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

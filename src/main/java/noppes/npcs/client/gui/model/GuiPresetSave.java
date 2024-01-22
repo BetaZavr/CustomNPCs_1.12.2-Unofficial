@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.model;
 
+import java.util.Arrays;
+
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -59,6 +61,10 @@ extends SubGuiInterface {
 			this.setHoverText(new TextComponentTranslation("hover.save").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

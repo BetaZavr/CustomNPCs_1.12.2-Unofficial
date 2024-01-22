@@ -384,11 +384,12 @@ implements IEditNPC {
 	}
 
 	public void updateScreen() {
-		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
-			if (tf.enabled) {
-				tf.updateCursorCounter();
+		try {
+			for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
+				if (tf.enabled) { tf.updateCursorCounter(); }
 			}
 		}
+		catch (Exception e) { e.printStackTrace(); }
 		super.updateScreen();
 	}
 

@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.advanced;
 
+import java.util.Arrays;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -62,6 +64,10 @@ implements IGuiData, ISubGuiListener {
 			this.setHoverText(new TextComponentTranslation("bard.hover.select").getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

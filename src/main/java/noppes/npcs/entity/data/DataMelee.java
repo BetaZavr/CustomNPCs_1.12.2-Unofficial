@@ -114,7 +114,7 @@ implements INPCMelee {
 
 	public int getDelayRNG() {
 		int delay = this.attackSpeed;
-		if (this.attackSpeed < 120) {
+		if (this.attackSpeed < 120 && this.attackSpeed > 10) {
 			delay += this.npc.world.rand.nextInt((int) ((double) this.attackSpeed * 0.15d));
 		}
 		return delay;

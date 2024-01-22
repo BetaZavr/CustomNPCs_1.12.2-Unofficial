@@ -956,50 +956,38 @@ implements IMetods {
 	}
 
 	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
-		if (inventory == null || items==null || items.isEmpty()) { return false; }
-		NonNullList<ItemStack> inv = NonNullList.<ItemStack>withSize(inventory.size(), ItemStack.EMPTY);
+		if (inventory == null) { return false; }
+		if (items==null || items.isEmpty()) { return true; }
+		Map<ItemStack, Integer> inv = Maps.<ItemStack, Integer>newHashMap();
 		for (int i = 0; i < inventory.size(); ++i) {
-			if (NoppesUtilServer.IsItemStackNull(inventory.get(i))) { continue; }
-			inv.set(i, inventory.get(i).copy());
-		}
-		boolean canRemove = true;
-		for (ItemStack stack : items.keySet()) {
-			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-			int count = items.get(stack);
-			for (int i = 0; i < inv.size(); ++i) {
-				ItemStack is = inv.get(i);
-				if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
-				if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
-					if (count < items.get(stack)) {
-						is.splitStack(count);
-						inv.set(i, is);
-						count = 0;
-					}
-					else {
-						count -= is.getCount();
-						inv.set(i, ItemStack.EMPTY);
-					}
-					if (count<=0) { break; }
+			ItemStack stack = inventory.get(i);
+			if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) { continue; }
+			boolean found = false;
+			for (ItemStack st : inv.keySet()) {
+				if (NoppesUtilServer.IsItemStackNull(st) || st.isEmpty()) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
+					inv.put(st, inv.get(st) + stack.getCount());
+					found = true;
+					break;
 				}
 			}
-			if (count>0) {
-				canRemove = false;
-				break;
-			}
+			if (!found) { inv.put(stack, stack.getCount()); }
 		}
-		return canRemove;
+		return AdditionalMethods.canRemoveItems(inv, items, ignoreDamage, ignoreNBT);
 	}
 
 	public static boolean canRemoveItems(Map<ItemStack, Integer> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null || items==null || items.isEmpty()) { return false; }
 		for (ItemStack stack : items.keySet()) {
+			int count = items.get(stack);
 			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
 			for (ItemStack is : inventory.keySet()) {
 				if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
 				if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
-					if (inventory.get(is) < items.get(stack)) { return false; }
+					count -= is.getCount();
 				}
 			}
+			if (count > 0) { return false; }
 		}
 		return true;
 	}

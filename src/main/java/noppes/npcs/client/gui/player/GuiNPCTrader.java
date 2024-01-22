@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -186,7 +187,7 @@ implements ICustomScrollListener, IGuiData {
 				else {
 					Map<ItemStack, Integer> map = Maps.newHashMap();
 					map.put(this.selectDealData.main, this.selectDealData.count);
-					if (this.canSell==0 && !this.selectDealData.buyItems.isEmpty() && !AdditionalMethods.canRemoveItems(this.player.inventory.mainInventory, map, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canSell = 3; }
+					if (this.canSell==0 && !this.selectDealData.main.isEmpty() && !AdditionalMethods.canRemoveItems(this.player.inventory.mainInventory, map, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canSell = 3; }
 					if (this.canSell==0 && this.marcet.isLimited) {
 						if (this.selectDealData.sellMoney > this.marcet.money) { this.canSell = 4; }
 						if (this.canSell==0 && !this.selectDealData.sellItems.isEmpty() && !AdditionalMethods.canRemoveItems(this.marcet.inventory, this.selectDealData.sellItems, this.selectDealData.ignoreDamage, this.selectDealData.ignoreNBT)) { this.canSell = 5; }
@@ -263,7 +264,6 @@ implements ICustomScrollListener, IGuiData {
 						this.getLabel(4).setLabel(text);
 					}
 				}
-				//System.out.println("CNPCs: "+this.money);
 				if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 					int color = this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000;
 					if (this.money >= this.selectDealData.deal.getMoney()) { color = 0x8000FF00; }
@@ -313,7 +313,7 @@ implements ICustomScrollListener, IGuiData {
 			GlStateManager.disableBlend();
 			String lv = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("enchantment.level." + md.level).getFormattedText());
 			if (lv.equals("enchantment.level." + md.level)) { lv = "" + md.level; }
-			this.mc.fontRenderer.drawString(lv, this.guiLeft + 16, this.guiTop + 205, CustomNpcs.mainColor, true);
+			this.mc.fontRenderer.drawString(lv, this.guiLeft + 16 - this.mc.fontRenderer.getStringWidth(lv) / 2, this.guiTop + 205, CustomNpcs.mainColor, true);
 		}
 		if (this.subgui != null) { return; }
 		int u0 = this.guiLeft + 138, u1 = this.guiLeft + this.xSize - 7;
@@ -447,6 +447,10 @@ implements ICustomScrollListener, IGuiData {
 			this.setHoverText( this.selectDealData.deal.getMaxCount() > 0 ? new TextComponentTranslation("market.hover.item.amount", new Object[] { "" + this.selectDealData.deal.getAmount() }).getFormattedText() : "");
 		} else if (this.getLabel(6)!=null && this.getLabel(6).enabled && this.getLabel(6).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	@Override

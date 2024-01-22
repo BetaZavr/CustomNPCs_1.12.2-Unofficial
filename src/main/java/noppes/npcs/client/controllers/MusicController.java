@@ -189,7 +189,7 @@ public class MusicController {
 					this.unloadSongBard = true;
 					JobBard job = (JobBard) this.songBard.advanced.jobInterface;
 					if (job.hasOffRange) {
-						AxisAlignedBB aabb = this.musicBard.getEntityBoundingBox();
+						AxisAlignedBB aabb = this.songBard.getEntityBoundingBox();
 						if (job.isRange) {
 							aabb = aabb.grow(job.range[1], job.range[1], job.range[1]);
 						} else {

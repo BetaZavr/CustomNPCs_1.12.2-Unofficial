@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.global;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -204,6 +205,10 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 			this.setHoverText(new TextComponentTranslation("recipe.hover.known").getFormattedText());
 		} else if (this.getButton(8) != null && this.getButton(8).visible && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

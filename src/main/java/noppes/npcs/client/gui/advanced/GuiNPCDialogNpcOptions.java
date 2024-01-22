@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.advanced;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -161,21 +162,20 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.add").getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.del").getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.change").getFormattedText());
-		}
-		else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.up").getFormattedText());
-		}
-		else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.down").getFormattedText());
-		}
-		else if (this.getLabel(6)!=null && this.getLabel(6).hovered) {
+		} else if (this.getLabel(6)!=null && this.getLabel(6).hovered) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.info").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

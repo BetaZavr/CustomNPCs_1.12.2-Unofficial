@@ -21,6 +21,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.WorldServer;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IEntityDamageSource;
 import noppes.npcs.api.INbt;
@@ -517,20 +518,26 @@ implements IEntity {
 
 	@Override
 	public void spawn() {
+		if (this.worldWrapper.getMCWorld().isRemote) { return; }
+		LogWriter.debug("Try summoning 0: "+this.entity.getName());
 		Entity el = null;
 		try {
-			for (Entity e : this.worldWrapper.getMCWorld().getLoadedEntityList()) {
+			for (Entity e : this.worldWrapper.getMCWorld().loadedEntityList) {
 				if (e.getUniqueID().equals(this.entity.getUniqueID())) {
 					el = e;
 					break;
 				}
 			}
-		} catch (Exception e) {}
+		}
+		catch (Exception e) { e.printStackTrace(); }
 		if (el != null) {
+			LogWriter.debug("Error summoning: "+this.entity.getName());
 			throw new CustomNPCsException("Entity is already spawned", new Object[0]);
 		}
 		this.entity.isDead = false;
-		try { this.worldWrapper.getMCWorld().spawnEntity(this.entity); } catch (Exception e) {}
+		LogWriter.debug("Try summoning 1: "+this.entity.getName());
+		try { this.worldWrapper.getMCWorld().spawnEntity(this.entity); }
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	@Override

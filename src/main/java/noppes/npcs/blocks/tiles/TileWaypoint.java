@@ -66,18 +66,16 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 			this.recentlyChecked = new ArrayList<EntityPlayer>();
 			return;
 		}
-
 		(this.toCheck = around).removeAll(this.recentlyChecked);
 		int rng = this.range + (this.range < 10 ? this.range : 10); // Changed
 		List<EntityPlayer> listMax = this.getPlayerList(rng, rng, rng);
 
 		this.recentlyChecked.retainAll(listMax);
-		this.recentlyChecked.addAll(this.toCheck);
+		this.toCheck.addAll(this.recentlyChecked);
 
 		if (this.toCheck.isEmpty()) {
 			return;
 		}
-
 		for (EntityPlayer player : this.toCheck) {
 			PlayerData pdata = PlayerData.get(player);
 			PlayerQuestData questData = pdata.questData;
@@ -87,7 +85,8 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 				for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
 					if (data.quest.step==1 && !bo) { break; }
 					bo = obj.isCompleted();
-					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION) {continue; }
+					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION || !((QuestObjective) obj).getTargetName().equals(this.name)) { continue; }
+					
 					QuestInterface quest = data.quest.questInterface;
 					if (!quest.setFound(data, this.name)) { continue; }
 					// Change Message
@@ -100,7 +99,7 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 					Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
 					player.sendMessage(new TextComponentTranslation("quest.message.location.1", new TextComponentTranslation(((QuestObjective) obj).getTargetName()).getFormattedText(), data.quest.getTitle()));
 					questData.checkQuestCompletion(player, data);
-					pdata.updateClient = true;
+					questData.updateClient = true;
 				}
 			}
 		}

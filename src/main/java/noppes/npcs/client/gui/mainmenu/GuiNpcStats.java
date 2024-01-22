@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import java.util.Arrays;
+
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -162,6 +164,10 @@ implements ITextfieldListener, IGuiData {
 			this.setHoverText(new TextComponentTranslation("stats.hover.rarity").getFormattedText());
 		} else if (this.getButton(44)!=null && this.getButton(44).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.battle").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

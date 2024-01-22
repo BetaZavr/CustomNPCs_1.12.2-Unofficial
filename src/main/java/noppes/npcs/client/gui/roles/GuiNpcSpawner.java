@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -107,21 +108,23 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		
 		this.addLabel(new GuiNpcLabel(4, "type.offset", this.guiLeft + 6, this.guiTop + 166));
 		this.addLabel(new GuiNpcLabel(5, "X:", this.guiLeft + 44, this.guiTop + 166));
-		GuiNpcTextField tf = new GuiNpcTextField(0, this, this.guiLeft + 52, this.guiTop + 161, 35, 15, ""+this.job.getOffset(false)[0]);
+		int[] set = this.job.getOffset(false);
+		if (set == null) { set = new int[] { 0, 0, 0 }; }
+		GuiNpcTextField tf = new GuiNpcTextField(0, this, this.guiLeft + 52, this.guiTop + 161, 35, 15, ""+set[0]);
 		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 5, this.job.getOffset(true)[0]);
+		tf.setMinMaxDefault(0, 5, set[0]);
 		this.addTextField(tf);
 		
 		this.addLabel(new GuiNpcLabel(6, "Y:", this.guiLeft + 89, this.guiTop + 166));
-		tf = new GuiNpcTextField(1, this, this.guiLeft + 97, this.guiTop + 161, 35, 15, ""+this.job.getOffset(false)[1]);
+		tf = new GuiNpcTextField(1, this, this.guiLeft + 97, this.guiTop + 161, 35, 15, ""+set[1]);
 		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 5, this.job.getOffset(true)[1]);
+		tf.setMinMaxDefault(0, 5, set[1]);
 		this.addTextField(tf);
 
 		this.addLabel(new GuiNpcLabel(7, "Z:", this.guiLeft + 134, this.guiTop + 166));
-		tf = new GuiNpcTextField(2, this, this.guiLeft + 142, this.guiTop + 161, 35, 15, ""+this.job.getOffset(false)[2]);
+		tf = new GuiNpcTextField(2, this, this.guiLeft + 142, this.guiTop + 161, 35, 15, ""+set[2]);
 		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 5, this.job.getOffset(true)[2]);
+		tf.setMinMaxDefault(0, 5, set[2]);
 		this.addTextField(tf);
 		
 		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(7, this.guiLeft + 5, this.guiTop + 176, 170, 14, "spawner.despawn");
@@ -151,21 +154,23 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		
 		this.addLabel(new GuiNpcLabel(9, "type.offset", this.guiLeft + 181, this.guiTop + 166));
 		this.addLabel(new GuiNpcLabel(10, "X:", this.guiLeft + 219, this.guiTop + 166));
-		tf = new GuiNpcTextField(3, this, this.guiLeft + 227, this.guiTop + 161, 35, 15, ""+this.job.getOffset(true)[0]);
+		set = this.job.getOffset(true);
+		if (set == null) { set = new int[] { 0, 0, 0 }; }
+		tf = new GuiNpcTextField(3, this, this.guiLeft + 227, this.guiTop + 161, 35, 15, ""+set[0]);
 		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 5, this.job.getOffset(true)[0]);
+		tf.setMinMaxDefault(0, 5, set[0]);
 		this.addTextField(tf);
 		
 		this.addLabel(new GuiNpcLabel(11, "Y:", this.guiLeft + 264, this.guiTop + 166));
-		tf = new GuiNpcTextField(4, this, this.guiLeft + 272, this.guiTop + 161, 35, 15, ""+this.job.getOffset(true)[1]);
+		tf = new GuiNpcTextField(4, this, this.guiLeft + 272, this.guiTop + 161, 35, 15, ""+set[1]);
 		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 5, this.job.getOffset(true)[1]);
+		tf.setMinMaxDefault(0, 5, set[1]);
 		this.addTextField(tf);
 
 		this.addLabel(new GuiNpcLabel(12, "Z:", this.guiLeft + 309, this.guiTop + 166));
-		tf = new GuiNpcTextField(5, this, this.guiLeft + 317, this.guiTop + 161, 35, 15, ""+this.job.getOffset(true)[2]);
+		tf = new GuiNpcTextField(5, this, this.guiLeft + 317, this.guiTop + 161, 35, 15, ""+set[2]);
 		tf.setNumbersOnly();
-		tf.setMinMaxDefault(0, 5, this.job.getOffset(true)[2]);
+		tf.setMinMaxDefault(0, 5, set[2]);
 		this.addTextField(tf);
 		
 		checkBox = new GuiNpcCheckBox(15, this.guiLeft + 180, this.guiTop + 176, 170, 14, "spawner.despawn");
@@ -386,62 +391,43 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		if (this.subgui!=null || !CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.del").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.change").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.up").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.down").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.clear").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.des.tr.lost").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.type.0."+this.getButton(8).getValue()).appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
-		}
-		else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
+		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.del").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
+		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.change").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
+		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.up").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
+		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.down").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
+		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.clear").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.des.tr.lost").appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
+		} else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.type.1."+this.getButton(8).getValue()).appendSibling(new TextComponentTranslation("spawner.hover.sp.1")).getFormattedText());
-		}
-		else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
+		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.exact").appendSibling(new TextComponentTranslation("spawner.hover.sp.2")).getFormattedText());
-		}
-		else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
+		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.reset").appendSibling(new TextComponentTranslation("spawner.hover.sp.2")).getFormattedText());
-		}
-		else if (this.getLabel(1)!=null && this.getLabel(1).hovered) {
+		} else if (this.getLabel(1)!=null && this.getLabel(1).hovered) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.list.0").appendSibling(new TextComponentTranslation("spawner.hover.list.2")).getFormattedText());
-		}
-		else if (this.getLabel(2)!=null && this.getLabel(2).hovered) {
+		} else if (this.getLabel(2)!=null && this.getLabel(2).hovered) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.list.1").appendSibling(new TextComponentTranslation("spawner.hover.list.2")).getFormattedText());
 		}
 		for (int t=0; t<6; t++) {
@@ -453,6 +439,10 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		if (this.getTextField(6)!=null && this.getTextField(6).getVisible() && mouseX >= this.guiLeft+357 && mouseY >= this.guiTop+144 && mouseX < this.guiLeft+412 && mouseY < this.guiTop+159) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.cooldown").getFormattedText());
 			return;
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 	

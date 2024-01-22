@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui;
 
+import java.util.Arrays;
+
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -68,15 +70,16 @@ implements ITextfieldListener {
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.time").getFormattedText());
-		}
-		else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
+		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.type").getFormattedText());
-		}
-		else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.body").getFormattedText());
-		}
-		else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

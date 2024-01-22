@@ -491,7 +491,7 @@ public class PacketHandlerServer {
 			else if (CustomNpcs.Server!=null) {
 				for (WorldServer w : CustomNpcs.Server.worlds) {
 					boolean found = false;
-					for (Entity e : w.getLoadedEntityList()) {
+					for (Entity e : w.loadedEntityList) {
 						if (e instanceof EntityNPCInterface && e.getName().equals(quest.completer.getName())) {
 							NBTTagCompound nbtNPC = new NBTTagCompound();
 							((EntityNPCInterface) e).writeEntityToNBT(nbtNPC );

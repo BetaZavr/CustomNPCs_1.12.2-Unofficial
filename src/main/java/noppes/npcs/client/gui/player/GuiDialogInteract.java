@@ -38,6 +38,7 @@ import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class GuiDialogInteract
 extends GuiNPCInterface
@@ -74,12 +75,20 @@ implements IGuiClose {
 
 	public void appendDialog(Dialog dialog) {
 		this.closeOnEsc = !dialog.disableEsc;
+		Dialog oldDialog = this.dialog;
 		this.dialog = dialog;
 		this.options = new ArrayList<Integer>();
 		MusicController.Instance.stopSound(null, SoundCategory.VOICE);
 		if (dialog.sound != null && !dialog.sound.isEmpty()) {
 			BlockPos pos = this.npc.getPosition();
-			MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			if (oldDialog != null && !oldDialog.equals(dialog) && oldDialog.sound != null && !oldDialog.sound.isEmpty() && MusicController.Instance.isPlaying(oldDialog.sound)) {
+				MusicController.Instance.stopSound(oldDialog.sound, SoundCategory.VOICE);
+			}
+			boolean isPlay = MusicController.Instance.isPlaying(dialog.sound);
+			if (isPlay) { MusicController.Instance.stopSound(dialog.sound, SoundCategory.VOICE); }
+			CustomNPCsScheduler.runTack(() -> {
+				MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			}, 50);
 		}
 		String dText = dialog.text;
 		int h = 0;
@@ -177,6 +186,9 @@ implements IGuiClose {
 
 	private void closed() {
 		this.grabMouse(false);
+		if (this.dialog.sound != null && !this.dialog.sound.isEmpty() && this.dialog.stopSound) {
+			if (MusicController.Instance.isPlaying(this.dialog.sound)) { MusicController.Instance.stopSound(this.dialog.sound, SoundCategory.VOICE); }
+		}
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
 	}
 

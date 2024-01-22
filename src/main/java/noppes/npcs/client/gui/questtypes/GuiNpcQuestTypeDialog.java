@@ -1,5 +1,8 @@
 package noppes.npcs.client.gui.questtypes;
 
+import java.util.Arrays;
+
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
@@ -55,7 +58,9 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
+	public void actionPerformed(GuiButton guibutton) {
+		super.actionPerformed(guibutton);
+		GuiNpcButton button = (GuiNpcButton) guibutton;
 		switch(button.id) {
 			case 0: {
 				if (this.task.getTargetID() <= 0) {
@@ -113,6 +118,10 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.dialog.add").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.dialog.del").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 

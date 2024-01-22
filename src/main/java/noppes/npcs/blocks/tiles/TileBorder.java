@@ -26,14 +26,15 @@ implements Predicate, ITickable {
 	
 	public Availability availability;
 	public AxisAlignedBB boundingbox;
-	public int height;
+	public boolean creative;
+	public int height, rotation;
 	public String message;
-	public int rotation;
 
 	public TileBorder() {
 		this.availability = new Availability();
 		this.rotation = 0;
 		this.height = 10;
+		this.creative = false;
 		this.message = "availability.areaNotAvailble";
 	}
 
@@ -71,6 +72,7 @@ implements Predicate, ITickable {
 		this.rotation = compound.getInteger("BorderRotation");
 		this.height = compound.getInteger("BorderHeight");
 		this.message = compound.getString("BorderMessage");
+		this.creative = compound.getBoolean("Bordercreative");
 	}
 
 	@Override
@@ -105,7 +107,7 @@ implements Predicate, ITickable {
 	}
 
 	private boolean cheakPlayer(EntityPlayer player, int startY) {
-		if (player.capabilities.isCreativeMode || this.availability.isAvailable(player)) { return false; }
+		if ((player.capabilities.isCreativeMode && !this.creative) || this.availability.isAvailable(player)) { return false; }
 		BlockPos newPos = new BlockPos(this.pos.getX(), startY, this.pos.getZ());
 		if (this.rotation == 2) { newPos = newPos.south(); }
 		else if (this.rotation == 0) { newPos = newPos.north(); }
@@ -128,6 +130,7 @@ implements Predicate, ITickable {
 		compound.setInteger("BorderRotation", this.rotation);
 		compound.setInteger("BorderHeight", this.height);
 		compound.setString("BorderMessage", this.message);
+		compound.setBoolean("Bordercreative", this.creative);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.player;
 
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
@@ -33,9 +34,9 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		super.buttonEvent(button);
-		if (button.id == 5) {
+	public void actionPerformed(GuiButton guibutton) {
+		super.actionPerformed(guibutton);
+		if (guibutton.id == 5) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, new Object[0]);
 			this.close();
 		}

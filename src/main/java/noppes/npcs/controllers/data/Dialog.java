@@ -24,7 +24,7 @@ implements ICompatibilty, IDialog {
 	public PlayerMail mail;
 	public FactionOptions factionOptions;
 	public HashMap<Integer, DialogOption> options;
-	public boolean disableEsc, hideNPC, showWheel;
+	public boolean disableEsc, hideNPC, showWheel, stopSound;
 	public int id, quest, version, delay;
 	public String command, sound, text, title, texture;
 
@@ -43,6 +43,7 @@ implements ICompatibilty, IDialog {
 		this.hideNPC = false;
 		this.showWheel = false;
 		this.disableEsc = false;
+		this.stopSound = true;
 		this.category = category;
 		this.delay = 0;
 	}
@@ -60,6 +61,7 @@ implements ICompatibilty, IDialog {
 		dialog.hideNPC = this.hideNPC;
 		dialog.showWheel = this.showWheel;
 		dialog.disableEsc = this.disableEsc;
+		dialog.stopSound = this.stopSound;
 		for (int slot : this.options.keySet()) {
 			DialogOption option = this.options.get(slot);
 			if (option.optionType == 1 && player!=null) {
@@ -170,6 +172,7 @@ implements ICompatibilty, IDialog {
 		this.hideNPC = compound.getBoolean("DialogHideNPC");
 		this.showWheel = compound.getBoolean("DialogShowWheel");
 		this.disableEsc = compound.getBoolean("DialogDisableEsc");
+		if (compound.hasKey("DialogStopSound", 1)) { this.stopSound = compound.getBoolean("DialogStopSound"); }
 		NBTTagList options = compound.getTagList("Options", 10);
 		HashMap<Integer, DialogOption> newoptions = new HashMap<Integer, DialogOption>();
 		for (int iii = 0; iii < options.tagCount(); ++iii) {
@@ -240,6 +243,7 @@ implements ICompatibilty, IDialog {
 		compound.setBoolean("DialogHideNPC", this.hideNPC);
 		compound.setBoolean("DialogShowWheel", this.showWheel);
 		compound.setBoolean("DialogDisableEsc", this.disableEsc);
+		compound.setBoolean("DialogStopSound", this.stopSound);
 		if (this.sound != null && !this.sound.isEmpty()) {
 			compound.setString("DialogSound", this.sound);
 		}
