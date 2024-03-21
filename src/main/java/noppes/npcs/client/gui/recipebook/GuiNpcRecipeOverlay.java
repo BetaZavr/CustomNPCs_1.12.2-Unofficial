@@ -42,7 +42,7 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 			RenderHelper.enableGUIStandardItemLighting();
 			GlStateManager.enableAlpha();
-			mc.getTextureManager().bindTexture(GuiNpcRecipeOverlay.RECIPE_BOOK_TEXTURE);
+			mc.renderEngine.bindTexture(GuiNpcRecipeOverlay.RECIPE_BOOK_TEXTURE);
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 					&& mouseY < this.y + this.height;
 			int i = 152;
@@ -233,7 +233,7 @@ public class GuiNpcRecipeOverlay extends GuiRecipeOverlay {
 		RenderHelper.enableGUIStandardItemLighting();
 		GlStateManager.enableBlend();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.getTextureManager().bindTexture(SPRITE);
+		this.mc.renderEngine.bindTexture(SPRITE);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0F, 0.0F, 170.0F);
 		int i = this.buttonList.size() <= 16 ? 4 : 5;

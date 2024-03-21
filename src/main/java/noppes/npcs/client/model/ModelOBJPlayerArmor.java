@@ -92,7 +92,6 @@ extends ModelBiped
 		if (re instanceof RenderPlayer) { source = ((RenderPlayer) re).getMainModel(); }
 		if (source == null) { return; }
 		this.reset((EntityLivingBase) entityIn);
-		//System.out.println("isAnimated: "+isAnimated+" / "+source);
 		resetPos(this.bipedHead, source.bipedHead);
 		resetPos(this.bipedBody, source.bipedBody);
 		resetPos(this.bipedBelt, source.bipedBody);

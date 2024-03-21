@@ -82,6 +82,10 @@ implements ITextfieldListener, ISubGuiListener {
 		MarkData data = MarkData.get(this.npc);
 		if(data!=null) { data.marks.clear(); }
 		this.npc.display.setShowName(1);
+		this.npc.rotationYaw = npc.rotationYaw;
+		this.npc.rotationPitch = npc.rotationPitch;
+		this.npc.ais.orientation = npc.ais.orientation;
+		this.npc.ais.setStandingType(1);
 		this.npc.animation.clear();
 	}
 
@@ -159,7 +163,7 @@ implements ITextfieldListener, ISubGuiListener {
 				h = (int) (24.76190f * this.npc.height - 47.04762f);
 			}
 			h -= (int) (-36.0f * s + 36.0f);
-			this.drawNpc(this.npc, 212, 168 + h, s, 30, 15, false);
+			this.drawNpc(this.npc, 212, 168 + h, s, 30, 15, 0);
 			GlStateManager.popMatrix();
 			
 			u = this.guiLeft + 182;

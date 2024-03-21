@@ -35,6 +35,7 @@ import noppes.npcs.client.gui.roles.GuiRoleDialog;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
+import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
@@ -59,25 +60,35 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void initGui() {
 		super.initGui();
+		int x = this.guiLeft + 15, x1 = this.guiLeft + 85;
 		int y = this.guiTop + 8;
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 85 + 160, y, 52, 20, "selectServer.edit"));
-		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 85, y, 155, 20, RoleType.getNames(), this.npc.advanced.roleInterface.getType()));
+		this.addLabel(new GuiNpcLabel(0, "role.name", x, y + 5));
+		this.addButton(new GuiNpcButton(3, x + 230, y, 52, 20, "selectServer.edit"));
 		this.getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 245, y += 22, 52, 20, "selectServer.edit"));
-		this.addButton(new GuiButtonBiDirectional(5, this.guiLeft + 85, y, 155, 20, JobType.getNames(), this.npc.advanced.jobInterface.getType()));
+		this.addButton(new GuiButtonBiDirectional(8, x + 70, y, 155, 20, RoleType.getNames(), this.npc.advanced.roleInterface.getType()));
+
+		this.addLabel(new GuiNpcLabel(1, "job.name", x, (y += 22) + 5));
+		this.addButton(new GuiNpcButton(4, x + 230, y, 52, 20, "selectServer.edit"));
 		this.getButton(4).setEnabled(this.npc.advanced.jobInterface.getEnumType().hasSettings);
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 15, y += 22, 190, 20, "advanced.lines"));
-		this.addButton(new GuiNpcButton(9, this.guiLeft + 208, y, 190, 20, "menu.factions"));
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 15, y += 22, 190, 20, "dialog.dialogs"));
-		this.addButton(new GuiNpcButton(11, this.guiLeft + 208, y, 190, 20, "advanced.sounds"));
-		this.addButton(new GuiNpcButton(12, this.guiLeft + 15, y += 22, 190, 20, "advanced.night"));
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 208, y, 190, 20, "global.linked"));
-		this.addButton(new GuiNpcButton(14, this.guiLeft + 15, y += 22, 190, 20, "advanced.scenes"));
-		this.addButton(new GuiNpcButton(15, this.guiLeft + 208, y, 190, 20, "advanced.marks"));
-		this.addButton(new GuiNpcButton(16, this.guiLeft + 15, y += 22, 190, 20, "movement.animation"));
-		this.getButton(16).enabled = ((EntityCustomNpc) this.npc).modelData.entityClass==null;
-		this.addButton(new GuiNpcButton(18, this.guiLeft + 15, y += 22, 190, 20, "advanced.emotion"));
-		this.getButton(18).enabled = ((EntityCustomNpc) this.npc).modelData.eyes.type!=(byte)-1;
+		this.addButton(new GuiButtonBiDirectional(5, x + 70, y, 155, 20, JobType.getNames(), this.npc.advanced.jobInterface.getType()));
+		x1 += 126;
+		this.addButton(new GuiNpcButton(7, x, y += 22, 195, 20, "advanced.lines"));
+		this.addButton(new GuiNpcButton(9, x1, y, 195, 20, "menu.factions"));
+		
+		this.addButton(new GuiNpcButton(10, x, y += 22, 195, 20, "dialog.dialogs"));
+		this.addButton(new GuiNpcButton(11, x1, y, 195, 20, "advanced.sounds"));
+		
+		this.addButton(new GuiNpcButton(12, x, y += 22, 195, 20, "advanced.night"));
+		this.addButton(new GuiNpcButton(13, x1, y, 195, 20, "global.linked"));
+		
+		this.addButton(new GuiNpcButton(14, x, y += 22, 195, 20, "advanced.scenes"));
+		this.addButton(new GuiNpcButton(15, x1, y, 195, 20, "advanced.marks"));
+		
+		this.addButton(new GuiNpcButton(16, x, y += 22, 195, 20, "movement.animation"));
+		this.getButton(16).enabled = (this.npc instanceof EntityCustomNpc) && ((EntityCustomNpc) this.npc).modelData.entityClass==null;
+		
+		this.addButton(new GuiNpcButton(18, x, y += 22, 195, 20, "advanced.emotion"));
+		//this.getButton(18).enabled = (this.npc instanceof EntityCustomNpc) && ((EntityCustomNpc) this.npc).modelData.eyes.type!=(byte)-1;
 		this.getButton(18).enabled = false; // WIP
 	}
 
@@ -114,7 +125,7 @@ implements IGuiData, ISubGuiListener {
 				break;
 			}
 			case 10: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCDialogNpcOptions(this.npc, this));
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNPCDialogNpcOptions(this.npc));
 				break;
 			}
 			case 11: {
@@ -138,11 +149,11 @@ implements IGuiData, ISubGuiListener {
 				break;
 			}
 			case 16: { // Animation Settings
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcAnimation(this, (EntityCustomNpc) this.npc));
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcAnimation((EntityCustomNpc) this.npc));
 				break;
 			}
 			case 18: { // Emotion Settings
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcEmotion(this, (EntityCustomNpc) this.npc));
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcEmotion((EntityCustomNpc) this.npc));
 				break;
 			}
 		}

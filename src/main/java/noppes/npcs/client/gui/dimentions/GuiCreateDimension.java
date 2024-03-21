@@ -135,56 +135,55 @@ extends GuiScreen
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException {
-		if (button.enabled) {
-			if (button.id == 1) {
-				CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
-			}
-			else if (button.id == 0) {
-				this.mc.displayGuiScreen((GuiScreen) null);
-				if (this.alreadyGenerated) { return; }
-				this.alreadyGenerated = true;
-				long i = (new Random()).nextLong();
-				String s = this.seedTextField.getText();
-				if (!StringUtils.isEmpty(s)) {
-					try {
-						long j = Long.parseLong(s);
-						if (j != 0L) { i = j; }
-					}
-					catch (NumberFormatException numberformatexception) { i = s.hashCode(); }
+		if (!button.enabled) { return; }
+		if (button.id == 1) {
+			CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
+		}
+		else if (button.id == 0) {
+			CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
+			if (this.alreadyGenerated) { return; }
+			this.alreadyGenerated = true;
+			long i = (new Random()).nextLong();
+			String s = this.seedTextField.getText();
+			if (!StringUtils.isEmpty(s)) {
+				try {
+					long j = Long.parseLong(s);
+					if (j != 0L) { i = j; }
 				}
-				WorldType.WORLD_TYPES[this.selectedIndex].onGUICreateWorldPress();
-				GameType gametype = GameType.getByName(this.gameType);
-				WorldSettings worldsettings = new WorldSettings(i, gametype, this.generateStructures, this.hardcore, WorldType.WORLD_TYPES[this.selectedIndex]);
-				worldsettings.setGeneratorOptions(this.chunkProviderSettingsJson);
-				if (this.bonusChest && !this.hardcore) { worldsettings.enableBonusChest(); }
-				if (this.allowCheats && !this.hardcore) { worldsettings.enableCommands(); }
-				WorldInfo worldInfo = new CustomWorldInfo(worldsettings, this.dimensionNameTextField.getText().trim());
-				Client.sendData(EnumPacketServer.DimensionSettings, this.dimentionId, worldInfo);
+				catch (NumberFormatException numberformatexception) { i = s.hashCode(); }
 			}
-			else if (button.id == 3) {
-				this.func_146315_i();
+			WorldType.WORLD_TYPES[this.selectedIndex].onGUICreateWorldPress();
+			GameType gametype = GameType.getByName(this.gameType);
+			WorldSettings worldsettings = new WorldSettings(i, gametype, this.generateStructures, this.hardcore, WorldType.WORLD_TYPES[this.selectedIndex]);
+			worldsettings.setGeneratorOptions(this.chunkProviderSettingsJson);
+			if (this.bonusChest && !this.hardcore) { worldsettings.enableBonusChest(); }
+			if (this.allowCheats && !this.hardcore) { worldsettings.enableCommands(); }
+			WorldInfo worldInfo = new CustomWorldInfo(worldsettings, this.dimensionNameTextField.getText().trim());
+			Client.sendData(EnumPacketServer.DimensionSettings, this.dimentionId, worldInfo);
+		}
+		else if (button.id == 3) {
+			this.func_146315_i();
+		}
+		else if (button.id == 4) {
+			this.generateStructures = !this.generateStructures;
+			this.updateDisplayState();
+		}
+		else if (button.id == 5) {
+			++this.selectedIndex;
+			if (this.selectedIndex >= WorldType.WORLD_TYPES.length) {
+				this.selectedIndex = 0;
 			}
-			else if (button.id == 4) {
-				this.generateStructures = !this.generateStructures;
-				this.updateDisplayState();
-			}
-			else if (button.id == 5) {
+			while (!this.func_175299_g()) {
 				++this.selectedIndex;
-				if (this.selectedIndex >= WorldType.WORLD_TYPES.length) {
-					this.selectedIndex = 0;
-				}
-				while (!this.func_175299_g()) {
-					++this.selectedIndex;
-					if (this.selectedIndex >= WorldType.WORLD_TYPES.length) { this.selectedIndex = 0; }
-				}
-				this.chunkProviderSettingsJson = "";
-				this.updateDisplayState();
-				this.showMoreWorldOptions(this.userInMoreOptions);
+				if (this.selectedIndex >= WorldType.WORLD_TYPES.length) { this.selectedIndex = 0; }
 			}
-			else if (button.id == 8) {
-				if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.FLAT) { this.mc.displayGuiScreen(new GuiCreateFlatDimension(this, this.chunkProviderSettingsJson)); }
-				else if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.CUSTOMIZED) { this.mc.displayGuiScreen(new GuiCustomizeDimension(this, this.chunkProviderSettingsJson)); }
-			}
+			this.chunkProviderSettingsJson = "";
+			this.updateDisplayState();
+			this.showMoreWorldOptions(this.userInMoreOptions);
+		}
+		else if (button.id == 8) {
+			if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.FLAT) { this.mc.displayGuiScreen(new GuiCreateFlatDimension(this, this.chunkProviderSettingsJson)); }
+			else if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.CUSTOMIZED) { this.mc.displayGuiScreen(new GuiCustomizeDimension(this, this.chunkProviderSettingsJson)); }
 		}
 	}
 

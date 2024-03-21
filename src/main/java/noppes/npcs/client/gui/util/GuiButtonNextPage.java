@@ -19,7 +19,7 @@ extends GuiNpcButton {
 		if (this.visible) {
 			boolean flag = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			mc.getTextureManager().bindTexture(GuiButtonNextPage.bookGuiTextures);
+			mc.renderEngine.bindTexture(GuiButtonNextPage.bookGuiTextures);
 			int k = 0;
 			int l = 192;
 			if (flag) { k += 23; }

@@ -77,11 +77,9 @@ public class DataScenes {
 					}
 					DataScenes.this.npc.ais.setStartPos(pos);
 					DataScenes.this.npc.getNavigator().clearPath();
-					DataScenes.this.npc.resetBackPos(); // New
 					if (move) {
 						Path pathentity = DataScenes.this.npc.getNavigator().getPathToPos(pos);
 						DataScenes.this.npc.getNavigator().setPath(pathentity, 1.0);
-						DataScenes.this.npc.resetBackPos(); // New
 					} else {
 						if (DataScenes.this.npc.isInRange(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 2.0)) {
 							continue;
@@ -222,7 +220,6 @@ public class DataScenes {
 			ArrayList<SceneEvent> events = new ArrayList<SceneEvent>();
 			for (String line : this.lines.split("\r\n|\r|\n")) {
 				SceneEvent event = SceneEvent.parse(line);
-				System.out.println("event: \""+line+"\" = "+event);
 				if (event != null) {
 					events.add(event);
 				}

@@ -110,6 +110,11 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(5, "X:", this.guiLeft + 44, this.guiTop + 166));
 		int[] set = this.job.getOffset(false);
 		if (set == null) { set = new int[] { 0, 0, 0 }; }
+		if (set.length != 3) {
+			int[] ns = new int[] { 0, 0, 0 };
+			for (int i =0; i < set.length; i++) { ns[i] = set[i]; }
+			set = ns;
+		}
 		GuiNpcTextField tf = new GuiNpcTextField(0, this, this.guiLeft + 52, this.guiTop + 161, 35, 15, ""+set[0]);
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(0, 5, set[0]);
@@ -156,6 +161,11 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(10, "X:", this.guiLeft + 219, this.guiTop + 166));
 		set = this.job.getOffset(true);
 		if (set == null) { set = new int[] { 0, 0, 0 }; }
+		if (set.length != 3) {
+			int[] ns = new int[] { 0, 0, 0 };
+			for (int i =0; i < set.length; i++) { ns[i] = set[i]; }
+			set = ns;
+		}
 		tf = new GuiNpcTextField(3, this, this.guiLeft + 227, this.guiTop + 161, 35, 15, ""+set[0]);
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(0, 5, set[0]);
@@ -376,7 +386,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		if (this.subgui==null) {
 			GlStateManager.pushMatrix();
 			if (this.selectNpc!=null) {
-				this.drawNpc(this.selectNpc, 385, 92, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, false);
+				this.drawNpc(this.selectNpc, 385, 92, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			this.drawVerticalLine(this.guiLeft+178, this.guiTop+4, this.guiTop+this.ySize+12, 0xFF404040);

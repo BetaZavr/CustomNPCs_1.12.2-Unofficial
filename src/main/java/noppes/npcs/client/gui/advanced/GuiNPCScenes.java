@@ -96,6 +96,12 @@ extends GuiNPCInterface2 {
 	}
 	
 	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+	}
+	
+	@Override
 	public void keyTyped(char c, int i) {
 		if (i == 1 && this.subgui==null) {
 			this.save();

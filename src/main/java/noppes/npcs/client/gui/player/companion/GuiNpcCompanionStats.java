@@ -88,7 +88,7 @@ implements IGuiData {
 	}
 
 	public int drawHealth(int y) {
-		this.mc.getTextureManager().bindTexture(GuiNpcCompanionStats.ICONS);
+		this.mc.renderEngine.bindTexture(GuiNpcCompanionStats.ICONS);
 		int max = this.role.getTotalArmorValue();
 		if (this.role.talents.containsKey(EnumCompanionTalent.ARMOR) || max > 0) {
 			for (int i = 0; i < 10; ++i) {

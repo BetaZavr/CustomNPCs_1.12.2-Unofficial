@@ -23,6 +23,34 @@
     "category": "player",
     "sounds": ["customnpcs:gun/pistoltrigger"]
   },
+  "mail.close.door": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/close_door"]
+  },
+  "mail.delete": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/delete"]
+  },
+  "mail.money": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/money"]
+  },
+  "mail.movement": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/movement"]
+  },
+  "mail.open.door": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/open_door"]
+  },
+  "mail.new": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/new"]
+  },
+  "mail.slot": {
+    "category": "player",
+    "sounds": ["customnpcs:mail/slot"]
+  },
   "magic.charge": {
     "category": "player",
     "sounds": ["customnpcs:magic/charge"]

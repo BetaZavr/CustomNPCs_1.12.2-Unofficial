@@ -16,6 +16,8 @@ public interface IAvailability {
 
 	boolean hasScoreboard(String objective);
 
+	boolean hasStoredData(String key, String value);
+	
 	boolean isAvailable(IPlayer<?> player);
 
 	void removeDialog(int id);
@@ -25,7 +27,9 @@ public interface IAvailability {
 	void removeQuest(int id);
 
 	void removeScoreboard(String objective);
-
+	
+	void removeStoredData(String key);
+	
 	void setDaytime(int type);
 
 	void setDaytime(int minHour, int maxHour);
@@ -40,11 +44,17 @@ public interface IAvailability {
 
 	void setScoreboard(String objective, int type, int value);
 
+	void setStoredData(String key, String value, boolean has);
+	
 	int getHealth();
 
 	int getHealthType();
 
 	void setHealth(int value, int type);
+	
+	String getStoredDataValue(String key);
+	
+	boolean getStoredDataHas(String key);
 	
 	String[] getPlayerNames();
 

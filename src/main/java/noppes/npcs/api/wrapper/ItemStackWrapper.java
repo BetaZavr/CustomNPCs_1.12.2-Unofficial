@@ -48,7 +48,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
-import noppes.npcs.api.handler.capability.INbtHandler;
+import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.api.wrapper.data.TempData;
@@ -57,12 +57,13 @@ import noppes.npcs.items.ItemScripted;
 
 @SuppressWarnings("rawtypes")
 public class ItemStackWrapper
-implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable {
+implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable {
+
+	@CapabilityInject(IItemStackWrapperHandler.class)
+	public static Capability<IItemStackWrapperHandler> ITEM_SCRIPTED_DATA_CAPABILITY = null;
+	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "itemscripteddata");
 	
 	public static ItemStackWrapper AIR = new ItemStackEmptyWrapper();
-	@CapabilityInject(ItemStackWrapper.class)
-	public static Capability<ItemStackWrapper> ITEMSCRIPTEDDATA_CAPABILITY = null;
-	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "itemscripteddata");
 	private static EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
 
 	public ItemStackWrapper() { }
@@ -264,10 +265,6 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 	public String getName() {
 		return Item.REGISTRY.getNameForObject(this.item.getItem()) + "";
 	}
-
-	@Override
-	public NBTTagCompound getCapabilityNBT() { return this.getMCNbt(); }
-	
 	
 	@Override
 	public INbt getNbt() {
@@ -321,7 +318,7 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 	}
 
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		return capability == ItemStackWrapper.ITEMSCRIPTEDDATA_CAPABILITY;
+		return capability == ItemStackWrapper.ITEM_SCRIPTED_DATA_CAPABILITY;
 	}
 
 	@Override
@@ -520,11 +517,6 @@ implements INbtHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable
 			nbtlist.appendTag(new NBTTagString(s));
 		}
 		compound.setTag("Lore", nbtlist);
-	}
-
-	@Override
-	public void setCapabilityNBT(NBTTagCompound compound) {
-		this.setMCNbt(compound);
 	}
 	
 	public void setMCNbt(NBTTagCompound compound) {

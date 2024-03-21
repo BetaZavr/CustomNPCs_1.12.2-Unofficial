@@ -169,7 +169,7 @@ extends GuiScreen
 			GuiScreenCustomizeDimensionPresets.this.drawVerticalLine(i - 1, p_178051_2_ - 1, p_178051_2_ + 32, -2039584);
 			GuiScreenCustomizeDimensionPresets.this.drawVerticalLine(i + 32, p_178051_2_ - 1, p_178051_2_ + 32, -6250336);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(p_178051_3_);
+			this.mc.renderEngine.bindTexture(p_178051_3_);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);

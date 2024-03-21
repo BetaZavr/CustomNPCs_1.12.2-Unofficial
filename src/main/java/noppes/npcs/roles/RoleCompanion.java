@@ -610,8 +610,7 @@ implements IRoleCompanion {
 			this.npc.ais.animationType = 1;
 			this.npc.ais.onAttack = 3;
 			this.npc.ais.setStartPos(new BlockPos(this.npc));
-			this.npc.getNavigator().clearPath();
-			this.npc.resetBackPos(); // New
+			this.npc.getNavigator().clearPath(); 
 			this.npc.setPositionAndUpdate(this.npc.getStartXPos(), this.npc.posY, this.npc.getStartZPos());
 		} else {
 			this.npc.ais.animationType = this.stage.animation;

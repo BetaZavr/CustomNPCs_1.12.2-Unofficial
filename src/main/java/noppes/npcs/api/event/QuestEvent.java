@@ -32,7 +32,7 @@ public class QuestEvent extends CustomNPCsEvent {
 
 	public static class QuestTurnedInEvent extends QuestEvent {
 		
-		public int expReward;
+		public int expReward, moneyReward;
 		public IItemStack[] itemRewards;
 		public FactionOptions factionOptions;
 		public PlayerMail mail;

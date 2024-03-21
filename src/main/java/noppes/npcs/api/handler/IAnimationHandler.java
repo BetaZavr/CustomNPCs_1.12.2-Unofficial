@@ -4,7 +4,7 @@ import noppes.npcs.api.entity.data.IAnimation;
 
 public interface IAnimationHandler {
 	
-	IAnimation[] getAnimations(int animationType);
+	IAnimation[] getAnimations();
 	
 	IAnimation getAnimation(int animationId);
 	
@@ -14,6 +14,6 @@ public interface IAnimationHandler {
 	
 	boolean removeAnimation(String animationName);
 
-	IAnimation createNew(int animationType);
+	IAnimation createNew();
 	
 }

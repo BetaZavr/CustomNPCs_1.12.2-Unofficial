@@ -2,11 +2,11 @@ package noppes.npcs.api.wrapper;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.command.CommandException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -29,25 +29,31 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.entity.IEntity;
-import noppes.npcs.api.handler.capability.INbtHandler;
+import noppes.npcs.api.handler.capability.IWrapperEntityDataHandler;
 import noppes.npcs.controllers.PixelmonHelper;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class WrapperEntityData
-implements INbtHandler, ICapabilityProvider, Callable<PlayerData> {
+implements IWrapperEntityDataHandler, ICapabilityProvider {
 	
-	@CapabilityInject(WrapperEntityData.class)
-	public static Capability<WrapperEntityData> ENTITYDATA_CAPABILITY = null;
+	@CapabilityInject(IWrapperEntityDataHandler.class)
+	public static Capability<IWrapperEntityDataHandler> WRAPPER_ENTITY_DATA_CAPABILITY = null;
 	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "entitydata");
-
 
 	public WrapperEntityData() { }
 	
 	public static IEntity<?> get(Entity entity) {
 		if (entity == null || entity.world==null) { return null; }
-		WrapperEntityData data = entity.getCapability(WrapperEntityData.ENTITYDATA_CAPABILITY, null);
+		WrapperEntityData data = (WrapperEntityData) entity.getCapability(WrapperEntityData.WRAPPER_ENTITY_DATA_CAPABILITY, null);
+		if (entity instanceof EntityPlayer) {
+			String k = (entity.world==null || entity.world.isRemote ? "client_" : "server_") + entity.getUniqueID().toString();
+			if (data != null && !PlayerWrapper.map.containsKey(k)) { PlayerWrapper.map.put(k, data); }
+			if (PlayerWrapper.map.get(k) != null && !PlayerWrapper.map.get(k).equals(data)) {
+				WrapperEntityData.setTempData(PlayerWrapper.map.get(k), data);
+				PlayerWrapper.map.put(k, data);
+			}
+		}
 		if (data == null) {
 			LogWriter.warn("Unable to get EntityData for " + entity);
 			WrapperEntityData ret = WrapperEntityData.getData(entity);
@@ -68,10 +74,18 @@ implements INbtHandler, ICapabilityProvider, Callable<PlayerData> {
 		return data.base;
 	}
 
-	public static WrapperEntityData getData(Entity entity) {
-		if (entity == null) {
-			return null;
+	private static void setTempData(WrapperEntityData oldData, WrapperEntityData newData) {
+		if (oldData == null || newData == null || oldData.base == null || newData.base == null) { return; }
+		if (oldData.base.getTempdata().getKeys().length>0) {
+			for (String key : oldData.base.getTempdata().getKeys()) {
+				try { newData.base.getTempdata().put(key, oldData.base.getTempdata().get(key)); }
+				catch (CommandException e) { e.printStackTrace(); }
+			}
 		}
+	}
+
+	public static WrapperEntityData getData(Entity entity) {
+		if (entity == null) { return null; }
 		if (entity instanceof EntityPlayer) {
 			return new WrapperEntityData(new PlayerWrapper<EntityPlayer>((EntityPlayer) entity));
 		}
@@ -114,14 +128,7 @@ implements INbtHandler, ICapabilityProvider, Callable<PlayerData> {
 
 	public IEntity<?> base;
 
-	public WrapperEntityData(IEntity<?> base) {
-		this.base = base;
-	}
-
-	@Override
-	public PlayerData call() throws Exception {
-		return null;
-	}
+	public WrapperEntityData(IEntity<?> base) { this.base = base; }
 
 	@SuppressWarnings("unchecked")
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
@@ -132,13 +139,13 @@ implements INbtHandler, ICapabilityProvider, Callable<PlayerData> {
 	}
 
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		return capability == WrapperEntityData.ENTITYDATA_CAPABILITY;
+		return capability == WrapperEntityData.WRAPPER_ENTITY_DATA_CAPABILITY;
 	}
 
 	@Override
-	public NBTTagCompound getCapabilityNBT() { return null; }
+	public NBTTagCompound getNBT() { return null; }
 
 	@Override
-	public void setCapabilityNBT(NBTTagCompound compound) { }
+	public void setNBT(NBTTagCompound compound) { }
 
 }

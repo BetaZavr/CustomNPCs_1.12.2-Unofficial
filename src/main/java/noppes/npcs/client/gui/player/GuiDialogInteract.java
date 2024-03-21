@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.player;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,208 +13,279 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.LanguageManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.NoppesUtilPlayer;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IGuiClose;
+import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
+import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiDialogInteract
 extends GuiNPCInterface
 implements IGuiClose {
+
+	public static Map<Integer, ResourceLocation> icons;
 	
-	private Dialog dialog;
-	private int dialogHeight;
-	private boolean isGrabbed;
-	private List<TextBlockClient> lines;
-	private List<Integer> options;
-	private int rowStart, rowTotal, selected, selectedX, selectedY;
-	private ResourceLocation wheel;
-	private long wait;
-	private ScaledResolution sw;
-	private Map<Integer, ResourceLocation> textures = Maps.<Integer, ResourceLocation>newHashMap();
-	private Map<Integer, Integer[]> texturesSize = Maps.<Integer, Integer[]>newHashMap();
+	static {
+		icons = Maps.<Integer, ResourceLocation>newLinkedHashMap();
+		icons.put(1, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/important.png"));
+		icons.put(2, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/question.png"));
+		icons.put(3, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/circle.png"));
+		icons.put(4, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/joke.png"));
+		icons.put(5, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/triangle.png"));
+		icons.put(6, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/square.png"));
+		icons.put(7, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/hexagon.png"));
+		icons.put(8, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/dice.png"));
+	}
+	
+	private Dialog dialog; // current dialog
+	private boolean isGrabbed; // used for answer wheel
+
+	private final ResourceLocation wheel = new ResourceLocation(CustomNpcs.MODID, "textures/gui/wheel.png");
+	private final Map<Integer, List<String>> options; // [slotID, text]
+	// dialog place
+	private int lineStart, lineTotal, lineVisibleSize;
+	private int[] scrollD;
+	// option place
+	private int selected, selectedStart, selectedSize, selectedVisibleSize;
+	private final Map<Integer, Integer> selectedTotal;
+	private int[] scrollO;
+	// wheel option
+	private int wheelList, selectedX, selectedY, selectedWheel;
+	private double rad = 180.0d / Math.PI;
+	// textures
+	private long waitToAnswer;
+	private final Map<Integer, DialodTexture> textures = Maps.<Integer, DialodTexture>newHashMap();
+	// Display
+	private final List<TextBlockClient> lines; // Dialog Logs
+	private Entity dialogNpc;
+	private int w, h, tf, dialogHeight, optionHeight, dialogWidth, startLine;
+	private long startTime;
+	private float corr = 1.0f;
+	private boolean showOptions, newDialogSet;
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
-		this.selected = 0;
-		this.lines = new ArrayList<TextBlockClient>();
-		this.options = new ArrayList<Integer>();
-		this.rowStart = 0;
-		this.rowTotal = 0;
-		this.dialogHeight = 180;
-		this.isGrabbed = false;
-		this.selectedX = 0;
-		this.selectedY = 0;
-		this.appendDialog(this.dialog = dialog);
-		this.ySize = 238;
-		this.wheel = this.getResource("wheel.png");
-		this.wait = this.dialog!=null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
+		NBTTagCompound compound = new NBTTagCompound();
+		npc.writeToNBTOptional(compound);
+		this.dialogNpc = EntityList.createEntityFromNBT(compound, this.mc.world);
+		if (this.dialogNpc instanceof EntityNPCInterface) {
+			boolean addDots = false;
+			String name = ((EntityNPCInterface) this.dialogNpc).getName();
+			while (this.fontRenderer.getStringWidth(name) > 45) {
+				name = name.substring(0, name.length()-2);
+				addDots = true;
+			}
+			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setName(name+"..."); }
+			addDots = false;
+			String title = ((EntityNPCInterface) this.dialogNpc).display.getTitle();
+			while (this.fontRenderer.getStringWidth(title) > 65) {
+				title = title.substring(0, title.length()-2);
+				addDots = true;
+			}
+			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setTitle(title+"..."); }
+			((EntityNPCInterface) this.dialogNpc).animation.clear();
+			MarkData.get((EntityNPCInterface) this.dialogNpc).marks.clear();
+			if (npc instanceof EntityCustomNpc &&
+					dialogNpc instanceof EntityCustomNpc &&
+					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
+					((EntityCustomNpc) dialogNpc).modelData instanceof ModelDataShared) {
+				((ModelDataShared) ((EntityCustomNpc) dialogNpc).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
+			}
+		}
+		selected = 0;
+		selectedStart = 0;
+		selectedX = 0;
+		selectedY = 0;
+		wheelList = 0;
+		selectedWheel = 0;
+		lines = Lists.<TextBlockClient>newArrayList();
+		options = Maps.<Integer, List<String>>newTreeMap();
+		lineStart = 0;
+		lineTotal = 0;
+		isGrabbed = false;
+		ySize = 238;
+		selectedSize = 0;
+		selectedTotal = Maps.<Integer, Integer>newHashMap();
+		this.dialog = dialog;
+		scrollD = null;
+		scrollO = null;
+		initGui();
+		appenedDialog(dialog);
 	}
 
-	public void appendDialog(Dialog dialog) {
-		this.closeOnEsc = !dialog.disableEsc;
+	@Override
+	public void initGui() {
+		super.initGui();
+		this.isGrabbed = false;
+		this.grabMouse(this.dialog.showWheel);
+		this.guiLeft = 112;
+		this.guiTop = 0;
+		this.tf = this.getFontHeight(null);
+		ScaledResolution sw = new ScaledResolution(this.mc);
+		this.w = (int) Math.ceil(sw.getScaledWidth_double());
+		this.h = (int) Math.ceil(sw.getScaledHeight_double());
+		this.optionHeight = this.dialog.showWheel ? 60 : (int) (Math.ceil(sw.getScaledHeight_double()) / 3.0d);
+		this.dialogHeight = this.h - this.optionHeight;
+		this.corr = ObfuscationHelper.getValue(LanguageManager.class, Minecraft.getMinecraft().getLanguageManager(), String.class).equals("ru_ru") ? 1.14583f : 1.0f;
+		this.dialogWidth = (int) ((float) (this.w - this.guiLeft - 43) / this.corr);
+		if (!this.lines.isEmpty()) {
+			int max = this.dialogWidth - (int) (13.0f / this.corr);
+			for (TextBlockClient textBlock : this.lines) {
+				textBlock.lines.clear();
+				textBlock.resetWidth(max, false);
+			}
+		}
+		if (!this.options.isEmpty()) { this.resetOptions(); }
+		lineTotal = 0;
+		for (TextBlockClient textBlock : this.lines) { lineTotal += 1 + textBlock.lines.size(); }
+		selectedTotal.clear();
+		int i = 0;
+		selectedSize = 0;
+		for (int id : this.options.keySet()) {
+			selectedTotal.put(i, this.options.get(id).size());
+			selectedSize += this.options.get(id).size();
+			i++;
+		}
+		lineVisibleSize = this.dialogHeight / this.tf;
+		selectedVisibleSize = (int) Math.round((float) (this.h - dialogHeight - 2) / (float) this.tf);
+		selected = 0;
+		selectedStart = 0;
+		lineStart = lineTotal - lineVisibleSize;
+		if (lineStart < 0) { lineStart = 0; }
+		// Dialog texture
+		if (!this.textures.isEmpty()) {
+			Map<Integer, DialodTexture> newTxts = Maps.<Integer, DialodTexture>newHashMap();
+			for (int pos : this.textures.keySet()) {
+				DialodTexture dt = this.textures.get(pos);
+				int lt = 0;
+				boolean found = false;
+				for (TextBlockClient textBlock : this.lines) {
+					lt += 1 + textBlock.lines.size();
+					if (textBlock.equals(dt.line)) {
+						newTxts.put(lt - 1 - dt.height, dt);
+						found = true;
+						break;
+					}
+				}
+				if (!found) { newTxts.put(pos, dt); }
+			}
+			this.textures.clear();
+			this.textures.putAll(newTxts);
+		}
+	}
+
+	public void appenedDialog(Dialog d) { // 62: NoppesUtil.openDialog();
+		this.closeOnEsc = !d.disableEsc;
+		this.newDialogSet = true;
 		Dialog oldDialog = this.dialog;
-		this.dialog = dialog;
-		this.options = new ArrayList<Integer>();
+		this.dialog = d.copy();
+		this.options.clear();
+		selected = 0;
+		selectedStart = 0;
+		// Old Sound
 		MusicController.Instance.stopSound(null, SoundCategory.VOICE);
-		if (dialog.sound != null && !dialog.sound.isEmpty()) {
-			BlockPos pos = this.npc.getPosition();
-			if (oldDialog != null && !oldDialog.equals(dialog) && oldDialog.sound != null && !oldDialog.sound.isEmpty() && MusicController.Instance.isPlaying(oldDialog.sound)) {
+		if (d.sound != null && !d.sound.isEmpty()) {
+			BlockPos pos = dialogNpc.getPosition();
+			if (oldDialog != null && !oldDialog.equals(d) && oldDialog.sound != null && !oldDialog.sound.isEmpty() && MusicController.Instance.isPlaying(oldDialog.sound)) {
 				MusicController.Instance.stopSound(oldDialog.sound, SoundCategory.VOICE);
 			}
-			boolean isPlay = MusicController.Instance.isPlaying(dialog.sound);
-			if (isPlay) { MusicController.Instance.stopSound(dialog.sound, SoundCategory.VOICE); }
+			boolean isPlay = MusicController.Instance.isPlaying(d.sound);
+			if (isPlay) { MusicController.Instance.stopSound(d.sound, SoundCategory.VOICE); }
 			CustomNPCsScheduler.runTack(() -> {
-				MusicController.Instance.playSound(SoundCategory.VOICE, dialog.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+				MusicController.Instance.playSound(SoundCategory.VOICE, d.sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
 			}, 50);
 		}
-		String dText = dialog.text;
-		int h = 0;
+		// Dialog texts
+		startTime = System.currentTimeMillis();
+		this.setStartLine();
+		String dText = d.text;
+		while (dText.indexOf("<br>")!=-1) { dText = dText.replace("<br>", ""+((char) 10)); }
+		while (dText.indexOf("\\n")!=-1) { dText = dText.replace("\\n", ""+((char) 10)); }
 		ResourceLocation txtr = null;
-		Integer[] txtrSize = null;
-		if (!dialog.texture.isEmpty()) {
-			txtr = new ResourceLocation(dialog.texture);
-			this.mc.getTextureManager().bindTexture(txtr);
+		int[] txtrSize = null;
+		if (!d.texture.isEmpty()) {
+			txtr = new ResourceLocation(d.texture);
+			this.mc.renderEngine.bindTexture(txtr);
 			try {
-				IResource res = this.mc.getResourceManager().getResource(new ResourceLocation(dialog.texture));
+				IResource res = this.mc.getResourceManager().getResource(new ResourceLocation(d.texture));
 				BufferedImage buffer = ImageIO.read(res.getInputStream());
-				txtrSize = new Integer[] { buffer.getWidth(), buffer.getHeight() };
-				h = buffer.getHeight() / this.getFontHeight(null) / 2;
+				txtrSize = new int[] { buffer.getWidth(), buffer.getHeight(), (int) Math.ceil((double) buffer.getHeight() / (double) this.tf / 2.0d) };
 			}
 			catch (IOException e) {}
 		}
-		for (int i=0; i<h; i++) { dText += ""+((char) 10); }
-		this.lines.add(new TextBlockClient(this.npc, dText, 280, 0xE0E0E0, this.npc, new Object[] { this.player, this.npc }));
-		if (h>0 && txtr!=null && txtrSize!=null) {
-			int c = 0, s = 0;
-			for (TextBlockClient t : this.lines) {
-				c += t.lines.size();
-				if (s==this.lines.size()-1) {
-					c -= h;
-					this.textures.put(c, txtr);
-					this.texturesSize.put(c, txtrSize);
-					break;
-				}
-				s++;
-			}
+		if (txtrSize != null) {
+			for (int i = 0; i < txtrSize[2]; i++) { dText += ""+((char) 10); }
 		}
-		for (int slot : dialog.options.keySet()) {
-			DialogOption option = dialog.options.get(slot);
-			if (option != null) {
-				if (!option.isAvailable((EntityPlayer) this.player)) {
-					continue;
-				}
-				this.options.add(slot);
-			}
+		this.lines.add(new TextBlockClient(this.dialogNpc, dText, this.dialogWidth - (int) (13.0f / this.corr), 0xE0E0E0, dialogNpc, player, npc));
+		if (!d.showFits) { this.setStartLine(); }
+		// Dialog options
+		this.resetOptions();
+		this.grabMouse(d.showWheel);
+		this.waitToAnswer = this.dialog!=null ? System.currentTimeMillis() + this.dialog.delay * 50L : 0L;
+		lineTotal = 0;
+		for (TextBlockClient textBlock : this.lines) { lineTotal += 1 + textBlock.lines.size(); }
+		selectedTotal.clear();
+		int i = 0;
+		selectedSize = 0;
+		for (int id : this.options.keySet()) {
+			selectedTotal.put(i, this.options.get(id).size());
+			selectedSize += this.options.get(id).size();
+			i++;
 		}
-		this.calculateRowHeight();
-		this.grabMouse(dialog.showWheel);
-	}
-
-	private int getFontHeight(String str) {
-		int h = ClientProxy.Font.height(str);
-		return h<=1 ? 13 : h;
-	}
-
-	private void calculateRowHeight() {
-		int fh = this.getFontHeight(null);
-		if (this.dialog.showWheel) {
-			this.dialogHeight = this.ySize - 58;
-		} else {
-			int line = 0;
-			if (this.sw == null) {
-				this.sw = new ScaledResolution(this.mc);
-			}
-			int w = this.sw.getScaledWidth() - this.guiLeft - 50;
-			for (DialogOption option : this.dialog.options.values()) {
-				if (option.optionType == 2) { continue;}
-				String text = NoppesStringUtils.formatText(option.title, this.player, this.npc);
-				if (this.fontRenderer.getStringWidth(text) > w) {
-					List<String> lines = Lists.newArrayList();
-					String total = "";
-					for (String sct : text.split(" ")) {
-						if (this.fontRenderer.getStringWidth(total + " " + sct) > w) {
-							lines.add(total);
-							total = sct;
-						}
-						else {
-							if (!total.isEmpty()) { total += " "; }
-							total += sct;
-						}
-					}
-					if (!total.isEmpty()) { lines.add(total); }
-					line += lines.size();
-				} else {
-					line++;
-				}
-			}
-			if (line < 3) { line = 3; } // min
-			this.dialogHeight = this.ySize - line * fh - 4;
-		}
-		this.rowTotal = 0;
-		for (TextBlockClient block : this.lines) {
-			this.rowTotal += block.lines.size() + 1;
-		}
-		int max = this.dialogHeight / fh;
-		this.rowStart = this.rowTotal - max;
-		if (this.rowStart < 0) {
-			this.rowStart = 0;
+		lineVisibleSize = this.dialogHeight / this.tf;
+		selectedVisibleSize = (int) Math.round((float) (this.h - dialogHeight - 2) / (float) this.tf);
+		selected = 0;
+		selectedStart = 0;
+		if (lineStart < 0) { lineStart = 0; }
+		// Dialog texture
+		if (txtr!=null && txtrSize!=null && !this.textures.containsKey(lineTotal - 1 - txtrSize[2])) {
+			this.textures.put(lineTotal - 1 - txtrSize[2], new DialodTexture(txtr, txtrSize, this.lines.get(this.lines.size() - 1)));
 		}
 	}
 
-	private void closed() {
-		this.grabMouse(false);
-		if (this.dialog.sound != null && !this.dialog.sound.isEmpty() && this.dialog.stopSound) {
-			if (MusicController.Instance.isPlaying(this.dialog.sound)) { MusicController.Instance.stopSound(this.dialog.sound, SoundCategory.VOICE); }
-		}
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
-	}
-
-	private void drawLinedOptions(int mouseY) {
-		int fh = this.getFontHeight(null);
-		this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - fh / 3, -1);
-		int offset = this.dialogHeight;
-		if (this.selected >= this.options.size()) {
-			this.selected = 0;
-		}
-		if (this.selected < 0) {
-			this.selected = 0;
-		}
-		int addLine = 0;
-		int sel = this.fontRenderer.getStringWidth("-->") + 4;
-		int var = this.fontRenderer.getStringWidth("*") + 4;
-		for (int k = 0; k < this.options.size(); ++k) {
-			int id = this.options.get(k);
-			DialogOption option = this.dialog.options.get(id);
-			int y = this.guiTop + offset + (k + addLine) * fh;
-			String text = NoppesStringUtils.formatText(option.title, this.player, this.npc);
-			if (this.fontRenderer.getStringWidth(text) > this.sw.getScaledWidth() - this.guiLeft - 50) {
-				int w = this.sw.getScaledWidth() - this.guiLeft - 50;
-				List<String> lines = Lists.newArrayList();
+	private void resetOptions() {
+		int max = this.dialogWidth - (int) (14.0f / this.corr);
+		this.options.clear();
+		for (int slot : this.dialog.options.keySet()) {
+			DialogOption option = this.dialog.options.get(slot);
+			if (option == null || option.optionType == OptionType.DISABLED || !option.isAvailable((EntityPlayer) this.player)) { continue; }
+			String optionText = NoppesStringUtils.formatText(option.title, this.player, dialogNpc);
+			List<String> lines = Lists.<String>newArrayList();
+			if (this.fontRenderer.getStringWidth(optionText) * this.corr > max) {
 				String total = "";
-				for (String sct : text.split(" ")) {
-					if (this.fontRenderer.getStringWidth(total + " " + sct) > w) {
+				for (String sct : optionText.split(" ")) {
+					if (this.fontRenderer.getStringWidth(total + " " + sct) * this.corr > max) {
 						lines.add(total);
 						total = sct;
 					}
@@ -225,202 +295,383 @@ implements IGuiClose {
 					}
 				}
 				if (!total.isEmpty()) { lines.add(total); }
-				addLine += lines.size() - 1;
-				int i = 0;
-				for (String sct : lines) {
-					this.drawString(this.fontRenderer, sct, this.guiLeft - 30, y + i * fh, option.optionColor);
-					i++;
-				}
-				if (mouseY >= y && mouseY <= y + lines.size() * fh) {
-					int selected = k;
-					if (selected < this.options.size()) {
-						this.selected = selected;
-					}
-				}
-				if (this.selected == k) {
-					this.drawString(this.fontRenderer, "-->", this.guiLeft - 30 - sel, y, 14737632);
-				} else {
-					this.drawString(this.fontRenderer, "*", this.guiLeft - 30 - var, y, 14737632);
-				}
 			}
-			else {
-				this.drawString(this.fontRenderer, text, this.guiLeft - 30, y, option.optionColor);
-				if (mouseY >= y && mouseY <= y + fh) {
-					int selected = k;
-					if (selected < this.options.size()) {
-						this.selected = selected;
-					}
-				}
-				if (this.selected == k) {
-					this.drawString(this.fontRenderer, "-->", this.guiLeft - 30 - sel, y, 14737632);
-				} else {
-					this.drawString(this.fontRenderer, "*", this.guiLeft - 30 - var, y, 14737632);
-				}
-			}
+			else { lines.add(optionText); }
+			this.options.put(slot, lines);
 		}
 	}
 
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float f) {
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.drawGradientRect(0, 0, this.width, this.height, -587202560, -587202560);
-		if (!this.dialog.hideNPC) {
-			int l = -70;
-			int i2 = this.ySize;
-			this.drawNpc(this.npc, l, i2, 1.4f, 0, 0, false);
+	@SuppressWarnings("unused")
+	private void setStartLine() {
+		startLine = 0;
+		for (TextBlockClient textBlock : this.lines) {
+			startLine++;
+			for (ITextComponent line : textBlock.lines) { startLine++; }
 		}
-		super.drawScreen(mouseX, mouseY, f);
+	}
+
+	private int getFontHeight(String str) {
+		int h = ClientProxy.Font.height(str);
+		return h<=1 ? 13 : h;
+	}
+	
+	@Override
+	public void close() {
+		this.grabMouse(false);
+		if (this.dialog.sound != null && !this.dialog.sound.isEmpty() && this.dialog.stopSound) {
+			if (MusicController.Instance.isPlaying(this.dialog.sound)) { MusicController.Instance.stopSound(this.dialog.sound, SoundCategory.VOICE); }
+		}
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
+		super.close();
+	}
+
+	private void drawLinedOptions(int mouseY) {
+		int i = 0, optPos = 0, endW = this.w - 3;
+		if (selectedSize > selectedVisibleSize) { endW -= 13; }
+		for (int id : this.options.keySet()) {
+			if (optPos < selectedStart) {
+				optPos++;
+				continue;
+			}
+			DialogOption option = this.dialog.options.get(id);
+			List<String> lines = this.options.get(id);
+			int j = 0;
+			for (String sct : lines) {
+				if (j == 0) {
+					this.drawString(this.fontRenderer, optPos == this.selected ? "->" : " *", this.guiLeft + 1 + (icons.containsKey(option.iconId) ? 0 : 10), this.dialogHeight + i * this.tf, 0xFFFFFFFF);
+					if (i != 0 && optPos - 1 != this.selected) { this.drawHorizontalLine(this.guiLeft + 2, endW, this.dialogHeight + i * this.tf, 0xFF404040); }
+					if (this.selected == optPos && j == 0) { this.drawHorizontalLine(this.guiLeft + 28, endW - 1, this.dialogHeight + i * this.tf, 0xFF80F080); }
+					if (j==0 && icons.containsKey(option.iconId)) {
+						this.mc.renderEngine.bindTexture(icons.get(option.iconId));
+						GlStateManager.pushMatrix();
+						GlStateManager.translate(this.guiLeft + 11.5f, this.dialogHeight + i * this.tf + 1.0f, 0.0f);
+						GlStateManager.color((float)(option.optionColor >> 16 & 255) / 255.0F,
+								(float) (option.optionColor >> 8 & 255) / 255.0F,
+								(float) (option.optionColor & 255) / 255.0F,
+								1.0F);
+						float s = 12.0f / 256.0f;
+						GlStateManager.scale(s, s, s);
+						this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+						GlStateManager.popMatrix();
+					}
+				}
+				if (this.selected == optPos) {
+					this.drawGradientRect(this.guiLeft + 25, this.dialogHeight + i * this.tf + (j == 0 ? 1 : 0), endW - 1, this.dialogHeight + (i + 1) * this.tf, 0xFF202020, 0xFF202020);
+				}
+				this.drawString(this.fontRenderer, sct, this.guiLeft + 25, this.dialogHeight + i * this.tf, option.optionColor);
+				i++;
+				j++;
+				if (j == lines.size()) {
+					this.drawHorizontalLine(this.guiLeft + 2, endW, this.dialogHeight + i * this.tf, 0xFF404040);
+					if (this.selected == optPos) {
+						this.drawHorizontalLine(this.guiLeft + 28, endW - 2, this.dialogHeight + (i + 0) * this.tf, 0xFF80F080);
+					}
+				}
+			}
+			optPos++;
+		}
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		// Back
+		this.drawGradientRect(0, 0, this.width, this.height, 0xCC000000, 0xCC000000);
+		this.drawVerticalLine(this.guiLeft - 3, 1, this.h-2, 0x40FFFFFF);
+		this.drawVerticalLine(this.guiLeft - 1, 1, this.dialogHeight - 2, 0x40FFFFFF);
+		this.drawHorizontalLine(this.guiLeft, this.w - 3, this.dialogHeight - 3, 0x40FFFFFF);
+		this.drawVerticalLine(this.guiLeft - 1, this.dialogHeight - 2, this.h - 2, 0x40FFFFFF);
+		this.drawHorizontalLine(this.guiLeft, this.w - 3, this.dialogHeight - 1, 0x40FFFFFF);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		// NPC
+		if (!this.dialog.hideNPC && this.dialogNpc != null) {
+			this.drawNpc(this.dialogNpc, this.guiLeft / -2, this.h - 10, 2.0f, -40, 15, dialog.showWheel ? 0 : 2);
+		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 		GlStateManager.enableAlpha();
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.5f, 100.065f);
-		int count = 0;
-		for (TextBlockClient block : new ArrayList<TextBlockClient>(this.lines)) {
-			int size = ClientProxy.Font.width(block.getName() + ": ");
-			this.drawString(block.getName() + ": ", -4 - size, block.color, count);
-			for (ITextComponent line : block.lines) {
-				this.drawString(line.getFormattedText(), 0, block.color, count);
-				++count;
+		int time = 1 + (int) ((System.currentTimeMillis() - this.startTime) / (1000L / CustomNpcs.dialogShowFitsSpeed));
+		int l = 0;
+		showOptions = true;
+		for (TextBlockClient textBlock : Lists.<TextBlockClient>newArrayList(this.lines)) {
+			int size = ClientProxy.Font.width(textBlock.getName() + ": ");
+			if (l >= this.lineStart) { this.drawString(textBlock.getName() + ": ", 0, textBlock.color, l); }
+			for (ITextComponent line : textBlock.lines) {
+				if (newDialogSet && l >= lineStart + lineVisibleSize) { lineStart = l - lineVisibleSize + 1; }
+				if (l < this.lineStart) { ++l; continue; }
+				if (this.dialog.showFits && this.startLine == l) {
+					String text = line.getFormattedText();
+					while (text.endsWith(((char) 167)+"r")) { text = text.substring(0, text.length()-2); }
+					while (text.startsWith(((char) 167)+"r")) { text = text.substring(2); }
+					if (text.length() >= time) {
+						this.drawString(text.substring(0, (int) time), size, textBlock.color, l);
+						if (text.length() == time) {
+							this.startLine++;
+							this.startTime = System.currentTimeMillis();
+						}
+						showOptions = false;
+						break;
+					}
+				}
+				this.drawString(line.getFormattedText(), size, textBlock.color, l);
+				++l;
 			}
-			++count;
-		}
-		int maxRows = this.dialogHeight / this.getFontHeight(null);
-		if (!this.options.isEmpty()) {
-			if (this.wait>System.currentTimeMillis()) {
-				this.drawHorizontalLine(this.guiLeft - 45, this.guiLeft + this.xSize + 120, this.guiTop + this.dialogHeight - this.getFontHeight(null) / 3, -1);
-				int offset = this.dialogHeight;
-				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.wait - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft - 30, this.guiTop + offset, 0xFFFFFF);
-			}
-			else if (!this.dialog.showWheel) {
-				this.drawLinedOptions(mouseY);
-			} else {
-				this.drawWheel();
-			}
-		}
-		if (this.rowTotal > maxRows) {
-			int x = (int) this.sw.getScaledWidth_double() - 10;
-			int y = this.guiTop + 9;
-			int sHeight = (int) ((float) maxRows / (float) this.rowTotal * (float) this.dialogHeight);
-			y += this.rowStart * this.getFontHeight(null) / 2;
-			this.drawGradientRect(x, y, x+7, y+sHeight, 0xFFFFFFFF, 0xFFFFFFFF);
+			++l;
 		}
 		GlStateManager.popMatrix();
-		int drag = Mouse.getDWheel() / 120;
-		if (drag!=0) {
-			this.rowStart -= drag;
-			if (this.rowStart>this.rowTotal-2) { this.rowStart = this.rowTotal-2; }
-			if (this.rowStart<0) { this.rowStart = 0; }
-			if (this.rowTotal - this.rowStart < maxRows) { this.rowStart = this.rowTotal - maxRows; }
+
+		if (!this.textures.isEmpty()) {
+			for (int linePos : this.textures.keySet()) {
+				DialodTexture dt = this.textures.get(linePos);
+				if (dt.left < this.guiLeft) { continue; }
+				int tys = this.tf * (linePos - lineStart);
+				int tye = tys + dt.vS / 2;
+				if (tye >= 0 && tys <= this.dialogHeight - 4) {
+					int s = (tys < 0 ? -1 * tys : 0) * 2;
+					int e = 256 - s;
+					int pH = tys < 0 ? 0 : tys;
+					int v = 0;
+					if (pH == 0) {
+						v = 1;
+						pH = 1;
+						s += 1;
+					}
+					GlStateManager.pushMatrix();
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					GlStateManager.enableBlend();
+					this.mc.renderEngine.bindTexture(dt.res);
+					GlStateManager.translate(dt.left, pH, 0.0f);
+					float sc = (dt.uS > dt.vS ? dt.uS : dt.vS) / 256.0f;
+					GlStateManager.scale(sc / 2.0f, sc / 2.0f, 1.0f);
+					if (pH + (e * sc) / 2 > this.dialogHeight - 4) {
+						e = (int) ((float) ((this.dialogHeight - 4 - pH) * 2 ) / sc);
+					}
+					this.drawTexturedModalRect(0, v, 0, s, 256, e);
+					GlStateManager.popMatrix();
+				}
+			}
 		}
+		
+		if (!this.options.isEmpty()) {
+			if (this.waitToAnswer > System.currentTimeMillis()) {
+				int offset = this.dialogHeight;
+				this.drawString(this.fontRenderer, ((char) 167)+"e"+new TextComponentTranslation("gui.wait", ((char) 167)+"e: "+((char) 167)+"f"+AdditionalMethods.ticksToElapsedTime((this.waitToAnswer - System.currentTimeMillis())/50L, false, false, false)).getFormattedText(), this.guiLeft + 25, this.dialogHeight, 0xFFFFFF);
+				showOptions = false;
+			}
+			if (showOptions) {
+				if (!dialog.showWheel) { this.drawLinedOptions(mouseY); }
+				else { this.drawWheel(); }
+			}
+		}
+		if (showOptions) {
+			if (newDialogSet && lineTotal == l) { newDialogSet = false; }
+			if (lineTotal > lineVisibleSize) {
+				int x = this.w - 10, y = 1, hd = dialogHeight - 5;
+				float ms = (float) lineVisibleSize / (float) lineTotal;
+				int sHeight = (int) (ms * (float) hd);
+				y += (int) ((float) (hd - sHeight) * (float) lineStart / (float) (lineTotal - lineVisibleSize));
+				if (scrollD == null) { scrollD = new int[9]; }
+				scrollD[0] = x;
+				scrollD[1] = y;
+				scrollD[2] = x + 7;
+				scrollD[3] = (y + sHeight) < dialogHeight - 4 ? y + sHeight : dialogHeight - 4;
+				scrollD[4] = 1;
+				scrollD[5] = hd;
+				scrollD[6] = (int) (((float) hd - (float) sHeight) / (float) (lineTotal - lineVisibleSize));
+				this.drawGradientRect((int) scrollD[0], (int) scrollD[1], (int) scrollD[2], (int) scrollD[3], 0x90FFFFFF, 0x90FFFFFF);
+				this.drawVerticalLine(this.w - 13, 0, dialogHeight - 4, 0x40FFFFFF);
+			}
+			else { scrollD = null; }
+			if (selectedSize > selectedVisibleSize && !dialog.showWheel) {
+				int x = this.w - 10, y = dialogHeight + 1, hd = this.h - dialogHeight - 2;
+				float ms = (float) selectedVisibleSize / (float) selectedTotal.size();
+				int sHeight = (int) (ms * (float) hd);
+				y += (int) ((float) (hd - sHeight) * (float) selectedStart / (float) (selectedTotal.size() - selectedVisibleSize));
+				if (scrollO == null) { scrollO = new int[9]; }
+				scrollO[0] = x;
+				scrollO[1] = y;
+				scrollO[2] = x + 7;
+				scrollO[3] = (y + sHeight) < this.h - 1 ? y + sHeight : this.h - 1;
+				scrollO[4] = dialogHeight + 1;
+				scrollO[5] = hd;
+				scrollO[6] = (int) (((float) hd - (float) sHeight) / (float) (selectedTotal.size() - selectedVisibleSize));
+				this.drawGradientRect((int) scrollO[0], (int) scrollO[1], (int) scrollO[2], (int) scrollO[3], 0x90FFFFFF, 0x90FFFFFF);
+				this.drawVerticalLine(this.w - 13, dialogHeight, this.h - 1, 0x40FFFFFF);
+			}
+			else { scrollO = null; }
+			int drag = Mouse.getDWheel() / 120;
+			if (lineTotal > lineVisibleSize && drag != 0 && this.isMouseHover(mouseX, mouseY, this.guiLeft, 0, this.w - this.guiLeft, this.dialogHeight)) { // Dialog text
+				lineStart -= drag;
+				if (lineStart < 0) { lineStart = 0; }
+				else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
+			}
+			if (this.isMouseHover(mouseX, mouseY, this.guiLeft, this.dialogHeight, this.w - this.guiLeft, this.h - this.dialogHeight)) { // options text
+				if (selectedSize > selectedVisibleSize && drag != 0) {
+					selectedStart -= drag;
+					cheakSelected();
+				}
+				int y = (int) Math.floor(((double) mouseY - (double) this.dialogHeight) / (double) this.tf);
+				int i = 0, optPos = 0;
+				this.selected = -1;
+				for (List<String> list : this.options.values()) {
+					if (optPos < selectedStart) {
+						optPos++;
+						continue;
+					}
+					for (String opt : list) {
+						if (i == y) {
+							this.selected = optPos;
+							break;
+						}
+						i++;
+					}
+					if (this.selected != -1) { break; }
+					optPos++;
+				}
+				if (this.selected == -1) { this.selected = this.options.size() - 1; }
+			}
+		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
+	@Override
 	public void drawString(FontRenderer fontRendererIn, String text, int x, int y, int color) { ClientProxy.Font.drawString(text, x, y, color); }
 
-	private void drawString(String text, int left, int color, int count) {
-		int height = (count - this.rowStart) * this.getFontHeight(null);
-		int line = this.guiTop + this.dialogHeight - this.getFontHeight(null) / 3;
+	private void drawString(String text, int left, int color, int linePos) {
+		int height = (linePos - this.lineStart) * this.tf;
+		int line = this.guiTop + this.dialogHeight - this.tf / 3;
 		if (height+12 > line) { return; }
-		this.drawString(this.fontRenderer, text, this.guiLeft + left, this.guiTop + height, color);
-		if (this.textures.containsKey(count) && this.texturesSize.containsKey(count)) {
-			Integer[] size = this.texturesSize.get(count);
-			if (height+size[1]/2 > line) { return; }
-			GlStateManager.pushMatrix();
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.enableBlend();
-			this.mc.renderEngine.bindTexture(this.textures.get(count));
-			GlStateManager.translate(this.guiLeft + left, this.guiTop + height, 0.0f);
-			GlStateManager.scale(0.5f, 0.5f, 0.5f);
-			this.drawTexturedModalRect(0, 0, 0, 0, size[0], size[1]);
-			GlStateManager.popMatrix();
+		this.drawString(this.fontRenderer, text, this.guiLeft + 1 + left, this.guiTop + height, color);
+		if (this.textures.containsKey(linePos)) {
+			this.textures.get(linePos).left = this.guiLeft + 1 + left;
 		}
 	}
 
 	private void drawWheel() {
-		int yoffset = this.guiTop + this.dialogHeight + 14;
+		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
+		int center = this.dialogWidth / 2;
+		GlStateManager.translate(this.guiLeft + center, this.guiTop + this.dialogHeight + 14, 0.0f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		// base
+		
+		/** background */
 		this.mc.renderEngine.bindTexture(this.wheel);
-		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, 0, 0, 63, 40);
-		this.selectedX += Mouse.getDX();
-		this.selectedY += Mouse.getDY();
-		int limit = 80;
-		if (this.selectedX > limit) {
-			this.selectedX = limit;
+		this.drawTexturedModalRect(0, 0, 0, 0, 63, 40);
+		
+		/** select pos */
+		int mdx = Mouse.getDX(), mdy = Mouse.getDY();
+		int maxLists = (int) Math.ceil(this.options.size() / 6.0d) - 1;
+		selectedX += mdx;
+		selectedY += mdy;
+		float a = 118.0f, b = 65.0f;
+		double inB = Math.pow(selectedX, 2.0d) / Math.pow(a, 2.0d) + Math.pow(selectedY, 2.0d) / Math.pow(b, 2.0d);
+		if (inB > 1.0d) {
+			selectedX -= mdx;
+			selectedY -= mdy;
 		}
-		if (this.selectedX < -limit) {
-			this.selectedX = -limit;
-		}
-		if (this.selectedY > limit) {
-			this.selectedY = limit;
-		}
-		if (this.selectedY < -limit) {
-			this.selectedY = -limit;
-		}
-		this.selected = 1;
-		if (this.selectedY < -20) {
-			++this.selected;
-		}
-		if (this.selectedY > 54) {
-			--this.selected;
-		}
-		if (this.selectedX < 0) {
-			this.selected += 3;
-		}
-		// more
-		this.mc.renderEngine.bindTexture(this.wheel);
-		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, 0, 40, 63, 40);
-		// select
-		this.mc.renderEngine.bindTexture(this.wheel);
-		int u = 63 + 63 * (this.selected % 3);
-		int v = (int) (40.0d * Math.floor((double) this.selected / 3.0d));
-		this.drawTexturedModalRect(this.width / 2 - 31, yoffset, u, v, 63, 40);
-		for (int slot : this.dialog.options.keySet()) {
-			DialogOption option = this.dialog.options.get(slot);
-			if (option != null && option.optionType != 2) {
-				Dialog d = option.getDialog((EntityPlayer) this.player);
-				if (d != null && !d.availability.isAvailable((EntityPlayer) this.player)) {
-					continue;
-				}
-				int color = option.optionColor;
-				if (slot == this.selected) {
-					color = 8622040;
-				}
-				int height = this.getFontHeight(option.title);
-				if (slot == 0) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 + 13, yoffset - height, color);
-				}
-				if (slot == 1) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 + 33, yoffset - height / 2 + 14, color);
-				}
-				if (slot == 2) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 + 27, yoffset + 27, color);
-				}
-				if (slot == 3) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 - 13 - ClientProxy.Font.width(option.title), yoffset - height, color);
-				}
-				if (slot == 4) {
-					this.drawString(this.fontRenderer, option.title, this.width / 2 - 33 - ClientProxy.Font.width(option.title), yoffset - height / 2 + 14, color);
-				}
-				if (slot != 5) {
-					continue;
-				}
-				this.drawString(this.fontRenderer, option.title, this.width / 2 - 27 - ClientProxy.Font.width(option.title), yoffset + 27, color);
+		selectedWheel = 0;
+		if (this.options.size() > 6) { // options size > 6
+			this.drawTexturedModalRect(17, 7, 63, 0, 30, 18);
+			if (wheelList == 0) { this.drawTexturedModalRect(17, 7, 93, 0, 15, 18); }
+			else if (wheelList >= maxLists) { this.drawTexturedModalRect(32, 7, 108, 0, 15, 18); }
+			a = 55.0f; b = 34.0f;
+			inB = Math.pow(selectedX, 2.0d) / Math.pow(a, 2.0d) + Math.pow(selectedY - 10, 2.0d) / Math.pow(b, 2.0d);
+			if (inB < 1.0d) {
+				selected = -1;
+				selectedWheel = selectedX > 0 ? 2 : 1;
 			}
 		}
-		// indicator
-		this.mc.renderEngine.bindTexture(this.wheel);
-		this.drawTexturedModalRect(this.width / 2 + this.selectedX / 4 - 2, yoffset + 16 - this.selectedY / 6, 63, 80, 8, 8);
+		
+		/** draw select wheel */
+		if (selectedWheel == 0) {
+			double xVal = 0 - selectedX, yVal = 0 - selectedY;
+			double rot = Math.atan(yVal / xVal) * rad;
+			if (xVal == 0.0d) { rot = selectedY > 0 ? 180.0d : 0.0d; }
+	    	else if (xVal <= 0.0d) { rot = 90.0d + Math.atan(yVal / xVal) * rad; }
+			else { rot = 270.0d + Math.atan(yVal / xVal) * rad; }
+			rot %= 360.0d;
+	        if (rot < 0.0d) { rot += 360.0d; }
+			if (rot > 122.0d && rot <= 180.0d) { this.selected = wheelList * 6; }
+			else if (rot > 85.0d && rot <= 122.0d) { this.selected = 1 + wheelList * 6; }
+			else if (rot > 0.0d && rot <= 85.0d) { this.selected = 2 + wheelList * 6; }
+			else if (rot > 275.0d && rot <= 360.0d) { this.selected = 3 + wheelList * 6; }
+			else if (rot > 238.0d && rot <= 275.0d) { this.selected = 4 + wheelList * 6; }
+			else { this.selected = 5 + wheelList * 6; }
+		}
+		else {
+			if (wheelList == 0 && selectedWheel == 1) { selectedWheel = 0; }
+			else if (selectedWheel == 2 && wheelList >= maxLists) { selectedWheel = 0; }
+			if (selectedWheel != 0) {
+				this.selected = -1;
+				int wu = 123 + (selectedWheel == 1 ? 0 : 15);
+				this.drawTexturedModalRect(17 + (selectedWheel == 1 ? 0 : 15), 7, wu, 0, 15, 18);
+			}
+		}
+		
+		/** draw select */
+		if (wheelList >= maxLists) {
+			for (int slot = selected < 0 ? this.options.size() - this.options.size() % 6 : selected - selected % 6, j = 0; j < 6; slot++, j++) {
+				if (slot >= this.options.size()) {
+					int u = 63 * (slot % 3);
+					int v = 40 * (int) (3.0d + Math.floor((double) slot % 6 / 3.0d));
+					this.drawTexturedModalRect(0, 0, u, v, 63, 40);
+					if (slot == selected) { selected = -1; }
+				}
+			}
+		}
+		if (selected >= 0) {
+			this.drawTexturedModalRect(0, 0, 63 * (this.selected % 3), 40 * (int) (1.0d + Math.floor((double) this.selected % 6 / 3.0d)), 63, 40);
+		}
+		/** cursor */
+		this.drawTexturedModalRect(30 + selectedX / 4 , 17 - selectedY / 4, 63, 18, 3, 3);
+		// text
+		for (int slot = wheelList * 6, j = 0; j < 6; slot++, j++) {
+			DialogOption option = this.dialog.options.get(slot);
+			if (option == null || option.optionType == OptionType.DISABLED || option.title.isEmpty()) { continue; }
+			Dialog d = option.getDialog((EntityPlayer) this.player);
+			if (d != null && !d.availability.isAvailable((EntityPlayer) this.player)) { continue; }
+			
+			int color = option.optionColor;
+			if (slot == this.selected) { color = 0x838FD8; }
+
+			String text = new String(option.title);
+			if (this.fontRenderer.getStringWidth(text) * this.corr > center - 5) {
+				text = "";
+				for (int c = 0; c < option.title.length(); c++) {
+					char ch = option.title.charAt(c);
+					if (this.fontRenderer.getStringWidth(text + ch) * this.corr > center - 5) {
+						text += "...";
+						break;
+					}
+					text += ch;
+				}
+			}
+			int height = this.getFontHeight(text);
+			int u = 0, v = 0;
+			switch(slot % 6) {
+				case 0: u = 62; v = 1 - height; break;
+				case 1: u = 68; v = 13 - height / 2; break;
+				case 2: u = 62; v = 27; break;
+				case 3: u = - ClientProxy.Font.width(text); v = 27; break;
+				case 4: u = -5 - ClientProxy.Font.width(text); v = 13 - height / 2; break;
+				case 5: u = - ClientProxy.Font.width(text); v = 1 - height; break;
+			}
+			this.drawString(this.fontRenderer, text, u, v, color);
+		}
+		GlStateManager.popMatrix();
 	}
 
 	public int getSelected() {
-		if (this.selected <= 0) {
-			return 0;
+		int i = 0, last = -1;
+		for (int id : this.options.keySet()) {
+			if (i == this.selected || this.selected < 0) { return id; }
+			i++;
+			last = id;
 		}
-		if (this.selected < this.options.size()) {
-			return this.selected;
-		}
-		return this.options.size() - 1;
+		return last;
 	}
 
 	public void grabMouse(boolean grab) {
@@ -434,68 +685,129 @@ implements IGuiClose {
 	}
 
 	private void handleDialogSelection() {
-		int optionId = -1;
-		if (this.dialog.showWheel) {
-			optionId = this.selected;
-		} else if (!this.options.isEmpty()) {
-			optionId = this.options.get(this.selected);
+		int optionId = this.getSelected();
+		if (!this.options.containsKey(optionId)) {
+			if (this.options.isEmpty() && this.closeOnEsc) {
+				this.close();
+			}
+			return;
 		}
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, this.dialog.id, optionId);
 		if (this.dialog == null || !this.dialog.hasOtherOptions() || this.options.isEmpty()) {
 			if (this.closeOnEsc) {
-				this.closed();
 				this.close();
 			}
 			return;
 		}
 		DialogOption option = this.dialog.options.get(optionId);
-		if (option == null || option.optionType != 1) {
+		if (option == null || option.optionType != OptionType.DIALOG_OPTION) {
 			if (this.closeOnEsc) {
-				this.closed();
 				this.close();
 			}
 			return;
 		}
-		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, 280, option.optionColor, this.npc, new Object[] { this.player, this.npc }));
-		this.calculateRowHeight();
+		this.lines.add(new TextBlockClient(this.player.getDisplayNameString(), option.title, this.dialogWidth, option.optionColor, dialogNpc, new Object[] { this.player, dialogNpc }));
 		NoppesUtil.clickSound();
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		this.sw = new ScaledResolution(this.mc);
-		this.isGrabbed = false;
-		this.grabMouse(this.dialog.showWheel);
-		this.guiTop = this.height - this.ySize;
-		this.calculateRowHeight();
-	}
-
-	@Override
 	public void keyTyped(char c, int i) {
-		if (i!=1 && this.wait>System.currentTimeMillis()) { return; }
-		if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
-			--this.selected;
-		}
-		if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) {
-			++this.selected;
-		}
-		if (i == 28) {
-			this.handleDialogSelection();
+		if (showOptions) {
+			if (i == this.mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
+				--selected;
+				--selectedStart;
+				if (selected < 0) { selected = 0; }
+				cheakSelected();
+			}
+			if (i == this.mc.gameSettings.keyBindBack.getKeyCode() || i == 208) {
+				++this.selected;
+				++selectedStart;
+				if (selected >= this.options.size()) { selected = this.options.size() - 1; }
+				cheakSelected();
+			}
+			if (i == 28) { this.handleDialogSelection(); }
 		}
 		if (this.closeOnEsc && (i == 1 || this.isInventoryKey(i))) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, this.dialog.id, -1);
-			this.closed();
 			this.close();
 		}
 		super.keyTyped(c, i);
 	}
+	
 
 	@Override
-	public void mouseClicked(int i, int j, int k) {
-		if (this.wait>System.currentTimeMillis()) { return; }
-		if (((this.selected == -1 && this.options.isEmpty()) || this.selected >= 0) && k == 0) {
-			this.handleDialogSelection();
+	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
+		if (!showOptions) {
+			if (newDialogSet) {
+				dialog.showFits = false;
+				lineStart = lineTotal - lineVisibleSize;
+				if (lineStart < 0) { lineStart = 0; }
+				else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
+			}
+			return;
+		}
+		if (scrollD != null) {
+			scrollD[7] = -1;
+			if (this.isMouseHover(mouseX, mouseY, (int) scrollD[0], (int) scrollD[4], (int) (scrollD[2] - scrollD[0]), (int) scrollD[5])) {
+				if (this.isMouseHover(mouseX, mouseY, (int) scrollD[0], (int) scrollD[1], (int) (scrollD[2] - scrollD[0]), (int) (scrollD[3] - scrollD[1]))) {
+					scrollD[7] = mouseY;
+					scrollD[8] = lineStart;
+				}
+				return;
+			}
+		}
+		if (scrollO != null) {
+			scrollO[7] = -1;
+			if (this.isMouseHover(mouseX, mouseY, (int) scrollO[0], (int) scrollO[4], (int) (scrollO[2] - scrollO[0]), (int) scrollO[5])) {
+				if (this.isMouseHover(mouseX, mouseY, (int) scrollO[0], (int) scrollO[1], (int) (scrollO[2] - scrollO[0]), (int) (scrollO[3] - scrollO[1]))) {
+					scrollO[7] = mouseY;
+					scrollO[8] = selectedStart;
+				}
+				return;
+			}
+		}
+		if (dialog.showWheel) {
+			if (selectedWheel != 0) {
+				if (selectedWheel == 1) {
+					wheelList--;
+					if (wheelList < 0) { wheelList = 0; }
+				} else {
+					wheelList++;
+					int max = (int) Math.ceil(this.options.size() / 6.0d);
+					if (wheelList >= max) { wheelList = max - 1; }
+				}
+				this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				return;
+			}
+			else if (selected < 0) { return; }
+		}
+		else if (!this.isMouseHover(mouseX, mouseY, this.guiLeft, this.dialogHeight, this.w - this.guiLeft, this.h - this.dialogHeight)) { return; }
+		if (mouseBottom == 0) { this.handleDialogSelection(); }
+	}
+
+	@Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		if (scrollD != null && scrollD[7] > -1) {
+			int offsetline = (int) (((float) scrollD[7] - (float) mouseY) / (float) scrollD[6]);
+			if (offsetline == 0) { return; }
+			lineStart = scrollD[8] - offsetline;
+			if (lineStart < 0) {
+				lineStart = 0;
+				scrollD[8] = lineStart;
+				scrollD[7] = mouseY;
+			}
+			else if (lineStart > lineTotal - lineVisibleSize) {
+				lineStart = lineTotal - lineVisibleSize;
+				scrollD[8] = lineStart;
+				scrollD[7] = mouseY;
+			}
+		}
+		if (scrollO != null && scrollO[7] > -1) {
+			int offsetline = (int) (((float) scrollO[7] - (float) mouseY) / (float) scrollO[6]);
+			if (offsetline == 0) { return; }
+			if (offsetline == 0.0) { return; }
+			selectedStart = scrollO[8] - offsetline;
+			cheakSelected();
 		}
 	}
 
@@ -503,6 +815,45 @@ implements IGuiClose {
 	public void save() { }
 
 	@Override
-	public void setClose(int i, NBTTagCompound data) { this.grabMouse(false); }
+	public void setClose(int id, NBTTagCompound nbt) { this.grabMouse(false); }
+
+	private void cheakSelected() {
+		int selSize = 0, pos = 1;
+		for (int i = selectedTotal.size() - 1; i > 0; i--) {
+			selSize += selectedTotal.get(i);
+			if (selSize >= selectedVisibleSize) { break; }
+			pos++;
+		}
+		if (selectedStart <= 0) {
+			selectedStart = 0;
+			if (scrollO!=null) {
+				scrollO[8] = selectedStart;
+				scrollO[7] = mouseY;
+			}
+		}
+		else if (selectedStart >= selectedTotal.size() - pos) {
+			selectedStart = selectedTotal.size() - pos;
+			if (scrollO!=null) {
+				scrollO[8] = selectedStart;
+				scrollO[7] = mouseY;
+			}
+		}
+	}
 	
+	class DialodTexture {
+		
+		public ResourceLocation res = null;
+		public int left = 0, uS = 0, vS = 0, height = 0;
+		public TextBlockClient line = null;
+		
+		private DialodTexture(ResourceLocation r, int[] uv, TextBlockClient tb) {
+			res = r;
+			left = 0;
+			uS = uv[0];
+			vS = uv[1];
+			height = uv[2];
+			line = tb;
+		}
+		
+	}
 }

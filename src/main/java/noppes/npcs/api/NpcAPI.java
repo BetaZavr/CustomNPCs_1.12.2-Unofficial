@@ -132,5 +132,4 @@ public abstract class NpcAPI {
 
 	public abstract IMarcetHandler getMarkets();
 	
-	
 }

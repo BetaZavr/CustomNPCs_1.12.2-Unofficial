@@ -5,13 +5,12 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesStringUtils;
-import noppes.npcs.client.gui.player.GuiFaction;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class InventoryTabFactions extends AbstractTab {
@@ -97,7 +96,7 @@ public class InventoryTabFactions extends AbstractTab {
 	@Override
 	public void onTabClicked() {
 		CustomNPCsScheduler.runTack(() -> {
-			Minecraft.getMinecraft().displayGuiScreen((GuiScreen) new GuiFaction());
+			Minecraft.getMinecraft().displayGuiScreen(new GuiLog(1));
 		});
 	}
 

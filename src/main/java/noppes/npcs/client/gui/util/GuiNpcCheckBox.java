@@ -30,7 +30,17 @@ extends GuiNpcButton
     boolean showShadow;
     boolean check;
     boolean centered;
-
+    
+    public GuiNpcCheckBox(int id, int x, int y, String label, boolean select) {
+		this(id, x, y, 120, 14, label);
+		this.check = select;
+	}
+    
+    public GuiNpcCheckBox(int id, int x, int y, int width, int height, String label, boolean select) {
+		this(id, x, y, width, height, label);
+		this.check = select;
+	}
+    
     public GuiNpcCheckBox(int id, int x, int y, int width, int height, String label) {
 		super(id, x, y, width, height, new TextComponentTranslation(label).getFormattedText());
     	this.offsetX = 0;
@@ -47,8 +57,8 @@ extends GuiNpcButton
         this.textColor = CustomNpcs.lableColor;
         this.setText(label);
     }
-    
-    public void setScale(float scale) { this.scale = scale; }
+
+	public void setScale(float scale) { this.scale = scale; }
 	
     public void addLine(String str) { this.labels.add(new TextComponentTranslation(str).getFormattedText()); }
 
@@ -85,7 +95,7 @@ extends GuiNpcButton
 		int colorGray = 0xFF808080;
 		int colorLGray = 0xD4D0C8;
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        if (this.hovered) {
+        if (this.hovered && this.enabled) {
         	Gui.drawRect(-1, -2, this.width, this.height - 2, 0x200000FF);
         }
         int yC = this.height / 2 - 7;
@@ -98,6 +108,10 @@ extends GuiNpcButton
 		this.drawHorizontalLine(2, 9, yC, colorLGray); // bottop 1
 		this.drawHorizontalLine(0, 10, 10 + yC, colorWhite); // bottop 2
 		Gui.drawRect(2, 1 + yC, 10, 9 + yC, colorWhite); // work
+		if (!this.enabled) {
+			Gui.drawRect(-1, -2, this.width, this.height - 2, 0x40000000);
+			colorBlack = 0xFF606060;
+		}
 		if (this.check) {
 			this.drawVerticalLine(3, 2 + yC, 6 + yC, colorBlack); // left 1
 			this.drawVerticalLine(4, 3 + yC, 7 + yC, colorBlack); // left 2

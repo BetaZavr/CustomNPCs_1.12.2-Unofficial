@@ -269,7 +269,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.selectNpc!=null) {
-			this.drawNpc(this.selectNpc, 210, 80, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, false);
+			this.drawNpc(this.selectNpc, 210, 80, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, 0);
 		}
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);

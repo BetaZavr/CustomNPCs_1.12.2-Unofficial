@@ -58,7 +58,12 @@ implements IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void save() {
+	public void save() { }
+	
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override

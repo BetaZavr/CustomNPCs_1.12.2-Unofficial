@@ -46,7 +46,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	
 	public static GuiScreen Instance;
 	private final TreeMap<String, QuestCategory> categoryData;
-	private final TreeMap<String, Quest> questData;
+	private final Map<String, Quest> questData;
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollQuests;
 	private String selectedCategory = "";
@@ -58,7 +58,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	public GuiNPCManageQuest(EntityNPCInterface npc) {
 		super(npc);
 		this.categoryData = Maps.<String, QuestCategory>newTreeMap();
-		this.questData = Maps.<String, Quest>newTreeMap();
+		this.questData = Maps.<String, Quest>newLinkedHashMap();
 		GuiNPCManageQuest.Instance = this;
 		Client.sendData(EnumPacketServer.QuestCategoryGet);
 	}
@@ -107,6 +107,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				DialogController dData = DialogController.instance;
 				for (Quest quest : this.questData.values()) {
 					List<String> h = Lists.newArrayList(), quests = Lists.newArrayList(), dialogs = Lists.newArrayList();
+					h.add(new TextComponentTranslation(quest.title).getFormattedText()+":");
 					for (Quest q : qData.quests.values()) {
 						if (q.nextQuestid!=quest.id) { continue; }
 						quests.add(chr + "7ID:" + q.id + chr + "8 " +q.category.getName() + "/" + chr + "r" + q.getName());
@@ -137,10 +138,6 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		// scroll info
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "quest.quests", this.guiLeft + 180, this.guiTop + 4));
-
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 225, this.guiTop, 90, 12, GuiNPCManageQuest.isName ? "gui.name" : "ID");
-		checkBox.setSelected(GuiNPCManageQuest.isName);
-		this.addButton(checkBox);
 		// quest buttons
 		int x = this.guiLeft + 350, y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(3, "quest.quests", this.guiLeft + 356, this.guiTop + 8));
@@ -149,8 +146,11 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyQuest!=null));
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y += 17, 64, 14, GuiNPCManageQuest.isName ? "gui.name" : "ID");
+		checkBox.setSelected(GuiNPCManageQuest.isName);
+		this.addButton(checkBox);
 		// category buttons
-		y = this.guiTop + 130;
+		y = this.guiTop + 134;
 		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
 		this.addButton(new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove",!this.selectedCategory.isEmpty()));
@@ -164,7 +164,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.addScroll(this.scrollCategories);
 
 		if (this.scrollQuests == null) { (this.scrollQuests = new GuiCustomScroll(this, 1)).setSize(170, this.ySize - 3); }
-		this.scrollQuests.setList(Lists.newArrayList(this.questData.keySet()));
+		this.scrollQuests.setListNotSorted(Lists.newArrayList(this.questData.keySet()));
 		this.scrollQuests.guiLeft = this.guiLeft + 176;
 		this.scrollQuests.guiTop = this.guiTop + 15;
 		if (ht!=null) { this.scrollQuests.hoversTexts = ht; }
@@ -175,7 +175,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.hasSubGui()) { return; }
+		this.drawHorizontalLine(this.guiLeft + 348, this.guiLeft + 414, this.guiTop + 128, 0x80000000);
+		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
@@ -279,10 +281,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			this.selectedQuest = "";
 		}
 	}
+	
 	@Override
-	public void save() {
-		GuiNpcTextField.unfocus();
-	}
+	public void save() { GuiNpcTextField.unfocus(); }
 
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
@@ -335,8 +336,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			this.initGui();
 		}
 		if (subgui.id == 3) { // rename category
-			if (((SubGuiEditText) subgui).text[0].isEmpty()) { return; }
-			QuestCategory category = this.categoryData.get(this.selectedCategory);
+			if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) { return; }
+			QuestCategory category = this.categoryData.get(this.selectedCategory).copy();
+			if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
 			category.title = ((SubGuiEditText) subgui).text[0];
 			while (QuestController.instance.containsCategoryName(category)) { category.title += "_"; }
 			this.selectedCategory = category.title;
@@ -370,4 +372,5 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		}
 		super.keyTyped(c, i);
 	}
+	
 }

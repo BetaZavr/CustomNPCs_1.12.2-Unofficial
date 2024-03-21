@@ -24,6 +24,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.SubGuiEditBankAccess;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiMenuLeftButton;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
@@ -36,7 +37,6 @@ public class GuiNPCBankChest
 extends GuiContainerNPCInterface {
 	
 	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
-	private static final ResourceLocation slotTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation rowTexture = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
 	public ContainerNPCBank cont;
@@ -152,7 +152,7 @@ extends GuiContainerNPCInterface {
 		if (this.isMany && this.subgui == null) {
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(tabsTexture);
+			this.mc.renderEngine.bindTexture(tabsTexture);
 			this.currentScroll = (float) this.row / (float) this.maxRows;
 			int h = (int) (this.currentScroll * 73.0f);
 			int u = (this.width - this.xSize) / 2 + 177;
@@ -160,9 +160,11 @@ extends GuiContainerNPCInterface {
 			this.hoverScroll = mouseX >= u && mouseX <= u + 12 && mouseY >= v && mouseY <= v + 15;
 			this.drawTexturedModalRect(u, v, (this.hoverScroll ? 244 : 232), 0, 12, 15);
 			GlStateManager.popMatrix();
-			int dwm = Mouse.getDWheel();
-			if (dwm>0) { this.resetRow(false);}
-			else if (dwm<0){ this.resetRow(true); }
+			if (this.hoverScroll) {
+				int dWheel = Mouse.getDWheel();
+				if (dWheel  > 0) { this.resetRow(false);}
+				else if (dWheel<0){ this.resetRow(true); }
+			}
 		}
 		if (!this.stack.isEmpty()) {
 			int u = (this.width - this.xSize) / 2;
@@ -235,7 +237,7 @@ extends GuiContainerNPCInterface {
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.mc.getTextureManager().bindTexture(backTexture);
+		this.mc.renderEngine.bindTexture(backTexture);
 		int u = (this.width - this.xSize) / 2 - 8;
 		int v = (this.height - this.ySize) / 2;
 		int h = this.cont.height + 107;
@@ -257,7 +259,7 @@ extends GuiContainerNPCInterface {
 		this.drawVerticalLine(u + 15, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.lableColor);
 		this.drawVerticalLine(u + 176, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.lableColor);
 		// Slots
-		this.mc.getTextureManager().bindTexture(slotTexture);
+		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int s = 0; s < this.cont.inventorySlots.size(); s++) {
 			Slot slot = this.cont.getSlot(s);
@@ -278,7 +280,7 @@ extends GuiContainerNPCInterface {
 			this.fontRenderer.drawString(text.getFormattedText(), u + 8, v + 8 + (i + 1) * 18, CustomNpcs.lableColor);
 		}
 		if (this.isMany) {
-			this.mc.getTextureManager().bindTexture(rowTexture);
+			this.mc.renderEngine.bindTexture(rowTexture);
 			this.drawTexturedModalRect(u + 184, v + 17, 174, 17, 14, 86);
 			this.drawTexturedModalRect(u + 184, v + 103, 174, 125, 14, 4);
 		}

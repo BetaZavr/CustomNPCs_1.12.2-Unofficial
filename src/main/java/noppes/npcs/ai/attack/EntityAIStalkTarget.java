@@ -29,8 +29,8 @@ extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.npc.ticksExisted % (this.tickRate * 2) > 3) { return; }
-		if (this.isRanged) { this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true); }
+		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) { return; }
+		if (this.isRanged) { this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true); }
 		else { this.canSeeToAttack = this.npc.canSee(this.target); }
 
 		if (!this.discovered && this.distance < this.tacticalRange) { this.setDiscovered(true); }
@@ -41,7 +41,7 @@ extends EntityAICustom {
 			this.npc.getNavigator().tryMoveToEntityLiving(this.target, this.discovered ? 1.3d : 0.725d);
 		}
 		this.tryToCauseDamage();
-		if (!this.discovered && this.hasAttack || AdditionalMethods.npcCanSeeTarget(this.target, this.npc, true)) { this.setDiscovered(true);}
+		if (!this.discovered && this.hasAttack || AdditionalMethods.npcCanSeeTarget(this.target, this.npc, true, true)) { this.setDiscovered(true);}
 		if (!this.target.equals(this.oldTarget)) {
 			this.oldTarget = this.target;
 			this.setDiscovered(this.discovered);

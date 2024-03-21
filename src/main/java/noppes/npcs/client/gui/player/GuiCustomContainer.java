@@ -16,18 +16,19 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.containers.ContainerChestCustom;
 
 public class GuiCustomContainer
 extends GuiContainer {
 
 	private static final ResourceLocation backTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
-	private static final ResourceLocation slotTexture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private static final ResourceLocation tabsTexture = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation rowTexture = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
 	private static final ResourceLocation lockTexture = new ResourceLocation("textures/gui/widgets.png");
 	private ContainerChestCustom inventorySlots;
 	
+	public int dWheel;
 	private int guiColor, row, maxRows, yPos, step;
 	private int[] guiColorArr;
 	private boolean isMany, hoverScroll;
@@ -61,6 +62,7 @@ extends GuiContainer {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		dWheel = Mouse.getDWheel();
 		this.drawDefaultBackground();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		this.hoverScroll = false;
@@ -69,7 +71,7 @@ extends GuiContainer {
 			GlStateManager.color(2.0F, 2.0F, 2.0F, 1.0F);
 			int u = (this.width - this.xSize) / 2;
 			int v = (this.height - this.ySize) / 2;
-			this.mc.getTextureManager().bindTexture(tabsTexture);
+			this.mc.renderEngine.bindTexture(tabsTexture);
 			this.currentScroll = (float) this.row / (float) this.maxRows;
 			int h = (int) (this.currentScroll * 73.0f);
 			u += 173;
@@ -77,9 +79,8 @@ extends GuiContainer {
 			this.hoverScroll = mouseX >= u && mouseX <= u + 12 && mouseY >= v && mouseY <= v + 15;
 			this.drawTexturedModalRect(u, v, (this.hoverScroll ? 244 : 232), 0, 12, 15);
 			GlStateManager.popMatrix();
-			int dwm = Mouse.getDWheel();
-			if (dwm>0) { this.resetRow(false);}
-			else if (dwm<0){ this.resetRow(true); }
+			if (dWheel > 0) { this.resetRow(false);}
+			else if (dWheel < 0){ this.resetRow(true); }
 		}
 		this.renderHoveredToolTip(mouseX, mouseY);
 		if (!this.lock.isEmpty()) {
@@ -98,7 +99,7 @@ extends GuiContainer {
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		if (this.guiColor==-1) { GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); }
 		else { GlStateManager.color((float)(this.guiColor >> 16 & 255) / 255.0F, (float)(this.guiColor >> 8 & 255) / 255.0F, (float)(this.guiColor & 255) / 255.0F, 1.0F); }
-		this.mc.getTextureManager().bindTexture(backTexture);
+		this.mc.renderEngine.bindTexture(backTexture);
 		int u = (this.width - this.xSize) / 2;
 		int v = (this.height - this.ySize) / 2;
 		int h = this.inventorySlots.height + 107;
@@ -131,7 +132,7 @@ extends GuiContainer {
 			this.drawTexturedModalRect(u, v, 0, 0, 176, h - 4);
 			this.drawTexturedModalRect(u, v + h - 4, 0, 218, 176, 4);
 		}
-		this.mc.getTextureManager().bindTexture(slotTexture);
+		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int s = 0; s < this.inventorySlots.inventorySlots.size(); s++) {
 			Slot slot = this.inventorySlots.getSlot(s);
@@ -140,12 +141,12 @@ extends GuiContainer {
 			}
 		}
 		if (this.isMany) {
-			this.mc.getTextureManager().bindTexture(rowTexture);
+			this.mc.renderEngine.bindTexture(rowTexture);
 			this.drawTexturedModalRect(u +172, v + 17, 174, 17, 14, 86);
 			this.drawTexturedModalRect(u +172, v + 103, 174, 125, 14, 4);
 		}
 		if (!this.lock.isEmpty()) {
-			this.mc.getTextureManager().bindTexture(lockTexture);
+			this.mc.renderEngine.bindTexture(lockTexture);
 			this.drawTexturedModalRect(u + 164 + (this.isMany ? 16 : 0), v - 8, 0, 146, 20, 20);
 		}
 	}

@@ -26,6 +26,8 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.MarcetController;
@@ -36,7 +38,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCManageMarcets
 extends GuiNPCInterface2
-implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
+implements IGuiData, ICustomScrollListener, GuiYesNoCallback, ISubGuiListener {
 	
 	private final Map<String, Integer> dataDeals;
 	private final Map<String, Integer> dataMarcets;
@@ -52,7 +54,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		this.marcetID = marcetID;
 		this.dealID = dealID;
 		this.ySize = 200;
-		this.dataDeals = Maps.<String, Integer>newTreeMap();
+		this.dataDeals = Maps.<String, Integer>newLinkedHashMap();
 		this.dataMarcets = Maps.<String, Integer>newTreeMap();
 		Client.sendData(EnumPacketServer.TraderMarketGet);
 	}
@@ -77,7 +79,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			this.scrollMarcets.setSelected(this.selectedMarcet.getSettingName());
 			List<String[]> infoList = new ArrayList<String[]>();
 			List<ItemStack> stacks = Lists.<ItemStack>newArrayList();
-			for (Integer dealID : this.selectedMarcet.getDealIDs()) {
+			for (Integer dealID : this.dataDeals.values()) {
 				Deal deal = (Deal) this.mData.getDeal(dealID);
 				List<String> info = new ArrayList<String>();
 				DealMarkup dm = new DealMarkup();
@@ -94,6 +96,10 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 					}
 				}
 				else {
+					String section = "";
+					Marcet m = MarcetController.getInstance().marcets.get(this.marcetID);
+					if (m != null) { section = "\"" + (new TextComponentTranslation(m.sections.get(m.sections.containsKey(deal.getSectionID()) ? deal.getSectionID() : 0)).getFormattedText()) + "\""; }
+					info.add(new TextComponentTranslation("gui.sections").getFormattedText() + " ID: "+deal.getSectionID() + (section != null ? "; " + new TextComponentTranslation("gui.name").getFormattedText() + ": " + section : ""));
 					stacks.add(dm.main);
 					info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
 					info.add(dm.main.getDisplayName() + " x" + dm.count + (deal.getMaxCount() > 0 ? " " + new TextComponentTranslation("market.hover.item.amount", new Object[] { "" + deal.getAmount() }).getFormattedText() : ""));
@@ -287,6 +293,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			case 0: {
 				if (this.selectedMarcet==null) { return; }
 				Client.sendData(EnumPacketServer.TraderMarketDel, this.marcetID, -1);
+				this.dataDeals.clear();
 				break;
 			}
 			case 1: {
@@ -320,20 +327,35 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		this.selectedMarcet = (Marcet) this.mData.getMarcet(marcetID);
 		if (this.selectedMarcet!=null) {
 			this.selectedDeal = null;
-			for (Integer dealId : this.selectedMarcet.getDealIDs()) {
+			Map<Integer, List<Deal>> map = Maps.<Integer, List<Deal>>newTreeMap();
+			for (int dealId : this.selectedMarcet.getDealIDs()) {
 				Deal deal = (Deal) this.mData.getDeal(dealId);
 				if (deal == null) {
-					this.dataDeals.put("ID: "+dealId + ": " + ((char) 167) + "4" + new TextComponentTranslation("type.empty").getFormattedText(), dealId);
+					this.dataDeals.put("ID:"+dealId + " - " + ((char) 167) + "4" + new TextComponentTranslation("type.empty").getFormattedText(), dealId);
 					continue;
 				}
-				this.dataDeals.put(deal.getSettingName(), dealId);
-				if (this.addNewDeal || this.dealID == deal.getId() || (this.dealID<=0 && this.selectedDeal == null)) {
-					this.selectedDeal = deal;
-					this.dealID = deal.getId();
+				if (!map.containsKey(deal.getSectionID())) { map.put(deal.getSectionID(), Lists.<Deal>newArrayList()); }
+				map.get(deal.getSectionID()).add(deal);
+			}
+			for (List<Deal> list : map.values()) {
+				for (Deal deal : list) {
+					this.dataDeals.put(deal.getSettingName(), deal.getId());
+					if (this.addNewDeal || this.dealID == deal.getId() || (this.dealID<=0 && this.selectedDeal == null)) {
+						this.selectedDeal = deal;
+						this.dealID = deal.getId();
+					}
 				}
 			}
 		}
 		this.addNewDeal = false;
+	}
+
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) {
+		if (subgui instanceof SubGuiNpcMarketSettings) {
+			this.setGuiData(null);
+		}
+		NoppesUtil.openGUI((EntityPlayer) this.player, this);
 	}
 	
 }

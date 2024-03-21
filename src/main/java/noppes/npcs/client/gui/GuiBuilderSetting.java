@@ -28,6 +28,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -50,7 +51,6 @@ implements ICustomScrollListener, ITextfieldListener {
 	ContainerBuilderSettings container;
 	private ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
 	private ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
 
 	private int maxRange;
@@ -228,7 +228,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				GlStateManager.translate(7.0f, 135.0f, 0.0f);
 				this.mc.renderEngine.bindTexture(this.inventory);
 				this.drawTexturedModalRect(0, 0, 0, 0, 162, 76); // player inventory
-				this.mc.renderEngine.bindTexture(this.slot);
+				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				GlStateManager.translate(0.0f, -119.0f, 0.0f);
 				// Slots
 				for (int i=1; i<10; i++) {

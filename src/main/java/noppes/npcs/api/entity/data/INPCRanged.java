@@ -38,7 +38,7 @@ public interface INPCRanged {
 
 	int getParticle();
 
-	int getRange();
+	double getRange();
 
 	boolean getRender3D();
 
@@ -84,7 +84,7 @@ public interface INPCRanged {
 
 	void setParticle(int type);
 
-	void setRange(int range);
+	void setRange(double range);
 
 	void setRender3D(boolean render3d);
 

@@ -1,46 +1,59 @@
 package noppes.npcs.containers;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
-public class ContainerNPCFollowerHire extends ContainerNpcInterface {
-	public InventoryBasic currencyMatrix;
+public class ContainerNPCFollowerHire
+extends ContainerNpcInterface {
+	
 	public RoleFollower role;
+	public int type = 0;
 
-	public ContainerNPCFollowerHire(EntityNPCInterface npc, EntityPlayer player) {
+	public ContainerNPCFollowerHire(EntityNPCInterface npc, EntityPlayer player, int type) {
 		super(player);
+		this.type = type;
 		this.role = (RoleFollower) npc.advanced.roleInterface;
-		this.currencyMatrix = new InventoryBasic("currency", false, 1);
-		this.addSlotToContainer(
-				(Slot) new SlotNpcMercenaryCurrency(this.role, (IInventory) this.currencyMatrix, 0, 44, 35));
-		for (int i1 = 0; i1 < 3; ++i1) {
-			for (int l1 = 0; l1 < 9; ++l1) {
-				this.addSlotToContainer(
-						new Slot((IInventory) player.inventory, l1 + i1 * 9 + 9, 8 + l1 * 18, 84 + i1 * 18));
+		int offSet = type == 0 ? 0 : 58;
+		int size = this.role.inventory.getSizeInventory();
+		if (size > 0) {
+			int s = (size == 2 || size == 4) ? 2 : 3;
+			boolean bo = false;
+			for (int y = 0; y < s; ++y) {
+				for (int x = 0; x < s; ++x) {
+					bo = (x + y * s) >= size;
+					if (bo) { break; }
+					this.addSlotToContainer(new Slot(this.role.inventory, x + y * s, 174 + x * 18, 142 + y * 18)); }
+				if (bo) { break; }
 			}
 		}
-		for (int j1 = 0; j1 < 9; ++j1) {
-			this.addSlotToContainer(new Slot((IInventory) player.inventory, j1, 8 + j1 * 18, 142));
+		for (int y = 0; y < 3; ++y) {
+			for (int x = 0; x < 9; ++x) { this.addSlotToContainer(new Slot(player.inventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 + offSet)); }
 		}
+		for (int x = 0; x < 9; ++x) { this.addSlotToContainer(new Slot(player.inventory, x, 8 + x * 18, 142 + offSet)); }
 	}
 
 	public void onContainerClosed(EntityPlayer entityplayer) {
 		super.onContainerClosed(entityplayer);
-		if (!entityplayer.world.isRemote) {
-			ItemStack itemstack = this.currencyMatrix.removeStackFromSlot(0);
-			if (!NoppesUtilServer.IsItemStackNull(itemstack) && !entityplayer.world.isRemote) {
-				entityplayer.entityDropItem(itemstack, 0.0f);
-			}
-		}
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
-		return ItemStack.EMPTY;
+	@Override
+	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+		ItemStack itemstack = ItemStack.EMPTY;
+		Slot slot = this.inventorySlots.get(index);
+		if (slot != null && slot.getHasStack()) {
+			ItemStack itemstack1 = slot.getStack();
+			itemstack = itemstack1.copy();
+			if (index < this.role.inventory.getSizeInventory()) {
+				if (!this.mergeItemStack(itemstack1, this.role.inventory.getSizeInventory(), this.inventorySlots.size(), true)) { return ItemStack.EMPTY; }
+			}
+			else if (!this.mergeItemStack(itemstack1, 0, this.role.inventory.getSizeInventory(), false)) { return ItemStack.EMPTY; }
+			if (itemstack1.isEmpty()) { slot.putStack(ItemStack.EMPTY); }
+			else { slot.onSlotChanged(); }
+		}
+		return itemstack;
 	}
+	
 }

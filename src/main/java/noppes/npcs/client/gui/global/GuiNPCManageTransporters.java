@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -18,6 +17,7 @@ import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -44,7 +44,6 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	public String catSel, locSel;
 	private boolean wait;
 	private ContainerNPCTransportSetup container;
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 
 	public GuiNPCManageTransporters(EntityNPCInterface npc, ContainerNPCTransportSetup container) {
 		super(npc, container);
@@ -197,7 +196,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 			for (int slotId = 0; slotId < 10; ++slotId) {
 				int x = this.guiLeft + this.container.getSlot(slotId).xPos;
 				int y = this.guiTop + this.container.getSlot(slotId).yPos;
-				this.mc.renderEngine.bindTexture(this.slot);
+				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 			}

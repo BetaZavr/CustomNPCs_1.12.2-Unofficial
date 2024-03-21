@@ -117,7 +117,6 @@ implements ITickable, IScriptBlockHandler {
 		// New
 		this.metaModel = 0;
 		this.layers = new ILayerModel[0];
-		System.out.println("New: "+this.pos);
 	}
 	
 	public class TextPlane implements ITextPlane {
@@ -430,7 +429,10 @@ implements ITickable, IScriptBlockHandler {
 		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (!type.equalsIgnoreCase("init")) { EventHooks.onScriptBlockInit(this); }
+			if (!type.equalsIgnoreCase("init")) {
+				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
+				EventHooks.onScriptBlockInit(this);
+			}
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());
@@ -520,9 +522,9 @@ implements ITickable, IScriptBlockHandler {
 		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
-		int getInteger = compound.getInteger("BlockPowering");
-		this.powering = getInteger;
-		this.activePowering = getInteger;
+		int pw = compound.getInteger("BlockPowering");
+		this.powering = pw;
+		this.activePowering = pw;
 		this.prevPower = compound.getInteger("BlockPrevPower");
 		if (compound.hasKey("BlockHardness")) {
 			this.blockHardness = compound.getFloat("BlockHardness");

@@ -60,8 +60,10 @@ implements IBlock {
 			this.world = NpcAPI.Instance().getIWorld((WorldServer) world);
 		} else if (world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
-			if (w != null) { w.world = world; }
-			else { WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world)); }
+			if (w != null) {
+				if (w.world == null) { w.world = world; }
+			}
+			else { w = WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world)); }
 			this.world = w;
 		}
 		this.block = block;

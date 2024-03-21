@@ -26,10 +26,10 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	}
 
 	public boolean isEntityApplicable(EntityLivingBase entity) {
-		if (!entity.isEntityAlive() || entity == this.npc || this.npc.isRunHome || !this.npc.isInRange(entity, this.npc.stats.aggroRange) || entity.getHealth() < 1.0f) {
+		if (!entity.isEntityAlive() || entity == this.npc || !this.npc.isInRange(entity, this.npc.stats.aggroRange) || entity.getHealth() < 1.0f) {
 			return false;
 		}
-		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity, false)) {
+		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity, false, true)) {
 			return false;
 		}
 		if (!this.npc.isFollower() && this.npc.ais.shouldReturnHome()) {
@@ -37,8 +37,7 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 			if (this.npc.ais.getMovingType() == 1) {
 				allowedDistance += this.npc.ais.walkingRange;
 			}
-			double distance = entity.getDistanceSq(this.npc.getStartXPos(), this.npc.getStartYPos(),
-					this.npc.getStartZPos());
+			double distance = entity.getDistanceSq(this.npc.getStartXPos(), this.npc.getStartYPos(), this.npc.getStartZPos());
 			if (this.npc.ais.getMovingType() == 2) {
 				int[] arr = this.npc.ais.getCurrentMovingPath();
 				distance = entity.getDistanceSq(arr[0], arr[1], arr[2]);

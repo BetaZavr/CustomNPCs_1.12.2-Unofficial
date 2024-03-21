@@ -236,7 +236,7 @@ implements ICloneHandler {
 	@Override
 	public IEntity<?> spawn(double x, double y, double z, int tab, String name, IWorld world) {
 		if (world == null || world.getMCWorld().isRemote) {
-			LogWriter.debug("CloneHandler summoning Error: World: "+(world == null ? "null" : world.getMCWorld().isRemote));
+			LogWriter.debug("CloneHandler summoning Error: World is Client: "+(world == null ? "null" : world.getMCWorld().isRemote+" - "+world));
 			return null;
 		}
 		NBTTagCompound compound = this.getCloneData(null, name, tab);

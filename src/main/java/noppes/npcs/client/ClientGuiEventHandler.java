@@ -66,10 +66,11 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.handler.data.IQuestObjective;
-import noppes.npcs.client.gui.GuiCompassSetings;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
-import noppes.npcs.client.gui.player.GuiQuestLog;
+import noppes.npcs.client.gui.player.GuiLog;
+import noppes.npcs.client.gui.player.GuiMailmanWrite;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.client.util.CrashesData;
@@ -102,22 +103,25 @@ public class ClientGuiEventHandler
 extends Gui
 {
 
-	private static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
-	private static final ResourceLocation RESOURCE_SLOT = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private static final ResourceLocation CREATIVE_TABS = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	private static final ResourceLocation[] BORDER;
+	
+	public static final ResourceLocation COIN_NPC = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
 	public static final ResourceLocation RESOURCE_COMPASS = new ResourceLocation(CustomNpcs.MODID+":models/util/compass.obj");
 	public static final CrashesData crashes = new CrashesData();
 	public static Entity entityPath;
+	public static final List<double[]> movingPath = Lists.<double[]>newArrayList();
+	public static RayTraceResult result;
+	public static List<CustomParticle> customParticle = Lists.<CustomParticle>newArrayList();
+	public static boolean hasNewMail = false;
+	public static long showNewMail = 0l, startMail = 0L;
+	
 	private Minecraft mc;
 	private ScaledResolution sw;
 	private BorderController bData;
 	private double dx, dy, dz;
 	private int qt = 0;
 	private List<Entity> tempEntity = Lists.<Entity>newArrayList();
-	public static final List<double[]> movingPath = Lists.<double[]>newArrayList();
-	public static RayTraceResult result;
-	public static List<CustomParticle> customParticle = Lists.<CustomParticle>newArrayList();
 
 	static {
 		BORDER = new ResourceLocation[16];
@@ -151,21 +155,102 @@ extends Gui
 			}
 			this.tempEntity.clear();
 		}
-		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiCompassSetings)) {
+		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
+		if ((hasNewMail  || startMail > 0L)&& CustomNpcs.mailWindow != -1) { // Mail
+			CustomNpcs.mailWindow = 1;
+			int[] offsets = new int[] { 0, -5 };
+			float sr = 45.0f, su = 12.0f, sv = 32.0f; // sr = 45.0f, su = 12.0f, sv = 32.0f;
+			switch(CustomNpcs.mailWindow) {
+				case 1: { // left down
+					offsets[0] = 0;
+					offsets[1] = (int) hud.getWindowSize()[1] - 32;
+					sr = -45.0f;
+					sv = -32.0f;
+					break;
+				}
+				case 2: { // right up
+					offsets[0] = (int) hud.getWindowSize()[0] - 32;
+					offsets[1] = -5;
+					sr = -45.0f;
+					su = -12.0f;
+					break;
+				}
+				case 3: { // right down
+					offsets[0] = (int) hud.getWindowSize()[0] - 32;
+					offsets[1] = (int) hud.getWindowSize()[1] - 32;
+					sv = -32.0f;
+					su = -12.0f;
+					break;
+				}
+			}
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(offsets[0] + 16, offsets[1] + 16, 0);
+			if (startMail == 0L) { startMail = System.currentTimeMillis(); }
+			long time = System.currentTimeMillis() - startMail;
+			 // animation
+			if (showNewMail == 0L || (time - showNewMail > -500L && time - showNewMail < 0L)) { // start
+				if (showNewMail == 0L) { showNewMail = time + 500L; }
+				time -= showNewMail;
+				GlStateManager.rotate(sr * (float) time / 500.0f, 0.0f, 0.0f, 1.0f);
+				GlStateManager.translate(su * (float) time / 500.0f, sv * (float) time / 500.0f, 0);
+				if (time >= 0L) { startMail = 0L; }
+			}
+			if (!hasNewMail) { // end
+				if (time > 0L) {
+					startMail = System.currentTimeMillis() + 500L;
+					time = System.currentTimeMillis() - startMail;
+				}
+				time += 500L;
+				time *= -1L;
+				GlStateManager.rotate(sr * (float) time / 500.0f, 0.0f, 0.0f, 1.0f);
+				GlStateManager.translate(su * (float) time / 500.0f, sv * (float) time / 500.0f, 0);
+				if (time < -480L) { startMail = 0L; }
+			}
+			else if (time % 31500 < 1750) { // living
+				time = time % 1750;
+				if (time < 500) {
+					GlStateManager.rotate(30.0f * (float) time / 500.0f, 0.0f, 0.0f, 1.0f);
+					GlStateManager.translate(-1.0f * (float) time / 500.0f, -5.0f * (float) time / 500.0f, 0);
+				}
+				else if (time < 1250) {
+					GlStateManager.rotate(30.0f - 420.0f * (float) (time -= 500L) / 750.0f, 0.0f, 0.0f, 1.0f);
+					GlStateManager.translate(-1.0f + 1.0f * (float) time / 750.0f, -5.0f + 5.0f * (float) time / 750.0f, 0);
+				}
+				else {
+					GlStateManager.rotate(-30.0f + 30.0f * (float) (time -= 1250L) / 500.0f, 0.0f, 0.0f, 1.0f);
+				}
+			}
+			time = System.currentTimeMillis() % 3000;
+			if (time < 1500) {
+				GlStateManager.color(0.85f, 0.85f, 0.85f, 0.5f + 0.45f * (float) time / 1500.f);
+			} else {
+				GlStateManager.color(0.85f, 0.85f, 0.85f, 0.5f + 0.45f * (3000.0f - (float) time) / 1500.f);
+			}
+			GlStateManager.scale(0.5f, 0.5f, 0.5f);
+			GlStateManager.enableBlend();
+			this.mc.renderEngine.bindTexture(GuiMailmanWrite.icons);
+			this.drawTexturedModalRect(-16, -16, 0, 0, 32, 32);
+			GlStateManager.popMatrix();
+		}
+		if (this.mc.currentScreen!=null && !(this.mc.currentScreen instanceof GuiChat) && !(this.mc.currentScreen instanceof GuiLog)) {
 			CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderOverlay");
 			return;
 		}
-		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
+		// Custom HUD window
 		TreeMap<Integer, TreeMap<Integer, IGuiComponent>> mapC = hud.getGuiComponents();
-		GuiCustom gui   = new GuiCustom(null);
-		for (int type : mapC.keySet()) {
-			for (IGuiComponent component : mapC.get(type).values()) {
-				component.offSet(type, hud.getWindowSize());
-				component.setParent(gui);
-				component.onRender(this.mc, -1, -1, 0, 0);
+		if (!mapC.isEmpty()) {
+			GuiCustom gui   = new GuiCustom(null);
+			GlStateManager.pushMatrix();
+			for (int type : mapC.keySet()) {
+				for (IGuiComponent component : mapC.get(type).values()) {
+					component.offSet(type, hud.getWindowSize());
+					component.setParent(gui);
+					component.onRender(this.mc, -1, -1, 0, 0);
+				}
 			}
+			GlStateManager.popMatrix();
 		}
-		
+		// Custom HUD slots
 		TreeMap<Integer, TreeMap<Integer, IItemSlot>> mapS = hud.getGuiSlots();
 		for (int type : mapS.keySet()) {
 			int[] os = this.getOffset(type);
@@ -175,7 +260,7 @@ extends Gui
 				int x = os[0] == 0 ? slot.getPosX() : os[0] - slot.getPosX() - 18;
 				int y = os[1] == 0 ? slot.getPosY() : os[1] - slot.getPosY() - 18;
 				GlStateManager.translate(x, y, id);
-				this.mc.renderEngine.bindTexture(ClientGuiEventHandler.RESOURCE_SLOT);
+				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				this.drawTexturedModalRect(0, 0, 0, 0, 18, 18);
 				if (!slot.getStack().isEmpty()) {
 					ItemStack stack = slot.getStack().getMCItemStack();
@@ -189,6 +274,7 @@ extends Gui
 				GlStateManager.popMatrix();
 			}
 		}
+		// Quest Compass
 		if (CustomNpcs.showQuestCompass) {
 			String name = "", title = "";
 			double[] p = null;
@@ -267,7 +353,7 @@ extends Gui
 								title = new TextComponentTranslation("gui.found").getFormattedText()+": "+select.getTargetName();
 							}
 							else if (EnumQuestTask.values()[select.getType()] == EnumQuestTask.MANUAL) {
-								title = new TextComponentTranslation("gui.do").getFormattedText()+": "+select.getTargetName();
+								title = select.getTargetName();
 							}
 							if (t == EnumQuestTask.KILL || t == EnumQuestTask.AREAKILL) {
 								n = new TextComponentTranslation("entity."+select.getTargetName()+".name").getFormattedText();
@@ -471,7 +557,7 @@ extends Gui
 				GlStateManager.popMatrix();
 			}
 		}
-		
+		// Information from the NBT Book
 		String rayName = "", rayTitle = "";
 		if (this.mc.player!=null && this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNbtBook) {
 			double distance = this.mc.gameSettings.getOptionFloatValue(GameSettings.Options.RENDER_DISTANCE) * 16.0d;
@@ -548,9 +634,9 @@ extends Gui
 						}
 			        }
 				}
-				
 				GlStateManager.pushMatrix();
 				GlStateManager.translate((hud.getWindowSize()[0] - (double) this.mc.fontRenderer.getStringWidth(rayName)) / 2.0d, hud.getWindowSize()[1] - 65.0d + (st!=null ? 10.0d : 0.0d), 0.0d);
+				GlStateManager.scale(1.005f, 1.005f, 1.005f);
 				if (entity!=null) {
 					GlStateManager.pushMatrix();
 					this.drawNpc(entity, -12, 10, 0.75f, 0, 0);
@@ -574,6 +660,7 @@ extends Gui
 
 				GlStateManager.pushMatrix();
 				GlStateManager.translate((hud.getWindowSize()[0] - (double) this.mc.fontRenderer.getStringWidth(rayTitle)) / 2.0d, hud.getWindowSize()[1] - 55.0d, 0.0d);
+				GlStateManager.scale(1.005f, 1.005f, 1.005f);
 				this.drawString(this.mc.fontRenderer, rayTitle, 0, 0, 0xFFFFFF);
 				GlStateManager.popMatrix();
 			}
@@ -729,7 +816,7 @@ extends Gui
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			
 			GlStateManager.pushMatrix();
-			this.mc.getTextureManager().bindTexture(CREATIVE_TABS);
+			this.mc.renderEngine.bindTexture(CREATIVE_TABS);
 			GlStateManager.translate(x, y+28, 0.0f);
 			GlStateManager.rotate(-90.0f, 0.0f, 0.0f, 1.0f);
 			int mx = event.getMouseX() - x;
@@ -746,13 +833,13 @@ extends Gui
 			RenderHelper.enableGUIStandardItemLighting();
 			String i = String.valueOf(31L - (System.currentTimeMillis() / 100L) % 32L);
 			if (i.length()<2) { i = "0"+i; }
-			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/compass_"+i+".png"));
+			this.mc.renderEngine.bindTexture(new ResourceLocation("textures/items/compass_"+i+".png"));
 			GlStateManager.translate(x+10, y+6, 0.0f);
 			float s = 16.0f / 256.0f;
 			GlStateManager.scale(s, s, s);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.translate(0.0f, 28.0f / s, 0.0f);
-			this.mc.getTextureManager().bindTexture(new ResourceLocation("textures/items/book_normal.png"));
+			this.mc.renderEngine.bindTexture(new ResourceLocation("textures/items/book_normal.png"));
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 		}
@@ -781,11 +868,11 @@ extends Gui
 			CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onButtonEvent");
 			switch(event.getButton().id) {
 				case 150: {
-					this.mc.displayGuiScreen(new GuiCompassSetings(event.getGui()));
+					this.mc.displayGuiScreen(new GuiLog(2));
 					break;
 				}
 				case 151: {
-					this.mc.displayGuiScreen(new GuiQuestLog());
+					this.mc.displayGuiScreen(new GuiLog(0));
 					break;
 				}
 			}
@@ -812,7 +899,7 @@ extends Gui
 				if (!cp.isAlive() || cp.obj==null) { del.add(cp); continue; }
 				GlStateManager.pushMatrix();
 				if (cp.objList != -1) {
-					Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+					Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					GlStateManager.translate(cp.posX()-this.dx, cp.posY()-this.dy, cp.posZ()-this.dz);
 					if (cp.getScale()!=0.0f) { GlStateManager.scale(cp.getScale(), cp.getScale(), cp.getScale()); }
 					if (cp.getRotationX()!=0.0f) { GlStateManager.rotate(cp.getRotationX(), 1.0f, 0.0f, 0.0f); }
@@ -1050,7 +1137,7 @@ extends Gui
 			
 			// textured
 			GlStateManager.color(red, green, blue, 1.0f);
-			this.mc.getTextureManager().bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
+			this.mc.renderEngine.bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
 			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX); // textured
 			for (int pos : reg.points.keySet()) {
 				Point p0 = reg.points.get(pos);
@@ -1159,7 +1246,7 @@ extends Gui
 				
 				// textured
 				GlStateManager.color(red, green, blue, 1.0f);
-				this.mc.getTextureManager().bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
+				this.mc.renderEngine.bindTexture(BORDER[(int) (this.mc.world.getTotalWorldTime() % 16L)]);
 				buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
 				
 				for (Point p : reg.points.values()) {

@@ -198,13 +198,16 @@ implements IQuestHandler {
 
 	public void saveCategory(QuestCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
-		if (this.categories.containsKey(category.id)) {
+		if (category.title.isEmpty()) {
+			category.title = "default";
+			while (this.containsCategoryName(category)) { category.title += "_"; }
+		}
+		if (categories.containsKey(category.id)) {
 			QuestCategory currentCategory = this.categories.get(category.id);
 			File newdir = new File(this.getDir(), category.title);
 			File olddir = new File(this.getDir(), currentCategory.title);
 			while (this.containsCategoryName(category)) { category.title += "_"; }
-			if (newdir.exists()) { return; }
-			if (!olddir.renameTo(newdir)) { return; }
+			if (newdir.exists() || !olddir.renameTo(newdir)) { return; }
 			category.quests.clear();
 			category.quests.putAll(currentCategory.quests);
 		} else {
@@ -219,6 +222,9 @@ implements IQuestHandler {
 			if (!dir.exists()) { dir.mkdirs(); }
 		}
 		this.categories.put(category.id, category);
+		for (Quest quest : quests.values()) {
+			if (quest.category.id == category.id) { quest.category = category; }
+		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
 	}
 

@@ -168,7 +168,14 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		this.getTextField(14).setNumbersOnly();
 		this.getTextField(14).setMinMaxDefault(0, 10, 4);
 		this.addLabel(new GuiNpcLabel(14, "stats.movespeed", this.guiLeft + 5, y + 5));
+		y += 22;
+		this.addTextField(new GuiNpcTextField(15, this, this.guiLeft + 80, y, 50, 18, this.ai.stepheight + ""));
+		this.getTextField(15).setDoubleNumbersOnly();
+		this.getTextField(15).setMinMaxDoubleDefault(0.1d, 3.0d, this.ai.stepheight);
+		this.addLabel(new GuiNpcLabel(15, "stats.stepheight", this.guiLeft + 5, y + 5));
+		
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, this.guiTop + 190, 60, 20, "gui.done"));
+		
 	}
 
 	@Override
@@ -189,6 +196,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.ai.walkingRange = textfield.getInteger();
 		} else if (textfield.getId() == 14) {
 			this.ai.setWalkingSpeed(textfield.getInteger());
+		} else if (textfield.getId() == 15) {
+			this.ai.stepheight = (float) textfield.getDouble();
 		}
 	}
 	
@@ -208,6 +217,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.setHoverText(new TextComponentTranslation("ai.hover.offset.z").getFormattedText());
 		} else if (this.getTextField(14)!=null && this.getTextField(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.walking.speed").getFormattedText());
+		} else if (this.getTextField(15)!=null && this.getTextField(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.step.height").getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.walking.type").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {

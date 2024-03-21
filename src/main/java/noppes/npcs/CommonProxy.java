@@ -55,7 +55,6 @@ import noppes.npcs.containers.ContainerMerchantAdd;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.containers.ContainerNPCDropSetup;
-import noppes.npcs.containers.ContainerNPCFollower;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.containers.ContainerNPCFollowerSetup;
 import noppes.npcs.containers.ContainerNPCInv;
@@ -106,8 +105,6 @@ implements IGuiHandler {
 	}
 
 	public Container getContainer(EnumGuiType gui, EntityPlayer player, int x, int y, int z, EntityNPCInterface npc) {
-		//String side = player!=null ? player.world.isRemote ? "Client" : "Server" : npc!=null ? npc.world.isRemote ? "Client" : "Server" : "Common";
-		//System.out.println(side+": Try get container { GUI: "+gui+"; for player: "+(player==null?"null":player.getName())+"; on npc: "+(npc==null?"null":npc.getName())+"; to pos: ["+x+", "+y+", "+z+"] }");
 		switch (gui) {
 			case CustomContainer: {
 				TileEntity tile = player.world.getTileEntity(new BlockPos(x,y,z));
@@ -135,8 +132,8 @@ implements IGuiHandler {
 				if (bank == null) { bank = new Bank(); }
 				return new ContainerNPCBank(player, bank, y, z);
 			}
-			case PlayerFollowerHire: { return new ContainerNPCFollowerHire(npc, player); }
-			case PlayerFollower: { return new ContainerNPCFollower(npc, player); }
+			case PlayerFollowerHire: { return new ContainerNPCFollowerHire(npc, player, x); }
+			case PlayerFollower: { return new ContainerNPCFollowerHire(npc, player, x); }
 			case PlayerTrader: { return new ContainerNPCTrader(npc, player); }
 			case SetupItemGiver: { return new ContainerNpcItemGiver(npc, player); }
 			case SetupTraderDeal: { // Change
@@ -149,12 +146,12 @@ implements IGuiHandler {
 			}
 			case SetupFollower: { return new ContainerNPCFollowerSetup(npc, player); }
 			case QuestReward: { return new ContainerNpcQuestReward(player); }
-			case QuestTypeItem: { return new ContainerNpcQuestTypeItem(player, y); } // Change
+			case QuestTypeItem: { return new ContainerNpcQuestTypeItem(player, x); }
 			case QuestRewardItem: { return new ContainerNpcQuestRewardItem(player, x); } // New
 			case ManageRecipes: { return new ContainerManageRecipes(player, x); } // Change
 			case ManageBanks: { return new ContainerManageBanks(player); }
 			case MerchantAdd: { return new ContainerMerchantAdd(player, (IMerchant) ServerEventsHandler.Merchant, player.world); }
-			case PlayerMailman: { return new ContainerMail(player, x == 1, y == 1); }
+			case PlayerMailOpen: { return new ContainerMail(player, x == 1, y == 1); }
 			case CompanionInv: { return new ContainerNPCCompanion(npc, player); }
 			case CustomGui: { return new ContainerCustomGui(getPlayer(), new InventoryBasic("", false, x)); }
 			case BuilderSetting: { return new ContainerBuilderSettings(player, x); } // New

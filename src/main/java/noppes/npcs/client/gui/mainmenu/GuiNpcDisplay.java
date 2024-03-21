@@ -263,9 +263,8 @@ implements ITextfieldListener, IGuiData {
 		if (textfield.getId() == 0) {
 			if (!textfield.isEmpty()) {
 				this.display.setName(textfield.getText());
-			} else {
-				textfield.setText(this.display.getName());
 			}
+			textfield.setText(this.display.getName());
 		} else if (textfield.getId() == 2) {
 			this.display.setSize(textfield.getInteger());
 		} else if (textfield.getId() == 3) {

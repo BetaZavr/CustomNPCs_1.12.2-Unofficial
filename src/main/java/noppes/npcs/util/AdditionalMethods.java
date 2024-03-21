@@ -1,18 +1,11 @@
 package noppes.npcs.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -21,16 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import javax.script.Bindings;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-
-import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,7 +41,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntitySenses;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
@@ -90,114 +79,29 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
-import noppes.npcs.api.IContainer;
-import noppes.npcs.api.IContainerCustomChest;
-import noppes.npcs.api.IDamageSource;
-import noppes.npcs.api.IDimension;
 import noppes.npcs.api.IMetods;
-import noppes.npcs.api.INbt;
 import noppes.npcs.api.IPos;
-import noppes.npcs.api.IRayTrace;
-import noppes.npcs.api.IScoreboard;
-import noppes.npcs.api.IScoreboardObjective;
-import noppes.npcs.api.IScoreboardScore;
-import noppes.npcs.api.IScoreboardTeam;
-import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
-import noppes.npcs.api.block.IBlockFluidContainer;
-import noppes.npcs.api.block.IBlockScripted;
-import noppes.npcs.api.block.IBlockScriptedDoor;
-import noppes.npcs.api.entity.IAnimal;
-import noppes.npcs.api.entity.IArrow;
-import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
-import noppes.npcs.api.entity.IEntityItem;
-import noppes.npcs.api.entity.IEntityLiving;
-import noppes.npcs.api.entity.IEntityLivingBase;
-import noppes.npcs.api.entity.IMonster;
-import noppes.npcs.api.entity.IPixelmon;
 import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.entity.IThrowable;
-import noppes.npcs.api.entity.IVillager;
-import noppes.npcs.api.gui.IButton;
-import noppes.npcs.api.gui.ICustomGui;
-import noppes.npcs.api.gui.ICustomGuiComponent;
-import noppes.npcs.api.gui.IItemSlot;
-import noppes.npcs.api.gui.ILabel;
-import noppes.npcs.api.gui.IScroll;
-import noppes.npcs.api.gui.ITextField;
-import noppes.npcs.api.gui.ITexturedRect;
-import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.handler.data.IQuestObjective;
-import noppes.npcs.api.handler.data.IScriptData;
-import noppes.npcs.api.item.IItemArmor;
-import noppes.npcs.api.item.IItemBlock;
-import noppes.npcs.api.item.IItemBook;
-import noppes.npcs.api.item.IItemScripted;
-import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.AnimalWrapper;
-import noppes.npcs.api.wrapper.ArrowWrapper;
-import noppes.npcs.api.wrapper.BlockFluidContainerWrapper;
-import noppes.npcs.api.wrapper.BlockPosWrapper;
-import noppes.npcs.api.wrapper.BlockScriptedDoorWrapper;
-import noppes.npcs.api.wrapper.BlockScriptedWrapper;
-import noppes.npcs.api.wrapper.BlockWrapper;
-import noppes.npcs.api.wrapper.ContainerCustomChestWrapper;
-import noppes.npcs.api.wrapper.ContainerWrapper;
-import noppes.npcs.api.wrapper.DamageSourceWrapper;
-import noppes.npcs.api.wrapper.DataObject;
-import noppes.npcs.api.wrapper.DimensionWrapper;
-import noppes.npcs.api.wrapper.EntityItemWrapper;
-import noppes.npcs.api.wrapper.EntityLivingBaseWrapper;
-import noppes.npcs.api.wrapper.EntityLivingWrapper;
-import noppes.npcs.api.wrapper.EntityWrapper;
-import noppes.npcs.api.wrapper.ItemArmorWrapper;
-import noppes.npcs.api.wrapper.ItemBlockWrapper;
-import noppes.npcs.api.wrapper.ItemBookWrapper;
-import noppes.npcs.api.wrapper.ItemScriptedWrapper;
-import noppes.npcs.api.wrapper.ItemStackWrapper;
-import noppes.npcs.api.wrapper.MonsterWrapper;
-import noppes.npcs.api.wrapper.NBTWrapper;
-import noppes.npcs.api.wrapper.NPCWrapper;
-import noppes.npcs.api.wrapper.PixelmonWrapper;
-import noppes.npcs.api.wrapper.PlayerWrapper;
-import noppes.npcs.api.wrapper.ProjectileWrapper;
-import noppes.npcs.api.wrapper.RayTraceWrapper;
-import noppes.npcs.api.wrapper.ScoreboardObjectiveWrapper;
-import noppes.npcs.api.wrapper.ScoreboardScoreWrapper;
-import noppes.npcs.api.wrapper.ScoreboardTeamWrapper;
-import noppes.npcs.api.wrapper.ScoreboardWrapper;
-import noppes.npcs.api.wrapper.ThrowableWrapper;
-import noppes.npcs.api.wrapper.VillagerWrapper;
-import noppes.npcs.api.wrapper.WorldWrapper;
-import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.api.wrapper.data.DataElement;
-import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiComponentWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiItemSlotWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiScrollWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiTextFieldWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
-import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
 import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
 import noppes.npcs.containers.SlotNpcCrafting;
-import noppes.npcs.controllers.IScriptHandler;
-import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
+import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
@@ -206,8 +110,6 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class AdditionalMethods
 implements IMetods {
 
-	private Map<Class<?>, Class<?>> map = Maps.newHashMap();
-	public TreeMap<String, String> obfuscations = Maps.<String, String>newTreeMap();
 	private Method copyDataFromOld;
 	public static AdditionalMethods instance;
 	
@@ -218,94 +120,6 @@ implements IMetods {
 			this.copyDataFromOld.setAccessible(true);
 		}
 		catch (Exception e) { e.printStackTrace(); }
-		this.map.put(IAnimal.class, AnimalWrapper.class);
-		this.map.put(IArrow.class, ArrowWrapper.class);
-		this.map.put(IBlockFluidContainer.class, BlockFluidContainerWrapper.class);
-		this.map.put(IPos.class, BlockPosWrapper.class);
-		this.map.put(IBlockScriptedDoor.class, BlockScriptedDoorWrapper.class);
-		this.map.put(IBlockScripted.class, BlockScriptedWrapper.class);
-		this.map.put(IBlock.class, BlockWrapper.class);
-		this.map.put(IContainerCustomChest.class, ContainerCustomChestWrapper.class);
-		this.map.put(IContainer.class, ContainerWrapper.class);
-		this.map.put(IDamageSource.class, DamageSourceWrapper.class);
-		this.map.put(IDataObject.class, DataObject.class);
-		this.map.put(IDimension.class, DimensionWrapper.class);
-		this.map.put(IEntityItem.class, EntityItemWrapper.class);
-		this.map.put(IEntityLivingBase.class, EntityLivingBaseWrapper.class);
-		this.map.put(IEntityLiving.class, EntityLivingWrapper.class);
-		this.map.put(IEntity.class, EntityWrapper.class);
-		this.map.put(IItemArmor.class, ItemArmorWrapper.class);
-		this.map.put(IItemBlock.class, ItemBlockWrapper.class);
-		this.map.put(IItemBook.class, ItemBookWrapper.class);
-		this.map.put(IItemScripted.class, ItemScriptedWrapper.class);
-		this.map.put(IScriptHandler.class, ItemScriptedWrapper.class);
-		this.map.put(IItemStack.class, ItemStackWrapper.class);
-		this.map.put(IMonster.class, MonsterWrapper.class);
-		this.map.put(INbt.class, NBTWrapper.class);
-		this.map.put(ICustomNpc.class, NPCWrapper.class);
-		this.map.put(IPixelmon.class, PixelmonWrapper.class);
-		this.map.put(IPlayer.class, PlayerWrapper.class);
-		this.map.put(IProjectile.class, ProjectileWrapper.class);
-		this.map.put(IRayTrace.class, RayTraceWrapper.class);
-		this.map.put(IScoreboardObjective.class, ScoreboardObjectiveWrapper.class);
-		this.map.put(IScoreboardScore.class, ScoreboardScoreWrapper.class);
-		this.map.put(IScoreboardTeam.class, ScoreboardTeamWrapper.class);
-		this.map.put(IScoreboard.class, ScoreboardWrapper.class);
-		this.map.put(IThrowable.class, ThrowableWrapper.class);
-		this.map.put(IVillager.class, VillagerWrapper.class);
-		this.map.put(IWorld.class, WorldWrapper.class);
-		this.map.put(NpcAPI.class, WrapperNpcAPI.class);
-		this.map.put(IButton.class, CustomGuiButtonWrapper.class);
-		this.map.put(ICustomGuiComponent.class, CustomGuiComponentWrapper.class);
-		this.map.put(IItemSlot.class, CustomGuiItemSlotWrapper.class);
-		this.map.put(ILabel.class, CustomGuiLabelWrapper.class);
-		this.map.put(IScroll.class, CustomGuiScrollWrapper.class);
-		this.map.put(ITextField.class, CustomGuiTextFieldWrapper.class);
-		this.map.put(ITexturedRect.class, CustomGuiTexturedRectWrapper.class);
-		this.map.put(ICustomGui.class, CustomGuiWrapper.class);
-		this.map.put(IDataElement.class, DataElement.class);
-		
-		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mod.getSource().exists() && mod.getSource().getName().equals(CustomNpcs.MODID) || mod.getSource().getName().equals("bin")) {
-				if (!mod.getSource().isDirectory() && (mod.getSource().getName().endsWith(".jar") || mod.getSource().getName().endsWith(".zip"))) {
-					try {
-						ZipFile zip = new ZipFile(mod.getSource());
-						Enumeration<? extends ZipEntry> entries = zip.entries();
-						while (entries.hasMoreElements()) {
-							ZipEntry zipentry = (ZipEntry) entries.nextElement();
-							if (zipentry.isDirectory() || zipentry.getName().indexOf("noppes/npcs/data/obfuscation_")!=0 || !zipentry.getName().endsWith(".json")) { continue; }
-							StringWriter writer = new StringWriter();
-							IOUtils.copy(zip.getInputStream(zipentry), writer, Charset.forName("UTF-8"));
-							for (String line : writer.toString().split(""+((char) 10))) {
-								String[] entry = line.split("=");
-								this.obfuscations.put(entry[0], entry[1]);
-							}
-							writer.close();
-						}
-						zip.close();
-					}
-					catch (IOException e) {  }
-				}
-				else {
-					File dir = new File(mod.getSource(), "noppes/npcs/data");
-					if (dir.exists()) {
-						for (File f : dir.listFiles()) {
-							if (!f.isFile() || f.getName().indexOf("obfuscation_")!=0 || !f.getName().endsWith(".json")) { continue; }
-							try {
-								String line;
-								BufferedReader reader = Files.newBufferedReader(f.toPath());
-								while((line = reader.readLine()) != null) {
-									String[] entry = line.split("=");
-									this.obfuscations.put(entry[0], entry[1]);
-								}
-								reader.close();
-							}
-							catch (IOException e) { }
-						}
-					}
-				}
-			}
-		}
 	}
 
 	/** Stripping a string of color */
@@ -423,204 +237,6 @@ implements IMetods {
 			}
 		}
 		return list;
-	}
-
-	public static Map<String, Map<String, String[]>> getObjectVarAndMetods(String[] path, Map<String, Class<?>> inFunc) {
-		Object obj = null;
-		for (int i = 0; i < path.length; i++) {
-			String key = path[i];
-			if (key.isEmpty()) { break; }
-			if (i == 0 && inFunc != null) {
-				obj = inFunc.get(key);
-				continue;
-			}
-			if (obj == null) { break; }
-			Class<?> clazz = AdditionalMethods.getScriptClass(obj);
-			obj = null;
-			String metodName = key.indexOf('(')!=-1 ? key.substring(0, key.indexOf('(')) : "get"+(""+key.charAt(0)).toUpperCase()+key.substring(1);
-			if (metodName.equals("getMCEntity")) {
-				if (clazz == PlayerWrapper.class) {
-					obj = EntityPlayerMP.class;
-					continue;
-				} else if (clazz == EntityLivingBaseWrapper.class) {
-					obj = EntityLivingBase.class;
-					continue;
-				} else if (clazz == EntityLivingWrapper.class) {
-					obj = EntityLiving.class;
-					continue;
-				} else if (clazz == EntityWrapper.class) {
-					obj = Entity.class;
-					continue;
-				}
-			}
-			for (Method m : clazz.getMethods()) {
-				if (m.getName().equals(metodName)) {
-					obj = AdditionalMethods.getScriptClass(m.getReturnType());
-					continue;
-				}
-			}
-			if (CustomNpcs.scriptHelperObfuscations) {
-				Map<String, Method> methodsMap = Maps.newHashMap();
-				for (Method m : clazz.getMethods()) {
-					methodsMap.put(m.getName(), m);
-				}
-				if (AdditionalMethods.instance.obfuscations.containsValue(key)) {
-					for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
-						if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
-							if (methodsMap.containsKey(s)) {
-								obj = AdditionalMethods.getScriptClass(methodsMap.get(s).getReturnType());
-							}
-							break;
-						}
-					}
-				}
-			}
-			if (obj != null) {
-				continue;
-			}
-			for (Class<?> c : clazz.getClasses()) {
-				if (c.getSimpleName().equals(key)) {
-					obj = AdditionalMethods.getScriptClass(c);
-					continue;
-				}
-			}
-			for (Field f : clazz.getFields()) {
-				if (f.getName().equals(key)) {
-					obj = AdditionalMethods.getScriptClass(f.getType());
-					continue;
-				}
-			}
-			if (!CustomNpcs.scriptHelperObfuscations) {
-				continue;
-			}
-
-			Map<String, Field> fieldMap = Maps.newHashMap();
-			Map<String, Class<?>> classMap = Maps.newHashMap();
-			for (Field f : clazz.getFields()) {
-				fieldMap.put(f.getName(), f);
-			}
-			for (Class<?> c : clazz.getClasses()) {
-				classMap.put(c.getSimpleName(), c);
-			}
-			if (AdditionalMethods.instance.obfuscations.containsValue(key)) {
-				for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
-					if (AdditionalMethods.instance.obfuscations.get(s).equals(key)) {
-						if (classMap.containsKey(s)) {
-							obj = AdditionalMethods.getScriptClass(classMap.get(s));
-						}
-						if (fieldMap.containsKey(s)) {
-							obj = AdditionalMethods.getScriptClass(fieldMap.get(s).getType());
-						}
-						break;
-					}
-				}
-			}
-			if (obj != null) {
-				break;
-			}
-		}
-
-		Map<String, Map<String, String[]>> map = Maps.newHashMap();
-		if (obj == null) { return map; }
-
-		char chr = Character.toChars(0x00A7)[0];
-		Class<?> clazz = AdditionalMethods.getScriptClass(obj);
-		if (!(obj instanceof Event) && clazz.getClasses().length > 0) {
-			if (!map.containsKey("classes")) {
-				map.put("classes", Maps.newHashMap());
-			}
-			for (Class<?> c : clazz.getClasses()) {
-				String key = chr + "e" + c.getSimpleName();
-				if (map.get("classes").containsKey(key)) {
-					continue;
-				}
-				map.get("classes").put(key, new String[] { chr + "eclass " + chr + "f" + c.getName() });
-			}
-		}
-		if (clazz.getFields().length > 0) {
-			if (!map.containsKey("fields")) {
-				map.put("fields", Maps.newHashMap());
-			}
-			for (Field f : clazz.getFields()) {
-				String key = chr + "6" + f.getName();
-				if (map.get("fields").containsKey(key)) {
-					continue;
-				}
-				map.get("fields").put(key,
-						new String[] { f.getType() == null ? chr + "4null" : chr + "f" + f.getType().getName() });
-			}
-		}
-		if (clazz.getMethods().length > 0) {
-			if (!map.containsKey("methods")) {
-				map.put("methods", Maps.newHashMap());
-			}
-			for (Method m : clazz.getMethods()) {
-				String key = chr + "a" + m.getName();
-				String ret = m.getReturnType().getName().equals("void") ? ""
-						: chr + "cReturn: " + chr + "f" + m.getReturnType().getName();
-				String[] ht = ret.isEmpty() ? null : new String[] { ret };
-				key += "(";
-				if (m.getParameters().length > 0) {
-					Parameter[] pars = m.getParameters();
-					ht = new String[pars.length + (!ret.isEmpty() ? 1 : 0)];
-					int i;
-					for (i = 0; i < pars.length; i++) {
-						String n = pars[i].getType().getSimpleName().toLowerCase();
-						if (n.equalsIgnoreCase("integer")) {
-							n = "int";
-						}
-						key += n + ",";
-						ht[i] = chr + "2" + n + chr + "r - " + pars[i].getType().getName();
-					}
-					key = key.substring(0, key.length() - 1);
-					if (!ret.isEmpty()) {
-						ht[ht.length - 1] = ret;
-					}
-				}
-				key += ")";
-				if (map.get("methods").containsKey(key)) {
-					continue;
-				}
-				map.get("methods").put(key, ht);
-			}
-		}
-		return map;
-	}
-
-	public static Class<?> getScriptClass(Object obj) {
-		Class<?> clazz = obj instanceof Class ? (Class<?>) obj : obj.getClass();
-		if (AdditionalMethods.instance.map.containsKey(clazz)) { clazz = AdditionalMethods.instance.map.get(clazz); }
-		return clazz;
-	}
-
-	public static Object[] getScriptData(String language, ScriptContainer container, Map<String, Class<?>> baseFuncNames) {
-		if (container == null) {
-			return new Object[] { new ArrayList<IScriptData>(), "Container: null!" };
-		}
-		container.setEngine(language);
-		String error = "";
-		try {
-			container.engine.eval(container.getFullCode());
-		} catch (ScriptException e) {
-			error = "" + e;
-		}
-		Bindings scriptObjectMirror = container.engine.getBindings(ScriptContext.ENGINE_SCOPE);
-		List<IScriptData> list = Lists.newArrayList();
-		List<ScriptData> vars = Lists.newArrayList();
-		for (Map.Entry<String, Object> scopeEntry : scriptObjectMirror.entrySet()) {
-			ScriptData sd = new ScriptData(scopeEntry.getKey(), scopeEntry.getValue(), language);
-			sd.isConstant = container.varIsConstant(scopeEntry.getKey());
-			if (sd.isConstant) {
-				vars.add(sd);
-			}
-			list.add(sd);
-		}
-		for (IScriptData isd : list) {
-			if (isd.getType() == 12) {
-				((ScriptData) isd).setVarToFunction(vars, baseFuncNames);
-			}
-		}
-		return new Object[] { list, error };
 	}
 
 	/**
@@ -955,6 +571,14 @@ implements IMetods {
 		return false;
 	}
 
+
+	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, ItemStack stack, boolean ignoreDamage, boolean ignoreNBT) {
+		if (stack == null || stack.isEmpty()) { return false; }
+		Map<ItemStack, Integer> items = Maps.<ItemStack, Integer>newHashMap();
+		items.put(stack, stack.getCount());
+		return AdditionalMethods.canRemoveItems(inventory, items, ignoreDamage, ignoreNBT);
+	}
+	
 	public static boolean canRemoveItems(NonNullList<ItemStack> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null) { return false; }
 		if (items==null || items.isEmpty()) { return true; }
@@ -1182,27 +806,6 @@ implements IMetods {
 		return false;
 	}
 
-	public static void addStackToList(List<ItemStack> list, ItemStack stack) {
-		int count = stack.getCount();
-		for (ItemStack st : list) {
-			if (AdditionalMethods.canMergeStacks(st, stack)) {
-				if (st.getMaxStackSize() >= st.getCount()+count) {
-					st.setCount(st.getCount()+count);
-					count = 0;
-					break;
-				} else {
-					count -= (st.getMaxStackSize()-st.getCount());
-					st.setCount(st.getMaxStackSize());
-				}
-			}
-		}
-		if (count>0) {
-			ItemStack st = stack.copy();
-			st.setCount(count);
-			list.add(st);
-		}
-	}
-
 	public static boolean canMergeStacks(ItemStack stack1, ItemStack stack2) {
 		return !stack1.isEmpty() &&
 				stack1.getItem() == stack2.getItem() &&
@@ -1291,6 +894,7 @@ implements IMetods {
 	}
 
 	public static Entity travelAndCopyEntity(MinecraftServer server, Entity entity, int dimension) throws CommandException {
+		if (server == null) { throw new CommandException("Server cannot have value Null"); }
 		World world = server.getWorld(dimension);
 		if (world == null) { throw new CommandException("Couldn't find dimension " + dimension); }
 		if (entity instanceof EntityPlayerMP) {
@@ -1302,42 +906,44 @@ implements IMetods {
 	
 	/* [Teleport] Copy and Place Entity to Spawn next Dimensions */
 	public static Entity travelEntity(MinecraftServer server, Entity entity, int dimensionId) {
-		if (!entity.world.isRemote && !entity.isDead) {
-			entity.world.profiler.startSection("changeDimension");
-			int dimensionStart = entity.dimension;
-			WorldServer worldserverStart = server.getWorld(dimensionStart);
-			WorldServer worldserverEnd = server.getWorld(dimensionId);
-			entity.dimension = dimensionId;
-			Entity newEntity = EntityList.createEntityByIDFromName(EntityList.getKey(entity.getClass()), worldserverEnd);
-			if (newEntity != null) {
-				try { AdditionalMethods.instance.copyDataFromOld.invoke(newEntity, entity); }
-				catch (Exception e) { e.printStackTrace(); }
-				entity.world.removeEntity(entity);
-				newEntity.forceSpawn = true;
-				worldserverEnd.spawnEntity(newEntity);
-			}
-			try {
-				worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
-				entity.isDead = true;
-				entity.world.profiler.endSection();
-				worldserverStart.resetUpdateEntityTick();
-				worldserverEnd.resetUpdateEntityTick();
-				entity.world.profiler.endSection();
-			}
-			catch (Exception e) {
-				System.out.println("worldserverEnd: "+worldserverEnd);
-				System.out.println("newEntity: "+newEntity);
-				System.out.println("entity: "+entity);
-			}
-			
-			return newEntity;
+		if (entity.world.isRemote || entity.isDead) { return null; }
+		net.minecraftforge.common.ForgeHooks.onTravelToDimension(entity, dimensionId);
+		entity.world.profiler.startSection("changeDimension");
+		int dimensionStart = entity.dimension;
+		WorldServer worldserverStart = server.getWorld(dimensionStart);
+		WorldServer worldserverEnd = server.getWorld(dimensionId);
+		entity.dimension = dimensionId;
+		Entity newEntity = EntityList.createEntityByIDFromName(EntityList.getKey(entity.getClass()), worldserverEnd);
+		if (newEntity != null) {
+			try { AdditionalMethods.instance.copyDataFromOld.invoke(newEntity, entity); }
+			catch (Exception e) { e.printStackTrace(); }
+			entity.world.removeEntity(entity);
+			newEntity.forceSpawn = true;
+			worldserverEnd.spawnEntity(newEntity);
 		}
-		return entity;
+		try {
+			worldserverEnd.updateEntityWithOptionalForce(newEntity, true);
+			entity.isDead = true;
+			entity.world.profiler.endSection();
+			worldserverStart.resetUpdateEntityTick();
+			worldserverEnd.resetUpdateEntityTick();
+			entity.world.profiler.endSection();
+		}
+		catch (Exception e) { e.printStackTrace(); }
+		return newEntity;
 	}
 	
 	public static Entity teleportEntity(MinecraftServer server, Entity entity, int dimension, double x, double y, double z) throws CommandException {
-		if (entity==null) { return null; }
-		if (entity.world.provider.getDimension()!=dimension) { entity = travelAndCopyEntity(server, entity, dimension); }
+		if (entity == null) { return null; }
+		int homeDim = entity.world.provider.getDimension();
+		if (entity instanceof EntityNPCInterface) { homeDim = ((EntityNPCInterface) entity).homeDimensionId; }
+		if (entity.world.provider.getDimension() != dimension) {
+			entity = travelAndCopyEntity(server, entity, dimension);
+			if (entity instanceof EntityNPCInterface) {
+				((EntityNPCInterface) entity).homeDimensionId = homeDim;
+			}
+		}
+		if (entity == null) { return null; }
 		CoordinateArg xn = CommandBase.parseCoordinate(entity.posX, ""+x, true);
 		CoordinateArg yn = CommandBase.parseCoordinate(entity.posY, ""+y, -4096, 4096, false);
 		CoordinateArg zn = CommandBase.parseCoordinate(entity.posZ, ""+z, true);
@@ -1370,8 +976,7 @@ implements IMetods {
 	
 	/* Vanila Teleport in world */
 	public static Entity teleportEntity(Entity entityIn, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch) {
-		if (entityIn instanceof EntityPlayerMP)
-		{
+		if (entityIn instanceof EntityPlayerMP) {
 			Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.<SPacketPlayerPosLook.EnumFlags>noneOf(SPacketPlayerPosLook.EnumFlags.class);
 			if (argX.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.X); }
 			if (argY.isRelative()) { set.add(SPacketPlayerPosLook.EnumFlags.Y); }
@@ -1418,139 +1023,6 @@ implements IMetods {
 		return str;
 	}
 
-	public static Map<String, Class<?>> getVariablesInBody(String body, Map<String, Map<Integer, ScriptData>> data, Map<String, Class<?>> data2) {
-		Map<String, Class<?>> map = Maps.newHashMap();
-		if (body==null || body.isEmpty() || body.indexOf("var")==-1) { return map;}
-		try {
-			while (body.indexOf("var")!=-1) {
-				int e = body.indexOf(";", body.indexOf("var")+3);
-				if (e==-1) { e = body.indexOf(""+((char) 10), body.indexOf("var")+3);}
-				if (e==-1) { break; }
-				String var = AdditionalMethods.deleteSpase(body.substring(body.indexOf("var")+3, e));
-				if (var.indexOf("=")!=-1) {
-					String key = var.substring(0, var.indexOf("="));
-					String part = var.substring(var.indexOf("=")+1);
-					if (part.startsWith("Java.type(")) {
-						try { map.put(key, Class.forName(part.substring(11, part.lastIndexOf(")")-1))); }
-						catch (Exception ec) { }
-						body = body.substring(e+1);
-						continue;
-					}
-					
-					List<String> keys = Lists.<String>newArrayList();
-					while (part.indexOf('.')!=-1) {
-						keys.add(part.substring(0, part.indexOf('.')));
-						part = part.substring(part.indexOf('.')+1);
-					}
-					keys.add(part);
-					boolean start = true;
-					Object obj = null;
-					for (String k : keys) {
-						if (start) {
-							if (map.containsKey(k)) {
-								obj = map.get(k);
-							} else if (data.containsKey(k)) {
-								obj = data.get(k).get(0);
-							} else if (data2.containsKey(k)) {
-								obj = data2.get(k);
-							}
-							start = false;
-							continue;
-						}
-						if (obj==null) { break; }
-						Class<?> clazz = AdditionalMethods.getScriptClass(obj);
-						obj = null;
-						String metodName = k.indexOf('(')!=-1 ? k.substring(0, k.indexOf('(')) : "get"+(""+k.charAt(0)).toUpperCase()+k.substring(1);
-						if (metodName.equals("getMCEntity")) {
-							if (clazz == PlayerWrapper.class) {
-								obj = EntityPlayerMP.class;
-								continue;
-							} else if (clazz == EntityLivingBaseWrapper.class) {
-								obj = EntityLivingBase.class;
-								continue;
-							} else if (clazz == EntityLivingWrapper.class) {
-								obj = EntityLiving.class;
-								continue;
-							} else if (clazz == EntityWrapper.class) {
-								obj = Entity.class;
-								continue;
-							}
-						}
-						for (Method m : clazz.getMethods()) {
-							if (m.getName().equals(metodName)) {
-								obj = m.getReturnType();
-								continue;
-							}
-						}
-						if (CustomNpcs.scriptHelperObfuscations) {
-							Map<String, Method> methodsMap = Maps.newHashMap();
-							for (Method m : clazz.getMethods()) {
-								methodsMap.put(m.getName(), m);
-							}
-							if (AdditionalMethods.instance.obfuscations.containsValue(k)) {
-								for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
-									if (AdditionalMethods.instance.obfuscations.get(s).equals(k)) {
-										if (methodsMap.containsKey(s)) {
-											obj = methodsMap.get(s).getReturnType();
-										}
-										break;
-									}
-								}
-							}
-						}
-						if (obj != null) {
-							break;
-						}
-						for (Class<?> c : clazz.getClasses()) {
-							if (c.getSimpleName().equals(k)) {
-								obj = c;
-								continue;
-							}
-						}
-						for (Field f : clazz.getFields()) {
-							if (f.getName().equals(k)) {
-								obj = f.getType();
-								continue;
-							}
-						}
-						if (!CustomNpcs.scriptHelperObfuscations) {
-							continue;
-						}
-
-						Map<String, Field> fieldMap = Maps.newHashMap();
-						Map<String, Class<?>> classMap = Maps.newHashMap();
-						for (Field f : clazz.getFields()) {
-							fieldMap.put(f.getName(), f);
-						}
-						for (Class<?> c : clazz.getClasses()) {
-							classMap.put(c.getSimpleName(), c);
-						}
-						if (AdditionalMethods.instance.obfuscations.containsValue(k)) {
-							for (String s : AdditionalMethods.instance.obfuscations.keySet()) {
-								if (AdditionalMethods.instance.obfuscations.get(s).equals(k)) {
-									if (classMap.containsKey(s)) {
-										obj = classMap.get(s);
-									}
-									if (fieldMap.containsKey(s)) {
-										obj = fieldMap.get(s).getType();
-									}
-									break;
-								}
-							}
-						}
-						if (obj != null) {
-							break;
-						}
-					}
-					map.put(key, AdditionalMethods.getScriptClass(obj));
-				}
-				body = body.substring(e+1);
-			}
-			
-		} catch (Exception e) { }
-		return map;
-	}
-	
 	@Override
 	public NBTBase writeObjectToNbt(Object value) {
 		if (value.getClass().isArray()) {
@@ -1794,6 +1266,12 @@ implements IMetods {
 		return inputStream;
 	}
 
+	public static List<File> getFiles(Object dir, String index) {
+		List<File> list = Lists.newArrayList();
+		if (!(dir instanceof File)) { return list; }
+		return AdditionalMethods.getFiles((File) dir, index);
+	}
+	
 	public static List<File> getFiles(File dir, String index) {
 		List<File> list = Lists.newArrayList();
 		if (dir==null || !dir.exists() || !dir.isDirectory()) { return list; }
@@ -1809,7 +1287,7 @@ implements IMetods {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot) {
+	public static boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot, boolean directLOS) {
 		if (entity == null || target == null) { return false; }
 		IAttributeInstance follow_range = entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
 		double aggroRange = (follow_range == null ? 16.0d : follow_range.getAttributeValue());
@@ -1839,8 +1317,9 @@ implements IMetods {
 					}
 				}
 			}
+			boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
 			for (IBlock bi : rtrs.blocks) {
-				if (toShoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
+				if (shoot && !bi.getMCBlock().isPassable(entity.world, bi.getPos().getMCBlockPos())) {
 					if (seenEntities!=null && seenEntities.contains(target)) { seenEntities.remove(target); }
 					if (unseenEntities!=null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
 					return false;
@@ -1852,7 +1331,7 @@ implements IMetods {
 				}
 			}
 		}
-		if (!toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
+		if (directLOS && !toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
 			double yaw = (entity.rotationYawHead - rtr.yaw) % 360.0d;
 			double pitch = (entity.rotationPitch - rtr.pitch) % 360.0d;
 			if (yaw < 0.0d) { yaw += 360.0d; }
@@ -1882,6 +1361,12 @@ implements IMetods {
 		return canSee;
 	}
 
+	@Override
+	public RayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance) {
+		if (entity == null) { return null; }
+		return rayTraceBlocksAndEntitys(entity.getMCEntity(), yaw, pitch, distance);
+	}
+	
 	public RayTraceResults rayTraceBlocksAndEntitys(Entity entity, double yaw, double pitch, double distance) {
 		if (entity == null || entity.world == null || distance <= 0.0d) { return null; }
 		RayTraceResults rtrs = new RayTraceResults();
@@ -1966,6 +1451,49 @@ implements IMetods {
 			rtrs.add(entity.world, pos, state);
 		}
 		return rtrs;
+	}
+
+	public static Entity getEntityByUUID(UUID uuid, World startWorld) {
+		Entity e = AdditionalMethods.getEntityInWorld(uuid, startWorld);
+		if (e == null) {
+			MinecraftServer server = CustomNpcs.Server != null ? CustomNpcs.Server :
+				startWorld != null && startWorld.getMinecraftServer() != null ? startWorld.getMinecraftServer() :
+					CustomNpcs.proxy.getPlayer() != null && CustomNpcs.proxy.getPlayer().world != null && CustomNpcs.proxy.getPlayer().world.getMinecraftServer() != null ? CustomNpcs.proxy.getPlayer().world.getMinecraftServer() : null;
+			if (server != null) {
+				for (WorldServer world : server.worlds) {
+					if (world.equals(startWorld)) { continue; }
+					e = AdditionalMethods.getEntityInWorld(uuid, world);
+					if (e != null) { return e; }
+				}
+			}
+		}
+		return e;
+	}
+	
+	public static Entity getEntityInWorld(UUID uuid, World  world) {
+		for (Entity entity : world.loadedEntityList) {
+			if (entity.getUniqueID().equals(uuid)) { return entity; }
+		}
+		List<Entity> unloadedEntityList = ObfuscationHelper.getValue(World.class, world, 4);
+		for (Entity entity : unloadedEntityList) {
+			if (entity.getUniqueID().equals(uuid)) { return entity; }
+		}
+		return null;
+	}
+
+	public static EntityNPCInterface setToGUI(EntityNPCInterface npc) {
+		npc.display.setShowName(1);
+		npc.setHealth(npc.getMaxHealth());
+		npc.deathTime = 0;
+		MarkData.get(npc).marks.clear();
+		npc.rotationYaw = 0;
+		npc.rotationYawHead = 0;
+		npc.rotationPitch = 0;
+		npc.ais.orientation = 0;
+		npc.ais.setStandingType(1);
+		npc.ticksExisted = 100;
+		System.out.println("CNPCs: "+npc.getName());
+		return npc;
 	}
 	
 }

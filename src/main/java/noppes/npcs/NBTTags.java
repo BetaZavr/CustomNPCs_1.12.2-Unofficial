@@ -157,7 +157,7 @@ public class NBTTags {
 		for (int i = 0; i < list.tagCount(); ++i) {
 			NBTTagCompound compound = list.getCompoundTagAt(i);
 			ScriptContainer script = new ScriptContainer(handler, isClient);
-			script.readFromNBT(compound);
+			script.readFromNBT(compound, isClient);
 			scripts.add(script);
 		}
 		return scripts;

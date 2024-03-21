@@ -33,8 +33,6 @@ implements ICustomScrollListener, ITextfieldListener {
 	private String select;
 
 	public SubGuiNpcAvailabilityScoreboard(Availability availabitily) {
-		// this.selectFaction = false;
-		// this.slot = 0;
 		this.availabitily = availabitily;
 		this.setBackground("menubg.png");
 		this.xSize = 316;

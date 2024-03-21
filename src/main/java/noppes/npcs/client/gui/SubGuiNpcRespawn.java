@@ -2,6 +2,7 @@ package noppes.npcs.client.gui;
 
 import java.util.Arrays;
 
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
@@ -71,7 +72,9 @@ implements ITextfieldListener {
 		if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.time").getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.type").getFormattedText());
+			ITextComponent mes = new TextComponentTranslation("stats.hover.respawn.type");
+			mes.appendSibling(new TextComponentTranslation("stats.hover.respawn.type."+this.getButton(0).getValue()));
+			this.setHoverText(mes.getFormattedText());
 		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.body").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {

@@ -15,4 +15,5 @@ public class ModelWrapper extends ModelBase {
 		if (this.texture!=null && !this.texture.getResourcePath().isEmpty()) { Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(this.texture); }
 		this.wrapped.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 	}
+	
 }

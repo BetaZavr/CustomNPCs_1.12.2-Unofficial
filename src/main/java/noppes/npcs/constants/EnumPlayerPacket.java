@@ -21,7 +21,10 @@ public enum EnumPlayerPacket
 	MailDelete, 
 	MailSend, 
 	MailRead, 
-	MailboxOpenMail, 
+	MailboxOpenMail,
+	MailTakeMoney,
+	MailRansom,
+	MailReturn,
 	SignSave, 
 	SaveBook, 
 	CompanionOpenInv, 
@@ -46,8 +49,6 @@ public enum EnumPlayerPacket
 	TraderMarketSell,
 	TraderMarketReset,
 	TraderMarketRemove,
-	TakeMoney,
-	ScriptDataGetVar,
 	CurrentLanguage,
 	GetBuildData,
 	KeyPressed,
@@ -65,6 +66,9 @@ public enum EnumPlayerPacket
 	TransportCategoriesGet,
 	CustomGuiKeyPressed,
 	MarketTime,
-	OpenCeilBank;
+	OpenCeilBank,
+	StopSound,
+	PlaySound,
+	QuestLogButton;
 	
 }

@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
 
@@ -28,9 +29,7 @@ implements IQuestCategory {
 	}
 
 	@Override
-	public String getName() {
-		return this.title;
-	}
+	public String getName() { return new TextComponentTranslation(this.title).getFormattedText(); }
 
 	@Override
 	public IQuest[] quests() {
@@ -61,6 +60,12 @@ implements IQuestCategory {
 		}
 		nbttagcompound.setTag("Dialogs", dialogs);
 		return nbttagcompound;
+	}
+
+	public QuestCategory copy() {
+		QuestCategory newCat = new QuestCategory();
+		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
+		return newCat;
 	}
 
 }

@@ -18,9 +18,11 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
+import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.AdditionalMethods;
 
 public class SubGuiLoadAnimation
 extends SubGuiInterface
@@ -31,7 +33,7 @@ implements ICustomScrollListener {
 	private Map<String, Integer> data;
 	private String selected;
 	public AnimationConfig animation;
-	private EntityNPCInterface showNpc;
+	private EntityNPCInterface npcAnim;
 
 	public SubGuiLoadAnimation(int id, EntityNPCInterface npc) {
 		this.npc = npc;
@@ -46,15 +48,19 @@ implements ICustomScrollListener {
 		this.animation = null;
 		this.selected = "";
 		
-		this.showNpc = null;
+		this.npcAnim = null;
 		NBTTagCompound npcNbt = new NBTTagCompound();
 		npc.writeEntityToNBT(npcNbt);
 		npc.writeToNBTOptional(npcNbt);
-		Entity animNpc = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-		if (animNpc instanceof EntityNPCInterface) {
-			this.showNpc = (EntityNPCInterface) animNpc;
-			this.showNpc.display.setShowName(1);
-			MarkData.get(this.showNpc).marks.clear();
+		Entity e = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
+		if (e instanceof EntityNPCInterface) {
+			this.npcAnim = AdditionalMethods.setToGUI((EntityNPCInterface) e);
+			if (npc instanceof EntityCustomNpc &&
+					npcAnim instanceof EntityCustomNpc &&
+					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
+					((EntityCustomNpc) npcAnim).modelData instanceof ModelDataShared) {
+				((ModelDataShared) ((EntityCustomNpc) npcAnim).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
+			}
 		}
 	}
 
@@ -68,21 +74,13 @@ implements ICustomScrollListener {
 		int i = 0;
 		for (int id : aData.animations.keySet()) {
 			AnimationConfig ac = (AnimationConfig) aData.animations.get(id);
-			String  t = "";
-			switch(ac.type) {
-				case ATTACKING: t = c + "cAT"; break;
-				case DIES: t = c + "4D"; break;
-				case FLY_STAND: t = c + "eSF"; break;
-				case FLY_WALK: t = c + "6WF"; break;
-				case INIT: t = c + "aI"; break;
-				case JUMP: t = c + "bJ"; break;
-				case WALKING: t = c + "6W"; break;
-				case WATER_STAND: t = c + "cAT"; break;
-				case WATER_WALK: t = c + "cAT"; break;
-				default: t = c + "eS"; break; // STANDING or any
+			String key = c + "8ID:" + c + "7" + id + c + "r " + ac.getName();
+			if (this.animation == null) {
+				animation = ac;
+				selected = key;
 			}
-			this.data.put(c + "8ID:" + c + "7" + id + c + "r " + ac.getName() + c + "7[" + t + c + "7]" , id);
-			hts[i] = new String[] { new TextComponentTranslation("animation.type").appendSibling(new TextComponentTranslation("puppet."+ac.type.name().toLowerCase())).getFormattedText() };
+			this.data.put(key, id);
+			hts[i] = new String[] { new TextComponentTranslation(ac.name).getFormattedText() };
 			i++;
 		}
 		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
@@ -91,6 +89,7 @@ implements ICustomScrollListener {
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
 		this.scroll.setSize(110, 178);
+		if (!selected.isEmpty()) { this.scroll.setSelected(selected); }
 		this.addScroll(this.scroll);
 		
 		this.addLabel(new GuiNpcLabel(0, "puppet.animation", this.guiLeft+4, this.guiTop+4));
@@ -98,6 +97,7 @@ implements ICustomScrollListener {
 		this.addButton( new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 194, 80, 20, "gui.done"));
 		this.addButton( new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 194, 80, 20, "gui.cancel"));
 		this.addButton( new GuiNpcButton(2, this.guiLeft + 115, this.guiTop + 110, 57, 20, "gui.remove"));
+		this.addButton( new GuiNpcButton(4, this.guiLeft + 115, this.guiTop + 132, 57, 20, "gui.copy"));
 		this.addButton( new GuiNpcButton(3, this.guiLeft + 115, this.guiTop + 98, 10, 10, new String[] { "b", "w" }, GuiNpcAnimation.backColor==0xFF000000 ? 0 : 1));
 		
 		this.resetAnim();
@@ -106,36 +106,56 @@ implements ICustomScrollListener {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch(button.id) {
-			case 0:
+			case 0: {
 				this.cancelled = false;
 				this.close();
 				break;
-			case 1:
+			}
+			case 1: {
 				this.animation = null;
 				this.cancelled = true;
 				this.close();
 				break;
-			case 2:
+			}
+			case 2: {
 				if (!this.data.containsKey(this.selected)) { return; }
 				if (AnimationController.getInstance().removeAnimation(this.data.get(this.selected))) { this.initGui(); }
 				this.animation = null;
+				this.initGui();
 				this.resetAnim();
 				break;
-			case 3: GuiNpcAnimation.backColor = GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF: 0xFF000000; break;
+			}
+			case 3: { GuiNpcAnimation.backColor = GuiNpcAnimation.backColor == 0xFF000000 ? 0xFFFFFFFF: 0xFF000000; break; }
+			case 4: {
+				AnimationController aData = AnimationController.getInstance();
+				this.animation = this.animation.copy();
+				this.animation.id = aData.getUnusedId();
+				aData.animations.put(this.animation.id, this.animation);
+				this.cancelled = false;
+				this.close();
+				break;
+			}
 		}
 	}
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.animation!=null && this.showNpc!=null) {
+		if (this.animation!=null && this.npcAnim!=null) {
+			npcAnim.field_20061_w = this.npc.field_20061_w;
+			npcAnim.field_20062_v = this.npc.field_20062_v;
+			npcAnim.field_20063_u = this.npc.field_20063_u;
+			npcAnim.field_20064_t = this.npc.field_20064_t;
+			npcAnim.field_20065_s = this.npc.field_20065_s;
+			npcAnim.field_20066_r = this.npc.field_20066_r;
+			npcAnim.ticksExisted = this.npc.ticksExisted;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 116.0f, this.guiTop + 5.0f, 1.0f);
 			Gui.drawRect(-1, -1, 56, 91, 0xFFF080F0);
 			Gui.drawRect(0, 0, 55, 90, GuiNpcAnimation.backColor);
 			GlStateManager.popMatrix();
-			this.drawNpc(this.showNpc, 143, 77, 1.0f, 0, 0, false);
+			this.drawNpc(this.npcAnim, 143, 77, 1.0f, 0, 0, 0);
 		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.getButton(0)!=null) { this.getButton(0).enabled = this.animation!=null; }
 		if (this.getButton(2)!=null) { this.getButton(2).enabled = this.animation!=null; }
 		if (this.getButton(3)!=null) { this.getButton(3).setVisible(this.animation!=null); }
@@ -164,22 +184,22 @@ implements ICustomScrollListener {
 		if (this.animation==null) { return; }
 		AnimationConfig ac = this.animation.copy();
 		ac.isEdit = true;
-		ac.disable = false;
 		ac.type = AnimationKind.STANDING;
-		
-		if (this.showNpc==null) {
+		if (this.npcAnim==null) {
 			NBTTagCompound npcNbt = new NBTTagCompound();
 			this.npc.writeEntityToNBT(npcNbt);
 			this.npc.writeToNBTOptional(npcNbt);
 			Entity animNpc = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
 			if (animNpc instanceof EntityNPCInterface) {
-				this.showNpc = (EntityNPCInterface) animNpc;
-				this.showNpc.animation.clear();
+				this.npcAnim = (EntityNPCInterface) animNpc;
+				this.npcAnim.animation.clear();
 			}
 		}
-		if (this.showNpc!=null) {
-			((EntityNPCInterface) this.showNpc).display.setName("0_"+this.npc.getName());
-			this.showNpc.animation.activeAnim = ac;
+		if (this.npcAnim!=null) {
+			((EntityNPCInterface) this.npcAnim).display.setName("0_"+this.npc.getName());
+			this.npcAnim.animation.activeAnim = ac;
+			this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
+			this.npcAnim.deathTime = 0;
 		}
 	}
 	

@@ -16,12 +16,12 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.api.entity.data.IMark;
-import noppes.npcs.api.handler.capability.INbtHandler;
+import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.constants.EnumPacketClient;
 
 public class MarkData
-implements INbtHandler, ICapabilityProvider {
+implements IMarkDataHandler, ICapabilityProvider {
 	
 	public class Mark
 	implements IMark {
@@ -86,10 +86,9 @@ implements INbtHandler, ICapabilityProvider {
 
 	}
 
+	@CapabilityInject(IMarkDataHandler.class)
+	public static Capability<IMarkDataHandler> CNPCS_MARKDATA_CAPABILITY = null;
 	private static ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
-	
-	@CapabilityInject(MarkData.class)
-	public static Capability<MarkData> CNPCS_MARKDATA_CAPABILITY = null;
 	
 	public static MarkData get(EntityLivingBase entity) {
 		if (!(entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null) instanceof MarkData)) { return new MarkData(); }
@@ -137,8 +136,6 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	@Override
-	public NBTTagCompound getCapabilityNBT() { return this.getNBT(); }
-
 	public NBTTagCompound getNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
@@ -169,8 +166,6 @@ implements INbtHandler, ICapabilityProvider {
 	}
 
 	@Override
-	public void setCapabilityNBT(NBTTagCompound compound) { this.setNBT(compound); }
-	
 	public void setNBT(NBTTagCompound compound) {
 		List<Mark> marks = new ArrayList<Mark>();
 		NBTTagList list = compound.getTagList("marks", 10);

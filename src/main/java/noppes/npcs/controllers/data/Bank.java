@@ -70,7 +70,7 @@ public class Bank {
 		this.access.clear();
 		
 		String pldOwner = new String(this.owner);
-		if (nbtBank.hasKey("StartSlots", 3) && CustomNpcs.FixUpdateFromPre_1_12) {
+		if (nbtBank.hasKey("StartSlots", 3)) {
 			this.isPublic = false;
 			this.isWhiteList = false;
 			int maxCeils = nbtBank.getInteger("MaxSlots");

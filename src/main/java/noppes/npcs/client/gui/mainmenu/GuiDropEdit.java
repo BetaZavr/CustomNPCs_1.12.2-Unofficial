@@ -422,6 +422,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 
 	@Override
 	public void close() {
+		GuiNpcTextField.unfocus();
 		if (this.parent != null) {
 			this.save();
 			this.displayGuiScreen(this.parent);

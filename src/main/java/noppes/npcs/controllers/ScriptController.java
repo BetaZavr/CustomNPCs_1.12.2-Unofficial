@@ -39,6 +39,7 @@ import noppes.npcs.Server;
 import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.ClientScriptData;
+import noppes.npcs.controllers.data.EncryptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.PotionScriptData;
@@ -53,6 +54,7 @@ public class ScriptController {
 	public static ScriptController Instance;
 
 	private ScriptEngineManager manager;
+	private boolean isLoad;
 	
 	public boolean shouldSave;
 	public long lastLoaded, lastPlayerUpdate;
@@ -67,6 +69,7 @@ public class ScriptController {
 	public final Map<String, String> scripts, clients;
 	public PlayerScriptData playerScripts;
 	public PotionScriptData potionScripts;
+	public EncryptData encryptData;
 	
 	public ScriptController() {
 		this.languages = Maps.<String, String>newTreeMap();
@@ -84,6 +87,7 @@ public class ScriptController {
 		this.compound = new NBTTagCompound();
 		this.constants = new NBTTagCompound();
 		this.shouldSave = false;
+		this.isLoad = false;
 		ScriptController.Instance = this;
 		if (!CustomNpcs.NashorArguments.isEmpty()) {
 			System.setProperty("nashorn.args", CustomNpcs.NashorArguments);
@@ -255,7 +259,7 @@ public class ScriptController {
 		String ext = this.languages.get(language);
 		if (ext == null) { return list; }
 		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
-			if (script.endsWith(ext)) { list.add(script); }
+			if (script.endsWith(ext) || script.endsWith(ext.replace(".", ".p"))) { list.add(script); }
 		}
 		return list;
 	}
@@ -277,13 +281,20 @@ public class ScriptController {
 			String ext = this.languages.get(language);
 			File scriptDir = new File(this.dir, language.toLowerCase());
 			if (!scriptDir.exists()) { scriptDir.mkdir(); }
-			else { this.loadDir(scriptDir, "", ext, false); }
+			else {
+				this.loadDir(scriptDir, "", ext, false);
+				this.loadDir(scriptDir, "", ext.replace(".", ".p"), false);
+			}
 
 			scriptDir = new File(this.clientDir, language.toLowerCase());
 			if (!scriptDir.exists()) { scriptDir.mkdir(); }
-			else { this.loadDir(scriptDir, "", ext, true); }
+			else {
+				this.loadDir(scriptDir, "", ext, true);
+				this.loadDir(scriptDir, "", ext.replace(".", ".p"), true);
+			}
 		}
 		this.lastLoaded = System.currentTimeMillis();
+		this.isLoad = true;
 	}
 
 	private void loadDir(File dir, String name, String ext, boolean isClient) {
@@ -457,6 +468,7 @@ public class ScriptController {
 	public NBTTagList nbtLanguages(boolean isClient) {
 		NBTTagList list = new NBTTagList();
 		for (String language : this.languages.keySet()) {
+			String ext = this.languages.get(language);
 			NBTTagCompound compound = new NBTTagCompound();
 			NBTTagList scripts = new NBTTagList();
 			for (String script : this.getScripts(language, isClient)) {
@@ -464,9 +476,14 @@ public class ScriptController {
 			}
 			compound.setTag("Scripts", scripts);
 			compound.setString("Language", language);
+			compound.setString("FileSfx", ext);
 			long[] sizes = new long[scripts.tagCount()];
 			int i = 0;
-			for (Long l : (isClient ? this.clientSizes : this.sizes).values()) { sizes[i] = l; i++; }
+			for (Long l : (isClient ? this.clientSizes : this.sizes).values()) {
+				sizes[i] = l;
+				if (!scripts.getStringTagAt(i).endsWith(ext)) { sizes[i] *= -1;}
+				i++;
+			}
 			compound.setTag("sizes", new NBTTagLongArray(sizes));
 			list.appendTag(compound);
 		}
@@ -645,6 +662,12 @@ public class ScriptController {
 		compound.setTag("Models", list);
 		try { CompressedStreamTools.writeCompressed(compound, new FileOutputStream(file)); }
 		catch (Exception e) {}
+	}
+
+	public synchronized void encrypt() {
+		if (this.isLoad) {
+			/* the code is hidden because it uses a CustomNpcs.ScriptPassword */
+		}
 	}
 	
 }

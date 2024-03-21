@@ -64,6 +64,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener  {
 			case 1: { // remove
 				if (!this.data.containsKey(this.select)) { return; }
 				this.lines.remove(this.data.get(this.select));
+				if (this.scroll != null && this.scroll.selected > 0) { this.scroll.selected --; }
 				this.initGui();
 				break;
 			}
@@ -194,6 +195,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener  {
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
+		if (this.hasSubGui()) { return; }
 		switch(textField.getId()) {
 			case 0: {
 				if (!this.data.containsKey(this.select) || !this.lines.lines.containsKey(this.data.get(this.select))) { return; }

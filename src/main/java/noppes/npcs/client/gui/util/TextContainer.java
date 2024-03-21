@@ -35,7 +35,7 @@ public class TextContainer
 	}
 	
 	public void init(TrueTypeFont font, int width, int height) {
-		this.lineHeight = font.height(this.text);
+		//this.lineHeight = font.height(this.text); // = mini freeze
 		if (this.lineHeight == 0) {
 			this.lineHeight = 12;
 		}

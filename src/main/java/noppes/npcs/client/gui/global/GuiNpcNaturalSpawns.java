@@ -150,7 +150,8 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		String name = this.scroll.getSelected();
-		this.data = data;
+		this.data.clear();
+		this.data.putAll(data);
 		this.scroll.setList(list);
 		if (name != null) {
 			this.scroll.setSelected(name);

@@ -33,7 +33,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -87,23 +86,35 @@ public class ServerEventsHandler {
 				if (data.quest.step==1 && !bo) { break; }
 				bo = obj.isCompleted();
 				if (((QuestObjective) obj).getEnumType() != EnumQuestTask.KILL && ((QuestObjective) obj).getEnumType() != EnumQuestTask.AREAKILL) { continue; }
-				String name = entityName;
-				if (obj.getTargetName().equals(entity.getName())) {
-					name = entity.getName();
-				} else if (!obj.getTargetName().equals(name)) {
-					continue;
+				String name = null;
+				if (obj.getTargetName().equals(entity.getName())) { name = entity.getName(); }
+				else if (obj.getTargetName().equals(entityName)) { name = entityName; }
+				else if (obj.isPartName() || obj.isAndTitle()) {
+					if (obj.isPartName()) {
+						if (entity.getName().indexOf(obj.getTargetName())!=-1) { name = obj.getTargetName(); }
+						else if (entityName.indexOf(obj.getTargetName())!=-1) { name = obj.getTargetName(); }
+					}
+					if (name == null && obj.isAndTitle() && entity instanceof EntityNPCInterface) {
+						EntityNPCInterface npc = (EntityNPCInterface) entity;
+						String title = npc.display.getTitle();
+						if (title.equals(obj.getTargetName())) { name = entity.getName(); }
+						else if (title.equals(entityName)) { name = entityName; }
+						if (name == null && obj.isPartName()) {
+							if (title.indexOf(obj.getTargetName())!=-1) { name = obj.getTargetName(); }
+							else if (title.indexOf(obj.getTargetName())!=-1) { name = obj.getTargetName(); }
+						}
+					}
 				}
-
+				else { continue; }
+				if (name == null) { continue; }
 				if (obj.getType() == EnumQuestTask.AREAKILL.ordinal() && forAll) {
-					List<EntityPlayer> list = player.world.getEntitiesWithinAABB(EntityPlayer.class, entity
-							.getEntityBoundingBox().grow(obj.getAreaRange(), obj.getAreaRange(), obj.getAreaRange()));
+					List<EntityPlayer> list = player.world.getEntitiesWithinAABB(EntityPlayer.class, entity.getEntityBoundingBox().grow(obj.getAreaRange(), obj.getAreaRange(), obj.getAreaRange()));
 					for (EntityPlayer pl : list) {
 						if (pl != player) {
 							this.doKillQuest(pl, entity, false);
 						}
 					}
 				}
-
 				HashMap<String, Integer> killed = ((QuestObjective) obj).getKilled(data); // in Data
 				if (killed.containsKey(name) && killed.get(name) >= obj.getMaxProgress()) {
 					continue;
@@ -115,26 +126,24 @@ public class ServerEventsHandler {
 				amount++;
 				killed.put(name, amount);
 				((QuestObjective) obj).setKilled(data, killed);
-
 				// New
 				NBTTagCompound compound = new NBTTagCompound();
 				compound.setInteger("QuestID", data.quest.id);
 				compound.setString("Type", "kill");
 				compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
-				compound.setString("TargetName", obj.getTargetName());
+				compound.setString("TargetName", new TextComponentTranslation("script.killed").getFormattedText() + ": \"" + entity.getName()+"\"");
 				compound.setInteger("MessageType", 0);
 				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
 				if (amount >= obj.getMaxProgress()) {
 					player.sendMessage(new TextComponentTranslation("quest.message.kill.1",
-							new TextComponentTranslation(name).getFormattedText(), data.quest.getTitle()));
+							new TextComponentTranslation(entity.getName()).getFormattedText(), data.quest.getTitle()));
 				} else {
 					player.sendMessage(new TextComponentTranslation("quest.message.kill.0",
-							new TextComponentTranslation(name).getFormattedText(), "" + amount,
+							new TextComponentTranslation(entity.getName()).getFormattedText(), "" + amount,
 							"" + obj.getMaxProgress(), data.quest.getTitle()));
 				}
-
 				playerdata.checkQuestCompletion(player, data);
-				pdata.updateClient = true;
+				playerdata.updateClient = true;
 			}
 		}
 	}
@@ -152,12 +161,10 @@ public class ServerEventsHandler {
 				player.getServer().futureTaskQueue.add(ListenableFutureTask.create(Executors.callable(() -> {
 					PlayerQuestData playerdata = PlayerData.get(player).questData;
 					for (QuestData data : playerdata.activeQuests.values()) {
-						for (IQuestObjective obj : data.quest
-								.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-							if (obj.getType() != EnumQuestTask.ITEM.ordinal()) {
-								continue;
-							}
+						for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+							if (obj.getType() != EnumQuestTask.ITEM.ordinal()) { continue; }
 							playerdata.checkQuestCompletion(player, data);
+							playerdata.updateClient = true;
 						}
 					}
 				})));
@@ -373,9 +380,9 @@ public class ServerEventsHandler {
 	public void registryRecipes(RegistryEvent.Register<IRecipe> event) {
 		RecipeController.Registry = (ForgeRegistry<IRecipe>) event.getRegistry();
 	}
-	
+
 	@SubscribeEvent
-	public void worldUnload(WorldEvent.Unload event) {
+	public void worldUnload(net.minecraftforge.event.world.WorldEvent.Unload event) {
 		int dimensionID = event.getWorld().provider.getDimension();
 		if (!event.getWorld().isRemote) {
 			DimensionHandler.getInstance().unload(event.getWorld(), dimensionID);

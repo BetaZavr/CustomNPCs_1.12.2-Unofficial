@@ -9,12 +9,16 @@ import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
 
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.Client;
+import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.SubGuiMailmanSendSetup;
 import noppes.npcs.client.gui.SubGuiNpcCommand;
@@ -28,6 +32,8 @@ import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeManual;
 import noppes.npcs.client.gui.select.GuiQuestSelection;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
+import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -50,7 +56,7 @@ import noppes.npcs.quests.QuestObjective;
 
 public class GuiQuestEdit
 extends SubGuiInterface
-implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfieldListener, IGuiData {
+implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	
 	private String[] isGet = new String[] { "2", "", "" };
 	private Quest quest;
@@ -153,8 +159,8 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		this.addButton(new GuiNpcButton(12, this.guiLeft + 150, this.guiTop + 192, 20, 20, "X"));
 		// mail
 		this.addButton(new GuiNpcButton(13, this.guiLeft + 4, this.guiTop + 170, 144, 20, "mailbox.setup"));
-		if (!this.quest.mail.subject.isEmpty()) {
-			this.getButton(13).setDisplayText(this.quest.mail.subject);
+		if (!this.quest.mail.title.isEmpty()) {
+			this.getButton(13).setDisplayText(this.quest.mail.title);
 		}
 		this.addButton(new GuiNpcButton(14, this.guiLeft + 150, this.guiTop + 170, 20, 20, "X"));
 		// command
@@ -173,7 +179,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		}
 		this.addButton(new GuiButtonBiDirectional(23, this.guiLeft + 269, this.guiTop + 5, 50, 20, lvls, this.quest.level));
 		// reset ID
-		this.addButton(new GuiNpcButton(24, this.guiLeft + 217, this.guiTop + 5, 50, 20, "quest.reset"));
+		this.addButton(new GuiNpcButton(24, this.guiLeft + 217, this.guiTop + 5, 50, 20, "gui.reset"));
 		// exit
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 361, this.guiTop + 5, 20, 20, "X"));
 	}
@@ -250,6 +256,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				break;
 			}
 			case 20: { // remove task
+				
 				if (this.quest.questInterface.removeTask(this.tasksData.get(this.task))) {
 					this.task = "";
 					Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, this.quest.writeToNBT(new NBTTagCompound()));
@@ -258,9 +265,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				break;
 			}
 			case 21: { // edit task
-				if (this.task.isEmpty()) {
-					return;
-				}
+				if (this.task.isEmpty() || !this.tasksData.containsKey(this.task)) { return; }
 				if (this.tasksData.get(this.task).getEnumType() == EnumQuestTask.DIALOG) {
 					this.setSubGui(new GuiNpcQuestTypeDialog(this.npc, this.tasksData.get(this.task), this));
 				} else if (this.tasksData.get(this.task).getEnumType() == EnumQuestTask.KILL) {
@@ -272,9 +277,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				} else if (this.tasksData.get(this.task).getEnumType() == EnumQuestTask.MANUAL) {
 					this.setSubGui(new GuiNpcQuestTypeManual(this.npc, this.tasksData.get(this.task), this));
 				} else { // Item or Craft
-					Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-							this.quest.questInterface.getPos(this.tasksData.get(this.task)),
-							this.tasksData.get(this.task).slotID);
+					Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()), this.quest.questInterface.getPos(this.tasksData.get(this.task)));
 				}
 				break;
 			}
@@ -327,8 +330,9 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				this.quest.level = button.getValue();
 				break;
 			}
-			case 24: { // reset
-				Client.sendData(EnumPacketServer.QuestMinID, this.quest.id);
+			case 24: { // reset ID
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("message.change.id", ""+this.quest.id).getFormattedText(), new TextComponentTranslation("message.change").getFormattedText(), 0);
+				this.displayGuiScreen((GuiScreen) guiyesno);
 				break;
 			}
 			case 66: { // exit
@@ -338,6 +342,17 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		}
 	}
 
+	@Override
+	public void confirmClicked(boolean result, int id) {
+		if (this.parent instanceof GuiNPCInterface2) {
+			((GuiNPCInterface) this.parent).setSubGui(this);
+			NoppesUtil.openGUI((EntityPlayer) this.player, this.parent);
+		}
+		else { NoppesUtil.openGUI((EntityPlayer) this.player, this); }
+		if (!result) { return; }
+		if (id == 0) { Client.sendData(EnumPacketServer.QuestMinID, this.quest.id); }
+	}
+		
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
@@ -385,7 +400,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		} else if (this.getButton(23)!=null && this.getButton(23).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.level").getFormattedText());
 		} else if (this.getButton(24)!=null && this.getButton(24).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.reset").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("hover.reset.id").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("gui.back").getFormattedText());
 		}
@@ -429,9 +444,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 			} else if (this.tasksData.get(this.task).getEnumType() == EnumQuestTask.MANUAL) {
 				this.setSubGui(new GuiNpcQuestTypeManual(this.npc, this.tasksData.get(this.task), this));
 			} else { // Item or Craft
-				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-						this.quest.questInterface.getPos(this.tasksData.get(this.task)),
-						this.tasksData.get(this.task).slotID);
+				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()), this.quest.questInterface.getPos(this.tasksData.get(this.task)));
 			}
 		}
 	}

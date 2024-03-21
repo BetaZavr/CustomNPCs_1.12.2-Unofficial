@@ -2,6 +2,7 @@ package noppes.npcs.client.gui;
 
 import java.util.Arrays;
 
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.select.GuiSoundSelection;
@@ -22,6 +23,7 @@ implements ITextfieldListener, ISubGuiListener {
 	private DataRanged ranged;
 	private GuiNpcTextField soundSelected;
 	private DataStats stats;
+	private String[] fireType = new String[] { "gui.no", "gui.whendistant", "gui.whenhidden" };
 
 	public SubGuiNpcRangeProperties(DataStats stats) {
 		this.soundSelected = null;
@@ -101,17 +103,17 @@ implements ITextfieldListener, ISubGuiListener {
 		this.addButton(new GuiNpcButton(7, this.guiLeft + 187, y, 60, 20, "mco.template.button.select"));
 		y += 22;
 		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 80, y, 100, 20, this.ranged.getSound(1)));
-		this.addLabel(new GuiNpcLabel(11, "stats.hitsound", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(11, "stats.hittingsound", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(11, this.guiLeft + 187, y, 60, 20, "mco.template.button.select"));
 		y += 22;
 		this.addTextField(new GuiNpcTextField(10, this, this.fontRenderer, this.guiLeft + 80, y, 100, 20, this.ranged.getSound(2)));
-		this.addLabel(new GuiNpcLabel(10, "stats.groundsound", this.guiLeft + 5, y + 5));
+		this.addLabel(new GuiNpcLabel(10, "stats.hitsound", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(10, this.guiLeft + 187, y, 60, 20, "mco.template.button.select"));
 		y += 22;
 		this.addButton(new GuiNpcButtonYesNo(9, this.guiLeft + 100, y, this.ranged.getHasAimAnimation()));
 		this.addLabel(new GuiNpcLabel(9, "stats.aimWhileShooting", this.guiLeft + 5, y + 5));
 		y += 22;
-		this.addButton(new GuiNpcButton(13, this.guiLeft + 100, y, 80, 20, new String[] { "gui.no", "gui.whendistant", "gui.whenhidden" }, this.ranged.getFireType()));
+		this.addButton(new GuiNpcButton(13, this.guiLeft + 100, y, 80, 20, fireType, this.ranged.getFireType()));
 		this.addLabel(new GuiNpcLabel(13, "stats.indirect", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, this.guiTop + 190, 60, 20, "gui.done"));
 	}
@@ -152,6 +154,7 @@ implements ITextfieldListener, ISubGuiListener {
 		} else if (textfield.getId() == 11) {
 			this.ranged.setSound(1, textfield.getText());
 		}
+		this.initGui();
 	}
 	
 	@Override
@@ -169,11 +172,11 @@ implements ITextfieldListener, ISubGuiListener {
 		} else if (this.getTextField(5)!=null && this.getTextField(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.shot.speed").getFormattedText());
 		} else if (this.getTextField(6)!=null && this.getTextField(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.shot.count").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.shot.amount").getFormattedText()); //
 		} else if (this.getTextField(7)!=null && this.getTextField(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.sound.shot").getFormattedText());
 		} else if (this.getTextField(8)!=null && this.getTextField(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.shot.amount").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("stats.hover.shot.count").getFormattedText()); //
 		} else if (this.getTextField(9)!=null && this.getTextField(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.attack.range").getFormattedText());
 		} else if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
@@ -189,7 +192,15 @@ implements ITextfieldListener, ISubGuiListener {
 		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.set").getFormattedText());
 		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.availability").getFormattedText());
+			ITextComponent hover = new TextComponentTranslation("stats.hover.availability");
+			hover.appendSibling(new TextComponentTranslation("stats.hover.availability."+this.ranged.getFireType(), 
+					new TextComponentTranslation(this.fireType[this.ranged.getFireType()]).getFormattedText(),
+					"" + ((double) this.ranged.getRange() / 2.0d)));
+			if (this.ranged.getFireType() != 0) {
+				hover.appendSibling(new TextComponentTranslation("stats.hover.availability.3"));
+			}
+			this.setHoverText(hover.getFormattedText());
+			
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}

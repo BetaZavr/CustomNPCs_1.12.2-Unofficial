@@ -36,14 +36,16 @@ public class EntityAIClosestTarget extends EntityAITarget {
 		if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0) {
 			return false;
 		}
-		double dist = this.getTargetDistance();
-		List<EntityLivingBase>  list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass,
-				this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist),
-				this.targetEntitySelector);
-		Collections.sort(list, this.theNearestAttackableTargetSorter);
-		if (list.isEmpty()) { return false; }
-		this.targetEntity = list.get(0);
-		return true;
+		try {
+			double dist = this.getTargetDistance();
+			List<EntityLivingBase> list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass, this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist), this.targetEntitySelector);
+			Collections.sort(list, this.theNearestAttackableTargetSorter);
+			if (list.isEmpty()) { return false; }
+			this.targetEntity = list.get(0);
+			return true;
+		}
+		catch (Exception e) { e.printStackTrace(); }
+		return false;
 	}
 
 	public void startExecuting() {

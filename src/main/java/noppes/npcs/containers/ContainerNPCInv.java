@@ -1,5 +1,6 @@
 package noppes.npcs.containers;
 
+import moe.plushie.armourers_workshop.api.ArmourersWorkshopClientApi;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
@@ -22,6 +23,10 @@ public class ContainerNPCInv extends Container {
 		this.addSlotToContainer(new Slot(npc.inventory, 4, 81, 22));
 		this.addSlotToContainer(new Slot(npc.inventory, 5, 81, 40));
 		this.addSlotToContainer(new Slot(npc.inventory, 6, 81, 58));
+		if (ArmourersWorkshopClientApi.getSkinRenderHandler() != null) {
+			this.addSlotToContainer(new AWSlotOutfit(npc.inventory, 7, 27, 4));
+			this.addSlotToContainer(new AWSlotWings(npc.inventory, 8, 45, 4));
+		}
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int l2 = 0; l2 < 9; ++l2) {
 				this.addSlotToContainer(new Slot(player.inventory, l2 + i1 * 9 + 9, l2 * 18 + 8, 113 + i1 * 18));

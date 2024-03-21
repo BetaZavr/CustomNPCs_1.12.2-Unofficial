@@ -98,7 +98,7 @@ implements IScriptHandler {
 	public void readFromNBT(NBTTagCompound compound) {
 		if (this.script==null) { this.createScript(); }
 		this.script.clear();
-		this.script.readFromNBT(compound.getCompoundTag("Scripts"));
+		this.script.readFromNBT(compound.getCompoundTag("Scripts"), true);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}

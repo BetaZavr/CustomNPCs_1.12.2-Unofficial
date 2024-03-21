@@ -46,7 +46,7 @@ extends GuiNPCInterface2 {
 				break;
 			}
 			case 13: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc, this));
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc));
 				break;
 			}
 			case 14: { // Changed
@@ -65,6 +65,10 @@ extends GuiNPCInterface2 {
 			}
 			case 17: {
 				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, 0, -1, 0);
+				break;
+			}
+			case 19: {
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0);
 				break;
 			}
 		}
@@ -90,6 +94,7 @@ extends GuiNPCInterface2 {
 		this.addButton(new GuiNpcButton(17, r1, y, 110, 20, "global.market"));
 		this.addButton(new GuiNpcButton(18, r1, (y += 22), 110, 20, "global.auctions"));
 		this.getButton(18).enabled = false;
+		this.addButton(new GuiNpcButton(19, r1, (y += 22), 110, 20, "global.mail"));
 	}
 
 	@Override
@@ -127,6 +132,8 @@ extends GuiNPCInterface2 {
 			this.setHoverText(new TextComponentTranslation("global.hover.auctions").
 					appendSibling(new TextComponentString("<br>")).
 					appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+		} else if (this.getButton(19)!=null && this.getButton(19).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.mail").getFormattedText());
 		}
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);

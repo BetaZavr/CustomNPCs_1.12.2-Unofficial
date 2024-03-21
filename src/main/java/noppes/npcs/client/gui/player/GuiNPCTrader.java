@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
@@ -26,6 +27,8 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiMenuLeftButton;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
@@ -49,9 +52,8 @@ implements ICustomScrollListener, IGuiData {
 	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
 	private GuiCustomScroll scroll;
 	boolean showHasItems = false;
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	boolean wait = false;
-	private int canBuy = 0, canSell = 0;
+	private int canBuy = 0, canSell = 0, ceilPos, section;
 	private DealMarkup selectDealData;
 	private Marcet marcet;
 	private long money;
@@ -65,18 +67,49 @@ implements ICustomScrollListener, IGuiData {
 		this.marcet = container.marcet;
 		this.data = Maps.<String, Deal>newTreeMap();
 		this.money = 0L;
+		this.ceilPos = -1;
+		this.section = -1;
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		this.data.clear();
+		
+		GuiMenuLeftButton tab;
+		if (this.ceilPos < 0) {
+			this.ceilPos = 0;
+			this.section = 0;
+		}
+		if (this.marcet.sections.size()>1) {
+			if (this.marcet.sections.size()>5) {
+				if (this.ceilPos > 0) {
+					tab = new GuiMenuLeftButton(3, this.guiLeft + 1, this.guiTop + 4, ""+((char) 708));
+					tab.height = 16;
+					tab.offsetYtext = 1;
+					this.addButton(tab);
+				}
+				if (this.ceilPos < Math.floor((double) this.marcet.sections.size() / 5.0d)) {
+					tab = new GuiMenuLeftButton(4, this.guiLeft + 1, this.guiTop + 100, ""+((char) 709));
+					tab.height = 16;
+					tab.offsetYtext = 2;
+					this.addButton(tab);
+				}
+			}
+			for (int i = 0; i < 5 && (i + this.ceilPos * 5) < this.marcet.sections.size(); i++) {
+				tab = new GuiMenuLeftButton(5 + i, this.guiLeft + 1, this.guiTop + 20 + i * 16, this.marcet.sections.get(i + this.ceilPos * 5));
+				tab.data = i + this.ceilPos * 5;
+				tab.height = 16;
+				if (i + this.ceilPos * 5 == this.section) { tab.active = true; }
+				this.addButton(tab);
+			}
+		}
 		List<String> sel = new ArrayList<String>();
 		List<String> selNot = new ArrayList<String>();
 		int level = ClientProxy.playerData.game.getMarcetLevel(this.marcet.getId());
 		MarcetController mData = MarcetController.getInstance();
 		for (Deal deal : mData.deals.values()) {
-			if (deal == null || deal.getMarcetID()!=this.marcet.getId() || !deal.isValid()) { continue; }
+			if (deal == null || deal.getMarcetID()!=this.marcet.getId() || !deal.isValid() || deal.getSectionID() != this.section) { continue; }
 			String key = deal.getName();
 			if (deal.getAmount()==0) { selNot.add(key); }
 			else { sel.add(key); }
@@ -91,16 +124,22 @@ implements ICustomScrollListener, IGuiData {
 		Collections.sort(sel);
 		Collections.sort(selNot);
 		sel.addAll(selNot);
-		List<ItemStack> stacks = new ArrayList<ItemStack>();
-		List<String[]> infoList = new ArrayList<String[]>();
+		List<ItemStack> stacks = Lists.<ItemStack>newArrayList();
+		List<String> suffixs = Lists.<String>newArrayList();
+		List<String[]> infoList = Lists.<String[]>newArrayList();
 		for (String key : sel) {
 			Deal deal = this.data.get(key);
 			DealMarkup dm = mData.getBuyData(this.marcet, deal , level);
 			stacks.add(dm.main);
 			List<String> info = new ArrayList<String>();
 			info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
-			info.add(dm.main.getDisplayName() + " x" + dm.count + " " + (new TextComponentTranslation("market.hover.item."+(deal.getMaxCount() > 0 ? "amount" : deal.getAmount()==0 ? "not" : "infinitely"), new Object[] { "" + deal.getAmount() }).getFormattedText()));
 			
+			if (deal.getMaxCount() > 0) {
+				suffixs.add(new String(Character.toChars(0x00A7)) + (deal.getAmount() == 0 ? "4" : deal.getAmount() < deal.getProduct().getMaxStackSize() ? "b" : "a") + AdditionalMethods.getTextReducedNumber(deal.getAmount(), true, true, false));
+			} else {
+				suffixs.add(new String(Character.toChars(0x00A7)) + "a" + new String(Character.toChars(0x221E)));
+			}
+			info.add(dm.main.getDisplayName() + " x" + dm.count + " " + (new TextComponentTranslation("market.hover.item."+(deal.getMaxCount() > 0 ? "amount" : deal.getAmount()==0 ? "not" : "infinitely"), new Object[] { "" + deal.getAmount() }).getFormattedText()));
 			if (!dm.buyItems.isEmpty()) {
 				info.add(new TextComponentTranslation("market.hover.item").getFormattedText());
 				for (ItemStack curr : dm.buyItems.keySet()) {
@@ -120,6 +159,7 @@ implements ICustomScrollListener, IGuiData {
 		this.scroll.setListNotSorted(sel);
 		this.scroll.setStacks(stacks);
 		this.scroll.hoversTexts = infoList.toArray(new String[infoList.size()][1]);
+		this.scroll.setSuffixs(suffixs);
 
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;
@@ -207,6 +247,11 @@ implements ICustomScrollListener, IGuiData {
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
+		if (button.id > 4 && button.id < 10) {
+			this.section = button.id - 5 + this.ceilPos * 5;
+			this.initGui();
+			return;
+		}
 		switch (button.id) {
 			case 0: { // buy
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, this.marcet.getId(), this.selectDealData.deal.getId(), this.npc.getEntityId());
@@ -219,6 +264,18 @@ implements ICustomScrollListener, IGuiData {
 			case 2: { // Reset
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, this.marcet.getId(), this.selectDealData.deal.getId(), this.npc.getEntityId());
 				break;
+			}
+			case 3: { // up
+				if (this.ceilPos <=0) { return; }
+				this.ceilPos--;
+				this.initGui();
+				return;
+			}
+			case 4: { // down
+				if (this.ceilPos >= Math.floor((double) this.marcet.sections.size() / 5.0d)) { return; }
+				this.ceilPos++;
+				this.initGui();
+				return;
 			}
 		}
 		this.wait = true;
@@ -238,7 +295,7 @@ implements ICustomScrollListener, IGuiData {
 			this.px = this.guiLeft + 150;
 			this.py = this.guiTop + 17;
 			GlStateManager.enableRescaleNormal();
-			this.mc.renderEngine.bindTexture(this.slot);
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			this.drawTexturedModalRect(this.px, this.py, 0, 0, 17, 17);
 			this.drawTexturedModalRect(this.px + 17, this.py, 10, 0, 8, 17);
 			this.drawTexturedModalRect(this.px, this.py + 17, 0, 10, 17, 8);
@@ -273,7 +330,7 @@ implements ICustomScrollListener, IGuiData {
 			// Items
 			if (!this.selectDealData.buyHasPlayerItems.isEmpty()) {
 				GlStateManager.pushMatrix();
-				this.mc.renderEngine.bindTexture(this.slot);
+				this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				int slot = 0;
 				for (ItemStack curr : this.selectDealData.buyHasPlayerItems.keySet()) {
 					int u = this.px - 10 + (slot % 3) * 18;
@@ -474,7 +531,7 @@ implements ICustomScrollListener, IGuiData {
 		super.keyTyped(c, i);
 		if (i==200 || i==ClientProxy.frontButton.getKeyCode() || i==208 || i==ClientProxy.backButton.getKeyCode()) {
 			int pos = this.scroll.selected + ((i==200 || i==ClientProxy.frontButton.getKeyCode()) ? -1 : 1);
-			if (pos < 0 || pos > this.scroll.getList().size()) { return; }
+			if (pos < 0 || pos >= this.scroll.getList().size()) { return; }
 			String sel = this.scroll.getList().get(pos);
 			if (!this.data.containsKey(sel)) { return; }
 			this.selectDealData.deal = this.data.get(sel);

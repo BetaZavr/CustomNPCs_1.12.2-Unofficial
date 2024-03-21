@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
@@ -106,8 +107,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 					Map<String, Integer> nextDialogIDs = Maps.<String, Integer>newTreeMap();
 					for (Dialog dialog : this.dialogData.values()) {
 						List<String> h = Lists.newArrayList(), activationDialogs = Lists.newArrayList(), nextDialogs = Lists.newArrayList();
+						h.add(new TextComponentTranslation(dialog.title).getFormattedText()+":");
 						for (DialogOption option : dialog.options.values()) {
-							if (option.optionType!=1 ||  option.dialogs.isEmpty()) { continue; }
+							if (option.optionType != OptionType.DIALOG_OPTION ||  option.dialogs.isEmpty()) { continue; }
 							int i = 0;
 							for (OptionDialogID od : option.dialogs) {
 								nextDialogIDs.put(option.slot + "." + i, od.dialogId);
@@ -120,7 +122,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 								if (!dData.hasDialog(dialogId)) { continue; }
 								Dialog d = (Dialog) dData.get(dialogId);
 								for (DialogOption option : d.options.values()) {
-									if (option.optionType!=1 ||  option.dialogs.isEmpty()) { continue; }
+									if (option.optionType != OptionType.DIALOG_OPTION ||  option.dialogs.isEmpty()) { continue; }
 									int i = 0;
 									for (OptionDialogID od : option.dialogs) {
 										if (od.dialogId!=dialog.id) { continue; }
@@ -160,11 +162,6 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		// scroll info
 		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 8, this.guiTop + 4));
 		this.addLabel(new GuiNpcLabel(1, "dialog.dialogs", this.guiLeft + 180, this.guiTop + 4));
-
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, this.guiLeft + 225, this.guiTop, 90, 12, GuiNPCManageDialogs.isName ? "gui.name" : "ID");
-		checkBox.setSelected(GuiNPCManageDialogs.isName);
-		this.addButton(checkBox);
-		
 		// dialog buttons
 		int x = this.guiLeft + 350, y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(3, "dialog.dialogs", x + 2, y));
@@ -173,6 +170,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		this.addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !this.selectedCategory.isEmpty()));
 		this.addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", this.copyDialog!=null));
+		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(14, x, y += 17, 64, 14, GuiNPCManageDialogs.isName ? "gui.name" : "ID");
+		checkBox.setSelected(GuiNPCManageDialogs.isName);
+		this.addButton(checkBox);
 		// category buttons
 		y = this.guiTop + 130;
 		this.addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
@@ -199,7 +199,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.hasSubGui()) { return; }
+		this.drawHorizontalLine(this.guiLeft + 348, this.guiLeft + 414, this.guiTop + 128, 0x80000000);
+		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
@@ -352,14 +354,11 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 			Client.sendData(EnumPacketServer.DialogCategorySave, category.writeNBT(new NBTTagCompound()));
 		}
 		if (subgui.id == 3) {
-			if (((SubGuiEditText) subgui).text[0].isEmpty()) {
-				return;
-			}
-			DialogCategory category = this.categoryData.get(this.selectedCategory);
+			if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) { return; }
+			DialogCategory category = this.categoryData.get(this.selectedCategory).copy();
+			if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
 			category.title = ((SubGuiEditText) subgui).text[0];
-			while (DialogController.instance.containsCategoryName(category)) {
-				category.title += "_";
-			}
+			while (DialogController.instance.containsCategoryName(category)) { category.title += "_"; }
 			this.selectedCategory = category.title;
 			Client.sendData(EnumPacketServer.DialogCategorySave, category.writeNBT(new NBTTagCompound()));
 			this.initGui();

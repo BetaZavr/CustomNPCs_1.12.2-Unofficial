@@ -25,7 +25,7 @@ implements IDeal {
 	public Availability availability;
 	private float chance; // 0.0 <-> 1.0
 	private int[] count;
-	private int id;
+	private int id, sectionId;
 	private boolean ignoreDamage, ignoreNBT;
 	private final NpcMiscInventory inventoryCurrency;
 	private final NpcMiscInventory inventoryProduct;
@@ -35,6 +35,7 @@ implements IDeal {
 
 	public Deal(int id, int marcetID) {
 		this.id = id;
+		this.sectionId = 0;
 		this.availability = new Availability();
 		this.ignoreDamage = false;
 		this.ignoreNBT = false;
@@ -50,6 +51,7 @@ implements IDeal {
 
 	public Deal copy() {
 		Deal deal = new Deal(this.id, this.marcetID);
+		deal.sectionId = this.sectionId;
 		deal.availability = this.availability;
 		deal.ignoreDamage = this.ignoreDamage;
 		deal.ignoreNBT = this.ignoreNBT;
@@ -68,7 +70,7 @@ implements IDeal {
 	
 	@Override
 	public String getName() {
-		String name = "Empty";
+		String name = " - Empty";
 		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
 		if (!stack.isEmpty()) {
 			name = (this.amount == 0 ? new String(Character.toChars(0x00A7)) + "c" : "") + stack.getDisplayName() + " x" + stack.getCount();
@@ -90,12 +92,18 @@ implements IDeal {
 		compound.setInteger("Amount", this.amount);
 		compound.setInteger("MarcetID", this.marcetID);
 		compound.setInteger("DealID", this.id);
+		compound.setInteger("SectionID", this.sectionId);
 		return compound;
 	}
 
 	public String getSettingName() {
 		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
-		return "ID: "+this.id + ": " + (stack.isEmpty()
+		Marcet m = MarcetController.getInstance().marcets.get(this.marcetID);
+		if (m != null) {
+			if (!m.sections.containsKey(this.sectionId)) { this.sectionId = 0; }
+		}
+		String section = ((char) 167) + "e#" + ((char) 167) + "r" + this.sectionId;
+		return section + "; ID:" + this.id + ": " + (stack.isEmpty()
 				? ((char) 167) + "4" + new TextComponentTranslation("type.empty").getFormattedText()
 				: (this.inventoryCurrency.isEmpty() && this.money == 0 ? new String(Character.toChars(0x00A7)) + "c" : "") + stack.getDisplayName())
 				+ (!stack.isEmpty() ? " x" + stack.getCount() : "");
@@ -113,6 +121,8 @@ implements IDeal {
 		this.chance = compound.getFloat("Chance");
 		this.amount = compound.getInteger("Amount");
 		this.marcetID = compound.getInteger("MarcetID");
+		this.sectionId = compound.getInteger("SectionID");
+		if (this.sectionId < 0) { this.sectionId = 0; }
 	}
 
 	@Override
@@ -305,6 +315,15 @@ implements IDeal {
 				}
 			}
 		}
+	}
+
+	public int getSectionID() { return this.sectionId; }
+	
+	public void setSectionID(int sectionId) {
+		if (sectionId < 0) { sectionId = 0; }
+		Marcet m = MarcetController.getInstance().marcets.get(this.marcetID);
+		if (m != null && !m.sections.containsKey(sectionId)) { sectionId = 0; }
+		this.sectionId = sectionId;
 	}
 	
 }

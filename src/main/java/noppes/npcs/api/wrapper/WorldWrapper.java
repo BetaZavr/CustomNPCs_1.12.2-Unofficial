@@ -74,7 +74,7 @@ implements IWorld {
 
 	private WorldWrapper(World world) {
 		this.tempdata = new TempData();
-		this.storeddata = new StoredData(ScriptController.Instance);
+		this.storeddata = new StoredData(this);
 		this.world = world;
 		this.dimension = new DimensionWrapper(world.provider.getDimension(), world.provider.getDimensionType());
 	}

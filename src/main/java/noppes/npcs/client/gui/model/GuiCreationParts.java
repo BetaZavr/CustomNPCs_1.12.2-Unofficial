@@ -387,7 +387,6 @@ implements ITextfieldListener, ICustomScrollListener {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!CustomNpcs.showDescriptions) { return; }
-		//String part = this.parts[GuiCreationParts.selected].part.name;
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {

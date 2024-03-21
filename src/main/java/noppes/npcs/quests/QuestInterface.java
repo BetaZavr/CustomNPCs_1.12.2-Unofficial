@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.common.collect.Maps;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilPlayer;
@@ -30,7 +31,7 @@ import noppes.npcs.util.AdditionalMethods;
 public class QuestInterface {
 	
 	private int id = 0;
-	public NpcMiscInventory items;
+	public NpcMiscInventory items = new NpcMiscInventory(1);
 	public QuestObjective[] tasks;
 
 	public QuestInterface() {
@@ -75,18 +76,14 @@ public class QuestInterface {
 
 	public void fix() {
 		List<QuestObjective> tsl = new ArrayList<QuestObjective>();
-		List<ItemStack> stacks = new ArrayList<ItemStack>();
-		for (int i = 0, j = 0; i < this.tasks.length && j < 9; i++) {
-			if (this.tasks[i] == null) {
-				continue;
-			}
+		Map<Integer, ItemStack> stacks = Maps.<Integer, ItemStack>newTreeMap();
+		for (int i = 0; i < this.tasks.length; i++) {
+			if (this.tasks[i] == null) { continue; }
 			QuestObjective to = this.tasks[i];
-			if (to.getMaxProgress() <= 0) {
-				to.setMaxProgress(1);
-			}
+			if (to.getMaxProgress() <= 0) { to.setMaxProgress(1); }
+			stacks.put(i, ItemStack.EMPTY);
 			if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT)) {
-				to.slotID = i;
-				stacks.add(to.getItemStack());
+				stacks.put(i, to.getItemStack());
 			} else if (to.getEnumType() == EnumQuestTask.AREAKILL) {
 				if (to.getAreaRange() < 3) {
 					to.setAreaRange(3);
@@ -95,19 +92,16 @@ public class QuestInterface {
 				}
 			}
 			tsl.add(to);
-			j++;
-		}
-		if (stacks.size() > 0) {
-			this.items = new NpcMiscInventory(stacks.size());
-			for (int i = 0; i < stacks.size(); i++) {
-				this.items.setInventorySlotContents(i, stacks.get(i));
-			}
 		}
 		QuestObjective[] ts = new QuestObjective[tsl.size()];
 		for (int i = 0; i < tsl.size(); i++) {
 			ts[i] = tsl.get(i);
 		}
 		this.tasks = ts;
+		this.items = new NpcMiscInventory(stacks.size());
+		for (int i = 0; i < stacks.size(); i++) {
+			this.items.setInventorySlotContents(i, stacks.get(i));
+		}
 	}
 
 	public boolean getFound(QuestData data, QuestObjective object) {
@@ -362,16 +356,12 @@ public class QuestInterface {
 					break;
 				}
 				default: { // ITEM
-					if (!NoppesUtilPlayer.compareItems(player, to.getItemStack(), to.isIgnoreDamage(), to.isItemIgnoreNBT(),
-							to.getMaxProgress())) {
-						complete = false;
-					}
+					complete = NoppesUtilPlayer.compareItems(player, to.getItemStack(), to.isIgnoreDamage(), to.isItemIgnoreNBT(), to.getMaxProgress());
 				}
 			}
-			if (!complete) {
-				break;
-			} else {
-				if (data!=null && data.quest!=null && data.quest.step == 2) { return true; }
+			if (data!=null && data.quest!=null) {
+				if (!complete && data.quest.step != 2) { return false; }
+				if (complete && data.quest.step == 2) { return true; }
 			}
 		}
 		return complete;
@@ -379,31 +369,10 @@ public class QuestInterface {
 
 	public void readEntityFromNBT(NBTTagCompound compound, int id) {
 		this.id = id;
-		if (compound.hasKey("Tasks", 9)) { // New
-			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
-			List<ItemStack> stacks = new ArrayList<ItemStack>();
-			for (int i = 0; i < compound.getTagList("Tasks", 10).tagCount(); i++) {
-				QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
-				to.load(compound.getTagList("Tasks", 10).getCompoundTagAt(i));
-				if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT)
-						&& !to.getItemStack().isEmpty()) {
-					to.slotID = i;
-					stacks.add(to.getItemStack());
-				}
-				this.tasks[i] = to;
-			}
-			if (stacks.size() > 0) {
-				this.items = new NpcMiscInventory(stacks.size());
-				for (int i = 0; i < stacks.size(); i++) {
-					this.items.items.set(i, stacks.get(i));
-				}
-			}
-		} else if (CustomNpcs.FixUpdateFromPre_1_12) { // Old versions
+		if (!compound.hasKey("Tasks", 9)) { // Old versions
 			List<QuestObjective> oldTasks = new ArrayList<QuestObjective>();
-			int i = 0;
 			if (compound.getInteger("Type") == 0) { // Item
-				this.items = new NpcMiscInventory(
-						compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
+				this.items = new NpcMiscInventory(compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
 				this.items.setFromNBT(compound.getCompoundTag("Items"));
 				for (ItemStack item : this.items.items) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
@@ -411,61 +380,66 @@ public class QuestInterface {
 					to.setItemLeave(compound.getBoolean("LeaveItems"));
 					to.setItemIgnoreDamage(compound.getBoolean("IgnoreDamage"));
 					to.setItemIgnoreNBT(compound.getBoolean("IgnoreNBT"));
-					to.slotID = i;
 					oldTasks.add(to);
-					i++;
 				}
 			} else if (compound.getInteger("Type") == 1) { // Dialogs
-				HashMap<Integer, Integer> dialogs = NBTTags
-						.getIntegerIntegerMap(compound.getTagList("QuestDialogs", 10));
+				HashMap<Integer, Integer> dialogs = NBTTags.getIntegerIntegerMap(compound.getTagList("QuestDialogs", 10));
 				for (int dId : dialogs.values()) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.DIALOG);
 					to.setTargetID(dId); // DialogID
 					oldTasks.add(to);
 				}
 			} else if (compound.getInteger("Type") == 2 || compound.getInteger("Type") == 4) { // Kill or Area Kill
-				TreeMap<String, Integer> targets = new TreeMap<String, Integer>(
-						NBTTags.getStringIntegerMap(compound.getTagList("QuestDialogs", 10)));
+				TreeMap<String, Integer> targets = new TreeMap<String, Integer>(NBTTags.getStringIntegerMap(compound.getTagList("QuestDialogs", 10)));
 				for (String name : targets.keySet()) {
-					QuestObjective to = new QuestObjective(this.id,
-							EnumQuestTask.values()[compound.getInteger("Type")]);
+					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.values()[compound.getInteger("Type")]);
 					to.setTargetName(name);
 					to.setMaxProgress(targets.get(name));
 					oldTasks.add(to);
-					i++;
 				}
 			} else if (compound.getInteger("Type") == 3) { // Location
 				if (compound.hasKey("QuestLocation", 8)) {
 					QuestObjective t0 = new QuestObjective(this.id, EnumQuestTask.LOCATION);
 					t0.setTargetName(compound.getString("QuestLocation"));
 					oldTasks.add(t0);
-					i++;
 				}
 				if (compound.hasKey("QuestLocation2", 8)) {
 					QuestObjective t1 = new QuestObjective(this.id, EnumQuestTask.LOCATION);
 					t1.setTargetName(compound.getString("QuestLocation2"));
 					oldTasks.add(t1);
-					i++;
 				}
 				if (compound.hasKey("QuestLocation3", 8)) {
 					QuestObjective t2 = new QuestObjective(this.id, EnumQuestTask.LOCATION);
 					t2.setTargetName(compound.getString("QuestLocation3"));
 					oldTasks.add(t2);
-					i++;
 				}
 
 			} else { // Manual
-				TreeMap<String, Integer> manuals = new TreeMap<String, Integer>(
-						NBTTags.getStringIntegerMap(compound.getTagList("QuestManual", 10)));
+				TreeMap<String, Integer> manuals = new TreeMap<String, Integer>(NBTTags.getStringIntegerMap(compound.getTagList("QuestManual", 10)));
 				for (String name : manuals.keySet()) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.MANUAL);
 					to.setTargetName(name);
 					to.setMaxProgress(manuals.get(name));
 					oldTasks.add(to);
-					i++;
 				}
 			}
-			this.tasks = oldTasks.toArray(new QuestObjective[oldTasks.size()]);
+			this.tasks = oldTasks.toArray(new QuestObjective[oldTasks.size() > 9 ? 9 : oldTasks.size()]);
+		} else { // New
+			this.tasks = new QuestObjective[compound.getTagList("Tasks", 10).tagCount()];
+			Map<Integer, ItemStack> stacks = Maps.<Integer, ItemStack>newTreeMap();
+			for (int i = 0; i < compound.getTagList("Tasks", 10).tagCount(); i++) {
+				QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
+				to.load(compound.getTagList("Tasks", 10).getCompoundTagAt(i));
+				if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT) && !to.getItemStack().isEmpty()) {
+					stacks.put(i, to.getItemStack());
+				}
+				else { stacks.put(i, ItemStack.EMPTY);}
+				this.tasks[i] = to;
+			}
+			this.items = new NpcMiscInventory(stacks.size());
+			for (int i = 0; i < stacks.size(); i++) {
+				this.items.items.set(i, stacks.get(i));
+			}
 		}
 		fix();
 	}

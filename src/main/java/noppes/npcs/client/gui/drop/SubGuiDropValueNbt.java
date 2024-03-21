@@ -208,7 +208,7 @@ implements ITextfieldListener, ITextChangeListener {
 		 * GuiNpcTextField value = new GuiNpcTextField(94, (GuiScreen)this, this.guiLeft
 		 * + 4, this.guiTop + 53, 163, 65, text); this.addTextField(value);
 		 */
-		(this.textarea = new GuiTextArea(94, this.guiLeft + 4, this.guiTop + 53, 163, 65, text)).setListener(this);
+		(this.textarea = new GuiTextArea(94, this, this.guiLeft + 4, this.guiTop + 53, 163, 65, text)).setListener(this);
 		this.textarea.active = true;
 		this.add(this.textarea);
 		// chance

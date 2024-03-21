@@ -83,6 +83,7 @@ implements IPermission {
 	}
 
 	@SideOnly(Side.CLIENT)
+	@Override
 	public boolean hasEffect(ItemStack stack) {
 		NBTTagCompound nbt = stack.getTagCompound();
 		return super.hasEffect(stack) || (nbt!=null && nbt.hasKey("Settings", 10) && !nbt.getCompoundTag("Settings").getString("Name").isEmpty());

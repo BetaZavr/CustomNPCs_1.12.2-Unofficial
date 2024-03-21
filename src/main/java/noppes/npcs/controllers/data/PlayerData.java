@@ -17,7 +17,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.handler.capability.INbtHandler;
+import noppes.npcs.api.handler.capability.IPlayerDataHandler;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataTimers;
@@ -26,10 +26,10 @@ import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class PlayerData
-implements INbtHandler, ICapabilityProvider {
+implements IPlayerDataHandler, ICapabilityProvider {
 	
-	@CapabilityInject(PlayerData.class)
-	public static Capability<PlayerData> PLAYERDATA_CAPABILITY = null;
+	@CapabilityInject(IPlayerDataHandler.class)
+	public static Capability<IPlayerDataHandler> PLAYERDATA_CAPABILITY = null;
 	
 	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "playerdata");
 	private EntityNPCInterface activeCompanion;
@@ -178,7 +178,8 @@ implements INbtHandler, ICapabilityProvider {
 		}
 		return null;
 	}
-
+	
+	@Override
 	public NBTTagCompound getNBT() {
 		if (this.player != null) {
 			this.playername = this.player.getName();
@@ -196,6 +197,8 @@ implements INbtHandler, ICapabilityProvider {
 		this.timers.writeToNBT(compound);
 		compound.setInteger("PlayerCompanionId", this.companionID);
 		compound.setTag("ScriptStoreddata", this.scriptStoreddata);
+		if (this.playername != null && !this.playername.isEmpty()) { compound.setString("PlayerName", this.playername); }
+		if (this.uuid != null && !this.uuid.isEmpty()) { compound.setString("UUID", this.uuid); }
 		if (this.hasCompanion()) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			if (this.activeCompanion.writeToNBTAtomically(nbt)) {
@@ -254,6 +257,7 @@ implements INbtHandler, ICapabilityProvider {
 		this.save(false);
 	}
 
+	@Override
 	public void setNBT(NBTTagCompound data) {
 		if (this.player != null) {
 			this.playername = this.player.getName();
@@ -305,11 +309,5 @@ implements INbtHandler, ICapabilityProvider {
 		((RoleCompanion) npc.advanced.roleInterface).setSitting(false);
 		world.spawnEntity(npc);
 	}
-
-	@Override
-	public NBTTagCompound getCapabilityNBT() { return this.getNBT(); }
-
-	@Override
-	public void setCapabilityNBT(NBTTagCompound compound) { this.setNBT(compound); }
 
 }

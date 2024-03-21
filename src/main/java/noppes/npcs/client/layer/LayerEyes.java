@@ -96,7 +96,9 @@ extends LayerInterface<T> {
 
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
-		if (!this.playerdata.eyes.isEnabled() || this.npc.display.getModel()!=null || !this.npc.getClass().getSimpleName().equals("EntityCustomNpc")) { return; }
+		if (!this.playerdata.eyes.isEnabled() ||
+				this.npc.display.getModel()!=null ||
+				!this.npc.getClass().getSimpleName().equals("EntityCustomNpc")) { return; }
 		boolean isInvisible = false;
 		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
 		else if (this.npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }

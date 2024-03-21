@@ -66,6 +66,12 @@ implements ITextfieldListener, ISubGuiListener {
 	public void save() {
 		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
 	}
+	
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {

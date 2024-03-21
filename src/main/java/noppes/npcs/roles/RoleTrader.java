@@ -3,7 +3,6 @@ package noppes.npcs.roles;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.role.IRoleTrader;
@@ -58,12 +57,8 @@ implements IRoleTrader {
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = RoleType.TRADER;
-		if (compound.hasKey("MarketID", 3)) { // New
-			this.marcetID = compound.getInteger("MarketID");
-		}
-		else if (CustomNpcs.FixUpdateFromPre_1_12) { // Old
-			this.marcetID = MarcetController.getInstance().loadOld(compound);
-		}
+		if (!compound.hasKey("MarketID", 3)) { this.marcetID = MarcetController.getInstance().loadOld(compound); } // Old
+		else { this.marcetID = compound.getInteger("MarketID"); } // New
 	}
 	
 	@Override

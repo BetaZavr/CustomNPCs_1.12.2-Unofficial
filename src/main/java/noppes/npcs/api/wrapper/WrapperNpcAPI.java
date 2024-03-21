@@ -105,7 +105,7 @@ extends NpcAPI {
 	public IPlayerMail createMail(String sender, String subject) {
 		PlayerMail mail = new PlayerMail();
 		mail.sender = sender;
-		mail.subject = subject;
+		mail.title = subject;
 		return mail;
 	}
 
@@ -195,7 +195,7 @@ extends NpcAPI {
 		if (itemstack == null || itemstack.isEmpty()) {
 			return ItemStackWrapper.AIR;
 		}
-		return (IItemStack) itemstack.getCapability(ItemStackWrapper.ITEMSCRIPTEDDATA_CAPABILITY, null);
+		return (IItemStack) itemstack.getCapability(ItemStackWrapper.ITEM_SCRIPTED_DATA_CAPABILITY, null);
 	}
 
 	@Override
@@ -231,10 +231,9 @@ extends NpcAPI {
 	public IWorld getIWorld(World world) {
 		WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
 		if (w != null) {
-			w.world = world;
-			return w;
+			if (w.world == null) { w.world = world; }
 		}
-		WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world));
+		else { WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world)); }
 		return w;
 	}
 

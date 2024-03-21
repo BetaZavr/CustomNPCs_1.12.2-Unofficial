@@ -17,7 +17,7 @@ public class ModelDataShared {
 	protected ModelPartConfig arm1;
 	protected ModelPartConfig arm2;
 	protected ModelPartConfig body;
-	protected EntityLivingBase entity;
+	public EntityLivingBase entity;
 	public Class<? extends EntityLivingBase> entityClass;
 	public NBTTagCompound extra;
 	public ModelEyeData eyes;
@@ -113,8 +113,10 @@ public class ModelDataShared {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.setEntityName(compound.getString("EntityClass"));
 		this.arm1.readFromNBT(compound.getCompoundTag("ArmsConfig"));
+		this.arm2.readFromNBT(compound.getCompoundTag("ArmsConfig"+(this.arm1.notShared ? "2" : "")));
 		this.body.readFromNBT(compound.getCompoundTag("BodyConfig"));
 		this.leg1.readFromNBT(compound.getCompoundTag("LegsConfig"));
+		this.leg2.readFromNBT(compound.getCompoundTag("LegsConfig"+(this.leg1.notShared ? "2" : "")));
 		this.head.readFromNBT(compound.getCompoundTag("HeadConfig"));
 		this.legParts.readFromNBT(compound.getCompoundTag("LegParts"));
 		this.eyes.readFromNBT(compound.getCompoundTag("Eyes"));
@@ -200,8 +202,10 @@ public class ModelDataShared {
 		NBTTagCompound compound = new NBTTagCompound();
 		if (this.entityClass != null) { compound.setString("EntityClass", this.entityClass.getCanonicalName()); }
 		compound.setTag("ArmsConfig", this.arm1.writeToNBT());
+		compound.setTag("ArmsConfig2", this.arm2.writeToNBT());
 		compound.setTag("BodyConfig", this.body.writeToNBT());
 		compound.setTag("LegsConfig", this.leg1.writeToNBT());
+		compound.setTag("LegsConfig2", this.leg2.writeToNBT());
 		compound.setTag("HeadConfig", this.head.writeToNBT());
 		compound.setTag("LegParts", this.legParts.writeToNBT());
 		compound.setTag("Eyes", this.eyes.writeToNBT());

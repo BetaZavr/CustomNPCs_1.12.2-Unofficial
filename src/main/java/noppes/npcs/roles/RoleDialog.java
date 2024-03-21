@@ -8,6 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.role.IRoleDialog;
 import noppes.npcs.controllers.PlayerQuestController;
@@ -61,11 +62,8 @@ implements IRoleDialog {
 				}
 				DialogOption option = new DialogOption();
 				String text = this.optionsTexts.get(entry.getKey());
-				if (text != null && !text.isEmpty()) {
-					option.optionType = 3;
-				} else {
-					option.optionType = 0;
-				}
+				if (text != null && !text.isEmpty()) { option.optionType = OptionType.ROLE_OPTION; }
+				else { option.optionType = OptionType.QUIT_OPTION; }
 				option.title = entry.getValue();
 				d.options.put(entry.getKey(), option);
 			}

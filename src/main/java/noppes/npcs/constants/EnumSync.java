@@ -21,6 +21,7 @@ public enum EnumSync {
 	BankCeil,
 	BankData,
 	GameData,
+	MailData,
 	Debug;
 	
 }

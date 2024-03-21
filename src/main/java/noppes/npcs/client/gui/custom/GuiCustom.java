@@ -22,7 +22,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.gui.IItemSlot;
@@ -44,6 +43,7 @@ import noppes.npcs.client.gui.custom.interfaces.ICustomKeyListener;
 import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -66,7 +66,6 @@ implements ICustomScrollListener, IGuiData {
 
 	public static int guiLeft, guiTop;
 	public String[] hoverText;
-	public ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 
 	public GuiCustom(ContainerCustomGui container) {
 		super((Container) container);
@@ -153,7 +152,7 @@ implements ICustomScrollListener, IGuiData {
 	void drawBackgroundTexture() {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(this.background);
+		this.mc.renderEngine.bindTexture(this.background);
 		GlStateManager.translate((float) GuiCustom.guiLeft, (float) GuiCustom.guiTop, 0.0f);
 		if (this.bgW>0 && this.bgH>0) {
 			if (this.stretched==0) {
@@ -218,12 +217,11 @@ implements ICustomScrollListener, IGuiData {
 		}
 		GlStateManager.popMatrix();
 		if (this.gui.getShowPlayerSlots() && this.inventorySlots!=null) {
-			this.mc.getTextureManager().bindTexture(this.slot);
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (int slotId = this.inventorySlots.inventorySlots.size() - 1, i = 0; i < 36; slotId--, i++) {
 				Slot slot = this.inventorySlots.getSlot(slotId);
 				this.drawTexturedModalRect(this.getGuiLeft() + slot.xPos - 1, this.getGuiTop() + slot.yPos - 1, 0, 0, 18, 18);
 			}
-			//System.out.println("CNPCs: "+this.inventorySlots.inventorySlots.size());
 		}
 	}
 
@@ -244,7 +242,7 @@ implements ICustomScrollListener, IGuiData {
 			int cy = -46 + (256 - this.gui.getHeight()) / 2;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.mc.getTextureManager().bindTexture(this.slot);
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (IItemSlot slot : this.gui.getSlots()) {
 				if (!slot.isShowBack()) { continue; }
 				this.drawTexturedModalRect(this.getGuiLeft() + slot.getPosX() + cx, this.getGuiTop() + slot.getPosY() + cy, 0, 0, 18, 18);

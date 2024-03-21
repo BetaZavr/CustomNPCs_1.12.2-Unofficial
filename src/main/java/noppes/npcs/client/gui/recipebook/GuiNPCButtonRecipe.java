@@ -40,7 +40,7 @@ public class GuiNPCButtonRecipe extends GuiButton {
 		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 				&& mouseY < this.y + this.height;
 		RenderHelper.enableGUIStandardItemLighting();
-		mc.getTextureManager().bindTexture(RECIPE_BOOK);
+		mc.renderEngine.bindTexture(RECIPE_BOOK);
 		GlStateManager.disableLighting();
 		int i = 29;
 		if (!this.list.containsCraftableRecipes()) {

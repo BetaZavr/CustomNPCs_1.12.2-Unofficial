@@ -43,7 +43,7 @@ extends GuiButton {
 	
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) { return; }
-		mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
+		mc.renderEngine.bindTexture(BUTTON_TEXTURES);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -76,7 +76,7 @@ extends GuiButton {
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
 		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
 		else if (this.hovered) { l = CustomNpcs.hoverColor; }
-		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + (this.height-ClientProxy.Font.height(this.displayString)+3) / 2, l);
+		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + 2 + (this.height - ClientProxy.Font.height(this.displayString)) / 2, l);
 	}
 	
 	public String getDisplayString() { return this.displayString; }
@@ -85,7 +85,7 @@ extends GuiButton {
 
 	public void mouseDragged(Minecraft mc, int mouseX, int mouseY) {
 		if (!this.visible) { return; }
-		mc.getTextureManager().bindTexture(GuiNpcSlider.BUTTON_TEXTURES);
+		mc.renderEngine.bindTexture(GuiNpcSlider.BUTTON_TEXTURES);
 		int w = this.width, h = this.height;
 		if (this.isVertical) {
 			w = this.height;

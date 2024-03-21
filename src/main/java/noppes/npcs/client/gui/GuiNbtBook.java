@@ -62,7 +62,10 @@ implements IGuiData {
 				this.setSubGui(new SubGuiNpcTextArea(this.compound.toString()).enableHighlighting());
 			}
 		}
-		if (button.id == 67) {
+		else if (button.id == 1) {
+			if (stack != null && !stack.isEmpty()) { Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound())); }
+		}
+		else if (button.id == 67) {
 			this.getLabel(0).setLabel("Saved");
 			if (this.compound.equals(this.originalCompound)) {
 				return;
@@ -123,7 +126,7 @@ implements IGuiData {
 		}
 		if (this.entity instanceof EntityLivingBase) {
 			GlStateManager.pushMatrix();
-			this.drawNpc((EntityLivingBase) this.entity, 30, 80, 1.0f, 0, 0, true);
+			this.drawNpc((EntityLivingBase) this.entity, 30, 80, 1.0f, 0, 0, 1);
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(this.guiLeft + 5, this.guiTop + 13, this.guiLeft + 55, this.guiTop + 99, 0xFF808080);
 			Gui.drawRect(this.guiLeft + 6, this.guiTop + 14, this.guiLeft + 54, this.guiTop + 98, 0xFF000000);
@@ -135,8 +138,8 @@ implements IGuiData {
 	public void initGui() {
 		super.initGui();
 		if (this.stack != null) {
-			this.addLabel(new GuiNpcLabel(11, "id: \"" + this.stack.getItem().getRegistryName()+"\"",
-					this.guiLeft + 60, this.guiTop + 6));
+			this.addLabel(new GuiNpcLabel(11, "id: \"" + this.stack.getItem().getRegistryName()+"\"", this.guiLeft + 60, this.guiTop + 6));
+			this.addButton(new GuiNpcButton(1, this.guiLeft + 38, this.guiTop + 116, 180, 20, "gui.copy"));
 		}
 		if (this.state != null) {
 			this.addLabel(new GuiNpcLabel(11, "x: " + this.x + ", y: " + this.y + ", z: " + this.z, this.guiLeft + 60, this.guiTop + 6));
@@ -144,9 +147,7 @@ implements IGuiData {
 			this.addLabel(new GuiNpcLabel(13, "meta: " + this.state.getBlock().getMetaFromState(this.state), this.guiLeft + 60, this.guiTop + 26));
 		}
 		if (this.entity != null) {
-			this.addLabel(
-					new GuiNpcLabel(12, "id: " + EntityRegistry.getEntry(this.entity.getClass()).getRegistryName(),
-							this.guiLeft + 60, this.guiTop + 6));
+			this.addLabel(new GuiNpcLabel(12, "id: " + EntityRegistry.getEntry(this.entity.getClass()).getRegistryName(), this.guiLeft + 60, this.guiTop + 6));
 		}
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + 144, 180, 20, "nbt.edit"));
 		this.getButton(0).enabled = (this.compound != null && this.compound.getKeySet().size() > 0);

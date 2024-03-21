@@ -90,7 +90,8 @@ public class GuiNPCFactionSelection extends GuiNPCInterface implements IScrollDa
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data = data;
+		this.data.clear();
+		this.data.putAll(data);
 		this.slot.setList(list);
 		if (this.factionId >= 0) {
 			for (String name : data.keySet()) {

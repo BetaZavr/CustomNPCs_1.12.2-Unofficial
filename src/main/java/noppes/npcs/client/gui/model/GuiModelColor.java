@@ -61,10 +61,10 @@ implements ITextfieldListener {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(GuiModelColor.colorPicker);
+		this.mc.renderEngine.bindTexture(GuiModelColor.colorPicker);
 		this.drawTexturedModalRect(this.colorX, this.colorY, 0, 0, 120, 120);
 		if (this.npcSkin != null) {
-			this.mc.getTextureManager().bindTexture(GuiModelColor.colorgui);
+			this.mc.renderEngine.bindTexture(GuiModelColor.colorgui);
 			int x = this.colorX + 128;
 			int y = this.colorY;
 			this.drawTexturedModalRect(x + 1, y-5, 9, 0, 136, 124);
@@ -72,7 +72,7 @@ implements ITextfieldListener {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 4, y, 0.0f);
 			GlStateManager.scale(0.46f, 0.46f, 0.46f);
-			this.mc.getTextureManager().bindTexture(this.npcSkin);
+			this.mc.renderEngine.bindTexture(this.npcSkin);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 			

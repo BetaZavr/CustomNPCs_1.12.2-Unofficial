@@ -93,7 +93,7 @@ implements ISubGuiListener, ISliderListener {
 		} else {
 			EntityUtil.Copy(this.npc, entity);
 		}
-		this.drawNpc(entity, this.xOffset + 200, 200, 2.0f, (int) (GuiCreationScreenInterface.rotation * 360.0f - 180.0f), 0, true);
+		this.drawNpc(entity, this.xOffset + 200, 200, 2.0f, (int) (GuiCreationScreenInterface.rotation * 360.0f - 180.0f), 0, 1);
 	}
 
 	@Override

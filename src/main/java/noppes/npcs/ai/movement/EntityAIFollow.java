@@ -24,7 +24,6 @@ public class EntityAIFollow extends EntityAIBase {
 	public void resetTask() {
 		this.owner = null;
 		this.npc.getNavigator().clearPath();
-		this.npc.resetBackPos(); // New
 	}
 
 	public boolean shouldContinueExecuting() {
@@ -54,11 +53,7 @@ public class EntityAIFollow extends EntityAIBase {
 		if (this.owner.isSprinting()) {
 			speed += 0.5;
 		}
-		if (this.npc.getNavigator().tryMoveToEntityLiving(this.owner, speed) || this.npc.isInRange(this.owner, 16.0)) {
-			this.npc.resetBackPos(); // New
-			return;
-		}
+		if (this.npc.getNavigator().tryMoveToEntityLiving(this.owner, speed) || this.npc.isInRange(this.owner, 16.0)) { return; }
 		this.npc.tpTo(this.owner);
-		this.npc.resetBackPos(); // New
 	}
 }

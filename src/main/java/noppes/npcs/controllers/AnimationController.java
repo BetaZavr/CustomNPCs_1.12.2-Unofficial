@@ -18,11 +18,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
-import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.handler.IAnimationHandler;
+import noppes.npcs.client.Client;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -66,7 +67,10 @@ implements IAnimationHandler {
 	
 	public int getUnusedId() {
 		int id = 0;
-		for (int i : this.animations.keySet()) { if (i>=id) { id = i + 1; } }
+		for (int i : this.animations.keySet()) {
+			if (i != id) { break; }
+			id = i + 1;
+		}
 		return id;
 	}
 	
@@ -85,9 +89,7 @@ implements IAnimationHandler {
 				this.loadDefaultAnimations(-1);
 			}
 		} catch (Exception e) { this.loadDefaultAnimations(-1); }
-		if (this.animations.size()==0) {
-			this.loadDefaultAnimations(-1);
-		}
+		if (this.animations.size()==0) { this.loadDefaultAnimations(-1); }
 		CustomNpcs.debugData.endDebug("Common", null, "loadAnimations");
 	}
 
@@ -111,7 +113,7 @@ implements IAnimationHandler {
 			((AnimationConfig) this.animations.get(nbtAnimation.getInteger("ID"))).readFromNBT(nbtAnimation);
 			return this.animations.get(nbtAnimation.getInteger("ID"));
 		}
-		AnimationConfig ac = new AnimationConfig(0);
+		AnimationConfig ac = new AnimationConfig();
 		ac.readFromNBT(nbtAnimation);
 		this.animations.put(nbtAnimation.getInteger("ID"), ac);
 		return this.animations.get(nbtAnimation.getInteger("ID"));
@@ -127,7 +129,7 @@ implements IAnimationHandler {
 	
 	public void save() {
 		try { CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "animations.dat"))); }
-		catch (Exception e) { }
+		catch (Exception e) { e.printStackTrace(); }
 	}
 	
 	public void sendTo(EntityPlayerMP player) {
@@ -137,18 +139,31 @@ implements IAnimationHandler {
 			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, ((AnimationConfig) ac).writeToNBT(new NBTTagCompound()));
 		}
 	}
-
-	@Override
-	public IAnimation[] getAnimations(int animationType) {
-		List<IAnimation> list = Lists.<IAnimation>newArrayList();
+	
+	public void sendToServer() {
+		NBTTagCompound nbt = new NBTTagCompound();
+		Client.sendData(EnumPacketServer.AnimationChange, nbt);
 		for (IAnimation ac : this.animations.values()) {
-			if (((AnimationConfig) ac).getType()==animationType) {
-				list.add(ac);
-			}
+			Client.sendData(EnumPacketServer.AnimationChange, ((AnimationConfig) ac).writeToNBT(new NBTTagCompound()));
 		}
-		return list.toArray(new IAnimation[list.size()]);
+		nbt.setBoolean("save", true);
+		Client.sendData(EnumPacketServer.AnimationChange, nbt);
 	}
 
+	public List<AnimationConfig> getAnimations(List<Integer> ids) {
+		List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
+		if (ids == null || ids.isEmpty()) { return list; }
+		for (IAnimation ac : this.animations.values()) {
+			for (int id : ids) {
+				if (ac.getId() == id) {
+					list.add((AnimationConfig) ac);
+					break;
+				}
+			}
+		}
+		return list;
+	}
+	
 	@Override
 	public IAnimation getAnimation(int animationId) {
 		if (this.animations.containsKey(animationId)) { return this.animations.get(animationId); }
@@ -188,15 +203,16 @@ implements IAnimationHandler {
 	}
 
 	@Override
-	public IAnimation createNew(int animationType) {
-		AnimationConfig ac = new AnimationConfig(0);
-		int id = this.getUnusedId();
-		if (animationType < 0) { animationType = 0; }
-		else if (animationType > AnimationKind.values().length) { animationType = AnimationKind.values().length; }
-		ac.type = AnimationKind.values()[animationType];
-		this.animations.put(id, ac);
-		this.save();
-		return this.animations.get(id);
+	public IAnimation createNew() {
+		AnimationConfig ac = new AnimationConfig();
+		ac.id = this.getUnusedId();
+		this.animations.put(ac.id, ac);
+		return ac;
+	}
+
+	@Override
+	public IAnimation[] getAnimations() {
+		return animations.values().toArray(new IAnimation[animations.size()]);
 	}
 	
 }

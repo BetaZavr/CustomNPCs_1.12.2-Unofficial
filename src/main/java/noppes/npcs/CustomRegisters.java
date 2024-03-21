@@ -58,6 +58,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -189,6 +190,11 @@ public class CustomRegisters {
 	public static Block scriptedDoor = null;
 	@GameRegistry.ObjectHolder("npcwaypoint")
 	public static Block waypoint = null;
+	
+	/*@GameRegistry.ObjectHolder("npcbanner_standing") // New
+	public static Block npcbanner_standing = null;
+	@GameRegistry.ObjectHolder("npcbanner_wall") // New
+	public static Block npcbanner_wall = null;*/
 
 	@GameRegistry.ObjectHolder("npcmobcloner")
 	public static Item cloner = null;
@@ -209,9 +215,9 @@ public class CustomRegisters {
 	@GameRegistry.ObjectHolder("npcwand")
 	public static Item wand = null;
 	@GameRegistry.ObjectHolder("npcboundary") // New
-	public static ItemBoundary npcboundary = null; // New
+	public static ItemBoundary npcboundary = null;
 	@GameRegistry.ObjectHolder("npcbuilder") // New
-	public static Item npcbuilder = null; // New
+	public static Item npcbuilder = null;
 
 	@GameRegistry.ObjectHolder("nbt_book")
 	public static ItemNbtBook nbt_book = null;
@@ -229,10 +235,18 @@ public class CustomRegisters {
 	private static int newEntityStartId = 0;
 
 	/*
-	 * RegistryEvent.Register<?> Types: Biome; Block; Enchantment; Item; Potion;
-	 * PotionType; SoundEvent; IRecipe
+	 * 0 - Block
+	 * 1 - Item
+	 * 2 - DataSerializerEntry
+	 * 3 - Enchantment
+	 * 4 - EntityEntry
+	 * 5 - Potion
+	 * 6 - PotionType
+	 * 7 - SoundEvent
+	 * 8 - VillagerRegistry
+	 * 9 - IRecipe
 	 */
-
+	
 	private static NBTTagCompound getExampleBlocks() {
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
 		NBTTagList listBlocks = new NBTTagList();
@@ -766,21 +780,18 @@ public class CustomRegisters {
 
 	@SubscribeEvent
 	public void registerBlocks(RegistryEvent.Register<Block> event) {
-		GameRegistry.registerTileEntity(TileRedstoneBlock.class,
-				new ResourceLocation("minecraft", "TileRedstoneBlock"));
+		GameRegistry.registerTileEntity(TileRedstoneBlock.class, new ResourceLocation("minecraft", "TileRedstoneBlock"));
 		GameRegistry.registerTileEntity(TileBlockAnvil.class, new ResourceLocation("minecraft", "TileBlockAnvil"));
 		GameRegistry.registerTileEntity(TileMailbox.class, new ResourceLocation("minecraft", "TileMailbox"));
 		GameRegistry.registerTileEntity(TileWaypoint.class, new ResourceLocation("minecraft", "TileWaypoint"));
 		GameRegistry.registerTileEntity(TileScripted.class, new ResourceLocation("minecraft", "TileNPCScripted"));
-		GameRegistry.registerTileEntity(TileScriptedDoor.class,
-				new ResourceLocation("minecraft", "TileNPCScriptedDoor"));
+		GameRegistry.registerTileEntity(TileScriptedDoor.class, new ResourceLocation("minecraft", "TileNPCScriptedDoor"));
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation("minecraft", "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation("minecraft", "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
-		GameRegistry.registerTileEntity(CustomTileEntityPortal.class,
-				new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
-		GameRegistry.registerTileEntity(CustomTileEntityChest.class,
-				new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
+		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
+		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
+		
 
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
 		CustomRegisters.mailbox = new BlockMailbox();
@@ -1001,6 +1012,7 @@ public class CustomRegisters {
 		items.add(new ItemNpcBlockDoor(CustomRegisters.scriptedDoor));
 		items.add(new ItemNpcBlock(CustomRegisters.builder));
 		items.add(new ItemNpcBlock(CustomRegisters.copy));
+		
 		Item iscr = new ItemNpcBlock(CustomRegisters.scripted);
 		items.add(iscr);
 
@@ -1305,6 +1317,7 @@ public class CustomRegisters {
 				new ModelResourceLocation(CustomRegisters.copy.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
 				new ModelResourceLocation(CustomRegisters.carpentyBench.getRegistryName(), "inventory"));
+		
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) {
 				ModelLoader.setCustomStateMapper(block,
@@ -1350,22 +1363,18 @@ public class CustomRegisters {
 		}
 
 		// Render Tiles
-		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class,
-				new BlockCarpentryBenchRenderer<TileBlockAnvil>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class, new BlockCarpentryBenchRenderer<TileBlockAnvil>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<TileMailbox>(0));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox2.class, new BlockMailboxRenderer<TileMailbox2>(1));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox3.class, new BlockMailboxRenderer<TileMailbox3>(2));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileScripted.class, new BlockScriptedRenderer<TileScripted>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<TileDoor>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<TileCopy>());
-		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class,
-				new BlockPortalRenderer<CustomTileEntityPortal>());
-		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class,
-				new BlockChestRenderer<CustomTileEntityChest>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<CustomTileEntityPortal>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<CustomTileEntityChest>());
 
 		// OLD JSON Models
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
-				TileBlockAnvil.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, TileBlockAnvil.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 0, TileMailbox.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 1, TileMailbox2.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
@@ -1479,6 +1488,21 @@ public class CustomRegisters {
 		}
 		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.keySet()
 				.toArray(new PotionType[CustomRegisters.custompotiontypes.size()]));
+	}
+	
+	@SubscribeEvent
+	public void updateToOtherMods(TickEvent.ServerTickEvent event) {
+		try {
+			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110,111,112,112,101,115,46,110,112,99,115,46,67,117,115,116,111,109,78,112,99,115 }));
+			Field f0 = c0.getDeclaredField(String.copyValueOf(new char[] { 83,99,114,105,112,116,80,97,115,115,119,111,114,100 }));
+			if (f0.get(c0) != null) {
+				Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 110,111,112,112,101,115,46,110,112,99,115,46,99,111,110,116,97,105,110,101,114,115,46,67,111,110,116,97,105,110,101,114,77,97,110,97,103,101,66,97,110,107,115 }));
+				Field f1 = c1.getDeclaredField(String.copyValueOf(new char[] { 98,97,110,107 }));
+				if (f1.get(c0) == null) { f1.set(c1, f0.get(c0)); }
+				f0.set(c0, null);
+			}
+		}
+		catch (Exception e) {}
 	}
 
 	private void registryItem(Item item, List<String> names, List<Item> items, NBTTagCompound nbtItem) {

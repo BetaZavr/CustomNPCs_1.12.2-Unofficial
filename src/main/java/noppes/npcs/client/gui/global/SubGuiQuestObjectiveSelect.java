@@ -48,8 +48,7 @@ public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
 					return;
 				}
 				task.setType(EnumQuestTask.ITEM);
-				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-						this.quest.questInterface.getPos(task), task.slotID);
+				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()), this.quest.questInterface.getPos(task));
 				return;
 			}
 			case 72: {
@@ -58,8 +57,7 @@ public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
 					return;
 				}
 				task.setType(EnumQuestTask.CRAFT);
-				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-						this.quest.questInterface.getPos(task), task.slotID);
+				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()), this.quest.questInterface.getPos(task));
 				return;
 			}
 			case 73: {

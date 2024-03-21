@@ -86,7 +86,8 @@ implements IScrollData, ICustomScrollListener {
 		if (bank != null) {
 			name = bank.name;
 		}
-		this.data = data;
+		this.data.clear();
+		this.data.putAll(data);
 		this.scroll.setList(list);
 		if (name != null) {
 			this.setSelected(name);

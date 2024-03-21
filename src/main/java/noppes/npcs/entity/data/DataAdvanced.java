@@ -8,7 +8,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
 import noppes.npcs.api.constants.JobType;
@@ -207,10 +206,10 @@ implements INPCAdvanced {
 		this.factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
 		this.scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
 		
-		if (!compound.hasKey("ThroughWalls", 1) && CustomNpcs.FixUpdateFromPre_1_12) { this.throughWalls = true; }
+		if (!compound.hasKey("ThroughWalls", 1)) { this.throughWalls = true; }
 		else { this.throughWalls = compound.getBoolean("ThroughWalls"); }
 		
-		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3) && CustomNpcs.FixUpdateFromPre_1_12) {
+		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3)) {
 			this.setRole(compound.getInteger("Role"));
 			this.setJob(compound.getInteger("NpcJob"));
 			this.roleInterface.readFromNBT(compound);
@@ -229,7 +228,7 @@ implements INPCAdvanced {
 		if (compound.hasKey("NPCDialogOptions", 11)) {
 			this.npc.dialogs = compound.getIntArray("NPCDialogOptions"); // new
 		}
-		else if (compound.hasKey("NPCDialogOptions", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // Old
+		else if (compound.hasKey("NPCDialogOptions", 9)) { // Old
 			this.npc.dialogs = new int[compound.getTagList("NPCDialogOptions", 10).tagCount()];
 			for (int i = 0; i < compound.getTagList("NPCDialogOptions", 10).tagCount(); ++i) {
 				this.npc.dialogs[i] = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i).getCompoundTag("NPCDialog").getInteger("Dialog");

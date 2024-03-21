@@ -3,7 +3,6 @@ package noppes.npcs.client.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import com.google.common.collect.Maps;
 
@@ -23,6 +22,8 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.api.constants.AnimationKind;
+import noppes.npcs.client.gui.animation.GuiNpcAnimation;
+import noppes.npcs.client.gui.animation.SubGuiEditAnimation;
 import noppes.npcs.client.model.animation.AniBow;
 import noppes.npcs.client.model.animation.AniCrawling;
 import noppes.npcs.client.model.animation.AniDancing;
@@ -35,12 +36,13 @@ import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ModelBipedAlt
 extends ModelBiped
-{
+{	
 	private Map<EnumParts, List<ModelScaleRenderer>> map;
 	private Map<EntityCustomNpc, Boolean> isAttaking;
 	private Map<EntityCustomNpc, Boolean> isJump;
@@ -78,8 +80,20 @@ extends ModelBiped
 
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+		if (!(entityIn instanceof EntityCustomNpc)) {
+			super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+			return;
+		}
+		if (Minecraft.getMinecraft().currentScreen instanceof SubGuiEditAnimation) {
+			SubGuiEditAnimation gui = (SubGuiEditAnimation) Minecraft.getMinecraft().currentScreen;
+			if (gui.getDisplayNpc().equals(entityIn) && !((SubGuiEditAnimation) gui).showArmor) { return; }
+		}
+		else if (Minecraft.getMinecraft().currentScreen instanceof GuiNpcAnimation) {
+			GuiNpcAnimation gui = (GuiNpcAnimation) Minecraft.getMinecraft().currentScreen;
+			if (gui.hasSubGui() && gui.subgui instanceof SubGuiEditAnimation && ((SubGuiEditAnimation) gui.subgui).getDisplayNpc().equals(entityIn) && !((SubGuiEditAnimation) gui.subgui).showArmor) { return; }
+		}
+		
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
-		GlStateManager.pushMatrix();
 		EntityCustomNpc npc = (EntityCustomNpc) entityIn;
 		if (this.slot==null ||
 				!(npc.getItemStackFromSlot(this.slot).getItem() instanceof CustomArmor) ||
@@ -118,35 +132,40 @@ extends ModelBiped
 			}
 			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		}
+		List<Boolean> ba = ((EntityNPCInterface) entityIn).animation.showParts;
+		GlStateManager.pushMatrix();
 		if (this.isChild) {
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
 			GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
-			this.bipedHead.render(scale);
+			if (ba.get(0)) {
+				bipedHead.render(scale);
+				bipedHeadwear.render(scale);
+			}
 			GlStateManager.popMatrix();
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
-			this.bipedBody.render(scale);
-			this.bipedRightArm.render(scale);
-			this.bipedLeftArm.render(scale);
-			this.bipedRightLeg.render(scale);
-			this.bipedLeftLeg.render(scale);
-			this.bipedHeadwear.render(scale);
 		} else {
 			if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
-			this.bipedHead.render(scale);
-			this.bipedBody.render(scale);
-			this.bipedRightArm.render(scale);
-			this.bipedLeftArm.render(scale);
-			this.bipedRightLeg.render(scale);
-			this.bipedLeftLeg.render(scale);
-			this.bipedHeadwear.render(scale);
+			if (ba.get(0)) {
+				bipedHead.render(scale);
+				bipedHeadwear.render(scale);
+			}
 		}
+		if (ba.get(3)) { bipedBody.render(scale); }
+		if (ba.get(2)) { bipedRightArm.render(scale); }
+		if (ba.get(1)) { bipedLeftArm.render(scale); }
+		if (ba.get(5)) { bipedRightLeg.render(scale); }
+		if (ba.get(4)) { bipedLeftLeg.render(scale); }
 		GlStateManager.popMatrix();
 	}
-	
+
 	@Override
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
+		if (!(entityIn instanceof EntityCustomNpc)) {
+			super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
+			return;
+		}
 		EntityCustomNpc npc = (EntityCustomNpc) entityIn;
 		ModelData playerdata = npc.modelData;
 		for (EnumParts part : this.map.keySet()) {
@@ -315,7 +334,6 @@ extends ModelBiped
 		npc.animation.isAnimated = this.setAnimationRotationAngles(npc, anim, ageInTicks);
 	}
 	
-	
 	protected EnumHandSide getMainHand(Entity entityIn) {
 		if (!(entityIn instanceof EntityLivingBase) || !((EntityLivingBase) entityIn).isSwingInProgress) {
 			return super.getMainHand(entityIn);
@@ -325,32 +343,6 @@ extends ModelBiped
 			return EnumHandSide.RIGHT;
 		}
 		return EnumHandSide.LEFT;
-	}
-	
-	public ModelRenderer getRandomModelBox(Random random) {
-		switch (random.nextInt(5)) {
-			case 0: {
-				return this.bipedHead;
-			}
-			case 1: {
-				return this.bipedBody;
-			}
-			case 2: {
-				return this.bipedLeftArm;
-			}
-			case 3: {
-				return this.bipedRightArm;
-			}
-			case 4: {
-				return this.bipedLeftLeg;
-			}
-			case 5: {
-				return this.bipedRightLeg;
-			}
-			default: {
-				return this.bipedHead;
-			}
-		}
 	}
 
 	private boolean setAnimationRotationAngles(EntityCustomNpc npc, AnimationConfig anim, float ageInTicks) {

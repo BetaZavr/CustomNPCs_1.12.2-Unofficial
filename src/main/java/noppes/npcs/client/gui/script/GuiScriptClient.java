@@ -1,7 +1,6 @@
 package noppes.npcs.client.gui.script;
 
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.ClientScriptData;
@@ -15,9 +14,6 @@ extends GuiScriptInterface {
 		this.script = new ClientScriptData();
 		this.handler = this.script;
 		Client.sendData(EnumPacketServer.ScriptClientGet);
-		for (Class<?> cls : CustomNpcs.forgeClientEventNames.keySet()) {
-			this.baseFuncNames.put(CustomNpcs.forgeClientEventNames.get(cls), cls);
-		}
 	}
 
 	@Override

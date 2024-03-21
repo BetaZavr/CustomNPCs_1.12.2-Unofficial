@@ -4,11 +4,12 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.entity.data.INPCMelee;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.ValueUtil;
 
 public class DataMelee
 implements INPCMelee {
 	
-	private int attackRange;
+	private double attackRange;
 	private int attackSpeed;
 	private int attackStrength;
 	private int knockback;
@@ -20,7 +21,7 @@ implements INPCMelee {
 	public DataMelee(EntityNPCInterface npc) {
 		this.attackStrength = 5;
 		this.attackSpeed = 20;
-		this.attackRange = 2;
+		this.attackRange = 2.0d;
 		this.knockback = 0;
 		this.potionType = 0;
 		this.potionDuration = 5;
@@ -54,7 +55,7 @@ implements INPCMelee {
 	}
 
 	@Override
-	public int getRange() {
+	public double getRange() {
 		return this.attackRange;
 	}
 
@@ -66,7 +67,8 @@ implements INPCMelee {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.attackSpeed = compound.getInteger("AttackSpeed");
 		this.setStrength(compound.getInteger("AttackStrenght"));
-		this.attackRange = compound.getInteger("AttackRange");
+		if (compound.hasKey("AttackRange", 3)) { this.attackRange = (float) compound.getInteger("AttackRange"); }
+		else { this.attackRange = compound.getDouble("AttackRange"); }
 		this.knockback = compound.getInteger("KnockBack");
 		this.potionType = compound.getInteger("PotionEffect");
 		this.potionDuration = compound.getInteger("PotionDuration");
@@ -91,8 +93,8 @@ implements INPCMelee {
 	}
 
 	@Override
-	public void setRange(int range) {
-		this.attackRange = range;
+	public void setRange(double range) {
+		this.attackRange = ValueUtil.correctDouble(range, 1.0d, 30.0d);
 	}
 
 	@Override
@@ -104,7 +106,7 @@ implements INPCMelee {
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("AttackStrenght", this.attackStrength);
 		compound.setInteger("AttackSpeed", this.attackSpeed);
-		compound.setInteger("AttackRange", this.attackRange);
+		compound.setDouble("AttackRange", this.attackRange);
 		compound.setInteger("KnockBack", this.knockback);
 		compound.setInteger("PotionEffect", this.potionType);
 		compound.setInteger("PotionDuration", this.potionDuration);

@@ -41,7 +41,6 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	private boolean canTransport;
 	protected int bxSize, bySize;
 	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private GuiCustomScroll scroll;
 	private final Map<String, Integer> data;
 	private TransportLocation locSel;
@@ -100,7 +99,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		this.bySize = 0;
 		if (!this.locSel.inventory.isEmpty()) {
 			GlStateManager.pushMatrix();
-			this.mc.renderEngine.bindTexture(this.slot);
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			this.barterItems = AdditionalMethods.getInventoryItemCount(this.player, this.locSel.inventory);
 			int slot = 0;
 			this.canTransport = true;

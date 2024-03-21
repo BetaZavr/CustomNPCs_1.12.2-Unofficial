@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.data.role.ITransportLocation;
-import noppes.npcs.dimensions.DimensionHandler;
 
 public class TransportLocation
 implements ITransportLocation {
@@ -117,9 +116,9 @@ implements ITransportLocation {
 
 	@Override
 	public void setPos(int dimentionID, int x, int y, int z) {
-		if (!DimensionHandler.getInstance().getMapDimensionsIDs().containsValue(dimentionID)) {
+		/*if (!DimensionHandler.getInstance().getMapDimensionsIDs().containsValue(dimentionID)) {
 			throw new CustomNPCsException("Unknown dimention ID: " + dimentionID);
-		}
+		}*/
 		this.dimension = dimentionID;
 		this.pos = new BlockPos(x, y, z);
 	}

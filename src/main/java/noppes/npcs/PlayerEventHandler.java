@@ -109,7 +109,7 @@ public class PlayerEventHandler {
 		public void forgeEntity(Event event) {
 			EventHooks.onForgeEvent(new ForgeEvent(event));
 		}
-	}
+	}	
 
 	private void doCraftQuest(ItemCraftedEvent event) {
 		EntityPlayer player = event.player;
@@ -178,6 +178,7 @@ public class PlayerEventHandler {
 					}
 				}
 				playerdata.checkQuestCompletion(player, data);
+				playerdata.updateClient = true;
 			}
 		}
 	}
@@ -228,6 +229,7 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcItemPickupEvent");
 		PlayerData pd = PlayerData.get(event.getEntityPlayer());
 		for (QuestData qd : pd.questData.activeQuests.values()) { pd.questData.checkQuestCompletion(event.getEntityPlayer(), qd); }
+		pd.questData.updateClient = true;
 		event.setCanceled(EventHooks.onPlayerPickUp(pd.scriptData, event.getItem()));
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcItemPickupEvent");
 	}
@@ -256,6 +258,7 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcItemTossEvent");
 		PlayerData pd = PlayerData.get(event.getPlayer());
 		for (QuestData qd : pd.questData.activeQuests.values()) { pd.questData.checkQuestCompletion(event.getPlayer(), qd); }
+		pd.questData.updateClient = true;
 		event.setCanceled(EventHooks.onPlayerToss(pd.scriptData, event.getEntityItem()));
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcItemTossEvent");
 	}
@@ -266,19 +269,37 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "PlayerEventHandler_npcLivingAttackEvent");
 		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
 		if (source instanceof EntityPlayer) {
-			PlayerScriptData handler = PlayerData.get((EntityPlayer) source).scriptData;
+			PlayerData data = PlayerData.get((EntityPlayer) source);
+			PlayerScriptData handler = data.scriptData;
 			ItemStack item = ((EntityPlayer) source).getHeldItemMainhand();
 			IEntity<?> target = NpcAPI.Instance().getIEntity(event.getEntityLiving());
 			PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), 1, target);
 			event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
-			if (event.isCanceled() || ev.isCanceled()) {
-				ObfuscationHelper.setValue(LivingAttackEvent.class, event, 0.0f, float.class);
-			}
+			if (event.isCanceled() || ev.isCanceled()) { ObfuscationHelper.setValue(LivingAttackEvent.class, event, 0.0f, float.class); }
 			if (item.getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 				ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
 				ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), 1, target);
 				eve.setCanceled(event.isCanceled());
 				event.setCanceled(EventHooks.onScriptItemAttack(isw, eve));
+			}
+			if (!event.isCanceled()) {
+				for (EntityNPCInterface npc : data.game.getMercenaries()) {
+					if (!npc.isAttacking()) { npc.setAttackTarget(event.getEntityLiving()); }
+					else if (npc.aiTargetAnalysis != null) { npc.aiTargetAnalysis.addDamageFromEntity(event.getEntityLiving(), event.getAmount() * 1.2d); }
+					if (event.getEntityLiving() instanceof EntityNPCInterface && ((EntityNPCInterface) event.getEntityLiving()).aiTargetAnalysis != null) {
+						((EntityNPCInterface) event.getEntityLiving()).aiTargetAnalysis.addDamageFromEntity(npc, event.getAmount());
+					}
+				}
+			}
+		}
+		if (event.getEntityLiving() instanceof EntityPlayer && source instanceof EntityLivingBase && !event.isCanceled()) {
+			PlayerData data = PlayerData.get((EntityPlayer) event.getEntityLiving());
+			for (EntityNPCInterface npc : data.game.getMercenaries()) {
+				if (!npc.isAttacking()) { npc.setAttackTarget((EntityLivingBase) source); }
+				else if (npc.aiTargetAnalysis != null) { npc.aiTargetAnalysis.addDamageFromEntity((EntityLivingBase) source, event.getAmount() * 1.2d); }
+				if (source instanceof EntityNPCInterface && ((EntityNPCInterface) source).aiTargetAnalysis != null) {
+					((EntityNPCInterface) source).aiTargetAnalysis.addDamageFromEntity(npc, event.getAmount());
+				}
 			}
 		}
 		CustomNpcs.debugData.endDebug("Server", event.getEntityLiving(), "PlayerEventHandler_npcLivingAttackEvent");
@@ -361,9 +382,7 @@ public class PlayerEventHandler {
 				}
 				for (QuestData qd : data.questData.activeQuests.values()) { // Changed
 					for (IQuestObjective obj : qd.quest .getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-						if (obj.getType() != 0) {
-							continue;
-						}
+						if (obj.getType() != 0) { continue; }
 						data.questData.checkQuestCompletion(player, qd);
 					}
 				}
@@ -889,84 +908,158 @@ public class PlayerEventHandler {
 		return this;
 	}
 
-	
 	@SubscribeEvent
 	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
 		if (!(event.getEntityLiving() instanceof EntityPlayer)) { return; }
-		EntityLivingBase entity = event.getEntityLiving();
-		/*for (Entity e : entity.world.loadedEntityList) {
-			if (!(e instanceof EntityNPCInterface)) {continue;}
-			System.out.println("NPC: "+e.getName());
-		}*/
-		if (entity instanceof EntityPlayerMP) {
-			//EntityPlayerMP player = (EntityPlayerMP) entity;
-			/*// Delete
-			int x, y = 0, z;
-			while (y < 103) {
-				System.out.println("start y: "+y);
-				z = -128;
-				while (z < 109) {
-					x = -146;
-					while (x < 123) {
-						if (x==0 && y==63 && z==0) { x++; continue; }
-						player.world.setBlockToAir(new BlockPos(x, y, z));
-						x++;
-					}
-					z++;
-				}
-				y++;
-			}*/
-		} else {
-			/*File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
-			File dir16 = new File(dir.getParentFile().getParentFile(), "1.16.5/CustomNpcs Un");
-			File dir12 = new File(dir, "src/main/resources/assets/customnpcs/lang");
-			dir16 = new File(dir16, "src/main/resources/assets/customnpcs/lang");
-			dir = new File(dir, "src");
-			for (int i = 0; i < 2; i++) {
-				String name = (i == 0 ? "en_us" : "ru_ru");
-				File lang12 = new File(dir12, name + ".lang");
-				File lang16 = new File(dir16, name + ".json");
-				Map<String, String> map12 = Maps.<String, String>newTreeMap();
-				Map<String, String> map16 = Maps.<String, String>newTreeMap();
-				try {
-					String[] langs12 = Files.toString(lang12, Charset.forName("UTF-8")).split(""+((char) 10));
-					String[] langs16 = Files.toString(lang16, Charset.forName("UTF-8")).split(""+((char) 10));
-					for (String line : langs12) {
-						if (line.indexOf("=")==-1) { continue; }
-						String key = line.substring(0, line.indexOf("="));
-						if (key.startsWith("item.") && key.endsWith(".name")) {
-							key = key.replace(".name", "").replace("item.", "item.customnpcs.");
+		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+		if (player instanceof EntityPlayerMP) {
+			
+		}
+		else {
+			try {
+				/*
+				File dirM = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "src my");
+				List<File> list = AdditionalMethods.getFiles(dirM, ".java");
+System.out.println("CNPCs: list size: "+list.size());
+				Map<String, String> trs = Maps.<String, String>newLinkedHashMap();
+				trs.put("noppes", "betazavr");
+				trs.put("npcs", "all");
+				trs.put("customnpcs", "customall");
+				trs.put("CustomNpcs", "CustomAll");
+				trs.put("CustomNPCs", "CustomAll");
+				trs.put("ConfigProp", "ConfigData");
+				trs.put("EntityNPCInterface", "EntityNpcInterface");
+				
+				int i = 0, j = 0;
+				for (File file : list) {
+					String text = Files.toString(file, StandardCharsets.UTF_8);
+					boolean changed = false;
+					for (String key : trs.keySet()) {
+						String value = trs.get(key);
+						while (text.indexOf(key) != -1) {
+							text = text.replace(key, value);
+							changed = true;
+							i++;
 						}
-						String value = line.indexOf("=")+1<=line.length() ? line.substring(line.indexOf("=")+1) : "";
-						if (value.isEmpty()) { continue; }
-						while (value.indexOf("\"")!=-1) { value = value.replace("\"", "''"); }
-						map12.put(key, value);
 					}
-					for (String line : langs16) {
-						if (line.indexOf("\": \"")==-1) { continue; }
-						String key = line.substring(line.indexOf("\"")+1, line.indexOf("\": \""));
-						String value = line.indexOf("\": \"")+4 <= line.length() ? line.substring(line.indexOf("\": \"")+4, line.indexOf("\"", line.indexOf("\": \"")+4)) : "";
-						if (value.isEmpty()) { continue; }
-						map16.put(key, value);
+					if (changed) {
+						Files.write(text.getBytes(), file);
+						j++;
 					}
 				}
-				catch (IOException e) {}
-				for (String key : map12.keySet()) {
-					if (map16.containsKey(key)) { continue; }
-					map16.put(key, map12.get(key));
+System.out.println("CNPCs: changed count "+i+"; files: "+ j);
+
+				i = 0; j = 0;
+				list = AdditionalMethods.getFiles(dirM, ".json");
+				for (File file : list) {
+					String text = Files.toString(file, StandardCharsets.UTF_8);
+					boolean changed = false;
+					for (String key : trs.keySet()) {
+						String value = trs.get(key);
+						while (text.indexOf(key) != -1) {
+							text = text.replace(key, value);
+							changed = true;
+							i++;
+						}
+					}
+					if (changed) {
+						Files.write(text.getBytes(), file);
+						j++;
+					}
 				}
-				System.out.println("CNPCs new maps: "+map12.size()+" // "+map16.size());
-				String total = "{" + ((char) 10);
-				for (String key : map16.keySet()) {
-					total += ((char) 9) + "\"" + key + "\": \"" + map16.get(key) + "\"," + ((char) 10);
+				/**/
+				/*
+				File dirT = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "1.12.2");
+				
+				Map<String, String> trs = Maps.<String, String>newLinkedHashMap();
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(dirT, "transition.txt")), StandardCharsets.UTF_8));
+				for (String line = br.readLine(); line != null; line = br.readLine()) {
+					if (line.indexOf("=") == -1) { continue; }
+					String key = line.substring(0, line.indexOf("="));
+					String value = line.substring(line.indexOf("=")+1);
+					trs.put(key, value);
+		        }
+				br.close();
+System.out.println("CNPCs: trs size: "+trs.size());
+				List<File> list = AdditionalMethods.getFiles(dirT, ".java");
+System.out.println("CNPCs: list size: "+list.size());
+				int i = 0, j = 0;
+				for (File file : list) {
+//System.out.println("CNPCs: file "+file);
+					String text = Files.toString(file, StandardCharsets.UTF_8);
+//System.out.println("CNPCs: text "+text.length());
+					for (String key : trs.keySet()) {
+						int k = 0;
+						String value = trs.get(key);
+						while (text.indexOf(key) != -1) {
+							text = text.replace(key, value);
+							i++;
+							k++;
+							if (k > 50) {
+								System.out.println("CNPCs: error FOR key: "+key);
+								break;
+							}
+						}
+					}
+					Files.write(text.getBytes(), file);
+					j++;
+//System.out.println("CNPCs: change "+j+"/"+list.size());
 				}
-				total = total.substring(0, total.length()-2) + ((char) 10)+"}";
-				try {
-					Files.write(total.getBytes(), new File(dir, name + ".json"));
-					System.out.println("CNPCs save: "+name);
+System.out.println("CNPCs: changed count "+i);
+				/**/
+				/*
+				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/java"); // CustomNpcs 1.12.2
+				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "1.16.5"); // CustomNpcs 1.16.5
+				File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "net"); // Minecraft 1.12.2
+				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "nit"); // Minecraft 1.16.5
+				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "Armourers-Workshop");
+				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
+				//for (Method m : AdditionalMethods.class.getDeclaredMethods()) { found.put(m.getName(), null); }
+				//found.put("System.out.println", null);
+				found.put("TileEntityBanner", null); // FlowingFluidBlock
+				for (File file : AdditionalMethods.getFiles(dir, "java")) {
+					try {
+						BufferedReader reader = Files.newReader(file, Charset.forName("UTF-8"));
+						String line;
+						int l = 1;
+						while((line = reader.readLine()) != null) {
+							for (String key : found.keySet()) {
+								if (key.indexOf("&&")!=-1) {
+									String k = key.substring(0, key.indexOf("&&"));
+									String s = key.substring(key.indexOf("&&") + 2);
+									if (line.indexOf(k) != -1 && line.toLowerCase().indexOf(s.toLowerCase()) != -1) {
+										if (found.get(key) == null) { found.put(key, Maps.<String, List<Integer>>newTreeMap()); }
+										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
+										if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, Lists.<Integer>newArrayList()); }
+										found.get(key).get(fPath).add(l);
+									}
+								}
+								else if (line.indexOf(key) != -1) {
+									if (found.get(key) == null) { found.put(key, Maps.<String, List<Integer>>newTreeMap()); }
+									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
+									if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, Lists.<Integer>newArrayList()); }
+									found.get(key).get(fPath).add(l);
+								}
+							}
+							l++;
+						}
+					}
+					catch (Exception e) { }
 				}
-				catch (IOException e) {}
-			}*/
+				for (String key : found.keySet()) {
+					if (found.get(key) == null || found.get(key).isEmpty()) {
+						System.out.println("\"" + key + "\" not found;");
+						continue;
+					}
+					System.out.println("\"" + key + "\" found in:");
+					Map<String, List<Integer>> map = found.get(key);
+					for (String fPath : map.keySet()) {
+						System.out.println(" - \""+fPath+"\": lines:"+map.get(fPath));
+					}
+				}
+				/**/
+			}
+			catch (Exception e) { }
 		}
 	}
 

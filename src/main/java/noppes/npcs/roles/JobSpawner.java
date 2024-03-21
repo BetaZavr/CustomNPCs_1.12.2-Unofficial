@@ -21,7 +21,6 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumDifficulty;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.JobType;
@@ -38,7 +37,7 @@ implements IJobSpawner {
 	private String id;
 	
 	private SpawnNPCData[][] dataEntitys;// 0/false=alive | 1/true=dead
-	public int[][] offset;
+	public final int[][] offset;
 	private int[] spawnType; // 0 =one, 1 = all, 2 = random
 	private int[] number; // curent pos
 	private long cooldownSet; // setting time cooldown
@@ -489,13 +488,19 @@ implements IJobSpawner {
 		this.type = JobType.SPAWNER;
 		this.id = compound.getString("SpawnerId");
 		this.dataEntitys = new SpawnNPCData[2][];
-		this.offset = new int[2][];
-		if (compound.hasKey("SpawnerDoesntDie", 1) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+		this.offset[0] = new int[] { 0, 0, 0 };
+		this.offset[1] = new int[] { 0, 0, 0 };
+		if (compound.hasKey("SpawnerDoesntDie", 1)) { // OLD
 			this.cooldownSet = 3000L;
 			this.exact = false;
 			this.resetUpdate = true;
 			
-			int[] offset = new int[] { compound.getInteger("SpawnerXOffset"), compound.getInteger("SpawnerYOffset"), compound.getInteger("SpawnerZOffset") };
+			int[] osD = new int[] { compound.getInteger("SpawnerXOffset"), compound.getInteger("SpawnerYOffset"), compound.getInteger("SpawnerZOffset") };
+			if (osD.length != 3) {
+				int[] ns = new int[] { 0, 0, 0 };
+				for (int i =0; i < osD.length; i++) { ns[i] = osD[i]; }
+				osD = ns;
+			}
 			List<SpawnNPCData> sDs = Lists.newArrayList();
 			for(int i=1; i<7; i++) {
 				if (!compound.hasKey("SpawnerNBT"+i, 10)) { continue; }
@@ -508,7 +513,7 @@ implements IJobSpawner {
 				this.spawnType[0] = 0;
 				this.spawnType[1] = compound.getInteger("SpawnerType");
 				this.offset[0] = new int[] { 0, 0, 0 };
-				this.offset[1] = offset;
+				this.offset[1] = osD;
 				this.desTargetLost[0] = true;
 				this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLost");
 				this.dataEntitys[0] = new SpawnNPCData[0];
@@ -521,7 +526,7 @@ implements IJobSpawner {
 			else { // Alive
 				this.spawnType[0] = compound.getInteger("SpawnerType");
 				this.spawnType[1] = 0;
-				this.offset[0] = offset;
+				this.offset[0] = osD;
 				this.offset[1] = new int[] { 0, 0, 0 };
 				this.desTargetLost[0] = compound.getBoolean("DespawnOnTargetLost");
 				this.desTargetLost[1] = true;
@@ -539,6 +544,13 @@ implements IJobSpawner {
 		this.cooldownSet = compound.getLong("SpawnerCooldownSetting");
 		this.offset[0] = compound.getIntArray("OffsetWhenAlive");
 		this.offset[1] = compound.getIntArray("OffsetWhenDead");
+		for (int j = 0; j < 2; j++) {
+			if (this.offset[j].length != 3) {
+				int[] ns = new int[] { 0, 0, 0 };
+				for (int i =0; i < this.offset[j].length; i++) { ns[i] = this.offset[j][i]; }
+				this.offset[j] = ns;
+			}
+		}
 		this.desTargetLost[0] = compound.getBoolean("DespawnOnTargetLostWhenAlive");
 		this.desTargetLost[1] = compound.getBoolean("DespawnOnTargetLostWhenDead");
 		this.exact = compound.getBoolean("IsExactOffsetSpawn");

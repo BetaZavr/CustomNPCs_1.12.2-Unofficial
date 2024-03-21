@@ -253,7 +253,7 @@ extends GuiRecipeBook {
 		GlStateManager.disableLighting();
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0F, 0.0F, 100.0F);
-		this.mc.getTextureManager().bindTexture(RECIPE_BOOK);
+		this.mc.renderEngine.bindTexture(RECIPE_BOOK);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		int i = (this.width - 147) / 2 - this.xOffset;
 		int j = (this.height - 166) / 2;
@@ -289,7 +289,7 @@ extends GuiRecipeBook {
 	}
 
 	public void renderTooltip(int mouseX, int mouseY, int mouseButton, int p_191876_4_) {
-		if (this.isVisible()) {
+		if (this.isVisible() && this.recipeBookPage != null && this.toggleRecipesBtn != null) {
 			this.recipeBookPage.renderTooltip(mouseButton, p_191876_4_);
 			if (this.toggleRecipesBtn.isMouseOver()) {
 				String s1 = I18n

@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.NPCRendererHelper;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
@@ -24,6 +22,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.layer.LayerArms;
 import noppes.npcs.client.layer.LayerBody;
+import noppes.npcs.client.layer.LayerCustomArmor;
 import noppes.npcs.client.layer.LayerCustomHeldItem;
 import noppes.npcs.client.layer.LayerEyes;
 import noppes.npcs.client.layer.LayerHead;
@@ -31,11 +30,9 @@ import noppes.npcs.client.layer.LayerHeadwear;
 import noppes.npcs.client.layer.LayerLegs;
 import noppes.npcs.client.layer.LayerNpcCloak;
 import noppes.npcs.client.layer.LayerPreRender;
-import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.ObfuscationHelper;
 
 public class RenderCustomNpc<T extends EntityCustomNpc>
 extends RenderNPCInterface<T> {
@@ -56,12 +53,9 @@ extends RenderNPCInterface<T> {
 		this.layerRenderers.add(new LayerLegs(this));
 		this.layerRenderers.add(new LayerBody(this));
 		this.layerRenderers.add(new LayerNpcCloak(this));
-		this.addLayer(new LayerCustomHeldItem(this));
 		this.addLayer(new LayerCustomHead(this.npcmodel.bipedHead));
-		LayerBipedArmor armor = new LayerBipedArmor(this);
-		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(0.5f), 1);
-		ObfuscationHelper.setValue(LayerArmorBase.class, armor, new ModelBipedAlt(1.0f), 2);
-		this.addLayer(armor);
+		this.addLayer(new LayerCustomHeldItem(this));
+		this.addLayer(new LayerCustomArmor(this));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,10 +124,21 @@ extends RenderNPCInterface<T> {
 	}
 	
 	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
-		if (this.entity!=null && this.renderEntity != null) {
+		if (this.entity != null && this.renderEntity != null) {
 			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {
-			super.renderLayers(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
+			List<Boolean> sp = ((EntityCustomNpc) entitylivingbaseIn).animation.showParts;
+			for (LayerRenderer<T> layerrenderer : this.layerRenderers) {
+				if ((layerrenderer instanceof LayerEyes ||
+						layerrenderer instanceof LayerHead ||
+						layerrenderer instanceof LayerHeadwear ||
+						layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(0)) { continue; }
+				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(3)) { continue; }
+				if (layerrenderer.getClass().getSimpleName().equals("SkinLayerRendererCustomNPC")) { continue; }
+				boolean flag = this.setBrightness(entitylivingbaseIn, partialTicks, layerrenderer.shouldCombineTextures());
+				layerrenderer.doRenderLayer(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
+	            if (flag) { this.unsetBrightness(); }
+	        }
 		}
 	}
 
@@ -143,7 +148,6 @@ extends RenderNPCInterface<T> {
 			boolean isInvisible = npc.isInvisible();
 			if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
 			else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
-			//System.out.println(npc.getName()+"; isInvisible: "+isInvisible);
 			if (isInvisible) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
@@ -216,7 +220,7 @@ extends RenderNPCInterface<T> {
 		}
 		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
         if (npc.deathTime > 0) {
-        	boolean flag = npc.animation.activeAnim!=null ? npc.animation.activeAnim.type == AnimationKind.DIES: npc.animation.getActiveAnimation(AnimationKind.DIES)!=null;
+        	boolean flag = npc.animation.activeAnim!=null ? npc.animation.activeAnim.type == AnimationKind.DIES : npc.animation.getActiveAnimation(AnimationKind.DIES) != null;
             if (flag) { return; }
         	float f = ((float) npc.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
             f = MathHelper.sqrt(f);

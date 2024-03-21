@@ -9,6 +9,7 @@ import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NaturalOrderComparator;
 
@@ -40,7 +42,7 @@ extends GuiScreen {
 	private boolean isSorted;
 	private int lastClickedItem;
 	private long lastClickedTime;
-	private List<String> list;
+	private final List<String> list;
 	private ICustomScrollListener listener;
 	private int listHeight;
 	public int maxScrollY;
@@ -48,10 +50,11 @@ extends GuiScreen {
 	private GuiScreen parent;
 	private int scrollHeight;
 	public int scrollY;
-	private boolean selectable;
+	public boolean selectable;
 	public int selected;
 	private HashSet<String> selectedList;
 	private List<ItemStack> stacks;
+	private List<ResourceData> prefixs;
 	public boolean visible;
 
 	public GuiCustomScroll(GuiScreen parent, int id) {
@@ -90,7 +93,7 @@ extends GuiScreen {
 	}
 
 	public void clear() {
-		this.list = new ArrayList<String>();
+		this.list.clear();
 		this.selected = -1;
 		this.scrollY = 0;
 		this.setSize(this.width, this.height);
@@ -102,7 +105,7 @@ extends GuiScreen {
 			int j = 4;
 			int k = 14 * i + 4 - this.scrollY;
 			if (k < 4 || k + 10 > this.height) { continue; }
-			String displayString = this.list.get(i).toString();
+			String displayString = this.list.get(i) == null ? "null" : this.list.get(i).toString();
 			try { 
 				displayString = new TextComponentTranslation(this.list.get(i).toString()).getFormattedText();
 			} catch (Exception e) { }
@@ -124,7 +127,7 @@ extends GuiScreen {
 				text = displayString;
 			}
 			int xo = 0;
-			if (this.stacks != null && i < this.stacks.size()) {
+			if ((this.stacks != null && i < this.stacks.size()) || (this.prefixs != null && i < this.prefixs.size())) {
 				j = 14;
 				xo = -14;
 			}
@@ -147,13 +150,13 @@ extends GuiScreen {
 			if (this.suffixs != null &&
 					i < this.suffixs.size() &&
 					!this.suffixs.get(i).isEmpty() &&
-					this.fontRenderer.getStringWidth(text+this.suffixs.get(i))<this.width-20) {
-				this.fontRenderer.drawString(this.suffixs.get(i), j+this.width-9 + (this.listHeight>this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
+					this.fontRenderer.getStringWidth(text+this.suffixs.get(i)) < this.width-20) {
+				this.fontRenderer.drawString(this.suffixs.get(i), j + this.width - 9 + (this.listHeight > this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
 			}
 		}
 	}
 
-	public void drawScreen(int mouseX, int mouseY, float f, int mouseScrolled) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks, int mouseScrolled) {
 		if (!this.visible) { return; }
 		if (this.border!=0xFF000000) {
 			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1, this.height + this.guiTop + 1, this.border, this.border);
@@ -176,6 +179,9 @@ extends GuiScreen {
 		if (this.stacks != null && this.parent!=null &&
 				((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) ||
 				(this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) { this.drawStacks(); }
+		if (this.prefixs != null && this.parent!=null &&
+				((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) ||
+				(this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) { this.drawPrefixs(); }
 		if (this.scrollHeight <= this.height - 6) {
 			this.drawScrollBar(); // Changed
 			mouseX -= this.guiLeft;
@@ -234,7 +240,7 @@ extends GuiScreen {
 		Gui.drawRect(posX, posY, posX + 8, posY + this.scrollHeight + 1, 0xA0FFF0F0);
 	}
 
-	protected void drawStacks() {
+	private void drawStacks() {
 		if (this.stacks == null) { return; }
 		for (int i = 0; i < this.list.size() && i < this.stacks.size(); ++i) {
 			int k = 14 * i + 4 - this.scrollY;
@@ -244,22 +250,33 @@ extends GuiScreen {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.translate(0, k - 2.5f, 300.0f); // position X, Y, Z
+			GlStateManager.translate(0, k - 2.5f, 300.0f);
 			GlStateManager.scale(0.75f, 0.75f, 0.75f);
 			RenderHelper.enableStandardItemLighting();
-			/*
-			 * GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-			 * this.mc.getRenderItem().renderItem(this.stacks.get(i),
-			 * ItemCameraTransforms.TransformType.GROUND);
-			 */
 			this.mc.getRenderItem().renderItemAndEffectIntoGUI(this.stacks.get(i), 0, 0);
-			// this.mc.getRenderItem().renderItemOverlays(this.mc.fontRenderer,
-			// this.stacks.get(i), 0, 0);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
 	}
 
+	private void drawPrefixs() {
+		if (this.prefixs == null) { return; }
+		for (int i = 0; i < this.list.size() && i < this.prefixs.size(); ++i) {
+			int k = 14 * i + 4 - this.scrollY;
+			ResourceData rd = this.prefixs.get(i);
+			if (k < 4 || k + 12 >= this.height || rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) { continue; }
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
+			float scale = 12.0f / (float) (rd.width > rd.height ? rd.width : rd.height);
+			GlStateManager.scale(scale, scale, scale);
+			Minecraft.getMinecraft().renderEngine.bindTexture(rd.resource);
+			this.drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
+			GlStateManager.popMatrix();
+		}
+	}
+	
 	public int getHeight() {
 		return this.height;
 	}
@@ -400,14 +417,16 @@ extends GuiScreen {
 		this.isSorted = true;
 		this.scrollY = 0;
 		Collections.sort(list, new NaturalOrderComparator());
-		this.list = list;
+		this.list.clear();
+		this.list.addAll(list);
 		this.setSize(this.width, this.height);
 	}
 
 	public void setListNotSorted(List<String> list) {
 		if (this.isSameList(list)) { return; }
 		this.scrollY = 0;
-		this.list = list;
+		this.list.clear();
+		this.list.addAll(list);
 		this.setSize(this.width, this.height);
 		this.isSorted = false;
 	}
@@ -457,6 +476,10 @@ extends GuiScreen {
 		this.stacks = stacks;
 	}
 
+	public void setPrefixs(List<ResourceData> prefixs) {
+		this.prefixs = prefixs;
+	}
+	
 	public GuiCustomScroll setUnselectable() {
 		this.selectable = false;
 		return this;
@@ -473,6 +496,9 @@ extends GuiScreen {
 				this.scrollY -= 14;
 				if (this.scrollY<0) { this.scrollY = 0; }
 			}
+			if (this.listener != null) {
+				this.listener.scrollClicked(-1, -1, 0, this);
+			}
 		}
 		else if (i==208 || i==ClientProxy.backButton.getKeyCode()) { // down
 			if (this.selected>=this.getList().size()-1) { return; }
@@ -480,6 +506,9 @@ extends GuiScreen {
 			if (this.maxScrollY>0) {
 				this.scrollY += 14;
 				if (this.scrollY>this.maxScrollY) { this.scrollY = this.maxScrollY; }
+			}
+			if (this.listener != null) {
+				this.listener.scrollClicked(-1, -1, 0, this);
 			}
 		}
 	}

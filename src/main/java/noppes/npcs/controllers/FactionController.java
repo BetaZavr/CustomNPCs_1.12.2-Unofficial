@@ -14,6 +14,7 @@ import java.util.zip.GZIPInputStream;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
@@ -37,9 +38,13 @@ implements IFactionHandler {
 		this.factions = new HashMap<Integer, Faction>();
 		this.lastUsedID = 0;
 		FactionController.instance = this;
-		this.factions.put(0, new Faction(0, "Friendly", 56576, 2000));
-		this.factions.put(1, new Faction(1, "Neutral", 15916288, 1000));
-		this.factions.put(2, new Faction(2, "Aggressive", 14483456, 0));
+		this.factions.put(0, new Faction(0, "faction.name.friendly", 0x00DD00, 2000));
+		Faction faction = new Faction(1, "faction.name.neutral", 0xF2DD00, 1000);
+		faction.flag = new ResourceLocation(CustomNpcs.MODID + ":textures/cloak/baconcape.png");
+		this.factions.put(1, faction);
+		faction = new Faction(2, "faction.name.aggressive", 0xDD0000, 0);
+		faction.flag = new ResourceLocation(CustomNpcs.MODID + ":textures/cloak/enderdragoncape.png");
+		this.factions.put(2, faction);
 	}
 
 	@Override
@@ -177,10 +182,22 @@ implements IFactionHandler {
 			}
 		} finally {
 			EventHooks.onGlobalFactionsLoaded(this);
-			if (this.factions.isEmpty()) {
-				this.factions.put(0, new Faction(0, "Friendly", 56576, 2000));
-				this.factions.put(1, new Faction(1, "Neutral", 15916288, 1000));
-				this.factions.put(2, new Faction(2, "Aggressive", 14483456, 0));
+			if (!factions.containsKey(0)) {
+				Faction friendly = new Faction(0, "faction.name.friendly", 0x00DD00, 2000);
+				friendly.frendFactions.add(1);
+				this.factions.put(0, friendly);
+			}
+			if (!factions.containsKey(1)) {
+				Faction neutral = new Faction(1, "faction.name.neutral", 0xF2DD00, 1000);
+				neutral.flag = new ResourceLocation(CustomNpcs.MODID + ":textures/cloak/baconcape.png");
+				this.factions.put(1, neutral);
+			}
+			if (!factions.containsKey(2)) {
+				Faction aggressive = new Faction(2, "faction.name.aggressive", 0xDD0000, 0);
+				aggressive.attackFactions.add(0);
+				aggressive.attackFactions.add(1);
+				aggressive.flag = new ResourceLocation(CustomNpcs.MODID + ":textures/cloak/enderdragoncape.png");
+				this.factions.put(2, aggressive);
 			}
 		}
 		if (CustomNpcs.VerboseDebug) {
@@ -214,9 +231,7 @@ implements IFactionHandler {
 	public void saveFaction(Faction faction) {
 		if (faction.id < 0) {
 			faction.id = this.getUnusedId();
-			while (this.hasName(faction.name)) {
-				faction.name += "_";
-			}
+			while (this.hasName(faction.name)) { faction.name += "_"; }
 		} else {
 			Faction existing = this.factions.get(faction.id);
 			if (existing != null && !existing.name.equals(faction.name)) {
@@ -225,7 +240,6 @@ implements IFactionHandler {
 				}
 			}
 		}
-		this.factions.remove(faction.id);
 		this.factions.put(faction.id, faction);
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData, faction.writeNBT(new NBTTagCompound()));
 		this.saveFactions();

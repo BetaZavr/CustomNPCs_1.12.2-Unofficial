@@ -12,7 +12,7 @@ public interface INPCMelee {
 
 	int getKnockback();
 
-	int getRange();
+	double getRange();
 
 	int getStrength();
 
@@ -22,7 +22,7 @@ public interface INPCMelee {
 
 	void setKnockback(int knockback);
 
-	void setRange(int range);
+	void setRange(double range);
 
 	void setStrength(int strength);
 	

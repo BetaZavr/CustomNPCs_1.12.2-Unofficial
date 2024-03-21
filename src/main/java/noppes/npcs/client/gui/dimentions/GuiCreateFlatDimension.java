@@ -128,7 +128,7 @@ extends GuiScreen {
 
 		private void drawItemBackground(int x, int z, int textureX, int textureY) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(Gui.STAT_ICONS);
+			this.mc.renderEngine.bindTexture(Gui.STAT_ICONS);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);

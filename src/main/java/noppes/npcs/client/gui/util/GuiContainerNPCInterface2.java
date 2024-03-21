@@ -8,6 +8,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiContainerNPCInterface2
@@ -16,6 +17,7 @@ extends GuiContainerNPCInterface {
 	protected ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	protected ResourceLocation defaultBackground = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	private GuiNpcMenu menu;
+	
 	public int menuYOffset;
 
 	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont) {
@@ -28,6 +30,7 @@ extends GuiContainerNPCInterface {
 		this.xSize = 420;
 		this.menu = new GuiNpcMenu((GuiScreen) this, activeMenu, npc);
 		this.title = "";
+		this.closeOnEsc = true;
 	}
 
 	public void delete() {
@@ -165,12 +168,12 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.menu.topButtonPressed(new GuiMenuTopButton(1, 0, 0, ""));
+	public void close() {
+		if (menu.activeMenu > 1) {
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
 		}
-		super.keyTyped(c, i);
+		super.close();
 	}
 	
 }

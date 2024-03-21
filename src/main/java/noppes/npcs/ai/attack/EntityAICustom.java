@@ -19,7 +19,7 @@ extends EntityAIBase {
 	protected EntityLivingBase target;
 	protected int burstCount, tacticalRange;
 	protected int rangedTick, meleeTick, delay, step;
-	public boolean hasAttack, startRangedAttack, isRanged, canSeeToAttack, inMove;
+	public boolean hasAttack, startRangedAttack, isRanged, canSeeToAttack, inMove, isFrend;
 	public double distance, range;
 	
 	public EntityAICustom(EntityNPCInterface npc) {
@@ -49,11 +49,13 @@ extends EntityAIBase {
 	 * EntityAITasks.java:91
 	 */
 	@Override
-	public void resetTask() { }
+	public void resetTask() {
+		this.canSeeToAttack = false;
+	}
 
 	@Override
 	public boolean shouldContinueExecuting() {
-        return this.npc != null && !this.npc.isEntityAlive() && !this.npc.isRunHome;
+        return this.npc != null && !this.npc.isEntityAlive();
     }
 	
 	@Override
@@ -79,7 +81,7 @@ extends EntityAIBase {
 			if (this.delay > 0) {
 				this.delay--;
 				if (this.delay == 0 && this.npc.ais.returnToStart) {
-					this.npc.runBack();
+					npc.getNavigator().tryMoveToXYZ(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), 1.3d);
 				}
 			}
 			CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
@@ -87,6 +89,7 @@ extends EntityAIBase {
 			return false;
 		}
 		this.delay = 20;
+		this.isFrend = this.npc.isFrend(this.target);
 		CustomNpcs.debugData.endDebug("Server", this.npc, "EntityAICustom_shouldExecute");
 		return true;
 	}
@@ -105,10 +108,10 @@ extends EntityAIBase {
 		this.isRanged = this.npc.inventory.getProjectile() != null && (this.npc.stats.ranged.getMeleeRange() <= 0 || this.distance > this.npc.stats.ranged.getMeleeRange());
 		if (this.isRanged) {
 			this.rangedTick = Math.max(this.rangedTick - this.tickRate, 0);
-			this.range = (double) this.npc.stats.ranged.getRange();
+			this.range = this.npc.stats.ranged.getRange();
 		} else {
 			this.meleeTick = Math.max(this.meleeTick - this.tickRate, 0);
-			this.range = (double) this.npc.stats.melee.getRange();
+			this.range = this.npc.stats.melee.getRange();
 			double minRange = this.npc.width * 2.0f + this.target.width;
 			if (minRange > this.range) { this.range = minRange; }
 		}
@@ -123,8 +126,9 @@ extends EntityAIBase {
 	
 	protected void tryToCauseDamage() {
 		if (this.isRanged) {
-			if (this.rangedTick > 0 || this.distance > this.range || !(this.canSeeToAttack || this.npc.stats.ranged.getFireType() == 2)) {
+			if (this.rangedTick > 0 || this.distance > this.range || !this.canSeeToAttack || this.npc.stats.ranged.getFireType() == 2) {
 				if (this.rangedTick == 0 && !this.canSeeToAttack) { this.rangedTick = 5; }
+				this.startRangedAttack = false;
 				return;
 			}
 			this.startRangedAttack = true;
@@ -143,9 +147,10 @@ extends EntityAIBase {
 	public void writeToClientNBT(NBTTagCompound compound) { }
 	
 	public void update() {
-		if (!this.startRangedAttack || this.target == null || !this.target.isEntityAlive()) {
+		if (!this.startRangedAttack || this.target == null || !this.target.isEntityAlive() || !this.npc.isEntityAlive()) {
 			this.startRangedAttack = false;
-			this.step = 0;
+			/*this.step = 0;
+			this.burstCount = 0;*/
 			return;
 		}
 		this.step++;
@@ -178,4 +183,5 @@ extends EntityAIBase {
 			this.step = 0;
 		}
 	}
+	
 }

@@ -3,6 +3,9 @@ package noppes.npcs.api.wrapper;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -44,7 +47,6 @@ import noppes.npcs.api.gui.IOverlayHUD;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
@@ -57,6 +59,7 @@ import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PixelmonHelper;
+import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptContainer;
@@ -84,11 +87,11 @@ implements IPlayer {
 	private IContainer inventory;
 	private Object pixelmonPartyStorage;
 	private Object pixelmonPCStorage;
-	private IData storeddata;
 
+	public static Map<String, WrapperEntityData> map = Maps.<String, WrapperEntityData>newHashMap();
+	
 	public PlayerWrapper(T player) {
 		super(player);
-		this.storeddata = new StoredData(this);
 	}
 
 	@Override
@@ -339,7 +342,7 @@ implements IPlayer {
 
 	@Override
 	public IData getStoreddata() {
-		return this.storeddata;
+		return super.getStoreddata();
 	}
 
 	@Override
@@ -554,9 +557,7 @@ implements IPlayer {
 
 	@Override
 	public void sendMail(IPlayerMail mail) {
-		PlayerData data = this.getData();
-		data.mailData.playermail.add(((PlayerMail) mail).copy());
-		data.save(false);
+		PlayerDataController.instance.addPlayerMessage(this.entity.world.getMinecraftServer(), this.entity.getName(), (PlayerMail) mail);
 	}
 
 	@Override

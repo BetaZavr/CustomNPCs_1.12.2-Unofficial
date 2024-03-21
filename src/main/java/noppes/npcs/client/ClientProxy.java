@@ -129,6 +129,7 @@ import noppes.npcs.client.gui.global.GuiNPCManageDeal;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
 import noppes.npcs.client.gui.global.GuiNPCManageFactions;
 import noppes.npcs.client.gui.global.GuiNPCManageLinkedNpc;
+import noppes.npcs.client.gui.global.GuiNPCManageMail;
 import noppes.npcs.client.gui.global.GuiNPCManageMarcets;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.global.GuiNPCManageRecipes;
@@ -151,7 +152,6 @@ import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.player.GuiNpcFollower;
 import noppes.npcs.client.gui.player.GuiNpcFollowerHire;
 import noppes.npcs.client.gui.player.GuiNpcQuestRewardItem;
-import noppes.npcs.client.gui.player.GuiQuestLog;
 import noppes.npcs.client.gui.player.GuiTransportSelection;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionInv;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionStats;
@@ -169,11 +169,11 @@ import noppes.npcs.client.gui.script.GuiScriptItem;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.client.model.ModelClassicPlayer;
+import noppes.npcs.client.model.ModelNPCAlt;
 import noppes.npcs.client.model.ModelNPCGolem;
 import noppes.npcs.client.model.ModelNpcCrystal;
 import noppes.npcs.client.model.ModelNpcDragon;
 import noppes.npcs.client.model.ModelNpcSlime;
-import noppes.npcs.client.model.ModelPlayerAlt;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.client.renderer.RenderCustomNpc;
 import noppes.npcs.client.renderer.RenderNPCInterface;
@@ -182,6 +182,7 @@ import noppes.npcs.client.renderer.RenderNpcCrystal;
 import noppes.npcs.client.renderer.RenderNpcDragon;
 import noppes.npcs.client.renderer.RenderNpcSlime;
 import noppes.npcs.client.renderer.RenderProjectile;
+import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -197,7 +198,6 @@ import noppes.npcs.containers.ContainerManageRecipes;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.containers.ContainerNPCDropSetup;
-import noppes.npcs.containers.ContainerNPCFollower;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.containers.ContainerNPCFollowerSetup;
 import noppes.npcs.containers.ContainerNPCInv;
@@ -247,7 +247,7 @@ extends CommonProxy {
 	public static KeyBinding backButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 57); // s
 	public static KeyBinding rightButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 58); // d
 	public static KeyBinding jumpButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 59); // space
-	public static KeyBinding QuestLog, Scene1, Scene2, Scene3, SceneReset;
+	public static KeyBinding QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay"), Scene1, Scene2, Scene3, SceneReset;
 
 	public static FontContainer Font;
 	public static PlayerData playerData = new PlayerData();
@@ -367,9 +367,7 @@ extends CommonProxy {
 
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		if (ID > EnumGuiType.values().length) {
-			return null;
-		}
+		if (ID > EnumGuiType.values().length) { return null; }
 		EnumGuiType gui = EnumGuiType.values()[ID];
 		EntityNPCInterface npc = NoppesUtil.getLastNpc();
 		Container container = this.getContainer(gui, player, x, y, z, npc);
@@ -377,7 +375,6 @@ extends CommonProxy {
 	}
 
 	private GuiScreen getGui(EntityNPCInterface npc, EnumGuiType gui, Container container, int x, int y, int z) {
-		//System.out.println("Client: Try get screen { GUI: "+gui+"; for container: "+(container==null ? "null" : container.getClass().getSimpleName())+"; on npc: "+(npc==null?"null":npc.getName())+"; to pos: ["+x+", "+y+", "+z+"] }");
 		switch (gui) {
 			case CustomContainer: { return new GuiCustomContainer((ContainerChestCustom) container); }
 			case CustomChest: { return new GuiCustomChest((ContainerCustomChest) container); }
@@ -408,6 +405,7 @@ extends CommonProxy {
 			}
 			case ManageFactions: { return new GuiNPCManageFactions(npc); }
 			case ManageLinked: { return new GuiNPCManageLinkedNpc(npc); }
+			case ManageMail: { return new GuiNPCManageMail(npc); }
 			case BuilderBlock: { return new GuiBlockBuilder(x, y, z); }
 			case ManageTransport: { return new GuiNPCManageTransporters(npc, (ContainerNPCTransportSetup) container); }
 			case ManageRecipes: { return new GuiNPCManageRecipes(npc, (ContainerManageRecipes) container); }
@@ -418,7 +416,7 @@ extends CommonProxy {
 			case MainMenuAI: { return new GuiNpcAI(npc); }
 			case PlayerAnvil: { return new GuiNpcCarpentryBench((ContainerCarpentryBench) container); }
 			case PlayerFollowerHire: { return new GuiNpcFollowerHire(npc, (ContainerNPCFollowerHire) container); }
-			case PlayerFollower: { return new GuiNpcFollower(npc, (ContainerNPCFollower) container); }
+			case PlayerFollower: { return new GuiNpcFollower(npc, (ContainerNPCFollowerHire) container); }
 			case PlayerTrader: { return new GuiNPCTrader(npc, (ContainerNPCTrader) container); }
 			case PlayerBank: {
 				GuiNPCBankChest openGui = new GuiNPCBankChest(npc, (ContainerNPCBank) container);
@@ -446,8 +444,8 @@ extends CommonProxy {
 				if (Minecraft.getMinecraft().currentScreen == null) { return new GuiNpcRemoteEditor(); }
 				return null;
 			}
-			case PlayerMailman: { return new GuiMailmanWrite((ContainerMail) container, x == 1, y == 1); }
 			case PlayerMailbox: { return new GuiMailbox(); }
+			case PlayerMailOpen: { return new GuiMailmanWrite((ContainerMail) container, x == 1, y == 1); }
 			case MerchantAdd: { return new GuiMerchantAdd(); }
 			case NpcDimensions: { return new GuiNpcDimension(); }
 			case Border: { return new GuiBorderBlock(x, y, z); }
@@ -467,7 +465,7 @@ extends CommonProxy {
 			default: { return null; }
 		}
 	}
-
+	
 	@Override
 	public EntityPlayer getPlayer() {
 		return Minecraft.getMinecraft().player;
@@ -488,15 +486,13 @@ extends CommonProxy {
 	public void preload() {
 		ClientProxy.Font = new FontContainer(CustomNpcs.FontType, CustomNpcs.FontSize);
 		this.createFolders();
-		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
-				.registerReloadListener((IResourceManagerReloadListener) new CustomNpcResourceListener());
+		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener((IResourceManagerReloadListener) new CustomNpcResourceListener());
 		CustomNpcs.Channel.register(new PacketHandlerClient());
 		CustomNpcs.ChannelPlayer.register(new PacketHandlerPlayer());
 		new MusicController();
 		MinecraftForge.EVENT_BUS.register(new ClientTickHandler());
 		MinecraftForge.EVENT_BUS.register(new ClientGuiEventHandler());
 		Minecraft mc = Minecraft.getMinecraft();
-		ClientProxy.QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay");
 		if (CustomNpcs.SceneButtonsEnabled) {
 			ClientProxy.Scene1 = new KeyBinding("key.scene.s.e.0", 79, "key.categories.gameplay");
 			ClientProxy.Scene2 = new KeyBinding("key.scene.s.e.1", 80, "key.categories.gameplay");
@@ -538,9 +534,7 @@ extends CommonProxy {
 		Minecraft minecraft = Minecraft.getMinecraft();
 		Container container = this.getContainer(gui, (EntityPlayer) minecraft.player, x, y, z, npc);
 		GuiScreen guiscreen = this.getGui(npc, gui, container, x, y, z);
-		if (guiscreen != null) {
-			minecraft.displayGuiScreen(guiscreen);
-		}
+		if (guiscreen != null) { minecraft.displayGuiScreen(guiscreen); }
 	}
 
 	@Override
@@ -584,10 +578,10 @@ extends CommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class, new RenderNpcDragon(new ModelNpcDragon(0.0f), 0.5f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcSlime.class, new RenderNpcSlime(new ModelNpcSlime(16), new ModelNpcSlime(0), 0.25f));
 		RenderingRegistry.registerEntityRenderingHandler(EntityProjectile.class, (Render) new RenderProjectile());
-		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class, new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, false)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class, new RenderCustomNpc((ModelBiped) new ModelNPCAlt(0.0f, false)));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class, new RenderCustomNpc(new ModelBipedAlt(0.0f)));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class, new RenderNPCInterface((ModelBase) new ModelNPCGolem(0.0f), 0.0f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc((ModelBiped) new ModelPlayerAlt(0.0f, true)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc((ModelBiped) new ModelNPCAlt(0.0f, true)));
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc((ModelBiped) new ModelClassicPlayer(0.0f)));
 		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
 		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> {
@@ -613,7 +607,9 @@ extends CommonProxy {
 	}
 	
 	@Override
-	public void postload() { }
+	public void postload() {
+		ArmourersWorkshopUtil.getInstance();
+	}
 
 	@Override
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
@@ -657,7 +653,6 @@ extends CommonProxy {
 
 	public void updateGUI() {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-		if (GuiQuestLog.activeQuest != null) { GuiQuestLog.activeQuest.reset(); }
 		if (gui == null) { return; }
 		gui.initGui();
 	}
@@ -1616,7 +1611,6 @@ extends CommonProxy {
 	}
 
 	public static void checkLocalization() {
-		GuiQuestLog.activeQuest = null;
 		File langDir = new File(CustomNpcs.Dir, "assets/"+CustomNpcs.MODID+"/lang");
 		if (!langDir.exists() || !langDir.isDirectory()) { return; }
 		LanguageManager languageManager = Minecraft.getMinecraft().getLanguageManager();

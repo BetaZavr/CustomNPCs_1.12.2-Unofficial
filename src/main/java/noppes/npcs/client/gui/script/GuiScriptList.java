@@ -178,12 +178,19 @@ implements ICustomScrollListener {
 			i++;
 		}
 		for (String key : fs.keySet()) {
-			colorsBase.add(0xCAEAEA);
-			String size = ""+fs.get(key);
-			if (fs.get(key) > 999) { size = AdditionalMethods.getTextReducedNumber(fs.get(key), false, false, true); }
+			long l = fs.get(key);
+			colorsBase.add(l >= 0 ? 0xCAEAEA : 0xEAEACA);
+			if (l < 0L) { l *= -1L; }
+			String size = ""+l;
+			if (l > 999) { size = AdditionalMethods.getTextReducedNumber(l, false, false, true); }
 			suffixsBase.add(size+"b");
 			listBase.add(key);
-			if (hs.containsKey(key)) { this.base.hoversTexts[i] = new String[] { hs.get(key) }; }
+			if (hs.containsKey(key)) {
+				if (fs.get(key) < 0) {
+					this.base.hoversTexts[i] = new String[] { hs.get(key), ((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText() };
+				}
+				else { this.base.hoversTexts[i] = new String[] { hs.get(key) }; }
+			}
 			i++;
 		}
 
@@ -197,12 +204,19 @@ implements ICustomScrollListener {
 			i++;
 		}
 		for (String key : ft.keySet()) {
-			colors.add(0xCAEAEA);
+			long l = ft.get(key);
+			colors.add(l >= 0 ? 0xCAEAEA : 0xEAEACA);
+			if (l < 0L) { l *= -1L; }
 			String size = ""+ft.get(key);
-			if (ft.get(key) > 999) { size = AdditionalMethods.getTextReducedNumber(ft.get(key), false, false, true); }
+			if (l > 999) { size = AdditionalMethods.getTextReducedNumber(ft.get(key), false, false, true); }
 			suffixs.add(size+"b");
 			list.add(key);
-			if (hs.containsKey(key)) { this.selected.hoversTexts[i] = new String[] { hs.get(key) }; }
+			if (hs.containsKey(key)) {
+				if (ft.get(key) < 0) {
+					this.selected.hoversTexts[i] = new String[] { hs.get(key), ((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText() };
+				}
+				else { this.selected.hoversTexts[i] = new String[] { hs.get(key) }; }
+			}
 			i++;
 		}
 		

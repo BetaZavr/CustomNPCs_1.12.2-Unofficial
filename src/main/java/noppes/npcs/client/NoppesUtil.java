@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
 
@@ -41,8 +43,7 @@ public class NoppesUtil {
 				String name = Server.readString(buffer);
 				NoppesUtil.data.put(name, id);
 			}
-		} catch (Exception ex) {
-		}
+		} catch (Exception ex) { }
 	}
 
 	public static void clickSound() {
@@ -59,8 +60,8 @@ public class NoppesUtil {
 		if (gui == null || !(gui instanceof GuiDialogInteract)) {
 			CustomNpcs.proxy.openGui(player, new GuiDialogInteract(npc, dialog));
 		} else {
-			GuiDialogInteract dia = (GuiDialogInteract) gui;
-			dia.appendDialog(dialog);
+			((GuiDialogInteract) gui).initGui();
+			((GuiDialogInteract) gui).appenedDialog(dialog);
 		}
 	}
 
@@ -123,15 +124,12 @@ public class NoppesUtil {
 			gui = ((GuiContainerNPCInterface) gui).getSubGui();
 		}
 		if (!(gui instanceof IScrollData)) { return; }
-		NoppesUtil.data = new HashMap<String, Integer>();
-		try {
-			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
-				int id = buffer.readInt();
-				String name = Server.readString(buffer);
-				NoppesUtil.data.put(name, id);
-			}
-		} catch (Exception ex) { }
+		Map<Object, Object> map = Server.readMap(buffer);
+		for (Entry<Object, Object> entry : map.entrySet()) {
+			try { NoppesUtil.data.put((String) entry.getKey(), (int) entry.getValue()); } catch (Exception ex) { }
+		}
 		((IScrollData) gui).setData(new Vector<String>(NoppesUtil.data.keySet()), NoppesUtil.data);
+		NoppesUtil.data.clear();
 	}
 
 	public static void setScrollList(ByteBuf buffer) {
@@ -147,8 +145,7 @@ public class NoppesUtil {
 			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
 				data.add(Server.readString(buffer));
 			}
-		} catch (Exception ex) {
-		}
+		} catch (Exception ex) { }
 		((IScrollData) gui).setData(data, null);
 	}
 

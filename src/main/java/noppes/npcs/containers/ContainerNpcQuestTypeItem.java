@@ -14,11 +14,8 @@ public class ContainerNpcQuestTypeItem extends Container {
 	public ContainerNpcQuestTypeItem(EntityPlayer player, int slotID) { // Change
 		Quest quest = NoppesUtilServer.getEditingQuest(player);
 		this.slotID = slotID;
-		/*
-		 * Change for (int i1 = 0; i1 < 3; ++i1) { this.addSlotToContainer(new
-		 * Slot((quest.questInterface).items, i1, 44, 39 + i1 * 25)); }
-		 */
-		this.addSlotToContainer(new Slot(quest.questInterface.items, slotID, 8, 92)); // New
+		this.addSlotToContainer(new Slot(quest.questInterface.items, 0, 8, 92)); // New
+		this.putStackInSlot(0, quest.questInterface.items.getStackInSlot(slotID));
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int l1 = 0; l1 < 9; ++l1) {
 				this.addSlotToContainer(new Slot(player.inventory, l1 + i1 * 9 + 9, 8 + l1 * 18, 113 + i1 * 18));

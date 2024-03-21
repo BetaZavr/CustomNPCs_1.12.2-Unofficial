@@ -13,6 +13,8 @@ import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,7 +45,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	private GuiCustomScroll scroll;
 	private String search = "";
 	private List<String> list;
-	public EntityLivingBase selectEntity;
+	public Entity selectEntity;
 	private static boolean all = false;
 	private DecimalFormat df = new DecimalFormat("#.#");
 	private char chr = Character.toChars(0x00A7)[0];
@@ -76,7 +78,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				}
 				break;
 			}
-			case 1: {
+			case 1: { // remove entity
 				if (!this.dataIDs.containsKey(this.scroll.getSelected())) { return; }
 				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, this.scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 				this.displayGuiScreen((GuiScreen) guiyesno);
@@ -95,10 +97,12 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				Client.sendData(EnumPacketServer.RemoteFreeze);
 				break;
 			}
-			case 4: {
+			case 4: { // tp
 				if (!this.dataIDs.containsKey(this.scroll.getSelected())) { return; }
 				Client.sendData(EnumPacketServer.RemoteTpToNpc, this.dataIDs.get(this.scroll.getSelected()));
-				this.close();
+				CustomNPCsScheduler.runTack(() -> {
+					Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
+				}, 250);
 				break;
 			}
 			case 5: {
@@ -126,9 +130,12 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		if (flag) {
 			Client.sendData(EnumPacketServer.RemoteDelete, this.dataIDs.get(this.scroll.getSelected()), GuiNpcRemoteEditor.all);
 			this.selectEntity = null;
+			Entity e = this.player.world.getEntityByID(this.dataIDs.get(this.scroll.getSelected()));
+			if (e != null) { this.player.world.removeEntity(e); }
 		}
 		CustomNPCsScheduler.runTack(() -> {
 			NoppesUtil.openGUI((EntityPlayer) this.player, this);
+			Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 		}, 250);
 		
 	}
@@ -259,7 +266,15 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		if (this.subgui==null) {
 			GlStateManager.pushMatrix();
 			if (this.selectEntity!=null) {
-				this.drawNpc(this.selectEntity, 221, 162, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, false);
+				int r, p = 0, x = 221, y = 162;
+				if (this.selectEntity instanceof EntityLivingBase) { r = (int) (3 * this.player.world.getTotalWorldTime() % 360); }
+				else {
+					r = 0;
+					y -= 34;
+					if (this.selectEntity instanceof EntityItem) { p = 30; y += 10; }
+					if (this.selectEntity instanceof EntityItemFrame) { x += 16; }
+				}
+				this.drawNpc(this.selectEntity, x, y, 1.0f, r, p, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(this.guiLeft + 191, this.guiTop + 85, this.guiLeft + 252, this.guiTop + 171, 0xFF808080);
@@ -306,8 +321,11 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		this.selectEntity = null;
 		if (this.dataIDs.containsKey(this.scroll.getSelected())) {
 			Entity entity = this.mc.world.getEntityByID(this.dataIDs.get(scroll.getSelected()));
-			if (!(entity instanceof EntityLivingBase)) { return; }
-			this.selectEntity = (EntityLivingBase) entity;
+			if (entity == null) {
+				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
+				return;
+			}
+			this.selectEntity = entity;
 		}
 	}
 	

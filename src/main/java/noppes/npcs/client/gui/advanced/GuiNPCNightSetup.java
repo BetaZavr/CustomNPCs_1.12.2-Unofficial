@@ -79,6 +79,12 @@ public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
 	public void save() {
 		Client.sendData(EnumPacketServer.TransformSave, this.data.writeOptions(new NBTTagCompound()));
 	}
+	
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {

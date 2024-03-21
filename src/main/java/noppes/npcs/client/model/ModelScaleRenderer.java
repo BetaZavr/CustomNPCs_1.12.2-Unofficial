@@ -61,6 +61,17 @@ extends ModelRenderer {
 		}
 	}
 
+	public void postAWRender(float scale) {
+		if (this.config != null) {
+			GlStateManager.translate(0.0f, -1.5f, 0.0f);
+			GlStateManager.scale(2.0f, 2.0f, 2.0f);
+			GlStateManager.translate(this.config.offsetBase[0] + this.config.offsetAnimation[0], this.config.offsetBase[1] + this.config.offsetAnimation[1], this.config.offsetBase[2] + this.config.offsetAnimation[2]);
+		}
+		this.postRenderAnimRotate(scale);
+		if (this.config != null) {
+			GlStateManager.scale(this.config.scaleBase[0] * this.config.scaleAnimation[0], this.config.scaleBase[1] * this.config.scaleAnimation[1], this.config.scaleBase[2] * this.config.scaleAnimation[2]);
+		}
+	}
 	public void postRenderAnimRotate(float scale) {
 		if (this.isHidden || !this.showModel) { return; }
 		if (!this.isCompiled) { this.compile(scale); }
@@ -82,14 +93,11 @@ extends ModelRenderer {
 
 	public void render(float scale) {
 		if (!this.showModel || this.isHidden) { return; }
-		if (!this.isCompiled) {
-			this.compile(scale);
-		}
+		if (!this.isCompiled) { this.compile(scale); }
 		GlStateManager.pushMatrix();
 		this.postRender(scale);
-		// render
-		if (this.displayOBJList <= 0) { GlStateManager.callList(this.displayList); } // Vanila Render
-		else { // OBJ Render
+		// OBJ Render
+		if (this.displayOBJList > 0) {
 			switch(this.part) {
 				case HEAD: { GlStateManager.translate(0.0f, 1.5f, 0.0f); break; }
 				case MOHAWK: { GlStateManager.translate(0.0f, 1.5f, 0.0f); break; }
@@ -116,6 +124,10 @@ extends ModelRenderer {
 			GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
 			GlStateManager.callList(this.displayOBJList);
 		}
+		else { // Vanila Render
+			GlStateManager.callList(this.displayList);
+		}
+		
 		if (this.childModels != null) {
 			for (int i = 0; i < this.childModels.size(); ++i) {
 				this.childModels.get(i).render(scale);
@@ -123,7 +135,7 @@ extends ModelRenderer {
 		}
 		GlStateManager.popMatrix();
 	}
-
+	
 	public void setRotation(ModelRenderer model, float x, float y, float z) {
 		model.rotateAngleX = x;
 		model.rotateAngleY = y;

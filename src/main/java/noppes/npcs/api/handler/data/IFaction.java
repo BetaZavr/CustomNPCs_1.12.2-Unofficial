@@ -39,4 +39,12 @@ public interface IFaction {
 
 	void setIsHidden(boolean bo);
 	
+	String getFlag();
+	
+	void setFlag(String flagPath);
+	
+	String getDescription();
+	
+	void setDescription(String descr);
+	
 }

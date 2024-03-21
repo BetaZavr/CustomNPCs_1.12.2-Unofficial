@@ -35,11 +35,16 @@ implements ISliderListener, ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(1, "availability.available", this.guiLeft, this.guiTop + 4));
 		this.getLabel(1).center(this.xSize);
 		
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 34, this.guiTop + 14, 180, 20, "availability.selectdialog"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 34, this.guiTop + 36, 180, 20, "availability.selectquest"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 34, this.guiTop + 58, 180, 20, "availability.selectfaction"));
-		this.addButton(new GuiNpcButton(3, this.guiLeft + 34, this.guiTop + 80, 180, 20, "availability.selectscoreboard"));
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 34, this.guiTop + 102, 180, 20, "availability.selectnames"));
+		int x = this.guiLeft + 6, y = this.guiTop + 14;
+		this.addButton(new GuiNpcButton(0, x, y, 120, 20, "availability.selectdialog"));
+		this.addButton(new GuiNpcButton(1, x, y += 22, 120, 20, "availability.selectquest"));
+		this.addButton(new GuiNpcButton(2, x, y += 22, 120, 20, "availability.selectfaction"));
+		x += 124;
+		y = this.guiTop + 14;
+		this.addButton(new GuiNpcButton(3, x, y, 120, 20, "availability.selectscoreboard"));
+		this.addButton(new GuiNpcButton(6, x, y += 22, 120, 20, "availability.selectnames"));
+		this.addButton(new GuiNpcButton(7, x, y += 22, 120, 20, "availability.storeddata"));
+		
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 192, 98, 20, "gui.done"));
 		
 		this.addLabel(new GuiNpcLabel(50, "availability.daytime", this.guiLeft + 4, this.guiTop + 131));
@@ -101,6 +106,10 @@ implements ISliderListener, ITextfieldListener {
 				this.setSubGui(new SubGuiNpcAvailabilityNames(this.availabitily));
 				break;
 			}
+			case 7: {
+				this.setSubGui(new SubGuiNpcAvailabilityStoredData(this.availabitily));
+				break;
+			}
 			case 50: {
 				if (button.getValue() == 0) {
 					this.getTextField(52).setText("" + this.availabitily.daytime[0]);
@@ -136,7 +145,6 @@ implements ISliderListener, ITextfieldListener {
 		}
 	}
 
-	// New
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -161,6 +169,8 @@ implements ISliderListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.health.type").getFormattedText());
 		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.selectnames").getFormattedText());
+		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("availabitily.hover.storeddata").getFormattedText());
 		} else if (this.getSlider(5)!=null && this.getSlider(5).visible && this.getSlider(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.health").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {

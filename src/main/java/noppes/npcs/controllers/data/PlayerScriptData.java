@@ -85,8 +85,7 @@ public class PlayerScriptData implements IScriptHandler {
 	}
 
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart
-				&& (this.player == null || !this.player.world.isRemote);
+		return this.enabled && ScriptController.HasStart && (this.player == null || !this.player.world.isRemote);
 	}
 
 	@Override
@@ -114,9 +113,9 @@ public class PlayerScriptData implements IScriptHandler {
 			PlayerScriptData.errored.clear();
 			if (this.player != null) {
 				this.scripts.clear();
-				for (ScriptContainer script : this.scripts) {
-					ScriptContainer s = new ScriptContainer(this, false);
-					s.readFromNBT(script.writeToNBT(new NBTTagCompound()));
+				for (ScriptContainer script : ScriptController.Instance.playerScripts.scripts) {
+					ScriptContainer s = new ScriptContainer(this, isClient());
+					s.readFromNBT(script.writeToNBT(new NBTTagCompound()), this.isClient());
 					this.scripts.add(s);
 				}
 			}
@@ -127,9 +126,7 @@ public class PlayerScriptData implements IScriptHandler {
 			ScriptContainer script = this.scripts.get(i);
 			if (!PlayerScriptData.errored.contains(i)) {
 				script.run(type, event, !this.isClient());
-				if (script.errored) {
-					PlayerScriptData.errored.add(i);
-				}
+				if (script.errored) { PlayerScriptData.errored.add(i); }
 				for (Map.Entry<Long, String> entry : script.console.entrySet()) {
 					if (!PlayerScriptData.console.containsKey(entry.getKey())) {
 						PlayerScriptData.console.put(entry.getKey(), " tab " + (i + 1) + ":\n" + entry.getValue());

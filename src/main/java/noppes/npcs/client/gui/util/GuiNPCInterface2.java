@@ -4,7 +4,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
+import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.client.ClientProxy;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public abstract class GuiNPCInterface2
@@ -23,6 +25,7 @@ extends GuiNPCInterface {
 		this.xSize = 420;
 		this.ySize = 200;
 		this.menu = new GuiNpcMenu(this, activeMenu, npc);
+		this.closeOnEsc = true;
 	}
 
 	@Override
@@ -149,19 +152,13 @@ extends GuiNPCInterface {
 
 	@Override
 	public abstract void save();
-	
+
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.close();
-			if (this instanceof GuiNpcDisplay) {
-				this.save();
-			} else {
-				this.menu.topButtonPressed(new GuiMenuTopButton(1, 0, 0, ""));
-			}
+	public void close() {
+		if (menu.activeMenu != 0 && ClientProxy.playerData.editingNpc != null) {
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
 		}
-		super.keyTyped(c, i);
+		super.close();
 	}
-	
 }

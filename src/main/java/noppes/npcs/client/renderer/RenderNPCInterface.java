@@ -62,8 +62,7 @@ extends RenderLiving<T> {
 	}
 
 	public void doRender(T npc, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player) ||
-				npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
+		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player) || npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) { return; }
 		if (npc.ais.getStandingType() == 3 && !npc.isWalking() && !npc.isInteracting()) {
 			float n = npc.ais.orientation;
 			npc.renderYawOffset = n;
@@ -238,7 +237,6 @@ extends RenderLiving<T> {
 		boolean isInvisible = false;
 		if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
 		else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
-		//System.out.println(npc.getName()+": "+npc.isInvisible());
 		if (this.bindEntityTexture(npc)) {
 			if (isInvisible) { GlStateManager.enableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL); }
 			this.mainModel.render(npc, par2, par3, par4, par5, par6, par7);

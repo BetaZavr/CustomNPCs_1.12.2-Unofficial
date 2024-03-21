@@ -11,6 +11,7 @@ import noppes.npcs.controllers.data.Bank;
 public class ContainerManageBanks extends Container {
 	
 	private IInventory inv;
+	public static Object bank = null;
 
 	public ContainerManageBanks(EntityPlayer player) {
 		this.inv = new NpcMiscInventory(2);

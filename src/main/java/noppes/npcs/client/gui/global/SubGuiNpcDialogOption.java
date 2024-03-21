@@ -7,10 +7,13 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.gui.SubGuiColorSelector;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.player.GuiDialogInteract;
 import noppes.npcs.client.gui.select.GuiDialogSelection;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
@@ -29,24 +32,24 @@ public class SubGuiNpcDialogOption
 extends SubGuiInterface
 implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	
-	public static int LastColor = 14737632;
-	private DialogOption option;
-	
+	public static int LastColor = 0xE0E0E0;
+
 	private final Map<String, OptionDialogID> data; // {scrollTitle, dialogID}
+	private DialogOption option;
 	private GuiCustomScroll scroll;
 	private String select;
-
+	
 	public SubGuiNpcDialogOption(DialogOption option) {
 		this.option = option;
 		this.setBackground("menubg.png");
 		this.xSize = 256;
 		this.ySize = 216;
 		this.closeOnEsc = true;
-		
 		this.select = "";
 		this.data = Maps.<String, OptionDialogID>newHashMap();
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void initGui() {
 		super.initGui();
@@ -56,12 +59,24 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 40, this.guiTop + 15, 196, 20, this.option.title));
 		String color;
 		for (color = Integer.toHexString(this.option.optionColor); color.length() < 6; color = 0 + color) { }
+		
 		this.addLabel(new GuiNpcLabel(2, "gui.color", this.guiLeft + 4, this.guiTop + 45));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 62, this.guiTop + 40, 92, 20, color));
 		this.getButton(2).setTextColor(this.option.optionColor);
+		
+		List<String> list = Lists.newArrayList("");
+		for (ResourceLocation res : GuiDialogInteract.icons.values()) { list.add(""); }
+		this.addLabel(new GuiNpcLabel(9, "dialog.icon", this.guiLeft + 159, this.guiTop + 61 ));
+		this.addButton(new GuiNpcButton(9, this.guiLeft + 210, this.guiTop + 45, 32, 32, list.toArray(new String[list.size()]), this.option.iconId));
+		this.getButton(9).hasDefBack = true;
+		this.getButton(9).texture = GuiDialogInteract.icons.get(this.option.iconId);
+		this.getButton(9).txrW = 256;
+		this.getButton(9).txrH = 256;
+		
 		this.addLabel(new GuiNpcLabel(1, "dialog.optiontype", this.guiLeft + 4, this.guiTop + 67));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 62, this.guiTop + 62, 92, 20, new String[] { "gui.close", "dialog.dialog", "gui.disabled", "menu.role", "tile.commandBlock.name" }, this.option.optionType));
-		if (this.option.optionType == 1) { // next dialog
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 62, this.guiTop + 62, 92, 20, new String[] { "gui.close", "dialog.dialog", "gui.disabled", "menu.role", "tile.commandBlock.name" }, this.option.optionType.get()));
+		
+		if (this.option.optionType == OptionType.DIALOG_OPTION) { // next dialog
 			this.data.clear();
 			char c = ((char) 167);
 			DialogController dData = DialogController.instance;
@@ -90,15 +105,17 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			this.scroll.guiTop = this.guiTop + 96;
 			if (!this.select.isEmpty()) { this.scroll.setSelected(this.select); }
 			this.addScroll(this.scroll);
-			
 			this.addButton(new GuiNpcButton(3, this.guiLeft + 149, this.guiTop + 96, 50, 20, "gui.add"));
 			this.addButton(new GuiNpcButton(4, this.guiLeft + 201, this.guiTop + 96, 50, 20, "gui.remove", !this.select.isEmpty()));
 			this.addButton(new GuiNpcButton(5, this.guiLeft + 149, this.guiTop + 118, 80, 20, "gui.edit"));
 			this.addButton(new GuiNpcButton(6, this.guiLeft + 149, this.guiTop + 140, 50, 20, "type.up", !this.select.isEmpty() && pos != 0));
 			this.addButton(new GuiNpcButton(7, this.guiLeft + 201, this.guiTop + 140, 50, 20, "type.down", !this.select.isEmpty() && pos>-1 && pos < this.data.size() - 1));
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 149, this.guiTop + 162, 80, 20, "availability.available", !this.select.isEmpty() && this.data.containsKey(this.select)));
+			this.addButton(new GuiNpcButton(8, this.guiLeft + 149, this.guiTop + 162, 80, 20, "availability.available"));
 		}
-		if (this.option.optionType == 4) { // command
+		else {
+			this.addButton(new GuiNpcButton(8, this.guiLeft + 64, this.guiTop + 192, 80, 20, "availability.available"));
+		}
+		if (this.option.optionType == OptionType.COMMAND_BLOCK) { // command
 			this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 84, 248, 20, this.option.command));
 			this.getTextField(4).setMaxStringLength(32767);
 			this.addLabel(new GuiNpcLabel(4, "advMode.command", this.guiLeft + 4, this.guiTop + 110));
@@ -107,7 +124,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			this.addLabel(new GuiNpcLabel(7, "advMode.allPlayers", this.guiLeft + 4, this.guiTop + 155));
 			this.addLabel(new GuiNpcLabel(8, "dialog.commandoptionplayer", this.guiLeft + 4, this.guiTop + 170));
 		}
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 171, this.guiTop + 192, 80, 20, "gui.done"));
+		this.addButton(new GuiNpcButton(66, this.guiLeft + 149, this.guiTop + 192, 80, 20, "gui.done"));
 	}
 
 	@Override
@@ -145,13 +162,9 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 1) {
-			this.option.optionType = button.getValue();
-			this.initGui();
-		}
 		switch (button.id) {
 			case 1: { // type
-				this.option.optionType = button.getValue();
+				this.option.optionType = OptionType.get(button.getValue());
 				this.initGui();
 				break;
 			}
@@ -160,36 +173,42 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				break;
 			}
 			case 3: { // add dialog
-				if (this.option.optionType!=1) { return; }
+				if (this.option.optionType != OptionType.DIALOG_OPTION) { return; }
 				this.setSubGui(new GuiDialogSelection(-1, 0));
 				break;
 			}
 			case 4: { // del dialog
-				if (this.option.optionType!=1 || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
+				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
 				this.option.dialogs.remove(this.data.get(this.select));
 				this.initGui();
 				break;
 			}
 			case 5: { // edit dialog
-				if (this.option.optionType!=1 || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
+				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
 				this.setSubGui(new GuiDialogSelection(this.data.get(this.select).dialogId, 1));
 				break;
 			}
 			case 6: { // up dialog
-				if (this.option.optionType!=1 || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
+				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
 				this.option.upPos(this.data.get(this.select).dialogId);
 				this.initGui();
 				break;
 			}
 			case 7: { // down dialog
-				if (this.option.optionType!=1 || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
+				if (this.option.optionType != OptionType.DIALOG_OPTION|| this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
 				this.option.downPos(this.data.get(this.select).dialogId);
 				this.initGui();
 				break;
 			}
 			case 8: { // availability
-				if (this.option.optionType!=1 || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
+				if (this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
 				this.setSubGui(new SubGuiNpcAvailability(this.data.get(this.select).availability));
+				break;
+			}
+			case 9: { // icons
+				if (this.option == null) { return; }
+				this.option.iconId = button.getValue();
+				button.texture = GuiDialogInteract.icons.get(this.option.iconId);
 				break;
 			}
 			case 66: { // exit
@@ -239,14 +258,14 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int ticks, GuiCustomScroll scroll) {
-		if (this.option.optionType!=1 || scroll.getSelected() == null) { return; }
+		if (this.option.optionType != OptionType.DIALOG_OPTION || scroll.getSelected() == null) { return; }
 		this.select = scroll.getSelected();
 		this.initGui();
 	}
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-		if (this.option.optionType!=1 || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
+		if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty() || !this.data.containsKey(this.select)) { return; }
 		this.setSubGui(new GuiDialogSelection(this.data.get(this.select).dialogId, 1));
 	}
 	

@@ -101,7 +101,6 @@ implements ITextfieldListener {
 				break;
 			}
 		}
-		System.out.println("day: "+this.day+"; month: "+this.month+"; year: "+this.year);
 		this.initGui();
 	}
 

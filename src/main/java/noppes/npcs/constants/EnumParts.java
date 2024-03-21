@@ -25,7 +25,8 @@ public enum EnumParts
 	EYES("eyes"),
 	BELT("belt"), 
 	FEET_LEFT("legleft"), 
-	FEET_RIGHT("legright"), ;
+	FEET_RIGHT("legright"),
+	CUSTOM("custom");
 	
 	public String name;
 	public int patterns;

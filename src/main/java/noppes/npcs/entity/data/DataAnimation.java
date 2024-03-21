@@ -1,5 +1,6 @@
 package noppes.npcs.entity.data;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -9,9 +10,10 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
@@ -19,134 +21,78 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.INPCAnimation;
-import noppes.npcs.api.wrapper.NPCWrapper;
+import noppes.npcs.api.event.AnimationEvent;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
+import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class DataAnimation
 implements INPCAnimation {
 
-	public AnimationConfig activeAnim;
-	public EmotionConfig activeEmtn;
-	public final Map<AnimationKind, List<AnimationConfig>> data;
-	public final List<EmotionConfig> emotion;
+	public AnimationConfig activeAnim = null;
+	public EmotionConfig activeEmtn = null;
+	public final Map<AnimationKind, List<Integer>> data = Maps.<AnimationKind, List<Integer>>newHashMap();
+	public final List<EmotionConfig> emotion = Lists.<EmotionConfig>newArrayList();
 	private EntityNPCInterface npc;
 	private Random rnd = new Random();
 
 	private AnimationConfig oldAnim;
 	public boolean isComplete;
-	private long startFrameTick;
+	public int frame;
+	public long startFrameTick;
 	private float val, valNext;
 	public boolean isAnimated;
+	public final List<Boolean> showParts = Lists.<Boolean>newArrayList(new Boolean[] { true, true, true, true, true, true } );
 	
 	public DataAnimation(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.data = Maps.<AnimationKind, List<AnimationConfig>>newHashMap();
-		this.emotion = Lists.<EmotionConfig>newArrayList();
+		for (AnimationKind eak : AnimationKind.values()) { data.put(eak, Lists.<Integer>newArrayList()); }
 		this.clear();
 	}
 	
-	public void readFromNBT(NBTTagCompound compound) {
-		this.data.clear();
+	public void load(NBTTagCompound compound) {
+		data.clear();
 		this.emotion.clear();
-		if (!compound.hasKey("AllAnimations", 9) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
-			AnimationKind type = compound.getBoolean("PuppetMoving") ? AnimationKind.WALKING : compound.getBoolean("PuppetAttacking") ? AnimationKind.ATTACKING : AnimationKind.STANDING;
-			int speed;
-			switch(compound.getInteger("PuppetAnimationSpeed")) {
-				case 0: speed = 80; break;
-				case 1: speed = 48; break;
-				case 2: speed = 26; break;
-				case 3: speed = 20; break;
-				case 5: speed = 8; break;
-				case 6: speed = 6; break;
-				case 7: speed = 4; break;
-				default: speed = 14; break;
-			}
-			boolean isAnim = compound.getBoolean("PuppetAnimate");
-			List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
-			AnimationConfig ac = new AnimationConfig(type.get());
-			AnimationFrameConfig f0 = ac.frames.get(0), f1 = null;
-			ac.name = "Loaded from old version";
-			if (isAnim) {
-				f1 = (AnimationFrameConfig) ac.addFrame();
-				f1.setSpeed(speed);
-			}
-			f0.setSpeed(speed);
-			for (int i=0; i < (isAnim ? 12 : 6); i++) {
-				String n;
-				switch(i) {
-					case 1: n = "PuppetLArm"; break;
-					case 2: n = "PuppetRArm"; break;
-					case 3: n = "PuppetBody"; break;
-					case 4: n = "PuppetLLeg"; break;
-					case 5: n = "PuppetRLeg"; break;
-					case 6: n = "PuppetHead2"; break;
-					case 7: n = "PuppetLArm2"; break;
-					case 8: n = "PuppetRArm2"; break;
-					case 9: n = "PuppetBody2"; break;
-					case 10: n = "PuppetLLeg2"; break;
-					case 11: n = "PuppetRLeg2"; break;
-					default: n = "PuppetHead"; break;
-				}
-				if (i<6) {
-					f0.parts[i].rotation[0] = 0.5f * compound.getCompoundTag(n).getFloat("RotationX") + 0.5f;
-					f0.parts[i].rotation[1] = 0.5f * compound.getCompoundTag(n).getFloat("RotationY") + 0.5f;
-					f0.parts[i].rotation[2] = 0.5f * compound.getCompoundTag(n).getFloat("RotationZ") + 0.5f;
-					f0.parts[i].disable = compound.getCompoundTag(n).getBoolean("Disabled");
-				} else {
-					f1.parts[i%6].rotation[0] = 0.5f * compound.getCompoundTag(n).getFloat("RotationX") + 0.5f;
-					f1.parts[i%6].rotation[1] = 0.5f * compound.getCompoundTag(n).getFloat("RotationY") + 0.5f;
-					f1.parts[i%6].rotation[2] = 0.5f * compound.getCompoundTag(n).getFloat("RotationZ") + 0.5f;
-					f1.parts[i%6].disable = compound.getCompoundTag(n).getBoolean("Disabled");
-				}
-			}
-			
-			list.add(ac);
-			this.data.put(type, list);
-			
-		} else {
+		if (compound.hasKey("AllAnimations", 9)) {
 			for (int c=0; c<compound.getTagList("AllAnimations", 10).tagCount(); c++) {
 				NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
 				int t = nbtCategory.getInteger("Category");
-				if (t<0) { t *= -1; }
-				t %= AnimationKind.values().length;
-				AnimationKind type = AnimationKind.get(t);
-				List<AnimationConfig> list = Lists.<AnimationConfig>newArrayList();
-				for (int i=0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
-					AnimationConfig ac = new AnimationConfig(t);
-					ac.readFromNBT(nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i));
-					list.add(ac);
+				if (t < 0) { t *= -1; }
+				AnimationKind type = AnimationKind.get(t % AnimationKind.values().length);
+				
+				List<Integer> list = Lists.<Integer>newArrayList();
+				for (int i = 0; i<nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
+					int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
+					if (!list.contains(id)) { list.add(id); }
 				}
-				this.data.put(type, list);
+				Collections.sort(list);
+				data.put(type, list);
 			}
 		}
 		for (AnimationKind eat : AnimationKind.values()) {
-			if (!this.data.containsKey(eat)) {
-				this.data.put(eat, Lists.<AnimationConfig>newArrayList());
-			}
+			if (!data.containsKey(eat)) { data.put(eat, Lists.<Integer>newArrayList()); }
 		}
+		
 		for (int c=0; c<compound.getTagList("AllEmotions", 10).tagCount(); c++) {
 			
 		}
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound save(NBTTagCompound compound) {
 		NBTTagList allAnimations = new NBTTagList();
 		NBTTagList allEmotions = new NBTTagList();
-		for (AnimationKind eat : this.data.keySet()) {
+		for (AnimationKind eat : data.keySet()) {
 			NBTTagCompound nbtCategory = new NBTTagCompound();
 			nbtCategory.setInteger("Category", eat.get());
 			NBTTagList animations = new NBTTagList();
-			for (AnimationConfig ac : this.data.get(eat)) {
-				animations.appendTag(ac.writeToNBT(new NBTTagCompound()));
-			}
+			for (int id : data.get(eat)) { animations.appendTag(new NBTTagInt(id)); }
 			nbtCategory.setTag("Animations", animations);
 			allAnimations.appendTag(nbtCategory);
 		}
@@ -168,38 +114,35 @@ implements INPCAnimation {
 	}
 	
 	public AnimationConfig getActiveAnimation(AnimationKind type) {
-		if (this.activeAnim!=null && this.activeAnim.type==type) {
-			if (this.activeAnim.frame < this.activeAnim.frames.size() || this.activeAnim.isEdit) {
-				if (this.activeAnim.frame >= this.activeAnim.frames.size() && this.activeAnim.isEdit) {
-					this.activeAnim.frame = -1;
+		if (this.activeAnim!=null && this.activeAnim.type == type) {
+			if (this.frame < this.activeAnim.frames.size() || this.activeAnim.isEdit) {
+				if (this.frame >= this.activeAnim.frames.size() && this.activeAnim.isEdit) {
+					this.frame = -1;
 				}
 				return this.activeAnim;
 			}
 		}
-		if (this.activeAnim!=null) { this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id); }
+		if (this.activeAnim != null) { this.updateClient(1, this.activeAnim.type.get(), this.activeAnim.id); }
 		this.activeAnim = null;
 		this.val = 0.0f;
 		this.valNext = 0.0f;
 		this.startFrameTick = 0;
-		List<AnimationConfig> list = this.data.get(type);
-		if (list==null) { this.data.put(type, list = Lists.<AnimationConfig>newArrayList()); }
-		if (list.size()==0 && (type==AnimationKind.FLY_STAND || type==AnimationKind.WATER_STAND)) {
-			list = this.data.get(AnimationKind.STANDING);
-		}
-		else if (list.size()==0 && (type==AnimationKind.FLY_WALK || type==AnimationKind.WATER_WALK)) {
-			list = this.data.get(AnimationKind.WALKING);
-		}
+		List<Integer> ids = data.get(type);
+		if (ids==null) { data.put(type, ids = Lists.<Integer>newArrayList()); }
+
+		AnimationController aData = AnimationController.getInstance();
+		List<AnimationConfig> list = aData.getAnimations(data.get(type));
 		if (list.size()>0) {
 			List<AnimationConfig> selectList = Lists.<AnimationConfig>newArrayList();
-			for (AnimationConfig ac : list) {
-				if (ac.isDisable()) { continue; }
-				selectList.add(ac);
-			}
+			for (AnimationConfig ac : list) { selectList.add(ac); }
 			if (selectList.size()>0) {
 				this.activeAnim = selectList.get(this.rnd.nextInt(selectList.size()));
 			}
 		}
-		if (this.activeAnim!=null) { this.activeAnim.frame = -1; }
+		if (this.activeAnim!=null) {
+			this.frame = -1;
+			this.activeAnim.type = type;
+		}
 		return this.activeAnim;
 	}
 
@@ -208,7 +151,7 @@ implements INPCAnimation {
 			if (type==1) { Client.sendDataDelayCheck(EnumPlayerPacket.StopNPCAnimation, this, 0, this.npc.getEntityId(), var[0], var[1]); }
 			return;
 		}
-		NBTTagCompound compound = this.writeToNBT(new NBTTagCompound());
+		NBTTagCompound compound = this.save(new NBTTagCompound());
 		compound.setInteger("EntityId", this.npc.getEntityId());
 		if (var!=null && var.length>0) { compound.setIntArray("Vars", var); }
 		Server.sendAssociatedData(this.npc, EnumPacketClient.UPDATE_NPC_ANIMATION, type, compound);
@@ -225,11 +168,9 @@ implements INPCAnimation {
 		this.isComplete = false;
 		this.activeAnim = null;
 		this.activeEmtn = null;
-		this.data.clear();
+		data.clear();
 		this.emotion.clear();
-		for (AnimationKind eat : AnimationKind.values()) {
-			this.data.put(eat, Lists.<AnimationConfig>newArrayList());
-		}
+		for (List<Integer> ids : data.values()) { ids.clear(); }
 		this.updateClient(0);
 	}
 
@@ -239,7 +180,7 @@ implements INPCAnimation {
 	@Override
 	public void stopAnimation() {
 		if (this.activeAnim!=null) {
-			this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id);
+			this.updateClient(1, this.activeAnim.type.get(), this.activeAnim.id);
 			this.activeAnim = null;
 		}
 		this.oldAnim = null;
@@ -254,7 +195,7 @@ implements INPCAnimation {
 		if (this.activeEmtn!=null) {
 			this.activeEmtn.reset();
 			this.activeEmtn = null;
-			this.updateClient(1);
+			this.updateClient(3);
 		}
 	}
 
@@ -263,7 +204,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
+		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(AnimationKind.get(animationType)));
 		return list.toArray(new IAnimation[list.size()]);
 	}
 
@@ -272,7 +213,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
+		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(AnimationKind.get(animationType)));
 		if (list.isEmpty()) { return null; }
 		if (variant >= list.size()) {
 			throw new CustomNPCsException("Variant must be between 0 and " + (list.size()-1) + " You have: "+variant);
@@ -285,7 +226,7 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
+		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(AnimationKind.get(animationType)));
 		if (list.size()==0) { return; }
 		int variant = this.rnd.nextInt(list.size());
 		if (this.npc.world==null || this.npc.world.isRemote) {
@@ -301,11 +242,9 @@ implements INPCAnimation {
 			this.startAnimation(animationType);
 			return;
 		}
-		if (animationType<0 || animationType>=AnimationKind.values().length) {
-			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
-		}
-		List<AnimationConfig> list = this.data.get(AnimationKind.get(animationType));
-		if (variant>=list.size()) {
+		if (animationType<0 || animationType>=AnimationKind.values().length) { throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType); }
+		List<AnimationConfig> list = AnimationController.getInstance().getAnimations(data.get(AnimationKind.get(animationType)));
+		if (variant >= list.size()) {
 			throw new CustomNPCsException("Variant must be between 0 and " + list.size() + " You have: "+variant);
 		}
 		if (this.npc.world==null || this.npc.world.isRemote) {
@@ -315,36 +254,22 @@ implements INPCAnimation {
 			this.updateClient(2, animationType, variant);
 		}
 	}
-
-	@Override
-	public void startAnimationFromSaved(int animationId) {
-		IAnimation anim = AnimationController.getInstance().getAnimation(animationId);
-		if (anim!=null) { anim.startToNpc(new NPCWrapper<EntityNPCInterface>(this.npc));}
-	}
 	
 	@Override
-	public void startAnimationFromSaved(String animationName) {
-		IAnimation anim = AnimationController.getInstance().getAnimation(animationName);
-		if (anim!=null) { anim.startToNpc(new NPCWrapper<EntityNPCInterface>(this.npc));}
-	}
-	
-	@Override
-	public INbt getNbt() { return NpcAPI.Instance().getINbt(this.writeToNBT(new NBTTagCompound())); }
+	public INbt getNbt() { return NpcAPI.Instance().getINbt(this.save(new NBTTagCompound())); }
 
 	@Override
-	public void setNbt(INbt nbt) { this.readFromNBT(nbt.getMCNBT()); }
+	public void setNbt(INbt nbt) { this.load(nbt.getMCNBT()); }
 
 	@Override
-	public boolean removeAnimation(int animationType, String animationName) {
-		if (animationType<0 || animationType>=AnimationKind.values().length) {
+	public boolean removeAnimation(int animationType, int animationId) {
+		if (animationType < 0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		AnimationKind t = AnimationKind.get(animationType);
-		for (AnimationConfig ac : this.data.get(t)) {
-			if (ac.name.equalsIgnoreCase(animationName)) {
-				this.data.get(t).remove(ac);
-				return true;
-			}
+		AnimationKind type = AnimationKind.get(animationType);
+		if (!data.containsKey(type)) { data.put(type, Lists.<Integer>newArrayList()); }
+		for (Integer id : data.get(type)) {
+			if (id == animationId) { return data.get(type).remove(id); }
 		}
 		return false;
 	}
@@ -354,33 +279,27 @@ implements INPCAnimation {
 		if (animationType<0 || animationType>=AnimationKind.values().length) {
 			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
 		}
-		this.data.get(AnimationKind.get(animationType)).clear();
-	}
-
-	@Override
-	public AnimationConfig createAnimation(int animationType) {
-		if (animationType<0 || animationType>=AnimationKind.values().length) {
-			throw new CustomNPCsException("Animation Type must be between 0 and " + AnimationKind.values().length + " You have: "+animationType);
-		}
-		AnimationConfig ac = new AnimationConfig(animationType);
-		ac.id = this.data.get(ac.type).size();
-		this.data.get(ac.type).add(ac);
-		return ac;
+		AnimationKind type = AnimationKind.get(animationType);
+		if (!data.containsKey(type)) { data.put(type, Lists.<Integer>newArrayList()); }
+		data.get(type).clear();
 	}
 	
-	public Map<Integer, Float[]> getValues(EntityCustomNpc npc, AnimationConfig anim, float pt) {
+	public Map<Integer, Float[]> getValues(EntityNPCInterface npc, AnimationConfig anim, float pt) {
 		if (anim==null || anim.frames.isEmpty()) { return null; }
 		if (this.startFrameTick<=0) { this.startFrameTick = npc.world.getTotalWorldTime(); }
 		int ticks = (int) (npc.world.getTotalWorldTime() - this.startFrameTick);
 		AnimationFrameConfig frame_0 = null, frame_1 = null;
-		if (anim.frame==-1 && (anim.type==AnimationKind.ATTACKING ||
+		AnimationEvent event;
+		if (this.frame==-1 && (anim.type==AnimationKind.ATTACKING ||
 				anim.type==AnimationKind.DIES ||
 				anim.type==AnimationKind.JUMP ||
 				anim.type==AnimationKind.INIT)) {
-			anim.frame = 0;
+			this.frame = 0;
 			this.isComplete = false;
+			event = new AnimationEvent.StartEvent(npc, anim);
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, event.nameEvent, event);
 		}
-		if (anim.frame==-1) { // start
+		if (this.frame==-1) { // start
 			if (this.oldAnim!=null && !this.oldAnim.frames.isEmpty()) {
 				frame_0 = this.oldAnim.frames.get(this.oldAnim.frames.size()-1);
 			} else {
@@ -394,35 +313,41 @@ implements INPCAnimation {
 			frame_1 = anim.frames.get(0);
 			if (this.oldAnim==null) { this.oldAnim = anim; }
 		}
-		else if (anim.frames.containsKey(anim.frame+1)) { // next
-			if (anim.frames.containsKey(anim.frame)) { frame_0 = anim.frames.get(anim.frame); }
+		else if (anim.frames.containsKey(this.frame+1)) { // next
+			if (anim.frames.containsKey(this.frame)) { frame_0 = anim.frames.get(this.frame); }
 			else { frame_0 = AnimationFrameConfig.EMPTY_PART; }
-			frame_1 = anim.frames.get(anim.frame + 1);
+			frame_1 = anim.frames.get(this.frame + 1);
 		}
 		else if (anim.isEdit) {
-			if (anim.frame == anim.frames.size() - 1) {
+			if (this.frame == anim.frames.size() - 1) {
 				frame_0 = anim.frames.get(anim.frames.size()-1);
-				frame_1 = anim.frames.get(anim.frame);
+				frame_1 = anim.frames.get(this.frame);
 			} else {
-				anim.frame = 0;
-				frame_0 = anim.frames.get(anim.frame);
-				frame_1 = anim.frames.get(anim.frame + 1);
+				this.frame = 0;
+				frame_0 = anim.frames.get(this.frame);
+				frame_1 = anim.frames.get(this.frame + 1);
 			}
+			this.frame = -1;
+			this.startFrameTick = 0;
 		}
 		else if (anim.repeatLast>0 || anim.type==AnimationKind.DIES) { // repeat end
 			int f = anim.repeatLast<=0 ? 1 : anim.repeatLast;
-			anim.frame = anim.frames.size() - f;
-			if (anim.frame<0) { anim.frame = 0; }
-			frame_0 = anim.frames.get(anim.frame);
-			frame_1 = anim.frames.containsKey(anim.frame + 1) ? anim.frames.get(anim.frame + 1) : frame_0;
+			this.frame = anim.frames.size() - f;
+			if (this.frame<0) { this.frame = 0; }
+			frame_0 = anim.frames.get(this.frame);
+			frame_1 = anim.frames.containsKey(this.frame + 1) ? anim.frames.get(this.frame + 1) : frame_0;
 		}
+		this.showParts.clear();
 		if (frame_0 == null || frame_1 == null) {
-			if (this.activeAnim!=null) { this.updateClient(1, this.activeAnim.getType(), this.activeAnim.id); }
+			if (this.activeAnim!=null) { this.updateClient(1, this.activeAnim.type.get(), this.activeAnim.id); }
 			this.activeAnim = null;
-			anim.frame = -1;
+			for (int i = 0; i < 6; i++) { this.showParts.add(true); }
+			this.frame = -1;
 			this.startFrameTick = 0;
 			return null;
-		} // end
+		}
+		for (PartConfig part : frame_0.parts.values()) { this.showParts.add(part.isShow()); }
+		
 		
 		int speed = frame_0.getSpeed();
 		if (anim.type.isMoving()) {
@@ -433,7 +358,7 @@ implements INPCAnimation {
 		Map<Integer, Float[]> map = Maps.<Integer, Float[]>newTreeMap();
 		for (int part=0; part<6; part++) { // 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg
 			Float[] values = new Float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f }; // rotX, rotY, rotZ, ofsX, ofsY, ofsZ, scX, scY, scZ
-			if (frame_0.parts[part].isDisable()) {
+			if (frame_0.parts.get(part).isDisable()) {
 				map.put(part, null);
 				continue;
 			}
@@ -443,18 +368,18 @@ implements INPCAnimation {
 					float value_1;
 					switch(t) {
 						case 1: {
-							value_0 = 10.0f * frame_0.parts[part].offset[a] - 5.0f;
-							value_1 = 10.0f * frame_1.parts[part].offset[a] - 5.0f;
+							value_0 = 10.0f * frame_0.parts.get(part).offset[a] - 5.0f;
+							value_1 = 10.0f * frame_1.parts.get(part).offset[a] - 5.0f;
 							break;
 						}
 						case 2: {
-							value_0 = frame_0.parts[part].scale[a] * 5.0f;
-							value_1 = frame_1.parts[part].scale[a] * 5.0f;
+							value_0 = frame_0.parts.get(part).scale[a] * 5.0f;
+							value_1 = frame_1.parts.get(part).scale[a] * 5.0f;
 							break;
 						}
 						default: {
-							value_0 = frame_0.parts[part].rotation[a];
-							value_1 = frame_1.parts[part].rotation[a];
+							value_0 = frame_0.parts.get(part).rotation[a];
+							value_1 = frame_1.parts.get(part).rotation[a];
 							if (value_0 < 0.5f && Math.abs(value_0 + 1.0f - value_1) < Math.abs(value_0 - value_1)) {
 								value_0 += 1.0f;
 							}
@@ -473,14 +398,17 @@ implements INPCAnimation {
 			map.put(part, values);
 		}
 		if (ticks >= speed + frame_1.getEndDelay()) {
-			anim.frame++;
+			this.frame++;
 			this.startFrameTick = npc.world.getTotalWorldTime();
 			this.oldAnim = anim;
-			this.isComplete = anim.frame >= anim.frames.size()-1;
+			this.isComplete = this.frame >= anim.frames.size()-1;
+			if (this.isComplete) { event = new AnimationEvent.StopEvent(npc, anim); }
+			else { event = new AnimationEvent.NextFrameEvent(npc, anim); }
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, event.nameEvent, event);
 			if (this.isComplete && (anim.repeatLast>0 || anim.type==AnimationKind.DIES)) {
 				int f = anim.repeatLast<=0 ? 1 : anim.repeatLast;
-				anim.frame = anim.frames.size() - f;
-				if (anim.frame<0) { anim.frame = 0; }
+				this.frame = anim.frames.size() - f;
+				if (this.frame<0) { this.frame = 0; }
 			}
 		}
 		return map;

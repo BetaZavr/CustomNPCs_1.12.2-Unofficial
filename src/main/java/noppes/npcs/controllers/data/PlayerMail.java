@@ -20,33 +20,33 @@ import noppes.npcs.controllers.QuestController;
 
 public class PlayerMail
 implements IInventory, IPlayerMail {
-	
-	public boolean beenRead;
+
+	public boolean beenRead, returned;
 	public NonNullList<ItemStack> items;
 	public NBTTagCompound message;
 	// New
-	public int money;
-	public int questId;
-	public String sender;
-	public String subject;
-	public long time;
-	public long timePast;
-
+	public int money, ransom, questId;
+	public String sender, title;
+	public long timeWillCome, timeWhenReceived;
+	
 	public PlayerMail() {
 		this.clear();
-		this.time = 0L;
+		this.timeWillCome = 0L;
+		this.timeWhenReceived = System.currentTimeMillis();
 	}
 
 	public void clear() {
-		this.subject = "";
+		this.title = "";
 		this.sender = "";
 		this.message = new NBTTagCompound();
 		this.beenRead = false;
+		this.returned = false;
 		this.questId = -1;
 		if (this.items==null) { this.items = NonNullList.withSize(4, ItemStack.EMPTY); }
 		else { this.items.clear(); }
 		this.money = 0;
-		this.timePast = 0L;
+		this.ransom = 0;
+		this.timeWhenReceived = System.currentTimeMillis();
 	}
 
 	public void closeInventory(EntityPlayer player) {
@@ -107,7 +107,7 @@ implements IInventory, IPlayerMail {
 	}
 
 	public String getSubject() {
-		return this.subject;
+		return this.title;
 	}
 
 	public String[] getText() {
@@ -146,7 +146,7 @@ implements IInventory, IPlayerMail {
 	}
 
 	public boolean isValid() {
-		return !this.subject.isEmpty() && this.message.getKeySet().size() > 0 && !this.sender.isEmpty();
+		return !this.title.isEmpty() && this.message.getKeySet().size() > 0 && !this.sender.isEmpty();
 	}
 
 	public void markDirty() {
@@ -156,12 +156,13 @@ implements IInventory, IPlayerMail {
 	}
 
 	public void readNBT(NBTTagCompound compound) {
-		this.subject = compound.getString("Subject");
+		this.title = compound.getString("Subject");
 		this.sender = compound.getString("Sender");
-		this.time = compound.getLong("Time");
-		this.beenRead = compound.getBoolean("BeenRead");
 		this.message = compound.getCompoundTag("Message");
-		this.timePast = compound.getLong("TimePast");
+		this.beenRead = compound.getBoolean("BeenRead");
+		this.returned = compound.getBoolean("Returned");
+		this.timeWillCome = compound.getLong("TimeWillCome");
+		this.timeWhenReceived = compound.getLong("TimeWhenReceived");
 		if (compound.hasKey("MailQuest")) {
 			this.questId = compound.getInteger("MailQuest");
 		}
@@ -176,6 +177,7 @@ implements IInventory, IPlayerMail {
 		}
 		// New
 		this.money = compound.getInteger("Money");
+		this.ransom = compound.getInteger("Ransom");
 	}
 
 	public ItemStack removeStackFromSlot(int slot) {
@@ -202,7 +204,7 @@ implements IInventory, IPlayerMail {
 	}
 
 	public void setSubject(String subject) {
-		this.subject = subject;
+		this.title = subject;
 	}
 
 	public void setText(String[] pages) {
@@ -217,12 +219,15 @@ implements IInventory, IPlayerMail {
 
 	public NBTTagCompound writeNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setString("Subject", this.subject);
+		compound.setString("Subject", this.title);
 		compound.setString("Sender", this.sender);
-		compound.setLong("Time", this.time);
-		compound.setBoolean("BeenRead", this.beenRead);
 		compound.setTag("Message", this.message);
-		compound.setLong("TimePast", System.currentTimeMillis() - this.time);
+		compound.setBoolean("BeenRead", this.beenRead);
+		compound.setBoolean("Returned", this.returned);
+
+		compound.setLong("TimeWillCome", this.timeWillCome);
+		compound.setLong("TimeWhenReceived", this.timeWhenReceived);
+		
 		compound.setInteger("MailQuest", this.questId);
 		if (this.hasQuest()) {
 			compound.setString("MailQuestTitle", this.getQuest().getTitle());
@@ -239,6 +244,28 @@ implements IInventory, IPlayerMail {
 		compound.setTag("MailItems", nbttaglist);
 		// New
 		compound.setInteger("Money", this.money);
+		compound.setInteger("Ransom", this.ransom);
 		return compound;
 	}
+
+	@Override
+	public int getMoney() { return this.money; }
+
+	@Override
+	public void setMoney(int money) {
+		if (money < 0) { money = 0; }
+		this.money = money;
+	}
+
+	@Override
+	public int getRansom() { return this.ransom; }
+
+	@Override
+	public void setRansom(int money) {
+		if (money < 0) { money = 0; }
+		this.ransom = money;
+	}
+
+	public boolean isReturned() { return this.returned; }
+
 }

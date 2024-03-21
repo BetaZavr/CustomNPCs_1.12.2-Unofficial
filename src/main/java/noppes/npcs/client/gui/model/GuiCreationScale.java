@@ -33,10 +33,10 @@ implements ISliderListener, ICustomScrollListener {
 	}
 
 	@Override
-	protected void actionPerformed(GuiButton btn) {
-		super.actionPerformed(btn);
-		if (btn.id == 13) {
-			boolean bo = ((GuiNpcButton) btn).getValue() == 0;
+	protected void actionPerformed(GuiButton guibutton) {
+		super.actionPerformed(guibutton);
+		if (guibutton.id == 13) {
+			boolean bo = ((GuiNpcButton) guibutton).getValue() == 0;
 			this.playerdata.getPartConfig(GuiCreationScale.selected).notShared = bo;
 			this.initGui();
 		}

@@ -111,7 +111,7 @@ implements ICustomElement, ICustomParticle
 				return;
 			}
 			if (this.texture==null) { return; }
-			Minecraft.getMinecraft().getTextureManager().bindTexture(this.texture);
+			Minecraft.getMinecraft().renderEngine.bindTexture(this.texture);
 			
 			float f = (float)this.particleTextureIndexX / 16.0F;
 			float f1 = f + 0.0624375F;

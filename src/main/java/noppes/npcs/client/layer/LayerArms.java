@@ -33,13 +33,13 @@ public class LayerArms<T extends EntityLivingBase> extends LayerInterface<T> {
 		ModelPartData data = this.playerdata.getPartData(EnumParts.CLAWS);
 		if (data == null || data.pattern < 0 || data.pattern > 2) { return; }
 		this.preRender(data);
-		if (data.pattern == 0 || data.pattern == 1) {
+		if (this.npc.animation.showParts.get(1) && (data.pattern == 0 || data.pattern == 1)) {
 			GlStateManager.pushMatrix();
 			this.model.bipedLeftArm.postRender(0.0625f);
 			this.lClaw.render(par7);
 			GlStateManager.popMatrix();
 		}
-		if (data.pattern == 0 || data.pattern == 2) {
+		if (this.npc.animation.showParts.get(2) && (data.pattern == 0 || data.pattern == 2)) {
 			GlStateManager.pushMatrix();
 			this.model.bipedRightArm.postRender(0.0625f);
 			this.rClaw.render(par7);

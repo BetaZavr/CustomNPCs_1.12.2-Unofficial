@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui.util;
 
+import org.lwjgl.input.Mouse;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiButton;
@@ -13,21 +15,20 @@ extends GuiButton {
 	
 	protected String[] display;
 	private int displayValue;
-	public int id;
+	public int id, mouseButtonId;
 	// New
-	public int layerColor = 0, textureX = 0, textureY = 0;
-	private ResourceLocation texture = null;
+	public int layerColor = 0, txrX = 0, txrY = 0, txrW = 0, txrH = 0;
+	public ResourceLocation texture = null;
 	public String lable = "";
-	public boolean dropShadow;
-	public boolean hasSound;
+	public boolean dropShadow, hasDefBack, hasSound, isPressed;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
 		this.display = new String[] { "" };
 		this.displayValue = 0;
 		this.texture = texture;
-		this.textureX = textureX;
-		this.textureY = textureY;
+		this.txrX = textureX;
+		this.txrY = textureY;
 	}
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int val, String... display) {
@@ -76,7 +77,7 @@ extends GuiButton {
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) { return; }
 		if (this.texture == null) {
-			mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
+			mc.renderEngine.bindTexture(BUTTON_TEXTURES);
 			if (this.layerColor != 0) { GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f, (float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f, (float) (this.layerColor >> 24 & 255) / 255.0f); }
 			else { GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); }
 			this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
@@ -84,7 +85,6 @@ extends GuiButton {
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
 			this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
 			this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
 			if (this.height<20 && this.height>=6) {
@@ -98,17 +98,39 @@ extends GuiButton {
 			}
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			this.mouseDragged(mc, mouseX, mouseY);
-		} else {
-			GlStateManager.translate(0.0f, 0.0f, this.id);
-			mc.getTextureManager().bindTexture(this.texture);
+		} 
+		if (this.texture != null) {
+			if (this.hasDefBack) {
+				this.drawGradientRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, 0xFF202020, 0xFF202020);
+				this.drawGradientRect(this.x, this.y, this.x + this.width, this.y + this.height, 0xFFA0A0A0, 0xFFA0A0A0);
+			}
+			int i = !this.enabled ? 1 : this.hovered ? 2 : 0;
+			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
+			if (this.isPressed) { this.isPressed = Mouse.isButtonDown(0) && this.enabled && this.hovered; }
+			else if (Mouse.getEventButtonState() && Mouse.isButtonDown(0) && this.enabled && this.hovered) { this.isPressed = true; }
+			if (this.isPressed) { i = 3; }
+			boolean isPrefabricated = txrW == 0;
+			int tw = isPrefabricated ? 200 : txrW;
+			int th = txrH == 0 ? 20 : txrH;
+			float scaleH = this.height / (float) th;
+			float scaleW = isPrefabricated ? scaleH : this.width / (float) tw;
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(scaleW, scaleH, 1.0f);
+			GlStateManager.translate(this.x / scaleW, this.y / scaleH, 0.0f);
+			mc.renderEngine.bindTexture(this.texture);
 			if (this.layerColor != 0) { GlStateManager.color((float) (this.layerColor >> 16 & 255) / 255.0f, (float) (this.layerColor >> 8 & 255) / 255.0f, (float) (this.layerColor & 255) / 255.0f, (float) (this.layerColor >> 24 & 255) / 255.0f); }
 			else { GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); }
-			this.hovered = (mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height);
-			int i = this.hovered || !this.enabled ? 1 : 0;
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			this.drawTexturedModalRect(this.x, this.y, this.textureX, this.textureY + i * this.height, this.width, this.height);
+			if (isPrefabricated) {
+				tw = (int) (((float) this.width / 2.0f) / scaleH);
+				this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th);
+				this.drawTexturedModalRect(tw, 0, txrX + 200 - tw, txrY + i * th, tw, th);
+			}
+			else { this.drawTexturedModalRect(0, 0, txrX, txrY + i * th, tw, th); }
+			
+			GlStateManager.popMatrix();
 			
 		}
 		int l = CustomNpcs.mainColor;
@@ -139,8 +161,8 @@ extends GuiButton {
 		return this.height;
 	}
 
-	public boolean mousePressed(Minecraft minecraft, int i, int j) {
-		boolean bo = super.mousePressed(minecraft, i, j);
+	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+		boolean bo = super.mousePressed(mc, mouseX, mouseY);
 		if (bo && this.display != null && this.display.length != 0) {
 			this.displayValue = (this.displayValue + 1) % this.display.length;
 			this.setDisplayText(this.display[this.displayValue]);

@@ -97,7 +97,10 @@ implements IScriptHandler {
 		if (!this.isEnabled()) { return; }
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onNPCInit(this.npc); }
+			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
+				EventHooks.onNPCInit(this.npc);
+			}
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());

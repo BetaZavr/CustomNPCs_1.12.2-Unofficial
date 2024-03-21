@@ -115,7 +115,7 @@ implements ICustomElement {
 	@Override
 	public void renderInventoryEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc) {
 		if (mc.currentScreen != null) {
-			mc.getTextureManager().bindTexture(this.resource);
+			mc.renderEngine.bindTexture(this.resource);
 			Gui.drawModalRectWithCustomSizedTexture(x + 6, y + 7, 0, 0, 18, 18, 18, 18);
 		}
 	}
@@ -123,7 +123,7 @@ implements ICustomElement {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void renderHUDEffect(int x, int y, PotionEffect effect, net.minecraft.client.Minecraft mc, float alpha) {
-		mc.getTextureManager().bindTexture(this.resource);
+		mc.renderEngine.bindTexture(this.resource);
 		Gui.drawModalRectWithCustomSizedTexture(x + 3, y + 3, 0, 0, 18, 18, 18, 18);
 	}
 

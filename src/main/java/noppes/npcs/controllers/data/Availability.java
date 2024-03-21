@@ -2,8 +2,11 @@ package noppes.npcs.controllers.data;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,7 +19,9 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.ICompatibilty;
 import noppes.npcs.VersionCompatibility;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.constants.EnumAvailabilityDialog;
 import noppes.npcs.constants.EnumAvailabilityFaction;
@@ -35,15 +40,16 @@ implements ICompatibilty, IAvailability {
 	
 	public static HashSet<String> scores = new HashSet<String>();
 	public int[] daytime;
-	public Map<Integer, EnumAvailabilityDialog> dialogues; // ID, Availability
-	public Map<Integer, AvailabilityFactionData> factions; // ID, [Stance, Availability]
+	public final Map<Integer, EnumAvailabilityDialog> dialogues; // ID, Availability
+	public final Map<Integer, AvailabilityFactionData> factions; // ID, [Stance, Availability]
 	private boolean hasOptions;
 	
 	public int max = 10;
 	public int minPlayerLevel, health, healthType;
-	public Map<Integer, EnumAvailabilityQuest> quests; // ID, Availability
-	public Map<String, AvailabilityScoreboardData> scoreboards; // Objective, [Value, Availability]
-	public Map<String, EnumAvailabilityPlayerName> playerNames;
+	public final Map<Integer, EnumAvailabilityQuest> quests; // ID, Availability
+	public final Map<String, AvailabilityScoreboardData> scoreboards; // Objective, [Value, Availability]
+	public final Map<String, EnumAvailabilityPlayerName> playerNames;
+	public final List<AvailabilityStoredData> storeddata;
 	public int version;
 
 	public Availability() {
@@ -59,6 +65,7 @@ implements ICompatibilty, IAvailability {
 		this.factions = new HashMap<Integer, AvailabilityFactionData>();
 		this.scoreboards = new HashMap<String, AvailabilityScoreboardData>();
 		this.playerNames = new HashMap<String, EnumAvailabilityPlayerName>();
+		this.storeddata = Lists.<AvailabilityStoredData>newArrayList();
 	}
 
 	private boolean checkHasOptions() {
@@ -83,6 +90,7 @@ implements ICompatibilty, IAvailability {
 			}
 		}
 		if (!this.playerNames.isEmpty()) { return true; }
+		if (!this.storeddata.isEmpty()) { return true; }
 		if (this.healthType!=0) { return true; }
 		return this.daytime[0] != -1 || this.daytime[1] != -1 || this.minPlayerLevel > 0;
 	}
@@ -156,6 +164,14 @@ implements ICompatibilty, IAvailability {
 	@Override
 	public boolean hasPlayerName(String name) {
 		return this.playerNames.containsKey(name);
+	}
+	
+	@Override
+	public boolean hasStoredData(String key, String value) {
+		for (AvailabilityStoredData sd : this.storeddata) {
+			if (sd.key.equals(key) && sd.value.equals(value)) { return true; }
+		}
+		return false;
 	}
 
 	@Override
@@ -244,6 +260,14 @@ implements ICompatibilty, IAvailability {
 			if (exit) { break; }
 		}
 		if (returnName || (!returnName && hasOnly)) { return false; }
+		if (!this.storeddata.isEmpty()) {
+			IData dataP = NpcAPI.Instance().getIEntity(player).getStoreddata();
+			for (AvailabilityStoredData sd : this.storeddata) {
+				if ((dataP.has(sd.key) && !sd.has) || (!dataP.has(sd.key) && sd.has)) { return false; }
+				Object value = dataP.get(sd.key);
+				if (sd.has && !sd.value.isEmpty() && (value == null || !value.toString().equals(sd.value))) { return false; }
+			}
+		}
 		if (this.healthType!=0) {
 			int h = (int) (player.getHealth() / player.getMaxHealth()*100);
 			if ((this.healthType==1 && h<this.health) || (this.healthType==2 && h>this.health)) {
@@ -282,7 +306,7 @@ implements ICompatibilty, IAvailability {
 		if (compound.hasKey("AvailabilityDayTime", 11)) {
 			this.daytime = compound.getIntArray("AvailabilityDayTime");
 		}
-		else if (CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
+		else { // OLD versions
 			int v = compound.getInteger("AvailabilityDayTime");
 			if (v<0) { v *= -1; }
 			if (v>=EnumDayTime.values().length) { v %= EnumDayTime.values().length; }
@@ -313,7 +337,7 @@ implements ICompatibilty, IAvailability {
 				this.dialogues.put(nbtDialog.getInteger("ID"), EnumAvailabilityDialog.values()[v]);
 			}
 		}
-		else if (compound.hasKey("AvailabilityDialogId", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
+		else if (compound.hasKey("AvailabilityDialogId", 3)) { // OLD versions
 			for (int i = 0; i < 4; i++) {
 				String key = i == 0 ? "" : "" + (i+1);
 				if (compound.getInteger("AvailabilityDialog" + key + "Id") > 0) {
@@ -334,7 +358,7 @@ implements ICompatibilty, IAvailability {
 				this.quests.put(nbtQuest.getInteger("ID"), EnumAvailabilityQuest.values()[v]);
 			}
 		}
-		else if (compound.hasKey("AvailabilityQuestId", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
+		else if (compound.hasKey("AvailabilityQuestId", 3)) { // OLD versions
 			for (int i = 0; i < 4; i++) {
 				String key = i == 0 ? "" : "" + (i+1);
 				if (compound.getInteger("AvailabilityQuest" + key + "Id") > 0) {
@@ -359,7 +383,7 @@ implements ICompatibilty, IAvailability {
 						new AvailabilityFactionData(EnumAvailabilityFactionType.values()[g], EnumAvailabilityFaction.values()[v]));
 			}
 		}
-		else if (compound.hasKey("AvailabilityFactionId", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
+		else if (compound.hasKey("AvailabilityFactionId", 3)) { // OLD versions
 			for (int i = 0; i < 4; i++) {
 				String key = i == 0 ? "" : "2";
 				if (compound.getInteger("AvailabilityFaction" + key + "Id") > 0) {
@@ -387,7 +411,7 @@ implements ICompatibilty, IAvailability {
 				this.initScore(nbtScoreboard.getString("Objective"));
 			}
 		}
-		else if (compound.hasKey("AvailabilityScoreboardObjective", 8) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD versions
+		else if (compound.hasKey("AvailabilityScoreboardObjective", 8)) { // OLD versions
 			for (int i = 0; i < 2; i++) {
 				String key = i == 0 ? "" : "2";
 				if (!compound.getString("AvailabilityScoreboard" + key + "Objective").isEmpty()) {
@@ -408,6 +432,21 @@ implements ICompatibilty, IAvailability {
 				if (v<0) { v *= -1; }
 				if (v>=EnumAvailabilityPlayerName.values().length) { v %= EnumAvailabilityPlayerName.values().length; }
 				this.playerNames.put(nbtName.getString("Name"), EnumAvailabilityPlayerName.values()[v]);
+			}
+		}
+		if (compound.hasKey("AvailabilityStoredData", 9)) {
+			for (int i = 0; i < compound.getTagList("AvailabilityStoredData", 10).tagCount(); i++) {
+				AvailabilityStoredData asd = new AvailabilityStoredData(compound.getTagList("AvailabilityStoredData", 10).getCompoundTagAt(i));
+				boolean found = false;
+				for (AvailabilityStoredData sd : this.storeddata) {
+					if (sd.key.equals(asd.key)) {
+						found = true;
+						sd.value = asd.value;
+						sd.has = asd.has;
+						break;
+					}
+				}
+				if (!found) { this.storeddata.add(asd); }
 			}
 		}
 		
@@ -457,6 +496,17 @@ implements ICompatibilty, IAvailability {
 	@Override
 	public void removePlayerName(String name) {
 		this.playerNames.remove(name);
+		this.hasOptions = this.checkHasOptions();
+	}
+	
+	@Override
+	public void removeStoredData(String key) {
+		for (AvailabilityStoredData sd : this.storeddata) {
+			if (sd.key.equals(key)) {
+				this.storeddata.remove(sd);
+				break;
+			}
+		}
 		this.hasOptions = this.checkHasOptions();
 	}
 
@@ -565,6 +615,23 @@ implements ICompatibilty, IAvailability {
 	}
 
 	@Override
+	public void setStoredData(String key, String value, boolean has) {
+		boolean found = false;
+		for (AvailabilityStoredData sd : this.storeddata) {
+			if (sd.key.equals(key)) {
+				found = true;
+				sd.value = value;
+				sd.has = has;
+				break;
+			}
+		}
+		if (!found) {
+			this.storeddata.add(new AvailabilityStoredData(key, value, has) );
+		}
+		this.hasOptions = this.checkHasOptions();
+	}
+
+	@Override
 	public void setVersion(int version) {
 		this.version = version;
 	}
@@ -639,6 +706,10 @@ implements ICompatibilty, IAvailability {
 		}
 		compound.setTag("AvailabilityPlayerNames", listPN);
 		
+		NBTTagList listSD = new NBTTagList();
+		for (AvailabilityStoredData sd : this.storeddata) { listSD.appendTag(sd.writeToNBT()); }
+		compound.setTag("AvailabilityStoredData", listSD);
+		
 		compound.setInteger("AvailabilityHealth", this.health);
 		compound.setInteger("AvailabilityHealthType", this.healthType);
 		return compound;
@@ -667,6 +738,7 @@ implements ICompatibilty, IAvailability {
 				", factions:" + this.factions.size() +
 				", time[min:" + this.daytime[0] + ", max:" + this.daytime[0] + "]" +
 				", playerNames:" + this.playerNames.size() +
+				", StoredDatas:" + this.storeddata.size() +
 				", playerData[Lv:" + this.minPlayerLevel + ", H:" + this.health + ", HT:" + this.healthType + "] }"
 		;
 	}
@@ -674,6 +746,22 @@ implements ICompatibilty, IAvailability {
 	@Override
 	public String[] getPlayerNames() {
 		return this.playerNames.keySet().toArray(new String[this.playerNames.size()]);
+	}
+
+	@Override
+	public String getStoredDataValue(String key) {
+		for (AvailabilityStoredData sd : this.storeddata) {
+			if (sd.key.equals(key)) { return sd.value; }
+		}
+		return null;
+	}
+
+	@Override
+	public boolean getStoredDataHas(String key) {
+		for (AvailabilityStoredData sd : this.storeddata) {
+			if (sd.key.equals(key)) { return sd.has; }
+		}
+		return false;
 	}
 	
 }

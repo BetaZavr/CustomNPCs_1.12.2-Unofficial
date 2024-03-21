@@ -25,16 +25,38 @@ public class TextBlockClient extends TextBlock {
 		this.sender = sender;
 	}
 
-	public TextBlockClient(String text, int lineWidth, boolean mcFont, Entity entity, Object... obs) {
+	public TextBlockClient(String totalText, int lineWidth, boolean mcFont, Entity entity, Object... obs) {
 		this.color = 0xE0E0E0;
 		this.style = new Style();
 		this.entity = entity;
-		this.text = text;
-		text = NoppesStringUtils.formatText(text, obs);
+		this.text = NoppesStringUtils.formatText(totalText, obs);
+		this.text = this.text.replace("\n", " \n ");
+		this.text = this.text.replace("\r", " \r ");
+		this.resetWidth(lineWidth, mcFont);
+	}
+
+	public TextBlockClient(String name, String text, int lineWidth, int color, Entity entity, Object... obs) {
+		this(text, lineWidth, false, entity, obs);
+		this.color = color;
+		this.name = name;
+	}
+
+	private void addLine(String text) { // Change
+		TextComponentString line = new TextComponentString(text);
+		line.setStyle(this.style);
+		this.lines.add(line);
+	}
+
+	public String getName() {
+		if (this.sender != null) {
+			return this.sender.getName();
+		}
+		return this.name;
+	}
+
+	public void resetWidth(int lineWidth, boolean mcFont) {
 		String line = "";
-		text = text.replace("\n", " \n ");
-		text = text.replace("\r", " \r ");
-		String[] words = text.split(" ");
+		String[] words = this.text.split(" ");
 		FontRenderer font = Minecraft.getMinecraft().fontRenderer;
 		String color = ((char) 167) + "r";
 		for (String word : words) {
@@ -64,25 +86,6 @@ public class TextBlockClient extends TextBlock {
 		if (!line.isEmpty()) {
 			this.addLine(color + line);
 		}
-	}
-
-	public TextBlockClient(String name, String text, int lineWidth, int color, Entity entity, Object... obs) {
-		this(text, lineWidth, false, entity, obs);
-		this.color = color;
-		this.name = name;
-	}
-
-	private void addLine(String text) { // Change
-		TextComponentString line = new TextComponentString(text);
-		line.setStyle(this.style);
-		this.lines.add(line);
-	}
-
-	public String getName() {
-		if (this.sender != null) {
-			return this.sender.getName();
-		}
-		return this.name;
 	}
 
 }

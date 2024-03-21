@@ -14,7 +14,7 @@ public class GuiNPCTextures extends GuiNpcSelectionInterface {
 	public void drawScreen(int i, int j, float f) {
 		int l = -50;
 		int i2 = this.height / 2 + 30;
-		this.drawNpc(this.npc, l, i2, 2.0f, 0, 0, true);
+		this.drawNpc(this.npc, l, i2, 2.0f, 0, 0, 1);
 		super.drawScreen(i, j, f);
 	}
 

@@ -44,8 +44,7 @@ implements ISubGuiListener, ICustomScrollListener {
 
 	public GuiNPCMarks(EntityNPCInterface npc) {
 		super(npc);
-		this.marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull",
-				"mark.cross", "mark.star" };
+		this.marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
 		this.data = MarkData.get(npc);
 		this.npcDisplay = new EntityCustomNpc(npc.world);
 		NBTTagCompound nbtData = new NBTTagCompound();
@@ -161,7 +160,7 @@ implements ISubGuiListener, ICustomScrollListener {
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
-		drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, 0, true);
+		drawNpc(this.npcDisplay, 350, 150, 1.0f, 0, 0, 1);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 1.0f);
 		Gui.drawRect(this.guiLeft + 319, this.guiTop + 30, this.guiLeft + 380, this.guiTop + 165, 0xFF808080);
@@ -194,6 +193,12 @@ implements ISubGuiListener, ICustomScrollListener {
 	@Override
 	public void save() {
 		Client.sendData(EnumPacketServer.MainmenuAdvancedMarkData, this.data.getNBT());
+	}
+	
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	// New

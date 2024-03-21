@@ -19,7 +19,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class GuiNpcMenu
 implements GuiYesNoCallback {
 	
-	private int activeMenu;
+	public int activeMenu;
 	private EntityNPCInterface npc;
 	private GuiScreen parent;
 	private GuiMenuTopButton[] topButtons;
@@ -44,7 +44,7 @@ implements GuiYesNoCallback {
 		}
 	}
 
-	public void confirmClicked(boolean flag, int i) {
+	public void confirmClicked(boolean flag, int id) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (flag) {
 			Client.sendData(EnumPacketServer.Delete, new Object[0]);
@@ -100,9 +100,7 @@ implements GuiYesNoCallback {
 	}
 
 	public void topButtonPressed(GuiMenuTopButton button) {
-		if (button.displayString.equals("" + this.activeMenu)) {
-			return;
-		}
+		if (button.displayString.equals("" + this.activeMenu)) { return; }
 		Minecraft mc = Minecraft.getMinecraft();
 		NoppesUtil.clickSound();
 		int id = button.id;
@@ -111,8 +109,7 @@ implements GuiYesNoCallback {
 			return;
 		}
 		if (id == 66) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 			mc.displayGuiScreen((GuiScreen) guiyesno);
 			return;
 		}

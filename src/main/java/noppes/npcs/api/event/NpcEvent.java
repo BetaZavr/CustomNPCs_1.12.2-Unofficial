@@ -19,20 +19,18 @@ import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.ILine;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.controllers.AnimationController;
 
 public class NpcEvent
 extends CustomNPCsEvent {
-
+	
 	public static class StopAnimation extends NpcEvent {
 		
-		public int type, variant;
 		public IAnimation animation;
 
-		public StopAnimation(ICustomNpc<?> npc, int type, int variant) {
+		public StopAnimation(ICustomNpc<?> npc, int type, int id) {
 			super(npc);
-			this.type = type;
-			this.variant = variant;
-			this.animation = npc.getAnimations().getAnimation(type, variant);
+			this.animation = AnimationController.getInstance().animations.get(id);
 		}
 		
 	}

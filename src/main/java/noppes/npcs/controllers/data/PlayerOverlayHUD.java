@@ -53,6 +53,7 @@ implements IOverlayHUD {
 	private boolean update;
 	private EntityPlayerMP player;
 	public PlayerCompassHUDData compassData;
+	public String currentGUI = "";
 	
 	public PlayerOverlayHUD() {
 		this.isMoved = false;

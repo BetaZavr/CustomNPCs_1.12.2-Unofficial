@@ -1,11 +1,6 @@
 package noppes.npcs.client.gui.script;
 
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.api.event.WorldEvent;
-import noppes.npcs.api.event.potion.AffectEntity;
-import noppes.npcs.api.event.potion.EndEffect;
-import noppes.npcs.api.event.potion.IsReadyEvent;
-import noppes.npcs.api.event.potion.PerformEffect;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.PotionScriptData;
@@ -19,12 +14,6 @@ extends GuiScriptInterface {
 		this.script = new PotionScriptData();
 		this.handler = this.script;
 		Client.sendData(EnumPacketServer.ScriptPotionGet);
-		this.baseFuncNames.put("isReady", IsReadyEvent.class);
-		this.baseFuncNames.put("performEffect", PerformEffect.class);
-		this.baseFuncNames.put("affectEntity", AffectEntity.class);
-		this.baseFuncNames.put("endEffect", EndEffect.class);
-		// CommonEvents
-		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override

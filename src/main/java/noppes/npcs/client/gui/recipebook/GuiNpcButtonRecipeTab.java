@@ -50,7 +50,7 @@ public class GuiNpcButtonRecipeTab extends GuiButtonToggle {
 
 		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
 				&& mouseY < this.y + this.height;
-		mc.getTextureManager().bindTexture(this.resourceLocation);
+		mc.renderEngine.bindTexture(this.resourceLocation);
 		GlStateManager.disableDepth();
 		int k = this.xTexStart;
 		int i = this.yTexStart;

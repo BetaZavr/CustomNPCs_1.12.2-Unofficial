@@ -16,7 +16,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobHealer;
@@ -123,7 +122,7 @@ implements IJobHealer {
 				HealerSettings hs = new HealerSettings(compound.getTagList("HealerData", 10).getCompoundTagAt(i));
 				this.effects.put(hs.id, hs);
 			}
-		} else if (compound.hasKey("HealerRange", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+		} else if (compound.hasKey("HealerRange", 3)) { // OLD
 			int range = compound.getInteger("HealerRange");
 			int speed = ValueUtil.correctInt(compound.getInteger("HealerSpeed"), 10, Integer.MAX_VALUE);
 			byte type = compound.getByte("HealerType");

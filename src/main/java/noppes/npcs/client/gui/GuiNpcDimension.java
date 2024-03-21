@@ -42,10 +42,10 @@ implements IScrollData, ICustomScrollListener {
 		switch(button.id) {
 			case 1: { // settings
 				this.player.sendMessage(new TextComponentTranslation("gui.wip"));
-				/*if (!this.data.containsKey(this.scroll.getSelected())) { return; }
+				if (!this.data.containsKey(this.scroll.getSelected())) { return; }
 				int id = this.data.get(this.scroll.getSelected());
 				if (!ClientHandler.getInstance().has(id)) { return; }
-				CustomNpcs.proxy.openGui(null, EnumGuiType.DimentionSetting, id, 0, 0);*/
+				CustomNpcs.proxy.openGui(null, EnumGuiType.DimentionSetting, id, 0, 0);
 				break;
 			}
 			case 2: { // add
@@ -167,7 +167,7 @@ implements IScrollData, ICustomScrollListener {
 			String r = t[0].equals("delete") ? "8" : "7";
 			String str = c+r+"ID:"+(t[0].equals("delete") ? c+"7" : c+"6")+id+c+r+" - \""+(t[0].equals("delete") ? c+"7" : c+"r")+new TextComponentTranslation(t[1]).getFormattedText()+c+r+"\""+(t.length>=3 && !t[2].isEmpty() ? " ["+t[2]+"]" : "");
 			l.add(str);
-			String p = c+(ClientHandler.getInstance().has(id) ? "dC" : "bM")+c+r+".";
+			String p = c+"bM"+c+r+".";
 			s.add(p + (t[0].equals("delete") ? c+"7delete" : t[0].equals("true") ? c+"aloaded" : c+"cunloaded"));
 			this.data.put(str, id);
 		}

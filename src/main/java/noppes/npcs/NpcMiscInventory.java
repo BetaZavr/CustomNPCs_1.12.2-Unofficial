@@ -120,6 +120,7 @@ implements IInventory {
 	public NBTTagCompound getToNBT() {
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
 		nbttagcompound.setTag("NpcMiscInv", NBTTags.nbtItemStackList(this.items));
+		nbttagcompound.setInteger("NpcMiscInvSize", this.items.size());
 		return nbttagcompound;
 	}
 
@@ -151,8 +152,8 @@ implements IInventory {
 	public void openInventory(EntityPlayer player) {
 	}
 
-	public ItemStack removeStackFromSlot(int var1) {
-		return this.items.set(var1, ItemStack.EMPTY);
+	public ItemStack removeStackFromSlot(int slotId) {
+		return this.items.set(slotId, ItemStack.EMPTY);
 	}
 
 	public void setField(int id, int value) {
@@ -171,7 +172,8 @@ implements IInventory {
 		if (this.items.size()==size) { return; }
 		NonNullList<ItemStack> newItems = NonNullList.withSize(size, ItemStack.EMPTY);
 		for (int slot = 0; slot < this.items.size() && slot < size; ++slot) {
-			newItems.add(this.items.get(slot));
+			if (this.items.get(slot).isEmpty()) { continue; }
+			newItems.add(slot, this.items.get(slot));
 		}
 		this.items = newItems;
 	}

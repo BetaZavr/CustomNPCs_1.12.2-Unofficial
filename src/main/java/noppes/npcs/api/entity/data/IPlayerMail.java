@@ -23,4 +23,12 @@ public interface IPlayerMail {
 
 	void setText(String[] text);
 	
+	int getMoney();
+	
+	void setMoney(int money);
+
+	int getRansom();
+	
+	void setRansom(int money);
+	
 }

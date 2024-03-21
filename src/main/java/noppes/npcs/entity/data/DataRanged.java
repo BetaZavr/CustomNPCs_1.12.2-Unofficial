@@ -12,7 +12,8 @@ implements INPCRanged {
 	
 	private boolean aimWhileShooting, pGlows, pPhysics, pRender3D, pSpin, pStick, pXlr8;
 	private int accuracy, burstCount, canFireIndirect, fireRate, maxDelay, meleeDistance,
-	minDelay, pImpact, pArea, pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, rangedRange, shotCount;
+	minDelay, pImpact, pArea, pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, shotCount;
+	private double rangedRange;
 	private String fireSound, groundSound, hitSound;
 	private EntityNPCInterface npc;
 
@@ -26,7 +27,7 @@ implements INPCRanged {
 		this.pTrail = 0;
 		this.minDelay = 20;
 		this.maxDelay = 40;
-		this.rangedRange = 15;
+		this.rangedRange = 15.0d;
 		this.fireRate = 5;
 		this.shotCount = 1;
 		this.accuracy = 60;
@@ -143,7 +144,7 @@ implements INPCRanged {
 	}
 
 	@Override
-	public int getRange() {
+	public double getRange() {
 		return this.rangedRange;
 	}
 
@@ -206,7 +207,8 @@ implements INPCRanged {
 		this.pSize = compound.getInteger("pSize");
 		this.pArea = compound.getInteger("pArea");
 		this.pTrail = compound.getInteger("pTrail");
-		this.rangedRange = compound.getInteger("MaxFiringRange");
+		if (compound.hasKey("MaxFiringRange", 3)) { this.rangedRange = (double) compound.getInteger("MaxFiringRange"); }
+		else { this.rangedRange = compound.getDouble("MaxFiringRange"); }
 		this.fireRate = compound.getInteger("FireRate");
 		this.minDelay = ValueUtil.correctInt(compound.getInteger("minDelay"), 1, 9999);
 		this.maxDelay = ValueUtil.correctInt(compound.getInteger("maxDelay"), 1, 9999);
@@ -305,8 +307,8 @@ implements INPCRanged {
 	}
 
 	@Override
-	public void setRange(int range) {
-		this.rangedRange = ValueUtil.correctInt(range, 1, 64);
+	public void setRange(double range) {
+		this.rangedRange = ValueUtil.correctDouble(range, 1.0d, 64.0d);
 	}
 
 	@Override
@@ -369,7 +371,7 @@ implements INPCRanged {
 		compound.setInteger("pSize", this.pSize);
 		compound.setInteger("pArea", this.pArea);
 		compound.setInteger("pTrail", this.pTrail);
-		compound.setInteger("MaxFiringRange", this.rangedRange);
+		compound.setDouble("MaxFiringRange", this.rangedRange);
 		compound.setInteger("FireRate", this.fireRate);
 		compound.setInteger("minDelay", this.minDelay);
 		compound.setInteger("maxDelay", this.maxDelay);

@@ -39,14 +39,9 @@ extends ModelRenderer {
     public void render(float scale) {
         if (this.isHidden || !this.showModel) { return; }
 		Map<String, String> rmt = null;
-		/*if (this.modelBase.mainTexture != null && !this.modelBase.texture.isEmpty()) {
-			rmt = Maps.<String, String>newHashMap();
-			rmt.put(this.modelBase.mainTexture.toString(), this.modelBase.texture);
-		}*/
 		int displayList = ModelBuffer.getDisplayList(this.modelBase.objModel, this.meshes, rmt); // get the previously created render sheet
 		if (displayList>=0) { // if it exists
 			GlStateManager.pushMatrix();
-			//System.out.println("CNPCs: "+this.msr);
 			if (this.msr != null) {
 				this.msr.postRender(scale);
 			}
@@ -57,7 +52,7 @@ extends ModelRenderer {
 			}
 			if ((this.x + addX) != 0.0f || this.y != 0.0f || this.z != 0.0f) { GlStateManager.translate(this.x + addX, this.y, this.z); } // offset relative to model
 			GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
-			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); // setting a regular texture
+			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); // setting a regular texture
 			GlStateManager.callList(displayList); // display in game
 			GlStateManager.popMatrix();
 			return;

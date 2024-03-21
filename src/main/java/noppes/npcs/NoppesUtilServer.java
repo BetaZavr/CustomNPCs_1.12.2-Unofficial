@@ -752,8 +752,12 @@ public class NoppesUtilServer {
 	}
 
 	public static Entity spawnClone(NBTTagCompound compound, double x, double y, double z, World world) {
-		if (compound == null || world == null) {
-			LogWriter.debug("Clone summoning Error: Missing NBT Tags: "+(compound == null ? "null" : compound.toString().length())+" or World: "+(world == null ? "null" : world.provider.getDimension()));
+		if (world == null || world.isRemote) {
+			LogWriter.error("Clone summoning Error: World is Client: "+(world == null ? "null" : world.isRemote)+" - "+world);
+			return null;
+		}
+		if (compound == null) {
+			LogWriter.error("Clone summoning Error: Missing NBT Tags: "+(compound == null ? "null" : compound.toString().length())+" or World: "+world.provider.getDimension());
 			return null;
 		}
 		ServerCloneController.Instance.cleanTags(compound);
@@ -768,13 +772,12 @@ public class NoppesUtilServer {
 			npc.ais.setStartPos(new BlockPos(npc));
 		}
 		world.spawnEntity(entity);
-		LogWriter.debug("Summon Clone: Successful \""+entity.getName()+"\"");
+		LogWriter.debug("Summon Clone: Successful \""+entity.getName()+"\"; "+entity.world.isRemote);
 		return entity;
 	}
 
 	public static void spawnParticle(Entity entity, String particle, int dimension) {
-		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ,
-				entity.height, entity.width, particle);
+		Server.sendAssociatedData(entity, EnumPacketClient.PARTICLE, entity.posX, entity.posY, entity.posZ, entity.height, entity.width, particle);
 	}
 
 }

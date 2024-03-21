@@ -20,6 +20,7 @@ import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -37,7 +38,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.client.gui.player.GuiQuestLog;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.SubGuiInterface;
@@ -48,6 +49,7 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
@@ -58,6 +60,7 @@ public class ClientTickHandler {
 	private boolean otherContainer;
 	private World prevWorld;
 	private Map<String, ISound> nowPlayingSounds;
+	public static boolean cheakMails = false;
 	public static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
 
 	public ClientTickHandler() {
@@ -135,7 +138,7 @@ public class ClientTickHandler {
 						ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
 					}
 					this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
-					Client.sendData(EnumPacketServer.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
 					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
 				}
 			} catch (Exception e) {
@@ -150,7 +153,7 @@ public class ClientTickHandler {
 					if (ClientTickHandler.musics.containsKey(sound)) {
 						ClientTickHandler.musics.remove(sound);
 					}
-					Client.sendData(EnumPacketServer.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
 					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
 					del.add(uuid);
 				}
@@ -169,6 +172,25 @@ public class ClientTickHandler {
 			MarcetController.getInstance().updateTime();
 			MusicController.Instance.cheakBards(mc.player);
 			ClientTickHandler.loadFiles();
+		}
+		if (ClientTickHandler.cheakMails || CustomNpcs.mailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
+			boolean hasNewMail = false;
+			long time = System.currentTimeMillis();
+			for (PlayerMail mail : ClientProxy.playerData.mailData.playermail) {
+				if (!mail.beenRead && time - mail.timeWhenReceived >= mail.timeWillCome) {
+					hasNewMail = true;
+					break;
+				}
+			}
+			if (hasNewMail != ClientGuiEventHandler.hasNewMail) {
+				ClientGuiEventHandler.hasNewMail = hasNewMail;
+				if (hasNewMail) {
+					ClientGuiEventHandler.showNewMail = 0L;
+					ClientGuiEventHandler.startMail = 0L;
+					mc.player.sendMessage(new TextComponentTranslation("mailbox.new.letters.received"));
+				}
+			}
+			ClientTickHandler.cheakMails = false;
 		}
 		if (mc.currentScreen!=null) {
 			if (ClientProxy.playerData.hud.keyPress.size()>0) {
@@ -215,8 +237,8 @@ public class ClientTickHandler {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (ClientProxy.QuestLog.isPressed()) {
 			if (mc.currentScreen == null) {
-				NoppesUtil.openGUI((EntityPlayer) mc.player, new GuiQuestLog());
-			} else if (mc.currentScreen instanceof GuiQuestLog) {
+				NoppesUtil.openGUI((EntityPlayer) mc.player, new GuiLog(0));
+			} else if (mc.currentScreen instanceof GuiLog) {
 				mc.setIngameFocus();
 			}
 		}

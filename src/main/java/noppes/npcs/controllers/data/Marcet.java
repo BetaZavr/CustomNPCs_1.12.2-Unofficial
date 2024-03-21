@@ -34,6 +34,7 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 
 	public final Map<Integer, MarkupData> markup;
 	public final Map<ItemStack, Integer> inventory;
+	public final Map<Integer, String> sections;
 	private int id;
 	public boolean isLimited, showXP;
 	public long lastTime;
@@ -55,6 +56,8 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 		this.markup.put(1, new MarkupData(1, 0.0f, 0.45f, 2200));
 		this.markup.put(2, new MarkupData(2, -0.05f, 0.0f, 5000));
 		this.inventory = Maps.<ItemStack, Integer>newHashMap();
+		this.sections = Maps.<Integer, String>newTreeMap();
+		this.sections.put(0, "market.default.section");
 		this.lines = new Lines();
 		this.isLimited = false;
 		this.showXP = true;
@@ -157,6 +160,21 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			NBTTagCompound nbt = compound.getTagList("Inventory", 10).getCompoundTagAt(i);
 			this.inventory.put(new ItemStack(nbt), nbt.getInteger("TotalCount"));
 		}
+		this.sections.clear();
+		Map<Integer, String> newsec = Maps.<Integer, String>newTreeMap();
+		if (!compound.hasKey("Sections", 9) || compound.getTagList("Sections", 10).tagCount()==0) {
+			newsec.put(0, "market.default.section");
+		} else {
+			for (int i = 0; i < compound.getTagList("Sections", 10).tagCount(); i++) {
+				NBTTagCompound nbt = compound.getTagList("Sections", 10).getCompoundTagAt(i);
+				newsec.put(nbt.getInteger("ID"), nbt.getString("Name"));
+			}
+			Map<Integer, String> sec = Maps.<Integer, String>newTreeMap();
+			int i = 0;
+			for (String name : newsec.values()) { sec.put(i, name); i++; }
+			newsec = sec;
+		}
+		this.sections.putAll(newsec);
 		this.limitedType = compound.getInteger("LimitedType");
 		this.updateTime = compound.getInteger("UpdateTime");
 		this.lastTime = compound.getLong("LastTime");
@@ -223,6 +241,15 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			items.appendTag(nbt);
 		}
 		compound.setTag("Inventory", items);
+		
+		NBTTagList secs = new NBTTagList();
+		for (int id : this.sections.keySet()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("ID", id);
+			nbt.setString("Name", this.sections.get(id));
+			secs.appendTag(nbt);
+		}
+		compound.setTag("Sections", secs);
 
 		compound.setInteger("LimitedType", this.limitedType);
 		compound.setInteger("UpdateTime", this.updateTime);

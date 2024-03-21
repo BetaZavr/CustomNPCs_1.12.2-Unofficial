@@ -16,6 +16,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.Server;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.api.handler.IDialogHandler;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogCategory;
@@ -210,14 +211,14 @@ implements IDialogHandler {
 		DialogOption option = new DialogOption();
 		option.title = "dialog.base.1.option.1";
 		option.addDialog(2);
-		option.optionType = 1;
+		option.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option2 = new DialogOption();
 		option2.title = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.1.option.0").getFormattedText());
 		option2.addDialog(3);
-		option2.optionType = 1;
+		option2.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option3 = new DialogOption();
 		option3.title = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.1.option.2").getFormattedText());
-		option3.optionType = 0;
+		option3.optionType = OptionType.QUIT_OPTION;
 		dia1.options.put(0, option2);
 		dia1.options.put(1, option);
 		dia1.options.put(2, option3);
@@ -265,20 +266,17 @@ implements IDialogHandler {
 
 	public void saveCategory(DialogCategory category) {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
+		if (category.title.isEmpty()) {
+			category.title = "default";
+			while (this.containsCategoryName(category)) { category.title += "_"; }
+		}
 		if (this.categories.containsKey(category.id)) {
 			DialogCategory currentCategory = this.categories.get(category.id);
 			if (!currentCategory.title.equals(category.title)) {
-				while (this.containsCategoryName(category)) {
-					category.title += "_";
-				}
+				while (this.containsCategoryName(category)) { category.title += "_"; }
 				File newdir = new File(this.getDir(), category.title);
 				File olddir = new File(this.getDir(), currentCategory.title);
-				if (newdir.exists()) {
-					return;
-				}
-				if (!olddir.renameTo(newdir)) {
-					return;
-				}
+				if (newdir.exists() || !olddir.renameTo(newdir)) { return; }
 			}
 			category.dialogs.clear();
 			category.dialogs.putAll(currentCategory.dialogs);
@@ -296,6 +294,9 @@ implements IDialogHandler {
 			}
 		}
 		this.categories.put(category.id, category);
+		for (Dialog dialog : dialogs.values()) {
+			if (dialog.category.id == category.id) { dialog.category = category; }
+		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData, category.writeNBT(new NBTTagCompound()));
 	}
 

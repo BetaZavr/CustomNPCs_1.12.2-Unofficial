@@ -8,7 +8,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.FactionController;
 
 public class FactionOptions {
@@ -72,16 +71,16 @@ public class FactionOptions {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		this.fps = Lists.<FactionOption>newArrayList();
-		if (compound.hasKey("FactionOptions", 9)) {
-			for (int i = 0; i < compound.getTagList("FactionOptions", 10).tagCount(); i++) {
-				this.fps.add(new FactionOption(compound.getTagList("FactionOptions", 10).getCompoundTagAt(i)));
-			}
-		} else if (CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+		if (!compound.hasKey("FactionOptions", 9)) { // OLD
 			if (compound.getInteger("OptionFactions1")>0) {
 				this.fps.add(new FactionOption(compound.getInteger("OptionFactions1"), compound.getInteger("OptionFaction1Points"), compound.getBoolean("DecreaseFaction1Points")));
 			}
 			if (compound.getInteger("OptionFactions2")>0) {
 				this.fps.add(new FactionOption(compound.getInteger("OptionFactions2"), compound.getInteger("OptionFaction2Points"), compound.getBoolean("DecreaseFaction2Points")));
+			}
+		} else {
+			for (int i = 0; i < compound.getTagList("FactionOptions", 10).tagCount(); i++) {
+				this.fps.add(new FactionOption(compound.getTagList("FactionOptions", 10).getCompoundTagAt(i)));
 			}
 		}
 	}

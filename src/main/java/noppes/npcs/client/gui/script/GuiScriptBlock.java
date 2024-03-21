@@ -2,15 +2,15 @@ package noppes.npcs.client.gui.script;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import noppes.npcs.api.event.BlockEvent;
-import noppes.npcs.api.event.CustomGuiEvent;
-import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.Client;
+import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 
 public class GuiScriptBlock
-extends GuiScriptInterface {
+extends GuiScriptInterface
+implements ISubGuiListener {
 	
 	private TileScripted script;
 
@@ -19,26 +19,6 @@ extends GuiScriptInterface {
 		this.script = tileScripted;
 		this.handler = tileScripted;
 		Client.sendData(EnumPacketServer.ScriptBlockDataGet, x, y, z);
-		this.baseFuncNames.put("interact", BlockEvent.InteractEvent.class);
-		this.baseFuncNames.put("redstone", BlockEvent.RedstoneEvent.class);
-		this.baseFuncNames.put("broken", BlockEvent.BreakEvent.class);
-		this.baseFuncNames.put("exploded", BlockEvent.ExplodedEvent.class);
-		this.baseFuncNames.put("rainFilled", BlockEvent.RainFillEvent.class);
-		this.baseFuncNames.put("neighborChanged", BlockEvent.NeighborChangedEvent.class);
-		this.baseFuncNames.put("init", BlockEvent.InitEvent.class);
-		this.baseFuncNames.put("tick", BlockEvent.UpdateEvent.class);
-		this.baseFuncNames.put("clicked", BlockEvent.ClickedEvent.class);
-		this.baseFuncNames.put("harvested", BlockEvent.HarvestedEvent.class);
-		this.baseFuncNames.put("collide", BlockEvent.CollidedEvent.class);
-		this.baseFuncNames.put("timer", BlockEvent.TimerEvent.class);
-		// CustomGuiEvent
-		this.baseFuncNames.put("customGuiClosed", CustomGuiEvent.CloseEvent.class);
-		this.baseFuncNames.put("customGuiButton", CustomGuiEvent.ButtonEvent.class);
-		this.baseFuncNames.put("customGuiSlot", CustomGuiEvent.SlotEvent.class);
-		this.baseFuncNames.put("customGuiScroll", CustomGuiEvent.ScrollEvent.class);
-		this.baseFuncNames.put("customGuiSlotClicked", CustomGuiEvent.SlotClickEvent.class);
-		// CommonEvents
-		this.baseFuncNames.put("trigger", WorldEvent.ScriptTriggerEvent.class);
 	}
 
 	@Override
@@ -57,4 +37,29 @@ extends GuiScriptInterface {
 		super.setGuiData(compound);
 	}
 
+
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) {
+		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			NBTTagCompound data = new NBTTagCompound();
+			BlockPos pos = this.script.getPos();
+			data.setInteger("x", pos.getX());
+			data.setInteger("y", pos.getY());
+			data.setInteger("z", pos.getZ());
+			nbt.setTag("data", data);
+			this.script.getNBT(nbt);
+			String p = new String(this.path);
+			while (p.indexOf("\\") !=-1) { p = p.replace("\\", "/"); }
+			nbt.setString("Name", ((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Path", p + "/" + nbt.getString("Name"));
+			nbt.setInteger("Tab", this.activeTab - 1);
+			nbt.setByte("Type", (byte) 0);
+			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
+			Client.sendData(EnumPacketServer.ScriptEncrypt, nbt);
+			this.displayGuiScreen(null);
+			this.mc.setIngameFocus();
+		}
+	}
+	
 }

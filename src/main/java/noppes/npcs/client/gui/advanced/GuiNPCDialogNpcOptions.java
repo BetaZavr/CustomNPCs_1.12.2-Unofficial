@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
@@ -21,25 +20,25 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiSelectionListener;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
+import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCDialogNpcOptions
 extends GuiNPCInterface2
-implements GuiSelectionListener, IGuiData, ICustomScrollListener {
+implements GuiSelectionListener, IGuiData, ICustomScrollListener, ISubGuiListener {
 	
 	private HashMap<Integer, NBTTagCompound> data; // slotID, dialogData
-	public GuiScreen parent;
 	private int selectedSlot;
 	// New
 	private GuiCustomScroll scroll;
 	private int error = 0;
 
-	public GuiNPCDialogNpcOptions(EntityNPCInterface npc, GuiScreen parent) {
+	public GuiNPCDialogNpcOptions(EntityNPCInterface npc) {
 		super(npc);
 		this.data = new HashMap<Integer, NBTTagCompound>();
-		this.parent = parent;
 		this.drawDefaultBackground = true;
 		this.selectedSlot = -1;
 		Client.sendData(EnumPacketServer.DialogNpcGet, new Object[0]);
@@ -180,7 +179,12 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void save() {
+	public void save() { }
+	
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
@@ -232,6 +236,11 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 		}
 		super.keyTyped(c, i);
+	}
+
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) {
+		
 	}
 	
 }

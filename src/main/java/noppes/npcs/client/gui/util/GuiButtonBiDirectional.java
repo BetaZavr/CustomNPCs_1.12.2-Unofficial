@@ -23,17 +23,29 @@ extends GuiNpcButton {
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!this.visible) { return; }
 		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-		boolean hoverL = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + 14 && mouseY < this.y + this.height;
-		boolean hoverR = !hoverL && mouseX >= this.x + this.width - 14 && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+		boolean hoverL = mouseX >= this.x && mouseX < this.x + this.width / 2 && mouseY >= this.y && mouseY < this.y + this.height;
+		boolean hoverR = !hoverL && this.hovered;
 		if (this.layerColor != 0) {
 			Gui.drawRect(this.x + 7, this.y + 1, this.x + this.width - 7, this.y + this.height - 1, this.layerColor);
 		}
-		this.drawHorizontalLine(this.x + 7, this.x + this.width - 12, this.y, 0xFF000000);
-		this.drawHorizontalLine(this.x + 7, this.x + this.width - 12, this.y + this.height - 1, 0xFF000000);
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(this.x, this.y, 0.0f);
+		float s = 1.0f;
+		if (height != 20) {
+			s = (float) height/ 20.0f;
+			GlStateManager.scale(s, s, 1.0f );
+		}
+		if (!this.enabled) { this.drawGradientRect(11, 0, (int) ((float) this.width / s - 11.0f), (int) (((float) this.height - 0.5f) / s), 0xFF808080, 0xFF808080); }
+		else if (this.hovered) { this.drawGradientRect(11, 0, (int) ((float) this.width / s - 11.0f), (int) (((float) this.height - 0.5f) / s), 0xFF7E88BF, 0xFF7E88BF); }
+		this.drawHorizontalLine(11, (int) ((float) this.width / s - 11.0f), 0, 0xFF000000);
+		this.drawHorizontalLine(11, (int) ((float) this.width / s - 11.0f), (int) (((float) this.height - 0.5f) / s), 0xFF000000);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		mc.getTextureManager().bindTexture(GuiButtonBiDirectional.resource);
-		this.drawTexturedModalRect(this.x, this.y, 0, hoverL ? 40 : 20, 11, 20);
-		this.drawTexturedModalRect(this.x + this.width - 11, this.y, 11, ((this.hovered && !hoverL) || hoverR) ? 40 : 20, 11, 20);
+		mc.renderEngine.bindTexture(GuiButtonBiDirectional.resource);
+		this.drawTexturedModalRect(0, 0, 0, hoverL ? 40 : 20, 11, 20);
+		this.drawTexturedModalRect((int) ((float) this.width / s - 11.0f), 0, 11, hoverR ? 40 : 20, 11, 20);
+		GlStateManager.popMatrix();
+		
 		int l = this.color;
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
 		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
@@ -54,8 +66,9 @@ extends GuiNpcButton {
 		else { text = this.displayString; }
 		if (this.hovered) { text = new String(Character.toChars(0x00A7)) + "n" + text; }
 		
-		if (this.showShedow) { this.drawCenteredString(mc.fontRenderer, text, this.x + this.width / 2, this.y + (this.height - 8) / 2, l); }
-		else { mc.fontRenderer.drawString(text, this.x + (this.width - mc.fontRenderer.getStringWidth(text)) / 2, this.y + (this.height - 8) / 2, l, false); }
+		if (this.showShedow) { this.drawCenteredString(mc.fontRenderer, text, this.x + this.width / 2, this.y + (this.height - 10) / 2, l); }
+		else { mc.fontRenderer.drawString(text, this.x + (this.width - mc.fontRenderer.getStringWidth(text)) / 2, this.y + (this.height - 10) / 2, l, false); }
+		
 	}
 
 	@Override

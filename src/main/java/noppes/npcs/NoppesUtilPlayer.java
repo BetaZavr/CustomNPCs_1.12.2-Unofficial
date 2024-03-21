@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,6 +27,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.oredict.OreDictionary;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.api.event.QuestEvent.QuestTurnedInEvent;
 import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.api.handler.data.IQuest;
@@ -32,7 +35,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCBank;
-import noppes.npcs.containers.ContainerNPCFollower;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.PlayerDataController;
@@ -300,12 +302,12 @@ public class NoppesUtilPlayer {
 		}
 		DialogOption option = dialog.options.get(optionId);
 		if (option == null || EventHooks.onNPCDialogOption(npc, player, dialog, option)
-				|| (option.optionType == 1 && (!option.isAvailable(player) || !option.hasDialogs()))
-				|| option.optionType == 2 || option.optionType == 0) {
+				|| (option.optionType == OptionType.DIALOG_OPTION && (!option.isAvailable(player) || !option.hasDialogs()))
+				|| option.optionType == OptionType.DISABLED || option.optionType == OptionType.QUIT_OPTION) {
 			closeDialog(player, npc, true);
 			return;
 		}
-		if (option.optionType == 3) {
+		if (option.optionType == OptionType.ROLE_OPTION) {
 			closeDialog(player, npc, true);
 			if (npc.advanced.roleInterface != null) {
 				if (npc.advanced.roleInterface instanceof RoleCompanion) {
@@ -314,10 +316,10 @@ public class NoppesUtilPlayer {
 					npc.advanced.roleInterface.interact(player);
 				}
 			}
-		} else if (option.optionType == 1) {
+		} else if (option.optionType == OptionType.DIALOG_OPTION) {
 			closeDialog(player, npc, false);
 			NoppesUtilServer.openDialog(player, npc, option.getDialog(player));
-		} else if (option.optionType == 4) {
+		} else if (option.optionType == OptionType.COMMAND_BLOCK) {
 			closeDialog(player, npc, true);
 			NoppesUtilServer.runCommand(npc, npc.getName(), option.command, player);
 		} else {
@@ -325,93 +327,48 @@ public class NoppesUtilPlayer {
 		}
 	}
 
-	public static void extendFollower(EntityPlayerMP player, EntityNPCInterface npc) {
+	public static void extendFollower(EntityPlayerMP player, EntityNPCInterface npc, int pos) {
 		if (!(npc.advanced.roleInterface instanceof RoleFollower)) { return; }
 		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCFollower)) {
-			return;
-		}
-		ContainerNPCFollower container = (ContainerNPCFollower) con;
+		if (con == null || !(con instanceof ContainerNPCFollowerHire)) { return; }
 		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
-		followerBuy(role, (IInventory) container.currencyMatrix, player, npc);
+		followerBuy(role, pos, player, npc);
 	}
 
-	private static void followerBuy(RoleFollower role, IInventory currencyInv, EntityPlayerMP player,
-			EntityNPCInterface npc) {
-		ItemStack currency = currencyInv.getStackInSlot(0);
-		if (currency == null || currency.isEmpty()) {
-			return;
-		}
-		HashMap<ItemStack, Integer> cd = new HashMap<ItemStack, Integer>();
-		for (int slot = 0; slot < role.inventory.items.size(); ++slot) {
-			ItemStack is = role.inventory.items.get(slot);
-			if (!is.isEmpty() && is.getItem() == currency.getItem()) {
-				if (!is.getHasSubtypes() || is.getItemDamage() == currency.getItemDamage()) {
-					int days = 1;
-					if (role.rates.containsKey(slot)) {
-						days = role.rates.get(slot);
-					}
-					cd.put(is, days);
-				}
+	private static void followerBuy(RoleFollower role, int pos, EntityPlayerMP player, EntityNPCInterface npc) {
+		if (pos < 0 || pos > 3 || !role.rates.containsKey(pos)) { return; }
+		if (pos == 3) {
+			if (!player.capabilities.isCreativeMode) {
+				if (PlayerData.get(player).game.getMoney() < role.rentalMoney) { return; }
+				PlayerData.get(player).game.addMoney(role.rentalMoney * -1);
 			}
 		}
-		if (cd.size() == 0) {
-			return;
-		}
-		int stackSize = currency.getCount();
-		int days2 = 0;
-		int possibleDays = 0;
-		int possibleSize = stackSize;
-		while (true) {
-			for (ItemStack item : cd.keySet()) {
-				int rDays = cd.get(item);
-				int rValue = item.getCount();
-				if (rValue > stackSize) {
-					continue;
-				}
-				int newStackSize = stackSize % rValue;
-				int size = stackSize - newStackSize;
-				int posDays = size / rValue * rDays;
-				if (possibleDays > posDays) {
-					continue;
-				}
-				possibleDays = posDays;
-				possibleSize = newStackSize;
+		else {
+			ItemStack currency = role.rentalItems.getStackInSlot(0);
+			if (currency.isEmpty()) { return; }
+			if (!player.capabilities.isCreativeMode) {
+				Map<ItemStack, Integer> map =Maps.<ItemStack, Integer>newHashMap();
+				map.put(currency, currency.getCount());
+				if (!AdditionalMethods.canRemoveItems(role.rentalItems.items, map, false, false)) { return; }
+				AdditionalMethods.removeItem(player, currency, false, false);
 			}
-			if (stackSize == possibleSize) {
-				break;
-			}
-			stackSize = possibleSize;
-			days2 += possibleDays;
-			possibleDays = 0;
 		}
-		RoleEvent.FollowerHireEvent event = new RoleEvent.FollowerHireEvent(player, npc.wrappedNPC, days2);
-		if (EventHooks.onNPCRole(npc, event)) {
-			return;
-		}
-		if (event.days == 0) {
-			return;
-		}
-		if (stackSize <= 0) {
-			currencyInv.setInventorySlotContents(0, ItemStack.EMPTY);
-		} else {
-			currencyInv.setInventorySlotContents(0, currency.splitStack(stackSize));
-		}
-		npc.say(player,
-				new Line(NoppesStringUtils.formatText(role.dialogHire.replace("{days}", days2 + ""), player, npc)));
+		
+		int days = role.rates.get(pos);
+		RoleEvent.FollowerHireEvent event = new RoleEvent.FollowerHireEvent(player, npc.wrappedNPC, days);
+		if (EventHooks.onNPCRole(npc, event)) { return; }
+		if (event.days == 0) { return; }
+		npc.say(player, new Line(NoppesStringUtils.formatText(role.dialogHire.replace("{days}", days + ""), player, npc)));
 		role.setOwner(player);
-		role.addDays(days2);
+		role.addDays(days);
 	}
 
-	public static void hireFollower(EntityPlayerMP player, EntityNPCInterface npc) {
+	public static void hireFollower(EntityPlayerMP player, EntityNPCInterface npc, int pos) {
 		if (!(npc.advanced.roleInterface instanceof RoleFollower)) { return; }
 		Container con = player.openContainer;
-		if (con == null || !(con instanceof ContainerNPCFollowerHire)) {
-			return;
-		}
-		ContainerNPCFollowerHire container = (ContainerNPCFollowerHire) con;
+		if (con == null || !(con instanceof ContainerNPCFollowerHire)) { return; }
 		RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
-		followerBuy(role, (IInventory) container.currencyMatrix, player, npc);
+		followerBuy(role, pos, player, npc);
 	}
 	
 	/* Вначале на клиент кидается пакет с текстом при завершении,
@@ -435,6 +392,7 @@ public class NoppesUtilPlayer {
 		}
 		QuestTurnedInEvent event = new QuestTurnedInEvent(data.scriptData.getPlayer(), (IQuest) quest);
 		event.expReward = quest.rewardExp;
+		event.moneyReward = quest.rewardMoney;
 		List<IItemStack> rewardList = new ArrayList<IItemStack>();
 		for (ItemStack item : quest.rewardItems.items) {
 			if (item!=null && !item.isEmpty()) {
@@ -472,7 +430,7 @@ public class NoppesUtilPlayer {
 					0.5f * ((player.world.rand.nextFloat() - player.world.rand.nextFloat()) * 0.7f + 1.8f));
 			player.addExperience(event.expReward);
 		}
-		
+		if (event.moneyReward > 0) { data.game.addMoney(event.moneyReward); }
 		event.factionOptions.addPoints(player);
 		
 		if (event.mail.isValid()) {
@@ -538,6 +496,7 @@ public class NoppesUtilPlayer {
 				player.sendMessage(new TextComponentString("Broken transporter. Dimenion does not exist"));
 				return;
 			}
+			net.minecraftforge.common.ForgeHooks.onTravelToDimension(player, dimension);
 			player.setLocationAndAngles(x, y, z, yaw, pitch);
 			server.getPlayerList().transferPlayerToDimension(player, dimension, (Teleporter) new CustomTeleporter(wor));
 			player.connection.setPlayerLocation(x, y, z, yaw, pitch);

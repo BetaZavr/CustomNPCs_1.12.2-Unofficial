@@ -57,7 +57,6 @@ extends EntityAIBase {
 
 	@Override
 	public void resetTask() {
-		//System.out.println("CNPCs: ");
 		//this.npc.getNavigator().clearPath();
 		/*if (this.npc.getAttackTarget() == null && this.target != null) {
 			this.npc.setAttackTarget(this.target);
@@ -71,7 +70,6 @@ extends EntityAIBase {
 	public boolean shouldExecute() {
 		this.aiat = this.npc.aiAttackTarget;
 		if (this.aiat == null) { return false; }
-//if (this.npc.getName().equals("Test")) { System.out.println("CNPCs: "+this.npc.aiAttackTarget.distance); }
 		
 		//boolean shouldHide = !this.npc.isInRange(this.target, this.distance);
 		//boolean isSeen = this.npc.canSee(this.target);

@@ -126,24 +126,20 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 		this.npc.ais.returnToStart = (this.ripe == null);
 		if (this.ripe != null) {
 			this.npc.getNavigator().clearPath();
-			this.npc.resetBackPos(); // New
-			this.npc.getLookHelper().setLookPosition(this.ripe.getX(), this.ripe.getY(), this.ripe.getZ(), 10.0f,
-					this.npc.getVerticalFaceSpeed());
+			this.npc.getLookHelper().setLookPosition(this.ripe.getX(), this.ripe.getY(), this.ripe.getZ(), 10.0f, this.npc.getVerticalFaceSpeed());
 		}
 	}
 
 	private void chest() {
 		BlockPos pos = this.chest;
-		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
-		this.npc.resetBackPos(); // New
+		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0); 
 		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f,
 				this.npc.getVerticalFaceSpeed());
 		if (this.npc.nearPosition(pos) || this.walkTicks++ > 400) {
 			if (this.walkTicks < 400) {
 				this.npc.swingArm(EnumHand.MAIN_HAND);
 			}
-			this.npc.getNavigator().clearPath();
-			this.npc.resetBackPos(); // New
+			this.npc.getNavigator().clearPath(); 
 			this.ticks = 100;
 			this.walkTicks = 0;
 			IBlockState state = this.npc.world.getBlockState(pos);
@@ -234,10 +230,8 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 	@SuppressWarnings("deprecation")
 	private void pluck() {
 		BlockPos pos = this.ripe;
-		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
-		this.npc.resetBackPos(); // New
-		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f,
-				this.npc.getVerticalFaceSpeed());
+		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0); 
+		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f, this.npc.getVerticalFaceSpeed());
 		if (this.npc.nearPosition(pos) || this.walkTicks++ > 400) {
 			if (this.walkTicks > 400) {
 				pos = NoppesUtilServer.GetClosePos(pos, this.npc.world);
@@ -245,7 +239,6 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 			}
 			this.ripe = null;
 			this.npc.getNavigator().clearPath();
-			this.npc.resetBackPos(); // New
 			this.ticks = 90;
 			this.walkTicks = 0;
 			this.npc.swingArm(EnumHand.MAIN_HAND);

@@ -31,7 +31,7 @@ import noppes.npcs.items.ItemScripted;
 public class SyncController {
 	
 	// SYNC_ADD or SYNC_END
-	public static void clientSync(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
+	public static void add(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
 		switch (synctype) {
 			case FactionsData: {
 				NBTTagList list = compound.getTagList("Data", 10);
@@ -108,6 +108,17 @@ public class SyncController {
 				CustomNpcs.charCurrencies = compound.getString("CharCurrencies");
 				CustomNpcs.maxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
 				CustomNpcs.maxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
+				CustomNpcs.scriptMaxTabs = compound.getInteger("ScriptMaxTabs");
+				CustomNpcs.dialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
+				CustomNpcs.mailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
+				int[] vs = compound.getIntArray("LettersBeReceived");
+				for (int i = 0; i < vs.length; i++) {
+					CustomNpcs.mailTimeWhenLettersWillBeReceived[i] = vs[i];
+				}
+				vs = compound.getIntArray("CostSendingLetter");
+				for (int i = 0; i < vs.length; i++) {
+					CustomNpcs.mailCostSendingLetter[i] = vs[i];
+				}
 				CustomNpcs.forgeEventNames.clear();
 				for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
 					NBTTagCompound nbt = compound.getTagList("ForgeEventNames", 10).getCompoundTagAt(i);
@@ -140,7 +151,7 @@ public class SyncController {
 	}
 	
 	// SYNC_REMOVE
-	public static void clientSyncRemove(EnumSync synctype, int id, EntityPlayer player, ByteBuf buffer) {
+	public static void remove(EnumSync synctype, int id, EntityPlayer player, ByteBuf buffer) {
 		switch (synctype) {
 			case FactionsData: {
 				FactionController.instance.factions.remove(id);
@@ -211,7 +222,7 @@ public class SyncController {
 	}
 	
 	// SYNC_UPDATE
-	public static void clientSyncUpdate(EnumSync synctype, NBTTagCompound compound, ByteBuf buffer, EntityPlayer player) {
+	public static void update(EnumSync synctype, NBTTagCompound compound, ByteBuf buffer, EntityPlayer player) {
 		switch (synctype) {
 			case FactionsData: {
 				Faction faction = new Faction();
@@ -316,6 +327,27 @@ public class SyncController {
 				if (data != null) { data.game.readFromNBT(compound); }
 				break;
 			}
+			case MailData: {
+				if (compound.hasKey("MailData", 9)) {
+					PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+					if (data != null) { data.mailData.loadNBTData(compound); }
+				}
+				if (compound.hasKey("LettersBeDeleted", 3)) { CustomNpcs.mailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted"); }
+				if (compound.hasKey("LettersBeReceived", 11)) {
+					int[] vs = compound.getIntArray("LettersBeReceived");
+					for (int i = 0; i < vs.length; i++) {
+						CustomNpcs.mailTimeWhenLettersWillBeReceived[i] = vs[i];
+					}
+				}
+				if (compound.hasKey("CostSendingLetter", 11)) {
+					int[] vs = compound.getIntArray("CostSendingLetter");
+					for (int i = 0; i < vs.length; i++) {
+						CustomNpcs.mailCostSendingLetter[i] = vs[i];
+					}
+				}
+				if (compound.hasKey("SendToYourself", 1)) { CustomNpcs.mailSendToYourself = compound.getBoolean("SendToYourself"); }
+				break;
+			}
 			case Debug: {
 				CustomNpcs.VerboseDebug = compound.getBoolean("debug");
 				break;
@@ -379,6 +411,12 @@ public class SyncController {
 		compound.setString("CharCurrencies", CustomNpcs.charCurrencies);
 		compound.setInteger("MaxBuilderBlocks", CustomNpcs.maxBuilderBlocks);
 		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.maxItemInDropsNPC);
+		compound.setInteger("LettersBeDeleted", CustomNpcs.mailTimeWhenLettersWillBeDeleted);
+		compound.setInteger("ScriptMaxTabs", CustomNpcs.scriptMaxTabs);
+		compound.setInteger("DialogFitsSpeed", CustomNpcs.dialogShowFitsSpeed);
+		compound.setIntArray("LettersBeReceived", CustomNpcs.mailTimeWhenLettersWillBeReceived);
+		compound.setIntArray("CostSendingLetter", CustomNpcs.mailCostSendingLetter);
+		compound.setBoolean("SendToYourself", CustomNpcs.mailSendToYourself);
 		
 		list = new NBTTagList();
 		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {

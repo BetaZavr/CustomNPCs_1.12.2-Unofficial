@@ -16,8 +16,8 @@ import noppes.npcs.quests.QuestInterface;
 
 public class PlayerQuestData {
 	
-	public HashMap<Integer, QuestData> activeQuests = new HashMap<Integer, QuestData>();
-	public HashMap<Integer, Long> finishedQuests = new HashMap<Integer, Long>();
+	public HashMap<Integer, QuestData> activeQuests = new HashMap<Integer, QuestData>(); // [qID, data]
+	public HashMap<Integer, Long> finishedQuests = new HashMap<Integer, Long>(); // [qID, time]
 	public boolean updateClient; // ServerTickHandler.onPlayerTick() 114
 
 	public PlayerQuestData() {
@@ -94,11 +94,11 @@ public class PlayerQuestData {
 		compound.setTag("CompletedQuests", finishedList);
 
 		NBTTagList activeList = new NBTTagList();
-		for (int quest2 : this.activeQuests.keySet()) {
-			NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-			nbttagcompound2.setInteger("Quest", quest2);
-			this.activeQuests.get(quest2).writeEntityToNBT(nbttagcompound2);
-			activeList.appendTag(nbttagcompound2);
+		for (int id : this.activeQuests.keySet()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("Quest", id);
+			this.activeQuests.get(id).writeEntityToNBT(nbt);
+			activeList.appendTag(nbt);
 		}
 		compound.setTag("ActiveQuests", activeList);
 

@@ -57,7 +57,7 @@ public class PlayerBankData {
 	public void loadNBTData(NBTTagCompound compound, String uuid) {
 		this.uuid = uuid;
 		// load old data
-		if (compound.hasKey("BankData", 9) && CustomNpcs.FixUpdateFromPre_1_12) {
+		if (compound.hasKey("BankData", 9)) {
 			File dir = CustomNpcs.getWorldSaveDirectory("playerdata/"+this.uuid+"/banks");
 			NBTTagList list = compound.getTagList("BankData", 10);
 			if (list == null) { return; }

@@ -28,7 +28,7 @@ public class GuiAchievement implements IToast {
 			this.firstDrawTime = delta;
 			this.newDisplay = false;
 		}
-		toastGui.getMinecraft().getTextureManager().bindTexture(GuiAchievement.TEXTURE_TOASTS);
+		toastGui.getMinecraft().renderEngine.bindTexture(GuiAchievement.TEXTURE_TOASTS);
 		GlStateManager.color(1.0f, 1.0f, 1.0f);
 		toastGui.drawTexturedModalRect(0, 0, 0, 32 * this.type, 160, 32);
 		int color1 = -256;

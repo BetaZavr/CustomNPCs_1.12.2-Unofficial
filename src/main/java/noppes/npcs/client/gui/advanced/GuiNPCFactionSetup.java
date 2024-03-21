@@ -34,7 +34,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 
 	public GuiNPCFactionSetup(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new HashMap<String, Integer>();
+		this.data = Maps.<String, Integer>newHashMap();
 	}
 
 	@Override
@@ -127,6 +127,12 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	public void save() {
 		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
 	}
+	
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+	}
 
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll guiCustomScroll) {
@@ -142,11 +148,10 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		String name = this.npc.getFaction().name;
-		this.data = data;
+		this.data.clear();
+		this.data.putAll(data);
 		this.scrollFactions.setList(list);
-		if (name != null) {
-			this.setSelected(name);
-		}
+		if (name != null) { this.setSelected(name); }
 	}
 
 	@Override

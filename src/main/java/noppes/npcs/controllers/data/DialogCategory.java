@@ -62,4 +62,10 @@ implements IDialogCategory {
 		compound.setTag("Dialogs", dialogs);
 		return compound;
 	}
+
+	public DialogCategory copy() {
+		DialogCategory newCat = new DialogCategory();
+		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
+		return null;
+	}
 }

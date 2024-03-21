@@ -105,7 +105,8 @@ implements IScrollData, IGuiData {
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data = data;
+		this.data.clear();
+		this.data.putAll(data);
 		Collections.sort(list);
 		this.scroll.setListNotSorted(list);
 		this.scroll.hoversTexts = new String[list.size()][];

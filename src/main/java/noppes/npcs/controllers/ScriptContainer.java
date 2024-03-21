@@ -189,9 +189,7 @@ public class ScriptContainer {
 	public String getFullCode() {
 		if (!this.init) {
 			this.fullscript = this.script;
-			if (!this.fullscript.isEmpty()) {
-				this.fullscript += "\n";
-			}
+			if (!this.fullscript.isEmpty()) { this.fullscript += "\n"; }
 			Map<String, String> map = this.isClient ? ScriptController.Instance.clients: ScriptController.Instance.scripts;
 			for (String loc : this.scripts) {
 				String code = map.get(loc);
@@ -215,11 +213,16 @@ public class ScriptContainer {
 		return this.init && !this.errored;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
-		this.script = compound.getString("Script");
+	public void readFromNBT(NBTTagCompound compound, boolean isClient) {
+		if (compound.hasKey("Script", 9)) {
+			NBTTagList list = compound.getTagList("Script", 8);
+			this.script = "";
+			for (int i = 0; i < list.tagCount(); i++) { this.script += list.getStringTagAt(i); }
+		}
+		else { this.script = compound.getString("Script"); }
 		this.console = NBTTags.GetLongStringMap(compound.getTagList("Console", 10));
 		this.scripts = NBTTags.getStringList(compound.getTagList("ScriptList", 10));
-		this.isClient = compound.getBoolean("isClient");
+		this.isClient = isClient;
 		if (this.isClient) { this.errored = false; }
 		this.lastCreated = 0L;
 		this.init = false;

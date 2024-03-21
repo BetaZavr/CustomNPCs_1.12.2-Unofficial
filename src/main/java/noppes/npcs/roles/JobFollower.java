@@ -15,44 +15,51 @@ implements IJobFollower {
 	
 	public EntityNPCInterface following;
 	public String name;
-	private int range;
-	private int ticks;
 
 	public JobFollower(EntityNPCInterface npc) {
 		super(npc);
 		this.following = null;
-		this.ticks = 40;
-		this.range = 20;
 		this.name = "";
 		this.type = JobType.FOLLOWER;
 	}
 
 	@Override
 	public boolean aiShouldExecute() {
-		if (this.npc.isAttacking()) {
-			return false;
+		if (this.npc.isAttacking()) { return false; }
+		if (this.following != null) { 
+			if (this.following.isKilled()) {
+				this.following = null;
+				return false;
+			}
+			double dist = this.npc.getDistance(this.following);
+			if (dist <= 1.5d) {
+				if (!this.npc.getNavigator().noPath()) { this.npc.getNavigator().clearPath(); }
+				return true;
+			}
+			else if (dist <= this.getRange()) {
+				boolean bo = this.npc.getNavigator().tryMoveToEntityLiving(this.following, 1.0d);
+				if (!bo) { this.following = null; }
+			}
+			else { this.following = null; }
+			if (this.following != null) { return true; }
 		}
-		--this.ticks;
-		if (this.ticks > 0) {
-			return false;
-		}
-		this.ticks = 10;
 		this.following = null;
-		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
-				this.npc.getEntityBoundingBox().grow(this.getRange(), this.getRange(), this.getRange()));
+		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.npc.getEntityBoundingBox().grow(this.getRange(), this.getRange(), this.getRange()));
 		for (EntityNPCInterface entity : list) {
-			if (entity != this.npc) {
-				if (entity.isKilled()) {
-					continue;
-				}
-				if (entity.display.getName().equalsIgnoreCase(this.name)) {
-					this.following = entity;
-					break;
-				}
-				continue;
+			if (entity == this.npc || entity.isKilled()) { continue; }
+			if (entity.display.getName().equalsIgnoreCase(this.name)) {
+				this.following = entity;
+				break;
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void aiUpdateTask() {
+		this.npc.getLookHelper().setLookPosition(this.following.posX,
+				this.following.posY + this.following.getEyeHeight(), this.following.posZ, 10.0f,
+				this.npc.getVerticalFaceSpeed());
 	}
 
 	@Override
@@ -69,14 +76,14 @@ implements IJobFollower {
 	}
 
 	private int getRange() {
-		if (this.range > CustomNpcs.NpcNavRange) {
+		if (this.npc.stats.aggroRange > CustomNpcs.NpcNavRange) {
 			return CustomNpcs.NpcNavRange;
 		}
-		return this.range;
+		return this.npc.stats.aggroRange;
 	}
 
 	public boolean hasOwner() {
-		return !this.name.isEmpty();
+		return !this.name.isEmpty() && isFollowing();
 	}
 
 	@Override

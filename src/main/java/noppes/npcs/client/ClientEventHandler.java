@@ -53,7 +53,6 @@ import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomPacketHandler;
@@ -315,7 +314,7 @@ public class ClientEventHandler {
 						GlStateManager.pushAttrib();
 						GlStateManager.enableRescaleNormal();
 						GlStateManager.translate(p.getX(), p.getY(), p.getZ());
-						Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+						Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 						GlStateManager.rotate(-90.0f, 0.0f, 1.0f, 0.0f);
 						state = SchematicWrapper.rotationState(state, 0);
 						try {
@@ -411,11 +410,6 @@ public class ClientEventHandler {
 	@SubscribeEvent
     public void cnpcJoinServer(ClientConnectedToServerEvent event) {
 		event.getManager().channel().pipeline().addBefore("fml:packet_handler", CustomNpcs.MODID + ":custom_packet_handler_client", new CustomPacketHandler());
-	}
-
-	@SubscribeEvent
-	public void cnpcClientDisconnect(ClientDisconnectionFromServerEvent event) {
-		if (!event.getManager().isLocalChannel()) { ClientHandler.getInstance().cleanUp(); }
 	}
 	
 	private boolean isInRange(EntityPlayer player, double posX, double posY, double posZ, double range) {

@@ -2,7 +2,6 @@ package noppes.npcs.client.gui.animation;
 
 import java.util.Arrays;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -14,12 +13,10 @@ import noppes.npcs.entity.data.DataAnimation;
 public class GuiNpcEmotion
 extends GuiNPCInterface {
 
-	private GuiScreen parent;
 	private DataAnimation animation;
 	
-	public GuiNpcEmotion(GuiScreen parent, EntityCustomNpc npc) {
+	public GuiNpcEmotion(EntityCustomNpc npc) {
 		super(npc);
-		this.parent = parent;
 		this.setBackground("smallbg.png");
 		this.closeOnEsc = true;
 		this.ySize = 240;
@@ -50,8 +47,7 @@ extends GuiNPCInterface {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.AnimationSave, this.animation.writeToNBT(new NBTTagCompound()));
-		this.mc.displayGuiScreen(this.parent);
+		Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound()));
 	}
 	
 }

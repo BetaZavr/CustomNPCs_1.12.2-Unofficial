@@ -1,125 +1,27 @@
 package noppes.npcs.client.model.animation;
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
+
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.api.entity.data.IAnimationPart;
-import noppes.npcs.util.ValueUtil;
 
 public class AnimationFrameConfig
 implements IAnimationFrame {
 	
-	
-	public class PartConfig implements IAnimationPart {
-		
-		public float[] rotation, offset, scale;
-		public int id;
-		public boolean disable;
-
-		public PartConfig() {
-			this.id = 0;
-			this.disable = false;
-			this.clear();
-		}
-
-		@Override
-		public void clear() {
-			this.rotation = new float[] { 0.5f, 0.5f, 0.5f }; // 0.0 = 0; 1.0 = 360
-			this.offset = new float[] { 0.5f, 0.5f, 0.5f }; // 0.0 = -5; 1.0 = 5
-			this.scale = new float[] { 0.2f, 0.2f, 0.2f }; // 0.0 = 0; 1.0 = 5
-		}
-
-		@Override
-		public float[] getRotation() { return new float[] { this.rotation[0] * 360.0f, this.rotation[1] * 360.0f, this.rotation[2] * 360.0f }; }
-
-		@Override
-		public float[] getOffset() { return new float[] { 10.0f * this.offset[0] - 5.0f, 10.0f * this.offset[1] - 5.0f, 10.0f * this.offset[2] - 5.0f }; }
-
-		@Override
-		public float[] getScale() { return new float[] { this.scale[0] * 5.0f, this.scale[1] * 5.0f, this.scale[2] * 5.0f }; }
-		
-		@Override
-		public void setRotation(float x, float y, float z) {
-			x %= 360.0f;
-			y %= 360.0f;
-			z %= 360.0f;
-			if (x<0.0f) { x += 360.0f; }
-			if (y<0.0f) { y += 360.0f; }
-			if (z<0.0f) { z += 360.0f; }
-			this.rotation[0] = ValueUtil.correctFloat(x / 360.0f, 0.0f, 1.0f);
-			this.rotation[1] = ValueUtil.correctFloat(y / 360.0f, 0.0f, 1.0f);
-			this.rotation[2] = ValueUtil.correctFloat(z / 360.0f, 0.0f, 1.0f);
-		}
-		
-		@Override
-		public void setOffset(float x, float y, float z) {
-			x %= 5.0f;
-			y %= 5.0f;
-			z %= 5.0f;
-			this.offset[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
-			this.offset[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
-			this.offset[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
-		}
-		
-		@Override
-		public void setScale(float x, float y, float z) {
-			x %= 5.0f;
-			y %= 5.0f;
-			z %= 5.0f;
-			this.scale[0] = ValueUtil.correctFloat(x / 5.0f, 0.0f, 1.0f);
-			this.scale[1] = ValueUtil.correctFloat(y / 5.0f, 0.0f, 1.0f);
-			this.scale[2] = ValueUtil.correctFloat(z / 5.0f, 0.0f, 1.0f);
-		}
-
-		@Override
-		public boolean isDisable() { return this.disable; }
-
-		@Override
-		public void setDisable(boolean bo) { this.disable = bo; }
-
-		public void readNBT(NBTTagCompound compound) {
-			for (int i=0; i<3; i++) {
-				try { this.rotation[i] = ValueUtil.correctFloat(compound.getTagList("Rotation", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
-				try { this.offset[i] = ValueUtil.correctFloat(compound.getTagList("Offset", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
-				try { this.scale[i] = ValueUtil.correctFloat(compound.getTagList("Scale", 5).getFloatAt(i), 0.0f, 5.0f); } catch (Exception e) { }
-				//System.out.println("i["+i+"]: "+this.rotation[i]);
-			}
-			this.id = compound.getInteger("Part");
-			this.disable = compound.getBoolean("Disabled");
-		}
-		
-		public NBTTagCompound writeNBT() {
-			NBTTagCompound compound = new NBTTagCompound();
-			NBTTagList listRot = new NBTTagList();
-			NBTTagList listOff = new NBTTagList();
-			NBTTagList listSc = new NBTTagList();
-			for (int i=0; i<3; i++) {
-				listRot.appendTag(new NBTTagFloat(this.rotation[i]));
-				listOff.appendTag(new NBTTagFloat(this.offset[i]));
-				listSc.appendTag(new NBTTagFloat(this.scale[i]));
-			}
-			compound.setTag("Rotation", listRot);
-			compound.setTag("Offset", listOff);
-			compound.setTag("Scale", listSc);
-			compound.setInteger("Part", this.id);
-			compound.setBoolean("Disabled", this.disable);
-			return compound;
-		}
-		
-	}
-
 	public static final AnimationFrameConfig EMPTY_PART = new AnimationFrameConfig();
 	public boolean smooth;
 	public int speed, delay;
-	public final PartConfig[] parts; // 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg
+	public final Map<Integer, PartConfig> parts; // 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg
 	public int id;
 
 	public AnimationFrameConfig() {
-		this.parts = new PartConfig[6];
+		this.parts = Maps.<Integer, PartConfig>newTreeMap();
 		for (int i=0; i<6; i++) {
-			this.parts[i] = new PartConfig();
-			this.parts[i].id = i;
+			this.parts.put(i, new PartConfig(i));
 		}
 		this.id = 0;
 		this.clear();
@@ -136,10 +38,16 @@ implements IAnimationFrame {
 		this.setSmooth(compound.getBoolean("IsSmooth"));
 		this.setSpeed(compound.getInteger("Speed"));
 		this.setEndDelay(compound.getInteger("EndDelay"));
-		for (int i=0; i<6 && i<compound.getTagList("PartConfigs", 10).tagCount(); i++) {
-			this.parts[i].readNBT(compound.getTagList("PartConfigs", 10).getCompoundTagAt(i));
-			this.parts[i].id = i;
+		this.parts.clear();
+		for (int i=0; i<compound.getTagList("PartConfigs", 10).tagCount(); i++) {
+			NBTTagCompound nbt = compound.getTagList("PartConfigs", 10).getCompoundTagAt(i);
+			PartConfig pc;
+			if (nbt.hasKey("", 8)) { pc = new AddedPartConfig(i); }
+			else { pc = new PartConfig(i); }
+			pc.readNBT(nbt);
+			this.parts.put(pc.id, pc);
 		}
+		fixParts();
 	}
 	
 	public NBTTagCompound writeNBT() {
@@ -148,9 +56,10 @@ implements IAnimationFrame {
 		compound.setInteger("ID", this.id);
 		compound.setInteger("Speed", this.speed);
 		compound.setInteger("EndDelay", this.delay);
-		
 		NBTTagList list = new NBTTagList();
-		for (int i=0; i<6; i++) { list.appendTag(this.parts[i].writeNBT()); }
+		for (int id : this.parts.keySet()) {
+			list.appendTag(this.parts.get(id).writeNBT());
+		}
 		compound.setTag("PartConfigs", list);
 		
 		return compound;
@@ -194,21 +103,45 @@ implements IAnimationFrame {
 
 	public AnimationFrameConfig copy() {
 		AnimationFrameConfig newAfc = new AnimationFrameConfig();
-		newAfc.smooth = this.smooth;
-		newAfc.speed = this.speed;
-		newAfc.delay = this.delay;
-		for (int i=0; i<6; i++) {
-			newAfc.parts[i].readNBT(this.parts[i].writeNBT());
-			newAfc.parts[i].id = i;
-		}
+		newAfc.readNBT(this.writeNBT());
 		return newAfc;
 	}
 
 	@Override
 	public IAnimationPart getPart(int id) {
 		if (id < 0) { id *= -1; }
-		if (id > this.parts.length) { id %= this.parts.length; }
-		return this.parts[id];
+		if (id > this.parts.size()) { id %= this.parts.size(); }
+		return this.parts.get(id);
+	}
+
+	public boolean removePart(PartConfig part) {
+		if (part==null || this.parts.size() <= 6) { return false; }
+		for (Integer id : this.parts.keySet()) {
+			PartConfig p = this.parts.get(id);
+			if (p.equals(part) || p.id == part.id) {
+				this.parts.remove(id);
+				fixParts();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void fixParts() {
+		int i = 0;
+		Map<Integer, PartConfig> newParts = Maps.<Integer, PartConfig>newTreeMap();
+		boolean change = false;
+		for (Integer id : this.parts.keySet()) {
+			PartConfig ps = this.parts.get(id);
+			if (id != i || ps.id != i) { change = true; }
+			ps.id = i;
+			newParts.put(i, ps);
+			i++;
+		}
+		if (change) {
+			this.parts.clear();
+			this.parts.putAll(newParts);
+		}
 	}
 	
 }

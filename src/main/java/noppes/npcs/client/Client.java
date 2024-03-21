@@ -25,8 +25,6 @@ public class Client {
 
 	static {
 		Client.notDebugShow = new ArrayList<EnumPacketServer>();
-		Client.notDebugShow.add(EnumPacketServer.StopSound);
-		Client.notDebugShow.add(EnumPacketServer.PlaySound);
 		Client.notDebugShow.add(EnumPacketServer.RemoteReset);
 	}
 	

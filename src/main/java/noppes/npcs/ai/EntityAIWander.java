@@ -85,7 +85,7 @@ public class EntityAIWander extends EntityAIBase {
 			}
 			Line line = talk.advanced.getNPCInteractLine();
 			if (line == null) {
-				line = new Line(".........");
+				line = new Line("... ... ...");
 			}
 			line.setShowText(false);
 			talk.saySurrounding(line);
@@ -132,13 +132,11 @@ public class EntityAIWander extends EntityAIBase {
 
 	public void startExecuting() {
 		this.entity.getNavigator().tryMoveToXYZ(this.x, this.y, this.zPosition, 1.0);
-		this.entity.resetBackPos(); // New
 	}
 
 	public void updateTask() {
 		if (this.nearbyNPC != null) {
 			this.nearbyNPC.getNavigator().clearPath();
-			this.nearbyNPC.resetBackPos(); // New
 		}
 	}
 }

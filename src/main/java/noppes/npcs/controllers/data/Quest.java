@@ -199,9 +199,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public String getName() {
-		return this.title;
-	}
+	public String getName() { return this.title; }
 
 	@Override
 	public Quest getNextQuest() {
@@ -369,8 +367,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 					}
 				}
 			}
-			// OLD
-			else if (compound.hasKey("CompleterNpc", 8) && CustomNpcs.FixUpdateFromPre_1_12) {
+			else if (compound.hasKey("CompleterNpc", 8)) { // OLD
 				String name = compound.getString("CompleterNpc");
 				if (CustomNpcs.Server != null) {
 					for (WorldServer w : CustomNpcs.Server.worlds) {

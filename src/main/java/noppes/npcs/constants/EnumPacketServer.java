@@ -39,6 +39,7 @@ public enum EnumPacketServer
 	TraderMarketNew(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
 	TraderMarketDel(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
 	AnimationSave(CustomNpcsPermissions.NPC_ADVANCED, true),
+	AnimationChange(CustomNpcsPermissions.NPC_ADVANCED, false),
 	AnimationGlobalSave(true), 
 	AnimationGet(true), 
 	JobSave(CustomNpcsPermissions.NPC_ADVANCED, true),
@@ -81,7 +82,7 @@ public enum EnumPacketServer
 	FactionsGet, 
 	FactionGet, 
 	QuestCategoryGet(CustomNpcsPermissions.GLOBAL_QUEST), 
-	QuestCategorySave(CustomNpcsPermissions.GLOBAL_QUEST), 
+	QuestCategorySave(CustomNpcsPermissions.GLOBAL_QUEST),
 	QuestRemove(CustomNpcsPermissions.GLOBAL_QUEST), 
 	QuestCategoryRemove(CustomNpcsPermissions.GLOBAL_QUEST), 
 	QuestRewardSave(CustomNpcsPermissions.GLOBAL_QUEST), 
@@ -114,16 +115,21 @@ public enum EnumPacketServer
 	ScriptItemDataSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptItemDataGet(false), 
 	ScriptForgeSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
-	ScriptClientSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
+	ScriptClientSave(CustomNpcsPermissions.TOOL_SCRIPTER),
+	ScriptEncrypt(CustomNpcsPermissions.TOOL_SCRIPTER),
 	ScriptForgeGet(false), 
-	ScriptClientGet(false), 
+	ScriptClientGet(false),
 	SpawnerNpcMove(CustomNpcsPermissions.NPC_ADVANCED, true), // New
 	DialogNpcGet, 
 	RecipesGet, 
 	RecipeGet, 
 	QuestOpenGui,
 	QuestReset, // New
+	DialogMinID, // New
+	FactionMinID, // New
 	QuestMinID, // New
+	PlayerMailsGet, // New 
+	PlayerMailsSave, // New
 	PlayerDataGet, 
 	RemoteNpcsGet(CustomNpcsPermissions.NPC_GUI), 
 	RemoteTpToNpc, 
@@ -145,6 +151,7 @@ public enum EnumPacketServer
 	NbtBookSaveEntity(CustomNpcsPermissions.TOOL_NBTBOOK), 
 	NbtBookSaveItem(CustomNpcsPermissions.TOOL_NBTBOOK), 
 	NbtBookSaveBlock(CustomNpcsPermissions.TOOL_NBTBOOK),
+	NbtBookCopyStack(CustomNpcsPermissions.TOOL_NBTBOOK),
 	ScriptPotionGet(false), //New
 	ScriptPotionSave(CustomNpcsPermissions.TOOL_SCRIPTER), // New
 	TeleportTo(false), // New
@@ -152,9 +159,7 @@ public enum EnumPacketServer
 	BuilderSetting(false), // New
 	OpenBuilder(false),
 	DimensionDelete(CustomNpcsPermissions.TOOL_TELEPORTER), // New
-	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER), // New
-	StopSound(false), // New
-	PlaySound(false); // New
+	DimensionSettings(CustomNpcsPermissions.TOOL_TELEPORTER); // New
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;
@@ -170,9 +175,9 @@ public enum EnumPacketServer
 		this.needsNpc = npc;
 	}
 	
-	private EnumPacketServer(boolean need) {
+	private EnumPacketServer(boolean npc) {
 		this.exempt = false;
-		this.needsNpc = need;
+		this.needsNpc = npc;
 	}
 	
 	private EnumPacketServer(CustomNpcsPermissions.Permission permission) {
@@ -201,7 +206,5 @@ public enum EnumPacketServer
 		EnumPacketServer.FactionGet.exempt();
 		EnumPacketServer.SceneStart.exempt();
 		EnumPacketServer.SceneReset.exempt();
-		EnumPacketServer.StopSound.exempt();
-		EnumPacketServer.PlaySound.exempt();
 	}
 }

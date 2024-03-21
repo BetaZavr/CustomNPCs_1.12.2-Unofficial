@@ -291,7 +291,7 @@ implements IGuiData, ICustomScrollListener {
 		if (this.subgui==null) {
 			GlStateManager.pushMatrix();
 			if (this.selectNpc!=null) {
-				this.drawNpc(this.selectNpc, 210, 130, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, false);
+				this.drawNpc(this.selectNpc, 210, 130, 1.0f, (int) (3 * this.player.world.getTotalWorldTime() % 360), 0, 0);
 			}
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			Gui.drawRect(this.guiLeft + 179, this.guiTop + 54, this.guiLeft + 242, this.guiTop + 142, 0xFF808080);

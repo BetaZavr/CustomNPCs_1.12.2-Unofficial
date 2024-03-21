@@ -32,9 +32,7 @@ public class NPCRendererHelper {
 		render.preRenderCallback(entity, f);
 	}
 
-	public static void renderModel(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks,
-			float netHeadYaw, float headPitch, float scaleFactor, RenderLivingBase<EntityLivingBase> render,
-			ModelBase main, ResourceLocation resource) {
+	public static void renderModel(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, RenderLivingBase<EntityLivingBase> render, ModelBase main, ResourceLocation resource) {
 		NPCRendererHelper.wrapper.mainModelOld = render.getMainModel();
 		if (!(main instanceof ModelWrapper)) {
 			NPCRendererHelper.wrapper.wrapped = main;

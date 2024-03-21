@@ -207,11 +207,8 @@ implements IEntityLivingBase {
 
 	@Override
 	public void setAttackTarget(IEntityLivingBase living) {
-		if (living == null) {
-			this.entity.setRevengeTarget(null);
-		} else {
-			this.entity.setRevengeTarget(living.getMCEntity());
-		}
+		if (living == null) { this.entity.setRevengeTarget(null); }
+		else { this.entity.setRevengeTarget(living.getMCEntity()); }
 	}
 
 	@Override

@@ -12,6 +12,7 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.EntityWrapper;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
+import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.AdditionalMethods;
@@ -27,6 +28,7 @@ implements IData {
 	
 	public StoredData() {
 		this.data = new NBTTagCompound();
+		this.controller = ScriptController.Instance;
 	}
 
 	public StoredData(BlockWrapper wrapper) {
@@ -46,9 +48,8 @@ implements IData {
 		this.stack = stack;
 	}
 
-	public StoredData(ScriptController controller) {
+	public StoredData(WorldWrapper world) {
 		this();
-		this.controller = controller;
 	}
 
 	private void resetData() {

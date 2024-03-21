@@ -19,8 +19,6 @@ public interface IAnimation {
 	
 	boolean removeFrame(IAnimationFrame frame);
 
-	int getType();
-
 	String getName();
 
 	void setName(String name);
@@ -31,13 +29,11 @@ public interface IAnimation {
 	
 	void startToNpc(ICustomNpc<?> npc);
 
-	boolean isDisable();
-
-	void setDisable(boolean bo);
-
 	int getRepeatLast();
 	
 	void setRepeatLast(int frames);
+
+	int getId();
 
 	
 }

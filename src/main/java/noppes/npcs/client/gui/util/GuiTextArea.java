@@ -20,7 +20,7 @@ public class GuiTextArea
 extends Gui
 implements IGui, IKeyListener, IMouseListener
 {
-	
+
 	public int id;
 	public int x;
 	public int y;
@@ -51,7 +51,7 @@ implements IGui, IKeyListener, IMouseListener
 	public int errorLine = -1;
 	public static String filter = (""+(char) 9)+(""+(char) 10)+" .+-/*=()[]{}\"\\';"; // Tab, Enter ...
 	
-	public GuiTextArea(int id, int x, int y, int width, int height, String text) {
+	public GuiTextArea(int id, GuiScreen guiscreen, int x, int y, int width, int height, String text) {
 		this.text = null;
 		this.container = null;
 		this.active = false;
@@ -268,9 +268,7 @@ implements IGui, IKeyListener, IMouseListener
 	}
 	
 	public void keyTyped(char c, int i) {
-		if (!this.active) {
-			return;
-		}
+		if (!this.active) { return; }
 		if (GuiScreen.isKeyComboCtrlA(i)) {
 			int n = 0;
 			this.cursorPosition = n;
@@ -539,10 +537,9 @@ implements IGui, IKeyListener, IMouseListener
 			this.redoList.clear();
 		}
 		this.text = text;
-		(this.container = new TextContainer(text)).init(GuiTextArea.font, this.width, this.height);
-		if (this.enableCodeHighlighting) {
-			this.container.formatCodeText();
-		}
+		this.container = new TextContainer(text);
+		this.container.init(GuiTextArea.font, this.width, this.height);
+		if (this.enableCodeHighlighting) { this.container.formatCodeText(); }
 		if (this.scrolledLine > this.container.linesCount - this.container.visibleLines) {
 			this.scrolledLine = Math.max(0, this.container.linesCount - this.container.visibleLines);
 		}

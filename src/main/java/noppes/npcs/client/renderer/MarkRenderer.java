@@ -42,12 +42,12 @@ public class MarkRenderer {
 			GlStateManager.translate(x, y + entity.height + 0.6, z);
 			GlStateManager.rotate(-entity.rotationYawHead, 0.0f, 1.0f, 0.0f);
 			switch(mark.type) {
-				case 2: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markExclamation); break;
-				case 3: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markPointer); break;
-				case 4: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markSkull); break;
-				case 5: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markCross); break;
-				case 6: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markStar); break;
-				default: Minecraft.getMinecraft().getTextureManager().bindTexture(MarkRenderer.markQuestion);
+				case 2: Minecraft.getMinecraft().renderEngine.bindTexture(MarkRenderer.markExclamation); break;
+				case 3: Minecraft.getMinecraft().renderEngine.bindTexture(MarkRenderer.markPointer); break;
+				case 4: Minecraft.getMinecraft().renderEngine.bindTexture(MarkRenderer.markSkull); break;
+				case 5: Minecraft.getMinecraft().renderEngine.bindTexture(MarkRenderer.markCross); break;
+				case 6: Minecraft.getMinecraft().renderEngine.bindTexture(MarkRenderer.markStar); break;
+				default: Minecraft.getMinecraft().renderEngine.bindTexture(MarkRenderer.markQuestion);
 			}
 			int list = mark.is3D() ? MarkRenderer.displayList[mark.type] : MarkRenderer.displayList[0];
 			if (MarkRenderer.needReload || list<0) {

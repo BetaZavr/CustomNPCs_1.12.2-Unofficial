@@ -16,8 +16,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -66,7 +66,8 @@ implements IPermission {
 	}
 
 	public boolean isAllowed(EnumPacketServer e) {
-		return e == EnumPacketServer.NbtBookSaveItem || e == EnumPacketServer.NbtBookSaveEntity || e == EnumPacketServer.NbtBookSaveBlock;
+		return e == EnumPacketServer.NbtBookSaveItem || e == EnumPacketServer.NbtBookSaveEntity ||
+				e == EnumPacketServer.NbtBookSaveBlock || e == EnumPacketServer.NbtBookCopyStack;
 	}
 	
 	@SideOnly(Side.CLIENT)

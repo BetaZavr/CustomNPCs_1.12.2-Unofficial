@@ -25,7 +25,9 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermission {
+public class BlockScriptedDoor
+extends BlockNpcDoorInterface
+implements IPermission {
 
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {

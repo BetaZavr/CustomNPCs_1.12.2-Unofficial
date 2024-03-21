@@ -151,10 +151,15 @@ implements ICustomScrollListener {
 		GlStateManager.pushMatrix();
 		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 		int x = this.guiLeft+271, y = this.guiTop+6;
-		Gui.drawRect(x-1, y-1, x+81, y+81, this.dark ? 0xFFE0E0E0 : 0xFF202020);
-		Gui.drawRect(x, y, x+80, y+80, this.dark ? 0xFF000000 : 0xFFFFFFFF);
+		int w = 80;
+		if (this.type == 4) { // faction flag
+			GlStateManager.translate(19.5f, 0.0f, 0.0f);
+			w = 41;
+		}
+		Gui.drawRect(x-1, y-1, x+w+1, y+81, this.dark ? 0xFFE0E0E0 : 0xFF202020);
+		Gui.drawRect(x, y, x+w, y+80, this.dark ? 0xFF000000 : 0xFFFFFFFF);
 		int g = 5;
-		for (int u = 0; u<80/g; u++) {
+		for (int u = 0; u<w/g; u++) {
 			for (int v = 0; v<80/g; v++) {
 				if (u%2==(v%2==0 ? 1 : 0)) {
 					Gui.drawRect(x+u*g, y+v*g, x+u*g+g, y+v*g+g, this.dark ? 0xFF343434 : 0xFFCCCCCC);
@@ -172,7 +177,12 @@ implements ICustomScrollListener {
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			try {
 				this.mc.renderEngine.bindTexture(this.resource);
-				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+				if (this.type == 4) { // faction flag
+					GlStateManager.translate(62.0f, 0.0f, 0.0f);
+					GlStateManager.scale(3.3f, 2.0f, 1.0f);
+					this.drawTexturedModalRect(0, 0, 4, 4, 40, 128);
+				}
+				else { this.drawTexturedModalRect(0, 0, 0, 0, 256, 256); }
 			}
 			catch (Exception e) { }
 			GlStateManager.depthMask(true);
@@ -184,15 +194,11 @@ implements ICustomScrollListener {
 			if (this.type==0) { this.npc.textureLocation = this.resource; }
 			int rot = 0;
 			float s = 1.25f;
-			boolean mouse = false;
+			int mouse = 0;
 			x = 0; y = 0;
 			if (this.type==0) { rot = (int) (3 * this.player.world.getTotalWorldTime() % 360); }
 			else if (this.type==1) { rot = 215; }
-			else if (this.type==2) {
-				rot = 325;
-				//y = 105;
-				//s = 3.0f;
-			}
+			else if (this.type==2) { rot = 325; }
 			if (this.npc.textureLocation!=null) { this.drawNpc(this.npc, this.guiLeft + 276 + x, this.guiTop + 155 + y, s, rot, 0, mouse); }
 		}
 		if (!CustomNpcs.showDescriptions) { return; }
@@ -212,6 +218,7 @@ implements ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
+		System.out.println("CNPCs: "+npc);
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 264, this.guiTop + 190, 90, 20, "gui.cancel"));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 264, this.guiTop + 170, 90, 20, "gui.done"));
 		GuiNpcCheckBox cBox = new GuiNpcCheckBox(3, this.guiLeft + 256, this.guiTop + 2, 15, 15, "");
@@ -276,7 +283,7 @@ implements ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (scroll.getSelected().equals(this.back)) {
 			if (this.selectDir==null) { return; }
 			if (this.selectDir.getResourcePath().indexOf("/")==-1) { this.selectDir = null; }

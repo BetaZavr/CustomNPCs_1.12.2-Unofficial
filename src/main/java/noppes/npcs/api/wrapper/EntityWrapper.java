@@ -43,8 +43,8 @@ public class EntityWrapper<T extends Entity>
 implements IEntity {
 	
 	protected T entity;
-	private IData storeddata;
-	private IData tempdata;
+	protected IData storeddata;
+	protected IData tempdata;
 	private IWorld worldWrapper;
 
 	@SuppressWarnings("deprecation")
@@ -52,12 +52,14 @@ implements IEntity {
 		this.entity = entity;
 		this.tempdata = new TempData();
 		this.storeddata = new StoredData(this);
-		
 		if (entity.world instanceof WorldServer) {
 			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) entity.world);
-		} else if (entity.world != null) {
+		}
+		else if (entity.world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(entity.world.provider.getDimension());
-			if (w != null) { w.world = entity.world; }
+			if (w != null) {
+				if (w.world == null) { w.world = entity.world; }
+			}
 			else { WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(), w = WorldWrapper.createNew(entity.world)); }
 			this.worldWrapper = w;
 		}
@@ -89,7 +91,7 @@ implements IEntity {
 	public void damage(float amount, IEntityDamageSource source) {
 		if (!(this.entity instanceof EntityLivingBase)) { return; }
 		if (source instanceof EntityDamageSource) {
-			this.entity.attackEntityFrom((EntityDamageSource) source, amount);
+			this.entity.attackEntityFrom((DamageSource) source, amount);
 			if (((EntityDamageSource) source).getTrueSource() instanceof EntityLivingBase) {
 				if (this.entity instanceof EntityLiving) {
 					((EntityLiving) this.entity).setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
@@ -519,7 +521,7 @@ implements IEntity {
 	@Override
 	public void spawn() {
 		if (this.worldWrapper.getMCWorld().isRemote) { return; }
-		LogWriter.debug("Try summoning 0: "+this.entity.getName());
+		LogWriter.debug("Try summoning 0: "+this.entity.getName()+"; UUID: "+this.entity.getUniqueID());
 		Entity el = null;
 		try {
 			for (Entity e : this.worldWrapper.getMCWorld().loadedEntityList) {
@@ -536,7 +538,10 @@ implements IEntity {
 		}
 		this.entity.isDead = false;
 		LogWriter.debug("Try summoning 1: "+this.entity.getName());
-		try { this.worldWrapper.getMCWorld().spawnEntity(this.entity); }
+		try {
+			boolean bo = this.worldWrapper.getMCWorld().spawnEntity(this.entity);
+			LogWriter.debug("Is summoning: "+bo+"; World: "+this.entity.world.getClass().getSimpleName());
+		}
 		catch (Exception e) { e.printStackTrace(); }
 	}
 

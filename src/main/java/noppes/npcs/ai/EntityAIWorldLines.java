@@ -15,11 +15,8 @@ public class EntityAIWorldLines extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		if (this.cooldown > 0) {
-			--this.cooldown;
-		}
-		return !this.npc.isAttacking() && !this.npc.isKilled() && this.npc.advanced.hasWorldLines()
-				&& this.npc.getRNG().nextInt(1800) == 1;
+		if (this.cooldown > 0) { --this.cooldown; }
+		return !this.npc.isAttacking() && !this.npc.isKilled() && this.npc.advanced.hasWorldLines() && this.npc.getRNG().nextInt(1800) == 1;
 	}
 
 	public void startExecuting() {

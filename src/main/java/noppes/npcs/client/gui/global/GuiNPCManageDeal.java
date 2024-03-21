@@ -3,13 +3,14 @@ package noppes.npcs.client.gui.global;
 import java.util.Arrays;
 
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -18,6 +19,7 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
 import noppes.npcs.controllers.data.Deal;
+import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -25,7 +27,6 @@ public class GuiNPCManageDeal
 extends GuiContainerNPCInterface2
 implements ITextfieldListener {
 
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private Deal deal;
 	private int marcetID;
 
@@ -76,7 +77,7 @@ implements ITextfieldListener {
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, this.deal.getMaxCount());
 		
-		this.addLabel(new GuiNpcLabel(11, "gui.ignoreDamage", x, (y += 22) + 5));
+		this.addLabel(new GuiNpcLabel(11, "gui.ignoreDamage", x, (y += 21) + 5));
 		this.addButton(new GuiNpcButton(0, x + 100, y, 80, 20, new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" }, this.deal.getIgnoreDamage() ? 1 : 0));
 		
 		this.addLabel(new GuiNpcLabel(12, "gui.ignoreNBT", x, (y += 22) + 5));
@@ -86,7 +87,22 @@ implements ITextfieldListener {
 		this.addButton(new GuiNpcButton(2, x + 100, y, 80, 20, "selectServer.edit"));
 		
 		this.addButton(new GuiNpcButton(3, x, (y += 22), 200, 20, new String[] { "market.deal.type.0", "market.deal.type.1", "market.deal.type.2" }, this.deal.getType()));
-		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 10, 60, 20, "gui.back"));
+		
+		String[] ids;
+		IMarcet m = this.deal.getMarcet();
+		int p = this.deal.getSectionID();
+		if (m != null) {
+			ids = new String[((Marcet) m).sections.size()];
+			for (int id : ((Marcet) m).sections.keySet()) {
+				ids[id] = "#" + id + ": " + new TextComponentTranslation(((Marcet) m).sections.get(id)).getFormattedText();
+			}
+		} else {
+			ids = new String[] { "#0" };
+			p = 0;
+		}
+		this.addButton(new GuiNpcButton(4, x, (y += 22), 80, 20, ids, p));
+		
+		this.addButton(new GuiNpcButton(66, x, (y += 22), 80, 20, "gui.back"));
 	}
 
 	@Override
@@ -109,6 +125,10 @@ implements ITextfieldListener {
 				this.deal.setType(button.getValue());
 				break;
 			}
+			case 4: {
+				this.deal.setSectionID(button.getValue());
+				break;
+			}
 			case 66: {
 				this.close();
 				break;
@@ -125,7 +145,7 @@ implements ITextfieldListener {
 			if (this.inventorySlots.getSlot(slotId)==null) { return; }
 			int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
 			int y = this.guiTop + this.inventorySlots.getSlot(slotId).yPos;
-			this.mc.renderEngine.bindTexture(this.slot);
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 		}
@@ -168,6 +188,8 @@ implements ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover").getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.set.type").getFormattedText());
+		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("market.hover.deal.section").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}

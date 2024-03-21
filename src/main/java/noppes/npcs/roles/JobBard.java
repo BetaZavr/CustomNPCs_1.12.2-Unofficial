@@ -156,7 +156,7 @@ implements IJobBard {
 			if (data.length > 7) { this.maxPos = new int[] { data[5], data[6], data[7] }; }
 			else { this.maxPos = new int[] { this.range[1], this.range[1], this.range[1] }; }
 		}
-		else if (compound.hasKey("BardMinRange", 3) && compound.hasKey("BardMaxRange", 3) && CustomNpcs.FixUpdateFromPre_1_12) {
+		else if (compound.hasKey("BardMinRange", 3) && compound.hasKey("BardMaxRange", 3)) {
 			this.range = new int[] { compound.getInteger("BardMinRange"), compound.getInteger("BardMaxRange") };
 			this.isRange = true;
 			this.minPos = new int[] { this.range[0], this.range[0], this.range[0] };

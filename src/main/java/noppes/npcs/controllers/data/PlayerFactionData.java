@@ -43,9 +43,7 @@ public class PlayerFactionData {
 		for (int id : this.factionData.keySet()) {
 			Faction faction = FactionController.instance.getFaction(id);
 			if (faction != null) {
-				if (faction.hideFaction) {
-					continue;
-				}
+				//if (faction.hideFaction) { continue; }
 				NBTTagCompound com = new NBTTagCompound();
 				faction.writeNBT(com);
 				list.appendTag(com);

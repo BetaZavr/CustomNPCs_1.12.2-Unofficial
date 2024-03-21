@@ -24,30 +24,23 @@ implements IAnimation {
 
 	public String name;
 	public int repeatLast;
-	public boolean disable, isEdit;
+	public boolean isEdit;
 	public final Map<Integer, AnimationFrameConfig> frames; // {Frame, setting Frame]}
+
+	public int id;
 	public AnimationKind type;
 
-	public int id, frame;
-
-	public AnimationConfig(int type) {
+	public AnimationConfig() {
 		this.frames = Maps.<Integer, AnimationFrameConfig>newTreeMap();
-		this.id = 0;
 		this.frames.put(0, new AnimationFrameConfig());
+		this.id = 0;
 		this.name = "Default Animation";
-		this.disable = false;
 		this.repeatLast = 0;
-		if (type<0) {type *= -1; }
-		type %= AnimationKind.values().length;
-		this.type = AnimationKind.get(type);
 		this.isEdit = false;
 	}
 
 	@Override
-	public boolean isDisable() { return this.disable; }
-
-	@Override
-	public void setDisable(boolean bo) { this.disable = bo; }
+	public int getId() { return this.id; }
 
 	@Override
 	public IAnimationFrame[] getFrames() {
@@ -67,9 +60,6 @@ implements IAnimation {
 		return this.frames.get(frame);
 	}
 
-	@Override
-	public int getType() { return this.type.get(); }
-
 	public void readFromNBT(NBTTagCompound compound) {
 		this.frames.clear();
 		for (int i=0; i<compound.getTagList("FrameConfigs", 10).tagCount(); i++) {
@@ -80,13 +70,8 @@ implements IAnimation {
 		}
 		if (this.frames.size()==0) { this.frames.put(0, new AnimationFrameConfig()); }
 		
-		int t = compound.getInteger("Type");
-		if (t<0) { t *= -1; }
-		t %= AnimationKind.values().length;
 		this.id = compound.getInteger("ID");
-		this.type = AnimationKind.get(t);
 		this.name = compound.getString("Name");
-		this.disable = compound.getBoolean("IsDisable");
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -94,9 +79,7 @@ implements IAnimation {
 		for (AnimationFrameConfig afc : this.frames.values()) { list.appendTag(afc.writeNBT()); }
 		compound.setTag("FrameConfigs", list);
 		compound.setInteger("ID", this.id);
-		compound.setInteger("Type", this.type.get());
 		compound.setString("Name", this.name);
-		compound.setBoolean("IsDisable", this.disable);
 		return compound;
 	}
 
@@ -118,19 +101,16 @@ implements IAnimation {
 	}
 
 	@Override
-	public boolean removeFrame(int frame) {
-		if (!this.frames.containsKey(frame)) {
-			throw new CustomNPCsException("Unknown frame " + frame);
-		}
-		if (this.frames.size()<=1) {
-			this.frames.get(0).clear();
-			return true;
+	public boolean removeFrame(int frameId) {
+		if (this.frames.size()<=1) { return false; }
+		if (!this.frames.containsKey(frameId)) {
+			throw new CustomNPCsException("Unknown frame ID:" + frameId);
 		}
 		Map<Integer, AnimationFrameConfig> newData = Maps.<Integer, AnimationFrameConfig>newTreeMap();
 		int i = 0;
 		boolean isDel = false;
 		for (int f : this.frames.keySet()) {
-			if (f==frame) { isDel= true; continue; }
+			if (f == frameId) { isDel= true; continue; }
 			newData.put(i, this.frames.get(f).copy());
 			newData.get(i).id = i;
 			i++;
@@ -147,16 +127,10 @@ implements IAnimation {
 
 	@Override
 	public boolean removeFrame(IAnimationFrame frame) {
-		if (frame==null) { return false; }
+		if (frame==null || this.frames.size() <= 1) { return false; }
 		for (int f : this.frames.keySet()) {
 			if (this.frames.get(f).equals(frame)) {
-				if (this.frames.size()==1) {
-					this.frames.get(f).clear();
-					for (int j=0; j<6; j++) {
-						this.frames.get(f).parts[j].clear();
-					}
-				}
-				else { this.removeFrame(f); }
+				this.removeFrame(f);
 				return true;
 			}
 		}
@@ -207,7 +181,7 @@ implements IAnimation {
 	}
 
 	public AnimationConfig copy() {
-		AnimationConfig ac = new AnimationConfig(0);
+		AnimationConfig ac = new AnimationConfig();
 		ac.readFromNBT(this.writeToNBT(new NBTTagCompound()));
 		return ac;
 	}

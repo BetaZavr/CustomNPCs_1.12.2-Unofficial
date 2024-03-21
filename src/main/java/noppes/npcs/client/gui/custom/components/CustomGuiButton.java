@@ -50,7 +50,6 @@ implements IClickListener {
 			this.textureX = component.getTextureX();
 			this.textureY = component.getTextureY();
 			this.texture = new ResourceLocation(component.getTexture());
-			System.out.println("tXY: ["+this.textureX+", "+this.textureY+"]; texture: \""+this.texture+"\"");
 		}
 		this.label = buttonText;
         this.offsets = new int [] { 0, 0 };
@@ -88,7 +87,7 @@ implements IClickListener {
 		
 		FontRenderer fontRenderer = mc.fontRenderer;
 		if (this.texture == null) {
-			mc.getTextureManager().bindTexture(CustomGuiButton.BUTTON_TEXTURES);
+			mc.renderEngine.bindTexture(CustomGuiButton.BUTTON_TEXTURES);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			int i = this.getHoverState(this.hovered);
 			GlStateManager.enableBlend();
@@ -115,7 +114,7 @@ implements IClickListener {
 				this.parent.hoverText = this.hoverText;
 			}
 		} else {
-			mc.getTextureManager().bindTexture(this.texture);
+			mc.renderEngine.bindTexture(this.texture);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			int i = this.hoverState(this.hovered);
 			GlStateManager.enableBlend();

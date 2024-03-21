@@ -21,8 +21,8 @@ extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.npc.ticksExisted % (this.tickRate * 2) > 3) { return; }
-		if (this.isRanged) { this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true); }
+		if (this.isFrend || this.npc.ticksExisted % (this.tickRate * 2) > 3) { return; }
+		if (this.isRanged) { this.canSeeToAttack = AdditionalMethods.npcCanSeeTarget(this.npc, this.target, true, true); }
 		else { this.canSeeToAttack = this.npc.canSee(this.target); }
 		if (this.canSeeToAttack && this.distance <= this.range) {
 			if (this.inMove) {
@@ -72,7 +72,7 @@ extends EntityAICustom {
 					error = 0;
 					dist = this.npc.getDistance(vec.x, vec.y, vec.z);
 					if (this.npc.stats.calmdown) {
-						double homeDist = AdditionalMethods.instance.distanceTo(this.npc.getBackPos().getX(), this.npc.getBackPos().getY(), this.npc.getBackPos().getZ(), vec.x, vec.y, vec.z);
+						double homeDist = AdditionalMethods.instance.distanceTo(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), vec.x, vec.y, vec.z);
 						if (homeDist > CustomNpcs.NpcNavRange) { continue; }
 					}
 					if ((int) vec.x == this.npc.getPosition().getX() &&

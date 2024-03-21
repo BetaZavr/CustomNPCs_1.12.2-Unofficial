@@ -6,7 +6,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.ModelPartConfig;
-import noppes.npcs.client.model.ModelPlayerAlt;
+import noppes.npcs.client.model.ModelNPCAlt;
 import noppes.npcs.constants.EnumParts;
 
 public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T> {
@@ -16,10 +16,10 @@ public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T>
 
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
-		if (!(this.model instanceof ModelPlayerAlt)) { return; }
+		if (!(this.model instanceof ModelNPCAlt)) { return; }
 		if (this.npc.textureCloakLocation == null) {
 			if (this.npc.display.getCapeTexture() == null || this.npc.display.getCapeTexture().isEmpty()
-					|| !(this.model instanceof ModelPlayerAlt)) {
+					|| !(this.model instanceof ModelNPCAlt)) {
 				return;
 			}
 			this.npc.textureCloakLocation = new ResourceLocation(this.npc.display.getCapeTexture());
@@ -45,7 +45,7 @@ public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T>
 		GlStateManager.rotate(f13 / 2.0f, 0.0f, 0.0f, 1.0f);
 		GlStateManager.rotate(-f13 / 2.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
-		((ModelPlayerAlt) this.model).renderCape(0.0625f);
+		((ModelNPCAlt) this.model).renderCape(0.0625f);
 		GlStateManager.popMatrix();
 	}
 

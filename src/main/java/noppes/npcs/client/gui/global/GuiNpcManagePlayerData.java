@@ -61,7 +61,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 	public EnumPlayerData selection;
 	private NBTTagCompound gameData;
 
-	public GuiNpcManagePlayerData(EntityNPCInterface npc, GuiNPCInterface2 parent) {
+	public GuiNpcManagePlayerData(EntityNPCInterface npc) {
 		super(npc);
 		this.isOnline = false;
 		this.selectedPlayer = null;

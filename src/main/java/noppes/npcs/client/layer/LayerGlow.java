@@ -18,8 +18,7 @@ public class LayerGlow implements LayerRenderer<EntityNPCInterface> {
 		this.renderer = npcRenderer;
 	}
 
-	public void doRenderLayer(EntityNPCInterface npc, float limbSwing, float limbSwingAmount, float partialTicks,
-			float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+	public void doRenderLayer(EntityNPCInterface npc, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		if (npc.display.getOverlayTexture().isEmpty()) {
 			return;
 		}

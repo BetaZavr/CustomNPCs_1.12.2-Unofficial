@@ -2,6 +2,7 @@ package noppes.npcs.api;
 
 import net.minecraft.nbt.NBTBase;
 import noppes.npcs.api.entity.IEntity;
+import noppes.npcs.util.RayTraceResults;
 import noppes.npcs.util.RayTraceRotate;
 import noppes.npcs.util.RayTraceVec;
 
@@ -34,5 +35,7 @@ public interface IMetods {
 	Object readObjectFromNbt(NBTBase tag);
 
 	String getJSONStringFromObject(Object obj);
+
+	RayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance);
 	
 }

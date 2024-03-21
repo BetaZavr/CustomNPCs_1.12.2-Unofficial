@@ -655,12 +655,18 @@ public class EventHooks {
 			ContainerNPCBank.editPlayerBankData = null;
 			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, new NBTTagCompound());
 		}
-		PlayerScriptData handler = PlayerData.get(player).scriptData;
-		if (!handler.getEnabled()) { return; }
-		EventHooks.onEvent(handler, EnumScriptType.GUI_OPEN, new PlayerEvent.OpenGUI((IPlayer<?>) NpcAPI.Instance().getIEntity(player), newGUI, oldGUI));
+		PlayerData data = PlayerData.get(player);
+		data.hud.currentGUI = newGUI;
+		if (!data.scriptData.getEnabled()) { return; }
+		EventHooks.onEvent(data.scriptData, EnumScriptType.GUI_OPEN, new PlayerEvent.OpenGUI((IPlayer<?>) NpcAPI.Instance().getIEntity(player), newGUI, oldGUI));
 	}
 	
 	public static boolean onEvent(IScriptHandler handler, EnumScriptType enumFunction, Event event) {
+		if (handler instanceof PlayerScriptData) {
+			if (handler.getEnabled() != ScriptController.Instance.playerScripts.getEnabled()) {
+				handler.setEnabled(ScriptController.Instance.playerScripts.getEnabled());
+			}
+		}
 		if (handler == null || !handler.getEnabled() || event == null || enumFunction==null) { return false; }
 		handler.runScript(enumFunction.function, event);
 		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();

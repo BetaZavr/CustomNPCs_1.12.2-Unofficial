@@ -264,7 +264,7 @@ public class TrueTypeFont
 		return (int) (cache.width * this.scale * this.textureScale());
 	}
 	
-	public int height(String text) {
+	public synchronized int height(String text) {
 		if (text == null || text.trim().isEmpty()) {
 			return (int) (this.lineHeight * this.scale * this.textureScale());
 		}

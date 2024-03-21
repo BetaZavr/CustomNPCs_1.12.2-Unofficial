@@ -7,7 +7,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.api.handler.data.IDialogOption;
 import noppes.npcs.controllers.DialogController;
 
@@ -49,18 +49,18 @@ implements IDialogOption {
 	}
 	
 	public String command;
-	public int optionColor;
-	public int optionType;
-	public int slot;
+	public int optionColor, slot, iconId;
+	public OptionType optionType;
 	public String title;
 	public final List<OptionDialogID> dialogs;
 
 	public DialogOption() {
 		this.title = "Talk";
-		this.optionType = 1;
+		this.optionType = OptionType.DIALOG_OPTION;
 		this.optionColor = 14737632;
 		this.command = "";
 		this.slot = -1;
+		this.iconId = 0;
 		this.dialogs = Lists.<OptionDialogID>newArrayList();
 	}
 
@@ -76,21 +76,21 @@ implements IDialogOption {
 
 	@Override
 	public int getType() {
-		return this.optionType;
+		return this.optionType.get();
 	}
 
 	public boolean hasDialogs() {
-		if (this.dialogs.isEmpty() || this.optionType != 1) {
+		if (this.dialogs.isEmpty() || this.optionType != OptionType.DIALOG_OPTION) {
 			return false;
 		}
 		return true;
 	}
 
 	public boolean isAvailable(EntityPlayer player) {
-		if (this.optionType == 2) {
+		if (this.optionType == OptionType.DISABLED) {
 			return false;
 		}
-		if (this.optionType != 1) {
+		if (this.optionType != OptionType.DIALOG_OPTION) {
 			return true;
 		}
 		Dialog dialog = this.getDialog(player);
@@ -115,13 +115,14 @@ implements IDialogOption {
 		}
 		this.title = compound.getString("Title");
 		this.optionColor = compound.getInteger("DialogColor");
-		this.optionType = compound.getInteger("OptionType");
+		this.iconId = compound.getInteger("IconId");
+		this.optionType = OptionType.get(compound.getInteger("OptionType"));
 		this.command = compound.getString("DialogCommand");
 		if (this.optionColor == 0) {
 			this.optionColor = 14737632;
 		}
 		this.dialogs.clear();
-		if (compound.hasKey("Dialog", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // OLD
+		if (compound.hasKey("Dialog", 3)) { // OLD
 			this.dialogs.add(new OptionDialogID(compound.getInteger("Dialog")));
 		}
 		else if (compound.hasKey("Dialogs", 9)) {
@@ -134,8 +135,9 @@ implements IDialogOption {
 	public NBTTagCompound writeNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setString("Title", this.title);
-		compound.setInteger("OptionType", this.optionType);
+		compound.setInteger("OptionType", this.optionType.get());
 		compound.setInteger("DialogColor", this.optionColor);
+		compound.setInteger("IconId", this.iconId);
 		compound.setString("DialogCommand", this.command);
 		NBTTagList list = new NBTTagList();
 		for (OptionDialogID od : this.dialogs) { list.appendTag(od.getNBT()); }
@@ -209,6 +211,13 @@ implements IDialogOption {
 		OptionDialogID od = new OptionDialogID(dialogId);
 		this.dialogs.add(od);
 		return od;
+	}
+
+	public DialogOption copy() {
+		DialogOption newDO = new DialogOption();
+		NBTTagCompound compound = this.writeNBT();
+		newDO.readNBT(compound);
+		return newDO;
 	}
 	
 }

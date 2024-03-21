@@ -20,4 +20,8 @@ public interface IAnimationPart {
 
 	void setDisable(boolean bo);
 	
+	boolean isShow();
+
+	void setShow(boolean bo);
+	
 }

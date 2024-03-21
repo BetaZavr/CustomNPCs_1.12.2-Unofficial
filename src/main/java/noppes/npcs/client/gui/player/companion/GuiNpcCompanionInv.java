@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.constants.EnumCompanionTalent;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.containers.ContainerNPCCompanion;
@@ -18,12 +19,10 @@ extends GuiContainerNPCInterface {
 	private EntityNPCInterface npc;
 	private ResourceLocation resource;
 	private RoleCompanion role;
-	private ResourceLocation slot;
 
 	public GuiNpcCompanionInv(EntityNPCInterface npc, ContainerNPCCompanion container) {
 		super(npc, container);
 		this.resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/companioninv.png");
-		this.slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 		this.npc = npc;
 		this.role = (RoleCompanion) npc.advanced.roleInterface;
 		this.closeOnEsc = true;
@@ -48,7 +47,7 @@ extends GuiContainerNPCInterface {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
-		this.mc.renderEngine.bindTexture(this.slot);
+		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		if (this.role.getTalentLevel(EnumCompanionTalent.ARMOR) > 0) {
 			for (int i = 0; i < 4; ++i) {
 				this.drawTexturedModalRect(this.guiLeft + 5, this.guiTop + 7 + i * 18, 0, 0, 18, 18);

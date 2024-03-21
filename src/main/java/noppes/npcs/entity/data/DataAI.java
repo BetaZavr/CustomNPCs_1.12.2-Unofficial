@@ -52,6 +52,7 @@ implements INPCAi {
 	private int tacticalRadius;
 	public int tacticalVariant;
 	public int walkingRange;
+	public float stepheight;
 
 	public DataAI(EntityNPCInterface npc) {
 		this.onAttack = 0;
@@ -78,6 +79,7 @@ implements INPCAi {
 		this.bodyOffsetX = 5.0f;
 		this.bodyOffsetY = 5.0f;
 		this.bodyOffsetZ = 5.0f;
+		this.stepheight = 0.6f;
 		this.walkingRange = 10;
 		this.moveSpeed = 5;
 		this.movingPath = new ArrayList<int[]>();
@@ -150,21 +152,12 @@ implements INPCAi {
 		if (size == 1) {
 			return list.get(0);
 		}
-		int pos = this.movingPos;
-		if (this.movingPattern == 0 && pos >= size) {
-			boolean movingPos = false;
-			this.movingPos = (movingPos ? 1 : 0);
-			pos = (movingPos ? 1 : 0);
-		}
-		if (this.movingPattern == 1) {
+		int pos = movingPos;
+		if(movingPattern == 0 && pos >= size) { pos = movingPos = 0; }
+		else if(movingPattern == 1) {
 			int size2 = size * 2 - 1;
-			if (pos >= size2) {
-				boolean movingPos2 = false;
-				this.movingPos = (movingPos2 ? 1 : 0);
-				pos = (movingPos2 ? 1 : 0);
-			} else if (pos >= size) {
-				pos = size2 - pos;
-			}
+			if(pos >= size2) { pos = movingPos = 0; }
+			else if(pos >= size) { pos = size2 - pos; }
 		}
 		return list.get(pos);
 	}
@@ -330,6 +323,7 @@ implements INPCAi {
 		this.bodyOffsetY = compound.getFloat("PositionOffsetY");
 		this.bodyOffsetZ = compound.getFloat("PositionOffsetZ");
 		this.bodyOffsetX = compound.getFloat("PositionOffsetX");
+		this.stepheight = compound.getFloat("StepHeight");
 		this.walkingRange = compound.getInteger("WalkingRange");
 		this.setWalkingSpeed(compound.getInteger("MoveSpeed"));
 		this.setMovingPath(NBTTags.getIntegerArraySet(compound.getTagList("MovingPathNew", 10)));
@@ -340,6 +334,7 @@ implements INPCAi {
 			int[] startPos = compound.getIntArray("StartPosNew");
 			this.startPos = new BlockPos(startPos[0], startPos[1], startPos[2]);
 		}
+		this.npc.stepHeight = this.stepheight;
 	}
 
 	@Override
@@ -543,6 +538,7 @@ implements INPCAi {
 		compound.setFloat("PositionOffsetX", this.bodyOffsetX);
 		compound.setFloat("PositionOffsetY", this.bodyOffsetY);
 		compound.setFloat("PositionOffsetZ", this.bodyOffsetZ);
+		compound.setFloat("StepHeight", this.stepheight);
 		compound.setInteger("WalkingRange", this.walkingRange);
 		compound.setInteger("MoveSpeed", this.moveSpeed);
 		compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(this.movingPath));

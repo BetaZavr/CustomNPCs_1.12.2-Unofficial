@@ -181,7 +181,7 @@ extends GuiScreen
 
 		private void func_148171_c(int p_148171_1_, int p_148171_2_, int p_148171_3_, int p_148171_4_) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(Gui.STAT_ICONS);
+			this.mc.renderEngine.bindTexture(Gui.STAT_ICONS);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);

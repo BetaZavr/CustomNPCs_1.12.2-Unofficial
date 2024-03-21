@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.collect.Lists;
 
@@ -38,7 +39,7 @@ public class PlayerDataController {
 		File dir = CustomNpcs.getWorldSaveDirectory("playerdata");
 		for (File playerDir : dir.listFiles()) {
 			// OLD
-			if (!playerDir.isDirectory() && CustomNpcs.FixUpdateFromPre_1_12 && playerDir.getName().endsWith(".json")) {
+			if (!playerDir.isDirectory() && playerDir.getName().endsWith(".json")) {
 				try {
 					NBTTagCompound nbt = NBTJsonUtil.LoadFile(playerDir);
 					String uuid = "nouuidplayer", name = "nonameplayer";
@@ -113,24 +114,36 @@ public class PlayerDataController {
 	}
 
 	public void addPlayerMessage(MinecraftServer server, String username, PlayerMail mail) {
-		mail.time = System.currentTimeMillis();
 		PlayerData data = this.getDataFromUsername(server, username);
-		data.mailData.playermail.add(mail.copy());
-		data.save(false);
+		if (data != null) {
+			data.mailData.addMail(mail);
+			data.save(false);
+		}
 	}
 
-	public PlayerData getDataFromUsername(MinecraftServer server, String username) {
-		EntityPlayer player = (EntityPlayer) server.getPlayerList().getPlayerByUsername(username);
+	public PlayerData getDataFromUsername(MinecraftServer server, String user_name_or_uuid) {
+		EntityPlayer player = (EntityPlayer) server.getPlayerList().getPlayerByUsername(user_name_or_uuid);
+		if (player == null) {
+			try { player = (EntityPlayer) server.getPlayerList().getPlayerByUUID(UUID.fromString(user_name_or_uuid)); }
+			catch (Exception e) { }
+		}
 		PlayerData data = null;
 		if (player == null) {
-			File playerDir = this.getPlayerDirectory(username);
+			File playerDir = this.getPlayerDirectory(user_name_or_uuid);
 			if (playerDir != null) {
 				data = new PlayerData();
-				File file = new File(playerDir, username + ".json");
-				try { data.setNBT(NBTJsonUtil.LoadFile(file)); }
-				catch (IOException | JsonException e) { e.printStackTrace(); }
-				data.uuid = playerDir.getName();
-				data.playername = username;
+				for (File f : playerDir.listFiles()) {
+					if (f.isFile() && f.getName().endsWith(".json")) {
+						try {
+							NBTTagCompound nbt = NBTJsonUtil.LoadFile(f);
+							if (nbt == null || !nbt.hasKey("GameData", 10)) { continue; }
+							data.setNBT(nbt);
+							data.uuid = playerDir.getName();
+							if (data.playername == null || data.playername.isEmpty()) { data.playername = f.getName().substring(0, f.getName().lastIndexOf(".")); }
+						}
+						catch (IOException | JsonException e) { e.printStackTrace(); }
+					}
+				}
 			}
 		}
 		else { data = PlayerData.get(player); }
@@ -140,11 +153,11 @@ public class PlayerDataController {
 	private File getPlayerDirectory(String user_name_or_uuid) {
 		for (File playerDir : CustomNpcs.getWorldSaveDirectory("playerdata").listFiles()) {
 			if (!playerDir.isDirectory()) { continue; }
-			if (playerDir.getName().equals(user_name_or_uuid)) {
+			if (playerDir.getName().equalsIgnoreCase(user_name_or_uuid)) {
 				return playerDir;
 			}
 			for (File file : playerDir.listFiles()) {
-				if (file.isFile() && file.getName().endsWith(".json") && file.getName().replace(".json", "").equals(user_name_or_uuid)) {
+				if (file.isFile() && file.getName().endsWith(".json") && file.getName().replace(".json", "").equalsIgnoreCase(user_name_or_uuid)) {
 					return playerDir;
 				}
 			}
@@ -170,7 +183,7 @@ public class PlayerDataController {
 
 	public String hasPlayer(String user_name_or_uuid) {
 		File playerDir = this.getPlayerDirectory(user_name_or_uuid);
-		if (playerDir==null) { return ""; }
+		if (playerDir == null) { return ""; }
 		return playerDir.getName();
 	}
 

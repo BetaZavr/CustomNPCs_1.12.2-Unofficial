@@ -259,7 +259,7 @@ implements INPCStats {
 
 	public void readToNBT(NBTTagCompound compound) {
 		this.resistances.readToNBT(compound.getCompoundTag("Resistances"));
-		if (compound.hasKey("MaxHealth", 3) && CustomNpcs.FixUpdateFromPre_1_12) { // Old
+		if (compound.hasKey("MaxHealth", 3)) { // Old
 			this.setMaxHealth(compound.getInteger("MaxHealth"));
 		}
 		else { this.setMaxHealth(compound.getDouble("MaxHealth")); }

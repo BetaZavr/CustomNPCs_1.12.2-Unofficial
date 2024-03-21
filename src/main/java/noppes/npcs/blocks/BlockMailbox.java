@@ -84,11 +84,9 @@ extends BlockInterface {
 		return false;
 	}
 
-	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
-			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (!par1World.isRemote) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, pos.getX(),
-					pos.getY(), pos.getZ());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, pos.getX(), pos.getY(), pos.getZ());
 		}
 		return true;
 	}

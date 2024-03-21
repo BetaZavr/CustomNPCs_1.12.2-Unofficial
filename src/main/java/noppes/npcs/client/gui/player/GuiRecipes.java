@@ -9,11 +9,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.client.gui.util.GuiButtonNextPage;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -25,7 +23,6 @@ import noppes.npcs.items.crafting.NpcShapedRecipes;
 @SideOnly(Side.CLIENT)
 public class GuiRecipes extends GuiNPCInterface {
 	
-	private static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private GuiNpcLabel label;
 	private GuiNpcButton left;
 	public boolean npcRecipes;
@@ -84,7 +81,7 @@ public class GuiRecipes extends GuiNPCInterface {
 	@Override
 	public void drawScreen(int xMouse, int yMouse, float f) {
 		super.drawScreen(xMouse, yMouse, f);
-		this.mc.renderEngine.bindTexture(GuiRecipes.resource);
+		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		this.label.setLabel(this.page + 1 + "/" + MathHelper.ceil(this.recipes.size() / 4.0f));
 		this.label.x = this.guiLeft
 				+ (256 - Minecraft.getMinecraft().fontRenderer.getStringWidth(this.label.label.get(0))) / 2;
@@ -104,7 +101,7 @@ public class GuiRecipes extends GuiNPCInterface {
 					y += (72 - recipe.recipeHeight * 18) / 2;
 					for (int j = 0; j < recipe.recipeWidth; ++j) {
 						for (int k = 0; k < recipe.recipeHeight; ++k) {
-							this.mc.renderEngine.bindTexture(GuiRecipes.resource);
+							this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 							GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 							this.drawTexturedModalRect(x + j * 18, y + k * 18, 0, 0, 18, 18);
 							ItemStack item = recipe.getCraftingItem(j + k * recipe.recipeWidth);

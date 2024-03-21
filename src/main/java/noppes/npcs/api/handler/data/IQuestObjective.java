@@ -66,5 +66,17 @@ public interface IQuestObjective {
 	String getOrientationEntityName();
 
 	void setOrientationEntityName(String name);
+
+	boolean isPartName();
+	
+	void setPartName(boolean isPart);
+	
+	boolean isAndTitle();
+	
+	void setAndTitle(boolean andTitle);
+	
+	boolean isNotShowLogEntity();
+	
+	void setNotShowLogEntity(boolean notShowLogEntity);
 	
 }

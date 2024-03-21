@@ -12,14 +12,13 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
-import noppes.npcs.client.gui.player.GuiQuestLog;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class InventoryTabQuests extends AbstractTab {
 	public InventoryTabQuests() {
 		super(0, 0, 0, new ItemStack(Items.BOOK));
-		this.displayString = NoppesStringUtils.translate("quest.quests") + " ("
-				+ GameSettings.getKeyDisplayString(ClientProxy.QuestLog.getKeyCode()) + ")";
+		this.displayString = NoppesStringUtils.translate("quest.quests") + " (" + GameSettings.getKeyDisplayString(ClientProxy.QuestLog.getKeyCode()) + ")";
 	}
 
 	@Override
@@ -99,7 +98,7 @@ public class InventoryTabQuests extends AbstractTab {
 	@Override
 	public void onTabClicked() {
 		CustomNPCsScheduler.runTack(() -> {
-			Minecraft.getMinecraft().displayGuiScreen(new GuiQuestLog());
+			Minecraft.getMinecraft().displayGuiScreen(new GuiLog(0));
 		});
 	}
 

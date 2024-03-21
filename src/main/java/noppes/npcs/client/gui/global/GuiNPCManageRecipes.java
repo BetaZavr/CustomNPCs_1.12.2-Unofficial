@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.data.INpcRecipe;
@@ -23,6 +22,7 @@ import noppes.npcs.client.gui.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
@@ -47,7 +47,6 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 	private List<String> dataRecipe;
 	private GuiCustomScroll groups;
 	private GuiCustomScroll recipes;
-	private ResourceLocation slot;
 	private boolean wait;
 
 	public GuiNPCManageRecipes(EntityNPCInterface npc, ContainerManageRecipes container) {
@@ -63,7 +62,6 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 		this.container = container;
 		this.drawDefaultBackground = false;
 		this.setBackground("inventorymenu.png");
-		this.slot = this.getResource("slot.png");
 		this.ySize = 200;
 		this.wait = true;
 		Client.sendData(EnumPacketServer.RecipesGet, container.width, ClientProxy.recipeGroup, ClientProxy.recipeName);
@@ -158,7 +156,7 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 		super.drawGuiContainerBackgroundLayer(f, x, y);
 
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.slot);
+		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		for (int i = 0; i < this.container.width; ++i) {
 			for (int j = 0; j < this.container.width; ++j) {
 				this.drawTexturedModalRect(this.guiLeft + i * 18 + 7, this.guiTop + j * 18 + 34, 0, 0, 18, 18);

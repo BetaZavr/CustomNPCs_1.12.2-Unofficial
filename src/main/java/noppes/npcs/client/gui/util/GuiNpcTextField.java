@@ -7,9 +7,12 @@ import net.minecraft.client.gui.GuiTextField;
 
 public class GuiNpcTextField
 extends GuiTextField {
+
+	public static char[] filePath = new char[] { ':', '*', '?', '"', '<', '>', '&', '|' };
 	
 	private static GuiNpcTextField activeTextfield = null;
-	private int[] allowedSpecialChars;
+	private int[] allowedSpecialKeys;
+	public char[] prohibitedSpecialChars;
 	public boolean enabled, inMenu, hovered;
 	protected boolean canEdit;
 	private boolean numbersOnly;
@@ -27,7 +30,8 @@ extends GuiTextField {
 		this.max = Integer.MAX_VALUE;
 		this.def = 0;
 		this.canEdit = true;
-		this.allowedSpecialChars = new int[] { 14, 211, 203, 205 };
+		this.allowedSpecialKeys = new int[] { 14, 211, 203, 205 };
+		this.prohibitedSpecialChars = new char[] {};
 		this.setMaxStringLength(500);
 		this.setText((text == null) ? "" : text);
 		if (parent instanceof ITextfieldListener) {
@@ -55,6 +59,9 @@ extends GuiTextField {
 	}
 	
 	private boolean charAllowed(char c, int i) {
+		for (char g : this.prohibitedSpecialChars) {
+			if (g == c) { return false; }
+		}
 		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().length() == 0)) {
 			return true;
 		}
@@ -63,10 +70,8 @@ extends GuiTextField {
 				|| (c == '.' && this.getText().indexOf(".") != -1)) {
 			return true;
 		}
-		for (int j : this.allowedSpecialChars) {
-			if (j == i) {
-				return true;
-			}
+		for (int j : this.allowedSpecialKeys) {
+			if (j == i) { return true; }
 		}
 		return false;
 	}

@@ -71,11 +71,8 @@ extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading forge scripts"));
 		}
-		if (ScriptController.Instance.loadClientScripts()) {
-			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
-		} else {
-			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
-		}
+		if (ScriptController.Instance.loadClientScripts()) { sender.sendMessage(new TextComponentString("Reload client scripts succesfully")); }
+		else { sender.sendMessage(new TextComponentString("Failed reloading client scripts")); }
 		if (ScriptController.Instance.loadPotionScripts()) {
 			sender.sendMessage(new TextComponentString("Reload potion scripts succesfully"));
 		} else {

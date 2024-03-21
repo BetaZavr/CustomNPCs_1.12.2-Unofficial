@@ -94,6 +94,7 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
 		this.renderLegs(par7);
+		if (!this.npc.animation.showParts.get(3)) { return; }
 		this.renderTails(par7);
 	}
 

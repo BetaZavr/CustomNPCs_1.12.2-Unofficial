@@ -23,6 +23,7 @@ import noppes.npcs.client.gui.SubGuiEditBankAccess;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcCheckBox;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -42,7 +43,6 @@ public class GuiNPCManageBanks
 extends GuiContainerNPCInterface2
 implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
-	private ResourceLocation slot = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	private Bank bank;
 	private ContainerManageBanks container;
 	private HashMap<String, Integer> data;
@@ -157,7 +157,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 			
 			int x = this.guiLeft + this.inventorySlots.getSlot(slotId).xPos;
 			int y = this.guiTop + this.inventorySlots.getSlot(slotId).yPos;
-			this.mc.renderEngine.bindTexture(this.slot);
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 		}
@@ -355,7 +355,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 
 	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data = data;
+		this.data.clear();
+		this.data.putAll(data);
 		this.scroll.setList(list);
 		this.isWait = false;
 	}

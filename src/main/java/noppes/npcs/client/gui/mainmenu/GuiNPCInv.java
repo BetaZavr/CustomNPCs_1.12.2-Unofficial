@@ -7,12 +7,12 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 
+import moe.plushie.armourers_workshop.api.ArmourersWorkshopClientApi;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.entity.data.ICustomDrop;
@@ -21,6 +21,7 @@ import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface2;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
+import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
@@ -28,6 +29,7 @@ import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCInv;
@@ -49,16 +51,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 	private DropsTemplate temp;
 	private int groupId;
 	private GuiCustomScroll scrollTemplate, scrollDrops;
-	private ResourceLocation slot;
 
 	public GuiNPCInv(EntityNPCInterface npc, ContainerNPCInv container) {
 		super(npc, container, 3);
-		// this.chances = new HashMap<Integer, Integer>(); Change
 		this.inventory = this.npc.inventory;
 		this.setBackground("npcinv.png");
 		this.container = container;
 		this.ySize = 200;
-		this.slot = this.getResource("slot.png");
 		this.groupId = 0;
 		Client.sendData(EnumPacketServer.MainmenuInvGet);
 	}
@@ -74,7 +73,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, 32767, 0);
-		this.addButton(new GuiNpcButton(10, this.guiLeft + 88, this.guiTop + 88, 80, 20, new String[] { "stats.normal", "inv.auto" }, this.inventory.lootMode ? 1 : 0)); // Changed
+		this.addButton(new GuiNpcButton(10, this.guiLeft + 107, this.guiTop + 88, 62, 20, new String[] { "stats.normal", "inv.auto" }, this.inventory.lootMode ? 1 : 0)); // Changed
 		this.addLabel(new GuiNpcLabel(2, "inv.npcInventory", this.guiLeft + 191, this.guiTop + 5));
 		this.addLabel(new GuiNpcLabel(3, "inv.inventory", this.guiLeft + 8, this.guiTop + 101));
 
@@ -238,10 +237,21 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		super.drawGuiContainerBackgroundLayer(f, i, j);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(this.slot);
-		for (int id = 4; id <= 6; ++id) {
+		for (int id = 4; id <= 8; ++id) {
 			Slot slot = this.container.getSlot(id);
-			if (slot.getHasStack()) {
+			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+			if (id > 6 && ArmourersWorkshopClientApi.getSkinRenderHandler() != null) {
+				this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 0, 0, 18, 18);
+				if (!slot.getHasStack()) {
+					this.mc.renderEngine.bindTexture(id == 7 ? ArmourersWorkshopUtil.getInstance().slotOutfit : ArmourersWorkshopUtil.getInstance().slotWings);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(this.guiLeft + slot.xPos, this.guiTop + slot.yPos, 0.0f);
+					GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);
+					this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+					GlStateManager.popMatrix();
+				}
+				continue;
+			} else if (slot.getHasStack()) {
 				this.drawTexturedModalRect(this.guiLeft + slot.xPos - 1, this.guiTop + slot.yPos - 1, 0, 0, 18, 18);
 			}
 		}

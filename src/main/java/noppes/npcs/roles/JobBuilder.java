@@ -61,9 +61,7 @@ implements IJobBuilder {
 	public void aiUpdateTask() {
 		if ((this.build.finished && this.placingList == null) || !this.build.enabled || this.build.isInvalid()) {
 			this.build = null;
-			this.npc.getNavigator().tryMoveToXYZ(this.npc.getStartXPos(), this.npc.getStartYPos(),
-					this.npc.getStartZPos(), 1.0);
-			this.npc.resetBackPos(); // New
+			this.npc.getNavigator().tryMoveToXYZ(this.npc.getStartXPos(), this.npc.getStartYPos(), this.npc.getStartZPos(), 1.0);
 			return;
 		}
 		if (this.ticks++ < 10) {
@@ -84,9 +82,7 @@ implements IJobBuilder {
 			this.tryTicks = 0;
 			this.npc.setJobData(this.blockToString(this.placing));
 		}
-		this.npc.getNavigator().tryMoveToXYZ(this.placing.pos.getX(), (this.placing.pos.getY() + 1),
-				this.placing.pos.getZ(), 1.0);
-		this.npc.resetBackPos(); // New
+		this.npc.getNavigator().tryMoveToXYZ(this.placing.pos.getX(), (this.placing.pos.getY() + 1), this.placing.pos.getZ(), 1.0);
 		if (this.tryTicks++ > 40 || this.npc.nearPosition(this.placing.pos)) {
 			BlockPos blockPos = this.placing.pos;
 			this.placeBlock();
@@ -124,7 +120,6 @@ implements IJobBuilder {
 			return;
 		}
 		this.npc.getNavigator().clearPath();
-		this.npc.resetBackPos(); // New
 		this.npc.swingArm(EnumHand.MAIN_HAND);
 		this.npc.world.setBlockState(this.placing.pos, this.placing.state, 2);
 		if (this.placing.state.getBlock() instanceof ITileEntityProvider && this.placing.tile != null) {

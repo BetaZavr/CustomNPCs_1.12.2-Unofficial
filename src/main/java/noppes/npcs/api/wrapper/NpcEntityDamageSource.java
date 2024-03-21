@@ -41,16 +41,20 @@ implements IEntityDamageSource
 		this.deadMessage = "";
 	}
 	
-	public ITextComponent getDeathMessage(EntityLivingBase entityLivingBaseIn) {
-        ITextComponent itextcomponent = this.indirectEntity == null ? this.damageSourceEntity.getDisplayName() : this.indirectEntity.getDisplayName();
-        ItemStack itemstack = this.indirectEntity instanceof EntityLivingBase ? ((EntityLivingBase)this.indirectEntity).getHeldItemMainhand() : ItemStack.EMPTY;
-		if (!this.deadMessage.isEmpty()) {
-			return new TextComponentTranslation(this.deadMessage, new Object[] {entityLivingBaseIn.getDisplayName(), itextcomponent, itemstack.getTextComponent()});
+	public ITextComponent getDeathMessage(EntityLivingBase entity) {
+        ITextComponent entitySourceName = this.indirectEntity == null ? this.damageSourceEntity.getDisplayName() : this.indirectEntity.getDisplayName();
+        ItemStack stack = this.indirectEntity instanceof EntityLivingBase ?
+        		((EntityLivingBase)this.indirectEntity).getHeldItemMainhand() :
+        			this.damageSourceEntity instanceof EntityLivingBase ?
+        	        ((EntityLivingBase)this.damageSourceEntity).getHeldItemMainhand() :
+        	        	ItemStack.EMPTY;
+        if (!this.deadMessage.isEmpty()) {
+			return new TextComponentTranslation(this.deadMessage, new Object[] { entity.getDisplayName(), entitySourceName, new TextComponentTranslation(this.damageType).getFormattedText(), stack.getTextComponent()});
 		}
         String s = "death.attack." + this.damageType;
         String s1 = s + ".item";
-        ITextComponent ts1 = new TextComponentTranslation(s1, new Object[] {entityLivingBaseIn.getDisplayName(), itextcomponent, itemstack.getTextComponent()});
-        return !itemstack.isEmpty() && itemstack.hasDisplayName() && ts1.getFormattedText().equals(s1) ? ts1 : new TextComponentTranslation(s, new Object[] {entityLivingBaseIn.getDisplayName(), itextcomponent});
+        ITextComponent ts1 = new TextComponentTranslation(s1, new Object[] { entity.getDisplayName(), entitySourceName, stack.getTextComponent()});
+        return !stack.isEmpty() && stack.hasDisplayName() && ts1.getFormattedText().equals(s1) ? ts1 : new TextComponentTranslation(s, new Object[] { entity.getDisplayName(), entitySourceName});
     }
 
 	@Override
@@ -61,7 +65,6 @@ implements IEntityDamageSource
 		if (damageType.isEmpty()) { damageType = "npcCustomDamage"; }
 		this.damageType = damageType;
 	}
-
 
 	@Override
 	public Entity getTrueSource() { return this.damageSourceEntity; }

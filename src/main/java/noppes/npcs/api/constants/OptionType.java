@@ -13,5 +13,12 @@ public enum OptionType {
 	OptionType(int t) { this.type= t; }
 	
 	public int get() { return this.type; }
+
+	public static OptionType get(int id) {
+		for (OptionType ot : OptionType.values()) {
+			if (ot.get() == id) { return ot; }
+		}
+		return DISABLED;
+	}
 	
 }

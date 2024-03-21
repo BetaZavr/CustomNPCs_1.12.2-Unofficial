@@ -49,7 +49,7 @@ public enum RoleType {
 	public static String[] getNames() {
 		List<String> list = Lists.newArrayList();
 		for (RoleType er : RoleType.values()) {
-			if (er==COMPANION) { list.add(NoppesStringUtils.translate("role."+er.name, "(WIP)")); }
+			if (er==COMPANION) { list.add(NoppesStringUtils.translate(er.name, " (WIP)")); }
 			else { list.add(er.name); }
 		}
 		return list.toArray(new String[list.size()]);

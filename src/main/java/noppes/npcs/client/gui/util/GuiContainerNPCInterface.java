@@ -18,6 +18,8 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -34,24 +36,28 @@ implements IEditNPC {
 	
 	public boolean closeOnEsc, drawDefaultBackground;
 	public int guiLeft, guiTop, mouseX, mouseY;
+	public float bgScale;
 	public String title;
 	public String[] hoverText;
 
+	public ResourceLocation background;
 	public EntityNPCInterface npc;
 	public EntityPlayerSP player;
 	public SubGuiInterface subgui;
 
 	private Poses[] ps;
-	private HashMap<Integer, GuiNpcLabel> labels;
-	private HashMap<Integer, GuiCustomScroll> scrolls;
-	private HashMap<Integer, GuiNpcSlider> sliders;
-	private HashMap<Integer, GuiNpcTextField> textfields;
-	private HashMap<Integer, GuiMenuTopButton> topbuttons;
-	private HashMap<Integer, GuiNpcButton> buttons;
+	private final List<IGui> components;
+	private final HashMap<Integer, GuiNpcLabel> labels;
+	private final HashMap<Integer, GuiCustomScroll> scrolls;
+	private final HashMap<Integer, GuiNpcSlider> sliders;
+	private final HashMap<Integer, GuiNpcTextField> textfields;
+	private final HashMap<Integer, GuiMenuTopButton> topbuttons;
+	private final HashMap<Integer, GuiNpcButton> buttons;
 
 	public GuiContainerNPCInterface(EntityNPCInterface npc, Container cont) {
 		super(cont);
 		this.drawDefaultBackground = false;
+		this.components = new ArrayList<IGui>();
 		this.buttons = new HashMap<Integer, GuiNpcButton>();
 		this.topbuttons = new HashMap<Integer, GuiMenuTopButton>();
 		this.textfields = new HashMap<Integer, GuiNpcTextField>();
@@ -66,6 +72,7 @@ implements IEditNPC {
 		this.itemRender = this.mc.getRenderItem();
 		this.fontRenderer = this.mc.fontRenderer;
 		// New
+		this.bgScale = 1.0f;
 		this.ps = new Poses[] { new Poses(this, 0), new Poses(this, 1), new Poses(this, 2), new Poses(this, 3),
 				new Poses(this, 4), new Poses(this, 5), new Poses(this, 6), new Poses(this, 7) };
 	}
@@ -78,7 +85,11 @@ implements IEditNPC {
 			this.buttonEvent((GuiNpcButton) guibutton);
 		}
 	}
-
+	
+	public void add(IGui gui) {
+		this.components.add(gui);
+	}
+	
 	public void addButton(GuiNpcButton button) {
 		this.buttons.put(button.id, button);
 		this.buttonList.add(button);
@@ -107,8 +118,7 @@ implements IEditNPC {
 		this.buttonList.add(button);
 	}
 
-	public void buttonEvent(GuiNpcButton guibutton) {
-	}
+	public void buttonEvent(GuiNpcButton button) { }
 	
 	public void close() {
 		GuiNpcTextField.unfocus();
@@ -128,6 +138,20 @@ implements IEditNPC {
 
 	public void drawDefaultBackground() {
 		if (this.drawDefaultBackground && this.subgui == null) {
+			if (this.background != null && this.mc.renderEngine != null) {
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+				GlStateManager.scale(this.bgScale, this.bgScale, this.bgScale);
+				this.mc.renderEngine.bindTexture(this.background);
+				if (this.xSize>252) {
+					this.drawTexturedModalRect(0, 0, 0, 0, 252, this.ySize);
+					int w = this.xSize-252;
+					this.drawTexturedModalRect(252, 0, 256-w, 0, w, this.ySize);
+				}
+				else { this.drawTexturedModalRect(0, 0, 0, 0, this.xSize,this.ySize); }
+				GlStateManager.popMatrix();
+			}
 			super.drawDefaultBackground();
 		}
 	}
@@ -138,6 +162,10 @@ implements IEditNPC {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);
 		}
 		boolean hasArea = false;
+		for (IGui comp : new ArrayList<IGui>(this.components)) {
+			comp.drawScreen(mouseX, mouseX);
+			if (comp instanceof GuiNpcTextArea) { hasArea = true; }
+		}
 		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 			tf.drawTextBox(mouseX, mouseY);
 			if (tf instanceof GuiNpcTextArea) { hasArea = true; }
@@ -149,53 +177,63 @@ implements IEditNPC {
 
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 	}
-
-	public void drawNpc(int x, int y) {
+	
+	public void drawNpc(int x, int y) { this.drawNpc(this.npc, x, y, 1.0f, 0, 0, 1); }
+			
+	public void drawNpc(Entity entity, int x, int y, float zoomed, int rotation, int vertical, int mouseFocus) {
+		EntityNPCInterface npc = null;
+		if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
+		if (!(entity instanceof EntityLivingBase)) { mouseFocus = 0; }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
 		GlStateManager.pushMatrix();
+		
 		GlStateManager.translate((this.guiLeft + x), (this.guiTop + y), 50.0f);
 		float scale = 1.0f;
-		if (this.npc.height > 2.4) {
-			scale = 2.0f / this.npc.height;
+		if (entity.height > 2.4) {
+			scale = 2.0f / entity.height;
 		}
-		GlStateManager.scale(-30.0f * scale, 30.0f * scale, 30.0f * scale);
+		GlStateManager.scale(-30.0f * scale * zoomed, 30.0f * scale * zoomed, 30.0f * scale * zoomed);
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-		float f2 = this.npc.renderYawOffset;
-		float f3 = this.npc.rotationYaw;
-		float f4 = this.npc.rotationPitch;
-		float f5 = this.npc.rotationYawHead;
-		float f6 = this.guiLeft + x - this.mouseX;
-		float f7 = this.guiTop + y - 50 - this.mouseY;
-		int orientation = 0;
-		if (this.npc != null) {
-			orientation = this.npc.ais.orientation;
-			this.npc.ais.orientation = 0;
-		}
-		GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
 		RenderHelper.enableStandardItemLighting();
-		GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
-		GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
-		this.npc.renderYawOffset = (float) (Math.atan(f6 / 40.0f) * 20.0f);
-		this.npc.rotationYaw = (float) (Math.atan(f6 / 40.0f) * 40.0f);
-		this.npc.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
-		this.npc.rotationYawHead = this.npc.rotationYaw;
-		this.mc.getRenderManager().playerViewY = 180.0f;
-		this.mc.getRenderManager().renderEntity(this.npc, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
-		this.npc.renderYawOffset = f2;
-		this.npc.rotationYaw = f3;
-		this.npc.rotationPitch = f4;
-		this.npc.rotationYawHead = f5;
-		if (this.npc != null) {
-			this.npc.ais.orientation = orientation;
+		float f2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).renderYawOffset : entity.rotationYaw;
+		float f3 = entity.rotationYaw;
+		float f4 = entity.rotationPitch;
+		float f5 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).rotationYawHead : entity.rotationYaw;
+		float f6 = mouseFocus==0 || mouseFocus==2 ? 0 : this.guiLeft + x - this.mouseX;
+		float f7 = mouseFocus==0 || mouseFocus==3 ? 0 : this.guiTop + y - 50.0f * scale * zoomed - this.mouseY;
+		int orientation = 0;
+		if (npc != null) {
+			orientation = npc.ais.orientation;
+			npc.ais.orientation = rotation;
 		}
+		GlStateManager.rotate((float) (-Math.atan(f6 / 400.0f) * 20.0f), 0.0f, 1.0f, 0.0f);
+		GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
+		if (entity instanceof EntityLivingBase) { ((EntityLivingBase) entity).renderYawOffset = rotation; }
+		entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + rotation);
+		entity.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
+		if (entity instanceof EntityLivingBase) { ((EntityLivingBase) entity).rotationYawHead = entity.rotationYaw; }
+		this.mc.getRenderManager().playerViewY = 180.0f;
+		if (mouseFocus != 0 && vertical!=0) {
+			GlStateManager.translate(0.0f, 1.0f - Math.cos((double) vertical * 3.14d / 180.0d), 0.0f);
+			GlStateManager.rotate(vertical, 1.0f, 0.0f, 0.0f);
+		}
+		this.mc.getRenderManager().renderEntity(entity, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
+		if (entity instanceof EntityLivingBase) { ((EntityLivingBase) entity).renderYawOffset = f2; }
+		if (entity instanceof EntityLivingBase) { ((EntityLivingBase) entity).prevRenderYawOffset = f2; }
+		entity.rotationYaw = f3;
+		entity.prevRotationYaw = f3;
+		entity.rotationPitch = f4;
+		entity.prevRotationPitch = f4;
+		if (entity instanceof EntityLivingBase) { ((EntityLivingBase) entity).rotationYawHead = f5; }
+		if (entity instanceof EntityLivingBase) { ((EntityLivingBase) entity).prevRotationYawHead = f5; }
+		if (npc != null) { npc.ais.orientation = orientation; }
 		GlStateManager.popMatrix();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -227,7 +265,7 @@ implements IEditNPC {
 		int pos_0 = (int) Math.floor((double) (this.player.world.getTotalWorldTime() % 16) / 2.0d);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(GuiContainerNPCInterface.ball);
+		this.mc.renderEngine.bindTexture(GuiContainerNPCInterface.ball);
 		this.drawTexturedModalRect(this.ps[pos_0].x - 1, this.ps[pos_0].y - 1, 0, 12, 6, 6);
 		int pos_1 = pos_0 - 1;
 		if (pos_1 < 0) {
@@ -242,6 +280,15 @@ implements IEditNPC {
 		GlStateManager.popMatrix();
 	}
 
+	public IGui get(int id) {
+		for (IGui comp : this.components) {
+			if (comp.getId() == id) {
+				return comp;
+			}
+		}
+		return null;
+	}
+	
 	public GuiNpcButton getButton(int i) {
 		return this.buttons.get(i);
 	}
@@ -289,6 +336,7 @@ implements IEditNPC {
 	public void initGui() {
 		super.initGui();
 		GuiNpcTextField.unfocus();
+		this.components.clear();
 		this.buttonList.clear();
 		this.buttons.clear();
 		this.topbuttons.clear();
@@ -306,7 +354,10 @@ implements IEditNPC {
 		this.guiTop = (this.height - this.ySize) / 2;
 	}
 
-	public void initPacket() {
+	public void initPacket() { }
+
+	public boolean isInventoryKey(int i) {
+		return i == this.mc.gameSettings.keyBindInventory.getKeyCode();
 	}
 
 	// New
@@ -335,22 +386,22 @@ implements IEditNPC {
 		}
 	}
 
-	protected void mouseClicked(int i, int j, int k) throws IOException {
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		if (this.subgui != null) {
-			this.subgui.mouseClicked(i, j, k);
+			this.subgui.mouseClicked(mouseX, mouseY, mouseButton);
 		} else {
 			for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 				if (tf.enabled) {
-					tf.mouseClicked(i, j, k);
+					tf.mouseClicked(mouseX, mouseY, mouseButton);
 				}
 			}
-			if (k == 0) {
+			if (mouseButton == 0) {
 				for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-					scroll.mouseClicked(i, j, k);
+					scroll.mouseClicked(mouseX, mouseY, mouseButton);
 				}
 			}
-			this.mouseEvent(i, j, k);
-			super.mouseClicked(i, j, k);
+			this.mouseEvent(mouseX, mouseY, mouseButton);
+			try { super.mouseClicked(mouseX, mouseY, mouseButton); } catch (Exception e) { e.printStackTrace(); }
 		}
 	}
 
@@ -358,7 +409,11 @@ implements IEditNPC {
 	}
 
 	public abstract void save();
-
+	
+	public void setBackground(String texture) {
+		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
+	}
+	
 	public void setHoverText(String text) {
 		List<String> list = new ArrayList<String>();
 		if (text.indexOf("%")==-1) { text = new TextComponentTranslation(text).getFormattedText(); }

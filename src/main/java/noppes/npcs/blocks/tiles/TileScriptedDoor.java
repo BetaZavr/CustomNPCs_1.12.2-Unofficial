@@ -130,7 +130,10 @@ implements ITickable, IScriptBlockHandler {
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (!type.equalsIgnoreCase("init")) { EventHooks.onScriptBlockInit(this); }
+			if (!type.equalsIgnoreCase("init")) {
+				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
+				EventHooks.onScriptBlockInit(this);
+			}
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());
