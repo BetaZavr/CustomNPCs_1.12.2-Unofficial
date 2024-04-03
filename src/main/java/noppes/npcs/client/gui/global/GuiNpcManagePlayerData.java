@@ -393,7 +393,7 @@ implements ISubGuiListener, IScrollData, ICustomScrollListener, GuiYesNoCallback
 				for (String str : this.data.keySet()) {
 					if (this.search.isEmpty() || str.toLowerCase().contains(this.search)) {
 						String[] l = str.split(";");
-						String key = l[0]+((char) 167)+"7 (ID:"+this.data.get(str)+")";
+						String key = new TextComponentTranslation(l[0]).getFormattedText()+((char) 167)+"7 (ID:"+this.data.get(str)+")";
 						list.add(key);
 						int value = -1;
 						try { value = Integer.parseInt(l[1]); } catch (Exception e) {}

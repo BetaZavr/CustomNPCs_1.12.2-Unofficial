@@ -242,7 +242,7 @@ public class ArmourersWorkshopUtil {
 			rotationAngle = ap.getDeclaredField("rotationAngle");
 			
 		}
-		catch (Exception e) { e.printStackTrace(); }
+		catch (Exception e) { }
 	}
 	
 	public static ArmourersWorkshopUtil getInstance() {

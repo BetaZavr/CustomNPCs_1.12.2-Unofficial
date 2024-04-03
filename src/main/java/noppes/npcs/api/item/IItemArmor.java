@@ -7,4 +7,8 @@ extends IItemStack {
 
 	int getArmorSlot();
 	
+	float getToughness();
+	
+	int getArmorValue();
+
 }

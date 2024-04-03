@@ -281,15 +281,12 @@ public class NoppesUtilServer {
 		playerdata.dialogId = dialog.id;
 		if (npc instanceof EntityDialogNpc || dia.id < 0) {
 			dialog.hideNPC = true;
-			Server.sendDataDelayed((EntityPlayerMP) player, EnumPacketClient.DIALOG_DUMMY, 100, npc.getName(),
-					dialog.writeToNBT(new NBTTagCompound()));
+			Server.sendDataDelayed((EntityPlayerMP) player, EnumPacketClient.DIALOG_DUMMY, 100, npc.getName(), dialog.writeToNBT(new NBTTagCompound()));
 		} else {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.DIALOG, npc.getEntityId(), dialog.id);
 		}
 		dia.factionOptions.addPoints(player);
-		if (dialog.hasQuest()) {
-			PlayerQuestController.addActiveQuest(dialog.getQuest(), player);
-		}
+		if (dialog.hasQuest()) { PlayerQuestController.addActiveQuest(dialog.getQuest(), player); }
 		if (!dialog.command.isEmpty()) {
 			runCommand(npc, npc.getName(), dialog.command, player);
 		}
@@ -304,9 +301,7 @@ public class NoppesUtilServer {
 		setEditingNpc(player, npc);
 		for (QuestData qdata : playerdata.questData.activeQuests.values()) { // Changed
 			for (IQuestObjective obj : qdata.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-				if (obj.getType() != EnumQuestTask.DIALOG.ordinal()) {
-					continue;
-				}
+				if (obj.getType() != EnumQuestTask.DIALOG.ordinal()) { continue; }
 				playerdata.questData.checkQuestCompletion(player, qdata);
 			}
 		}
@@ -555,9 +550,7 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendOpenGui(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc, int x, int y, int z) {
-		if (!(player instanceof EntityPlayerMP)) {
-			return;
-		}
+		if (!(player instanceof EntityPlayerMP)) { return; }
 		setEditingNpc(player, npc);
 		sendExtraData(player, npc, gui, x, y, z);
 		CustomNPCsScheduler.runTack(() -> {
@@ -568,7 +561,7 @@ public class NoppesUtilServer {
 				Map<String, Integer> map = getScrollData(player, gui, npc);
 				sendScrollData((EntityPlayerMP) player, map);
 			}
-		}, 200);
+		}, 100);
 	}
 
 	public static void sendPlayerData(EnumPlayerData type, EntityPlayerMP player, String name) {

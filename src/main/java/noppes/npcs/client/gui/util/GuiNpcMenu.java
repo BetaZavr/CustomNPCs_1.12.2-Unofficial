@@ -14,6 +14,7 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNpcMenu
@@ -91,12 +92,8 @@ implements GuiYesNoCallback {
 
 	private void save() {
 		GuiNpcTextField.unfocus();
-		if (this.parent instanceof GuiContainerNPCInterface2) {
-			((GuiContainerNPCInterface2) this.parent).save();
-		}
-		if (this.parent instanceof GuiNPCInterface2) {
-			((GuiNPCInterface2) this.parent).save();
-		}
+		if (this.parent instanceof GuiContainerNPCInterface2) { ((GuiContainerNPCInterface2) this.parent).save(); }
+		if (this.parent instanceof GuiNPCInterface2) { ((GuiNPCInterface2) this.parent).save(); }
 	}
 
 	public void topButtonPressed(GuiMenuTopButton button) {
@@ -114,24 +111,23 @@ implements GuiYesNoCallback {
 			return;
 		}
 		this.save();
+		PlayerData.get(mc.player).editingNpc = npc;
 		if (id == 1) {
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuDisplay);
 		} else if (id == 2) {
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuStats);
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuStats);
 		} else if (id == 3) {
 			NoppesUtil.requestOpenGUI(EnumGuiType.MainMenuInv);
 		} else if (id == 4) {
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
 		} else if (id == 5) {
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuGlobal);
 		} else if (id == 6) {
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAI);
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAI);
 		}
 		this.activeMenu = id;
 	}
 
-	public GuiMenuTopButton[] getTopButtons() {
-		return topButtons;
-	}
+	public GuiMenuTopButton[] getTopButtons() { return topButtons; }
 
 }

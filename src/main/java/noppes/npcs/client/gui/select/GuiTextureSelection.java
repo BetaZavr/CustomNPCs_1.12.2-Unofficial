@@ -218,7 +218,6 @@ implements ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
-		System.out.println("CNPCs: "+npc);
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 264, this.guiTop + 190, 90, 20, "gui.cancel"));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 264, this.guiTop + 170, 90, 20, "gui.done"));
 		GuiNpcCheckBox cBox = new GuiNpcCheckBox(3, this.guiLeft + 256, this.guiTop + 2, 15, 15, "");

@@ -65,12 +65,10 @@ public class ItemNpcWand extends Item implements IPermission {
 		} else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {
 			EntityCustomNpc npc = new EntityCustomNpc(world);
 			npc.ais.setStartPos(bpos.up());
-			npc.setLocationAndAngles((bpos.getX() + 0.5f), npc.getStartYPos(), (bpos.getZ() + 0.5f), player.rotationYaw,
-					player.rotationPitch);
+			npc.setLocationAndAngles((bpos.getX() + 0.5f), npc.getStartYPos(), (bpos.getZ() + 0.5f), player.rotationYaw, player.rotationPitch);
 			world.spawnEntity(npc);
 			npc.setHealth(npc.getMaxHealth());
-			CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc),
-					100);
+			CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc), 100);
 		} else {
 			player.sendMessage(new TextComponentTranslation("availability.permission", new Object[0]));
 		}

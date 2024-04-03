@@ -8,6 +8,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -17,12 +18,9 @@ extends GuiContainerNPCInterface {
 	protected ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	protected ResourceLocation defaultBackground = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 	private GuiNpcMenu menu;
-	
 	public int menuYOffset;
 
-	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont) {
-		this(npc, cont, -1);
-	}
+	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont) { this(npc, cont, -1); }
 
 	public GuiContainerNPCInterface2(EntityNPCInterface npc, Container cont, int activeMenu) {
 		super(npc, cont);
@@ -145,9 +143,7 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	public ResourceLocation getResource(String texture) {
-		return new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
-	}
+	public ResourceLocation getResource(String texture) { return new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture); }
 
 	@Override
 	public void initGui() {
@@ -156,20 +152,16 @@ extends GuiContainerNPCInterface {
 	}
 
 	@Override
-	protected void mouseClicked(int i, int j, int k) throws IOException {
-		super.mouseClicked(i, j, k);
-		if (!this.hasSubGui()) {
-			this.menu.mouseClicked(i, j, k);
-		}
+	protected void mouseClicked(int mouseX, int mouseY, int mouseBottom) throws IOException {
+		if (!this.hasSubGui()) { this.menu.mouseClicked(mouseX, mouseY, mouseBottom); }
+		super.mouseClicked(mouseX, mouseY, mouseBottom);
 	}
 
-	public void setBackground(String texture) {
-		this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
-	}
+	public void setBackground(String texture) { this.background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture); }
 
 	@Override
 	public void close() {
-		if (menu.activeMenu > 1) {
+		if (menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
 		}

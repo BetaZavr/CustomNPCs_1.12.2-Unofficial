@@ -276,7 +276,7 @@ public class ServerEventsHandler {
 				return;
 			}
 			String s = compound.getString("id");
-			if (s.equals("minecraft:" + CustomNpcs.MODID + ".customnpc") || s.equals("minecraft:" + CustomNpcs.MODID + ":customnpc")) {
+			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
 				compound.setString("id", CustomNpcs.MODID + ":customnpc");
 			}
 			PlayerData data = PlayerData.get(event.getEntityPlayer());

@@ -1,6 +1,8 @@
 package noppes.npcs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +23,9 @@ import net.minecraft.command.ICommand;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.server.SPacketScoreboardObjective;
 import net.minecraft.network.play.server.SPacketUpdateScore;
 import net.minecraft.scoreboard.ScoreObjective;
@@ -95,6 +100,7 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.PlayerDataController;
+import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.ScriptController;
@@ -232,8 +238,6 @@ public class CustomNpcs {
 	public static boolean NpcSpeachTriggersChatEvent = false;
 	@ConfigProp(info = "Show faction, quest and compass tabs in player inventory")
 	public static boolean InventoryGuiEnabled = true;
-	@ConfigProp(info = "Used only when migrating from older versions of modification 1.12.2 and lower")
-	public static boolean FixUpdateFromPre_1_12 = true;
 	@ConfigProp(info = "Summon a new NPC with random custom eyes")
 	public static boolean EnableDefaultEyes = true;
 	@ConfigProp(info = "Time in real days when the letter will be deleted from the player (-1 = never, at least 1 day, max 60)")
@@ -252,6 +256,8 @@ public class CustomNpcs {
 	public static int dialogShowFitsSpeed = 30;
 	@ConfigProp(info = "123456")
 	public static int colorAnimHoverPart = 0xFA7800;
+	@ConfigProp(info = "When a player's dimension changes, their home position will change to portal position")
+	public static boolean setPlayerHomeWhenChangingDimension = true;
 	
 	public static String MODID = "customnpcs";
 	public static FMLEventChannel Channel;
@@ -398,7 +404,6 @@ public class CustomNpcs {
 		else if (mailCostSendingLetter[4] > 500) { mailCostSendingLetter[4] = 500; }
 		if (dialogShowFitsSpeed < 10) { dialogShowFitsSpeed = 10; }
 		else if (dialogShowFitsSpeed > 100) { dialogShowFitsSpeed = 100; }
-		CustomNpcs.proxy.postload();
 		
 		new AdditionalMethods();
 		for (ModContainer mod : Loader.instance().getModList()) {
@@ -408,6 +413,8 @@ public class CustomNpcs {
 		forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
 		forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
 		forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
+		
+		CustomNpcs.proxy.postload();
 		LogWriter.info("Mod loaded ^_^ Have a good game!");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_postload");
 	}
@@ -451,6 +458,7 @@ public class CustomNpcs {
 			});
 		}
 		DimensionHandler.getInstance().loadDimensions();
+		
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_serverstart");
 	}
 
@@ -470,7 +478,8 @@ public class CustomNpcs {
 		new GlobalDataController();
 		new SpawnController();
 		new LinkedNpcController();
-		new MassBlockController();;
+		new MassBlockController();
+		new PlayerSkinController();
 		new VisibilityController();
 		WrapperNpcAPI.clearCache();
 		Set<ResourceLocation> names = Block.REGISTRY.getKeys();
@@ -486,6 +495,29 @@ public class CustomNpcs {
 				block.setTickRandomly(CustomNpcs.IceMeltsEnabled);
 			}
 		}
+		// Remove old Entities
+		File level = new File(getWorldSaveDirectory().getParentFile(), "level.dat");
+		if (level.exists()) {
+			try {
+				NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(level));
+				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities").getTagList("ids", 10);
+				NBTTagList newList = new NBTTagList();
+				boolean resave = false;
+				for (int i = 0; i < list.tagCount(); i++) {
+					String name = list.getCompoundTagAt(i).getString("K");
+					if (name.indexOf("minecraft:customnpcs.") == 0) {
+						resave = true;
+						continue;
+					}
+					newList.appendTag(list.getCompoundTagAt(i));
+				}
+				if (resave) {
+					nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities").setTag("ids", newList);
+					CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(level));
+				}
+			} catch (Exception e) { e.printStackTrace(); }
+		}
+		
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_setAboutToStart");
 	}
 
@@ -504,6 +536,7 @@ public class CustomNpcs {
 	@Mod.EventHandler
 	public void stopped(FMLServerStoppedEvent event) {
 		ServerCloneController.Instance = null;
+		PlayerSkinController.getInstance().save();
 		MarcetController.getInstance().saveMarcets();
 		RecipeController.getInstance().save();
 		AnimationController.getInstance().save();

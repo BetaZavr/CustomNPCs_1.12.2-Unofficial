@@ -19,6 +19,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.SubGuiEditBankAccess;
@@ -299,12 +300,12 @@ extends GuiContainerNPCInterface {
 		if (this.isWait) { return; }
 		if (button.id > 2 && button.id < 8) {
 			this.close();
-			Client.sendDataDelayCheck(EnumPlayerPacket.OpenCeilBank, this, 0, this.cont.bank.id, ((GuiMenuLeftButton) button).data);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenCeilBank, this.cont.bank.id, ((GuiMenuLeftButton) button).data);
 			return;
 		}
 		switch(button.id) {
 			case 0: {
-				Client.sendDataDelayCheck(this.update ? EnumPlayerPacket.BankUpgrade : EnumPlayerPacket.BankUnlock, this, 0, this.npc.getEntityId());
+				NoppesUtilPlayer.sendData(this.update ? EnumPlayerPacket.BankUpgrade : EnumPlayerPacket.BankUnlock, this.npc.getEntityId());
 				this.isWait = true;
 				break;
 			}
@@ -326,22 +327,22 @@ extends GuiContainerNPCInterface {
 				break;
 			}
 			case 10: { // clear stacks
-				Client.sendDataDelayCheck(EnumPlayerPacket.BankClearCeil, this, 0, this.npc.getEntityId());
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.BankClearCeil, this.npc.getEntityId());
 				this.isWait = true;
 				break;
 			}
 			case 11: { // lock
-				Client.sendDataDelayCheck(EnumPlayerPacket.Banklock, this, 0, this.npc.getEntityId());
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.Banklock, this.npc.getEntityId());
 				this.isWait = true;
 				break;
 			}
 			case 12: { // regrade
-				Client.sendDataDelayCheck(EnumPlayerPacket.BankRegrade, this, 0, this.npc.getEntityId());
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.BankRegrade, this.npc.getEntityId());
 				this.isWait = true;
 				break;
 			}
 			case 13: { // reset
-				Client.sendDataDelayCheck(EnumPlayerPacket.BankResetCeil, this, 0, this.npc.getEntityId());
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.BankResetCeil, this.npc.getEntityId());
 				this.isWait = true;
 				break;
 			}
@@ -463,7 +464,7 @@ extends GuiContainerNPCInterface {
 				this.cont.bank.writeToNBT(compound);
 				this.isWait = true;
 				Client.sendData(EnumPacketServer.BankSave, compound);
-				Client.sendDataDelayCheck(EnumPlayerPacket.OpenCeilBank, this, 0, this.cont.bank.id, this.cont.ceil);
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenCeilBank, this.cont.bank.id, this.cont.ceil);
 			}
 		}
 	}

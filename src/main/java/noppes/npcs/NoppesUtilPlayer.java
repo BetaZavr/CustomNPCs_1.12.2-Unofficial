@@ -174,9 +174,7 @@ public class NoppesUtilPlayer {
 		PlayerData data = PlayerData.get(player);
 		Dialog dialog = DialogController.instance.dialogs.get(data.dialogId);
 		EventHooks.onNPCDialogClose(npc, player, dialog);
-		if (notifyClient) {
-			Server.sendData(player, EnumPacketClient.GUI_CLOSE, -1, new NBTTagCompound());
-		}
+		if (notifyClient) { Server.sendData(player, EnumPacketClient.GUI_CLOSE, -1, new NBTTagCompound()); }
 		data.dialogId = -1;
 	}
 
@@ -471,19 +469,14 @@ public class NoppesUtilPlayer {
 	}
 
 	public static void sendDataCheakDelay(EnumPlayerPacket enu, Object key, long time, Object... obs) {
-		if (NoppesUtilPlayer.delaySendMap.containsKey(key)
-				&& NoppesUtilPlayer.delaySendMap.get(key) > System.currentTimeMillis()) {
+		if (NoppesUtilPlayer.delaySendMap.containsKey(key) && NoppesUtilPlayer.delaySendMap.get(key) > System.currentTimeMillis()) {
 			return;
 		}
 		List<Object> del = new ArrayList<Object>();
 		for (Object k : NoppesUtilPlayer.delaySendMap.keySet()) {
-			if (NoppesUtilPlayer.delaySendMap.get(k) <= System.currentTimeMillis()) {
-				del.add(k);
-			}
+			if (NoppesUtilPlayer.delaySendMap.get(k) <= System.currentTimeMillis()) { del.add(k); }
 		}
-		for (Object k : del) {
-			NoppesUtilPlayer.delaySendMap.remove(k);
-		}
+		for (Object k : del) { NoppesUtilPlayer.delaySendMap.remove(k); }
 		NoppesUtilPlayer.delaySendMap.put(key, time + System.currentTimeMillis());
 		NoppesUtilPlayer.sendData(enu, obs);
 	}

@@ -27,13 +27,14 @@ import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiComponentWrapper;
+import noppes.npcs.api.wrapper.gui.CustomGuiEntityWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiLabelWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiScrollWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiTextFieldWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.custom.components.CustomGuiButton;
+import noppes.npcs.client.gui.custom.components.CustomGuiEntity;
 import noppes.npcs.client.gui.custom.components.CustomGuiLabel;
 import noppes.npcs.client.gui.custom.components.CustomGuiScrollComponent;
 import noppes.npcs.client.gui.custom.components.CustomGuiTextField;
@@ -69,15 +70,15 @@ implements ICustomScrollListener, IGuiData {
 
 	public GuiCustom(ContainerCustomGui container) {
 		super((Container) container);
-		this.components = new HashMap<Integer, IGuiComponent>();
-		this.clickListeners = new ArrayList<IClickListener>();
-		this.keyListeners = new ArrayList<ICustomKeyListener>();
-		this.dataHolders = new ArrayList<IDataHolder>();
-		this.stretched = 0;
-		this.bgW = 0;
-		this.bgH = 0;
-		this.bgTx = 256;
-		this.bgTy = 256;
+		components = new HashMap<Integer, IGuiComponent>();
+		clickListeners = new ArrayList<IClickListener>();
+		keyListeners = new ArrayList<ICustomKeyListener>();
+		dataHolders = new ArrayList<IDataHolder>();
+		stretched = 0;
+		bgW = 0;
+		bgH = 0;
+		bgTx = 256;
+		bgTy = 256;
 	}
 
 	protected void actionPerformed(GuiButton button) throws IOException {
@@ -128,6 +129,12 @@ implements ICustomScrollListener, IGuiData {
 				this.components.put(scroll.getId(), scroll);
 				this.addDataHolder(scroll);
 				this.addClickListener(scroll);
+				break;
+			}
+			case 7: {
+				CustomGuiEntity entt = CustomGuiEntity.fromComponent((CustomGuiEntityWrapper) component);
+				entt.setParent(this);
+				this.components.put(entt.getId(), entt);
 				break;
 			}
 		}
@@ -286,7 +293,7 @@ implements ICustomScrollListener, IGuiData {
 	}
 
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		Client.sendDataDelayCheck(EnumPlayerPacket.CustomGuiKeyPressed, this, 0, keyCode);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.CustomGuiKeyPressed, keyCode);
 		for (ICustomKeyListener listener : this.keyListeners) {
 			listener.keyTyped(typedChar, keyCode);
 		}

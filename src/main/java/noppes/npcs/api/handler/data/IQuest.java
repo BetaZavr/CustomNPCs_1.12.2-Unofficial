@@ -70,4 +70,12 @@ public interface IQuest {
 
 	ICustomNpc<?> getCompleterNpc();
 	
+	int getExtraButton();
+	
+	void setExtraButton(int type);
+	
+	String getExtraButtonText();
+	
+	void setExtraButtonText(String hover);
+
 }

@@ -262,9 +262,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		}
 	}
 
-	public void close() {
-		super.close();
-	}
+	public void close() { super.close(); }
 
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI((EntityPlayer) this.player, this);

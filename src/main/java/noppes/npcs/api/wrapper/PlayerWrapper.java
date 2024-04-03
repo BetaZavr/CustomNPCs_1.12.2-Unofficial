@@ -48,7 +48,6 @@ import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -61,6 +60,7 @@ import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.PlayerQuestController;
+import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.data.Availability;
@@ -723,7 +723,7 @@ implements IPlayer {
 	public void sendTo(INbt nbt) {
 		CustomNPCsScheduler.runTack(() -> {
 			if (this.entity instanceof EntityPlayerMP) { Server.sendData((EntityPlayerMP) this.entity, EnumPacketClient.SCRIPT_PACKAGE, nbt.getMCNBT()); }
-			else { Client.sendDataDelayCheck(EnumPlayerPacket.ScriptPackage, this.entity, 0, nbt.getMCNBT()); }
+			else { NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptPackage, nbt.getMCNBT()); }
 		}, 10);
 	}
 
@@ -765,6 +765,21 @@ implements IPlayer {
 	public void startRiding(IEntity<?> e) {
 		if (e == null) { return; }
 		this.entity.startRiding(e.getMCEntity(), true);
+	}
+
+	@Override
+	public String getSkinType(int type) {
+		return PlayerSkinController.getInstance().get((EntityPlayerMP) entity, type);
+	}
+
+	@Override
+	public void setSkinType(String location, int type) {
+		PlayerSkinController.getInstance().set((EntityPlayerMP) entity, location, type);
+	}
+	
+	@Override
+	public void setSkin(boolean isSmallArms, int body, int bodyColor, int hair, int hairColor, int face, int eyesColor, int leg, int jacket, int shoes, int ... peculiarities) {
+		PlayerSkinController.getInstance().set((EntityPlayerMP) entity, isSmallArms, body, bodyColor, hair, hairColor, face, eyesColor, leg, jacket, shoes, peculiarities);
 	}
 	
 }

@@ -94,7 +94,7 @@ implements INPCMelee {
 
 	@Override
 	public void setRange(double range) {
-		this.attackRange = ValueUtil.correctDouble(range, 1.0d, 30.0d);
+		this.attackRange = ValueUtil.correctDouble(range, 0.2d, 30.0d);
 	}
 
 	@Override

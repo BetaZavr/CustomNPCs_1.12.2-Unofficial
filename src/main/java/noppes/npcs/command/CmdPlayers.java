@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerNotFoundException;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -31,7 +31,7 @@ public class CmdPlayers extends CommandNoppesBase {
 	
 	@SubCommand(desc = "Shows the player's virtual currency balance", usage = "<playername>")
 	public void getmoney(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		Object[] objs = this.getPlayerData(server, args[0]);
+		Object[] objs = this.getPlayerData(server, sender, args[0]);
 		PlayerData playerdata = (PlayerData) objs[0];
 		boolean isOnline = objs[1] != null;
 		if (playerdata==null) {
@@ -42,34 +42,29 @@ public class CmdPlayers extends CommandNoppesBase {
 
 	@SubCommand(desc = "Change the player's virtual currency balance", usage = "<playername> <value>")
 	public void addmoney(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		Object[] objs = this.getPlayerData(server, args[0]);
+		Object[] objs = this.getPlayerData(server, sender, args[0]);
 		PlayerData playerdata = (PlayerData) objs[0];
 		boolean isOnline = objs[1] != null;
 		if (playerdata==null) {
-			throw new PlayerNotFoundException("commands.generic.player.notFound", new Object[] {args[0]});
+			throw new PlayerNotFoundException("commands.generic.player.notFound", args[0]);
 		}
 		try {
 			long money = Long.parseLong(args[1]);
 			playerdata.game.addMoney(money);
-			sender.sendMessage(new TextComponentTranslation("command.player."+(money>=0 ? "add" : "del")+"money", playerdata.playername, ""+money, ""+playerdata.game.getMoney(), ""+CustomNpcs.charCurrencies.charAt(0)).appendSibling(new TextComponentTranslation(isOnline ? "gui.online" : "gui.offline")));
+			sender.sendMessage(new TextComponentTranslation("command.player."+(money>=0 ? "add" : "del")+"money", playerdata.playername, ""+money, ""+playerdata.game.getMoney(), CustomNpcs.charCurrencies).appendSibling(new TextComponentTranslation(isOnline ? "gui.online" : "gui.offline")));
 		}
-		catch (Exception e) {
-			
-		}
+		catch (Exception e) { }
 	}
 	
-	private Object[] getPlayerData(MinecraftServer server, String playername) {
-		EntityPlayer pl = null;
-		for (EntityPlayerMP entityplayermp : server.getPlayerList().getPlayers()) {
-            if (entityplayermp.getName().equalsIgnoreCase(playername)) {
-            	pl = entityplayermp;
-            	break;
-            }
-        }
+	private Object[] getPlayerData(MinecraftServer server, ICommandSender sender, String playername) {
+		
+		EntityPlayerMP player = null;
+		try { player = CommandBase.getPlayer(server, sender, playername); }
+		catch (Exception e) { e.printStackTrace(); }
 		PlayerData playerdata = null;
-		if (pl != null) { playerdata = PlayerData.get(pl); }
+		if (player != null) { playerdata = PlayerData.get(player); }
 		else { playerdata = PlayerDataController.instance.getDataFromUsername(server, playername); }
-		return new Object[] { playerdata, pl};
+		return new Object[] { playerdata, player };
 	}
 	
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {

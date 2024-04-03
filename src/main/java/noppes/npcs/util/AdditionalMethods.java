@@ -22,8 +22,19 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
+import org.apache.commons.codec.binary.Base64;
+
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
+import com.mojang.util.UUIDTypeAdapter;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -72,6 +83,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -98,6 +110,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.recipebook.GuiNpcButtonRecipeTab;
 import noppes.npcs.client.gui.recipebook.GuiNpcRecipeBook;
+import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.containers.SlotNpcCrafting;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
@@ -105,6 +118,7 @@ import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class AdditionalMethods
@@ -1481,19 +1495,103 @@ implements IMetods {
 		return null;
 	}
 
-	public static EntityNPCInterface setToGUI(EntityNPCInterface npc) {
+	public static EntityNPCInterface copyToGUI(EntityNPCInterface npcParent, World world, boolean copyRotation) {
+		NBTTagCompound npcNbt = new NBTTagCompound();
+		if (npcParent == null) {
+			npcParent = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
+		}
+		npcParent.writeEntityToNBT(npcNbt);
+		npcParent.writeToNBTOptional(npcNbt);
+		Entity entity = EntityList.createEntityFromNBT(npcNbt, world);
+		if (!(entity instanceof EntityNPCInterface)) {
+			entity = EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
+			if (!(entity instanceof EntityNPCInterface)) { return npcParent; }
+			entity.readFromNBT(npcNbt);
+		}
+		EntityNPCInterface npc = (EntityNPCInterface) entity;
+		MarkData.get(npc).marks.clear();
 		npc.display.setShowName(1);
 		npc.setHealth(npc.getMaxHealth());
 		npc.deathTime = 0;
-		MarkData.get(npc).marks.clear();
-		npc.rotationYaw = 0;
-		npc.rotationYawHead = 0;
-		npc.rotationPitch = 0;
-		npc.ais.orientation = 0;
+		if (copyRotation) {
+			npc.rotationYaw = npcParent.rotationYaw;
+			npc.prevRotationYaw = npcParent.prevRotationYaw;
+			npc.rotationYawHead = npcParent.rotationYawHead;
+			npc.rotationPitch = npcParent.rotationPitch;
+			npc.prevRotationPitch = npcParent.prevRotationPitch;
+			npc.ais.orientation = npcParent.ais.orientation;
+		} else {
+			npc.rotationYaw = 0;
+			npc.prevRotationYaw = 0;
+			npc.rotationYawHead = 0;
+			npc.rotationPitch = 0;
+			npc.prevRotationPitch = 0;
+			npc.ais.orientation = 0;
+		}
 		npc.ais.setStandingType(1);
 		npc.ticksExisted = 100;
-		System.out.println("CNPCs: "+npc.getName());
+		if (npc instanceof EntityCustomNpc &&
+				npcParent instanceof EntityCustomNpc &&
+				((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
+				((EntityCustomNpc) npcParent).modelData instanceof ModelDataShared) {
+			((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npcParent).modelData).entity;
+		}
 		return npc;
 	}
-	
+
+	public static GameProfile setSkinsToProfile(GameProfile profile, String skinUrl, String capeUrl, String elytraUrl) {
+		if ((skinUrl == null || skinUrl.isEmpty()) && (capeUrl == null || capeUrl.isEmpty()) && (elytraUrl == null || elytraUrl.isEmpty())) { return profile; }
+		Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
+		Property property = Iterables.getFirst(profile.getProperties().get("textures"), null);
+		if (property != null) {
+			try {
+				//String json = new String(Base64.decodeBase64(property.getValue()), Charset.forName("UTF-8"));
+				//MinecraftTexturesPayload parent = gson.fromJson(json, MinecraftTexturesPayload.class);
+			}
+			catch (final JsonParseException e) { }
+			profile.getProperties().remove("textures", property);
+		}
+		MinecraftTexturesPayload textures = new MinecraftTexturesPayload();
+		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, Long.valueOf(System.currentTimeMillis()), long.class);
+		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, profile.getId(), UUID.class);
+		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, profile.getName(), String.class);
+		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, true, boolean.class);
+		Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> mapTs = Maps.<MinecraftProfileTexture.Type, MinecraftProfileTexture>newHashMap();
+		ObfuscationHelper.setValue(MinecraftTexturesPayload.class, textures, mapTs, Map.class);
+		
+		if (skinUrl != null && !skinUrl.isEmpty()) { mapTs.put(MinecraftProfileTexture.Type.SKIN, new MinecraftProfileTexture(skinUrl, null)); }
+		if (capeUrl != null && !capeUrl.isEmpty()) { mapTs.put(MinecraftProfileTexture.Type.CAPE, new MinecraftProfileTexture(capeUrl, null)); }
+		if (elytraUrl != null && !elytraUrl.isEmpty()) { mapTs.put(MinecraftProfileTexture.Type.ELYTRA, new MinecraftProfileTexture(elytraUrl, null)); }
+
+		/*
+		String json = "{\"timestamp\":" + Long.valueOf(System.currentTimeMillis()) +
+				",\"profileId\":\"" + profile.getId() +
+				"\",\"profileName\":\"" + profile.getName() +
+				"\",\"isPublic\":true,\"textures\":{";
+		boolean newSkin = true;
+		if (skinUrl != null && !skinUrl.isEmpty()) {
+			json += "\"SKIN\":{\"url\":\"" + skinUrl + "\"}";
+			newSkin = false;
+		}
+		if (capeUrl != null && !capeUrl.isEmpty()) {
+			if (newSkin) { json += ","; }
+			json += "\"CAPE\":{\"url\":\"" + capeUrl + "\"}";
+			newSkin = false;
+		}
+		if (elytraUrl != null && !elytraUrl.isEmpty()) {
+			if (newSkin) { json += ","; }
+			json += "\"ELYTRA\":{\"url\":\"" + elytraUrl + "\"}";
+		}
+		json += "}}\"";
+		*/
+		
+		if (!mapTs.isEmpty()) {
+			try {
+System.out.println("CNPCs: "+Base64.encodeBase64String(gson.toJson(textures).getBytes()));
+				profile.getProperties().put("textures", new Property("textures", Base64.encodeBase64String(gson.toJson(textures).getBytes())));
+			}
+			catch (final JsonParseException e) { e.printStackTrace(); }
+		}
+	    return profile;
+	}
 }

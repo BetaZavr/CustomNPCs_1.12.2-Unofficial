@@ -25,6 +25,8 @@ import javax.imageio.ImageIO;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabFactions;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabQuests;
@@ -38,6 +40,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFlame;
@@ -49,8 +52,13 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.client.resources.Locale;
@@ -63,11 +71,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemShield;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
@@ -105,6 +116,7 @@ import noppes.npcs.blocks.CustomBlockStairs;
 import noppes.npcs.blocks.CustomChest;
 import noppes.npcs.blocks.CustomDoor;
 import noppes.npcs.blocks.CustomLiquid;
+import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.fx.EntityEnderFX;
@@ -182,6 +194,8 @@ import noppes.npcs.client.renderer.RenderNpcCrystal;
 import noppes.npcs.client.renderer.RenderNpcDragon;
 import noppes.npcs.client.renderer.RenderNpcSlime;
 import noppes.npcs.client.renderer.RenderProjectile;
+import noppes.npcs.client.renderer.blocks.TileEntityCustomBannerRenderer;
+import noppes.npcs.client.renderer.blocks.TileEntityItemStackCustomRenderer;
 import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.constants.EnumGuiType;
@@ -210,6 +224,7 @@ import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.containers.ContainerNpcQuestTypeItem;
 import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.PixelmonHelper;
+import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerGameData;
@@ -609,6 +624,10 @@ extends CommonProxy {
 	@Override
 	public void postload() {
 		ArmourersWorkshopUtil.getInstance();
+		TileEntityRendererDispatcher.instance.renderers.put(TileEntityBanner.class, new TileEntityCustomBannerRenderer());
+		ObfuscationHelper.setValue(TileEntityItemStackRenderer.class, TileEntityItemStackRenderer.instance, new TileEntityCustomBanner(), TileEntityBanner.class);
+		Item shield = Item.REGISTRY.getObject(new ResourceLocation("shield"));
+		if (shield instanceof ItemShield) { ((ItemShield) shield).setTileEntityItemStackRenderer(new TileEntityItemStackCustomRenderer()); }
 	}
 
 	@Override
@@ -1673,7 +1692,7 @@ extends CommonProxy {
 
 	@Override
 	public void fixTileEntityData(TileEntity tile) {
-		Client.sendDataDelayCheck(EnumPlayerPacket.GetTileData, 0, 0, tile.writeToNBT(new NBTTagCompound()));
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.GetTileData, tile.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -1754,6 +1773,299 @@ extends CommonProxy {
 			try { if (writer != null) { writer.close(); } } catch (IOException e) { }
 		}
 		return true;
+	}
+
+	public static void resetSkin(UUID uuid) {
+		PlayerSkinController pData = PlayerSkinController.getInstance();
+		if (uuid == null || !pData.playerTextures.containsKey(uuid) || !pData.playerNames.containsKey(uuid)) { return; }
+		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(uuid);
+		if (npi == null) { return; }
+		Map<MinecraftProfileTexture.Type, ResourceLocation> map = PlayerSkinController.getInstance().playerTextures.get(uuid);
+		Map<Type, ResourceLocation> playerTextures = ObfuscationHelper.getValue(NetworkPlayerInfo.class, npi, Map.class);
+		playerTextures.clear();
+		for (MinecraftProfileTexture.Type epst : map.keySet()) {
+			ResourceLocation loc = ClientProxy.createPlayerSkin(map.get(epst));
+			if (loc == null) { continue; }
+			LogWriter.debug("Set skin type: "+epst+" = \""+loc+"\"");
+			switch(epst) {
+				case CAPE: playerTextures.put(Type.CAPE, loc); break;
+				case ELYTRA: playerTextures.put(Type.ELYTRA, loc); break;
+				default: {
+					playerTextures.put(Type.SKIN, loc);
+					TextureManager re = Minecraft.getMinecraft().renderEngine;
+					ResourceLocation locDynamic = new ResourceLocation("minecraft", "dynamic/skin_"+pData.playerNames.get(uuid));
+					ResourceLocation locSkins = new ResourceLocation("minecraft", "skins/"+pData.playerNames.get(uuid));
+					ITextureObject texture= re.getTexture(loc);
+					Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re, Map.class);
+					mapTextureObjects.put(locDynamic, texture);
+					mapTextureObjects.put(locSkins, texture);
+					ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
+					break;
+				}
+			}
+		}
+		if (!playerTextures.containsKey(Type.SKIN)) {
+			playerTextures.put(Type.SKIN, DefaultPlayerSkin.getDefaultSkin(npi.getGameProfile().getId()));
+		}
+		LogWriter.debug("Set skins to player UUID: "+uuid);
+	}
+
+	@Override
+	public void checkTexture(EntityNPCInterface npc) {
+		if (npc.display.skinType != 0) { return; }
+		ClientProxy.createPlayerSkin(new ResourceLocation(npc.display.getSkinTexture()));
+	}
+	
+	private static ResourceLocation createPlayerSkin(ResourceLocation skin) {
+		LogWriter.debug("Check skin: "+skin);
+		if (!skin.getResourceDomain().equals(CustomNpcs.MODID) ||
+				(skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/female_") ==-1 &&
+				skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/male_") ==-1)) { return skin; }
+		
+		String locSkin = String.format("%s/%s/%s", "assets", skin.getResourceDomain(), skin.getResourcePath());
+		File file = new File(CustomNpcs.Dir, locSkin);
+//CustomNpcs.proxy.getPlayer().sendMessage(new TextComponentString("File: "+file.getParentFile().exists()+", "+file.exists()+" - "+file));
+		if (!file.getParentFile().exists()) { file.getParentFile().mkdirs(); }
+		if (file.exists() && file.isFile()) { return skin; }
+		
+		TextureManager re = Minecraft.getMinecraft().renderEngine;
+		IResourceManager rm = Minecraft.getMinecraft().getResourceManager();
+		String[] path = skin.getResourcePath().replace(".png", "").split("_");
+		String gender = "male";
+		BufferedImage bodyImage = null, hairImage = null, faseImage = null, legsImage = null, jacketsImage = null, shoesImage = null;
+		List<BufferedImage> listBuffers = Lists.newArrayList();
+		for (int i = 0; i < path.length; i++) {
+			switch(i) {
+				case 0: {
+					if (path[i].toLowerCase().endsWith("female")) { gender = "female"; }
+					break;
+				}
+				case 1: { // body skin
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/torsos/"+path[i]+".png");
+					re.bindTexture(loc);
+					if (re.getTexture(loc) == null) {
+						loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/torsos/0.png");
+						re.bindTexture(loc);
+					}
+					if (re.getTexture(loc) != null) {
+						try { bodyImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()); }
+						catch (Exception e) {  }
+					}
+					break;
+				}
+				case 2: { // create body
+					try {
+						int c = Integer.parseInt(path[i]);
+						if (c != 0) { bodyImage = colorTexture(bodyImage, new Color(c), false); }
+					}
+					catch (Exception e) {  }
+					break;
+				}
+				case 3: { // hair skin
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/hairs/"+path[i]+".png");
+					re.bindTexture(loc);
+					if (re.getTexture(loc) != null) {
+						try { hairImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()); }
+						catch (Exception e) {  }
+					}
+					break;
+				}
+				case 4: { // create hair
+					try {
+						int c = Integer.parseInt(path[i]);
+						if (c != 0) { hairImage = colorTexture(hairImage, new Color(c), false); }
+					}
+					catch (Exception e) {  }
+					break;
+				}
+				case 5: { // fase
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/faces/"+path[i]+".png");
+					re.bindTexture(loc);
+					if (re.getTexture(loc) != null) {
+						try { faseImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()); }
+						catch (Exception e) {  }
+					}
+					break;
+				}
+				case 6: { // create fase
+					try {
+						int c = Integer.parseInt(path[i]);
+						if (c != 0) { faseImage = colorTexture(faseImage, new Color(c), true); }
+					}
+					catch (Exception e) {  }
+					break;
+				}
+				case 7: { // legs
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/legs/"+path[i]+".png");
+					re.bindTexture(loc);
+					if (re.getTexture(loc) != null) {
+						try { legsImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()); }
+						catch (Exception e) {  }
+					}
+					break;
+				}
+				case 8: { // jacket
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/jackets/"+path[i]+".png");
+					re.bindTexture(loc);
+					if (re.getTexture(loc) != null) {
+						try { jacketsImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()); }
+						catch (Exception e) {  }
+					}
+					break;
+				}
+				case 9: { // shoes
+					ResourceLocation loc = new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/shoes/"+path[i]+".png");
+					re.bindTexture(loc);
+					if (re.getTexture(loc) != null) {
+						try { shoesImage = TextureUtil.readBufferedImage(rm.getResource(loc).getInputStream()); }
+						catch (Exception e) {  }
+					}
+					break;
+				}
+				default: { break; }
+			}
+		}
+		// combine
+		BufferedImage skinImage = null;
+		try {
+			skinImage = combineTextures(bodyImage, TextureUtil.readBufferedImage(rm.getResource(new ResourceLocation(CustomNpcs.MODID, "textures/entity/custom/"+gender+"/torsos/-1.png")).getInputStream()));
+			if (!listBuffers.isEmpty()) {
+				for (BufferedImage buffer : listBuffers) { skinImage = combineTextures(skinImage, buffer); }
+			}
+			skinImage = combineTextures(skinImage, faseImage);
+			skinImage = combineTextures(skinImage, legsImage);
+			skinImage = combineTextures(skinImage, shoesImage);
+			skinImage = combineTextures(skinImage, jacketsImage);
+			skinImage = combineTextures(skinImage, faseImage);
+			skinImage = combineTextures(skinImage, hairImage);
+		}
+		catch (Exception e) {  }
+		
+		try {
+			ImageIO.write(skinImage, "PNG", file);
+			re.bindTexture(skin);
+			LogWriter.debug("Create new player skin: "+file.getAbsolutePath());
+		}
+		catch (Exception e) {  }
+		
+		/*if (rm instanceof SimpleReloadableResourceManager) {
+			Map<String, FallbackResourceManager> domainResourceManagers = ObfuscationHelper.getValue(SimpleReloadableResourceManager.class, (SimpleReloadableResourceManager) rm, Map.class);
+			FallbackResourceManager modf = domainResourceManagers.get(CustomNpcs.MODID);
+			if (modf != null) {
+				List<IResourcePack> resourcePacks = ObfuscationHelper.getValue(FallbackResourceManager.class, modf, List.class);
+				AbstractResourcePack pack = null;
+				for (IResourcePack iPack: resourcePacks) {
+					if (iPack instanceof FMLFolderResourcePack) {
+						pack = (AbstractResourcePack) iPack;
+						break;
+					}
+				}
+				if (pack != null) {
+					File resourcePackFile = ObfuscationHelper.getValue(AbstractResourcePack.class, pack, File.class);
+					try {
+						String locSkin = String.format("%s/%s/%s", "assets", skin.getResourceDomain(), skin.getResourcePath());
+						ImageIO.write(skinImage, "PNG", new File(resourcePackFile, locSkin));
+					}
+					catch (Exception e) { e.printStackTrace(); }
+				}
+			}
+		}*/
+		
+		Map<ResourceLocation, ITextureObject> mapTextureObjects = ObfuscationHelper.getValue(TextureManager.class, re, Map.class);
+		SimpleTexture texture = new SimpleTexture(skin);
+		TextureUtil.uploadTextureImageAllocate(texture.getGlTextureId(), skinImage, false, false);
+		mapTextureObjects.put(skin, texture);
+		ObfuscationHelper.setValue(TextureManager.class, re, mapTextureObjects, Map.class);
+		return skin;
+	}
+
+	private static BufferedImage colorTexture(BufferedImage buffer, Color color, boolean onlyGray) {
+		if (buffer == null || color == null) { return buffer; }
+		for (int v = 0; v < buffer.getHeight(); v++) {
+			for (int u = 0; u < buffer.getWidth(); u++) {
+				int c = buffer.getRGB(u, v);
+				int al = c >> 24 & 255;
+				if (al == 0) { continue; }
+				if (onlyGray) {
+					Color k = new Color(c);
+					if (k.getRed() != 127 || k.getGreen() != 127 || k.getBlue() != 127) { continue; }
+					buffer.setRGB(u, v, color.getRGB());
+					continue;
+				}
+				int r0 = c >> 16 & 255, g0 = c >> 8 & 255, b0 = c & 255;
+				String a = Integer.toHexString((al + color.getAlpha()) > 255 ? 255 : (al + color.getAlpha()));
+				if (a.length() == 1) { a = "0" + a; }
+				String r = Integer.toHexString((r0 + color.getRed()) / 2);
+				if (r.length() == 1) { r = "0" + r; }
+				String g = Integer.toHexString((g0 + color.getGreen()) / 2);
+				if (g.length() == 1) { g = "0" + g; }
+				String b = Integer.toHexString((b0 + color.getBlue()) / 2);
+				if (b.length() == 1) { b = "0" + b; }
+				buffer.setRGB(u, v, (int) Long.parseLong(a+r+g+b, 16));
+			}
+		}
+		return buffer;
+	}
+	
+	private static BufferedImage combineTextures(BufferedImage buffer_0, BufferedImage buffer_1) {
+		if (buffer_0 == null) { return buffer_1; }
+		if (buffer_1 == null) { return buffer_0; }
+		int w0 = buffer_0.getWidth(), w1 = buffer_1.getWidth();
+		int h0 = buffer_0.getHeight(), h1 = buffer_1.getHeight();
+		int w = w0 >= w1 ? w0 : w1;
+		int h = h0 >= h1 ? h0 : h1;
+		float sw0 = (float) w0 / (float) w, sh0 = (float) h0 / (float) h;
+		float sw1 = (float) w1 / (float) w, sh1 = (float) h1 / (float) h;
+		BufferedImage total = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
+		for (int v = 0; v < h; v++) {
+			for (int u = 0; u < w; u++) {
+				int c0 = buffer_0.getRGB((int) ((float) u * sw0), (int) ((float) v * sh0));
+				int a0 = c0 >> 24 & 255;
+				if (a0 != 0) { total.setRGB(u, v, c0); }
+				int c1 = buffer_1.getRGB((int) ((float) u * sw1), (int) ((float) v * sh1));
+				int a1 = c1 >> 24 & 255;
+				if (a1 != 0) {
+					if (a1 == 255) { total.setRGB(u, v, c1); }
+					else {
+						int r0 = c0 >> 16 & 255, g0 = c0 >> 8 & 255, b0 = c0 & 255;
+						int r1 = c1 >> 16 & 255, g1 = c1 >> 8 & 255, b1 = c1 & 255;
+						String a = Integer.toHexString((a0 + a1) > 255 ? 255 : (a0 + a1));
+						if (a.length() == 1) { a = "0" + a; }
+						String r = Integer.toHexString((r0 + r1) / 2);
+						if (r.length() == 1) { r = "0" + r; }
+						String g = Integer.toHexString((g0 + g1) / 2);
+						if (g.length() == 1) { g = "0" + g; }
+						String b = Integer.toHexString((b0 + b1) / 2);
+						if (b.length() == 1) { b = "0" + b; }
+						total.setRGB(u, v, (int) Long.parseLong(a+r+g+b, 16));
+					}
+				}
+			}
+		}
+		return total;
+	}
+
+	public static void sendSkin(UUID uuid) {
+		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(uuid);
+		if (npi == null) { return; }
+		NBTTagCompound nbtPlayer = new NBTTagCompound();
+		nbtPlayer.setUniqueId("UUID", uuid);
+		NBTTagList listTxrs = new NBTTagList();
+		for (Type t : Type.values()) {
+			ResourceLocation loc;
+			switch(t) {
+				case CAPE: loc = npi.getLocationCape(); break;
+				case ELYTRA: loc = npi.getLocationElytra(); break;
+				default: loc = npi.getLocationSkin(); break; // SKIN
+			}
+			if (loc == null) { continue; }
+			NBTTagCompound nbtSkin = new NBTTagCompound();
+			nbtSkin.setString("Type", t.name());
+			nbtSkin.setString("Location", loc.toString());
+			listTxrs.appendTag(nbtSkin);
+		}
+		nbtPlayer.setTag("Textures", listTxrs);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.PlayerSkinSet, nbtPlayer);
 	}
 	
 }

@@ -65,11 +65,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(0, "inv.minExp", this.guiLeft + 118, this.guiTop + 18));
+		this.addLabel(new GuiNpcLabel(0, "inv.minExp", this.guiLeft + 108, this.guiTop + 18));
 		this.addTextField(new GuiNpcTextField(0, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 29, 60, 20, this.inventory.getExpMin() + ""));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, 32767, 0);
-		this.addLabel(new GuiNpcLabel(1, "inv.maxExp", this.guiLeft + 118, this.guiTop + 52));
+		this.addLabel(new GuiNpcLabel(1, "inv.maxExp", this.guiLeft + 108, this.guiTop + 52));
 		this.addTextField(new GuiNpcTextField(1, (GuiScreen) this, this.fontRenderer, this.guiLeft + 108, this.guiTop + 63, 60, 20, this.inventory.getExpMax() + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(0, 32767, 0);

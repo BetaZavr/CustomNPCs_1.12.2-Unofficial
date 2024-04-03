@@ -18,7 +18,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -56,7 +55,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		this.canTransport = true;
 		this.bxSize = 0;
 		this.bySize = 0;
-		Client.sendDataDelayCheck(EnumPlayerPacket.TransportCategoriesGet, this, 0);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.TransportCategoriesGet);
 	}
 
 	@Override

@@ -69,7 +69,6 @@ implements IAnimation {
 			this.frames.put(i, afc);
 		}
 		if (this.frames.size()==0) { this.frames.put(0, new AnimationFrameConfig()); }
-		
 		this.id = compound.getInteger("ID");
 		this.name = compound.getString("Name");
 	}

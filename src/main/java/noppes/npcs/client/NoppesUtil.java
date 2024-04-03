@@ -37,13 +37,12 @@ public class NoppesUtil {
 	private static EntityNPCInterface lastNpc;
 
 	public static void addScrollData(ByteBuf buffer) {
-		try {
-			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
-				int id = buffer.readInt();
-				String name = Server.readString(buffer);
-				NoppesUtil.data.put(name, id);
-			}
-		} catch (Exception ex) { }
+		Map<Object, Object> map = Server.readMap(buffer);
+		for (Object name : map.keySet()) {
+			Object id = map.get(name);
+			if (!(id instanceof Integer)) { continue; }
+			NoppesUtil.data.put(name.toString(), (Integer) id);
+		}
 	}
 
 	public static void clickSound() {

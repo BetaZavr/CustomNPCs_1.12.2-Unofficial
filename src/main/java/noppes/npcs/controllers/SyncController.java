@@ -1,6 +1,5 @@
 package noppes.npcs.controllers;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -41,8 +40,10 @@ public class SyncController {
 					FactionController.instance.factionsSync.put(faction.id, faction);
 				}
 				if (syncEnd) {
-					FactionController.instance.factions = FactionController.instance.factionsSync;
-					FactionController.instance.factionsSync = new HashMap<Integer, Faction>();
+					FactionController fData = FactionController.instance;
+					fData.factions.clear();
+					for (int id : fData.factionsSync.keySet()) { fData.factions.put(new Integer(id), fData.factionsSync.get(id)); }
+					fData.factionsSync.clear();
 				}
 				break;
 			}

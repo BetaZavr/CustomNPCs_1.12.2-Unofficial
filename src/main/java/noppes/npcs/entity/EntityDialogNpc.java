@@ -4,27 +4,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
-public class EntityDialogNpc extends EntityNPCInterface {
-	public EntityDialogNpc(World world) {
-		super(world);
-	}
+public class EntityDialogNpc
+extends EntityNPCInterface {
+	
+	public EntityDialogNpc(World world) { super(world); }
 
 	@Override
-	public boolean isInvisible() {
-		return true;
-	}
+	public boolean isInvisible() { return true; }
 
 	@Override
-	public boolean isInvisibleToPlayer(EntityPlayer player) {
-		return true;
-	}
+	public boolean isInvisibleToPlayer(EntityPlayer player) { return true; }
 
 	@Override
-	public void onUpdate() {
-	}
+	public void onUpdate() { }
 
 	@Override
-	public boolean processInteract(EntityPlayer player, EnumHand hand) {
-		return false;
-	}
+	public boolean processInteract(EntityPlayer player, EnumHand hand) { return false; }
+	
 }

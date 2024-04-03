@@ -1,5 +1,6 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemStack;
 
@@ -29,6 +30,8 @@ public interface ICustomGui {
 
 	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY);
 
+	IGuiEntity addEntity(int id, int x, int y, IEntity<?> entity);
+	
 	ICustomGuiComponent getComponent(int id);
 
 	ICustomGuiComponent[] getComponents();

@@ -22,6 +22,7 @@ public class PlayerGameData {
 	public double[] logPos;
 
 	private final List<FollowerSet> followers = Lists.<FollowerSet>newArrayList();
+	public int dimID = 0;
 
 	public long getMoney() { return this.money; }
 	

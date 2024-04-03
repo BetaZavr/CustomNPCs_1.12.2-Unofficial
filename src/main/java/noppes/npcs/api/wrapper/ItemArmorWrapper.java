@@ -30,4 +30,11 @@ implements IItemArmor {
 	public int getType() {
 		return ItemType.ARMOR.get();
 	}
+
+	@Override
+	public float getToughness() { return armor.getArmorMaterial().getToughness(); }
+	
+	@Override
+	public int getArmorValue() { return armor.getArmorMaterial().getDamageReductionAmount(armor.getEquipmentSlot()); }
+	
 }

@@ -16,6 +16,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -39,10 +41,13 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.QuestEvent.QuestExtraButtonEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientGuiEventHandler;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
@@ -58,6 +63,9 @@ import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.QuestController;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerCompassHUDData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -83,27 +91,31 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			GuiLog.ql.put(i, new ResourceLocation(CustomNpcs.MODID, "textures/quest log/q_log_"+i+".png"));
 		}
 	}
-	
-	private int hoverButton, hoverQuestId, catRow, catSelect, page;
+
+	/* 0-tab inv; 1-tab factions; 2-tab quests; 3-tab compass
+	 * 4-page right; 5-page left
+	 * 6-quest; 7/14-tab categories
+	 * 16-pre cat list; 17-next cat list
+	 * 20/28-cat list
+	 * 30 - extended button
+	 * 31 - compass look
+	 * 32 - cancel quest
+	 */
+	private int hoverButton;
+	private int hoverQuestId, catRow, catSelect, page;
 	private int type; // -1-inv; 0-faction; 1-quests; 2-compass
 	private int step, tick, mtick, temp, guiTopLog, guiCenter;
 	private boolean toPrePage = true;
 	private final Random rnd = new Random();
 	private ScaledResolution sw;
 	
-	/* 0-tab inv; 1-tab factions; 2-tab quests; 3-tab compass
-	 * 4-page right; 5-page left
-	 * 6-quest; 7/14-tab categories
-	 * 16-pre cat list; 17-next cat list
-	 * 20/28-cat list
-	 * [] = [x, y, w, h]
-	 */
-	private final Map<Integer, int[]> buttons = Maps.<Integer, int[]>newTreeMap();
+	private final Map<Integer, int[]> buttons = Maps.<Integer, int[]>newTreeMap(); // [] = [x, y, w, h]
 	private final Map<String, Map<Integer, QuestData>> quests = Maps.<String, Map<Integer, QuestData>>newTreeMap(); // { category, [id, quest]}
 	private final Map<String, Color> categories = Maps.<String, Color>newTreeMap(); // [name, color]
 	private final List<Faction> playerFactions = Lists.<Faction>newArrayList();
 	private final PlayerCompassHUDData compassData;
 	public static QuestInfo activeQuest;
+	private PlayerData playerData;
 
 	public GuiLog(int t) {
 		super();
@@ -124,7 +136,8 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		catSelect = 0;
 		page = 0;
 		sw = new ScaledResolution(this.mc);
-		compassData = PlayerData.get(player).hud.compassData;
+		compassData = new PlayerCompassHUDData();
+		compassData.load(PlayerData.get(player).hud.compassData.getNbt());
 		activeQuest = null;
 		if (t == 1) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FactionsGet);
@@ -176,6 +189,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		    	}
 			}
 			if (activeQuest != null) { activeQuest.reset(); }
+			while (catSelect >= categories.size()) { catSelect--; }
 		}
 		if (type==2) {
 			int x0 = guiLeft + 32;
@@ -195,22 +209,20 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			float v = this.compassData.scale - 0.5f;
 			this.addSlider(new GuiNpcSlider(this, 0, x0, y += 17, 96, 12, v));
 			this.getSlider(0).setString((""+this.compassData.scale).replace(".", ","));
-
-			this.addButton(new GuiNpcCheckBox(0, x1, y - 1, 100, 12, "quest.screen.show.quest"));
-			((GuiNpcCheckBox) this.getButton(0)).setSelected(this.compassData.showQuestName);
 			
 			// Incline
 			v = this.compassData.incline * -0.022222f + 0.5f;
 			this.addSlider(new GuiNpcSlider(this, 1, x0, y += 16, 96, 12, v));
 			this.getSlider(1).setString((""+(45.0f + this.compassData.incline*-1.0f)).replace(".", ","));
-
-			this.addButton(new GuiNpcCheckBox(1, x1, y - 1, 100, 12, "quest.screen.show.task"));
-			((GuiNpcCheckBox) this.getButton(1)).setSelected(this.compassData.showTaskProgress);
+			this.addButton(new GuiNpcCheckBox(0, x1, y - 1, 100, 12, "quest.screen.show.quest", compassData.showQuestName));
+			this.getButton(0).textColor = CustomNpcs.questLogColor;
 			
 			// Rotation
 			v = this.compassData.rot * 0.016667f + 0.5f;
 			this.addSlider(new GuiNpcSlider(this, 2, x0, y += 16, 96, 12, v));
 			this.getSlider(2).setString((""+this.compassData.rot).replace(".", ","));
+			this.addButton(new GuiNpcCheckBox(1, x1, y - 1, 100, 12, "quest.screen.show.task", compassData.showTaskProgress));
+			this.getButton(1).textColor = CustomNpcs.questLogColor;
 		}
 	}
 
@@ -359,6 +371,31 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				catRow++;
 				break;
 			}
+			case 30: { // extended button
+				if (hoverQuestId <= 0) { return; }
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.EXTRA_BUTTON, new QuestExtraButtonEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(player), QuestController.instance.get(hoverQuestId)));
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestExtraButton, hoverQuestId);
+				break;
+			}
+			case 31: { // compass look
+				if (hoverQuestId <= 0) { return; }
+				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				break;
+			}
+			case 32: { // cancel quest
+				if (hoverQuestId <= 0) { return; }
+				for (Map<Integer, QuestData> map : quests.values()) {
+					for (QuestData qd : map.values()) {
+						if (qd.quest.id == hoverQuestId) {
+							GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, new TextComponentTranslation("drop.quest", new TextComponentTranslation(qd.quest.getTitle()).getFormattedText()).getFormattedText(), new TextComponentTranslation("quest.cancel.info", new Object[0]).getFormattedText(), hoverQuestId);
+							this.displayGuiScreen((GuiScreen) guiyesno);
+							break;
+						}
+					}
+				}
+				break;
+			}
 		}
 	}
 
@@ -379,6 +416,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		playerData = PlayerData.get(player);
 		// Back
 		GlStateManager.pushMatrix();
 		drawGradientRect(0, 0, mc.displayWidth, mc.displayHeight, 0xAA000000, 0xAA000000);
@@ -1137,20 +1175,15 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			GlStateManager.translate(guiLeft + 26, guiTopLog + 6.0f, 0.0f);
 			for (int id : quests.get(selectCat).keySet()) {
 				if (p < page * 10) { p++; continue; }
-				if (i == 5) {
-					GlStateManager.translate(105.0f, -124.0f, 0.0f);
-				} else if (i % 5 != 0) {
-					GlStateManager.translate(0.0f, 31.0f, 0.0f);
-				}
+				if (i == 5) { GlStateManager.translate(105.0f, -124.0f, 0.0f); }
+				else if (i % 5 != 0) { GlStateManager.translate(0.0f, 31.0f, 0.0f); }
+				
 				GlStateManager.color(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, 1.0f);
 				this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
 				this.drawTexturedModalRect(0, 0, 0, 0, 98, 30);
 				QuestData qd = quests.get(selectCat).get(id);
 				Quest quest = qd.quest;
-				if (isMouseHover(mouseX, mouseY, guiLeft + 26 + (i > 4 ? 105 : 0), guiTopLog + 6 + (i % 5) * 31, 98, 30)) {
-					hoverButton = 6;
-					hoverQuestId = id;
-				}
+				
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(3.0f, 3.0f, 0.0f);
 				this.mc.renderEngine.bindTexture(quest.icon);
@@ -1158,6 +1191,62 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 				GlStateManager.popMatrix();
+				
+				int qxPos = guiLeft + 26 + (i > 4 ? 105 : 0);
+				int qyPos = guiTopLog + 6 + (i % 5) * 31;
+				
+				boolean hasExtraButton = quest.extraButton != 0 || player.capabilities.isCreativeMode;
+				if (hasExtraButton) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(87.0f, 19.0f, 0.0f);
+					int xo = quest.extraButton == 0 ? 9 : quest.extraButton * 9;
+					if (quest.extraButton == 0 && player.capabilities.isCreativeMode) {
+						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+						xo = (int) ((System.currentTimeMillis() % 5000) / 1000) * 9 + 9;
+					}
+					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					if (isMouseHover(mouseX, mouseY, qxPos + 87, qyPos + 19, 9, 9)) {
+						hoverButton = 30;
+						hoverQuestId = id;
+					}
+					this.drawTexturedModalRect(0, 0, 116 + xo, hoverButton == 30 ? 9 : 0, 9, 9);
+					GlStateManager.popMatrix();
+				}
+				
+				boolean hasCompassButton = quest.hasCompassSettings() && (CustomNpcs.showQuestCompass || player.capabilities.isCreativeMode);
+				if (hasCompassButton) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(87.0f - (hasExtraButton ? 9 : 0), 19.0f, 0.0f);
+					if (!CustomNpcs.showQuestCompass && player.capabilities.isCreativeMode) {
+						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					}
+					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					if (isMouseHover(mouseX, mouseY, qxPos + 87 - (hasExtraButton ? 9 : 0), qyPos + 19, 9, 9)) {
+						hoverButton = 31;
+						hoverQuestId = id;
+					}
+					this.drawTexturedModalRect(0, 0, 107 + (playerData.hud.questID == quest.id ? 0 : 9), hoverButton == 31 ? 9 : 0, 9, 9);
+					GlStateManager.popMatrix();
+				}
+				
+				boolean hasCancelableButton = quest.cancelable || player.capabilities.isCreativeMode;
+				if (hasCancelableButton) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(87.0f - (hasExtraButton ? 9 : 0) - (hasCompassButton ? 9 : 0), 19.0f, 0.0f);
+					if (!quest.cancelable && player.capabilities.isCreativeMode) {
+						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					}
+					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+					if (isMouseHover(mouseX, mouseY, qxPos + 87 - (hasExtraButton ? 9 : 0) - (hasCompassButton ? 9 : 0), qyPos + 19, 9, 9)) {
+						hoverButton = 32;
+						hoverQuestId = id;
+					}
+					this.drawTexturedModalRect(0, 0, 98, hoverButton == 32 ? 9 : 0, 9, 9);
+					GlStateManager.popMatrix();
+				}
 				
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(29.0f, 3.0f, 0.0f);
@@ -1178,7 +1267,22 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				}
 				String progress = j + " / " +  objs.length;
 				this.fontRenderer.drawString(progress, 0, 10, CustomNpcs.questLogColor, false);
-				if (hoverQuestId == id) {
+				
+				if (hoverButton > 29 && hoverQuestId == id) {
+					if (hoverButton == 30) {
+						hover.add(new TextComponentTranslation(quest.extraButtonText.isEmpty() ? "quest.hover.extra.button" : quest.extraButtonText).getFormattedText());
+						if (quest.extraButton == 0 && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
+					} else if (hoverButton == 31) {
+						hover.add(new TextComponentTranslation("quest.hover.compass."+(playerData.hud.questID == quest.id)).getFormattedText());
+						if (!CustomNpcs.showQuestCompass && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
+					} else if (hoverButton == 32) {
+						hover.add(new TextComponentTranslation("drop.quest", quest.getName()).getFormattedText());
+						if (!quest.cancelable && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
+					}
+				}
+				else if (isMouseHover(mouseX, mouseY, qxPos, qyPos, 98, 30)) {
+					hoverButton = 6;
+					hoverQuestId = id;
 					hover.add(((char) 167) + "7" + new TextComponentTranslation("drop.category").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + selectCat);
 					hover.add(((char) 167) + "7" + new TextComponentTranslation("gui.name").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + qName);
 					hover.add(((char) 167) + "7" + new TextComponentTranslation("gui.progress").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + (j >= objs.length ? "a" : "c") + progress);
@@ -1209,7 +1313,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		Gui.drawRect(0, 0, 206, 138, 0xFFF0F0F0);
 		Gui.drawRect(58, 113, 149, 139, 0xFF808080);
 		Gui.drawRect(59, 114, 148, 138, 0xFFA0A0A0);
-		GlStateManager.translate(this.compassData.screenPos[0] * 240.0d, this.compassData.screenPos[1] * 160.0d, 0.0d);
+		GlStateManager.translate(this.compassData.screenPos[0] * 206.0d, this.compassData.screenPos[1] * 138.0d, 0.0d);
 		Gui.drawRect(-3, -1, 4, 3, 0xFF0000FF);
 		Gui.drawRect(-3, 3, 4, 5, 0xFFFF00FF);
 		GlStateManager.popMatrix();
@@ -1225,14 +1329,23 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.popMatrix();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiCenter + 5, guiTopLog + 10, 0);
+		GlStateManager.translate(guiCenter + 5, guiTopLog + 99, 0);
 		int i = 0;
-		if (this.compassData.showQuestName) { fontRenderer.drawString(new TextComponentTranslation("quest.setts.q.name").getFormattedText(), 0, 0, CustomNpcs.questLogColor); i = 12; }
-		if (this.compassData.showTaskProgress) { fontRenderer.drawString(new TextComponentTranslation("quest.setts.q.tasks").getFormattedText(), 0, i, CustomNpcs.questLogColor); }
+		if (this.compassData.showQuestName) {
+			String text = new TextComponentTranslation("quest.setts.q.name").getFormattedText();
+			int w = 49 - fontRenderer.getStringWidth(text) / 2;
+			fontRenderer.drawString(text, w, 0, CustomNpcs.questLogColor);
+			i = 12;
+		}
+		if (this.compassData.showTaskProgress) {
+			String text = new TextComponentTranslation("quest.setts.q.tasks").getFormattedText();
+			int w = 49 - fontRenderer.getStringWidth(text) / 2;
+			fontRenderer.drawString(text, w, i, CustomNpcs.questLogColor);
+		}
 		GlStateManager.popMatrix();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiCenter + 54, guiTopLog + 10, 50.0f);
+		GlStateManager.translate(guiCenter + 54, guiTopLog + 65, 50.0f);
 		float scale = -30.0f * this.compassData.scale;
 		float incline = -45.0f + this.compassData.incline;
 
@@ -1267,7 +1380,6 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		int i = 0, p = 0;
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLeft + 26, guiTopLog + 8.0f, 0.0f);
-		PlayerFactionData data = PlayerData.get(player).factionData;
 		for (Faction f : playerFactions) {
 			if (f.hideFaction && !player.capabilities.isCreativeMode) { continue; }
 			if (p < page * 10) { p++; continue; }
@@ -1281,7 +1393,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			
 			float w = 1.0f;
 			Color h;
-			int points = data.getFactionPoints(player, f.id), nextp = 0, t = 0;
+			int points = playerData.factionData.getFactionPoints(player, f.id), nextp = 0, t = 0;
 			if (f.isNeutralToPlayer(player)) {
 				t = 1;
 				h = new Color(0xF2DD00);
@@ -1373,7 +1485,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			ResourceLocation location = EntityList.getKey(entity);
 			if (location != null) { modelName = location.toString(); }
 		}
-		boolean canUpdate = this.preDrawEntity(modelName);
+		boolean canUpdate = GuiLog.preDrawEntity(modelName);
 		GlStateManager.rotate((mc.world.getTotalWorldTime() % 360) * 5.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.enableColorMaterial();
@@ -1396,7 +1508,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.translate((sw.getScaledWidth_double() - 110.0d) / 2.0d, (sw.getScaledHeight_double() - 20.0d) / 2.0d, 0.0d);
 		String modelName = "";
 		if (npc.display.getModel() != null) { modelName = npc.display.getModel(); }
-		boolean canUpdate = this.preDrawEntity(modelName);
+		boolean canUpdate = GuiLog.preDrawEntity(modelName);
 		GlStateManager.enableBlend();
 		GlStateManager.enableColorMaterial();
 		GlStateManager.enableDepth();
@@ -1412,7 +1524,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 	}
 	
-	private boolean preDrawEntity(String modelName) {
+	public static boolean preDrawEntity(String modelName) {
 		boolean canUpdate = true;
 		if (modelName.equals("customnpcs:npcslime")) { GlStateManager.translate(-2.0f, -15.0f, 0.0f); }
 		else if (modelName.equals("minecraft:magma_cube") ||
@@ -1498,7 +1610,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		return canUpdate;
 	}
 
-	public void close() { }
+	public void close() {
+		PlayerCompassHUDData compasD = PlayerData.get(player).hud.compassData;
+		NBTTagCompound compound = compassData.getNbt();
+		compasD.load(compound);
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.SaveCompassData, compound);
+	}
 	
 	@Override
 	public void keyTyped(char c, int i) {
@@ -1509,23 +1626,29 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			step = type + 7;
 			type = i == 1 ? -2 : -1;
 		}
+		super.keyTyped(c, i);
 	}
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		if (step >= 0) { return; }
 		if (type == 2) {
-			if (mouseX>=this.guiLeft+5 && mouseX<=this.guiLeft+125 && mouseY>=this.guiTop+14 && mouseY<=this.guiTop+94) {
-				this.compassData.screenPos[0] = Math.round((double) (mouseX - this.guiLeft - 5) * 8.33333d)/1000.0d;
-				this.compassData.screenPos[1] = Math.round((double) (mouseY - this.guiTop - 14) * 12.5d)/1000.0d;
-				this.initGui();
+			super.mouseClicked(mouseX, mouseY, mouseBottom);
+			if (mouseX>=guiLeft-22 && mouseX<=guiLeft+40 && mouseY>=guiTopLog+10 && mouseY<=guiTopLog+68) {
+				double x = mouseX - guiLeft + 22;
+				double y = mouseY - guiTopLog - 10;
+				
+				this.compassData.screenPos[0] = Math.round(x / 62.0d * 1000.0d)/1000.0d;
+				this.compassData.screenPos[1] = Math.round(y / 58.0d * 1000.0d)/1000.0d;
+				initGui();
 			}
 		}
-		else { this.buttonPress(hoverButton); }
+		this.buttonPress(hoverButton);
 	}
 
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
+		if (type != 2) { return; }
 		switch(slider.id) {
 			case 0: {
 				this.compassData.scale = Math.round((slider.sliderValue + 0.5f)*100.0f)/100.0f;
@@ -1567,7 +1690,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	@Override
-	public void save() { Client.sendDataDelayCheck(EnumPlayerPacket.SaveCompassData, 0, 0, this.compassData.getNbt()); }
+	public void save() {
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.SaveCompassData, this.compassData.getNbt());
+	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
@@ -1624,7 +1749,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				qd.quest.completerPos[2] = (int) npc.posZ;
 				qd.quest.completerPos[3] = npc.world.provider.getDimension();
 			}
-			npc = AdditionalMethods.setToGUI(npc);
+			npc = AdditionalMethods.copyToGUI(npc, world, false);
 		}
 		
 		public void reset() { newInstance = true; }
@@ -1666,7 +1791,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 											Entity enti = EntityList.createEntityFromNBT(compound, world);
 											if (enti == null) { e = en; } else {
 												e = enti;
-												if (e instanceof EntityNPCInterface) { e = AdditionalMethods.setToGUI((EntityNPCInterface) e); }
+												if (e instanceof EntityNPCInterface) { e = AdditionalMethods.copyToGUI((EntityNPCInterface) e, world, false); }
 											}
 											break;
 										}

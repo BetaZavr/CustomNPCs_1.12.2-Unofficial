@@ -7,7 +7,7 @@ import noppes.npcs.api.gui.ICustomGuiComponent;
 
 public abstract class CustomGuiComponentWrapper
 implements ICustomGuiComponent {
-
+	
 	String[] hoverText;
 	int id, posX, posY, offsetType;
 	
@@ -20,6 +20,7 @@ implements ICustomGuiComponent {
 			case 4: { return new CustomGuiScrollWrapper().fromNBT(nbt); }
 			case 5: { return new CustomGuiItemSlotWrapper().fromNBT(nbt); }
 			case 6: { return new CustomGuiTimerWrapper().fromNBT(nbt); }
+			case 7: { return new CustomGuiEntityWrapper().fromNBT(nbt); }
 			default: { return null; }
 		}
 	}
@@ -113,5 +114,6 @@ implements ICustomGuiComponent {
 		if (type<0) { type *= -1; }
 		this.offsetType = type%4;
 	}
+	
 	
 }

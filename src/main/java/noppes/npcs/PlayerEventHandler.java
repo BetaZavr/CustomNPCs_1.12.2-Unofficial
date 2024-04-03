@@ -23,6 +23,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemBanner;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketScoreboardObjective;
@@ -32,6 +33,7 @@ import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
@@ -80,12 +82,15 @@ import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.handler.data.IWorldInfo;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
+import noppes.npcs.blocks.BlockCustomBanner;
+import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
 import noppes.npcs.client.AnalyticsTracking;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.KeyController;
 import noppes.npcs.controllers.PixelmonHelper;
+import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.PlayerData;
@@ -199,6 +204,15 @@ public class PlayerEventHandler {
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcBlockPlaceEvent");
 		EntityPlayer player = (EntityPlayer) event.getEntity();
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
+		if (event.getPlacedBlock().getBlock() instanceof BlockCustomBanner && player.getHeldItemMainhand().getItem() instanceof ItemBanner) {
+			NBTTagCompound nbt = player.getHeldItemMainhand().getTagCompound();
+			if (nbt != null && nbt.hasKey("BlockEntityTag", 10) && nbt.getCompoundTag("BlockEntityTag").hasKey("FactionID", 3)) {
+				TileEntity tile = event.getWorld().getTileEntity(event.getPos());
+				if (tile instanceof TileEntityCustomBanner) {
+					((TileEntityCustomBanner) tile).factionId = nbt.getCompoundTag("BlockEntityTag").getInteger("FactionID");
+				}
+			}
+		}
 		@SuppressWarnings("deprecation")
 		IBlock block = BlockWrapper.createNew(event.getWorld(), event.getPos(), event.getPlacedBlock());
 		PlayerEvent.PlaceEvent ev = new PlayerEvent.PlaceEvent(handler.getPlayer(), block);
@@ -355,6 +369,7 @@ public class PlayerEventHandler {
 		PlayerData data = PlayerData.get(event.player);
 		EventHooks.onPlayerLogin(data.scriptData);
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
+		PlayerSkinController.getInstance().logged(player);
 		MinecraftServer server = event.player.getServer();
 		for (WorldServer world : server.worlds) {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
@@ -405,6 +420,7 @@ public class PlayerEventHandler {
 		if (data.game.logPos != null) { // protection against remote measurements
 			NoppesUtilPlayer.teleportPlayer((EntityPlayerMP) event.player, data.game.logPos[0], data.game.logPos[1], data.game.logPos[2], (int) data.game.logPos[3], event.player.rotationYaw, event.player.rotationPitch);
 		}
+		data.game.dimID = player.world.provider.getDimension();
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLoginEvent");
 	}
 
@@ -645,6 +661,17 @@ public class PlayerEventHandler {
 			data.playerLevel = player.experienceLevel;
 		}
 		data.timers.update();
+		int dimId = event.player.world.provider.getDimension();
+		if (data.game.dimID != dimId) {
+			if (CustomNpcs.setPlayerHomeWhenChangingDimension) {
+				player.setSpawnDimension(dimId);
+				player.setSpawnPoint(player.getPosition(), true);
+				player.setSpawnChunk(player.getPosition(), true, dimId);
+				ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 27); // bedLocation
+				ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 33); // spawnPos
+			}
+			data.game.dimID = event.player.world.provider.getDimension();
+		}
 		CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcServerTick");
 	}
 
@@ -918,96 +945,6 @@ public class PlayerEventHandler {
 		else {
 			try {
 				/*
-				File dirM = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "src my");
-				List<File> list = AdditionalMethods.getFiles(dirM, ".java");
-System.out.println("CNPCs: list size: "+list.size());
-				Map<String, String> trs = Maps.<String, String>newLinkedHashMap();
-				trs.put("noppes", "betazavr");
-				trs.put("npcs", "all");
-				trs.put("customnpcs", "customall");
-				trs.put("CustomNpcs", "CustomAll");
-				trs.put("CustomNPCs", "CustomAll");
-				trs.put("ConfigProp", "ConfigData");
-				trs.put("EntityNPCInterface", "EntityNpcInterface");
-				
-				int i = 0, j = 0;
-				for (File file : list) {
-					String text = Files.toString(file, StandardCharsets.UTF_8);
-					boolean changed = false;
-					for (String key : trs.keySet()) {
-						String value = trs.get(key);
-						while (text.indexOf(key) != -1) {
-							text = text.replace(key, value);
-							changed = true;
-							i++;
-						}
-					}
-					if (changed) {
-						Files.write(text.getBytes(), file);
-						j++;
-					}
-				}
-System.out.println("CNPCs: changed count "+i+"; files: "+ j);
-
-				i = 0; j = 0;
-				list = AdditionalMethods.getFiles(dirM, ".json");
-				for (File file : list) {
-					String text = Files.toString(file, StandardCharsets.UTF_8);
-					boolean changed = false;
-					for (String key : trs.keySet()) {
-						String value = trs.get(key);
-						while (text.indexOf(key) != -1) {
-							text = text.replace(key, value);
-							changed = true;
-							i++;
-						}
-					}
-					if (changed) {
-						Files.write(text.getBytes(), file);
-						j++;
-					}
-				}
-				/**/
-				/*
-				File dirT = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "1.12.2");
-				
-				Map<String, String> trs = Maps.<String, String>newLinkedHashMap();
-				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(dirT, "transition.txt")), StandardCharsets.UTF_8));
-				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					if (line.indexOf("=") == -1) { continue; }
-					String key = line.substring(0, line.indexOf("="));
-					String value = line.substring(line.indexOf("=")+1);
-					trs.put(key, value);
-		        }
-				br.close();
-System.out.println("CNPCs: trs size: "+trs.size());
-				List<File> list = AdditionalMethods.getFiles(dirT, ".java");
-System.out.println("CNPCs: list size: "+list.size());
-				int i = 0, j = 0;
-				for (File file : list) {
-//System.out.println("CNPCs: file "+file);
-					String text = Files.toString(file, StandardCharsets.UTF_8);
-//System.out.println("CNPCs: text "+text.length());
-					for (String key : trs.keySet()) {
-						int k = 0;
-						String value = trs.get(key);
-						while (text.indexOf(key) != -1) {
-							text = text.replace(key, value);
-							i++;
-							k++;
-							if (k > 50) {
-								System.out.println("CNPCs: error FOR key: "+key);
-								break;
-							}
-						}
-					}
-					Files.write(text.getBytes(), file);
-					j++;
-//System.out.println("CNPCs: change "+j+"/"+list.size());
-				}
-System.out.println("CNPCs: changed count "+i);
-				/**/
-				/*
 				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/java"); // CustomNpcs 1.12.2
 				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "1.16.5"); // CustomNpcs 1.16.5
 				File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "net"); // Minecraft 1.12.2
@@ -1016,7 +953,7 @@ System.out.println("CNPCs: changed count "+i);
 				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
 				//for (Method m : AdditionalMethods.class.getDeclaredMethods()) { found.put(m.getName(), null); }
 				//found.put("System.out.println", null);
-				found.put("TileEntityBanner", null); // FlowingFluidBlock
+				found.put("getLocationSkin", null);
 				for (File file : AdditionalMethods.getFiles(dir, "java")) {
 					try {
 						BufferedReader reader = Files.newReader(file, Charset.forName("UTF-8"));
@@ -1059,7 +996,7 @@ System.out.println("CNPCs: changed count "+i);
 				}
 				/**/
 			}
-			catch (Exception e) { }
+			catch (Exception e) { e.printStackTrace(); }
 		}
 	}
 

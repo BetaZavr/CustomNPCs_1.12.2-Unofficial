@@ -117,7 +117,7 @@ extends ModelBiped
 				((ModelScaleRenderer) this.bipedLeftArm).setOBJModel(stack, null);
 				((ModelScaleRenderer) this.bipedRightArm).setOBJModel(stack, null);
 				String m = npc.display.getModel();
-				boolean smallArms = m != null && m.equals("minecraft:customnpcs.customnpcalex");
+				boolean smallArms = m != null && m.indexOf("customnpcalex") != -1;
 				((ModelScaleRenderer) this.bipedLeftArm).smallArms = smallArms;
 				((ModelScaleRenderer) this.bipedRightArm).smallArms = smallArms;
 			}

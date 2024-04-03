@@ -4,9 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.renderer.GlStateManager;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiTimerWrapper;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
@@ -60,7 +60,7 @@ implements IGuiComponent {
 		long time = System.currentTimeMillis() - this.now;
 		time /= 50L;
 		if (this.reverse) { time = this.start - time; }
-		if (time < 0 || (!this.reverse && time > this.end)) { Client.sendDataDelayCheck(EnumPlayerPacket.HudTimerEnd, this, 250, this.id, this.offsetType); }
+		if (time < 0 || (!this.reverse && time > this.end)) { NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.HudTimerEnd, this, 250, this.id, this.offsetType); }
 		if (this.reverse) { time += 20; }
 		return AdditionalMethods.ticksToElapsedTime(time, false, false, false);
 	}

@@ -143,7 +143,8 @@ implements IAnimationHandler {
 	public void sendToServer() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		Client.sendData(EnumPacketServer.AnimationChange, nbt);
-		for (IAnimation ac : this.animations.values()) {
+		List<IAnimation> list = Lists.newArrayList(animations.values());
+		for (IAnimation ac : list) {
 			Client.sendData(EnumPacketServer.AnimationChange, ((AnimationConfig) ac).writeToNBT(new NBTTagCompound()));
 		}
 		nbt.setBoolean("save", true);

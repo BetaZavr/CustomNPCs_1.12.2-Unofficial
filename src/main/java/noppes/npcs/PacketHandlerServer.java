@@ -59,14 +59,12 @@ import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.DropController;
 import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.LinkedNpcController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.controllers.SpawnController;
@@ -79,7 +77,6 @@ import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DropsTemplate;
-import noppes.npcs.controllers.data.EncryptData;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.Marcet;
@@ -1007,33 +1004,6 @@ public class PacketHandlerServer {
 			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-
-		} else if (type == EnumPacketServer.ScriptEncrypt) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			int tab = compound.getInteger("Tab");
-			ScriptContainer container = null;
-			IScriptHandler handler = null;
-			switch(compound.getByte("Type")) {
-				case 0: {
-					NBTTagCompound data = compound.getCompoundTag("data");
-					TileEntity tile = player.world.getTileEntity(new BlockPos(data.getInteger("x"), data.getInteger("y"), data.getInteger("z")));
-					if (!(tile instanceof TileScripted)) {
-						CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
-						return;
-					}
-					((TileScripted) tile).setNBT(compound);
-					((TileScripted) tile).lastInited = -1L;
-					handler = (TileScripted) tile;
-					container = ((TileScripted) tile).scripts.get(tab);
-					break;
-				}
-			}
-			String code;
-			if (compound.getBoolean("OnlyTab")) { code = container.script; }
-			else { code = container.getFullCode(); }
-			ScriptController.Instance.encryptData = new EncryptData(compound.getString("Path"), compound.getString("Name"), code, compound.getBoolean("OnlyTab"), container, handler);
-			ScriptController.Instance.encrypt();
-			player.sendMessage(new TextComponentString(((char) 167) + "2CustomNPCs"+((char) 167)+"7: Save to "+ScriptController.Instance.encryptData.path));
 		} else if (type == EnumPacketServer.DimensionSettings) {
 			int id = buffer.readInt();
 			CustomWorldInfo wi = Server.readWorldInfo(buffer);

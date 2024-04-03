@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.LanguageManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,12 +38,9 @@ import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.IGuiClose;
-import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
-import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
@@ -96,9 +92,7 @@ implements IGuiClose {
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
-		NBTTagCompound compound = new NBTTagCompound();
-		npc.writeToNBTOptional(compound);
-		this.dialogNpc = EntityList.createEntityFromNBT(compound, this.mc.world);
+		dialogNpc = AdditionalMethods.copyToGUI(npc, mc.world, false);
 		if (this.dialogNpc instanceof EntityNPCInterface) {
 			boolean addDots = false;
 			String name = ((EntityNPCInterface) this.dialogNpc).getName();
@@ -114,14 +108,6 @@ implements IGuiClose {
 				addDots = true;
 			}
 			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setTitle(title+"..."); }
-			((EntityNPCInterface) this.dialogNpc).animation.clear();
-			MarkData.get((EntityNPCInterface) this.dialogNpc).marks.clear();
-			if (npc instanceof EntityCustomNpc &&
-					dialogNpc instanceof EntityCustomNpc &&
-					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
-					((EntityCustomNpc) dialogNpc).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) dialogNpc).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
-			}
 		}
 		selected = 0;
 		selectedStart = 0;
@@ -543,7 +529,7 @@ implements IGuiClose {
 	private void drawString(String text, int left, int color, int linePos) {
 		int height = (linePos - this.lineStart) * this.tf;
 		int line = this.guiTop + this.dialogHeight - this.tf / 3;
-		if (height+12 > line) { return; }
+		if (height > line) { return; }
 		this.drawString(this.fontRenderer, text, this.guiLeft + 1 + left, this.guiTop + height, color);
 		if (this.textures.containsKey(linePos)) {
 			this.textures.get(linePos).left = this.guiLeft + 1 + left;

@@ -21,11 +21,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CommonProxy;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.Server;
-import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumBuilder;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
@@ -67,7 +67,7 @@ implements IPermission {
 		ItemBuilder.cheakStack(stack);
 		BuilderData builder = CommonProxy.dataBuilder.get(stack.getTagCompound().getInteger("ID"));
 		if (builder==null) {
-			Client.sendDataDelayCheck(EnumPlayerPacket.GetBuildData, this, 5000);
+			NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.GetBuildData, this, 5000);
 			return;
 		}
 		if (builder.type!=4) {

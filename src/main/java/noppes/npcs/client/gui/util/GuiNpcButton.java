@@ -21,6 +21,7 @@ extends GuiButton {
 	public ResourceLocation texture = null;
 	public String lable = "";
 	public boolean dropShadow, hasDefBack, hasSound, isPressed;
+	public int textColor = CustomNpcs.mainColor;
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -133,7 +134,7 @@ extends GuiButton {
 			GlStateManager.popMatrix();
 			
 		}
-		int l = CustomNpcs.mainColor;
+		int l = textColor;
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
 		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
 		else if (this.hovered) { l = CustomNpcs.hoverColor; }

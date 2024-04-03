@@ -80,6 +80,7 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.IChatMessages;
 import noppes.npcs.ModelPartConfig;
 import noppes.npcs.NBTTags;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcDamageSource;
 import noppes.npcs.Server;
@@ -132,7 +133,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumPacketClient;
@@ -282,6 +282,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.initTime = System.currentTimeMillis();
 		}
 		this.aiTargetAnalysis = new EntityAITargetController(this);
+		if (world.isRemote) { CustomNpcs.proxy.checkTexture(this); }
 	}
 
 	public void addInteract(EntityLivingBase entity) {
@@ -1203,7 +1204,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		super.onUpdate();
 		if (this.ticksExisted % 10 == 0) {
 			if (this.initTime != 0L && this.world.isRemote && this.initTime < System.currentTimeMillis() - 1000L) {
-				Client.sendDataDelayCheck(EnumPlayerPacket.NpcData, this, 0, this.getEntityId());
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.NpcData, this.getEntityId());
 				this.initTime = 0L;
 			}
 			if (this.isKilled()) {
@@ -1941,5 +1942,5 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			e.printStackTrace();
 		}
 	}
-	
+    
 }

@@ -60,8 +60,6 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.PartConfig;
-import noppes.npcs.client.model.part.ModelDataShared;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -122,30 +120,10 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		mousePressY = 0;
 		onlyCurrentPart = false;
 		showArmor = true;
+
+		npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, true);
+		npcPart = AdditionalMethods.copyToGUI(npc, mc.world, true);
 		
-		NBTTagCompound npcNbt = new NBTTagCompound();
-		npc.writeEntityToNBT(npcNbt);
-		npc.writeToNBTOptional(npcNbt);
-		Entity e = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-		if (e instanceof EntityNPCInterface) {
-			this.npcAnim = AdditionalMethods.setToGUI((EntityNPCInterface) e);
-			if (npc instanceof EntityCustomNpc &&
-					npcAnim instanceof EntityCustomNpc &&
-					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
-					((EntityCustomNpc) npcAnim).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) npcAnim).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
-			}
-		}
-		Entity e2 = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-		if (e2 instanceof EntityNPCInterface) {
-			this.npcPart = AdditionalMethods.setToGUI((EntityNPCInterface) e2);
-			if (npc instanceof EntityCustomNpc &&
-					npcPart instanceof EntityCustomNpc &&
-					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
-					((EntityCustomNpc) npcPart).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) npcPart).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
-			}
-		}
 		blockNames = new String[6];
 		blockNames[0] = "gui.environment";
 		blockNames[1] = "gui.none";
@@ -587,7 +565,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.part.disabled."+!part.isDisable()).appendSibling(new TextComponentTranslation("animation.hover.shift.1")).getFormattedText());
 		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("animation.hover.part.del").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("animation.hover.smooth."+frame.isSmooth()).getFormattedText());
 		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.part.color").getFormattedText());
 		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
@@ -657,110 +635,108 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		GlStateManager.pushMatrix();
 		this.postRender();
 		RenderHelper.enableGUIStandardItemLighting();
-		if (blockType != 1) {
-			IBlockState state;
-			switch(blockType) {
-				case 3: state = Blocks.STONE_STAIRS.getDefaultState(); break;
-				case 4: state = Blocks.STONE_SLAB.getDefaultState(); break;
-				case 5: state = Blocks.CARPET.getDefaultState(); break;
-				default: state = Blocks.STONE.getDefaultState(); break;
-			}
-			this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-			GlStateManager.enableRescaleNormal();
-			GlStateManager.enableAlpha();
-			GlStateManager.alphaFunc(516, 0.1F);
-			GlStateManager.enableBlend();
-			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			float ytr = offsetY;
-			if (blockType == 4) { ytr = -8.0f; }
-			else if (blockType == 5) { ytr = -15.0f; }
-			else if (blockType != 0) { ytr = 0.0f; }
-			GlStateManager.translate(-8.0f * winScale, ytr * winScale, 8.0f * winScale);
-			GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
-			GlStateManager.scale(-16.0f, -16.0f, -16.0f);
-			GlStateManager.scale(winScale, winScale, winScale);
-			int yH = blockType == 0 ? blockSize : 0;
-			Map<BlockPos, TileEntity> tiles = Maps.newHashMap();
-			for (int y = -yH; y <= yH; y++) {
-				//if (y < 1) { continue; }
-				for (int x = -blockSize; x <= blockSize; x++) {
-					for (int z = -blockSize; z <= blockSize; z++) {
-						BlockPos pos = new BlockPos(x, y, z);
-						TileEntity tile = null;
-						if (blockType == 0) {
-							IBlockState s = this.environmentStates.get(pos);
-							if (s != null) { state = (IBlockState) s; }
-							TileEntity t = this.environmentTiles.get(pos);
-							if (t != null) { tile = (TileEntity) t; }
-						}
-						if (tile != null) {
-							TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers.get(tile.getClass());
-							if (render != null) {
-								tiles.put(pos, tile);
-								continue;
-							}
-						}
-						if (state.getBlock() instanceof BlockAir) { continue; }
-						GlStateManager.pushMatrix();
-						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-						GlStateManager.translate(x, (y - 1), z);
-						this.mc.getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
-						GlStateManager.popMatrix();
-					}
-				}
-			}
-			for (BlockPos p : tiles.keySet()) {
-				TileEntity tile = tiles.get(p);
-				TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers.get(tile.getClass());
-				if (render != null) {
-					GlStateManager.pushMatrix();
-					render.render(tile, (double) p.getX(), (double) p.getY() - 1, (double) (p.getZ() - 1), partialTicks, 0, 1.0f);
-					GlStateManager.popMatrix();
-					continue;
-				}
-			}
-
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(0.0f, 0.0f, -1.0f);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			if (meshType == 0) {
-				drawLine(0.0d, 0.0d, 0.0d, 10.0d, 0, 1.0f, 0.0f, 0.0f);
-				drawLine(0.0d, 0.0d, 0.0d, 10.0d, 1, 0.0f, 1.0f, 0.0f);
-				drawLine(0.0d, 0.0d, 0.0d, 10.0d, 2, 0.0f, 0.0f, 1.0f);
-			}
-			else if (meshType == 1) {
-				drawLine(0.0d, 0.0d, -11.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-				drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-				for (int i = -10; i <= 11; i++) {
-					drawLine(0.0d, 0.0d, i, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-					drawLine(i, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-				}
-			}
-			else if (meshType == 2) {
-				drawLine(0.0d, -11.0d, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-				drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-				for (int i = -10; i <= 11; i++) {
-					drawLine(0.0d, i, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
-					drawLine(i, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-				}
-			}
-			else if (meshType == 3) {
-				drawLine(0.0d, 0.0d, -11.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-				drawLine(0.0d, -11.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-				for (int i = -10; i <= 11; i++) {
-					drawLine(0.0d, 0.0d, i, 11.0d, 1, 1.0f, 1.0f, 1.0f);
-					drawLine(0.0d, i, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
-				}
-			}
-			GlStateManager.disableBlend();
-			GlStateManager.popMatrix();
-			
-			GlStateManager.disableAlpha();
-			GlStateManager.disableRescaleNormal();
-			GlStateManager.disableLighting();
+		IBlockState state;
+		switch(blockType) {
+			case 1: state = Blocks.AIR.getDefaultState(); break;
+			case 3: state = Blocks.STONE_STAIRS.getDefaultState(); break;
+			case 4: state = Blocks.STONE_SLAB.getDefaultState(); break;
+			case 5: state = Blocks.CARPET.getDefaultState(); break;
+			default: state = Blocks.STONE.getDefaultState(); break;
 		}
+		this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.enableAlpha();
+		GlStateManager.alphaFunc(516, 0.1F);
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		float ytr = offsetY;
+		GlStateManager.translate(-8.0f * winScale, ytr * winScale, 8.0f * winScale);
+		GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
+		GlStateManager.scale(-16.0f, -16.0f, -16.0f);
+		GlStateManager.scale(winScale, winScale, winScale);
+		int yH = blockType == 0 ? blockSize : 0;
+		Map<BlockPos, TileEntity> tiles = Maps.newHashMap();
+		for (int y = -yH; y <= yH; y++) {
+			//if (y < 1) { continue; }
+			for (int x = -blockSize; x <= blockSize; x++) {
+				for (int z = -blockSize; z <= blockSize; z++) {
+					BlockPos pos = new BlockPos(x, y, z);
+					TileEntity tile = null;
+					if (blockType == 0) {
+						IBlockState s = this.environmentStates.get(pos);
+						if (s != null) { state = (IBlockState) s; }
+						TileEntity t = this.environmentTiles.get(pos);
+						if (t != null) { tile = (TileEntity) t; }
+					}
+					if (tile != null) {
+						TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers.get(tile.getClass());
+						if (render != null) {
+							tiles.put(pos, tile);
+							continue;
+						}
+					}
+					if (state.getBlock() instanceof BlockAir) { continue; }
+					GlStateManager.pushMatrix();
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					GlStateManager.translate(x, (y - 1), z);
+					if (blockType == 4) { GlStateManager.translate(0.0f, 0.5f, 0.0f); }
+					else if (blockType == 5) { GlStateManager.translate(0.0f, 0.9375f, 0.0f); }
+					this.mc.getBlockRendererDispatcher().renderBlockBrightness(state, 1.0f);
+					GlStateManager.popMatrix();
+				}
+			}
+		}
+		for (BlockPos p : tiles.keySet()) {
+			TileEntity tile = tiles.get(p);
+			TileEntitySpecialRenderer<TileEntity> render = (TileEntitySpecialRenderer<TileEntity>) TileEntityRendererDispatcher.instance.renderers.get(tile.getClass());
+			if (render != null) {
+				GlStateManager.pushMatrix();
+				render.render(tile, (double) p.getX(), (double) p.getY() - 1, (double) (p.getZ() - 1), partialTicks, 0, 1.0f);
+				GlStateManager.popMatrix();
+				continue;
+			}
+		}
+
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0.0f, 0.0f, -1.0f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		if (meshType == 0) {
+			drawLine(0.0d, 0.0d, 0.0d, 10.0d, 0, 1.0f, 0.0f, 0.0f);
+			drawLine(0.0d, 0.0d, 0.0d, 10.0d, 1, 0.0f, 1.0f, 0.0f);
+			drawLine(0.0d, 0.0d, 0.0d, 10.0d, 2, 0.0f, 0.0f, 1.0f);
+		}
+		else if (meshType == 1) {
+			drawLine(0.0d, 0.0d, -11.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+			drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+			for (int i = -10; i <= 11; i++) {
+				drawLine(0.0d, 0.0d, i, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+				drawLine(i, 0.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+			}
+		}
+		else if (meshType == 2) {
+			drawLine(0.0d, -11.0d, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+			drawLine(-11.0d, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+			for (int i = -10; i <= 11; i++) {
+				drawLine(0.0d, i, 0.0d, 11.0d, 0, 1.0f, 1.0f, 1.0f);
+				drawLine(i, 0.0d, 0.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+			}
+		}
+		else if (meshType == 3) {
+			drawLine(0.0d, 0.0d, -11.0d, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+			drawLine(0.0d, -11.0d, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+			for (int i = -10; i <= 11; i++) {
+				drawLine(0.0d, 0.0d, i, 11.0d, 1, 1.0f, 1.0f, 1.0f);
+				drawLine(0.0d, i, 0.0d, 11.0d, 2, 1.0f, 1.0f, 1.0f);
+			}
+		}
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();
+		
+		GlStateManager.disableAlpha();
+		GlStateManager.disableRescaleNormal();
+		GlStateManager.disableLighting();
 		// npc
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.drawNpc(showNPC);

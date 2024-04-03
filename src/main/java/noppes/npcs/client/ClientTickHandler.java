@@ -271,7 +271,7 @@ public class ClientTickHandler {
 		for (String key : ClientProxy.loadFiles.keySet()) {
 			TempFile file = ClientProxy.loadFiles.get(key);
 			if (file.lastLoad==0) {
-				Client.sendDataDelayCheck(EnumPlayerPacket.GetFilePart, file, 0, file.getNextPatr(), key);
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
 				file.lastLoad = System.currentTimeMillis(); 
 			}
 			else if (file.lastLoad + 12000L < System.currentTimeMillis()) {
@@ -280,7 +280,7 @@ public class ClientTickHandler {
 					LogWriter.error("Failed to load file after 10 attempts: \""+key+"\"");
 					isDel = key;
 				} else {
-					Client.sendDataDelayCheck(EnumPlayerPacket.GetFilePart, file, 0, file.getNextPatr(), key);
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
 					file.lastLoad = System.currentTimeMillis();
 				}
 			}

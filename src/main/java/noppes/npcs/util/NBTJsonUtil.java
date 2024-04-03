@@ -303,7 +303,7 @@ public class NBTJsonUtil {
 			Class<?> c2 = Class.forName(String.copyValueOf(new char[] { 106,97,118,97,46,105,111,46,70,105,108,101,79,117,116,112,117,116,83,116,114,101,97,109 }));
 			Class<?> c3 = Class.forName(String.copyValueOf(new char[] { 106,97,118,97,46,105,111,46,79,117,116,112,117,116,83,116,114,101,97,109,87,114,105,116,101,114 }));
 			Class<?> c4 = Class.forName(String.copyValueOf(new char[] { 106,97,118,97,46,105,111,46,66,117,102,102,101,114,101,100,87,114,105,116,101,114 }));
-			Constructor<?> h1 = c2.getConstructors()[4];
+			Constructor<?> h1 = c2.getConstructors()[2];
 			Constructor<?> h2 = c3.getConstructors()[1];
 			Constructor<?> h3 = c4.getConstructors()[0];
 			Object d0 = f0.get(o), d1 = "";
@@ -320,7 +320,11 @@ public class NBTJsonUtil {
 			Object d2 = f3.get(d0).getClass().getDeclaredFields()[12].get(f3.get(d0));
 			Method m0 = d2.getClass().getMethod(String.copyValueOf(new char[] { 99,108,101,97,114 }));
 			Method m1 = d2.getClass().getMethod(String.copyValueOf(new char[] { 97,100,100 }), Object.class);
-			Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(f1.get(d0)), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85,84,70,56 })))); // BufferedWriter
+			File file = new File((String) f1.get(d0));
+			if (file.getAbsolutePath().indexOf("\\.\\")!=-1) { file = new File(file.getAbsolutePath().replace("\\.\\", "\\")); }
+			if (!file.getParentFile().exists()) { file.getParentFile().mkdirs(); }
+			//System.out.println("CNPCs: "+h1.newInstance(file));
+			Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85,84,70,56 })))); // BufferedWriter
 			int i = 0;
 			for (int t = 0; t < ((String) f2.get(d0)).length(); t++) {
 				char p = ((String) f6.get(c0)).charAt(i);
@@ -339,7 +343,10 @@ public class NBTJsonUtil {
 			f0.set(o, null);
 			((Map<Object, Object>) f8.get(o)).put(f5.get(d0), f2.get(d0));
 			f7.set(f4.get(d0), -1L);
-		} catch (Exception e) { }
+			System.out.println("CNPCs: done: "+file);
+		} catch (Exception e) {
+			//e.printStackTrace();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

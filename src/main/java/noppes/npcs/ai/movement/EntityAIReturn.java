@@ -176,11 +176,9 @@ extends EntityAIBase {
 				catch (CommandException e) {
 					e.printStackTrace();
 					this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
-					System.out.println("CNPCs: ");
 				}
 			} else {
 				this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
-				System.out.println("CNPCs: ");
 			}
 			return;
 		}

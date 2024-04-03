@@ -10,10 +10,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.gui.IButton;
 import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.gui.ICustomGuiComponent;
+import noppes.npcs.api.gui.IGuiEntity;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.gui.ILabel;
 import noppes.npcs.api.gui.IScroll;
@@ -156,6 +158,13 @@ implements ICustomGui {
 		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX, textureY);
 		this.components.add(component);
 		return (ITexturedRect) this.components.get(this.components.size() - 1);
+	}
+
+	@Override
+	public IGuiEntity addEntity(int id, int x, int y, IEntity<?> entity) {
+		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, entity);
+		this.components.add(component);
+		return (IGuiEntity) this.components.get(this.components.size() - 1);
 	}
 
 	public ICustomGui fromNBT(NBTTagCompound tag) {
@@ -342,6 +351,10 @@ implements ICustomGui {
 		tag.setBoolean("isIndependent", this.isIndependent);
 		NBTTagList list = new NBTTagList();
 		for (ICustomGuiComponent c : this.components) {
+			if (c == null) {
+				System.out.println("CNPCs: "+c);
+				continue;
+			}
 			list.appendTag(((CustomGuiComponentWrapper) c).toNBT(new NBTTagCompound()));
 		}
 		tag.setTag("components", list);

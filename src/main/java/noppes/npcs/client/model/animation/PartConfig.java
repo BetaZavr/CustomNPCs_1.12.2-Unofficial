@@ -96,7 +96,7 @@ public class PartConfig implements IAnimationPart {
 		this.id = compound.getInteger("Part");
 		this.disable = compound.getBoolean("Disabled");
 		if (compound.hasKey("Show", 1)) { this.show = compound.getBoolean("Show"); }
-		this.name = compound.getString("Name");
+		if (compound.hasKey("Name", 8)) { this.name = compound.getString("Name"); }
 	}
 	
 	public NBTTagCompound writeNBT() {

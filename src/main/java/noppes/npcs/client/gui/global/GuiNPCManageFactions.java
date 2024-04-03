@@ -15,6 +15,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -191,7 +193,13 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				break;
 			}
 			case 11: { // get
-
+				if (faction == null || faction.id <0) { return ; }
+				ItemStack stack = new ItemStack(Items.BANNER);
+				NBTTagCompound nbt = stack.getTagCompound();
+				if (nbt == null) { stack.setTagCompound(nbt = new NBTTagCompound()); }
+				nbt.setTag("BlockEntityTag", new NBTTagCompound());
+				nbt.getCompoundTag("BlockEntityTag").setInteger("FactionID", faction.id);
+				Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
 				break;
 			}
 			case 14: {

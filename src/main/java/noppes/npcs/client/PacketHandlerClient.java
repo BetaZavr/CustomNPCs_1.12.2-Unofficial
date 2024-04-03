@@ -83,6 +83,7 @@ import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.DropController;
 import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.ScriptController;
@@ -133,6 +134,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		PacketHandlerClient.list.add(EnumPacketClient.VISIBLE_FALSE);
 		PacketHandlerClient.list.add(EnumPacketClient.NPC_DATA);
 		PacketHandlerClient.list.add(EnumPacketClient.FORCE_PLAY_SOUND);
+		PacketHandlerClient.list.add(EnumPacketClient.PLAYER_SKIN_ADD);
+		PacketHandlerClient.list.add(EnumPacketClient.UPDATE_HUD);
 	}
 
 	@SubscribeEvent
@@ -875,6 +878,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (e instanceof EntityNPCInterface) {
 				e.readFromNBT(compound);
 			}
+		} else if (type == EnumPacketClient.PLAYER_SKIN_ADD) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			UUID uuid = PlayerSkinController.getInstance().loadPlayerSkin(compound);
+			ClientProxy.resetSkin(uuid);
+		} else if (type == EnumPacketClient.PLAYER_SKIN_GET) {
+			ClientProxy.sendSkin(player.getUniqueID());
 		}
 		CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 	}

@@ -63,7 +63,6 @@ public class ServerTickHandler {
 			VisibilityController.onUpdate(player);
 		}
 		if (player.world.getTotalWorldTime() % 20L == resTime % 20L) {
-			if (data.editingNpc != null && data.hud.currentGUI.equals("GuiIngame")) { data.editingNpc = null; }
 			data.hud.updateHud(player);
 			if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
 				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());

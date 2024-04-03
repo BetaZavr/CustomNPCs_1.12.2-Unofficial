@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class GuiNpcTextField
 extends GuiTextField {
@@ -84,7 +85,7 @@ extends GuiTextField {
 
 	public void drawTextBox(int mouseX, int mouseY) {
         this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-		this.drawTextBox();
+        this.drawTextBox();
 	}
 
 	public double getDouble() {
@@ -135,15 +136,22 @@ extends GuiTextField {
 		return false;
 	}
 
-	public boolean mouseClicked(int i, int j, int k) {
-		if (!this.canEdit) {
-			return false;
-		}
-		boolean wasFocused = this.isFocused();
-		boolean clicked = super.mouseClicked(i, j, k);
-		if (wasFocused != this.isFocused() && wasFocused) {
-			this.unFocused();
-		}
+	public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
+		if (!this.canEdit) { return false; }
+		boolean isFocused = this.isFocused();
+		boolean clicked = hovered;
+        if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 10)) { this.setFocused(hovered); } // canLoseFocus
+        if (isFocused && hovered && mouseButton == 0) {
+            int i = mouseX - this.x;
+            if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 9)) { i -= 4; } // enableBackgroundDrawing
+            FontRenderer fontRenderer = ObfuscationHelper.getValue(GuiTextField.class, this, FontRenderer.class);
+            int lineScrollOffset = ObfuscationHelper.getValue(GuiTextField.class, this, 13);
+            String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
+            this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
+            return true;
+        }
+        else { clicked = false; }
+		if (isFocused != this.isFocused() && isFocused) { this.unFocused(); }
 		if (this.isFocused()) {
 			GuiNpcTextField.activeTextfield = this;
 		}

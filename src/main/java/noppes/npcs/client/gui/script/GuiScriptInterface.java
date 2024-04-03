@@ -251,6 +251,10 @@ implements IGuiData, ITextChangeListener
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (this.getButton(118) != null) {
+			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+			this.getButton(118).setEnabled(container != null && !container.getFullCode().isEmpty());
+		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (!CustomNpcs.showDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
@@ -285,7 +289,7 @@ implements IGuiData, ITextChangeListener
 				scripts.put(list.getStringTagAt(j), ld[j]);
 			}
 			languages.put(comp.getString("Language"), scripts);
-			if (comp.getString("Language").equals(this.handler.getLanguage())) { this.ext = comp.getString("FileSfx"); }
+			if (AdditionalMethods.equalsDeleteColor(comp.getString("Language"), this.handler.getLanguage(), false)) { this.ext = comp.getString("FileSfx"); }
 		}
 		this.path = compound.getString("DirPath")+"/"+this.handler.getLanguage().toLowerCase();
 		this.languages = languages;

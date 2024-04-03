@@ -25,8 +25,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.constants.AnimationKind;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.ImageDownloadAlt;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
@@ -284,7 +284,7 @@ extends RenderLiving<T> {
 			if (npc.currentAnimation == 1) { d1 -= 0.35f; }
 			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, npc.getName(), npc.display.getTitle());
 			if (!CustomNpcs.showLR) { return; }
-			Client.sendDataDelayCheck(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
+			NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
 			if (!npc.stats.getRarityTitle().isEmpty()) {
 				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, "", npc.stats.getRarityTitle());
 			}

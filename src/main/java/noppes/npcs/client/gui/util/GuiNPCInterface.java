@@ -59,9 +59,7 @@ implements IEditNPC {
 	private final Map<Integer, GuiMenuLeftButton> leftbuttons;
 
 
-	public GuiNPCInterface() {
-		this(null);
-	}
+	public GuiNPCInterface() { this(null); }
 
 	public GuiNPCInterface(EntityNPCInterface npc) {
 		this.buttons = new ConcurrentHashMap<Integer, GuiNpcButton>();

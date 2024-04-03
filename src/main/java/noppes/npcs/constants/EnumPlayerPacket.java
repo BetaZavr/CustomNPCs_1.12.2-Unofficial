@@ -69,6 +69,8 @@ public enum EnumPlayerPacket
 	OpenCeilBank,
 	StopSound,
 	PlaySound,
-	QuestLogButton;
+	QuestExtraButton,
+	PlayerSkinSet,
+	ScriptEncrypt;
 	
 }

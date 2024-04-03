@@ -116,7 +116,6 @@ public enum EnumPacketServer
 	ScriptItemDataGet(false), 
 	ScriptForgeSave(CustomNpcsPermissions.TOOL_SCRIPTER), 
 	ScriptClientSave(CustomNpcsPermissions.TOOL_SCRIPTER),
-	ScriptEncrypt(CustomNpcsPermissions.TOOL_SCRIPTER),
 	ScriptForgeGet(false), 
 	ScriptClientGet(false),
 	SpawnerNpcMove(CustomNpcsPermissions.NPC_ADVANCED, true), // New
@@ -151,7 +150,7 @@ public enum EnumPacketServer
 	NbtBookSaveEntity(CustomNpcsPermissions.TOOL_NBTBOOK), 
 	NbtBookSaveItem(CustomNpcsPermissions.TOOL_NBTBOOK), 
 	NbtBookSaveBlock(CustomNpcsPermissions.TOOL_NBTBOOK),
-	NbtBookCopyStack(CustomNpcsPermissions.TOOL_NBTBOOK),
+	NbtBookCopyStack(false),
 	ScriptPotionGet(false), //New
 	ScriptPotionSave(CustomNpcsPermissions.TOOL_SCRIPTER), // New
 	TeleportTo(false), // New

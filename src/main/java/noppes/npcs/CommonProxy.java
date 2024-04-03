@@ -199,7 +199,6 @@ implements IGuiHandler {
 	}
 
 	public void postload() {
-
 	}
 
 	public void spawnParticle(EntityLivingBase player, String string, Object... ob) {
@@ -1284,5 +1283,7 @@ implements IGuiHandler {
 	public void updateKeys() { }
 
 	public void reloadItemTextures() { }
+
+	public void checkTexture(EntityNPCInterface npc) { }
 
 }

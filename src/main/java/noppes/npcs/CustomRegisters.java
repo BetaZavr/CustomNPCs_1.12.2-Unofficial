@@ -9,11 +9,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.collect.BiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockBanner;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.properties.IProperty;
@@ -43,10 +45,12 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionType;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -61,15 +65,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.ForgeRegistry;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.blocks.BlockBuilder;
 import noppes.npcs.blocks.BlockCarpentryBench;
 import noppes.npcs.blocks.BlockCopy;
+import noppes.npcs.blocks.BlockCustomBanner;
 import noppes.npcs.blocks.BlockMailbox;
 import noppes.npcs.blocks.BlockNpcRedstone;
 import noppes.npcs.blocks.BlockScripted;
@@ -90,6 +95,7 @@ import noppes.npcs.blocks.tiles.TileBorder;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.blocks.tiles.TileDoor;
+import noppes.npcs.blocks.tiles.TileEntityCustomBanner;
 import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.blocks.tiles.TileMailbox2;
 import noppes.npcs.blocks.tiles.TileMailbox3;
@@ -190,11 +196,6 @@ public class CustomRegisters {
 	public static Block scriptedDoor = null;
 	@GameRegistry.ObjectHolder("npcwaypoint")
 	public static Block waypoint = null;
-	
-	/*@GameRegistry.ObjectHolder("npcbanner_standing") // New
-	public static Block npcbanner_standing = null;
-	@GameRegistry.ObjectHolder("npcbanner_wall") // New
-	public static Block npcbanner_wall = null;*/
 
 	@GameRegistry.ObjectHolder("npcmobcloner")
 	public static Item cloner = null;
@@ -791,8 +792,10 @@ public class CustomRegisters {
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
 		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
 		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
-		
 
+		RegistryNamespaced <ResourceLocation, Class <? extends TileEntity>> REGISTRY = ObfuscationHelper.getValue(TileEntity.class, 1);
+		REGISTRY.putObject(new ResourceLocation("minecraft", "banner"), TileEntityCustomBanner.class);
+		
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
 		CustomRegisters.mailbox = new BlockMailbox();
 		CustomRegisters.waypoint = new BlockWaypoint();
@@ -971,6 +974,39 @@ public class CustomRegisters {
 			}
 		}
 		event.getRegistry().registerAll(blocks.toArray(new Block[blocks.size()]));
+		
+		BiMap<Integer, Block> ids = ObfuscationHelper.getValue(ForgeRegistry.class, (ForgeRegistry<Block>) event.getRegistry(), 2);
+		BiMap<ResourceLocation, Block> namesB = ObfuscationHelper.getValue(ForgeRegistry.class, (ForgeRegistry<Block>) event.getRegistry(), 3);
+		for (int i = 0; i < 2; i++) {
+			ResourceLocation key = new ResourceLocation(i ==0 ? "standing_banner" : "wall_banner");
+			Block parent = event.getRegistry().getValue(key);
+			if (parent == null) { continue; }
+			BlockCustomBanner newBlock;
+			if (key.toString().toLowerCase().indexOf("standing_banner") !=-1) {
+				newBlock = new BlockCustomBanner.BlockBannerStanding((BlockBanner) parent);
+				ObfuscationHelper.setValue(Blocks.class, newBlock, 193); // Blocks.STANDING_BANNER
+			}
+			else {
+				newBlock = new BlockCustomBanner.BlockBannerHanging((BlockBanner) parent);
+				ObfuscationHelper.setValue(Blocks.class, newBlock, 194); // Blocks.WALL_BANNER
+			}
+			if (ids.containsValue(parent)) {
+				for (Integer k : ids.keySet()) {
+					if (ids.get(k).equals(parent)) {
+						ids.put(k, newBlock);
+						break;
+					}
+				}
+			}
+			if (namesB.containsValue(parent)) {
+				for (ResourceLocation k : namesB.keySet()) {
+					if (k.equals(key)) {
+						namesB.put(k, newBlock);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
@@ -1233,6 +1269,7 @@ public class CustomRegisters {
 				return item;
 			}
 		});
+		
 	}
 	
 	@SubscribeEvent
@@ -1276,9 +1313,6 @@ public class CustomRegisters {
 	}
 
 	private EntityEntry registerNpc(Class<? extends Entity> cl, String name) {
-		if (CustomNpcs.FixUpdateFromPre_1_12) {
-			ForgeRegistries.ENTITIES.register(new EntityEntry(cl, name).setRegistryName(new ResourceLocation(CustomNpcs.MODID + "." + name)));
-		}
 		return this.registerNewentity(name, 64, 3, true).entity(cl).build();
 	}
 	

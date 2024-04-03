@@ -63,8 +63,7 @@ implements ISubGuiListener, ITextfieldListener{
 		
 		Render<?> rnpc = this.mc.getRenderManager().getEntityRenderObject(npc);
 		if (rnpc instanceof RenderLivingBase) {
-			RenderLivingBase<?> r = (RenderLivingBase<?>) rnpc;
-			System.out.println("CNPCs: "+r.getMainModel());
+			//RenderLivingBase<?> r = (RenderLivingBase<?>) rnpc;
 		}
 		
 		GlStateManager.pushMatrix();
@@ -78,7 +77,6 @@ implements ISubGuiListener, ITextfieldListener{
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		System.out.println("buttonID: "+button.id);
 		switch(button.id) {
 			case 0: {
 				isCube = button.getValue() == 1;

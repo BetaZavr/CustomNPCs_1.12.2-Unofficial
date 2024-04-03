@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.EventHooks;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.Server;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
@@ -22,7 +23,6 @@ import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.INPCAnimation;
 import noppes.npcs.api.event.AnimationEvent;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
@@ -60,16 +60,30 @@ implements INPCAnimation {
 	public void load(NBTTagCompound compound) {
 		data.clear();
 		this.emotion.clear();
+		AnimationController aData = AnimationController.getInstance();
 		if (compound.hasKey("AllAnimations", 9)) {
 			for (int c=0; c<compound.getTagList("AllAnimations", 10).tagCount(); c++) {
 				NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
 				int t = nbtCategory.getInteger("Category");
 				if (t < 0) { t *= -1; }
 				AnimationKind type = AnimationKind.get(t % AnimationKind.values().length);
-				
 				List<Integer> list = Lists.<Integer>newArrayList();
 				for (int i = 0; i<nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
 					int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
+					if (!list.contains(id)) { list.add(id); }
+				}
+				for (int i = 0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
+					NBTTagCompound nbt = nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i);
+					int id = nbt.getInteger("ID");
+					String name = npc.getName() + "_" + nbt.getString("Name");
+					AnimationConfig anim = (AnimationConfig) aData.getAnimation(id);
+					if (anim == null || !anim.getName().equals(name)) { anim = (AnimationConfig) aData.createNew(); }
+					if (anim != null) {
+						id = anim.id;
+						anim.readFromNBT(nbt);
+						anim.name = name;
+						anim.id = id;
+					}
 					if (!list.contains(id)) { list.add(id); }
 				}
 				Collections.sort(list);
@@ -148,7 +162,7 @@ implements INPCAnimation {
 
 	public void updateClient(int type, int ... var) {
 		if (this.npc.world==null || this.npc.world.isRemote) {
-			if (type==1) { Client.sendDataDelayCheck(EnumPlayerPacket.StopNPCAnimation, this, 0, this.npc.getEntityId(), var[0], var[1]); }
+			if (type==1) { NoppesUtilPlayer.sendData(EnumPlayerPacket.StopNPCAnimation, this.npc.getEntityId(), var[0], var[1]); }
 			return;
 		}
 		NBTTagCompound compound = this.save(new NBTTagCompound());

@@ -16,8 +16,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
@@ -37,8 +37,7 @@ public class ItemNpcScripter extends Item implements IPermission {
 				|| e == EnumPacketServer.ScriptPlayerGet || e == EnumPacketServer.ScriptPlayerSave
 				|| e == EnumPacketServer.ScriptForgeGet || e == EnumPacketServer.ScriptForgeSave
 				|| e == EnumPacketServer.ScriptPotionGet || e == EnumPacketServer.ScriptPotionSave
-				|| e == EnumPacketServer.ScriptClientGet || e == EnumPacketServer.ScriptClientSave ||
-				e == EnumPacketServer.ScriptEncrypt;
+				|| e == EnumPacketServer.ScriptClientGet || e == EnumPacketServer.ScriptClientSave;
 	}
 
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {

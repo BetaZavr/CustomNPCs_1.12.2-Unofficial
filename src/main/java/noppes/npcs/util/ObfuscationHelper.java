@@ -186,13 +186,13 @@ public class ObfuscationHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T, E> T getValue(Class<? super E> clazz, Class<? super E> instance, int index) {
+	public static <T, E> T getValue(Class<? super E> clazz, int index) {
 		Field f = null;
 		try {
 			f = ObfuscationHelper.getField(clazz, index);
 			if (f != null) {
 				f.setAccessible(true);
-				return (T) f.get(instance);
+				return (T) f.get(clazz);
 			}
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
@@ -475,6 +475,44 @@ public class ObfuscationHelper {
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
 				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Type:" + fieldType.getSimpleName(), f.getType().getSimpleName(), value, e);
+			}
+			throw e;
+		} catch (IllegalAccessException e) {
+			if (f != null) {
+				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+			}
+			try {
+				throw e;
+			} catch (IllegalAccessException e1) {
+			}
+		}
+	}
+
+	public static <T, E> void setValue(Class<? super T> clazz, Object value, int index) {
+		if (index < 0) { return; }
+		Field f = ObfuscationHelper.getField(clazz, index);
+		if (f == null) {
+			FMLLog.log.info("Unable to locate any field {} on type {}", "Index:" + index, clazz.getSimpleName());
+			return;
+		}
+		f.setAccessible(true);
+		if (Modifier.isFinal(f.getModifiers())) {
+			Field modifiersField;
+			try {
+				modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+				f.set(null, value);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
+			}
+			return;
+		}
+		try {
+			f.set(clazz, value);
+		} catch (IllegalArgumentException e) {
+			if (f != null) {
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index, f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {

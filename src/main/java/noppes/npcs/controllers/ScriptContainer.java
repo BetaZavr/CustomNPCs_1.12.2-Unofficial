@@ -276,6 +276,7 @@ public class ScriptContainer {
 			} catch (Throwable e) {
 				this.errored = true;
 				e.printStackTrace(pw);
+				//e.printStackTrace();
 				NoppesUtilServer.NotifyOPs(this.handler.noticeString() + " script errored", new Object[0]);
 			} finally {
 				this.appandConsole(sw.getBuffer().toString().trim());

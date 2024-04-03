@@ -48,7 +48,13 @@ public class QuestEvent extends CustomNPCsEvent {
 			this.command = ""+((Quest) quest).command;
 		}
 	}
-
+	
+	public static class QuestExtraButtonEvent extends QuestEvent {
+		public QuestExtraButtonEvent(IPlayer<?> player, IQuest quest) {
+			super(player, quest);
+		}
+	}
+	
 	public IPlayer<?> player;
 
 	public IQuest quest;

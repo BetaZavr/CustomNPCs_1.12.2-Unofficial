@@ -96,10 +96,22 @@ extends EntityNPCFlying {
 		boolean bo = super.writeToNBTAtomically(compound);
 		if (bo) {
 			String s = this.getEntityString();
-			if (s.equals("minecraft:" + CustomNpcs.MODID + ".customnpc") || s.equals("minecraft:" + CustomNpcs.MODID + ":customnpc")) {
+			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
 				compound.setString("id", CustomNpcs.MODID + ":customnpc");
 			}
 		}
 		return bo;
 	}
+
+	public boolean writeToNBTAtomically(NBTTagCompound compound) {
+		boolean bo = super.writeToNBTAtomically(compound);
+		if (bo) {
+			String s = this.getEntityString();
+			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
+				compound.setString("id", CustomNpcs.MODID + ":customnpc");
+			}
+		}
+		return bo;
+	}
+	
 }

@@ -187,27 +187,21 @@ public class EventHooks {
 	public static boolean onNPCDialog(EntityNPCInterface npc, EntityPlayer player, Dialog dialog) {
 		if (npc.script.isClient()) { return false; }
 		DialogEvent.OpenEvent event = new DialogEvent.OpenEvent(npc.wrappedNPC, player, dialog);
-		if (!(npc instanceof EntityDialogNpc)) {
-			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG, event);
-		}
+		if (npc != null && npc.script != null && !(npc instanceof EntityDialogNpc)) { EventHooks.onEvent(npc.script, EnumScriptType.DIALOG, event); }
 		return EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG, event);
 	}
 
 	public static void onNPCDialogClose(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog) {
 		if (npc.script.isClient()) { return; }
 		DialogEvent.CloseEvent event = new DialogEvent.CloseEvent(npc.wrappedNPC, (EntityPlayer) player, dialog);
-		if (!(npc instanceof EntityDialogNpc)) {
-			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG, event);
-		}
+		if (npc != null && npc.script != null && !(npc instanceof EntityDialogNpc)) { EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_CLOSE, event); }
 		EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG_CLOSE, event);
 	}
 
 	public static boolean onNPCDialogOption(EntityNPCInterface npc, EntityPlayerMP player, Dialog dialog, DialogOption option) {
 		if (npc.script.isClient()) { return false; }
 		DialogEvent.OptionEvent event = new DialogEvent.OptionEvent(npc.wrappedNPC, (EntityPlayer) player, dialog, option);
-		if (!(npc instanceof EntityDialogNpc)) {
-			EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_OPTION, event);
-		}
+		if (npc != null && npc.script != null && !(npc instanceof EntityDialogNpc)) { EventHooks.onEvent(npc.script, EnumScriptType.DIALOG_OPTION, event); }
 		return EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.DIALOG_OPTION, event);
 	}
 

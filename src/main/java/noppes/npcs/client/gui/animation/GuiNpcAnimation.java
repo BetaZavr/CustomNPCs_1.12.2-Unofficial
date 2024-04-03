@@ -8,8 +8,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -25,7 +23,6 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.AnimationController;
@@ -76,24 +73,10 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData {
 			typeHovers[i] = new String[] { new TextComponentTranslation("animation.hover.anim." + ak.get()).getFormattedText() };
 			i++;
 		}
-
 		this.dataAnims = Maps.<String, AnimationConfig>newHashMap();
-		this.selType = "";
-		this.selAnim = "";
-		
-		NBTTagCompound npcNbt = new NBTTagCompound();
-		npc.writeEntityToNBT(npcNbt);
-		npc.writeToNBTOptional(npcNbt);
-		Entity e = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-		if (e instanceof EntityNPCInterface) {
-			this.npcAnim = AdditionalMethods.setToGUI((EntityNPCInterface) e);
-			if (npc instanceof EntityCustomNpc &&
-					npcAnim instanceof EntityCustomNpc &&
-					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
-					((EntityCustomNpc) npcAnim).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) npcAnim).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
-			}
-		}
+		selType = "";
+		selAnim = "";
+		npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, false);
 		Client.sendData(EnumPacketServer.AnimationGet);
 	}
 

@@ -4,7 +4,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -15,9 +14,7 @@ extends GuiNPCInterface {
 	private ResourceLocation background;
 	private GuiNpcMenu menu;
 
-	public GuiNPCInterface2(EntityNPCInterface npc) {
-		this(npc, -1);
-	}
+	public GuiNPCInterface2(EntityNPCInterface npc) { this(npc, -1); }
 
 	public GuiNPCInterface2(EntityNPCInterface npc, int activeMenu) {
 		super(npc);
@@ -39,9 +36,7 @@ extends GuiNPCInterface {
 		this.drawTexturedModalRect(this.guiLeft + this.xSize - 230, this.guiTop, 26, 0, 230, 220);
 		int x = mouseX;
 		int y = mouseY;
-		if (this.hasSubGui()) {
-			y = (x = 0);
-		}
+		if (this.hasSubGui()) { y = (x = 0); }
 		this.menu.drawElements(this.getFontRenderer(), x, y, this.mc, partialTicks);
 		boolean bo = this.drawDefaultBackground;
 		this.drawDefaultBackground = false;
@@ -144,9 +139,7 @@ extends GuiNPCInterface {
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
-		if (!this.hasSubGui()) {
-			this.menu.mouseClicked(mouseX, mouseY, mouseBottom);
-		}
+		if (!this.hasSubGui()) { this.menu.mouseClicked(mouseX, mouseY, mouseBottom); }
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
 	}
 
@@ -155,10 +148,11 @@ extends GuiNPCInterface {
 
 	@Override
 	public void close() {
-		if (menu.activeMenu != 0 && ClientProxy.playerData.editingNpc != null) {
+		if (menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
 		}
 		super.close();
 	}
+	
 }

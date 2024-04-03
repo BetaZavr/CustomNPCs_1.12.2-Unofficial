@@ -2,11 +2,13 @@ package noppes.npcs.client.gui.script;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.constants.EnumPlayerPacket;
 
 public class GuiScriptBlock
 extends GuiScriptInterface
@@ -37,7 +39,6 @@ implements ISubGuiListener {
 		super.setGuiData(compound);
 	}
 
-
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
@@ -56,7 +57,7 @@ implements ISubGuiListener {
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 0);
 			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
-			Client.sendData(EnumPacketServer.ScriptEncrypt, nbt);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptEncrypt, nbt);
 			this.displayGuiScreen(null);
 			this.mc.setIngameFocus();
 		}

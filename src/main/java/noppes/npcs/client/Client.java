@@ -11,10 +11,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 public class Client {
@@ -58,15 +56,6 @@ public class Client {
 				e.printStackTrace();
 			}
 		});
-		return true;
-	}
-	
-	public static boolean sendDataDelayCheck(EnumPlayerPacket type, Object key, int delayMilliSec, Object... obs) {
-		if (delayMilliSec>0 && Client.delayPackets.containsKey(key) && Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
-			return false;
-		}
-		if (delayMilliSec>0) { Client.delayPackets.put(key, System.currentTimeMillis()); }
-		NoppesUtilPlayer.sendData(type, obs);
 		return true;
 	}
 

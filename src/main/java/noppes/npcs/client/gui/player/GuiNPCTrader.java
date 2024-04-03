@@ -23,7 +23,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.handler.data.IMarcet;
-import noppes.npcs.client.Client;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -447,7 +446,7 @@ implements ICustomScrollListener, IGuiData {
 		if (this.getLabel(6) != null && this.getLabel(6).enabled) {
 			this.getLabel(6).setLabel(new TextComponentTranslation("market.uptime", new Object[] { AdditionalMethods.ticksToElapsedTime(this.marcet.nextTime / 50, false, false, false) }).getFormattedText());
 			if (this.marcet.nextTime <= 0) {
-				Client.sendDataDelayCheck(EnumPlayerPacket.MarketTime, this, 2500, this.marcet.getId());
+				NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.MarketTime, this, 2500, this.marcet.getId());
 			}
 		}
 		super.drawScreen(i, j, f);

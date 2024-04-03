@@ -18,9 +18,7 @@ import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -49,19 +47,7 @@ implements ICustomScrollListener {
 		this.selected = "";
 		
 		this.npcAnim = null;
-		NBTTagCompound npcNbt = new NBTTagCompound();
-		npc.writeEntityToNBT(npcNbt);
-		npc.writeToNBTOptional(npcNbt);
-		Entity e = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
-		if (e instanceof EntityNPCInterface) {
-			this.npcAnim = AdditionalMethods.setToGUI((EntityNPCInterface) e);
-			if (npc instanceof EntityCustomNpc &&
-					npcAnim instanceof EntityCustomNpc &&
-					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
-					((EntityCustomNpc) npcAnim).modelData instanceof ModelDataShared) {
-				((ModelDataShared) ((EntityCustomNpc) npcAnim).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
-			}
-		}
+		npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, false);
 	}
 
 	@Override

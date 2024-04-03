@@ -94,11 +94,14 @@ implements IFaction {
 	public String getName() { return new TextComponentTranslation(name).getFormattedText(); }
 	
 	@Override
-	public String getFlag() { return flag.toString(); }
+	public String getFlag() { return flag == null ? "" : flag.toString(); }
 
 	@Override
 	public void setFlag(String flagPath) {
-		if (flagPath == null) { flagPath = ""; }
+		if (flagPath == null || flagPath.isEmpty()) {
+			flag = null;
+			return;
+		}
 		flag = new ResourceLocation(flagPath);
 	}
 
@@ -159,7 +162,7 @@ implements IFaction {
 
 	public void readNBT(NBTTagCompound compound) {
 		name = compound.getString("Name");
-		if (compound.hasKey("Flag", 8)) { flag = new ResourceLocation(compound.getString("Flag")); }
+		if (compound.hasKey("Flag", 8)) { setFlag(compound.getString("Flag")); }
 		if (compound.hasKey("Description", 8)) { description = compound.getString("Description"); }
 		color = compound.getInteger("Color");
 		id = compound.getInteger("Slot");
@@ -191,7 +194,7 @@ implements IFaction {
 	public NBTTagCompound writeNBT(NBTTagCompound compound) {
 		compound.setInteger("Slot", id);
 		compound.setString("Name", name);
-		compound.setString("Flag", flag.toString());
+		compound.setString("Flag", flag != null ? flag.toString() : "");
 		compound.setString("Description", description);
 		compound.setInteger("Color", color);
 		compound.setInteger("NeutralPoints", neutralPoints);

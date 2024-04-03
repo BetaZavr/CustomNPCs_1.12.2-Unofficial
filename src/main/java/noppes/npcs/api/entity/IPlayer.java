@@ -166,4 +166,10 @@ extends IEntityLivingBase<T> {
 	
 	void cameraShakingStop();
 	
+	String getSkinType(int type);
+	
+	void setSkinType(String location, int type);
+	
+	void setSkin(boolean isSmallArms, int body, int bodyColor, int hair, int hairColor, int face, int eyesColor, int leg, int jacket, int shoes, int ... peculiarities);
+
 }

@@ -31,6 +31,9 @@ extends Item {
 		if (world.isRemote) { return null; }
 		if (stack.getTagCompound() == null || !stack.getTagCompound().hasKey("Entity", 10)) { return null; }
 		NBTTagCompound compound = stack.getTagCompound().getCompoundTag("Entity");
+		if (compound.getString("id").equals("minecraft:customnpcs.customnpc") || compound.getString("id").equals("minecraft:customnpcs:customnpc")) {
+			compound.setString("id", CustomNpcs.MODID + ":customnpc");
+		}
 		Entity entity = EntityList.createEntityFromNBT(compound, world);
 		if (entity == null) { return null; }
 		entity.setPosition(pos.getX() + 0.5, (pos.getY() + 1 + 0.2f), pos.getZ() + 0.5);

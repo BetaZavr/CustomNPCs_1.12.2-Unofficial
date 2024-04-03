@@ -49,57 +49,41 @@ public class Quest
 implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	
 	public boolean cancelable = false;
-	public int id, level, nextQuestid, rewardExp, rewardMoney, step, version;
-	public int[] forgetDialogues, forgetQuests, completerPos;
-	public String command, completeText, logText, nextQuestTitle, rewardText, title;
-	public QuestCategory category;
-	public FactionOptions factionOptions;
-	public ResourceLocation icon, texture;
-	public PlayerMail mail;
-	public QuestInterface questInterface;
+	public int id = -1;
+	public int level = 0;
+	public int nextQuestid = -1;
+	public int rewardExp = 0;
+	public int rewardMoney = 0;
+	public int step = 0;
+	public int extraButton = 0;
+	public int version = VersionCompatibility.ModRev;
+	public int[] forgetDialogues = new int[0];
+	public int[] forgetQuests = new int[0];
+	public int[] completerPos = new int[] { 0, 0, 0, 0 };
+	public String command = "";
+	public String completeText = "";
+	public String logText = "";
+	public String nextQuestTitle = "";
+	public String rewardText = "";
+	public String title = "default";
+	public String extraButtonText = "";
+	public QuestCategory category = null;
+	public FactionOptions factionOptions = new FactionOptions();
+	public ResourceLocation icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
+	public ResourceLocation texture = null;
+	public PlayerMail mail = new PlayerMail();
+	public QuestInterface questInterface = new QuestInterface();
 	public NpcMiscInventory rewardItems = new NpcMiscInventory(9);
-	public EnumQuestRepeat repeat;
-	public EnumQuestCompletion completion;
-	public EnumRewardType rewardType;
-	public EntityNPCInterface completer;
-	private UUID completerUUID;
+	public EnumQuestRepeat repeat = EnumQuestRepeat.NONE;
+	public EnumQuestCompletion completion = EnumQuestCompletion.Npc;
+	public EnumRewardType rewardType = EnumRewardType.RANDOM_ONE;
+	public EntityNPCInterface completer = null;
+	private UUID completerUUID = null;
 
-	public Quest(QuestCategory category) {
-		this.version = VersionCompatibility.ModRev;
-		this.id = -1;
-		this.repeat = EnumQuestRepeat.NONE;
-		this.completion = EnumQuestCompletion.Npc;
-		this.title = "default";
-		this.logText = "";
-		this.completeText = "";
-		this.nextQuestid = -1;
-		this.nextQuestTitle = "";
-		this.mail = new PlayerMail();
-		this.command = "";
-		this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png");
-		this.texture = null;
-		this.questInterface = new QuestInterface();
-		this.rewardExp = 0;
-		this.rewardMoney = 0;
-		this.rewardItems = new NpcMiscInventory(9);
-		this.rewardType = EnumRewardType.RANDOM_ONE;
-		this.factionOptions = new FactionOptions();
-		this.category = category;
-		this.level = 0;
-		this.cancelable = false;
-		this.rewardText = "";
-		this.step = 0;
-		this.forgetDialogues = new int[0];
-		this.forgetQuests = new int[0];
-		this.completerPos = new int[] { 0, 0, 0, 0 };
-		this.completer = null;
-		this.completerUUID = null;
-	}
+	public Quest(QuestCategory category) { this.category = category; }
 
 	@Override
-	public IQuestObjective addTask() {
-		return this.questInterface.addTask(EnumQuestTask.ITEM);
-	}
+	public IQuestObjective addTask() { return this.questInterface.addTask(EnumQuestTask.ITEM); }
 
 	public boolean complete(EntityPlayer player, QuestData data) {
 		if (this.completion == EnumQuestCompletion.Instant) {
@@ -116,19 +100,13 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public IQuestCategory getCategory() {
-		return this.category;
-	}
+	public IQuestCategory getCategory() { return this.category; }
 
 	@Override
-	public String getCompleteText() {
-		return this.completeText;
-	}
+	public String getCompleteText() { return this.completeText; }
 
 	@Override
-	public int[] getForgetDialogues() {
-		return this.forgetDialogues;
-	}
+	public int[] getForgetDialogues() { return this.forgetDialogues; }
 
 	@Override
 	public int[] getForgetQuests() {
@@ -136,19 +114,13 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public int getId() {
-		return this.id;
-	}
+	public int getId() { return this.id; }
 
 	@Override
-	public boolean getIsRepeatable() {
-		return this.repeat != EnumQuestRepeat.NONE;
-	}
+	public boolean getIsRepeatable() { return this.repeat != EnumQuestRepeat.NONE; }
 
 	@Override
-	public int getLevel() {
-		return this.level;
-	}
+	public int getLevel() { return this.level; }
 
 	@Override
 	public String getLogText() {
@@ -202,15 +174,15 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	public String getName() { return this.title; }
 
 	@Override
-	public Quest getNextQuest() {
-		return (QuestController.instance == null) ? null : QuestController.instance.quests.get(this.nextQuestid);
-	}
+	public String getExtraButtonText() { return this.extraButtonText; }
+	
+	
+	@Override
+	public Quest getNextQuest() { return (QuestController.instance == null) ? null : QuestController.instance.quests.get(this.nextQuestid); }
 
 	@Override
 	public IQuestObjective[] getObjectives(IPlayer<?> player) {
-		if (!player.hasActiveQuest(this.id)) {
-			throw new CustomNPCsException("Player doesnt have this quest active.");
-		}
+		if (!player.hasActiveQuest(this.id)) { throw new CustomNPCsException("Player doesnt have this quest active."); }
 		return this.questInterface.getObjectives(player.getMCEntity());
 	}
 	
@@ -222,14 +194,10 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public IContainer getRewards() {
-		return NpcAPI.Instance().getIContainer((IInventory) this.rewardItems);
-	}
+	public IContainer getRewards() { return NpcAPI.Instance().getIContainer((IInventory) this.rewardItems); }
 
 	@Override
-	public int getRewardType() {
-		return this.rewardType.ordinal();
-	}
+	public int getRewardType() { return this.rewardType.ordinal(); }
 
 	@Override
 	public String getTitle() {
@@ -245,19 +213,16 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public int getVersion() {
-		return this.version;
-	}
+	public int getVersion() { return this.version; }
 
-	public boolean hasNewQuest() {
-		return this.getNextQuest() != null;
-	}
+	public boolean hasNewQuest() { return this.getNextQuest() != null; }
 
 	@Override
-	public boolean isCancelable() {
-		return this.cancelable;
-	}
+	public boolean isCancelable() { return this.cancelable; }
 
+	@Override
+	public int getExtraButton() { return this.extraButton; }
+	
 	@Override
 	public boolean isSetUp() {
 		if (this.questInterface.tasks.length == 0) {
@@ -298,13 +263,11 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		else { this.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png"); }
 		if (compound.hasKey("QuestTexture", 8)) { this.texture = new ResourceLocation(compound.getString("QuestTexture")); }
 		else { this.texture = null; }
+		this.extraButtonText = compound.getString("ExtraButtonText");
 		this.nextQuestid = compound.getInteger("NextQuestId");
 		this.nextQuestTitle = compound.getString("NextQuestTitle");
-		if (this.hasNewQuest()) {
-			this.nextQuestTitle = this.getNextQuest().title;
-		} else {
-			this.nextQuestTitle = "";
-		}
+		if (this.hasNewQuest()) { this.nextQuestTitle = this.getNextQuest().title; }
+		else { this.nextQuestTitle = ""; }
 		this.rewardType = EnumRewardType.values()[compound.getInteger("RewardType")];
 		this.rewardExp = compound.getInteger("RewardExp");
 		this.rewardMoney = compound.getInteger("RewardMoney");
@@ -316,6 +279,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		this.mail.readNBT(compound.getCompoundTag("QuestMail"));
 		this.level = compound.getInteger("QuestLevel");
 		this.cancelable = compound.getBoolean("Cancelable");
+		this.setExtraButton(compound.getInteger("ExtraButton"));
 		this.rewardText = compound.getString("AddRewardText");
 		this.step = compound.getInteger("Step") % 3;
 		if (this.step<0) { this.step *= -1; }
@@ -323,9 +287,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		this.forgetQuests = compound.getIntArray("ForgetQuests");
 		this.completer = null;
 		this.completerUUID = null;
-		if (compound.hasKey("CompleterPos", 11)) {
-			this.completerPos = compound.getIntArray("CompleterPos");
-		}
+		if (compound.hasKey("CompleterPos", 11)) { this.completerPos = compound.getIntArray("CompleterPos"); }
 		try {
 			// New
 			if (compound.hasKey("CompleterNpc", 10)) {
@@ -406,14 +368,10 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public boolean removeTask(IQuestObjective task) {
-		return this.questInterface.removeTask((QuestObjective) task);
-	}
+	public boolean removeTask(IQuestObjective task) { return this.questInterface.removeTask((QuestObjective) task); }
 
 	@Override
-	public void save() {
-		QuestController.instance.saveQuest(this.category, this);
-	}
+	public void save() { QuestController.instance.saveQuest(this.category, this); }
 
 	@SideOnly(Side.SERVER)
 	@Override
@@ -422,39 +380,33 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public void setCancelable(boolean cancelable) {
-		this.cancelable = cancelable;
-	}
+	public void setCancelable(boolean cancelable) { this.cancelable = cancelable; }
 
 	@Override
-	public void setCompleteText(String text) {
-		this.completeText = text;
-	}
+	public void setExtraButton(int type) {
+		if (type < 0) { type *= -1; }
+		this.extraButton = type % 6; }
+	
+	@Override
+	public void setCompleteText(String text) { this.completeText = text; }
 
 	@Override
-	public void setForgetDialogues(int[] forget) {
-		this.forgetDialogues = forget;
-	}
+	public void setForgetDialogues(int[] forget) { this.forgetDialogues = forget; }
 
 	@Override
-	public void setForgetQuests(int[] forget) {
-		this.forgetQuests = forget;
-	}
+	public void setForgetQuests(int[] forget) { this.forgetQuests = forget; }
 
 	@Override
-	public void setLevel(int level) {
-		this.level = level;
-	}
+	public void setLevel(int level) { this.level = level; }
 
 	@Override
-	public void setLogText(String text) {
-		this.logText = text;
-	}
+	public void setLogText(String text) { this.logText = text; }
 
 	@Override
-	public void setName(String name) {
-		this.title = name;
-	}
+	public void setName(String name) { this.title = name; }
+	
+	@Override
+	public void setExtraButtonText(String hover) { this.extraButtonText = hover == null ? "" : hover; }
 
 	@Override
 	public void setNextQuest(IQuest quest) {
@@ -462,36 +414,26 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 			this.nextQuestid = -1;
 			this.nextQuestTitle = "";
 		} else {
-			if (quest.getId() < 0) {
-				throw new CustomNPCsException("Quest id is lower than 0");
-			}
+			if (quest.getId() < 0) { throw new CustomNPCsException("Quest id is lower than 0"); }
 			this.nextQuestid = quest.getId();
 			this.nextQuestTitle = quest.getTitle();
 		}
 	}
 	
 	@Override
-	public void setCompleterNpc(ICustomNpc<?> npc) {
-		this.completer = (EntityNPCInterface) npc.getMCEntity();
-	}
+	public void setCompleterNpc(ICustomNpc<?> npc) { this.completer = (EntityNPCInterface) npc.getMCEntity(); }
 
 	@Override
-	public void setRewardText(String text) {
-		this.rewardText = text;
-	}
+	public void setRewardText(String text) { this.rewardText = text; }
 
 	@Override
 	public void setRewardType(int type) {
-		if (type < 0 || type >= EnumRewardType.values().length) {
-			return;
-		}
+		if (type < 0 || type >= EnumRewardType.values().length) { return; }
 		this.rewardType = EnumRewardType.values()[type];
 	}
 
 	@Override
-	public void setVersion(int version) {
-		this.version = version;
-	}
+	public void setVersion(int version) { this.version = version; }
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
@@ -520,6 +462,8 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		compound.setTag("QuestMail", this.mail.writeNBT());
 		compound.setInteger("QuestLevel", this.level);
 		compound.setBoolean("Cancelable", this.cancelable);
+		compound.setString("ExtraButtonText", this.extraButtonText);
+		compound.setInteger("ExtraButton", this.extraButton);
 		compound.setString("AddRewardText", this.rewardText);
 		compound.setInteger("Step", this.step);
 		compound.setIntArray("ForgetDialogues", this.forgetDialogues);
@@ -548,9 +492,7 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 
 	public boolean hasCompassSettings() {
 		for (QuestObjective task : this.questInterface.tasks) {
-			if (task.rangeCompass>3 && task.pos.getX()!=0 && task.pos.getY()!=0 && task.pos.getZ()!=0) {
-				return true;
-			}
+			if (task.rangeCompass>3 && task.pos.getX()!=0 && task.pos.getY()!=0 && task.pos.getZ()!=0) { return true; }
 		}
 		return false;
 	}
@@ -562,8 +504,6 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public boolean apply(EntityNPCInterface entity) {
-		return this.completerUUID == null || entity.getUniqueID().equals(this.completerUUID);
-	}
+	public boolean apply(EntityNPCInterface entity) { return this.completerUUID == null || entity.getUniqueID().equals(this.completerUUID); }
 
 }

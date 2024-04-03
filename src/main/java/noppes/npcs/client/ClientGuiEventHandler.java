@@ -63,6 +63,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.handler.data.IQuestObjective;
@@ -925,7 +926,7 @@ extends Gui
 		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBuilder) {
 			int id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("ID");
 			if (!CommonProxy.dataBuilder.containsKey(id)) {
-				Client.sendDataDelayCheck(EnumPlayerPacket.GetBuildData, this.mc.player, 1000);
+				NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.GetBuildData, this.mc.player, 1000);
 				CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 				return;
 			}
@@ -1540,7 +1541,7 @@ extends Gui
 	}
 	
 	private void drawNpcMovingPath(EntityCustomNpc npc) {
-		Client.sendDataDelayCheck(EnumPlayerPacket.MovingPathGet, npc, 5000, npc.getEntityId());
+		NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.MovingPathGet, npc, 5000, npc.getEntityId());
 		List<int[]> list = npc.ais.getMovingPath();
 		if (list.size()<1) {
 			ClientGuiEventHandler.movingPath.clear();

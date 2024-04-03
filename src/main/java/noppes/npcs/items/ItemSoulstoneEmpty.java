@@ -58,12 +58,12 @@ extends Item {
 
 	public boolean store(EntityLivingBase entity, ItemStack stack, EntityPlayer player) {
 		if (!this.hasPermission(entity, player) || entity instanceof EntityPlayer) { return false; }
-		
 		ItemStack stone = new ItemStack(CustomRegisters.soulstoneFull);
-		
 		NBTTagCompound compound = new NBTTagCompound();
 		if (!entity.writeToNBTAtomically(compound)) { return false; }
-		
+		if (compound.getString("id").equals("minecraft:customnpcs.customnpc") || compound.getString("id").equals("minecraft:customnpcs:customnpc")) {
+			compound.setString("id", CustomNpcs.MODID + ":customnpc");
+		}
 		ServerCloneController.Instance.cleanTags(compound);
 		stone.setTagInfo("Entity", compound);
 		String name = EntityList.getEntityString(entity);
