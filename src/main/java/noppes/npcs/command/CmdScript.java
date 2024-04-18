@@ -47,13 +47,11 @@ extends CommandNoppesBase {
 			if (!list.isEmpty()) {
 				list += ", ";
 			} else {
-				list += new String(Character.toChars(0x00A7)) + "6Forge event names:\n"
-						+ new String(Character.toChars(0x00A7)) + "r";
+				list += ((char) 167) + "6Forge event names:\n" + ((char) 167) + "r";
 			}
 			list += name;
 		}
-		list += ";\n" + new String(Character.toChars(0x00A7)) + "6Total Size: " + new String(Character.toChars(0x00A7))
-				+ "e" + CustomNpcs.forgeEventNames.size();
+		list += ";\n" + ((char) 167) + "6Total Size: " + ((char) 167) + "e" + CustomNpcs.forgeEventNames.size();
 		sender.sendMessage(new TextComponentString(list));
 		return true;
 	}

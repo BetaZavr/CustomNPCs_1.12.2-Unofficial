@@ -110,7 +110,7 @@ extends GuiNPCInterface {
 		this.mc.renderEngine.bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		super.drawScreen(i, j, f);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.players", new Object[] { this.playerEventsList }) .getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {

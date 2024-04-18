@@ -442,8 +442,7 @@ public class NoppesUtilServer {
 		sendScrollData(player, map);
 	}
 
-	private static void sendExtraData(EntityPlayer player, EntityNPCInterface npc, EnumGuiType gui, int i, int j,
-			int k) {
+	private static void sendExtraData(EntityPlayer player, EntityNPCInterface npc, EnumGuiType gui, int x, int y, int z) {
 		if (gui == EnumGuiType.PlayerFollower || gui == EnumGuiType.PlayerFollowerHire || gui == EnumGuiType.PlayerTrader || gui == EnumGuiType.PlayerTransporter) {
 			sendRoleData(player, npc);
 		}
@@ -650,6 +649,7 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendRoleData(EntityPlayer player, EntityNPCInterface npc) {
+		if (npc == null) { return; }
 		NBTTagCompound comp = new NBTTagCompound();
 		npc.advanced.roleInterface.writeToNBT(comp);
 		comp.setInteger("EntityId", npc.getEntityId());

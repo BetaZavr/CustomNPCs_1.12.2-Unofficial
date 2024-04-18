@@ -5,7 +5,6 @@ import java.util.Arrays;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiNpcAvailability;
@@ -19,7 +18,6 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
 import noppes.npcs.controllers.data.Deal;
-import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -28,12 +26,10 @@ extends GuiContainerNPCInterface2
 implements ITextfieldListener {
 
 	private Deal deal;
-	private int marcetID;
 
 	public GuiNPCManageDeal(EntityNPCInterface npc, ContainerNPCTraderSetup cont) {
 		super(npc, cont);
 		this.ySize = 200;
-		this.marcetID = cont.marcet.getId();
 		this.deal = cont.deal;
 		this.setBackground("tradersetup.png");
 		Client.sendData(EnumPacketServer.TraderMarketGet);
@@ -57,7 +53,7 @@ implements ITextfieldListener {
 		this.addLabel(new GuiNpcLabel(4, "marcet.deal.settings", x, y));
 
 		this.addLabel(new GuiNpcLabel(5, "market.currency", x, (y += 14) + 5));
-		this.addLabel(new GuiNpcLabel(6, CustomNpcs.charCurrencies, x + 155, y + 5));
+		this.addLabel(new GuiNpcLabel(6, CustomNpcs.CharCurrencies, x + 155, y + 5));
 		this.addTextField(new GuiNpcTextField(0, this, x + 100, y, 50, 18, "" + this.deal.getMoney()));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, Integer.MAX_VALUE, this.deal.getMoney());
@@ -88,20 +84,6 @@ implements ITextfieldListener {
 		
 		this.addButton(new GuiNpcButton(3, x, (y += 22), 200, 20, new String[] { "market.deal.type.0", "market.deal.type.1", "market.deal.type.2" }, this.deal.getType()));
 		
-		String[] ids;
-		IMarcet m = this.deal.getMarcet();
-		int p = this.deal.getSectionID();
-		if (m != null) {
-			ids = new String[((Marcet) m).sections.size()];
-			for (int id : ((Marcet) m).sections.keySet()) {
-				ids[id] = "#" + id + ": " + new TextComponentTranslation(((Marcet) m).sections.get(id)).getFormattedText();
-			}
-		} else {
-			ids = new String[] { "#0" };
-			p = 0;
-		}
-		this.addButton(new GuiNpcButton(4, x, (y += 22), 80, 20, ids, p));
-		
 		this.addButton(new GuiNpcButton(66, x, (y += 22), 80, 20, "gui.back"));
 	}
 
@@ -123,10 +105,6 @@ implements ITextfieldListener {
 			}
 			case 3: {
 				this.deal.setType(button.getValue());
-				break;
-			}
-			case 4: {
-				this.deal.setSectionID(button.getValue());
 				break;
 			}
 			case 66: {
@@ -168,7 +146,7 @@ implements ITextfieldListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		// Labels
 		if (this.getLabel(0)!=null && this.getLabel(0).hovered) {
 			this.setHoverText(new TextComponentTranslation("market.hover.product").getFormattedText());
@@ -202,7 +180,7 @@ implements ITextfieldListener {
 	@Override
 	public void close() {
 		super.close();
-		NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, this.marcetID, this.deal.getId(), 0);
+		NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, this.deal.getId(), 0);
 	}
 	
 	@Override

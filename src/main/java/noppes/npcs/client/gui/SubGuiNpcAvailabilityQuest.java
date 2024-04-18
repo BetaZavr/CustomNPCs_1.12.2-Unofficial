@@ -27,7 +27,7 @@ extends SubGuiInterface
 implements ICustomScrollListener, GuiSelectionListener {
 	
 	private Availability availabitily;
-	private String chr = new String(Character.toChars(0x00A7));
+	private String chr = "" + ((char) 167);
 	private Map<String, EnumAvailabilityQuest> dataEnum;
 	private Map<String, Integer> dataIDs;
 	// New

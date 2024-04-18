@@ -197,7 +197,7 @@ extends GuiContainerNPCInterface {
 		if (this.getButton(10)!=null) { this.getButton(10).enabled = this.cont.items.getSizeInventory() > 0 && !this.cont.items.isEmpty(); }
 		if (this.getButton(13)!=null) {
 			this.getButton(13).enabled = this.cont.items.getSizeInventory() > 0 && (!this.cont.items.isEmpty() || this.cont.items.getSizeInventory() != this.cont.bank.ceilSettings.get(this.cont.ceil).startCeils); }
-		if (CustomNpcs.showDescriptions && this.subgui == null) {
+		if (CustomNpcs.ShowDescriptions && this.subgui == null) {
 			if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 				ITextComponent it = new TextComponentTranslation("bank.hover.update."+this.update, ""+this.cont.items.getSizeInventory(), ""+this.cont.bank.ceilSettings.get(this.cont.ceil).maxCeils);
 				if (this.cont.dataCeil < 0) {
@@ -251,14 +251,14 @@ extends GuiContainerNPCInterface {
 		// Rows
 		int i;
 		for (i = 0; i < Math.ceil(this.cont.items.getSizeInventory() / 9.0d) && i < 5; i++) {
-			this.fontRenderer.drawString(""+(1+i+this.row), u + 13 - this.fontRenderer.getStringWidth(""+(1+i+this.row)), v + 4 + (i + 1) * 18, CustomNpcs.lableColor);
-			this.drawHorizontalLine(u + 5, u + 180, v + 16 + (i + 1) * 18, CustomNpcs.lableColor);
+			this.fontRenderer.drawString(""+(1+i+this.row), u + 13 - this.fontRenderer.getStringWidth(""+(1+i+this.row)), v + 4 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
+			this.drawHorizontalLine(u + 5, u + 180, v + 16 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
 			if (i == 0) {
-				this.drawHorizontalLine(u + 5, u + 180, v - 1 + (i + 1) * 18, CustomNpcs.lableColor);
+				this.drawHorizontalLine(u + 5, u + 180, v - 1 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
 			}
 		}
-		this.drawVerticalLine(u + 15, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.lableColor);
-		this.drawVerticalLine(u + 176, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.lableColor);
+		this.drawVerticalLine(u + 15, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
+		this.drawVerticalLine(u + 176, v + 14, v + 1 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
 		// Slots
 		this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -272,13 +272,13 @@ extends GuiContainerNPCInterface {
 			Slot slot = this.cont.getSlot(this.cont.items.getSizeInventory());
 			this.drawTexturedModalRect(u + slot.xPos + 53, v + slot.yPos - 23, 0, 0, 18, 18);
 			ITextComponent t = new TextComponentTranslation(this.update ? "bank.upg.cost" : "bank.tab.cost");
-			this.fontRenderer.drawString(t.getFormattedText() + ":", u + slot.xPos, v + slot.yPos - 19, CustomNpcs.lableColor);
+			this.fontRenderer.drawString(t.getFormattedText() + ":", u + slot.xPos, v + slot.yPos - 19, CustomNpcs.LableColor.getRGB());
 		} else {
 			ITextComponent text = new TextComponentTranslation("bank.slots.info", ""+this.cont.items.getCountEmpty(), ""+this.cont.items.getSizeInventory());
 			if (this.player.capabilities.isCreativeMode) {
 				text.appendSibling(new TextComponentString(" / ("+this.cont.bank.ceilSettings.get(this.cont.ceil).maxCeils+")"));
 			}
-			this.fontRenderer.drawString(text.getFormattedText(), u + 8, v + 8 + (i + 1) * 18, CustomNpcs.lableColor);
+			this.fontRenderer.drawString(text.getFormattedText(), u + 8, v + 8 + (i + 1) * 18, CustomNpcs.LableColor.getRGB());
 		}
 		if (this.isMany) {
 			this.mc.renderEngine.bindTexture(rowTexture);
@@ -292,7 +292,7 @@ extends GuiContainerNPCInterface {
 		ITextComponent b = new TextComponentTranslation("gui.bank", ": ");
 		ITextComponent n = new TextComponentTranslation(this.cont.bank.name);
 		n.getStyle().setBold(true);
-		this.fontRenderer.drawString(b.appendSibling(n).appendSibling(new TextComponentString("; ")).appendSibling(new TextComponentTranslation("gui.ceil", " #" + (this.cont.ceil + 1))).getFormattedText(), 8, 6, CustomNpcs.lableColor);
+		this.fontRenderer.drawString(b.appendSibling(n).appendSibling(new TextComponentString("; ")).appendSibling(new TextComponentTranslation("gui.ceil", " #" + (this.cont.ceil + 1))).getFormattedText(), 8, 6, CustomNpcs.LableColor.getRGB());
 	}
 
 	@Override

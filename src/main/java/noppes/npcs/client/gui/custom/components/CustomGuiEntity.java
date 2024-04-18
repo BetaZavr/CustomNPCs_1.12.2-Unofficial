@@ -123,7 +123,6 @@ implements IGuiComponent {
 					int mainStackSlot = entityNbt.getInteger("SelectedItemSlot");
 					for (int i = 0; i < inv.tagCount(); i++) {
 						NBTTagCompound nbtSlotStack = inv.getCompoundTagAt(i);
-						System.out.println("CNPCs: "+nbtSlotStack.getByte("Slot")+" - "+new ItemStack(nbtSlotStack));
 						if (nbtSlotStack.getByte("Slot") == 100) { npc.inventory.armor.put(3, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack))); }
 						if (nbtSlotStack.getByte("Slot") == 101) { npc.inventory.armor.put(2, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack))); }
 						if (nbtSlotStack.getByte("Slot") == 102) { npc.inventory.armor.put(1, NpcAPI.Instance().getIItemStack(new ItemStack(nbtSlotStack))); }

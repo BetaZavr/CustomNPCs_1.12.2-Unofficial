@@ -57,7 +57,7 @@ implements ITextfieldListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
 		if (this.enchant.parent.tiedToLevel) {
 			tied = new TextComponentTranslation("drop.tied.level", new Object[0]).getFormattedText();

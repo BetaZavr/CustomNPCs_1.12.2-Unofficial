@@ -87,7 +87,6 @@ import noppes.npcs.Server;
 import noppes.npcs.VersionCompatibility;
 import noppes.npcs.ai.CombatHandler;
 import noppes.npcs.ai.EntityAIAnimation;
-import noppes.npcs.ai.EntityAIAvoidTarget;
 import noppes.npcs.ai.EntityAIBustDoor;
 import noppes.npcs.ai.EntityAIFindShade;
 import noppes.npcs.ai.EntityAIJob;
@@ -99,6 +98,7 @@ import noppes.npcs.ai.EntityAITransform;
 import noppes.npcs.ai.EntityAIWander;
 import noppes.npcs.ai.EntityAIWorldLines;
 import noppes.npcs.ai.FlyingMoveHelper;
+import noppes.npcs.ai.attack.EntityAIAvoidTarget;
 import noppes.npcs.ai.attack.EntityAICommanderTarget;
 import noppes.npcs.ai.attack.EntityAICustom;
 import noppes.npcs.ai.attack.EntityAIDodge;
@@ -1622,7 +1622,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.aiOwnerNPC = null;
 		if (this.ais.canSprint) { this.tasks.addTask(this.taskCount++,  new EntityAISprintToTarget(this)); }
 		if (this.ais.onAttack == 2) { // Avoid
-			this.tasks.addTask(this.taskCount++, new EntityAIAvoidTarget(this));
+			this.tasks.addTask(this.taskCount++, this.aiAttackTarget = new EntityAIAvoidTarget(this));
 		}
 		else if (this.ais.onAttack == 0) { // Attack
 			if (this.ais.canLeap) { this.tasks.addTask(this.taskCount++, new EntityAIPounceTarget(this)); } // can Jump

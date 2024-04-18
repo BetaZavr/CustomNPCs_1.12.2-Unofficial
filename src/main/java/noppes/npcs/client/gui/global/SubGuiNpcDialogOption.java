@@ -130,7 +130,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui !=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.option.hover.name").getFormattedText());
 		} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {

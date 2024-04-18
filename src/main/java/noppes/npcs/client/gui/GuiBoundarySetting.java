@@ -348,7 +348,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		Gui.drawRect(side-6, side-hy-13, side-4, side-hy-11, 0xFFFFFFFF); // Y
 		GlStateManager.popMatrix();
 		// New
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		// hover text
 		if (!ht.isEmpty()) {
 			this.setHoverText(new TextComponentTranslation(ht).getFormattedText());

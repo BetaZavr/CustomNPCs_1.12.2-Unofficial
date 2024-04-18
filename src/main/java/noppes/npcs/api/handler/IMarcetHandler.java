@@ -15,7 +15,7 @@ public interface IMarcetHandler {
 
 	boolean removeMarcet(int marcetID);
 
-	IDeal addDeal(int marcetID);
+	IDeal addDeal();
 
 	IDeal getDeal(int dealID);
 	

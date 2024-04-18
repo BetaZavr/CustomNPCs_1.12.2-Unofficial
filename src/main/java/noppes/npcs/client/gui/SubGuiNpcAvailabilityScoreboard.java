@@ -25,7 +25,7 @@ extends SubGuiInterface
 implements ICustomScrollListener, ITextfieldListener {
 	
 	private Availability availabitily;
-	private String chr = new String(Character.toChars(0x00A7));
+	private String chr = "" + ((char) 167);
 	private Map<String, String> dataNames;
 	private Map<String, AvailabilityScoreboardData> dataSets;
 	// New
@@ -125,7 +125,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (isMouseHover(mouseX, mouseY, this.guiLeft + 6, this.guiTop + this.ySize - 46, 50, 20)) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
 		} else if (isMouseHover(mouseX, mouseY, this.guiLeft + 59, this.guiTop + this.ySize - 46, 189, 20)) {

@@ -121,7 +121,7 @@ implements ITextfieldListener {
 			}
 			GlStateManager.popMatrix();
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.data.day", "" + this.getTextField(0).max).getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {

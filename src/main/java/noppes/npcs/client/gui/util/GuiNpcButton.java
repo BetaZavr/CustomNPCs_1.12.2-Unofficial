@@ -21,7 +21,7 @@ extends GuiButton {
 	public ResourceLocation texture = null;
 	public String lable = "";
 	public boolean dropShadow, hasDefBack, hasSound, isPressed;
-	public int textColor = CustomNpcs.mainColor;
+	public int textColor = CustomNpcs.MainColor.getRGB();
 
 	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
 		this(id, x, y, width, height, "");
@@ -136,8 +136,8 @@ extends GuiButton {
 		}
 		int l = textColor;
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
-		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
-		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		else if (!this.enabled) { l = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (this.hovered) { l = CustomNpcs.HoverColor.getRGB(); }
 		mc.fontRenderer.drawString(this.displayString, this.x + (this.width - mc.fontRenderer.getStringWidth(this.displayString)) / 2, this.y + (this.height - 8) / 2, l, this.dropShadow);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	}

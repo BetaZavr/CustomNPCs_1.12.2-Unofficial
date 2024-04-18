@@ -283,7 +283,7 @@ extends RenderLiving<T> {
 		if (npc.display.showName()) {
 			if (npc.currentAnimation == 1) { d1 -= 0.35f; }
 			this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, npc.getName(), npc.display.getTitle());
-			if (!CustomNpcs.showLR) { return; }
+			if (!CustomNpcs.ShowLR) { return; }
 			NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.NpcVisualData, npc, 5000, npc.getEntityId());
 			if (!npc.stats.getRarityTitle().isEmpty()) {
 				this.renderLivingLabel(npc, d, d1 + npc.height - 0.06f * scale, d2, 64, "", npc.stats.getRarityTitle());

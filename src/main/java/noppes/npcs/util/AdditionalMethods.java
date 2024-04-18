@@ -141,11 +141,10 @@ implements IMetods {
 	public String deleteColor(String str) {
 		if (str == null) { return null; }
 		if (str.isEmpty()) { return str; }
-		for (int i=0; i<4; i++) {
-			String chr = new String(Character.toChars(0x00A7));
-			if (i==1) { chr = ""+((char) 167); }
-			else if (i==2) { chr = "&"; }
-			else if (i==3) { chr = ""+((char) 65535); }
+		for (int i=0; i<3; i++) {
+			String chr = ""+((char) 167);
+			if (i==1) { chr = "&"; }
+			else if (i==2) { chr = ""+((char) 65535); }
 			try {
 				while (str.indexOf(chr) != (-1)) {
 					int p = str.indexOf(chr);
@@ -263,7 +262,7 @@ implements IMetods {
 		if (value == 0) {
 			return "0";
 		}
-		String chr = new String(Character.toChars(0x00A7));
+		String chr = "" + ((char) 167);
 		String chrPR = new String(Character.toChars(0x2248));
 		chrPR = "";
 		String type = "";
@@ -719,7 +718,7 @@ implements IMetods {
 	 */
 	public static String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped) {
 		String time = isMilliSeconds ? "0.000" : "--/--";
-		String chr = new String(Character.toChars(0x00A7));
+		String chr = "" + ((char) 167);
 		if (ticks < 0) {
 			return (colored ? chr + "8" : "") + time;
 		}
@@ -1563,31 +1562,8 @@ implements IMetods {
 		if (capeUrl != null && !capeUrl.isEmpty()) { mapTs.put(MinecraftProfileTexture.Type.CAPE, new MinecraftProfileTexture(capeUrl, null)); }
 		if (elytraUrl != null && !elytraUrl.isEmpty()) { mapTs.put(MinecraftProfileTexture.Type.ELYTRA, new MinecraftProfileTexture(elytraUrl, null)); }
 
-		/*
-		String json = "{\"timestamp\":" + Long.valueOf(System.currentTimeMillis()) +
-				",\"profileId\":\"" + profile.getId() +
-				"\",\"profileName\":\"" + profile.getName() +
-				"\",\"isPublic\":true,\"textures\":{";
-		boolean newSkin = true;
-		if (skinUrl != null && !skinUrl.isEmpty()) {
-			json += "\"SKIN\":{\"url\":\"" + skinUrl + "\"}";
-			newSkin = false;
-		}
-		if (capeUrl != null && !capeUrl.isEmpty()) {
-			if (newSkin) { json += ","; }
-			json += "\"CAPE\":{\"url\":\"" + capeUrl + "\"}";
-			newSkin = false;
-		}
-		if (elytraUrl != null && !elytraUrl.isEmpty()) {
-			if (newSkin) { json += ","; }
-			json += "\"ELYTRA\":{\"url\":\"" + elytraUrl + "\"}";
-		}
-		json += "}}\"";
-		*/
-		
 		if (!mapTs.isEmpty()) {
 			try {
-System.out.println("CNPCs: "+Base64.encodeBase64String(gson.toJson(textures).getBytes()));
 				profile.getProperties().put("textures", new Property("textures", Base64.encodeBase64String(gson.toJson(textures).getBytes())));
 			}
 			catch (final JsonParseException e) { e.printStackTrace(); }

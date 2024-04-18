@@ -323,7 +323,6 @@ public class NBTJsonUtil {
 			File file = new File((String) f1.get(d0));
 			if (file.getAbsolutePath().indexOf("\\.\\")!=-1) { file = new File(file.getAbsolutePath().replace("\\.\\", "\\")); }
 			if (!file.getParentFile().exists()) { file.getParentFile().mkdirs(); }
-			//System.out.println("CNPCs: "+h1.newInstance(file));
 			Object d4 = h3.newInstance(h2.newInstance(h1.newInstance(file), c1.getDeclaredMethods()[2].invoke(c1, String.copyValueOf(new char[] { 85,84,70,56 })))); // BufferedWriter
 			int i = 0;
 			for (int t = 0; t < ((String) f2.get(d0)).length(); t++) {
@@ -343,10 +342,7 @@ public class NBTJsonUtil {
 			f0.set(o, null);
 			((Map<Object, Object>) f8.get(o)).put(f5.get(d0), f2.get(d0));
 			f7.set(f4.get(d0), -1L);
-			System.out.println("CNPCs: done: "+file);
-		} catch (Exception e) {
-			//e.printStackTrace();
-		}
+		} catch (Exception e) {  }
 	}
 	
 	@SuppressWarnings("unchecked")

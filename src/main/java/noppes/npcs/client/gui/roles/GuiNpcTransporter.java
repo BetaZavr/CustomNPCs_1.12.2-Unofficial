@@ -79,7 +79,7 @@ implements IScrollData, IGuiData {
 			if (this.getButton(0)!=null) { this.getButton(0).setVisible(this.scroll.hasSelected()); }
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.transport.type").appendSibling(new TextComponentTranslation("manager.hover.transport.addinfo")).getFormattedText());
 		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {

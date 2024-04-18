@@ -49,6 +49,8 @@ public class Quest
 implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	
 	public boolean cancelable = false;
+	public boolean showProgressInChat = true;
+	public boolean showProgressInWindow = true;
 	public int id = -1;
 	public int level = 0;
 	public int nextQuestid = -1;
@@ -151,12 +153,12 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 			int j = 1;
 			for (ItemStack item : rewardist.keySet()) {
 				int c = rewardist.get(item);
-				allTextLogs += ent + (rewardist.size() > 1 ? "" + j + " - " : "") + item.getDisplayName()+(c>1 ? " x"+c : "");
+				allTextLogs += ent + (rewardist.size() > 1 ? "" + j + " - " : "") + " " + ((char) 0xffff)+ " " + item.getDisplayName()+(c>1 ? " x"+c : "");
 				j++;
 			}
 		}
 		if (this.rewardMoney > 0) {
-			allTextLogs += ent + new TextComponentTranslation("questlog.rewardmoney", AdditionalMethods.getTextReducedNumber(this.rewardMoney, true, true, false), CustomNpcs.charCurrencies).getFormattedText();
+			allTextLogs += ent + new TextComponentTranslation("questlog.rewardmoney", AdditionalMethods.getTextReducedNumber(this.rewardMoney, true, true, false), CustomNpcs.CharCurrencies).getFormattedText();
 		}
 		if (this.rewardExp > 0) {
 			allTextLogs += ent + new TextComponentTranslation("questlog.rewardexp", "" + this.rewardExp).getFormattedText();
@@ -203,9 +205,9 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 	public String getTitle() {
 		String title = "";
 		if (this.level > 0) {
-			String chr = new String(Character.toChars(0x00A7));
-			title = chr + (this.level <= CustomNpcs.maxLv / 3 ? "2"
-					: (float) this.level <= (float) CustomNpcs.maxLv / 1.5f ? "e" : "c");
+			String chr = ""+((char) 167);
+			title = chr + (this.level <= CustomNpcs.MaxLv / 3 ? "2"
+					: (float) this.level <= (float) CustomNpcs.MaxLv / 1.5f ? "e" : "c");
 			title += this.level + chr + "7 Lv.: " + chr + "r";
 		}
 		title += new TextComponentTranslation(this.title).getFormattedText();
@@ -279,6 +281,8 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		this.mail.readNBT(compound.getCompoundTag("QuestMail"));
 		this.level = compound.getInteger("QuestLevel");
 		this.cancelable = compound.getBoolean("Cancelable");
+		if (compound.hasKey("ShowProgressInChat", 1)) { this.showProgressInChat = compound.getBoolean("ShowProgressInChat"); }
+		if (compound.hasKey("ShowProgressInWindow", 1)) { this.showProgressInWindow = compound.getBoolean("ShowProgressInWindow"); }		
 		this.setExtraButton(compound.getInteger("ExtraButton"));
 		this.rewardText = compound.getString("AddRewardText");
 		this.step = compound.getInteger("Step") % 3;
@@ -462,6 +466,8 @@ implements ICompatibilty, IQuest, Predicate<EntityNPCInterface> {
 		compound.setTag("QuestMail", this.mail.writeNBT());
 		compound.setInteger("QuestLevel", this.level);
 		compound.setBoolean("Cancelable", this.cancelable);
+		compound.setBoolean("ShowProgressInChat", this.showProgressInChat);
+		compound.setBoolean("ShowProgressInWindow", this.showProgressInWindow);
 		compound.setString("ExtraButtonText", this.extraButtonText);
 		compound.setInteger("ExtraButton", this.extraButton);
 		compound.setString("AddRewardText", this.rewardText);

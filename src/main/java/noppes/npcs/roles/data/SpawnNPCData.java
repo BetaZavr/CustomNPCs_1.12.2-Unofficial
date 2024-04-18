@@ -38,7 +38,7 @@ public class SpawnNPCData {
 	}
 
 	public String getTitle() {
-		char chr = Character.toChars(0x00A7)[0];
+		char chr = ((char) 167);
 		String name = chr + "7" + new TextComponentTranslation("type.empty").getFormattedText();
 		if (this.compound!= null) { // client or server clone
 			if (this.typeClones==1 && this.compound.hasKey("id", 8)) { // mob

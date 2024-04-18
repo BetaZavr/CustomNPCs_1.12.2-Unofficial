@@ -26,7 +26,7 @@ public enum EnumPacketClient
 	CHATBUBBLE,
 	CLONE,
 	DIALOG_DUMMY,
-	CONFIG,
+	CONFIG_FONT,
 	EYE_BLINK,
 	SYNC_ADD,
 	SYNC_END,

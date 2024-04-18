@@ -14,7 +14,7 @@ import noppes.npcs.CustomNpcs;
 public class CustomNpcResourceListener
 implements IResourceManagerReloadListener {
 	
-	public static int DefaultTextColor = CustomNpcs.lableColor;
+	public static int DefaultTextColor = CustomNpcs.LableColor.getRGB();
 
 	private void createTextureCache() {
 		this.enlargeTexture("planks_oak");
@@ -48,7 +48,7 @@ implements IResourceManagerReloadListener {
 			SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) var1;
 			FolderResourcePack pack = new FolderResourcePack(CustomNpcs.Dir);
 			simplemanager.reloadResourcePack(pack);
-			CustomNpcResourceListener.DefaultTextColor = CustomNpcs.lableColor;
+			CustomNpcResourceListener.DefaultTextColor = CustomNpcs.LableColor.getRGB();
 		}
 	}
 

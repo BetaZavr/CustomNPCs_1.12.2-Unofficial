@@ -355,7 +355,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 			return;
 		}
 		// Setts
-		char chr = Character.toChars(0x00A7)[0];
+		char chr = ((char) 167);
 		this.job.readFromNBT(compound);
 		for (int j=0; j<2; j++) {
 			boolean type = j==0;
@@ -398,7 +398,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener {
 		} else {
 			this.subgui.drawScreen(mouseX, mouseY, partialTicks);
 		}
-		if (this.subgui!=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui!=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(new TextComponentTranslation("spawner.hover.sp.0")).getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {

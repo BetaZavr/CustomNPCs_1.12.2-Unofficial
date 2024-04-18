@@ -64,7 +64,7 @@ extends GuiNPCInterface2 {
 				break;
 			}
 			case 17: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, 0, -1, 0);
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0);
 				break;
 			}
 			case 19: {
@@ -105,7 +105,7 @@ extends GuiNPCInterface2 {
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
 		// New
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) { // add new
 			this.setHoverText(new TextComponentTranslation("global.hover.banks").getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {

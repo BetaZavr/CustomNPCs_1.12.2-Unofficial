@@ -180,7 +180,7 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 		if (this.subgui != null) {
 			return;
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (isMouseHover(i, j, this.guiLeft + 172, this.guiTop + 8, 120, 10)) {
 			this.setHoverText(new TextComponentTranslation("recipe.hover.info.groups").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 172, this.guiTop + 8, 120, 10)) {

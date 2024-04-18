@@ -29,6 +29,7 @@ extends ContainerNpcInterface {
 
 	public ContainerNPCBank(EntityPlayer player, Bank bank, int ceil, int slots) {
 		super(player);
+		
 		this.bank = bank;
 		this.ceil = ceil;
 		this.dataCeil = -2;

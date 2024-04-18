@@ -161,7 +161,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			this.getButton(3).setEnabled(!this.getTextField(0).getText().isEmpty());
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.sd.key").getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {

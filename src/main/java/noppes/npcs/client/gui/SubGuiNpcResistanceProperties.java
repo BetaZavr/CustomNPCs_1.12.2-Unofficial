@@ -78,7 +78,7 @@ implements ISliderListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getSlider(0)!=null && this.getSlider(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.resist.knockback").getFormattedText());
 		} else if (this.getSlider(1)!=null && this.getSlider(1).isMouseOver()) {

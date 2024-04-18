@@ -30,12 +30,12 @@ implements IGuiData, ITextfieldListener {
 		int lID = 0, x0 = this.guiLeft + 10, x1 = x0 + 80, y = this.guiTop + 20;
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.days", x0, y + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "follower.days", x1 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(0, this, x1, y, 60, 20, "" + CustomNpcs.mailTimeWhenLettersWillBeDeleted));
+		this.addTextField(new GuiNpcTextField(0, this, x1, y, 60, 20, "" + CustomNpcs.MailTimeWhenLettersWillBeDeleted));
 		this.getTextField(0).setNumbersOnly();
-		this.getTextField(0).setMinMaxDefault(0, 60, CustomNpcs.mailTimeWhenLettersWillBeDeleted);
+		this.getTextField(0).setMinMaxDefault(0, 60, CustomNpcs.MailTimeWhenLettersWillBeDeleted);
 		
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.rec", x0, (y += 24) + 5));
-		int[] vd = CustomNpcs.mailTimeWhenLettersWillBeReceived;
+		int[] vd = CustomNpcs.MailTimeWhenLettersWillBeReceived;
 		if (vd[0] > vd[1]) {
 			int m = new Integer(vd[0]);
 			vd[0] = vd[1];
@@ -55,42 +55,42 @@ implements IGuiData, ITextfieldListener {
 		
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.costs", x0, (y += 24) + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.0", x0, (y += 16) + 5));
-		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.charCurrencies, x1 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(3, this, x1, y, 60, 20, "" + CustomNpcs.mailCostSendingLetter[0]));
+		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x1 + 65, y + 5));
+		this.addTextField(new GuiNpcTextField(3, this, x1, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[0]));
 		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.mailCostSendingLetter[0]);
+		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.MailCostSendingLetter[0]);
 		int x2 = x1 + 120, x3 = x2 + 80;
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.1", x2, y + 5));
-		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.charCurrencies, x3 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(4, this, x3, y, 60, 20, "" + CustomNpcs.mailCostSendingLetter[1]));
+		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x3 + 65, y + 5));
+		this.addTextField(new GuiNpcTextField(4, this, x3, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[1]));
 		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.mailCostSendingLetter[1]);
+		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.MailCostSendingLetter[1]);
 
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.2", x0, (y += 24) + 5));
-		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.charCurrencies, x1 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(5, this, x1, y, 60, 20, "" + CustomNpcs.mailCostSendingLetter[2]));
+		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x1 + 65, y + 5));
+		this.addTextField(new GuiNpcTextField(5, this, x1, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[2]));
 		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.mailCostSendingLetter[2]);
+		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.MailCostSendingLetter[2]);
 
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.3", x0, (y += 24) + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "%", x1 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(6, this, x1, y, 60, 20, "" + CustomNpcs.mailCostSendingLetter[3]));
+		this.addTextField(new GuiNpcTextField(6, this, x1, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[3]));
 		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.mailCostSendingLetter[3]);
+		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.MailCostSendingLetter[3]);
 
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.4", x2, y + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "%", x3 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(7, this, x3, y, 60, 20, "" + CustomNpcs.mailCostSendingLetter[4]));
+		this.addTextField(new GuiNpcTextField(7, this, x3, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[4]));
 		this.getTextField(3).setNumbersOnly();
-		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.mailCostSendingLetter[4]);
+		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.MailCostSendingLetter[4]);
 		
-		this.addButton(new GuiNpcCheckBox(0, x0, (y += 24), 200, 14, "mail.send.yourself", CustomNpcs.mailSendToYourself));
+		this.addButton(new GuiNpcCheckBox(0, x0, (y += 24), 200, 14, "mail.send.yourself", CustomNpcs.MailSendToYourself));
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.hasSubGui() || !CustomNpcs.showDescriptions) { return; }
+		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("mail.hover.deleted.time").getFormattedText());
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
@@ -113,16 +113,16 @@ implements IGuiData, ITextfieldListener {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
-			CustomNpcs.mailSendToYourself = ((GuiNpcCheckBox) button).isSelected();
+			CustomNpcs.MailSendToYourself = ((GuiNpcCheckBox) button).isSelected();
 		}
 	}
 	
 	@Override
 	public void save() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("LettersBeDeleted", CustomNpcs.mailTimeWhenLettersWillBeDeleted);
-		compound.setIntArray("LettersBeReceived", CustomNpcs.mailTimeWhenLettersWillBeReceived);
-		compound.setBoolean("SendToYourself", CustomNpcs.mailSendToYourself);
+		compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
+		compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
+		compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
 		Client.sendData(EnumPacketServer.PlayerMailsSave, compound);
 	}
 
@@ -130,11 +130,11 @@ implements IGuiData, ITextfieldListener {
 	public void setGuiData(NBTTagCompound compound) {
 		int[] vs = compound.getIntArray("LettersBeReceived");
 		for (int i = 0; i < vs.length; i++) {
-			CustomNpcs.mailTimeWhenLettersWillBeReceived[i] = vs[i];
+			CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
 		}
 		vs = compound.getIntArray("CostSendingLetter");
 		for (int i = 0; i < vs.length; i++) {
-			CustomNpcs.mailCostSendingLetter[i] = vs[i];
+			CustomNpcs.MailCostSendingLetter[i] = vs[i];
 		}
 		this.initGui();
 	}
@@ -159,7 +159,7 @@ implements IGuiData, ITextfieldListener {
 			case 0: {
 				int v = textField.getInteger();
 				if (v == 0) { v = 1; }
-				CustomNpcs.mailTimeWhenLettersWillBeDeleted = v;
+				CustomNpcs.MailTimeWhenLettersWillBeDeleted = v;
 				break;
 			}
 			case 1: {
@@ -171,8 +171,8 @@ implements IGuiData, ITextfieldListener {
 					vd[0] = vd[1];
 					vd[1] = m;
 				}
-				CustomNpcs.mailTimeWhenLettersWillBeReceived[0] = vd[0];
-				CustomNpcs.mailTimeWhenLettersWillBeReceived[1] = vd[1];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
 				textField.setText("" + vd[0]);
 				textField2.setText("" + vd[1]);
 				break;
@@ -186,8 +186,8 @@ implements IGuiData, ITextfieldListener {
 					vd[0] = vd[1];
 					vd[1] = m;
 				}
-				CustomNpcs.mailTimeWhenLettersWillBeReceived[0] = vd[0];
-				CustomNpcs.mailTimeWhenLettersWillBeReceived[1] = vd[1];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
 				textField1.setText("" + vd[0]);
 				textField.setText("" + vd[1]);
 				break;

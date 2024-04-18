@@ -147,13 +147,17 @@ implements IJobBard {
 		this.song = compound.getString("BardSong");
 		this.isStreamer = compound.getBoolean("BardStreamer");
 		this.hasOffRange = compound.getBoolean("BardHasOff");
+		
 		if (compound.hasKey("BardRangeData", 7) && compound.hasKey("BardIsRange", 1)) {
 			this.isRange = compound.getBoolean("BardIsRange");
 			byte[] data = compound.getByteArray("BardRangeData");
-			if (data.length > 1) { this.range = new int[] { data[0], data[1] }; }
-			if (data.length > 4) { this.minPos = new int[] { data[2], data[3], data[4] }; }
+			if (data.length > 1) {
+				getIntInByte(data[0]);
+				this.range = new int[] { getIntInByte(data[0]), getIntInByte(data[1]) };
+			}
+			if (data.length > 4) { this.minPos = new int[] { getIntInByte(data[2]), getIntInByte(data[3]), getIntInByte(data[4]) }; }
 			else { this.maxPos = new int[] { this.range[0], this.range[0], this.range[0] }; }
-			if (data.length > 7) { this.maxPos = new int[] { data[5], data[6], data[7] }; }
+			if (data.length > 7) { this.maxPos = new int[] { getIntInByte(data[5]), getIntInByte(data[6]), getIntInByte(data[7]) }; }
 			else { this.maxPos = new int[] { this.range[1], this.range[1], this.range[1] }; }
 		}
 		else if (compound.hasKey("BardMinRange", 3) && compound.hasKey("BardMaxRange", 3)) {
@@ -163,6 +167,8 @@ implements IJobBard {
 			this.maxPos = new int[] { this.range[1], this.range[1], this.range[1] };
 		}
 	}
+
+	private int getIntInByte(byte b) { return (b <=0 ? 256 : 0) + b; }
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

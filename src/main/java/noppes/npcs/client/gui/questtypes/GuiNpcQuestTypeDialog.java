@@ -110,7 +110,7 @@ implements GuiSelectionListener, IGuiData, ITextfieldListener {
 			GlStateManager.popMatrix();
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		// New
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());

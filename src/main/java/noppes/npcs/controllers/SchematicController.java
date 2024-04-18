@@ -208,7 +208,7 @@ public class SchematicController {
 
 	public static void buildBlocks(EntityPlayerMP player, BlockPos pos, int rotaion, Schematic schema) { // Schematica Build
 		if (player == null || pos==null || schema==null) { return; }
-		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor(schema.blockIdsArray.length / CustomNpcs.maxBuilderBlocks) * 1000L;
+		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor(schema.blockIdsArray.length / CustomNpcs.MaxBuilderBlocks) * 1000L;
 		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, ""+pos.getX(), ""+pos.getY(), ""+pos.getZ(), AdditionalMethods.ticksToElapsedTime(ticks, true, true, false)));
 		SchematicWrapper sw = new SchematicWrapper(schema);
 		sw.init(pos.east().south(), player.world, rotaion * 90);

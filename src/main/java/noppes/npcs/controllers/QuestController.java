@@ -177,6 +177,7 @@ implements IQuestHandler {
 		// New
 		if (!AdditionalMethods.removeFile(dir)) {
 			LogWriter.error("Error delite " + dir + "; no access or file not uploaded!");
+			return;
 		}
 		for (int dia : cat.quests.keySet()) {
 			this.quests.remove(dia);

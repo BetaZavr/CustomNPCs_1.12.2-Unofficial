@@ -48,7 +48,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	public Entity selectEntity;
 	private static boolean all = false;
 	private DecimalFormat df = new DecimalFormat("#.#");
-	private char chr = Character.toChars(0x00A7)[0];
+	private char chr = ((char) 167);
 
 	public GuiNpcRemoteEditor() {
 		this.dataIDs = new HashMap<String, Integer>();
@@ -282,7 +282,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			GlStateManager.popMatrix();
 		}
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("wand.hover.edit").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {

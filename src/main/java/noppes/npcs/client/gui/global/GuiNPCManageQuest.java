@@ -177,7 +177,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.hasSubGui()) { return; }
 		this.drawHorizontalLine(this.guiLeft + 348, this.guiLeft + 414, this.guiTop + 128, 0x80000000);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.category.edit").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {

@@ -76,7 +76,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (this.getButton(1)!=null) { this.getButton(1).enabled = this.scroll.hasSelected(); }
-		if (!CustomNpcs.showDescriptions && !this.hasSubGui()) { return; }
+		if (!CustomNpcs.ShowDescriptions && !this.hasSubGui()) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.player.add").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {

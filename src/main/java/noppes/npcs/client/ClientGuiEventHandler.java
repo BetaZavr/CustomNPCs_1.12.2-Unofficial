@@ -157,11 +157,11 @@ extends Gui
 			this.tempEntity.clear();
 		}
 		PlayerOverlayHUD hud = ClientProxy.playerData.hud;
-		if ((hasNewMail  || startMail > 0L)&& CustomNpcs.mailWindow != -1) { // Mail
-			CustomNpcs.mailWindow = 1;
+		if ((hasNewMail  || startMail > 0L)&& CustomNpcs.MailWindow != -1) { // Mail
+			CustomNpcs.MailWindow = 1;
 			int[] offsets = new int[] { 0, -5 };
 			float sr = 45.0f, su = 12.0f, sv = 32.0f; // sr = 45.0f, su = 12.0f, sv = 32.0f;
-			switch(CustomNpcs.mailWindow) {
+			switch(CustomNpcs.MailWindow) {
 				case 1: { // left down
 					offsets[0] = 0;
 					offsets[1] = (int) hud.getWindowSize()[1] - 32;
@@ -276,7 +276,7 @@ extends Gui
 			}
 		}
 		// Quest Compass
-		if (CustomNpcs.showQuestCompass) {
+		if (CustomNpcs.ShowQuestCompass) {
 			String name = "", title = "";
 			double[] p = null;
 			int type = 0, range = 5;
@@ -560,7 +560,7 @@ extends Gui
 		}
 		// Information from the NBT Book
 		String rayName = "", rayTitle = "";
-		if (this.mc.player!=null && this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNbtBook) {
+		if (this.mc.player!=null && (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemNbtBook || this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNbtBook)) {
 			double distance = this.mc.gameSettings.getOptionFloatValue(GameSettings.Options.RENDER_DISTANCE) * 16.0d;
 			Vec3d vec3d = this.mc.player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = this.mc.player.getLook(1.0f);
@@ -609,7 +609,7 @@ extends Gui
 			        float f1 = (float)(this.mc.player.posY - blockPos.getY() + 0.5d);
 			        float f2 = (float)(this.mc.player.posZ - blockPos.getZ() + 0.5d);
 			        dist = Math.round(MathHelper.sqrt(f * f + f1 * f1 + f2 * f2) * 10.0d)/10.0d;
-			        if (dist>6.0d && !this.mc.player.getHeldItemOffhand().isEmpty()) {
+			        if (dist>6.0d && !this.mc.player.getHeldItemOffhand().isEmpty() && !(this.mc.player.getHeldItemOffhand().getItem() instanceof ItemNbtBook)) {
 			        	st = this.mc.player.getHeldItemOffhand();
 			        	rayName = ((char) 167) + "r" + st.getDisplayName();
 			        } else {
@@ -777,8 +777,8 @@ extends Gui
 	public void onDrawScreenEvent(GuiScreenEvent.DrawScreenEvent.Post event) {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientGuiEventHandler_onDrawScreenEvent");
 		Minecraft mc = event.getGui().mc;
-		if (event.getGui() instanceof GuiInventory && CustomNpcs.showMoney) {
-			String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false) + CustomNpcs.charCurrencies;
+		if (event.getGui() instanceof GuiInventory && CustomNpcs.ShowMoney) {
+			String text = AdditionalMethods.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false) + CustomNpcs.CharCurrencies;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			int x=0, y=0;
@@ -795,7 +795,7 @@ extends Gui
 			GlStateManager.popMatrix();
 			
 			GlStateManager.pushMatrix();
-			mc.fontRenderer.drawString(text, x+15, y+8 / 2, 0x404040, false);
+			mc.fontRenderer.drawString(text, x+15, y+8 / 2, CustomNpcs.LableColor.getRGB(), false);
 			GlStateManager.popMatrix();
 			int xm = event.getMouseX(), ym = event.getMouseY();
 			if (xm>x&& ym>y && xm<x+50  && ym<y+12) {
@@ -805,7 +805,7 @@ extends Gui
 				event.getGui().drawHoveringText(hoverText, xm, ym);
 			}
 		}
-		else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.showMoney) {
+		else if (event.getGui() instanceof GuiContainerCreative && CustomNpcs.ShowMoney) {
 			int x=0, y=0;
 			try {
 				x = ((GuiContainerCreative) event.getGui()).getGuiLeft() - 30;

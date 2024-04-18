@@ -89,15 +89,17 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 					
 					QuestInterface quest = data.quest.questInterface;
 					if (!quest.setFound(data, this.name)) { continue; }
-					// Change Message
-					NBTTagCompound compound = new NBTTagCompound();
-					compound.setInteger("QuestID", data.quest.id);
-					compound.setString("Type", "location");
-					compound.setIntArray("Progress", new int[] { 1, 1 });
-					compound.setString("TargetName", ((QuestObjective) obj).getTargetName());
-					compound.setInteger("MessageType", 0);
-					Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
-					player.sendMessage(new TextComponentTranslation("quest.message.location.1", new TextComponentTranslation(((QuestObjective) obj).getTargetName()).getFormattedText(), data.quest.getTitle()));
+					if (data.quest.showProgressInWindow) {
+						NBTTagCompound compound = new NBTTagCompound();
+						compound.setInteger("QuestID", data.quest.id);
+						compound.setString("Type", "location");
+						compound.setIntArray("Progress", new int[] { 1, 1 });
+						compound.setString("TargetName", ((QuestObjective) obj).getTargetName());
+						compound.setInteger("MessageType", 0);
+						Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
+					}
+					if (data.quest.showProgressInChat) {player.sendMessage(new TextComponentTranslation("quest.message.location.1", new TextComponentTranslation(((QuestObjective) obj).getTargetName()).getFormattedText(), data.quest.getTitle())); }
+					
 					questData.checkQuestCompletion(player, data);
 					questData.updateClient = true;
 				}

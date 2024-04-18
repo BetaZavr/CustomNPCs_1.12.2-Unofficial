@@ -27,7 +27,7 @@ extends SubGuiInterface
 implements ICustomScrollListener, ISubGuiListener {
 	
 	private Availability availabitily;
-	private String chr = new String(Character.toChars(0x00A7));
+	private String chr = "" + ((char) 167);
 	private Map<String, EnumAvailabilityDialog> dataEnum;
 	private Map<String, Integer> dataIDs;
 	private GuiCustomScroll scroll;
@@ -99,7 +99,7 @@ implements ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {

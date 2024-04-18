@@ -395,8 +395,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 		} else if (type == EnumPacketClient.GUI) {
 			EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];
-			CustomNpcs.proxy.openGui(NoppesUtil.getLastNpc(), gui, buffer.readInt(), buffer.readInt(),
-					buffer.readInt());
+			CustomNpcs.proxy.openGui(NoppesUtil.getLastNpc(), gui, buffer.readInt(), buffer.readInt(), buffer.readInt());
 		} else if (type == EnumPacketClient.PARTICLE) {
 			NoppesUtil.spawnParticle(buffer);
 		} else if (type == EnumPacketClient.DELETE_ENTITY) {
@@ -483,7 +482,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		} else if (type == EnumPacketClient.VILLAGER_LIST) {
 			MerchantRecipeList merchantrecipelist = MerchantRecipeList.readFromBuf(new PacketBuffer(buffer));
 			ServerEventsHandler.Merchant.setRecipes(merchantrecipelist);
-		} else if (type == EnumPacketClient.CONFIG) {
+		} else if (type == EnumPacketClient.CONFIG_FONT) {
 			int config = buffer.readInt();
 			if (config == 0) {
 				String font = Server.readString(buffer);
@@ -494,12 +493,10 @@ public class PacketHandlerClient extends PacketHandlerServer {
 						CustomNpcs.FontSize = size;
 						ClientProxy.Font.clear();
 						ClientProxy.Font = new ClientProxy.FontContainer(CustomNpcs.FontType, CustomNpcs.FontSize);
-						CustomNpcs.Config.updateConfig();
-						player.sendMessage(new TextComponentTranslation("Font set to %s",
-								new Object[] { ClientProxy.Font.getName() }));
+						CustomNpcs.Config.resetConfig();
+						player.sendMessage(new TextComponentTranslation("Font set to %s", ClientProxy.Font.getName()));
 					} else {
-						player.sendMessage(new TextComponentTranslation("Current font is %s",
-								new Object[] { ClientProxy.Font.getName() }));
+						player.sendMessage(new TextComponentTranslation("Current font is %s", ClientProxy.Font.getName()));
 					}
 					CustomNpcs.debugData.endDebug("Client", type.toString(), "PacketHandlerClient_Received");
 					return;

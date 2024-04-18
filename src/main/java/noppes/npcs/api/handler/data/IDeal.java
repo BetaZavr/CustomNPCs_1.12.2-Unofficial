@@ -9,8 +9,6 @@ public interface IDeal {
 	int getId();
 	
 	String getName();
-	
-	IMarcet getMarcet();
 
 	void set(IItemStack product, IItemStack[] currencys);
 

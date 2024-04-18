@@ -109,12 +109,12 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	}
 
 	@Override
-	public void addEnchantment(String name, int level) {
+	public void addEnchantment(String name, int strenght) {
 		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
 		if (ench == null) {
 			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
 		}
-		this.item.addEnchantment(ench, level);
+		this.item.addEnchantment(ench, strenght);
 	}
 	
 	@Override

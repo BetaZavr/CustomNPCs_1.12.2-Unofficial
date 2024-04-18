@@ -8,6 +8,7 @@ extends GuiNPCInterface {
 	
 	public int id;
 	public GuiScreen parent;
+	public Object object;
 	
 	public SubGuiInterface() {
 		super(null);
@@ -27,6 +28,8 @@ extends GuiNPCInterface {
 			((GuiNPCInterface) this.parent).closeSubGui(this);
 		} else if (this.parent instanceof GuiContainerNPCInterface) {
 			((GuiContainerNPCInterface) this.parent).closeSubGui(this);
+		} else if (this.parent instanceof ISubGuiListener) {
+			((ISubGuiListener) this.parent).subGuiClosed(this);
 		} else {
 			super.close();
 		}

@@ -451,7 +451,11 @@ extends CommonProxy {
 			case ScriptPlayers: { return new GuiScriptGlobal(); }
 			case SetupFollower: { return new GuiNpcFollowerSetup(npc, (ContainerNPCFollowerSetup) container); }
 			case SetupItemGiver: { return new GuiNpcItemGiver(npc, (ContainerNpcItemGiver) container); }
-			case SetupTrader: { return new GuiNPCManageMarcets(npc, x, y); }
+			case SetupTrader: {
+				if (x >= 0) { GuiNPCManageMarcets.marcetId = x; }
+				if (y >= 0) { GuiNPCManageMarcets.dealId = y; }
+				return new GuiNPCManageMarcets(npc);
+			}
 			case SetupTraderDeal: { return new GuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container); }
 			case SetupTransporter: { return new GuiNpcTransporter(npc); }
 			case SetupBank: { return new GuiNpcBankSetup(npc); }

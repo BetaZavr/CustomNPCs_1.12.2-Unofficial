@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.Server;
@@ -29,6 +30,7 @@ import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -68,23 +70,36 @@ implements INPCAnimation {
 				if (t < 0) { t *= -1; }
 				AnimationKind type = AnimationKind.get(t % AnimationKind.values().length);
 				List<Integer> list = Lists.<Integer>newArrayList();
-				for (int i = 0; i<nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
-					int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
-					if (!list.contains(id)) { list.add(id); }
-				}
-				for (int i = 0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
-					NBTTagCompound nbt = nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i);
-					int id = nbt.getInteger("ID");
-					String name = npc.getName() + "_" + nbt.getString("Name");
-					AnimationConfig anim = (AnimationConfig) aData.getAnimation(id);
-					if (anim == null || !anim.getName().equals(name)) { anim = (AnimationConfig) aData.createNew(); }
-					if (anim != null) {
-						id = anim.id;
-						anim.readFromNBT(nbt);
-						anim.name = name;
-						anim.id = id;
+				int tagType = nbtCategory.getTag("Animations").getId();
+				if (tagType == 11) {
+					for (int id : nbtCategory.getIntArray("Animations")) {
+						if (!list.contains(id)) { list.add(id); }
 					}
-					if (!list.contains(id)) { list.add(id); }
+				} else if (tagType == 9) {
+					int listType = ((NBTTagList) nbtCategory.getTag("Animations")).getTagType();
+					if (listType == 10 && npc != null && npc.world != null && !npc.world.isRemote) {
+						for (int i = 0; i<nbtCategory.getTagList("Animations", 10).tagCount(); i++) {
+							NBTTagCompound nbt = nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i);
+							int id = nbt.getInteger("ID");
+							String name = npc.getName() + "_" + nbt.getString("Name");
+							AnimationConfig anim = (AnimationConfig) aData.getAnimation(id);
+							if (anim == null || !anim.getName().equals(name)) { anim = (AnimationConfig) aData.createNew(); }
+							if (anim != null) {
+								id = anim.id;
+								anim.readFromNBT(nbt);
+								anim.name = name;
+								anim.id = id;
+								Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, anim.writeToNBT(new NBTTagCompound()));
+							}
+							if (!list.contains(id)) { list.add(id); }
+						}
+					}
+					else if (listType == 3) {
+						for (int i = 0; i<nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
+							int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
+							if (!list.contains(id)) { list.add(id); }
+						}
+					}
 				}
 				Collections.sort(list);
 				data.put(type, list);
@@ -143,10 +158,18 @@ implements INPCAnimation {
 		this.startFrameTick = 0;
 		List<Integer> ids = data.get(type);
 		if (ids==null) { data.put(type, ids = Lists.<Integer>newArrayList()); }
+		if (ids.isEmpty() && (type == AnimationKind.FLY_STAND || type == AnimationKind.WATER_STAND)) {
+			type = AnimationKind.STANDING;
+			ids = data.get(type);
+		}
+		if (ids.isEmpty() && (type == AnimationKind.FLY_WALK || type == AnimationKind.WATER_WALK)) {
+			type = AnimationKind.WALKING;
+			ids = data.get(type);
+		}
 
 		AnimationController aData = AnimationController.getInstance();
-		List<AnimationConfig> list = aData.getAnimations(data.get(type));
-		if (list.size()>0) {
+		List<AnimationConfig> list = aData.getAnimations(ids);
+		if (list.size() > 0) {
 			List<AnimationConfig> selectList = Lists.<AnimationConfig>newArrayList();
 			for (AnimationConfig ac : list) { selectList.add(ac); }
 			if (selectList.size()>0) {
@@ -441,6 +464,12 @@ implements INPCAnimation {
 		float f = this.val + (this.valNext - this.val) * pt;
 		float value = (value_0 + (value_1 - value_0) * f) * 2.0f * pi;
 		return value;
+	}
+
+	public boolean hasAnim() {
+		if (activeAnim != null) { return true; }
+		for (List<Integer> list : data.values()) { if (!list.isEmpty()) { return true; } }
+		return false;
 	}
 	
 }

@@ -16,7 +16,7 @@ extends GuiNpcButton {
 	public GuiButtonBiDirectional(int id, int x, int y, int width, int height, String[] arr, int current) {
 		super(id, x, y, width, height, arr, current);
 		this.cheakWidth = true;
-		this.color = CustomNpcs.mainColor;
+		this.color = CustomNpcs.MainColor.getRGB();
 		this.showShedow = true;
 	}
 
@@ -48,8 +48,8 @@ extends GuiNpcButton {
 		
 		int l = this.color;
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
-		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
-		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		else if (!this.enabled) { l = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (this.hovered) { l = CustomNpcs.HoverColor.getRGB(); }
 		
 		String text = "";
 		float maxWidth = (this.width - 36);
@@ -64,7 +64,7 @@ extends GuiNpcButton {
 			text += "...";
 		}
 		else { text = this.displayString; }
-		if (this.hovered) { text = new String(Character.toChars(0x00A7)) + "n" + text; }
+		if (this.hovered) { text = ((char) 167) + "n" + text; }
 		
 		if (this.showShedow) { this.drawCenteredString(mc.fontRenderer, text, this.x + this.width / 2, this.y + (this.height - 10) / 2, l); }
 		else { mc.fontRenderer.drawString(text, this.x + (this.width - mc.fontRenderer.getStringWidth(text)) / 2, this.y + (this.height - 10) / 2, l, false); }

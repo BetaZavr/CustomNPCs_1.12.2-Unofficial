@@ -36,7 +36,6 @@ public enum EnumPacketServer
 	TransformLoad(CustomNpcsPermissions.NPC_ADVANCED, true), 
 	TraderMarketSave(CustomNpcsPermissions.GLOBAL_MARCET, false), 
 	TraderMarketGet(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
-	TraderMarketNew(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
 	TraderMarketDel(CustomNpcsPermissions.GLOBAL_MARCET, false), // New
 	AnimationSave(CustomNpcsPermissions.NPC_ADVANCED, true),
 	AnimationChange(CustomNpcsPermissions.NPC_ADVANCED, false),

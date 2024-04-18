@@ -143,7 +143,6 @@ implements IJobBuilder {
 		this.reset();
 	}
 
-
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = JobType.BUILDER;

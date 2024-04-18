@@ -252,7 +252,7 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.job."+this.npc.advanced.jobInterface.getType()).getFormattedText());
 		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {

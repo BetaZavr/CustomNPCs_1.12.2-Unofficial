@@ -148,7 +148,7 @@ implements ISliderListener, ITextfieldListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(51)!=null && this.getTextField(51).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.level").getFormattedText());
 		} else if (this.getTextField(52)!=null && this.getTextField(52).isMouseOver()) {

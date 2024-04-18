@@ -127,20 +127,18 @@ public class ServerEventsHandler {
 				killed.put(name, amount);
 				((QuestObjective) obj).setKilled(data, killed);
 				// New
-				NBTTagCompound compound = new NBTTagCompound();
-				compound.setInteger("QuestID", data.quest.id);
-				compound.setString("Type", "kill");
-				compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
-				compound.setString("TargetName", new TextComponentTranslation("script.killed").getFormattedText() + ": \"" + entity.getName()+"\"");
-				compound.setInteger("MessageType", 0);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
-				if (amount >= obj.getMaxProgress()) {
-					player.sendMessage(new TextComponentTranslation("quest.message.kill.1",
-							new TextComponentTranslation(entity.getName()).getFormattedText(), data.quest.getTitle()));
-				} else {
-					player.sendMessage(new TextComponentTranslation("quest.message.kill.0",
-							new TextComponentTranslation(entity.getName()).getFormattedText(), "" + amount,
-							"" + obj.getMaxProgress(), data.quest.getTitle()));
+				if (data.quest.showProgressInWindow) {
+					NBTTagCompound compound = new NBTTagCompound();
+					compound.setInteger("QuestID", data.quest.id);
+					compound.setString("Type", "kill");
+					compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
+					compound.setString("TargetName", new TextComponentTranslation("script.killed").getFormattedText() + ": \"" + entity.getName()+"\"");
+					compound.setInteger("MessageType", 0);
+					Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
+				}
+				if (data.quest.showProgressInChat) {
+					if (amount >= obj.getMaxProgress()) { player.sendMessage(new TextComponentTranslation("quest.message.kill.1",new TextComponentTranslation(entity.getName()).getFormattedText(), data.quest.getTitle())); }
+					else { player.sendMessage(new TextComponentTranslation("quest.message.kill.0", new TextComponentTranslation(entity.getName()).getFormattedText(), "" + amount, "" + obj.getMaxProgress(), data.quest.getTitle())); }
 				}
 				playerdata.checkQuestCompletion(player, data);
 				playerdata.updateClient = true;

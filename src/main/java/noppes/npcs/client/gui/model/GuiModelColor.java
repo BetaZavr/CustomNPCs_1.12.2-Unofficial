@@ -125,7 +125,7 @@ implements ITextfieldListener {
 		this.drawGradientRect(0, 0, 20, 20, 0xFF000000 + this.hover, 0xFF000000 + this.hover);
 		this.drawGradientRect(0, 0, 20, 20, this.hover, this.hover);
 		GlStateManager.popMatrix();
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.set.color").getFormattedText());
 		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {

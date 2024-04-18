@@ -48,12 +48,11 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener, ISubGuiListene
 	public void initGui() {
 		super.initGui();
 		List<String> dialogs = new ArrayList<String>();
-		char chr = Character.toChars(0x00A7)[0];
 		for (int slot : this.data.keySet()) {
 			NBTTagCompound nbt = this.data.get(slot);
-			String str = (slot+1)+"; "+chr+"7"+"ID:"+nbt.getInteger("Id")+" - ";
-			str += chr+"8"+nbt.getString("Category")+"/";
-			str += chr+"r"+nbt.getString("Title");
+			String str = (slot+1)+"; "+((char) 167)+"7"+"ID:"+nbt.getInteger("Id")+" - ";
+			str += ((char) 167)+"8"+nbt.getString("Category")+"/";
+			str += ((char) 167)+"r"+nbt.getString("Title");
 			dialogs.add(str);
 		}
 		if (this.scroll == null) {
@@ -158,7 +157,7 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener, ISubGuiListene
 			}
 		}
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.add").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
@@ -194,10 +193,9 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener, ISubGuiListene
 			if (this.selectedSlot==slot) { continue; }
 			if (this.data.get(slot).getInteger("Id")==id) {
 				this.error = 60;
-				char chr = Character.toChars(0x00A7)[0];
 				ITextComponent end = new TextComponentTranslation("trader.busy");
 				end.getStyle().setColor(TextFormatting.RED);
-				this.player.sendMessage(CustomNpcs.prefix.appendSibling(new TextComponentTranslation("dialog.dialog")).appendSibling(new TextComponentString(chr+"7 ID:"+id+chr+"r \""+name+"\""+chr+"c - ")).appendSibling(end));
+				this.player.sendMessage(CustomNpcs.prefix.appendSibling(new TextComponentTranslation("dialog.dialog")).appendSibling(new TextComponentString(((char) 167)+"7 ID:"+id+((char) 167)+"r \""+name+"\""+((char) 167)+"c - ")).appendSibling(end));
 				return;
 			}
 		}

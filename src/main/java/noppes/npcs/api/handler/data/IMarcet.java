@@ -4,9 +4,9 @@ public interface IMarcet {
 	
 	int getId();
 	
-	int[] getDealIDs();
+	IDeal[] getDeals(int section);
 	
-	IDeal[] getDeals();
+	IDeal[] getAllDeals();
 
 	String getName();
 

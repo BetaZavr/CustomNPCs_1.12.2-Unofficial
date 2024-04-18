@@ -395,15 +395,16 @@ implements IQuestObjective {
 				String dialog = "dialog ID:" + this.id;
 				IDialog d = DialogController.instance.get(this.id);
 				if (d != null) { dialog = d.getName(); }
-				NBTTagCompound compound = new NBTTagCompound();
-				compound.setInteger("QuestID", questData.quest.id);
-				compound.setString("Type", "dialog");
-				compound.setIntArray("Progress", new int[] { progress, 1 });
-				compound.setString("TargetName", dialog);
-				compound.setInteger("MessageType", 0);
-				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
-				this.player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress,
-						new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle()));
+				if (questData.quest.showProgressInWindow) {
+					NBTTagCompound compound = new NBTTagCompound();
+					compound.setInteger("QuestID", questData.quest.id);
+					compound.setString("Type", "dialog");
+					compound.setIntArray("Progress", new int[] { progress, 1 });
+					compound.setString("TargetName", dialog);
+					compound.setInteger("MessageType", 0);
+					Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
+				}
+				if (questData.quest.showProgressInChat) { player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress, new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle())); }
 			}
 			data.updateClient = true;
 		} else if (this.type == EnumQuestTask.LOCATION) {

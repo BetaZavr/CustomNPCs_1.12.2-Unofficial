@@ -122,38 +122,38 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		// Text area
 		
 		// player name
-		this.addLabel(new GuiNpcLabel(0, "mailbox." + (!this.canEdit || !this.canSend ? "sender" : "username"), x, y, CustomNpcs.lableColor));
+		this.addLabel(new GuiNpcLabel(0, "mailbox." + (!this.canEdit || !this.canSend ? "sender" : "username"), x, y, CustomNpcs.LableColor.getRGB()));
 		if (this.canEdit) {
 			if (!this.canSend) { this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, x, y += 10, 112, 14, GuiMailmanWrite.mail.sender)); }
 			else { this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x, y += 10, 112, 14, this.username)); }
 		}
-		else { this.addLabel(new GuiNpcLabel(10, "\"" + GuiMailmanWrite.mail.sender + "\"", x + 2, y += 10, CustomNpcs.lableColor)); }
+		else { this.addLabel(new GuiNpcLabel(10, "\"" + GuiMailmanWrite.mail.sender + "\"", x + 2, y += 10, CustomNpcs.LableColor.getRGB())); }
 		// title
-		this.addLabel(new GuiNpcLabel(1, "mailbox.subject", x, y += 18, CustomNpcs.lableColor));
+		this.addLabel(new GuiNpcLabel(1, "mailbox.subject", x, y += 18, CustomNpcs.LableColor.getRGB()));
 		if (this.canEdit) { this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, x, y += 10, 112, 14, GuiMailmanWrite.mail.title)); }
-		else { this.addLabel(new GuiNpcLabel(11, "\"" + GuiMailmanWrite.mail.title + "\"", x, y += 10, CustomNpcs.lableColor)); }
+		else { this.addLabel(new GuiNpcLabel(11, "\"" + GuiMailmanWrite.mail.title + "\"", x, y += 10, CustomNpcs.LableColor.getRGB())); }
 		// ransom
 		if (!this.canEdit) {
 			if (GuiMailmanWrite.mail.ransom > 0) {
-				this.addLabel(new GuiNpcLabel(7, ((char) 167) + "4" + ((char) 167) + "l" + new TextComponentTranslation("mailbox.ransom").getFormattedText(), x, y + 18, CustomNpcs.lableColor));
-				this.addLabel(new GuiNpcLabel(8, AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.ransom, true, false, false) + " " + CustomNpcs.charCurrencies, x + 2, y + 28, CustomNpcs.lableColor));
+				this.addLabel(new GuiNpcLabel(7, ((char) 167) + "4" + ((char) 167) + "l" + new TextComponentTranslation("mailbox.ransom").getFormattedText(), x, y + 18, CustomNpcs.LableColor.getRGB()));
+				this.addLabel(new GuiNpcLabel(8, AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.ransom, true, false, false) + " " + CustomNpcs.CharCurrencies, x + 2, y + 28, CustomNpcs.LableColor.getRGB()));
 			}
 			if (GuiMailmanWrite.mail.money > 0) {
-				this.addLabel(new GuiNpcLabel(7, "market.currency", x, y + 18, CustomNpcs.lableColor));
-				this.addLabel(new GuiNpcLabel(8, AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.money, true, false, false) + " " + CustomNpcs.charCurrencies, x + 2, y + 28, CustomNpcs.lableColor));
+				this.addLabel(new GuiNpcLabel(7, "market.currency", x, y + 18, CustomNpcs.LableColor.getRGB()));
+				this.addLabel(new GuiNpcLabel(8, AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.money, true, false, false) + " " + CustomNpcs.CharCurrencies, x + 2, y + 28, CustomNpcs.LableColor.getRGB()));
 			}
 		}
 		this.addLabel(this.error = new GuiNpcLabel(2, "", x - 10, this.guiTop + 145, 0xFFFF0000));
 		// Moneys
 		if (this.canEdit) {
-			this.addLabel(new GuiNpcLabel(3, "market.currency", x, (y += 19) + 4, CustomNpcs.lableColor));
-			this.addLabel(new GuiNpcLabel(6, CustomNpcs.charCurrencies, x + 102, y + 4, CustomNpcs.lableColor));
+			this.addLabel(new GuiNpcLabel(3, "market.currency", x, (y += 19) + 4, CustomNpcs.LableColor.getRGB()));
+			this.addLabel(new GuiNpcLabel(6, CustomNpcs.CharCurrencies, x + 102, y + 4, CustomNpcs.LableColor.getRGB()));
 			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x + 48, y, 50, 16, "" + GuiMailmanWrite.mail.money));
 			this.getTextField(3).setNumbersOnly();
 			this.getTextField(3).setMinMaxDefault(0, (int) (this.player.capabilities.isCreativeMode ? Integer.MAX_VALUE : ClientProxy.playerData.game.getMoney()), GuiMailmanWrite.mail.money);
 
-			this.addLabel(new GuiNpcLabel(7, "mailbox.ransom", x, (y += 19) + 4, CustomNpcs.lableColor));
-			this.addLabel(new GuiNpcLabel(8, CustomNpcs.charCurrencies, x + 102, y + 4, CustomNpcs.lableColor));
+			this.addLabel(new GuiNpcLabel(7, "mailbox.ransom", x, (y += 19) + 4, CustomNpcs.LableColor.getRGB()));
+			this.addLabel(new GuiNpcLabel(8, CustomNpcs.CharCurrencies, x + 102, y + 4, CustomNpcs.LableColor.getRGB()));
 			this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 48, y, 50, 16, "" + GuiMailmanWrite.mail.ransom));
 			this.getTextField(4).setNumbersOnly();
 			this.getTextField(4).setMinMaxDefault(0, Integer.MAX_VALUE, GuiMailmanWrite.mail.ransom);
@@ -297,14 +297,14 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		}
 		boolean hasMail = false;
 		this.cost.clear();
-		long c = CustomNpcs.mailCostSendingLetter[0];
+		long c = CustomNpcs.MailCostSendingLetter[0];
 		this.cost.put(0, c);
 		this.totalCost = c;
 		if (this.bookPages != null) {
 			c = 0;
 			for (int i = 0; i < this.bookPages.tagCount(); ++i) {
 				if (this.bookPages.getStringTagAt(i).isEmpty()) { continue; }
-				c +=  CustomNpcs.mailCostSendingLetter[1];
+				c +=  CustomNpcs.MailCostSendingLetter[1];
 				hasMail = true;
 			}
 			this.cost.put(1, c);
@@ -315,30 +315,30 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		for (int i = 0; i < 4; i++) {
 			Slot slot = this.inventorySlots.getSlot(i);
 			if (slot == null || slot.getStack() == null || slot.getStack().isEmpty()) { continue; }
-			c += (int) ((float) CustomNpcs.mailCostSendingLetter[2] * (float) slot.getStack().getCount() / (float) slot.getStack().getMaxStackSize());
+			c += (int) ((float) CustomNpcs.MailCostSendingLetter[2] * (float) slot.getStack().getCount() / (float) slot.getStack().getMaxStackSize());
 			hasStacks = true;
 			hasMail = true;
 		}
 		this.cost.put(3, c);
 		this.totalCost += c;
 		if (GuiMailmanWrite.mail.money > 0) {
-			c = (long) ((float) GuiMailmanWrite.mail.money * (float) CustomNpcs.mailCostSendingLetter[3] / 100.0f);
+			c = (long) ((float) GuiMailmanWrite.mail.money * (float) CustomNpcs.MailCostSendingLetter[3] / 100.0f);
 			this.cost.put(2, c);
 			this.totalCost += c;
 			this.totalCost += GuiMailmanWrite.mail.money;
 			hasMail = true;
 		}
 		if (GuiMailmanWrite.mail.ransom > 0) {
-			c = (long) (int) ((float) GuiMailmanWrite.mail.ransom * (float) CustomNpcs.mailCostSendingLetter[4] / 100.0f);
+			c = (long) (int) ((float) GuiMailmanWrite.mail.ransom * (float) CustomNpcs.MailCostSendingLetter[4] / 100.0f);
 			this.cost.put(4, c);
 			this.totalCost += c;
 		}
 		if (this.getLabel(5) != null) {
-			this.getLabel(5).setLabel(new TextComponentTranslation("mailbox.cost.send", ""+(this.totalCost == 0L ? 0: AdditionalMethods.getTextReducedNumber(this.totalCost, true, false, false)), CustomNpcs.charCurrencies).getFormattedText());
+			this.getLabel(5).setLabel(new TextComponentTranslation("mailbox.cost.send", ""+(this.totalCost == 0L ? 0: AdditionalMethods.getTextReducedNumber(this.totalCost, true, false, false)), CustomNpcs.CharCurrencies).getFormattedText());
 		}
 		if (this.canEdit && this.canSend && this.getButton(0) != null) {
 			this.type = 0;
-			this.type = !this.player.capabilities.isCreativeMode && this.username.equals(this.player.getName()) && !CustomNpcs.mailSendToYourself ? 3 : 0;
+			this.type = !this.player.capabilities.isCreativeMode && this.username.equals(this.player.getName()) && !CustomNpcs.MailSendToYourself ? 3 : 0;
 			if (this.type == 0) { this.type = this.getTextField(0) != null && this.getTextField(0).getText().isEmpty() ? 1 : 0; } // player
 			if (this.type == 0) { this.type = GuiMailmanWrite.mail.title.isEmpty() ? 4 : 0; } // title
 			if (this.type == 0 && !this.player.capabilities.isCreativeMode) { this.type = ClientProxy.playerData.game.getMoney() < this.totalCost ? 2 : 0; } // money
@@ -931,7 +931,7 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		// Player Money
 		if (this.mc != null && this.canSend) {
-			String text = AdditionalMethods.getTextReducedNumber(ClientProxy.playerData.game.getMoney(), true, true, false) + CustomNpcs.charCurrencies;
+			String text = AdditionalMethods.getTextReducedNumber(ClientProxy.playerData.game.getMoney(), true, true, false) + CustomNpcs.CharCurrencies;
 			int x = this.guiLeft + 166, y = this.guiTop + 150;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
@@ -946,41 +946,41 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 			this.mc.fontRenderer.drawString(text, x+15, y+8 / 2, 0x404040, false);
 			GlStateManager.popMatrix();
 		}
-		if (this.hasSubGui() || !CustomNpcs.showDescriptions) { return; }
+		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			if (!this.canSend) { this.setHoverText(new TextComponentTranslation("mailbox.hover.done").getFormattedText()); } // done
 			else {
 				if (this.type == 0) {
-					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0", AdditionalMethods.ticksToElapsedTime(CustomNpcs.mailTimeWhenLettersWillBeReceived[1] * 20, false, true, true), ""+this.totalCost, CustomNpcs.charCurrencies);
+					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0", AdditionalMethods.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20, false, true, true), ""+this.totalCost, CustomNpcs.CharCurrencies);
 					for (int i : this.cost.keySet()) {
 						if (this.cost.get(i) > 0L) {
 							String p0 = "" + this.cost.get(i);
 							String p1 = "", p2 = "";
 							switch(i) {
-								case 1: p1 = "" + CustomNpcs.mailCostSendingLetter[1]; break;
-								case 2: p0 = "" + GuiMailmanWrite.mail.money; p1 = "" + this.cost.get(i); p2 = "" + CustomNpcs.mailCostSendingLetter[3]; break;
-								case 3: p1 = "" + CustomNpcs.mailCostSendingLetter[2]; break;
-								case 4: p1 = "" + CustomNpcs.mailCostSendingLetter[4]; break;
+								case 1: p1 = "" + CustomNpcs.MailCostSendingLetter[1]; break;
+								case 2: p0 = "" + GuiMailmanWrite.mail.money; p1 = "" + this.cost.get(i); p2 = "" + CustomNpcs.MailCostSendingLetter[3]; break;
+								case 3: p1 = "" + CustomNpcs.MailCostSendingLetter[2]; break;
+								case 4: p1 = "" + CustomNpcs.MailCostSendingLetter[4]; break;
 								default: break;
 							}
-							mes.appendSibling(new TextComponentTranslation("mailbox.hover.send.2."+i, p0, CustomNpcs.charCurrencies, p1, CustomNpcs.charCurrencies, p2));
+							mes.appendSibling(new TextComponentTranslation("mailbox.hover.send.2."+i, p0, CustomNpcs.CharCurrencies, p1, CustomNpcs.CharCurrencies, p2));
 						}
 					}
 					this.setHoverText(mes.getFormattedText());
 				} else if (this.type == 2) {
-					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.2", ""+this.totalCost, CustomNpcs.charCurrencies);
+					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.2", ""+this.totalCost, CustomNpcs.CharCurrencies);
 					for (int i : this.cost.keySet()) {
 						if (this.cost.get(i) > 0L) {
 							String p0 = "" + this.cost.get(i);
 							String p1 = "", p2 = "";
 							switch(i) {
-								case 1: p1 = "" + CustomNpcs.mailCostSendingLetter[1]; break;
-								case 2: p0 = "" + GuiMailmanWrite.mail.money; p1 = "" + this.cost.get(i); p2 = "" + CustomNpcs.mailCostSendingLetter[3]; break;
-								case 3: p1 = "" + CustomNpcs.mailCostSendingLetter[2]; break;
-								case 4: p1 = "" + CustomNpcs.mailCostSendingLetter[4]; break;
+								case 1: p1 = "" + CustomNpcs.MailCostSendingLetter[1]; break;
+								case 2: p0 = "" + GuiMailmanWrite.mail.money; p1 = "" + this.cost.get(i); p2 = "" + CustomNpcs.MailCostSendingLetter[3]; break;
+								case 3: p1 = "" + CustomNpcs.MailCostSendingLetter[2]; break;
+								case 4: p1 = "" + CustomNpcs.MailCostSendingLetter[4]; break;
 								default: break;
 							}
-							mes.appendSibling(new TextComponentTranslation("mailbox.hover.send.2."+i, p0, CustomNpcs.charCurrencies, p1, CustomNpcs.charCurrencies, p2));
+							mes.appendSibling(new TextComponentTranslation("mailbox.hover.send.2."+i, p0, CustomNpcs.CharCurrencies, p1, CustomNpcs.CharCurrencies, p2));
 						}
 					}
 					this.setHoverText(mes.getFormattedText());

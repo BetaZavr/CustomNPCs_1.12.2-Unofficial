@@ -28,34 +28,40 @@ public class GuiCustomScroll
 extends GuiScreen {
 	
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
+
+	private GuiScreen parent;
+	private ICustomScrollListener listener;
+	
+	public boolean hovered;
+	public boolean isScrolling;
+	public boolean selectable;
+	public boolean visible;
+	private boolean isSorted;
+	private boolean multipleSelection;
+	
 	public int colorBack = 0xC0101010, border = 0xFF000000;
-	private List<Integer> colors;
-	private List<String> suffixs;
 	public int guiLeft;
 	public int guiTop;
 	public int hover;
-	public boolean hovered;
-	public String[][] hoversTexts;
-	public String[] hoverText;
 	public int id;
-	public boolean isScrolling;
-	private boolean isSorted;
 	private int lastClickedItem;
-	private long lastClickedTime;
-	private final List<String> list;
-	private ICustomScrollListener listener;
 	private int listHeight;
 	public int maxScrollY;
-	private boolean multipleSelection;
-	private GuiScreen parent;
 	private int scrollHeight;
 	public int scrollY;
-	public boolean selectable;
 	public int selected;
+	
+	private long lastClickedTime;
+	
 	private HashSet<String> selectedList;
+	private final List<String> list;
+	private List<Integer> colors;
+	private List<String> suffixs;
 	private List<ItemStack> stacks;
 	private List<ResourceData> prefixs;
-	public boolean visible;
+	
+	public String[][] hoversTexts;
+	public String[] hoverText;
 
 	public GuiCustomScroll(GuiScreen parent, int id) {
 		this.guiLeft = 0;
@@ -131,27 +137,27 @@ extends GuiScreen {
 				j = 14;
 				xo = -14;
 			}
-			int c = CustomNpcs.mainColor;
+			int c = CustomNpcs.MainColor.getRGB();
 			if (this.colors != null && i < this.colors.size()) { c = this.colors.get(i); }
 			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false)) || (!this.multipleSelection && this.selected == i)) {
 				this.drawVerticalLine(j - 2, k - 4, k + 10, -1);
-				this.drawVerticalLine(j + this.width - 18 + xOffset + xo, k - 4, k + 10, -1);
-				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset + xo, k - 3, -1);
-				this.drawHorizontalLine(j - 2, j + this.width - 18 + xOffset + xo, k + 10, -1);
+				this.drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
+				this.drawHorizontalLine(j - 2, j + this.width - 17 + xOffset + xo, k - 3, -1);
+				this.drawHorizontalLine(j - 2, j + this.width - 17 + xOffset + xo, k + 10, -1);
 				this.fontRenderer.drawString(text, j, k, c);
-				c = CustomNpcs.mainColor;
+				c = CustomNpcs.MainColor.getRGB();
 			} else if (i == this.hover) {
 				this.fontRenderer.drawString(text, j, k, 65280);
-				c = CustomNpcs.hoverColor;
+				c = CustomNpcs.HoverColor.getRGB();
 			} else {
 				this.fontRenderer.drawString(text, j, k, c);
-				c = CustomNpcs.mainColor;
+				c = CustomNpcs.MainColor.getRGB();
 			}
 			if (this.suffixs != null &&
 					i < this.suffixs.size() &&
 					!this.suffixs.get(i).isEmpty() &&
 					this.fontRenderer.getStringWidth(text+this.suffixs.get(i)) < this.width-20) {
-				this.fontRenderer.drawString(this.suffixs.get(i), j + this.width - 9 + (this.listHeight > this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
+				this.fontRenderer.drawString(this.suffixs.get(i), this.width - 9 + (this.listHeight > this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
 			}
 		}
 	}

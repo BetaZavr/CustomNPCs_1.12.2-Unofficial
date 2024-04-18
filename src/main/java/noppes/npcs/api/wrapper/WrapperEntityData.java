@@ -79,7 +79,7 @@ implements IWrapperEntityDataHandler, ICapabilityProvider {
 		if (oldData.base.getTempdata().getKeys().length>0) {
 			for (String key : oldData.base.getTempdata().getKeys()) {
 				try { newData.base.getTempdata().put(key, oldData.base.getTempdata().get(key)); }
-				catch (CommandException e) { e.printStackTrace(); }
+				catch (Exception e) { e.printStackTrace(); }
 			}
 		}
 	}
@@ -143,7 +143,7 @@ implements IWrapperEntityDataHandler, ICapabilityProvider {
 	}
 
 	@Override
-	public NBTTagCompound getNBT() { return null; }
+	public NBTTagCompound getNBT() { return new NBTTagCompound(); }
 
 	@Override
 	public void setNBT(NBTTagCompound compound) { }

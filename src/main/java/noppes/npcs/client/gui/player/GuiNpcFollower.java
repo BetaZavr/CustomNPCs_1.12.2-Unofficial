@@ -100,7 +100,7 @@ implements IGuiData {
 			this.getButton(3).setEnabled(this.mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= this.role.rentalMoney);
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("follower.hover.move").getFormattedText());
 		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
@@ -170,7 +170,7 @@ implements IGuiData {
 		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
 			int days = this.role.rates.get(3);
 			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText() : new TextComponentTranslation("follower.days").getFormattedText());
-			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " " + CustomNpcs.charCurrencies;
+			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " " + CustomNpcs.CharCurrencies;
 			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 80, this.guiTop + 56, CustomNpcResourceListener.DefaultTextColor);
 		}
 		if (displayNPC != null) { this.drawNpc(displayNPC, 33, 131, 1.0f, 0, 0, 1); }

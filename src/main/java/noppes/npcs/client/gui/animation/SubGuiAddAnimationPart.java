@@ -72,7 +72,7 @@ implements ISubGuiListener, ITextfieldListener{
 		GlStateManager.popMatrix();
 		
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.hasSubGui() || !CustomNpcs.showDescriptions) { return; }
+		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 	}
 
 	@Override

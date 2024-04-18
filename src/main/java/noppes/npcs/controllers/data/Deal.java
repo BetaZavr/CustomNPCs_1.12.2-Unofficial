@@ -12,7 +12,6 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IDeal;
-import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.constants.EnumPacketClient;
@@ -21,37 +20,25 @@ import noppes.npcs.controllers.MarcetController;
 public class Deal
 implements IDeal {
 
-	private int amount;
-	public Availability availability;
-	private float chance; // 0.0 <-> 1.0
-	private int[] count;
-	private int id, sectionId;
-	private boolean ignoreDamage, ignoreNBT;
-	private final NpcMiscInventory inventoryCurrency;
-	private final NpcMiscInventory inventoryProduct;
-	private int money, type;
-	private int marcetID;
+	public Availability availability = new Availability();
+	private float chance = 1.0f; // 0.0 <-> 1.0
+	private int[] count = new int[] { 0, 0 };
+	private int id = -1;
+	private boolean ignoreDamage = false;
+	private boolean ignoreNBT = false;
+	private final NpcMiscInventory inventoryCurrency = new NpcMiscInventory(9);
+	private final NpcMiscInventory inventoryProduct = new NpcMiscInventory(1);
+	private int money = 0;
+	private int type = 2;
+	private int amount = 1;
 	public boolean update;
 
-	public Deal(int id, int marcetID) {
-		this.id = id;
-		this.sectionId = 0;
-		this.availability = new Availability();
-		this.ignoreDamage = false;
-		this.ignoreNBT = false;
-		this.inventoryCurrency = new NpcMiscInventory(9);
-		this.inventoryProduct = new NpcMiscInventory(1);
-		this.type = 2;
-		this.money = 0;
-		this.count = new int[] { 0, 0 };
-		this.chance = 1.0f;
-		this.amount = 1;
-		this.marcetID = marcetID;
-	}
+	public Deal() { }
+	
+	public Deal(int id) { this.id = id; }
 
 	public Deal copy() {
-		Deal deal = new Deal(this.id, this.marcetID);
-		deal.sectionId = this.sectionId;
+		Deal deal = new Deal(this.id);
 		deal.availability = this.availability;
 		deal.ignoreDamage = this.ignoreDamage;
 		deal.ignoreNBT = this.ignoreNBT;
@@ -73,7 +60,7 @@ implements IDeal {
 		String name = " - Empty";
 		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
 		if (!stack.isEmpty()) {
-			name = (this.amount == 0 ? new String(Character.toChars(0x00A7)) + "c" : "") + stack.getDisplayName() + " x" + stack.getCount();
+			name = (this.amount == 0 ? ((char) 167) + "c" : "") + "x" + stack.getCount() + " " + stack.getDisplayName();
 		}
 		return name;
 	}
@@ -86,26 +73,24 @@ implements IDeal {
 		compound.setTag("Currency", this.inventoryCurrency.getToNBT());
 		compound.setTag("Product", this.inventoryProduct.getToNBT());
 		compound.setInteger("Type", this.type);
-		compound.setInteger("Money", this.money);
 		compound.setIntArray("Count", this.count);
 		compound.setFloat("Chance", this.chance);
-		compound.setInteger("Amount", this.amount);
-		compound.setInteger("MarcetID", this.marcetID);
 		compound.setInteger("DealID", this.id);
-		compound.setInteger("SectionID", this.sectionId);
+		compound.setInteger("Money", this.money);
+		return compound;
+	}
+
+	public NBTTagCompound writeDataToNBT() {
+		NBTTagCompound compound = writeToNBT();
+		compound.setInteger("Amount", this.amount);
 		return compound;
 	}
 
 	public String getSettingName() {
 		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
-		Marcet m = MarcetController.getInstance().marcets.get(this.marcetID);
-		if (m != null) {
-			if (!m.sections.containsKey(this.sectionId)) { this.sectionId = 0; }
-		}
-		String section = ((char) 167) + "e#" + ((char) 167) + "r" + this.sectionId;
-		return section + "; ID:" + this.id + ": " + (stack.isEmpty()
+		return "ID:" + id + " " + (stack.isEmpty()
 				? ((char) 167) + "4" + new TextComponentTranslation("type.empty").getFormattedText()
-				: (this.inventoryCurrency.isEmpty() && this.money == 0 ? new String(Character.toChars(0x00A7)) + "c" : "") + stack.getDisplayName())
+				: (this.inventoryCurrency.isEmpty() && this.money == 0 ? ((char) 167) + "c" : "") + stack.getDisplayName())
 				+ (!stack.isEmpty() ? " x" + stack.getCount() : "");
 	}
 
@@ -119,10 +104,13 @@ implements IDeal {
 		this.money = compound.getInteger("Money");
 		this.count = compound.getIntArray("Count");
 		this.chance = compound.getFloat("Chance");
+		this.id = compound.getInteger("DealID");
+	}
+
+	public void readDataNBT(NBTTagCompound compound) {
+		this.readFromNBT(compound);
 		this.amount = compound.getInteger("Amount");
-		this.marcetID = compound.getInteger("MarcetID");
-		this.sectionId = compound.getInteger("SectionID");
-		if (this.sectionId < 0) { this.sectionId = 0; }
+		this.id = compound.getInteger("DealID");
 	}
 
 	@Override
@@ -179,11 +167,6 @@ implements IDeal {
 
 	@Override
 	public int getId() { return this.id; }
-
-	@Override
-	public IMarcet getMarcet() {
-		return MarcetController.getInstance().getMarcet(this.marcetID);
-	}
 
 	@Override
 	public IContainer getCurrency() {
@@ -300,30 +283,21 @@ implements IDeal {
 	@Override
 	public IInventory getMCInventoryCurrency() { return this.inventoryCurrency; }
 
-	public int getMarcetID() { return this.marcetID; }
-
 	public void update() {
 		if (this.update) {
 			this.update = false;
-			Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(this.marcetID);
-			if (marcet!=null) { 
+			MarcetController mData = MarcetController.getInstance();
+			NBTTagCompound nbt = writeDataToNBT();
+			for (Marcet marcet : mData.marcets.values()) {
+				if (marcet.getSection(id) == -1) { continue; }
 				for (EntityPlayer listener : marcet.listeners) {
 					if (listener instanceof EntityPlayerMP) {
-						Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_DATA, 3, this.writeToNBT());
+						Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_DATA, 5, marcet.getId(), nbt);
 						Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_DATA, 2);
 					}
 				}
 			}
 		}
-	}
-
-	public int getSectionID() { return this.sectionId; }
-	
-	public void setSectionID(int sectionId) {
-		if (sectionId < 0) { sectionId = 0; }
-		Marcet m = MarcetController.getInstance().marcets.get(this.marcetID);
-		if (m != null && !m.sections.containsKey(sectionId)) { sectionId = 0; }
-		this.sectionId = sectionId;
 	}
 	
 }

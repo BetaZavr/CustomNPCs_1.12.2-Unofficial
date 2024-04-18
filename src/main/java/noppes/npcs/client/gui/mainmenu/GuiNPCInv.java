@@ -97,7 +97,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 			this.scrollDrops.guiTop = this.guiTop + 38;
 			this.addScroll(this.scrollDrops);
 			this.addLabel(new GuiNpcLabel(4, "inv.drops", this.guiLeft + 176, this.guiTop + 27));
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 175, this.guiTop + 197, 60, 15, "gui.add", this.dropsData.size() < CustomNpcs.maxItemInDropsNPC));
+			this.addButton(new GuiNpcButton(1, this.guiLeft + 175, this.guiTop + 197, 60, 15, "gui.add", this.dropsData.size() < CustomNpcs.MaxItemInDropsNPC));
 			this.addButton(new GuiNpcButton(2, this.guiLeft + 240, this.guiTop + 197, 60, 15, "selectServer.edit", this.scrollDrops.selected>=0));
 			this.addButton(new GuiNpcButton(3, this.guiLeft + 305, this.guiTop + 197, 60, 15, "gui.remove", this.scrollDrops.selected>=0));
 		} else if (this.inventory.dropType==1) {
@@ -178,7 +178,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 			this.scrollDrops.guiTop = this.guiTop + 38;
 			this.addScroll(this.scrollDrops);
 			
-			this.addButton(new GuiNpcButton(1, this.guiLeft + 277, this.guiTop + 197, 45, 15, "gui.add", this.dropsData.size() < CustomNpcs.maxItemInDropsNPC));
+			this.addButton(new GuiNpcButton(1, this.guiLeft + 277, this.guiTop + 197, 45, 15, "gui.add", this.dropsData.size() < CustomNpcs.MaxItemInDropsNPC));
 			this.addButton(new GuiNpcButton(2, this.guiLeft + 324, this.guiTop + 197, 45, 15, "selectServer.edit", this.scrollDrops.selected>=0));
 			this.addButton(new GuiNpcButton(3, this.guiLeft + 371, this.guiTop + 197, 45, 15, "gui.remove", this.scrollDrops.selected>=0));
 		}
@@ -271,7 +271,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 		this.npc.display.setShowName(showname);
 		super.drawScreen(i, j, f);
 		// New
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		String dropName = "";
 		if (this.scrollDrops!=null && this.scrollDrops.getSelected()!=null && this.dropsData.get(this.scrollDrops.getSelected())!=null) {
 			dropName = this.dropsData.get(this.scrollDrops.getSelected()).getItem().getDisplayName();
@@ -285,7 +285,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("inv.hover.drops.type").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("inv.hover.add.drop", new Object[] { ""+CustomNpcs.maxItemInDropsNPC }).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("inv.hover.add.drop", new Object[] { ""+CustomNpcs.MaxItemInDropsNPC }).getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("inv.hover.edit.drop", new Object[] { dropName }).getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {

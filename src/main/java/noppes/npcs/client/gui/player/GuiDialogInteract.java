@@ -19,7 +19,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.LanguageManager;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
@@ -84,7 +83,7 @@ implements IGuiClose {
 	private final Map<Integer, DialodTexture> textures = Maps.<Integer, DialodTexture>newHashMap();
 	// Display
 	private final List<TextBlockClient> lines; // Dialog Logs
-	private Entity dialogNpc;
+	private EntityNPCInterface dialogNpc;
 	private int w, h, tf, dialogHeight, optionHeight, dialogWidth, startLine;
 	private long startTime;
 	private float corr = 1.0f;
@@ -93,22 +92,6 @@ implements IGuiClose {
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialog) {
 		super(npc);
 		dialogNpc = AdditionalMethods.copyToGUI(npc, mc.world, false);
-		if (this.dialogNpc instanceof EntityNPCInterface) {
-			boolean addDots = false;
-			String name = ((EntityNPCInterface) this.dialogNpc).getName();
-			while (this.fontRenderer.getStringWidth(name) > 45) {
-				name = name.substring(0, name.length()-2);
-				addDots = true;
-			}
-			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setName(name+"..."); }
-			addDots = false;
-			String title = ((EntityNPCInterface) this.dialogNpc).display.getTitle();
-			while (this.fontRenderer.getStringWidth(title) > 65) {
-				title = title.substring(0, title.length()-2);
-				addDots = true;
-			}
-			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setTitle(title+"..."); }
-		}
 		selected = 0;
 		selectedStart = 0;
 		selectedX = 0;
@@ -133,12 +116,31 @@ implements IGuiClose {
 	@Override
 	public void initGui() {
 		super.initGui();
+
+		ScaledResolution sw = new ScaledResolution(this.mc);
+		if (this.dialogNpc != null) {
+			boolean addDots = false;
+			String name = ((EntityNPCInterface) this.dialogNpc).getName();
+			int wName = (int) (sw.getScaledWidth_double() *0.1525d);
+			while (this.fontRenderer.getStringWidth(name) > wName) {
+				name = name.substring(0, name.length()-2);
+				addDots = true;
+			}
+			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setName(name+"..."); }
+			addDots = false;
+			String title = ((EntityNPCInterface) this.dialogNpc).display.getTitle();
+			while (this.fontRenderer.getStringWidth(title) > wName) {
+				title = title.substring(0, title.length()-2);
+				addDots = true;
+			}
+			if (addDots) { ((EntityNPCInterface) this.dialogNpc).display.setTitle(title+"..."); }
+		}
+		
 		this.isGrabbed = false;
 		this.grabMouse(this.dialog.showWheel);
 		this.guiLeft = 112;
 		this.guiTop = 0;
 		this.tf = this.getFontHeight(null);
-		ScaledResolution sw = new ScaledResolution(this.mc);
 		this.w = (int) Math.ceil(sw.getScaledWidth_double());
 		this.h = (int) Math.ceil(sw.getScaledHeight_double());
 		this.optionHeight = this.dialog.showWheel ? 60 : (int) (Math.ceil(sw.getScaledHeight_double()) / 3.0d);
@@ -379,7 +381,7 @@ implements IGuiClose {
 		GlStateManager.enableAlpha();
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.5f, 100.065f);
-		int time = 1 + (int) ((System.currentTimeMillis() - this.startTime) / (1000L / CustomNpcs.dialogShowFitsSpeed));
+		int time = 1 + (int) ((System.currentTimeMillis() - this.startTime) / (1000L / CustomNpcs.DialogShowFitsSpeed));
 		int l = 0;
 		showOptions = true;
 		for (TextBlockClient textBlock : Lists.<TextBlockClient>newArrayList(this.lines)) {

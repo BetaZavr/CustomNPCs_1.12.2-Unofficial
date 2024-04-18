@@ -351,10 +351,7 @@ implements ICustomGui {
 		tag.setBoolean("isIndependent", this.isIndependent);
 		NBTTagList list = new NBTTagList();
 		for (ICustomGuiComponent c : this.components) {
-			if (c == null) {
-				System.out.println("CNPCs: "+c);
-				continue;
-			}
+			if (c == null) { continue; }
 			list.appendTag(((CustomGuiComponentWrapper) c).toNBT(new NBTTagCompound()));
 		}
 		tag.setTag("components", list);

@@ -201,7 +201,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData {
 			GlStateManager.popMatrix();
 			this.drawNpc(this.npcAnim, 369, 87, 1.0f, 0, 0, 0);
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.scrollAnims!=null && this.scrollAnims.hover != -1) { // scroll anim
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.list").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
@@ -272,11 +272,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData {
 		}
 		else if (subgui.id == 2) { // load
 			if (!(subgui instanceof SubGuiLoadAnimation) || ((SubGuiLoadAnimation) subgui).cancelled || ((SubGuiLoadAnimation) subgui).animation==null || !this.dataType.containsKey(this.scrollType.getSelected())) { return; }
-			anim = ((SubGuiLoadAnimation) subgui).animation;
-			this.animation.data.get(this.dataType.get(this.scrollType.getSelected())).add(anim.id);
-			this.selAnim = anim.getSettingName();
-			this.dataAnims.put(this.selAnim, anim);
-			this.initGui();
+			try {
+				anim = ((SubGuiLoadAnimation) subgui).animation;
+				type = dataType.get(scrollType.getSelected());
+				animation.data.get(type).add(anim.id);
+				selAnim = anim.getSettingName();
+				dataAnims.put(selAnim, anim);
+				initGui();
+			}
+			catch (Exception e) { e.printStackTrace(); }
 		}
 		else if (subgui.id == 3) { // rename
 			if (!(subgui instanceof SubGuiEditText) || anim == null) { return; }

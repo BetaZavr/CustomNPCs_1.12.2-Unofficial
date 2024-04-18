@@ -122,7 +122,7 @@ implements IScrollData, ICustomScrollListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText("dimensions.hover.settings");
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {

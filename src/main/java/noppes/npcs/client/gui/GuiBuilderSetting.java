@@ -81,13 +81,13 @@ implements ICustomScrollListener, ITextfieldListener {
 				stream.close();
 				if (name.toLowerCase().endsWith(".blueprint")) {
 					if (compound.getKeySet().isEmpty() || !compound.hasKey("size_x", 2) || !compound.hasKey("size_y", 2) || !compound.hasKey("size_z", 2)) { continue; }
-					if (!ClientProxy.playerData.game.op && (int) compound.getShort("size_x") * (int) compound.getShort("size_y") * (int) compound.getShort("size_z") > CustomNpcs.maxBuilderBlocks) { continue; }
+					if (!ClientProxy.playerData.game.op && (int) compound.getShort("size_x") * (int) compound.getShort("size_y") * (int) compound.getShort("size_z") > CustomNpcs.MaxBuilderBlocks) { continue; }
 					Blueprint bp = BlueprintUtil.readBlueprintFromNBT(compound);
 					bp.setName(name);
 					GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(bp));
 				}
 				if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2) || !compound.hasKey("Height", 2)) { continue; }
-				if ((int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.maxBuilderBlocks) { continue; }
+				if ((int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.MaxBuilderBlocks) { continue; }
 				Schematic schema = new Schematic(name);
 				schema.load(compound);
 				GuiBuilderSetting.basefiles.put(name, new SchematicWrapper(schema));
@@ -103,7 +103,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				try {
 					NBTTagCompound compound = CompressedStreamTools.readCompressed(new FileInputStream(f));
 					if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2) || !compound.hasKey("Height", 2)) { continue; }
-					if (!ClientProxy.playerData.game.op && (int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.maxBuilderBlocks) { continue; }
+					if (!ClientProxy.playerData.game.op && (int) compound.getShort("Width") * (int) compound.getShort("Length") * (int) compound.getShort("Height") > CustomNpcs.MaxBuilderBlocks) { continue; }
 					Schematic schema = new Schematic(f.getName());
 					schema.load(compound);
 					this.files.put(f.getName(), new SchematicWrapper(schema));
@@ -285,7 +285,7 @@ implements ICustomScrollListener, ITextfieldListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.builder==null || !CustomNpcs.showDescriptions || this.subgui!=null) { return; }
+		if (this.builder==null || !CustomNpcs.ShowDescriptions || this.subgui!=null) { return; }
 		// hover text
 		int type = this.builder.type;
 		int t = 0, j=0;

@@ -201,7 +201,7 @@ implements ICustomScrollListener {
 			else if (this.type==2) { rot = 325; }
 			if (this.npc.textureLocation!=null) { this.drawNpc(this.npc, this.guiLeft + 276 + x, this.guiTop + 155 + y, s, rot, 0, mouse); }
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
@@ -269,7 +269,7 @@ implements ICustomScrollListener {
 			this.scroll.setListNotSorted(list);
 			if (this.scroll.selected != pos) { this.scroll.selected = pos; }
 			this.scroll.resetRoll();
-			char chr = Character.toChars(0x00A7)[0];
+			char chr = ((char) 167);
 			domian =  chr+"l"+this.selectDir.getResourceDomain()+"/"+path;
 			while (this.mc.fontRenderer.getStringWidth(domian)>250 && path.indexOf("/")!=-1) {
 				path = path.substring(path.indexOf("/")+1);

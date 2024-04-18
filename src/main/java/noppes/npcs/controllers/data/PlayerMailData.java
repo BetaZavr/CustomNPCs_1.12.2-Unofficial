@@ -58,7 +58,7 @@ public class PlayerMailData {
 		mail = mail.copy();
 		mail.timeWhenReceived = System.currentTimeMillis();
 		if (mail.timeWhenReceived <= 0L) { mail.timeWhenReceived = 100000L; }
-		mail.timeWillCome = 1000L * ((long) CustomNpcs.mailTimeWhenLettersWillBeReceived[0] + (long) (Math.random() * (double) (CustomNpcs.mailTimeWhenLettersWillBeReceived[1] - CustomNpcs.mailTimeWhenLettersWillBeReceived[0])));
+		mail.timeWillCome = 1000L * ((long) CustomNpcs.MailTimeWhenLettersWillBeReceived[0] + (long) (Math.random() * (double) (CustomNpcs.MailTimeWhenLettersWillBeReceived[1] - CustomNpcs.MailTimeWhenLettersWillBeReceived[0])));
 		boolean found = true;
 		while(found) {
 			found = false;

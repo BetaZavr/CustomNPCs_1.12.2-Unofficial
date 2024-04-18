@@ -311,10 +311,12 @@ public class Schematic implements ISchematic {
 		compound.setShort("Width", this.width);
 		compound.setShort("Height", this.height);
 		compound.setShort("Length", this.length);
+		
 		byte[][] arr = this.getBlockBytes();
 		compound.setByteArray("Blocks", arr[0]);
 		if (arr.length > 1) { compound.setByteArray("AddBlocks", arr[1]); }
 		compound.setByteArray("Data", this.blockMetadataArray);
+		
 		compound.setTag("TileEntities", this.tileList);
 		compound.setTag("Entities", this.entityList);
 		// New
@@ -339,8 +341,10 @@ public class Schematic implements ISchematic {
 		this.width = compound.getShort("Width");
 		this.height = compound.getShort("Height");
 		this.length = compound.getShort("Length");
+		
 		byte[] addId = compound.hasKey("AddBlocks") ? compound.getByteArray("AddBlocks") : new byte[0];
 		this.setBlockBytes(compound.getByteArray("Blocks"), addId);
+		
 		this.blockMetadataArray = compound.getByteArray("Data");
 		this.tileList = compound.getTagList("TileEntities", 10);
 		this.entityList = compound.getTagList("Entities", 10);
@@ -353,6 +357,7 @@ public class Schematic implements ISchematic {
 
 	public void setBlockBytes(byte[] blockId, byte[] addId) {
 		this.blockIdsArray = new short[blockId.length];
+		
 		for (int index = 0; index < blockId.length; ++index) {
 			short id = (short) (blockId[index] & 0xFF);
 			if (index >> 1 < addId.length) {

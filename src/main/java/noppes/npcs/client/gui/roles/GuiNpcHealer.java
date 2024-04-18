@@ -272,7 +272,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions && this.subgui == null) { return; }
+		if (!CustomNpcs.ShowDescriptions && this.subgui == null) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("beacon.hover.edit").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {

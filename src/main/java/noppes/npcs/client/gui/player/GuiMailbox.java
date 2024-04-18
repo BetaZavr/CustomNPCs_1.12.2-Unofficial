@@ -98,7 +98,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			ResourceData rd = new ResourceData(icons, mail.getRansom() > 0 ? 96 : mail.returned ? 128 : 0, 0, 32, 32);
 			rd.tH = -3.0f;
 			prefixs.add(rd);
-			colors.add(CustomNpcs.lableColor);
+			colors.add(CustomNpcs.LableColor.getRGB());
 			i++;
 		}
 		for (PlayerMail mail : listR) {
@@ -115,7 +115,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 			ResourceData rd = new ResourceData(icons, mail.getRansom() > 0 ? 96 : isEmpty ? 64 : 32, 0, 32, 32);
 			rd.tH = -3.0f;
 			prefixs.add(rd);
-			colors.add(CustomNpcs.lableColor);
+			colors.add(CustomNpcs.LableColor.getRGB());
 			i++;
 		}
 		this.scroll.clear();
@@ -130,7 +130,7 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		String title = new TextComponentTranslation("mailbox.name").getFormattedText();
 		int x = (this.xSize - this.fontRenderer.getStringWidth(title)) / 2;
 		this.addLabel(new GuiNpcLabel(0, title, this.guiLeft + x, this.guiTop + 11));
-		this.getLabel(0).color = CustomNpcs.mainColor;
+		this.getLabel(0).color = CustomNpcs.MainColor.getRGB();
 		x = this.guiLeft + 8;
 		int y = this.guiTop + 202;
 		
@@ -328,14 +328,14 @@ implements IGuiData, ICustomScrollListener, GuiYesNoCallback {
 		}
 		GlStateManager.popMatrix();
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (step != 3 || this.hasSubGui() || !CustomNpcs.showDescriptions) { return; }
+		if (step != 3 || this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 		List<String> hover = Lists.<String>newArrayList();
 		if (this.scroll != null && this.scroll.hover > -1) {
 			PlayerMail mail = this.scrollData.get(this.scroll.getList().get(this.scroll.hover));
 			hover.add(((char) 167) + "7" + new TextComponentTranslation("mailbox.sender").getFormattedText() + ((char) 167) + "7 \"" + ((char) 167) + "r" + mail.sender + ((char) 167) + "7\"");
 			long timeWhenReceived = System.currentTimeMillis() - mail.timeWhenReceived - mail.timeWillCome;
-			if (CustomNpcs.mailTimeWhenLettersWillBeDeleted > 0) {
-				long timeToRemove = CustomNpcs.mailTimeWhenLettersWillBeDeleted * 86400000L - timeWhenReceived;
+			if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
+				long timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L - timeWhenReceived;
 				if (timeToRemove < 0L) {
 					timeToRemove = 0L;
 					NoppesUtilPlayer.sendData(EnumPlayerPacket.MailDelete, mail.timeWhenReceived, mail.sender);

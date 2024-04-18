@@ -216,7 +216,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 			this.drawVerticalLine(this.guiLeft + 418, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
 		}
 		if (this.subgui != null || this.wait) { return; }
-		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui !=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("manager.hover.transport.add").getFormattedText());
 		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {

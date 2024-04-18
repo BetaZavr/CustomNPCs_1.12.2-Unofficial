@@ -78,7 +78,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 	public ForgeEvent(Event event) {
 		this.API = NpcAPI.Instance();
 		this.event = event;
-		if (event==null || CustomNpcs.simplifiedForgeEvents) { return; }
+		if (event==null || CustomNpcs.SimplifiedForgeEvents) { return; }
 		// Common
 		Block bl = null;
 		IBlockState st = null;

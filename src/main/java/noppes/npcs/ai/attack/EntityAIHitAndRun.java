@@ -12,11 +12,9 @@ import noppes.npcs.util.RayTraceVec;
 public class EntityAIHitAndRun
 extends EntityAICustom {
 
-	private int[] dodgePos;
+	private int[] runPos;
 	
-	public EntityAIHitAndRun(IRangedAttackMob npc) {
-		super(npc);
-	}
+	public EntityAIHitAndRun(IRangedAttackMob npc) { super(npc); }
 
 	@Override
 	public void updateTask() {
@@ -26,14 +24,14 @@ extends EntityAICustom {
 		else { this.canSeeToAttack = this.npc.canSee(this.target); }
 		if (this.canSeeToAttack && this.distance <= this.range) {
 			if (this.inMove) {
-				if (this.dodgePos == null) { this.npc.getNavigator().clearPath(); }
+				if (this.runPos == null) { this.npc.getNavigator().clearPath(); }
 				else {
 					PathPoint point = this.npc.getNavigator().getPath().getFinalPathPoint();
 					if (point == null ||
-							point.x < this.dodgePos[0] - 2 && point.x > this.dodgePos[0] + 2 ||
-							point.y < this.dodgePos[1] - 2 && point.y > this.dodgePos[1] + 2 ||
-							point.z < this.dodgePos[2] - 2 && point.z > this.dodgePos[2] + 2) {
-						this.dodgePos = null;
+							point.x < this.runPos[0] - 2 && point.x > this.runPos[0] + 2 ||
+							point.y < this.runPos[1] - 2 && point.y > this.runPos[1] + 2 ||
+							point.z < this.runPos[2] - 2 && point.z > this.runPos[2] + 2) {
+						this.runPos = null;
 						this.npc.getNavigator().clearPath();
 					}
 				}
@@ -41,7 +39,7 @@ extends EntityAICustom {
 		}
 		else {
 			if (!this.inMove) {
-				this.dodgePos = null;
+				this.runPos = null;
 				this.tryMoveToTarget();
 			}
 		}
@@ -50,7 +48,7 @@ extends EntityAICustom {
 		if (this.hasAttack) {
 			Path path = null;
 			RayTraceVec pos = null;
-			this.dodgePos = null;
+			this.runPos = null;
 			if (!this.isRanged || this.distance < this.tacticalRange) {
 				pos = AdditionalMethods.instance.getPosition(this.target.posX, this.target.posY, this.target.posZ, this.target.rotationYaw + 180.0f, this.target.rotationPitch, this.tacticalRange);
 				path = this.npc.getNavigator().getPathToXYZ(pos.x, pos.y, pos.z);
@@ -84,11 +82,11 @@ extends EntityAICustom {
 						path = this.npc.getNavigator().getPathToXYZ(vec.x, vec.y, vec.z);
 						if (path == null) { dist = 0.0d; }
 						else {
-							if (this.dodgePos == null) { this.dodgePos = new int[] { (int) vec.x, (int) vec.y, (int) vec.z }; }
+							if (this.runPos == null) { this.runPos = new int[] { (int) vec.x, (int) vec.y, (int) vec.z }; }
 							else {
-								this.dodgePos[0] = (int) vec.x; 
-								this.dodgePos[1] = (int) vec.y;
-								this.dodgePos[2] = (int) vec.z;
+								this.runPos[0] = (int) vec.x; 
+								this.runPos[1] = (int) vec.y;
+								this.runPos[2] = (int) vec.z;
 							}
 						}
 					}
@@ -98,11 +96,11 @@ extends EntityAICustom {
 				this.npc.getNavigator().setPath(path, 1.3d);
 				PathPoint point = path.getFinalPathPoint();
 				if (point != null) {
-					if (this.dodgePos == null) { this.dodgePos = new int[] { point.x, point.y, point.z }; }
+					if (this.runPos == null) { this.runPos = new int[] { point.x, point.y, point.z }; }
 					else {
-						this.dodgePos[0] = (int) point.x; 
-						this.dodgePos[1] = (int) point.y;
-						this.dodgePos[2] = (int) point.z;
+						this.runPos[0] = (int) point.x; 
+						this.runPos[1] = (int) point.y;
+						this.runPos[2] = (int) point.z;
 					}
 				}
 			}

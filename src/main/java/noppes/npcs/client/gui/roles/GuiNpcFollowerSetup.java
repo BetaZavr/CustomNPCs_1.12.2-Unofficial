@@ -68,7 +68,7 @@ extends GuiContainerNPCInterface2 {
 		tf = new GuiNpcTextField(6, this, this.fontRenderer, x + 45, y += 18, 60, 16, ""+this.role.rentalMoney);
 		this.addLabel(new GuiNpcLabel(lId++, "gui.money", x, y + 4));
 		this.addLabel(new GuiNpcLabel(lId++, "#4", x + 33, y + 4));
-		this.addLabel(new GuiNpcLabel(lId++, CustomNpcs.charCurrencies, x + 107, y + 4));
+		this.addLabel(new GuiNpcLabel(lId++, CustomNpcs.CharCurrencies, x + 107, y + 4));
 		tf.setNumbersOnly();
 		tf.setMinMaxDefault(0L, 9999999999L, this.role.rentalMoney);
 		this.addTextField(tf);
@@ -115,7 +115,7 @@ extends GuiContainerNPCInterface2 {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(3)!=null && this.getTextField(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("follower.hover.mes.hire").getFormattedText());
 		} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {

@@ -32,19 +32,6 @@ implements GuiYesNoCallback {
 		this.npc = npc;
 	}
 
-	private void close() {
-		if (this.parent instanceof GuiContainerNPCInterface2) {
-			((GuiContainerNPCInterface2) this.parent).close();
-		}
-		if (this.parent instanceof GuiNPCInterface2) {
-			((GuiNPCInterface2) this.parent).close();
-		}
-		if (this.npc != null) {
-			this.npc.reset();
-			Client.sendData(EnumPacketServer.NpcMenuClose, new Object[0]);
-		}
-	}
-
 	public void confirmClicked(boolean flag, int id) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (flag) {
@@ -90,7 +77,7 @@ implements GuiYesNoCallback {
 		}
 	}
 
-	private void save() {
+	public void save() {
 		GuiNpcTextField.unfocus();
 		if (this.parent instanceof GuiContainerNPCInterface2) { ((GuiContainerNPCInterface2) this.parent).save(); }
 		if (this.parent instanceof GuiNPCInterface2) { ((GuiNPCInterface2) this.parent).save(); }
@@ -101,8 +88,20 @@ implements GuiYesNoCallback {
 		Minecraft mc = Minecraft.getMinecraft();
 		NoppesUtil.clickSound();
 		int id = button.id;
+		this.save();
 		if (id == 0) {
-			this.close();
+			if (this.parent instanceof GuiContainerNPCInterface2) {
+				((GuiContainerNPCInterface2) this.parent).close();
+			}
+			if (this.parent instanceof GuiNPCInterface2) {
+				((GuiNPCInterface2) this.parent).close();
+			}
+			if (this.npc != null) {
+				this.npc.reset();
+				Client.sendData(EnumPacketServer.NpcMenuClose, new Object[0]);
+			}
+			mc.displayGuiScreen(null);
+			mc.setIngameFocus();
 			return;
 		}
 		if (id == 66) {
@@ -110,7 +109,6 @@ implements GuiYesNoCallback {
 			mc.displayGuiScreen((GuiScreen) guiyesno);
 			return;
 		}
-		this.save();
 		PlayerData.get(mc.player).editingNpc = npc;
 		if (id == 1) {
 			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuDisplay);

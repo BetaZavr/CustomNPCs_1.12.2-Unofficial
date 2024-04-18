@@ -28,7 +28,7 @@ implements IRoleTrader {
 	@Override
 	public void interact(EntityPlayer player) {
 		this.npc.say(player, this.npc.advanced.getInteractLine());
-		Marcet marcet = (Marcet) this.getMarket();
+		Marcet marcet = (Marcet) getMarket();
 		if (marcet == null || !marcet.isValid()) { return; }
 		if (player instanceof EntityPlayerMP) {
 			marcet.addListener(player, true);

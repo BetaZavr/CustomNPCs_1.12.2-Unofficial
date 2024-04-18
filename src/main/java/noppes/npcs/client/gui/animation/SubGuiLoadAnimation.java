@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.animation;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.Gui;
@@ -56,6 +57,7 @@ implements ICustomScrollListener {
 		AnimationController aData = AnimationController.getInstance();
 		this.data.clear();
 		char c = ((char) 167);
+		ArrayList<String> list = Lists.<String>newArrayList();
 		String[][] hts = new String[aData.animations.size()][];
 		int i = 0;
 		for (int id : aData.animations.keySet()) {
@@ -66,11 +68,12 @@ implements ICustomScrollListener {
 				selected = key;
 			}
 			this.data.put(key, id);
+			list.add(key);
 			hts[i] = new String[] { new TextComponentTranslation(ac.name).getFormattedText() };
 			i++;
 		}
 		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
-		this.scroll.setListNotSorted(new ArrayList<String>(this.data.keySet()));
+		this.scroll.setListNotSorted(list);
 		this.scroll.hoversTexts = hts;
 		this.scroll.guiLeft = this.guiLeft + 4;
 		this.scroll.guiTop = this.guiTop + 14;

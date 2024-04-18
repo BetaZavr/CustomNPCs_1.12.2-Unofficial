@@ -36,7 +36,7 @@ public class SubGuiNpcSelectTraider extends SubGuiInterface implements IGuiData,
 		this.closeOnEsc = true;
 		this.data = new HashMap<String, Integer>();
 		this.select = "";
-		Client.sendData(EnumPacketServer.TraderMarketGet, new Object[0]);
+		Client.sendData(EnumPacketServer.TraderMarketGet);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class SubGuiNpcSelectTraider extends SubGuiInterface implements IGuiData,
 			GlStateManager.popMatrix();
 		}
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions || this.subgui != null) {
+		if (!CustomNpcs.ShowDescriptions || this.subgui != null) {
 			return;
 		}
 		if (this.getLabel(0)!=null && this.getLabel(0).hovered) {

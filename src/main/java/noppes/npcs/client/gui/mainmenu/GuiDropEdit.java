@@ -317,7 +317,7 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			}
 			
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
 		if (this.drop.tiedToLevel) {
 			tied = new TextComponentTranslation("drop.tied.level", new Object[0]).getFormattedText();
@@ -366,9 +366,8 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			this.setHoverText(new TextComponentTranslation("drop.hover.mode", new Object[0]).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 331, this.guiTop + 194, 83, 16)) {
 			this.setHoverText(new TextComponentTranslation("drop.hover.tied",
-					new Object[] { new String(Character.toChars(0x00A7)) + "b" + CustomNpcs.maxLv,
-							new String(Character.toChars(0x00A7)) + "7" + CustomNpcs.maxLv,
-							"" + ((int) (3 + (12 - 3) * 17 / CustomNpcs.maxLv)) }).getFormattedText());
+					new Object[] { ((char) 167) + "b" + CustomNpcs.MaxLv, ((char) 167) + "7" + CustomNpcs.MaxLv,
+							"" + ((int) (3 + (12 - 3) * 17 / CustomNpcs.MaxLv)) }).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 270, this.guiTop + 194, 46, 16)) {
 			String qname = "";
 			GuiNpcButton button = this.getButton(14);

@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiLanguage;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -52,7 +51,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
 import noppes.npcs.CommonProxy;
@@ -113,10 +111,11 @@ public class ClientEventHandler {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenGui, event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(), mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		
 		if (mc.currentScreen instanceof GuiNpcPather) { ClientGuiEventHandler.movingPath.clear(); }
-		if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
+		else if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;
-		} else if (event.getGui() instanceof GuiInventory && !mc.player.capabilities.isCreativeMode) {
+		}
+		else if (event.getGui() instanceof GuiInventory && !mc.player.capabilities.isCreativeMode) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;
 		}
@@ -389,57 +388,6 @@ public class ClientEventHandler {
 			bufferbuilder.putNormal((float)vec3i.getX(), (float)vec3i.getY(), (float)vec3i.getZ());
 			
 			tessellator.draw();
-		}
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public void cnpcPreLivingEvent(RenderLivingEvent.Pre<EntityLivingBase> event) {
-		if (event.getEntity() instanceof AbstractClientPlayer) {
-			/*AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
-			Map<Type, ResourceLocation> map = PlayerSkinController.getInstance().getData(player.getUniqueID());
-			if (map != null) {
-				for (Type t : Type.values()) {
-					if (!map.containsKey(t)) { continue; }
-					ResourceLocation loc, skin = map.get(Type.SKIN);
-					switch(t) {
-						case CAPE: loc = player.getLocationCape(); break;
-						case ELYTRA: loc = player.getLocationElytra(); break;
-						default: loc = player.getLocationSkin(); break;
-					}
-System.out.println("CNPCs player "+t+": "+loc);
-System.out.println("CNPCs mod "+t+": "+skin);
-System.out.println("CNPCs for def "+DefaultPlayerSkin.getDefaultSkin(player.getUniqueID()));
-System.out.println("CNPCs for name "+AbstractClientPlayer.getLocationSkin(player.getName()));
-					if (!loc.equals(skin)) {
-System.out.println("CNPCs isPlayerInfoSet: "+player.isPlayerInfoSet());
-						NetworkPlayerInfo playerInfo = ObfuscationHelper.getValue(AbstractClientPlayer.class, player, NetworkPlayerInfo.class);
-						NetworkPlayerInfo mainPlayerInfo = Minecraft.getMinecraft().getConnection().getPlayerInfo(player.getGameProfile().getId());
-System.out.println("CNPCs playerInfo: "+playerInfo);
-						if (!mainPlayerInfo.equals(playerInfo)) {
-							playerInfo = mainPlayerInfo;
-							ObfuscationHelper.setValue(AbstractClientPlayer.class, player, playerInfo, NetworkPlayerInfo.class);
-						}
-						Map<Type, ResourceLocation> playerTextures = ObfuscationHelper.getValue(NetworkPlayerInfo.class, playerInfo, Map.class);
-						playerTextures.put(t, skin);
-System.out.println("CNPCs reset "+t+": "+skin+"; now: "+player.getLocationSkin()+" / "+playerTextures);
-System.out.println("CNPCs Player now skin: "+player.getLocationSkin());
-System.out.println("CNPCs SP: "+((EntityPlayerSP) player).getLocationSkin());
-System.out.println("CNPCs Info now skin: "+playerInfo.getLocationSkin());
-						playerTextures = ObfuscationHelper.getValue(NetworkPlayerInfo.class, playerInfo, Map.class);
-System.out.println("CNPCs now map: "+playerTextures);
-					}
-					Method m = ObfuscationHelper.getMethod(AbstractClientPlayer.class, "func_175155_b");
-					if (m == null) { m = ObfuscationHelper.getMethod(AbstractClientPlayer.class, "getPlayerInfo"); }
-					if (m == null) { m = AbstractClientPlayer.class.getDeclaredMethods()[5]; }
-System.out.println("CNPCs Method: "+m);
-					try {
-						m.setAccessible(true);
-						NetworkPlayerInfo networkplayerinfo = (NetworkPlayerInfo) m.invoke(player);
-System.out.println("CNPCs TEST: "+(networkplayerinfo == null ? DefaultPlayerSkin.getDefaultSkin(player.getUniqueID()) : networkplayerinfo.getLocationSkin()));
-					}
-					catch (Exception e) { e.printStackTrace(); }
-				}
-			}*/
 		}
 	}
 	

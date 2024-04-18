@@ -63,8 +63,7 @@ implements INPCStats {
 		// New
 		this.level = 1;
 		this.rarity = EnumCreatureRarity.NORMAL;
-		this.rarityTitle = new String(Character.toChars(0x00A7)) + "flv." + new String(Character.toChars(0x00A7))
-				+ "21";
+		this.rarityTitle = ((char) 167) + "flv." + ((char) 167) + "21";
 		this.calmdown = true;
 	}
 
@@ -94,13 +93,13 @@ implements INPCStats {
 	}
 
 	public double getHP() {
-		int[] corr = CustomNpcs.healthNormal;
+		int[] corr = CustomNpcs.HealthNormal;
 		if (this.rarity == EnumCreatureRarity.ELITE) {
-			corr = CustomNpcs.healthElite;
+			corr = CustomNpcs.HealthElite;
 		} else if (this.rarity == EnumCreatureRarity.BOSS) {
-			corr = CustomNpcs.healthBoss;
+			corr = CustomNpcs.HealthBoss;
 		}
-		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.maxLv, 2));
+		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
 		double b = (double) corr[0] - a;
 		double hp = Math.round(a * Math.pow(this.level, 2) + b);
 		if (hp <= 1.0d) {
@@ -141,8 +140,8 @@ implements INPCStats {
 	public int getLevel() {
 		if (this.level < 1) {
 			this.level = 1;
-		} else if (this.level > CustomNpcs.maxLv) {
-			this.level = CustomNpcs.maxLv;
+		} else if (this.level > CustomNpcs.MaxLv) {
+			this.level = CustomNpcs.MaxLv;
 		}
 		return this.level;
 	}
@@ -158,13 +157,13 @@ implements INPCStats {
 	}
 
 	public int getMellePower() {
-		int[] corr = CustomNpcs.damageNormal;
+		int[] corr = CustomNpcs.DamageNormal;
 		if (this.rarity == EnumCreatureRarity.ELITE) {
-			corr = CustomNpcs.damageElite;
+			corr = CustomNpcs.DamageElite;
 		} else if (this.rarity == EnumCreatureRarity.BOSS) {
-			corr = CustomNpcs.damageBoss;
+			corr = CustomNpcs.DamageBoss;
 		}
-		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.maxLv, 2));
+		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
 		double b = (double) corr[0] - a;
 		return (int) Math.round(a * Math.pow(this.level, 2) + b);
 	}
@@ -175,13 +174,13 @@ implements INPCStats {
 	}
 
 	public int getRangePower() {
-		int[] corr = CustomNpcs.damageNormal;
+		int[] corr = CustomNpcs.DamageNormal;
 		if (this.rarity == EnumCreatureRarity.ELITE) {
-			corr = CustomNpcs.damageElite;
+			corr = CustomNpcs.DamageElite;
 		} else if (this.rarity == EnumCreatureRarity.BOSS) {
-			corr = CustomNpcs.damageBoss;
+			corr = CustomNpcs.DamageBoss;
 		}
-		double a = ((double) corr[2] - (double) corr[3]) / (1 - Math.pow(CustomNpcs.maxLv, 2));
+		double a = ((double) corr[2] - (double) corr[3]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
 		double b = (double) corr[2] - a;
 		return (int) Math.round(a * Math.pow(this.level, 2) + b);
 	}
@@ -218,8 +217,8 @@ implements INPCStats {
 	}
 
 	public int[] getXP() {
-		float[] corr = new float[] { (float) CustomNpcs.experience[0], (float) CustomNpcs.experience[1],
-				(float) CustomNpcs.experience[2], (float) CustomNpcs.experience[3] };
+		float[] corr = new float[] { (float) CustomNpcs.Experience[0], (float) CustomNpcs.Experience[1],
+				(float) CustomNpcs.Experience[2], (float) CustomNpcs.Experience[3] };
 		if (this.rarity == EnumCreatureRarity.ELITE) {
 			corr[0] *= 1.75f;
 			corr[1] *= 1.75f;
@@ -231,21 +230,21 @@ implements INPCStats {
 			corr[2] *= 4.75f;
 			corr[3] *= 4.75f;
 		}
-		int subMinLv = CustomNpcs.maxLv / 3;
-		int subMaxLv = CustomNpcs.maxLv * 2 / 3;
+		int subMinLv = CustomNpcs.MaxLv / 3;
+		int subMaxLv = CustomNpcs.MaxLv * 2 / 3;
 		float subMinXP = corr[1] / 3.0f;
 		float subMaxXP = corr[1] * 2.0f / 3.0f;
 		float subMinXPM = corr[3] / 3.0f;
 		float subMaxXPM = corr[3] * 2.0f / 3.0f;
-		double a = ((subMaxXP - corr[1]) * (1 - subMinLv) - (corr[0] - subMinXP) * (subMaxLv - CustomNpcs.maxLv))
-				/ ((subMaxLv - CustomNpcs.maxLv) * (Math.pow(subMinLv, 2) - 1)
-						- (1 - subMinLv) * (Math.pow(CustomNpcs.maxLv, 2) - Math.pow(subMaxLv, 2)));
+		double a = ((subMaxXP - corr[1]) * (1 - subMinLv) - (corr[0] - subMinXP) * (subMaxLv - CustomNpcs.MaxLv))
+				/ ((subMaxLv - CustomNpcs.MaxLv) * (Math.pow(subMinLv, 2) - 1)
+						- (1 - subMinLv) * (Math.pow(CustomNpcs.MaxLv, 2) - Math.pow(subMaxLv, 2)));
 		double b = (corr[0] - subMinXP + a * (Math.pow(subMinLv, 2) - 1)) / (1 - subMinLv);
 		double c = corr[0] - a - b;
 		int min = (int) (Math.pow(this.level, 2) * a + this.level * b + c);
-		a = ((subMaxXPM - corr[3]) * (1 - subMinLv) - (corr[2] - subMinXPM) * (subMaxLv - CustomNpcs.maxLv))
-				/ ((subMaxLv - CustomNpcs.maxLv) * (Math.pow(subMinLv, 2) - 1)
-						- (1 - subMinLv) * (Math.pow(CustomNpcs.maxLv, 2) - Math.pow(subMaxLv, 2)));
+		a = ((subMaxXPM - corr[3]) * (1 - subMinLv) - (corr[2] - subMinXPM) * (subMaxLv - CustomNpcs.MaxLv))
+				/ ((subMaxLv - CustomNpcs.MaxLv) * (Math.pow(subMinLv, 2) - 1)
+						- (1 - subMinLv) * (Math.pow(CustomNpcs.MaxLv, 2) - Math.pow(subMaxLv, 2)));
 		b = (corr[2] - subMinXPM + a * (Math.pow(subMinLv, 2) - 1)) / (1 - subMinLv);
 		c = corr[2] - a - b;
 		int max = (int) (Math.pow(this.level, 2) * a + this.level * b + c);
@@ -344,8 +343,8 @@ implements INPCStats {
 	public void setLevel(int level) {
 		if (level < 1) {
 			level = 1;
-		} else if (level > CustomNpcs.maxLv) {
-			level = CustomNpcs.maxLv;
+		} else if (level > CustomNpcs.MaxLv) {
+			level = CustomNpcs.MaxLv;
 		}
 		this.level = level;
 	}

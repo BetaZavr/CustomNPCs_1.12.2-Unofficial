@@ -146,136 +146,140 @@ extends ModelPlayer {
 		this.bipedRightArm.rotationPointX = 0.0f;
 		this.bipedRightArm.rotationPointY = 2.0f;
 		this.bipedRightArm.rotationPointZ = 0.0f;
-		
-		// Standart
+		// Standard
 		super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
-		if (npc.isPlayerSleeping()) {
-			if (this.bipedHead.rotateAngleX < 0.0f) {
-				this.bipedHead.rotateAngleX = 0.0f;
-				this.bipedHeadwear.rotateAngleX = 0.0f;
-			}
-		}
-		else if (npc.currentAnimation == 3) {
-			AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 5) {
-			AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 7) {
-			AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 8) {
-			AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 9) {
-			ModelRenderer bipedHeadwear6 = this.bipedHeadwear;
-			ModelRenderer bipedHead6 = this.bipedHead;
-			float n6 = 0.7f;
-			bipedHead6.rotateAngleX = n6;
-			bipedHeadwear6.rotateAngleX = n6;
-		}
-		else if (npc.currentAnimation == 10) {
-			AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 11) {
-			AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 12) {
-			AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		else if (npc.currentAnimation == 13) {
-			AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
-		}
-		
-		AnimationConfig anim = npc.animation.activeAnim != null ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
-		// Dies
-		if (npc.isKilled() && !npc.stats.hideKilledBody) {
-			if (anim==null || anim.type!=AnimationKind.DIES) {
-				anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
-			}
-		} else {
-			if (anim!=null && anim.type==AnimationKind.DIES && npc.animation.isComplete && !npc.isKilled() || npc.stats.hideKilledBody) {
-				anim = null;
-				npc.animation.isComplete = false;
-			}
-			// Hit
-			if (npc.hurtTime > 0 && npc.hurtTime == npc.maxHurtTime && npc.getHealth()!=0) {
-				anim = npc.animation.getActiveAnimation(AnimationKind.HIT);
-			}
-			if (anim==null || anim.type!=AnimationKind.INIT) {
-				this.isAttaking.put(npc, false);
-				if (!this.isJump.containsKey(npc)) { this.isJump.put(npc, false); }
-				
-				if (this.isAttaking.get(npc) && this.swingProgress>0) {
-					npc.swingProgress = 0.0f;
-					npc.swingProgressInt = 5;
+		if (!npc.animation.hasAnim()) {
+
+			if (npc.isPlayerSleeping()) {
+				if (this.bipedHead.rotateAngleX < 0.0f) {
+					this.bipedHead.rotateAngleX = 0.0f;
+					this.bipedHeadwear.rotateAngleX = 0.0f;
 				}
-				// Swing
-				if (this.swingProgress>0) {
-					anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
-					if (anim!=null) {
+			}
+			else if (npc.currentAnimation != 0 && !npc.animation.hasAnim()) {
+				if (npc.currentAnimation == 3) {
+					AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 5) {
+					AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 7) {
+					AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 8) {
+					AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 9) {
+					ModelRenderer bipedHeadwear6 = this.bipedHeadwear;
+					ModelRenderer bipedHead6 = this.bipedHead;
+					float n6 = 0.7f;
+					bipedHead6.rotateAngleX = n6;
+					bipedHeadwear6.rotateAngleX = n6;
+				}
+				else if (npc.currentAnimation == 10) {
+					AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 11) {
+					AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 12) {
+					AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+				else if (npc.currentAnimation == 13) {
+					AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped)this);
+				}
+			}
+		}
+		else {
+			AnimationConfig anim = npc.animation.activeAnim != null ? npc.animation.getActiveAnimation(npc.animation.activeAnim.type) : null;
+			// Dies
+			if (npc.isKilled() && !npc.stats.hideKilledBody) {
+				if (anim==null || anim.type!=AnimationKind.DIES) {
+					anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
+				}
+			} else {
+				if (anim!=null && anim.type==AnimationKind.DIES && npc.animation.isComplete && !npc.isKilled() || npc.stats.hideKilledBody) {
+					anim = null;
+					npc.animation.isComplete = false;
+				}
+				// Hit
+				if (npc.hurtTime > 0 && npc.hurtTime == npc.maxHurtTime && npc.getHealth()!=0) {
+					anim = npc.animation.getActiveAnimation(AnimationKind.HIT);
+				}
+				if (anim==null || anim.type!=AnimationKind.INIT) {
+					this.isAttaking.put(npc, false);
+					if (!this.isJump.containsKey(npc)) { this.isJump.put(npc, false); }
+					
+					if (this.isAttaking.get(npc) && this.swingProgress>0) {
 						npc.swingProgress = 0.0f;
 						npc.swingProgressInt = 5;
-						this.isAttaking.put(npc, true);
 					}
-				}
-				// Jump
-				if (!this.isJump.get(npc) && !(npc.isInWater() || npc.isInLava()) && npc.ais.getNavigationType()==0) {
-					if (!npc.onGround && npc.motionY > 0.0d) {
-						anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
-						if (anim!=null) { this.isJump.put(npc, true); }
-					}
-				} else if (npc.onGround) {
-					this.isJump.put(npc, false);
-				}
-			}
-			// INIT started in EntityNPCInterface.reset()
-			if (anim==null || !anim.isEdit) {
-				// Moving or Standing
-				if (anim==null) {
-					boolean isNavigate = npc.navigating!=null || npc.motionX!=0.0d || npc.motionZ!=0.0d;
-					// Revenge Target
-					if (npc.isAttacking()) {
-						if (isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_WALK)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_WALK);
-						} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_STAND)) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_STAND);
+					// Swing
+					if (this.swingProgress>0) {
+						anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
+						if (anim!=null) {
+							npc.swingProgress = 0.0f;
+							npc.swingProgressInt = 5;
+							this.isAttaking.put(npc, true);
 						}
-					} else {
-						if (npc.isInWater() || npc.isInLava()) {
-							if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
-							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
+					}
+					// Jump
+					if (!this.isJump.get(npc) && !(npc.isInWater() || npc.isInLava()) && npc.ais.getNavigationType()==0) {
+						if (!npc.onGround && npc.motionY > 0.0d) {
+							anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
+							if (anim!=null) { this.isJump.put(npc, true); }
+						}
+					} else if (npc.onGround) {
+						this.isJump.put(npc, false);
+					}
+				}
+				// INIT started in EntityNPCInterface.reset()
+				if (anim==null || !anim.isEdit) {
+					// Moving or Standing
+					if (anim==null) {
+						boolean isNavigate = npc.navigating!=null || npc.motionX!=0.0d || npc.motionZ!=0.0d;
+						// Revenge Target
+						if (npc.isAttacking()) {
+							if (isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_WALK)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_WALK);
+							} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.REVENGE_STAND)) {
+								anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_STAND);
 							}
-						}
-						else {
-							if (!npc.onGround && npc.ais.getNavigationType()==1) {
-								if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
-									anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
-								} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
-									anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
-								}
-							} else {
-								if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
-									anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
-								} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
-									anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
+						} else {
+							if (npc.isInWater() || npc.isInLava()) {
+								if (isNavigate && (anim==null || anim.type!=AnimationKind.WATER_WALK)) {
+									anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
+								} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.WATER_STAND)) {
+									anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
 								}
 							}
+							else {
+								if (!npc.onGround && npc.ais.getNavigationType()==1) {
+									if (isNavigate && (anim==null || anim.type!=AnimationKind.FLY_WALK)) {
+										anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
+									} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.FLY_STAND)) {
+										anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
+									}
+								} else {
+									if (isNavigate && (anim==null || anim.type!=AnimationKind.WALKING)) {
+										anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
+									} else if (!isNavigate && (anim==null || anim.type!=AnimationKind.STANDING)) {
+										anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
+									}
+								}
+							}
 						}
 					}
 				}
 			}
+			if (anim == null) { anim = npc.animation.getActiveAnimation(AnimationKind.BASE); }
+			npc.animation.activeAnim = anim;
+			npc.animation.isAnimated = this.setAnimationRotationAngles(npc, anim, ageInTicks);
+			if (anim != null && npc.animation.isAnimated) {
+				AnimationEvent event = new AnimationEvent.UpdateEvent(npc, anim);
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, event.nameEvent, event);
+			}
 		}
-		if (anim == null) { anim = npc.animation.getActiveAnimation(AnimationKind.BASE); }
-		npc.animation.activeAnim = anim;
-		npc.animation.isAnimated = this.setAnimationRotationAngles(npc, anim, ageInTicks);
-		if (anim != null && npc.animation.isAnimated) {
-			AnimationEvent event = new AnimationEvent.UpdateEvent(npc, anim);
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, event.nameEvent, event);
-		}
-		
 		copyModelAngles((ModelScaleRenderer) this.bipedLeftLeg, (ModelScaleRenderer) this.bipedLeftLegwear);
 		copyModelAngles((ModelScaleRenderer) this.bipedRightLeg, (ModelScaleRenderer) this.bipedRightLegwear);
 		copyModelAngles((ModelScaleRenderer) this.bipedLeftArm, (ModelScaleRenderer) this.bipedLeftArmwear);
@@ -308,73 +312,77 @@ extends ModelPlayer {
 				selPart = ((SubGuiEditAnimation) gui.subgui).part.id;
 			}
 		}
-		int color = CustomNpcs.colorAnimHoverPart;
-		float red = (float)(color >> 16 & 255) / 255.0F;
-		float green = (float)(color >> 8 & 255) / 255.0F;
-		float blue = (float)(color & 255) / 255.0F;
-		List<Boolean> ba = ((EntityNPCInterface) entityIn).animation.showParts;
-		List<Boolean> aw = Lists.<Boolean>newArrayList(new Boolean[] { true, true, true, true, true, true } );
-		ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
-		if (showArmor && ArmourersWorkshopApi.getSkinNBTUtils() != null) {
-			ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(((EntityCustomNpc) entityIn).inventory.getStackInSlot(7));
-        	if (skinDescriptor != null) {
-        		try {
-	        		ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-	                if (skin != null) {
-	                	ISkinProperties properties = (ISkinProperties) awu.getProperties.invoke(skin);
-		                for (int i = 0; i < 6 ; i++) {
-		                	String key;
-		                	switch(i) {
-			                	case 1: key = "hideOverlayArmLeft"; break;
-			                	case 2: key = "hideOverlayArmRight"; break;
-			                	case 3: key = "hideOverlayChest"; break;
-			                	case 4: key = "hideOverlayLegLeft"; break;
-			                	case 5: key = "hideOverlayLegRight"; break;
-			                	default: key = "hideOverlayHead"; break;
-			                }
-		                	aw.set(i, !properties.getPropertyBoolean(key, Boolean.FALSE));
-		                }
-	                }
-        		}
-        		catch (Exception e) { e.printStackTrace(); }
-        	}
+		float red = 1.0f, green = 1.0f, blue = 1.0f;
+		if (selPart != -1) {
+			red = (float)(CustomNpcs.colorAnimHoverPart >> 16 & 255) / 255.0F;
+			green = (float)(CustomNpcs.colorAnimHoverPart >> 8 & 255) / 255.0F;
+			blue = (float)(CustomNpcs.colorAnimHoverPart & 255) / 255.0F;
 		}
-		if (ba.get(0) && aw.get(0)) {
+		List<Boolean> ba = Lists.<Boolean>newArrayList(((EntityNPCInterface) entityIn).animation.showParts);
+		if (ArmourersWorkshopApi.isAvailable()) {
+			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
+			if (showArmor && ArmourersWorkshopApi.getSkinNBTUtils() != null) {
+				ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(((EntityCustomNpc) entityIn).inventory.getStackInSlot(7));
+	        	if (skinDescriptor != null) {
+	        		try {
+		        		ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
+		                if (skin != null) {
+		                	ISkinProperties properties = (ISkinProperties) awu.getProperties.invoke(skin);
+			                for (int i = 0; i < 6 ; i++) {
+			                	if (!ba.get(i)) { continue; }
+			                	String key;
+			                	switch(i) {
+				                	case 1: key = "hideOverlayArmLeft"; break;
+				                	case 2: key = "hideOverlayArmRight"; break;
+				                	case 3: key = "hideOverlayChest"; break;
+				                	case 4: key = "hideOverlayLegLeft"; break;
+				                	case 5: key = "hideOverlayLegRight"; break;
+				                	default: key = "hideOverlayHead"; break;
+				                }
+			                	ba.set(i, !properties.getPropertyBoolean(key, Boolean.FALSE));
+			                }
+		                }
+	        		}
+	        		catch (Exception e) { e.printStackTrace(); }
+	        	}
+			}
+		}
+		if (ba.get(0)) {
 			if (selPart == 0)  { GlStateManager.color(red, green, blue, 1.0f); }
 			else if (selPart != -1)  { GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f); }
 			bipedHead.render(scale);
 			bipedHeadwear.render(scale);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(3) && aw.get(3)) {
+		if (ba.get(3)) {
 			if (selPart == 3)  { GlStateManager.color(red, green, blue, 1.0f); }
 			else if (selPart != -1)  { GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f); }
 			bipedBody.render(scale);
 			bipedBodyWear.render(scale);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(2) && aw.get(3)) {
+		if (ba.get(2)) {
 			if (selPart == 2)  { GlStateManager.color(red, green, blue, 1.0f); }
 			else if (selPart != -1)  { GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f); }
 			bipedRightArm.render(scale);
 			bipedRightArmwear.render(scale);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(1) && aw.get(1)) {
+		if (ba.get(1)) {
 			if (selPart == 1)  { GlStateManager.color(red, green, blue, 1.0f); }
 			else if (selPart != -1)  { GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f); }
 			bipedLeftArm.render(scale);
 			bipedLeftArmwear.render(scale);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(5) && aw.get(5)) {
+		if (ba.get(5)) {
 			if (selPart == 5)  { GlStateManager.color(red, green, blue, 1.0f); }
 			else if (selPart != -1)  { GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f); }
 			bipedRightLeg.render(scale);
 			bipedRightLegwear.render(scale);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(4) && aw.get(4)) {
+		if (ba.get(4)) {
 			if (selPart == 4)  { GlStateManager.color(red, green, blue, 1.0f); }
 			else if (selPart != -1)  { GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f); }
 			bipedLeftLeg.render(scale);
@@ -382,12 +390,13 @@ extends ModelPlayer {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 		GlStateManager.popMatrix();
-		if (!showArmor || ArmourersWorkshopApi.getSkinNBTUtils() == null) { return; }
+		if (!showArmor || !ArmourersWorkshopApi.isAvailable() ) { return; }
 		try {
 			IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(entityIn);
 			if (!(skinCapability instanceof IEntitySkinCapability)) { return; }
 			double distance = Minecraft.getMinecraft().player.getDistance(entityIn.posX, entityIn.posY, entityIn.posZ);
 			int d = 0;
+			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
 			try { d = (int) awu.renderDistanceSkin.get(awu.configHandlerClient); } catch (Exception e) { e.printStackTrace(); return; }
 			if (distance > d) { return; }
 			ISkinType[] skinTypes = ((IEntitySkinCapability) skinCapability).getValidSkinTypes();

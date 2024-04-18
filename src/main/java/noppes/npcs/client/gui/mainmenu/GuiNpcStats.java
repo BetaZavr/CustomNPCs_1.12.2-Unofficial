@@ -125,7 +125,7 @@ implements ITextfieldListener, IGuiData {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.max.health").getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
@@ -172,13 +172,13 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	public double getHP() {
-		int[] corr = CustomNpcs.healthNormal;
+		int[] corr = CustomNpcs.HealthNormal;
 		if (this.stats.getRarity() == 1) {
-			corr = CustomNpcs.healthElite;
+			corr = CustomNpcs.HealthElite;
 		} else if (this.stats.getRarity() == 2) {
-			corr = CustomNpcs.healthBoss;
+			corr = CustomNpcs.HealthBoss;
 		}
-		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.maxLv, 2));
+		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
 		double b = (double) corr[0] - a;
 		double hp = Math.round(a * Math.pow(this.stats.getLevel(), 2) + b);
 		if (hp <= 1.0d) {
@@ -202,32 +202,32 @@ implements ITextfieldListener, IGuiData {
 	}
 
 	public int getMellePower() {
-		int[] corr = CustomNpcs.damageNormal;
+		int[] corr = CustomNpcs.DamageNormal;
 		if (this.stats.getRarity() == 1) {
-			corr = CustomNpcs.damageElite;
+			corr = CustomNpcs.DamageElite;
 		} else if (this.stats.getRarity() == 2) {
-			corr = CustomNpcs.damageBoss;
+			corr = CustomNpcs.DamageBoss;
 		}
-		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.maxLv, 2));
+		double a = ((double) corr[0] - (double) corr[1]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
 		double b = (double) corr[0] - a;
 		return (int) Math.round(a * Math.pow(this.stats.getLevel(), 2) + b);
 	}
 
 	public int getRangePower() {
-		int[] corr = CustomNpcs.damageNormal;
+		int[] corr = CustomNpcs.DamageNormal;
 		if (this.stats.getRarity() == 1) {
-			corr = CustomNpcs.damageElite;
+			corr = CustomNpcs.DamageElite;
 		} else if (this.stats.getRarity() == 2) {
-			corr = CustomNpcs.damageBoss;
+			corr = CustomNpcs.DamageBoss;
 		}
-		double a = ((double) corr[2] - (double) corr[3]) / (1 - Math.pow(CustomNpcs.maxLv, 2));
+		double a = ((double) corr[2] - (double) corr[3]) / (1 - Math.pow(CustomNpcs.MaxLv, 2));
 		double b = (double) corr[2] - a;
 		return (int) Math.round(a * Math.pow(this.stats.getLevel(), 2) + b);
 	}
 
 	public int[] getXP() {
-		float[] corr = new float[] { (float) CustomNpcs.experience[0], (float) CustomNpcs.experience[1],
-				(float) CustomNpcs.experience[2], (float) CustomNpcs.experience[3] };
+		float[] corr = new float[] { (float) CustomNpcs.Experience[0], (float) CustomNpcs.Experience[1],
+				(float) CustomNpcs.Experience[2], (float) CustomNpcs.Experience[3] };
 		int lv = this.stats.getLevel();
 		if (this.stats.getRarity() == 1) {
 			corr[0] *= 1.75f;
@@ -240,21 +240,21 @@ implements ITextfieldListener, IGuiData {
 			corr[2] *= 4.75f;
 			corr[3] *= 4.75f;
 		}
-		int subMinLv = CustomNpcs.maxLv / 3;
-		int subMaxLv = CustomNpcs.maxLv * 2 / 3;
+		int subMinLv = CustomNpcs.MaxLv / 3;
+		int subMaxLv = CustomNpcs.MaxLv * 2 / 3;
 		float subMinXP = corr[1] / 3.0f;
 		float subMaxXP = corr[1] * 2.0f / 3.0f;
 		float subMinXPM = corr[3] / 3.0f;
 		float subMaxXPM = corr[3] * 2.0f / 3.0f;
-		double a = ((subMaxXP - corr[1]) * (1 - subMinLv) - (corr[0] - subMinXP) * (subMaxLv - CustomNpcs.maxLv))
-				/ ((subMaxLv - CustomNpcs.maxLv) * (Math.pow(subMinLv, 2) - 1)
-						- (1 - subMinLv) * (Math.pow(CustomNpcs.maxLv, 2) - Math.pow(subMaxLv, 2)));
+		double a = ((subMaxXP - corr[1]) * (1 - subMinLv) - (corr[0] - subMinXP) * (subMaxLv - CustomNpcs.MaxLv))
+				/ ((subMaxLv - CustomNpcs.MaxLv) * (Math.pow(subMinLv, 2) - 1)
+						- (1 - subMinLv) * (Math.pow(CustomNpcs.MaxLv, 2) - Math.pow(subMaxLv, 2)));
 		double b = (corr[0] - subMinXP + a * (Math.pow(subMinLv, 2) - 1)) / (1 - subMinLv);
 		double c = corr[0] - a - b;
 		int min = (int) (Math.pow(lv, 2) * a + lv * b + c);
-		a = ((subMaxXPM - corr[3]) * (1 - subMinLv) - (corr[2] - subMinXPM) * (subMaxLv - CustomNpcs.maxLv))
-				/ ((subMaxLv - CustomNpcs.maxLv) * (Math.pow(subMinLv, 2) - 1)
-						- (1 - subMinLv) * (Math.pow(CustomNpcs.maxLv, 2) - Math.pow(subMaxLv, 2)));
+		a = ((subMaxXPM - corr[3]) * (1 - subMinLv) - (corr[2] - subMinXPM) * (subMaxLv - CustomNpcs.MaxLv))
+				/ ((subMaxLv - CustomNpcs.MaxLv) * (Math.pow(subMinLv, 2) - 1)
+						- (1 - subMinLv) * (Math.pow(CustomNpcs.MaxLv, 2) - Math.pow(subMaxLv, 2)));
 		b = (corr[2] - subMinXPM + a * (Math.pow(subMinLv, 2) - 1)) / (1 - subMinLv);
 		c = corr[2] - a - b;
 		int max = (int) (Math.pow(lv, 2) * a + lv * b + c);
@@ -316,8 +316,8 @@ implements ITextfieldListener, IGuiData {
 		this.addButton(new GuiNpcButton(22, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" },
 				(this.stats.ignoreCobweb ? 0 : 1)));
 		// new
-		String[] lvls = new String[CustomNpcs.maxLv]; // level
-		for (int g = 0; g < CustomNpcs.maxLv; g++) {
+		String[] lvls = new String[CustomNpcs.MaxLv]; // level
+		for (int g = 0; g < CustomNpcs.MaxLv; g++) {
 			lvls[g] = "" + (g + 1);
 		}
 		//this.addButton(new GuiNpcButton(40, this.guiLeft + 217, this.guiTop +32, 56, 20, "selectServer.edit"));
@@ -348,20 +348,20 @@ implements ITextfieldListener, IGuiData {
 		int lv = this.stats.getLevel();
 		int type = this.stats.getRarity();
 		// Resistance and model size
-		if (!CustomNpcs.recalculateLR) { return; }
-		int[] sizeModel = CustomNpcs.modelRaritySize;
+		if (!CustomNpcs.RecalculateLR) { return; }
+		int[] sizeModel = CustomNpcs.ModelRaritySize;
 		int time = 180;
-		float[] resist = new float[] { (float) CustomNpcs.resistanceNormal[0] / 100.0f,
-				(float) CustomNpcs.resistanceNormal[1] / 100.0f, (float) CustomNpcs.resistanceNormal[2] / 100.0f,
-				(float) CustomNpcs.resistanceNormal[3] / 100.0f };
+		float[] resist = new float[] { (float) CustomNpcs.ResistanceNormal[0] / 100.0f,
+				(float) CustomNpcs.ResistanceNormal[1] / 100.0f, (float) CustomNpcs.ResistanceNormal[2] / 100.0f,
+				(float) CustomNpcs.ResistanceNormal[3] / 100.0f };
 		if (type == 2) {
-			resist = new float[] { (float) CustomNpcs.resistanceBoss[0] / 100.0f,
-					(float) CustomNpcs.resistanceBoss[1] / 100.0f, (float) CustomNpcs.resistanceBoss[2] / 100.0f,
-					(float) CustomNpcs.resistanceBoss[3] / 100.0f };
+			resist = new float[] { (float) CustomNpcs.ResistanceBoss[0] / 100.0f,
+					(float) CustomNpcs.ResistanceBoss[1] / 100.0f, (float) CustomNpcs.ResistanceBoss[2] / 100.0f,
+					(float) CustomNpcs.ResistanceBoss[3] / 100.0f };
 		} else if (type == 1) {
-			resist = new float[] { (float) CustomNpcs.resistanceElite[0] / 100.0f,
-					(float) CustomNpcs.resistanceElite[1] / 100.0f, (float) CustomNpcs.resistanceElite[2] / 100.0f,
-					(float) CustomNpcs.resistanceElite[3] / 100.0f };
+			resist = new float[] { (float) CustomNpcs.ResistanceElite[0] / 100.0f,
+					(float) CustomNpcs.ResistanceElite[1] / 100.0f, (float) CustomNpcs.ResistanceElite[2] / 100.0f,
+					(float) CustomNpcs.ResistanceElite[3] / 100.0f };
 			if (lv <= 30) {
 				time = (int) (300.0d + (Math.round(((double) lv + 5.5d) / 10.0d) - 1.0d) * 60.0d);
 			} else {
@@ -399,14 +399,12 @@ implements ITextfieldListener, IGuiData {
 		this.inventory.setExp(xp[0], xp[1]);
 		// renaming
 		String rarity = "";
-		String chr = new String(Character.toChars(0x00A7));
 		if (type == 2) {
-			rarity += chr + "4Boss ";
+			rarity += ((char) 167) + "4Boss ";
 		} else if (type == 1) {
-			rarity += chr + "6Elite ";
+			rarity += ((char) 167) + "6Elite ";
 		}
-		rarity += chr + "7lv." + chr
-			+ (lv <= CustomNpcs.maxLv / 3 ? "2" : (float) lv <= (float) CustomNpcs.maxLv / 1.5f ? "6" : "4") + lv;
+		rarity += ((char) 167) + "7lv." + ((char) 167) + (lv <= CustomNpcs.MaxLv / 3 ? "2" : (float) lv <= (float) CustomNpcs.MaxLv / 1.5f ? "6" : "4") + lv;
 		this.stats.setRarityTitle(rarity);
 		this.initGui();
 	}

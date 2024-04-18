@@ -91,12 +91,12 @@ implements ITextfieldListener, ITextChangeListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		int t = this.tag.getType();
 		int tl = this.tag.getTypeList();
-		String gn = new String(Character.toChars(0x00A7)) + "2";
-		String r = new String(Character.toChars(0x00A7)) + "c";
-		String gr = new String(Character.toChars(0x00A7)) + "7";
+		String gn = ((char) 167) + "2";
+		String r = ((char) 167) + "c";
+		String gr = ((char) 167) + "7";
 		String name = this.tag.getPath();
 		if (name.indexOf(".") != -1) {
 			List<String> nal = new ArrayList<String>();
@@ -105,7 +105,7 @@ implements ITextfieldListener, ITextChangeListener {
 				name = name.substring(name.indexOf(".") + 1);
 			}
 		}
-		name = new String(Character.toChars(0x00A7)) + "2" + name;
+		name = ((char) 167) + "2" + name;
 		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 7, 159, 10)) {
 			this.setHoverText(new TextComponentTranslation("drop.hover.tag.name", new Object[0]).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 20, 159, 16)) {

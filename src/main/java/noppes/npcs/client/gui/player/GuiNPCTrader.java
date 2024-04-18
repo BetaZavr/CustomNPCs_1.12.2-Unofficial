@@ -38,6 +38,7 @@ import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.Marcet;
+import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
@@ -96,7 +97,7 @@ implements ICustomScrollListener, IGuiData {
 				}
 			}
 			for (int i = 0; i < 5 && (i + this.ceilPos * 5) < this.marcet.sections.size(); i++) {
-				tab = new GuiMenuLeftButton(5 + i, this.guiLeft + 1, this.guiTop + 20 + i * 16, this.marcet.sections.get(i + this.ceilPos * 5));
+				tab = new GuiMenuLeftButton(5 + i, this.guiLeft + 1, this.guiTop + 20 + i * 16, this.marcet.sections.get(i + this.ceilPos * 5).getName());
 				tab.data = i + this.ceilPos * 5;
 				tab.height = 16;
 				if (i + this.ceilPos * 5 == this.section) { tab.active = true; }
@@ -107,14 +108,14 @@ implements ICustomScrollListener, IGuiData {
 		List<String> selNot = new ArrayList<String>();
 		int level = ClientProxy.playerData.game.getMarcetLevel(this.marcet.getId());
 		MarcetController mData = MarcetController.getInstance();
-		for (Deal deal : mData.deals.values()) {
-			if (deal == null || deal.getMarcetID()!=this.marcet.getId() || !deal.isValid() || deal.getSectionID() != this.section) { continue; }
-			String key = deal.getName();
-			if (deal.getAmount()==0) { selNot.add(key); }
-			else { sel.add(key); }
-			this.data.put(key, (Deal) deal);
-			if (this.selectDealData != null && this.selectDealData.deal != null && this.selectDealData.deal.getId() == deal.getId()) {
-				this.selectDealData = mData.getBuyData(this.marcet, deal, level);
+		MarcetSection ms = marcet.sections.get(section);
+		if (ms != null && !ms.deals.isEmpty()) {
+			for (Deal deal : ms.deals) {
+				String key = deal.getName();
+				if (deal.getAmount()==0) { selNot.add(key); }
+				else { sel.add(key); }
+				data.put(key, (Deal) deal);
+				if (selectDealData != null && selectDealData.deal != null && selectDealData.deal.getId() == deal.getId()) { selectDealData = mData.getBuyData(marcet, deal, level); }
 			}
 		}
 		if (this.scroll == null) {
@@ -134,9 +135,9 @@ implements ICustomScrollListener, IGuiData {
 			info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
 			
 			if (deal.getMaxCount() > 0) {
-				suffixs.add(new String(Character.toChars(0x00A7)) + (deal.getAmount() == 0 ? "4" : deal.getAmount() < deal.getProduct().getMaxStackSize() ? "b" : "a") + AdditionalMethods.getTextReducedNumber(deal.getAmount(), true, true, false));
+				suffixs.add(((char) 167) + (deal.getAmount() == 0 ? "4" : deal.getAmount() < deal.getProduct().getMaxStackSize() ? "b" : "a") + AdditionalMethods.getTextReducedNumber(deal.getAmount(), true, true, false));
 			} else {
-				suffixs.add(new String(Character.toChars(0x00A7)) + "a" + new String(Character.toChars(0x221E)));
+				suffixs.add(((char) 167) + "a" + new String(Character.toChars(0x221E)));
 			}
 			info.add(dm.main.getDisplayName() + " x" + dm.count + " " + (new TextComponentTranslation("market.hover.item."+(deal.getMaxCount() > 0 ? "amount" : deal.getAmount()==0 ? "not" : "infinitely"), new Object[] { "" + deal.getAmount() }).getFormattedText()));
 			if (!dm.buyItems.isEmpty()) {
@@ -147,7 +148,7 @@ implements ICustomScrollListener, IGuiData {
 			}
 			if (dm.buyMoney > 0) {
 				info.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
-				info.add("" + dm.buyMoney + CustomNpcs.charCurrencies.charAt(0));
+				info.add("" + dm.buyMoney + CustomNpcs.CharCurrencies.charAt(0));
 			}
 			infoList.add(info.toArray(new String[info.size()]));
 		}
@@ -178,9 +179,9 @@ implements ICustomScrollListener, IGuiData {
 		if (this.selectDealData.buyMoney > 0) {
 			this.getLabel(3).enabled = true;
 			this.getLabel(4).enabled = true;
-			String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.charCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.charCurrencies.charAt(0);
+			String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.CharCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.CharCurrencies.charAt(0);
 			if (this.marcet.isLimited) {
-				text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false) + CustomNpcs.charCurrencies.charAt(0);
+				text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false) + CustomNpcs.CharCurrencies.charAt(0);
 			}
 			this.getLabel(4).setLabel(text);
 		} else {
@@ -191,7 +192,7 @@ implements ICustomScrollListener, IGuiData {
 		this.addLabel(new GuiNpcLabel(5, "", this.guiLeft + 177, this.guiTop + 25)); // amount
 		this.getLabel(5).color = 0xFF202020;
 		if (this.selectDealData.deal.getMaxCount() > 0) {
-			this.getLabel(5).setLabel(new String(Character.toChars(0x00A7)) + (this.selectDealData.deal.getAmount() == 0 ? "4" : this.selectDealData.deal.getAmount() < this.selectDealData.deal.getProduct().getMaxStackSize() ? "1" : "2") + "x" + AdditionalMethods.getTextReducedNumber(this.selectDealData.deal.getAmount(), true, true, false));
+			this.getLabel(5).setLabel(((char) 167) + (this.selectDealData.deal.getAmount() == 0 ? "4" : this.selectDealData.deal.getAmount() < this.selectDealData.deal.getProduct().getMaxStackSize() ? "1" : "2") + "x" + AdditionalMethods.getTextReducedNumber(this.selectDealData.deal.getAmount(), true, true, false));
 		} else {
 			this.getLabel(5).setLabel(new String(Character.toChars(0x221E)));
 		}
@@ -313,9 +314,9 @@ implements ICustomScrollListener, IGuiData {
 				if (this.money != ClientProxy.playerData.game.getMoney()) {
 					this.money = ClientProxy.playerData.game.getMoney();
 					if (this.selectDealData.buyMoney > 0) {
-						String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.charCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.charCurrencies.charAt(0);
+						String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false) + CustomNpcs.CharCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.CharCurrencies.charAt(0);
 						if (this.marcet.isLimited) {
-							text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false) + CustomNpcs.charCurrencies.charAt(0);
+							text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false) + CustomNpcs.CharCurrencies.charAt(0);
 						}
 						this.getLabel(4).setLabel(text);
 					}
@@ -369,7 +370,7 @@ implements ICustomScrollListener, IGuiData {
 			GlStateManager.disableBlend();
 			String lv = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("enchantment.level." + md.level).getFormattedText());
 			if (lv.equals("enchantment.level." + md.level)) { lv = "" + md.level; }
-			this.mc.fontRenderer.drawString(lv, this.guiLeft + 16 - this.mc.fontRenderer.getStringWidth(lv) / 2, this.guiTop + 205, CustomNpcs.mainColor, true);
+			this.mc.fontRenderer.drawString(lv, this.guiLeft + 16 - this.mc.fontRenderer.getStringWidth(lv) / 2, this.guiTop + 205, CustomNpcs.MainColor.getRGB(), true);
 		}
 		if (this.subgui != null) { return; }
 		int u0 = this.guiLeft + 138, u1 = this.guiLeft + this.xSize - 7;
@@ -456,7 +457,7 @@ implements ICustomScrollListener, IGuiData {
 			if (this.selectDealData!=null && this.selectDealData.buyMoney > 0) {
 				buyMoney = (int) this.selectDealData.buyMoney;
 			}
-			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { ""+buyMoney, CustomNpcs.charCurrencies.charAt(0), "" + this.money, CustomNpcs.charCurrencies.charAt(0) });
+			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", new Object[] { ""+buyMoney, CustomNpcs.CharCurrencies.charAt(0), "" + this.money, CustomNpcs.CharCurrencies.charAt(0) });
 			if (this.marcet.isLimited) {
 				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", ""+this.marcet.money));
 			}
@@ -486,7 +487,7 @@ implements ICustomScrollListener, IGuiData {
 					}
 				}
 				if (this.selectDealData.sellMoney > 0) {
-					text.appendSibling(new TextComponentTranslation("market.hover.sell.2", new Object[] { "" + this.selectDealData.sellMoney, CustomNpcs.charCurrencies.charAt(0) }));
+					text.appendSibling(new TextComponentTranslation("market.hover.sell.2", new Object[] { "" + this.selectDealData.sellMoney, CustomNpcs.CharCurrencies.charAt(0) }));
 				}
 			}
 			this.setHoverText(text.getFormattedText());

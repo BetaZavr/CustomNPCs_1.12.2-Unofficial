@@ -12,7 +12,6 @@ implements ITextChangeListener {
 	
 	private boolean highlighting;
 	// New
-	private int id = 0;
 	public String originalText;
 	public String text;
 	private GuiTextArea textarea;

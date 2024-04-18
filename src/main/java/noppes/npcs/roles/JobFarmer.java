@@ -199,7 +199,7 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 
 	@Override
 	public void setRange(int range) {
-		if (range<0) { range += -1; }
+		if (range<0) { range *= -1; }
 		if (range > 16) { range = 16; }
 		this.range = range;
 	}

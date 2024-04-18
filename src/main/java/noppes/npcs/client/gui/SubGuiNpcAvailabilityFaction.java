@@ -27,7 +27,7 @@ import noppes.npcs.controllers.data.Faction;
 public class SubGuiNpcAvailabilityFaction extends SubGuiInterface
 		implements ICustomScrollListener, GuiSelectionListener {
 	private Availability availabitily;
-	private String chr = new String(Character.toChars(0x00A7));
+	private String chr = "" + ((char) 167);
 	private Map<String, Integer> dataIDs;
 	private Map<String, AvailabilityFactionData> dataSets;
 	private GuiCustomScroll scroll;

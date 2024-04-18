@@ -34,7 +34,7 @@ implements IGuiComponent {
 	private final int[] offsets;
 
 	public CustomGuiLabel(String label, int id, int x, int y, int width, int height) {
-		this(label, id, x, y, width, height, CustomNpcs.lableColor);
+		this(label, id, x, y, width, height, CustomNpcs.LableColor.getRGB());
 	}
 
 	public CustomGuiLabel(String label, int id, int x, int y, int width, int height, int colour) {

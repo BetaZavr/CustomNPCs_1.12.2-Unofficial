@@ -150,7 +150,7 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.attack.strength").getFormattedText());
 		} else if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {

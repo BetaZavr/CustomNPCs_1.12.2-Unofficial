@@ -185,10 +185,10 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 				if (this.waitTime == 0) { this.initGui(); }
 			}
 			String text = new TextComponentTranslation("gui.wait", ": " + new TextComponentTranslation("gui.wait.data").getFormattedText()).getFormattedText();
-			this.fontRenderer.drawString(text, this.guiLeft + (this.width - this.fontRenderer.getStringWidth(text)) / 2, this.guiTop + 60, CustomNpcs.lableColor);
+			this.fontRenderer.drawString(text, this.guiLeft + (this.width - this.fontRenderer.getStringWidth(text)) / 2, this.guiTop + 60, CustomNpcs.LableColor.getRGB());
 			return;
 		}
-		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui !=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("bank.hover.name").getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {

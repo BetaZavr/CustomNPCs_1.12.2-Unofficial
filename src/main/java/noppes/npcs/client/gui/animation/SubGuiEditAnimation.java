@@ -430,6 +430,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (this.sw == null) { this.sw = new ScaledResolution(this.mc); }
 		if (waitKey != 0) { waitKey--; }
 		for (int i = 0; i < 2; i++) {
 			EntityNPCInterface dNpc = i == 0 ? this.npcAnim : this.npcPart;
@@ -537,7 +538,7 @@ implements ISubGuiListener, ISliderListener, ICustomScrollListener, ITextfieldLi
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.popMatrix();
 		
-		if (this.hasSubGui() || !CustomNpcs.showDescriptions) { return; }
+		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
 		if (scrollParts != null && scrollParts.hovered) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.part.sel").getFormattedText());
 		} else if (this.getLabel(0)!=null && this.getLabel(0).hovered) {

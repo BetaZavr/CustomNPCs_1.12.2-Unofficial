@@ -68,7 +68,7 @@ implements ITextfieldListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.time").getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {

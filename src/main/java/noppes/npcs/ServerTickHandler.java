@@ -149,8 +149,8 @@ public class ServerTickHandler {
 			boolean needSend = false;
 			long time = System.currentTimeMillis();
 			long timeToRemove = -1L;
-			if (CustomNpcs.mailTimeWhenLettersWillBeDeleted > 0) {
-				timeToRemove = CustomNpcs.mailTimeWhenLettersWillBeDeleted * 86400000L;
+			if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
+				timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L;
 			}
 			List<PlayerMail> del = Lists.<PlayerMail>newArrayList();
 			for (PlayerMail mail : data.mailData.playermail) {

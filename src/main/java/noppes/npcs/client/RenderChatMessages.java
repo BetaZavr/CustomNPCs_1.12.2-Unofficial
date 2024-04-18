@@ -1,5 +1,6 @@
 package noppes.npcs.client;
 
+import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -126,10 +127,10 @@ implements IChatMessages {
 		} else {
 			GlStateManager.disableDepth();
 		}
-		int[] cs = isPlayer ? CustomNpcs.chatPlayerColors : CustomNpcs.chatNpcColors;
-		int color = cs[0] + (depth ? 0xFF000000 : 0x55000000);
-		int border = cs[1] + (depth ? 0xFF000000 : 0x55000000);
-		int place = cs[2] + (depth ? 0xBB000000 : 0x44000000);
+		Color[] cs = isPlayer ? CustomNpcs.ChatPlayerColors : CustomNpcs.ChatNpcColors;
+		int color = cs[0].getRGB() + (depth ? 0xFF000000 : 0x55000000);
+		int border = cs[1].getRGB() + (depth ? 0xFF000000 : 0x55000000);
+		int place = cs[2].getRGB() + (depth ? 0xBB000000 : 0x44000000);
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableCull();

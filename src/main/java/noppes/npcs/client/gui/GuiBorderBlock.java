@@ -67,7 +67,7 @@ public class GuiBorderBlock extends GuiNPCInterface implements IGuiData {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui!=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui!=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("border.hover.availability").getFormattedText());
 		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {

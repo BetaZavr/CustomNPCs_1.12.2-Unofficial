@@ -45,10 +45,10 @@ extends GuiNpcButton {
 		} else {
 			text = this.displayString;
 		}
-		int l = CustomNpcs.mainColor;
+		int l = CustomNpcs.MainColor.getRGB();
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
-		else if (!this.active) { l = CustomNpcs.notEnableColor; }
-		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		else if (!this.active) { l = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (this.hovered) { l = CustomNpcs.HoverColor.getRGB(); }
 		this.drawCenteredString(fontrenderer, text, this.x + width / 2, this.y + (this.height - 8) / 2, l);
 	}
 

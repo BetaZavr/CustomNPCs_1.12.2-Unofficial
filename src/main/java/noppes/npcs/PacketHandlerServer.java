@@ -52,7 +52,6 @@ import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.containers.ContainerMail;
-import noppes.npcs.containers.ContainerNPCTraderSetup;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.BorderController;
@@ -79,7 +78,6 @@ import noppes.npcs.controllers.data.DialogCategory;
 import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.ForgeScriptData;
-import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
@@ -1335,26 +1333,15 @@ public class PacketHandlerServer {
 			int id = -1;
 			try { id = buffer.readInt(); } catch (Exception e) {}
 			MarcetController.getInstance().sendTo(player, id);
-		} else if (type == EnumPacketServer.TraderMarketNew) {
-			MarcetController mData = MarcetController.getInstance();
-			int marketID = buffer.readInt();
-			Marcet marcet = (Marcet) mData.getMarcet(marketID);
-			if (marcet == null) { marcet = (Marcet) mData.addMarcet(); }
-			else { mData.addDeal(marcet.getId()); }
-			MarcetController.getInstance().saveMarcets();
-			if (player.openContainer instanceof ContainerNPCTraderSetup) {
-				player.openContainer.onContainerClosed(player);
-			}
-			MarcetController.getInstance().sendTo(player, marcet.getId());
 		} else if (type == EnumPacketServer.TraderMarketDel) {
 			MarcetController mData = MarcetController.getInstance();
 			int marcetID = buffer.readInt();
 			int dealID = buffer.readInt();
-			if (dealID < 0) {
+			if (marcetID >= 0 && dealID < 0) {
 				Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.MarcetData, marcetID);
 				mData.removeMarcet(marcetID);
 			}
-			else {
+			if (marcetID < 0 && dealID >= 0) {
 				Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.MarcetDeal, dealID);
 				mData.removeDeal(dealID);
 			}
@@ -1488,6 +1475,7 @@ public class PacketHandlerServer {
 			else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) { AnimationController.getInstance().removeAnimation(compound.getInteger("ID")); }
 			else if (compound.hasKey("save", 1) && compound.getBoolean("save")) { AnimationController.getInstance().save(); }
 			else { AnimationController.getInstance().loadAnimation(compound); }
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, compound);
 		} else if (type == EnumPacketServer.AnimationSave) {
 			npc.animation.load(Server.readNBT(buffer));
 			npc.updateClient = true;
@@ -1668,28 +1656,28 @@ public class PacketHandlerServer {
 			}
 		} else if (type == EnumPacketServer.PlayerMailsGet) {
 			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("LettersBeDeleted", CustomNpcs.mailTimeWhenLettersWillBeDeleted);
-			compound.setIntArray("LettersBeReceived", CustomNpcs.mailTimeWhenLettersWillBeReceived);
-			compound.setIntArray("CostSendingLetter", CustomNpcs.mailCostSendingLetter);
-			compound.setBoolean("SendToYourself", CustomNpcs.mailSendToYourself);
+			compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
+			compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
+			compound.setIntArray("CostSendingLetter", CustomNpcs.MailCostSendingLetter);
+			compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.PlayerMailsSave) {
 			NBTTagCompound compound = Server.readNBT(buffer);
-			CustomNpcs.mailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
+			CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
 			int[] vs = compound.getIntArray("LettersBeReceived");
 			for (int i = 0; i < vs.length; i++) {
-				CustomNpcs.mailTimeWhenLettersWillBeReceived[i] = vs[i];
+				CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
 			}
 			vs = compound.getIntArray("CostSendingLetter");
 			for (int i = 0; i < vs.length; i++) {
-				CustomNpcs.mailCostSendingLetter[i] = vs[i];
+				CustomNpcs.MailCostSendingLetter[i] = vs[i];
 			}
-			CustomNpcs.mailSendToYourself = compound.getBoolean("SendToYourself");
+			CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself");
 			compound = new NBTTagCompound();
-			compound.setInteger("LettersBeDeleted", CustomNpcs.mailTimeWhenLettersWillBeDeleted);
-			compound.setIntArray("LettersBeReceived", CustomNpcs.mailTimeWhenLettersWillBeReceived);
-			compound.setIntArray("CostSendingLetter", CustomNpcs.mailCostSendingLetter);
-			compound.setBoolean("SendToYourself", CustomNpcs.mailSendToYourself);
+			compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
+			compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
+			compound.setIntArray("CostSendingLetter", CustomNpcs.MailCostSendingLetter);
+			compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
 			if (player.world.getMinecraftServer().getPlayerList().getPlayers().size() > 1) {
 				for (EntityPlayerMP pl : player.world.getMinecraftServer().getPlayerList().getPlayers()) {
 					Server.sendData(pl, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, compound);

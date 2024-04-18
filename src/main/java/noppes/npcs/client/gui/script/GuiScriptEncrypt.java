@@ -71,7 +71,7 @@ extends SubGuiInterface {
 		this.drawDefaultBackground();
 		if (this.getButton(1)!=null && this.getTextField(0)!=null) { this.getButton(1).setEnabled(!this.getTextField(0).getText().isEmpty()); }
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			String path = this.path + this.getTextField(0).getText() + ""+ext;
 			this.setHoverText(new TextComponentTranslation("encrypt.hover.path", path).getFormattedText());

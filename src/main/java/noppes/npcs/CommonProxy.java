@@ -134,14 +134,17 @@ implements IGuiHandler {
 			}
 			case PlayerFollowerHire: { return new ContainerNPCFollowerHire(npc, player, x); }
 			case PlayerFollower: { return new ContainerNPCFollowerHire(npc, player, x); }
-			case PlayerTrader: { return new ContainerNPCTrader(npc, player); }
+			case PlayerTrader: {
+				if (npc != null) { return new ContainerNPCTrader(npc, player); }
+				return new ContainerNPCTrader(x, player);
+			}
 			case SetupItemGiver: { return new ContainerNpcItemGiver(npc, player); }
 			case SetupTraderDeal: { // Change
 				MarcetController mData = MarcetController.getInstance();
 				Marcet marcet= (Marcet) mData.getMarcet(x);
 				if (marcet == null) { marcet = new Marcet(x); }
 				Deal deal = (Deal) mData.getDeal(y);
-				if (deal == null) { deal = new Deal(y, x); }
+				if (deal == null) { deal = new Deal(y); }
 				return new ContainerNPCTraderSetup(marcet, deal, player);
 			}
 			case SetupFollower: { return new ContainerNPCFollowerSetup(npc, player); }

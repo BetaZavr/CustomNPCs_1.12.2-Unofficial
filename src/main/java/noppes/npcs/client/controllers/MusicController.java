@@ -1,6 +1,5 @@
 package noppes.npcs.client.controllers;
 
-import java.util.List;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
@@ -14,8 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -157,24 +154,23 @@ public class MusicController {
 	public void cheakBards(EntityPlayer player) {
 		if (this.music.isEmpty()) { if (this.musicBard!=null) { this.musicBard = null; } }
 		else {
-			if (this.musicBard==null) { this.stopSound(this.music, SoundCategory.MUSIC); }
+			if (this.musicBard==null || !(this.musicBard.advanced.jobInterface instanceof JobBard)) { this.stopSound(this.music, SoundCategory.MUSIC); }
 			else {
 				Entity entity = player.world.getEntityByID(this.musicBard.getEntityId());
 				if (entity==null) {
 					this.unloadMusicBard = true;
 					JobBard job = (JobBard) this.musicBard.advanced.jobInterface;
 					if (job.hasOffRange) {
-						AxisAlignedBB aabb = this.musicBard.getEntityBoundingBox();
-						if (job.isRange) {
-							aabb = aabb.grow(job.range[1], job.range[1], job.range[1]);
-						} else {
-							aabb = new AxisAlignedBB(aabb.minX - job.maxPos[0], aabb.minY - job.maxPos[1], aabb.minZ - job.maxPos[2],
-									aabb.maxX + job.maxPos[0], aabb.maxY + job.maxPos[1], aabb.maxZ + job.maxPos[2]);
+						int x = job.range[1], y = job.range[1], z = job.range[1];
+						if (!job.isRange) {
+							x = job.maxPos[0];
+							y = job.maxPos[1];
+							z = job.maxPos[2];
 						}
-						List<EntityPlayer> list = player.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
-						if (!list.contains(CustomNpcs.proxy.getPlayer())) {
-							this.stopSound(this.song, SoundCategory.MUSIC);
-						}
+						int xD = (int) Math.abs(player.posX - musicBard.posX);
+						int yD = (int) Math.abs(player.posY - musicBard.posY);
+						int zD = (int) Math.abs(player.posZ - musicBard.posZ);
+						if (xD > x || yD > y || zD > z) { this.stopSound(this.song, SoundCategory.MUSIC); }
 					}
 				}
 			}
@@ -182,22 +178,23 @@ public class MusicController {
 		
 		if (this.song.isEmpty()) { if (this.songBard!=null) { this.songBard = null; } }
 		else {
-			if (this.songBard==null) { this.stopSound(this.song, SoundCategory.AMBIENT); }
+			if (this.songBard==null || !(this.songBard.advanced.jobInterface instanceof JobBard)) { this.stopSound(this.song, SoundCategory.AMBIENT); }
 			else {
 				Entity entity = player.world.getEntityByID(this.songBard.getEntityId());
 				if (entity==null) {
 					this.unloadSongBard = true;
 					JobBard job = (JobBard) this.songBard.advanced.jobInterface;
 					if (job.hasOffRange) {
-						AxisAlignedBB aabb = this.songBard.getEntityBoundingBox();
-						if (job.isRange) {
-							aabb = aabb.grow(job.range[1], job.range[1], job.range[1]);
-						} else {
-							aabb = new AxisAlignedBB(aabb.minX - job.maxPos[0], aabb.minY - job.maxPos[1], aabb.minZ - job.maxPos[2],
-									aabb.maxX + job.maxPos[0], aabb.maxY + job.maxPos[1], aabb.maxZ + job.maxPos[2]);
+						int x = job.range[1], y = job.range[1], z = job.range[1];
+						if (!job.isRange) {
+							x = job.maxPos[0];
+							y = job.maxPos[1];
+							z = job.maxPos[2];
 						}
-						List<EntityPlayer> list = player.world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
-						if (!list.contains(CustomNpcs.proxy.getPlayer())) {
+						int xD = (int) Math.abs(player.posX - musicBard.posX);
+						int yD = (int) Math.abs(player.posY - musicBard.posY);
+						int zD = (int) Math.abs(player.posZ - musicBard.posZ);
+						if (xD > x || yD > y || zD > z) {
 							this.stopSound(this.song, SoundCategory.AMBIENT);
 						}
 					}

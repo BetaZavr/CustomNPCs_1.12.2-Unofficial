@@ -163,7 +163,7 @@ implements ITextfieldListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "X").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
 		} else if (this.getTextField(11)!=null && this.getTextField(11).isMouseOver()) {

@@ -134,17 +134,16 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener {
 		List<String> newList = Lists.<String>newArrayList();
 		Map<String, String> hoverMap = Maps.<String, String>newHashMap();
 		Map<String, Integer> newData = Maps.<String, Integer>newHashMap();
-		char chr = Character.toChars(0x00A7)[0];
 		for (String key : data.keySet()) {
 			int id = data.get(key);
 			String newName = AdditionalMethods.instance.deleteColor(key);
 			if (newName.indexOf("ID:"+id+" - ")>=0) {
 				newName = newName.substring(newName.indexOf(" - ")+3);
 			}
-			String str = chr+"7ID:"+id+" - "+newName;
+			String str = ((char) 167)+"7ID:"+id+" - "+newName;
 			if (this.options.hasFaction(id)) {
 				FactionOption fo = this.options.get(id);
-				str = chr+"7ID:"+id+" - "+chr+(fo.decreaseFactionPoints ? "c" : "2")+newName;
+				str = ((char) 167)+"7ID:"+id+" - "+((char) 167)+(fo.decreaseFactionPoints ? "c" : "2")+newName;
 			}
 			newList.add(str);
 			hoverMap.put(str, newName);

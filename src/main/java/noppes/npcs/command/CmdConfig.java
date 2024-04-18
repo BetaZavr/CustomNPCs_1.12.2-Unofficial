@@ -30,7 +30,7 @@ public class CmdConfig extends CommandNoppesBase {
 			} catch (NumberFormatException ex) {
 				throw new CommandException("Didnt get a number", new Object[0]);
 			}
-			CustomNpcs.Config.updateConfig();
+			CustomNpcs.Config.resetConfig();
 			int size = ChunkController.instance.size();
 			if (size > CustomNpcs.ChuckLoaders) {
 				ChunkController.instance.unload(size - CustomNpcs.ChuckLoaders);
@@ -64,7 +64,7 @@ public class CmdConfig extends CommandNoppesBase {
 		for (int i = 0; i < args.length; ++i) {
 			font = font + " " + args[i];
 		}
-		Server.sendData((EntityPlayerMP) sender, EnumPacketClient.CONFIG, 0, font.trim(), size);
+		Server.sendData((EntityPlayerMP) sender, EnumPacketClient.CONFIG_FONT, 0, font.trim(), size);
 	}
 
 	@SubCommand(desc = "Freezes/Unfreezes npcs", usage = "[true/false]")
@@ -92,7 +92,7 @@ public class CmdConfig extends CommandNoppesBase {
 			this.sendMessage(sender, "IceMelts: " + CustomNpcs.IceMeltsEnabled, new Object[0]);
 		} else {
 			CustomNpcs.IceMeltsEnabled = Boolean.parseBoolean(args[0]);
-			CustomNpcs.Config.updateConfig();
+			CustomNpcs.Config.resetConfig();
 			Set<ResourceLocation> names = Block.REGISTRY.getKeys();
 			for (ResourceLocation name : names) {
 				Block block = Block.REGISTRY.getObject(name);
@@ -110,7 +110,7 @@ public class CmdConfig extends CommandNoppesBase {
 			this.sendMessage(sender, "LeavesDecay: " + CustomNpcs.LeavesDecayEnabled, new Object[0]);
 		} else {
 			CustomNpcs.LeavesDecayEnabled = Boolean.parseBoolean(args[0]);
-			CustomNpcs.Config.updateConfig();
+			CustomNpcs.Config.resetConfig();
 			Set<ResourceLocation> names = Block.REGISTRY.getKeys();
 			for (ResourceLocation name : names) {
 				Block block = Block.REGISTRY.getObject(name);
@@ -128,7 +128,7 @@ public class CmdConfig extends CommandNoppesBase {
 			this.sendMessage(sender, "Scripting: " + CustomNpcs.EnableScripting, new Object[0]);
 		} else {
 			CustomNpcs.EnableScripting = Boolean.parseBoolean(args[0]);
-			CustomNpcs.Config.updateConfig();
+			CustomNpcs.Config.resetConfig();
 			this.sendMessage(sender, "Scripting is now " + CustomNpcs.EnableScripting, new Object[0]);
 		}
 	}
@@ -139,7 +139,7 @@ public class CmdConfig extends CommandNoppesBase {
 			this.sendMessage(sender, "VineGrowth: " + CustomNpcs.VineGrowthEnabled, new Object[0]);
 		} else {
 			CustomNpcs.VineGrowthEnabled = Boolean.parseBoolean(args[0]);
-			CustomNpcs.Config.updateConfig();
+			CustomNpcs.Config.resetConfig();
 			Set<ResourceLocation> names = Block.REGISTRY.getKeys();
 			for (ResourceLocation name : names) {
 				Block block = Block.REGISTRY.getObject(name);

@@ -261,7 +261,7 @@ implements IEditNPC {
 	}
 
 	public void drawWait(int mouseX, int mouseY, float partialTicks) {
-		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(), this.mc.displayWidth / 2, this.mc.displayHeight / 2, CustomNpcs.mainColor);
+		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(), this.mc.displayWidth / 2, this.mc.displayHeight / 2, CustomNpcs.MainColor.getRGB());
 		int pos_0 = (int) Math.floor((double) (this.player.world.getTotalWorldTime() % 16) / 2.0d);
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -372,7 +372,7 @@ implements IEditNPC {
 			boolean helpButtons = false;
 			if (i==56 || i==29 || i==184) { helpButtons = Keyboard.isKeyDown(35); }
 			else if (i==35) { helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(29)||Keyboard.isKeyDown(184); }
-			if (helpButtons) { CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions; }
+			if (helpButtons) { CustomNpcs.ShowDescriptions = !CustomNpcs.ShowDescriptions; }
 			for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
 				tf.textboxKeyTyped(c, i);
 			}

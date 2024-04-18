@@ -61,7 +61,6 @@ implements IJobConversation {
 	public String questTitle;
 	public int range;
 	private int startedTicks;
-
 	public int ticks;
 
 	public JobConversation(EntityNPCInterface npc) {

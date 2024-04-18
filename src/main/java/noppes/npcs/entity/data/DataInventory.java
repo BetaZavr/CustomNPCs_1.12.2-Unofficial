@@ -78,8 +78,8 @@ implements IInventory, INPCInventory {
 	
 	@Override
 	public ICustomDrop addDropItem(IItemStack item, double chance) {
-		if (this.drops.size() >= CustomNpcs.maxItemInDropsNPC) {
-			throw new CustomNPCsException("Bad maximum size: " + this.drops.size() + " ("+CustomNpcs.maxItemInDropsNPC+" slots maximum)");
+		if (this.drops.size() >= CustomNpcs.MaxItemInDropsNPC) {
+			throw new CustomNPCsException("Bad maximum size: " + this.drops.size() + " ("+CustomNpcs.MaxItemInDropsNPC+" slots maximum)");
 		}
 		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
 		DropSet ds = new DropSet(this);

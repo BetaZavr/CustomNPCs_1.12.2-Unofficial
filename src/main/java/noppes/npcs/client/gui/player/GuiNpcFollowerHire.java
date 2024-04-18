@@ -87,7 +87,7 @@ extends GuiContainerNPCInterface {
 		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
 			int days = this.role.rates.get(3);
 			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText() : new TextComponentTranslation("follower.days").getFormattedText());
-			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " " + CustomNpcs.charCurrencies;
+			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " " + CustomNpcs.CharCurrencies;
 			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 90, this.guiTop + 68, CustomNpcResourceListener.DefaultTextColor);
 		}
 	}
@@ -106,7 +106,7 @@ extends GuiContainerNPCInterface {
 			this.getButton(3).setEnabled(this.mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= this.role.rentalMoney);
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		for (int i = 0; i < 4; ++i) {
 			if (this.getButton(i) != null && this.getButton(i).isMouseOver()) { 
 				ITextComponent mes = new TextComponentTranslation("follower.hover.hire.info");

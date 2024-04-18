@@ -24,6 +24,7 @@ import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.controllers.data.Marcet;
+import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
 import noppes.npcs.util.AdditionalMethods;
 
@@ -74,7 +75,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		this.data.clear();
 		for (int id : this.marcet.sections.keySet()) {
 			this.scroll.hoversTexts[i] = new String[] { "ID: "+ id, new TextComponentTranslation("gui.name").getFormattedText() + ": " + this.marcet.sections.get(id) };
-			String key = new TextComponentTranslation(this.marcet.sections.get(id)).getFormattedText();
+			String key = this.marcet.sections.get(id).name;
 			this.data.put(key, id);
 			list.add(key);
 			i++;
@@ -186,14 +187,6 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		NoppesUtil.openGUI((EntityPlayer) this.player, this);
 		if (!result || this.scroll.selected < 0 || !this.data.containsKey(this.scroll.getSelected()) || this.marcet.sections.size() < 2) { return; }
 		this.marcet.sections.remove(this.data.get(this.scroll.getSelected()));
-		int i = 0;
-		Map<Integer, String> newMap = Maps.<Integer, String>newTreeMap();
-		for (String name : this.marcet.sections.values()) {
-			newMap.put(i, name);
-			i++;
-		}
-		this.marcet.sections.clear();
-		this.marcet.sections.putAll(newMap);
 		if (this.scroll.selected > 0) { this.scroll.selected--; }
 		this.initGui();
 	}
@@ -206,7 +199,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y - 3, 0x80000000);
 			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 4, this.getButton(4).y + 44, 0x80000000);
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("market.hover.set.name", new TextComponentTranslation(this.marcet.name).getFormattedText()).getFormattedText());
 		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
@@ -280,6 +273,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 		}
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
@@ -287,7 +281,9 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 			if (((SubGuiEditText) subgui).id == 1) {
 				String name = ((SubGuiEditText) subgui).text[0];
 				while(this.marcet.sections.containsValue(name)) { name += "_"; }
-				this.marcet.sections.put(this.marcet.sections.size(), name);
+				MarcetSection ms = new MarcetSection(this.marcet.sections.size());
+				ms.name = name;
+				this.marcet.sections.put(ms.getId(), ms);
 			} else if (((SubGuiEditText) subgui).id == 2) {
 				if (!this.data.containsKey(this.scroll.getSelected())) { return; }
 				String name = ((SubGuiEditText) subgui).text[0];
@@ -304,7 +300,9 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener, GuiYesNoC
 						}
 					}
 				}
-				this.marcet.sections.put(idSel, name);
+				MarcetSection ms = new MarcetSection(idSel);
+				ms.name = name;
+				this.marcet.sections.put(ms.getId(), ms);
 				this.initGui();
 			}
 			this.initGui();

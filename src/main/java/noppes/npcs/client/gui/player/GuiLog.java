@@ -49,6 +49,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.QuestEvent.QuestExtraButtonEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.ClientGuiEventHandler;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -63,6 +64,7 @@ import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.ScriptController;
@@ -84,6 +86,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	private static final Map<Integer, ResourceLocation> ql = Maps.<Integer, ResourceLocation>newTreeMap();
 	private static ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
 	private static ResourceLocation killIcon = new ResourceLocation("textures/entity/skeleton/skeleton.png");
+	public static float scaleW, scaleH;
 	
 	static {
 		GuiLog.ql.clear();
@@ -104,12 +107,11 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	private int hoverButton;
 	private int hoverQuestId, catRow, catSelect, page;
 	private int type; // -1-inv; 0-faction; 1-quests; 2-compass
-	private int step, tick, mtick, temp, guiTopLog, guiCenter;
+	private int step, tick, mtick, temp, guiLLeft, guiLRight, guiLTop, guiTopLog, guiCenter;
 	private boolean toPrePage = true;
 	private final Random rnd = new Random();
 	private ScaledResolution sw;
 	
-	private final Map<Integer, int[]> buttons = Maps.<Integer, int[]>newTreeMap(); // [] = [x, y, w, h]
 	private final Map<String, Map<Integer, QuestData>> quests = Maps.<String, Map<Integer, QuestData>>newTreeMap(); // { category, [id, quest]}
 	private final Map<String, Color> categories = Maps.<String, Color>newTreeMap(); // [name, color]
 	private final List<Faction> playerFactions = Lists.<Faction>newArrayList();
@@ -148,20 +150,17 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	public void initGui() {
 		super.initGui();
 		sw = new ScaledResolution(this.mc);
-		guiCenter = (int) Math.ceil(sw.getScaledWidth_double() / 2.0d);
-		double centerH = Math.ceil(sw.getScaledHeight_double() / 2.0d);
-		width = 256;
-		height = 203;
-		guiLeft = guiCenter - 128;
-		guiTop = (int) (centerH - 101.5d);
+		scaleW = ((float) sw.getScaledWidth_double() - 160.0f) / 256.0f;
+		scaleH = ((float) sw.getScaledHeight_double() - 78.0f) / 175.0f;
+		guiCenter = (int) Math.ceil(sw.getScaledWidth_double() / 2.0d + 15.0d * scaleW);
+		width = (int) (256.0f * scaleW);
+		height = (int) (203.0f * scaleH);
+		guiLeft = guiCenter - (int) (128.0f * scaleW);
+		guiTop = 25;
 		guiTopLog = guiTop + 28;
-		// Buttons
-		// Tabs
-		buttons.clear();
-		buttons.put(0, new int[] { guiLeft + 10, guiTop, 28, 28 }); // tab inv
-		buttons.put(1, new int[] { guiLeft + 43, guiTop, 28, type == 1 ? 30 : 28 }); // tab factions
-		buttons.put(2, new int[] { guiLeft + 76, guiTop, 28, type == 0 ? 30 : 28 }); // tab quests
-		buttons.put(3, new int[] { guiLeft + 218, guiTop, 28, type == 2 ? 30 : 28 }); // tab compass
+		guiLLeft = guiLeft + (int) (26.0f * scaleW);
+		guiLRight = guiCenter + (int) (2.0f * scaleW);
+		guiLTop = guiTopLog + (int) (8.0f * scaleH);
 		
 		// Quests
 		if (type==0) {
@@ -191,38 +190,39 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			if (activeQuest != null) { activeQuest.reset(); }
 			while (catSelect >= categories.size()) { catSelect--; }
 		}
-		if (type==2) {
-			int x0 = guiLeft + 32;
-			int x1 = guiCenter + 5;
-			int y = guiTopLog + 92;
+		// Factions
+		else if (type==2) {
+			int x0 = guiLLeft + 8;
+			int x1 = guiLRight + (int) (3.0f * scaleW);
+			int y = (int) (guiLTop + 82.0f * scaleH);
 			//Screen Pos
-			this.addTextField(new GuiNpcTextField(0, this, fontRenderer, x0, y, 40, 10, ""+this.compassData.screenPos[0]));
+			this.addTextField(new GuiNpcTextField(0, this, fontRenderer, x0, y, (int)(40.0f * scaleW), (int) (10.0f * scaleH), ""+this.compassData.screenPos[0]));
 			this.getTextField(0).setDoubleNumbersOnly();
 			this.getTextField(0).setMinMaxDoubleDefault(0.0d, 1.0d, this.compassData.screenPos[0]);
 			
-			this.addTextField(new GuiNpcTextField(1, this, fontRenderer, x0 + 54, y, 40, 10, ""+this.compassData.screenPos[1]));
+			this.addTextField(new GuiNpcTextField(1, this, fontRenderer, x0 + (int)(54.0f * scaleW), y, (int)(40.0f * scaleW), (int) (10.0f * scaleH), ""+this.compassData.screenPos[1]));
 			this.getTextField(1).setDoubleNumbersOnly();
 			this.getTextField(1).setMinMaxDoubleDefault(0.0d, 1.0d, this.compassData.screenPos[1]);
 			
 			// Scale
 			x0 -= 1;
 			float v = this.compassData.scale - 0.5f;
-			this.addSlider(new GuiNpcSlider(this, 0, x0, y += 17, 96, 12, v));
+			this.addSlider(new GuiNpcSlider(this, 0, x0, y += (int) (17.0f * scaleH), (int)(96.0f * scaleW), (int) (12.0f * scaleH), v));
 			this.getSlider(0).setString((""+this.compassData.scale).replace(".", ","));
 			
 			// Incline
 			v = this.compassData.incline * -0.022222f + 0.5f;
-			this.addSlider(new GuiNpcSlider(this, 1, x0, y += 16, 96, 12, v));
+			this.addSlider(new GuiNpcSlider(this, 1, x0, y += (int) (16.0f * scaleH), (int)(96.0f * scaleW), (int) (12.0f * scaleH), v));
 			this.getSlider(1).setString((""+(45.0f + this.compassData.incline*-1.0f)).replace(".", ","));
-			this.addButton(new GuiNpcCheckBox(0, x1, y - 1, 100, 12, "quest.screen.show.quest", compassData.showQuestName));
-			this.getButton(0).textColor = CustomNpcs.questLogColor;
+			this.addButton(new GuiNpcCheckBox(0, x1, y - (int)scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.quest", compassData.showQuestName));
+			this.getButton(0).textColor = CustomNpcs.QuestLogColor.getRGB();
 			
 			// Rotation
 			v = this.compassData.rot * 0.016667f + 0.5f;
-			this.addSlider(new GuiNpcSlider(this, 2, x0, y += 16, 96, 12, v));
+			this.addSlider(new GuiNpcSlider(this, 2, x0, y += (int) (16.0f * scaleH), (int)(96.0f * scaleW), (int) (12.0f * scaleH), v));
 			this.getSlider(2).setString((""+this.compassData.rot).replace(".", ","));
-			this.addButton(new GuiNpcCheckBox(1, x1, y - 1, 100, 12, "quest.screen.show.task", compassData.showTaskProgress));
-			this.getButton(1).textColor = CustomNpcs.questLogColor;
+			this.addButton(new GuiNpcCheckBox(1, x1, y - (int)scaleH, (int) (100.0f * scaleW), (int) (12.0f * scaleH), "quest.screen.show.task", compassData.showTaskProgress));
+			this.getButton(1).textColor = CustomNpcs.QuestLogColor.getRGB();
 		}
 	}
 
@@ -302,7 +302,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				break;
 			}
 			case 3: { // compass
-				if (type == 2 || !CustomNpcs.showQuestCompass) { return; }
+				if (type == 2 || !CustomNpcs.ShowQuestCompass) { return; }
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				tick = 15;
 				mtick = 15;
@@ -326,6 +326,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						mtick = 10;
 					}
 				}
+				else if (type == 1) {
+					page++;
+					step = 10;
+					tick = 10;
+					mtick = 10;
+				}
 				break;
 			}
 			case 5: { // page left
@@ -338,6 +344,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						tick = 10;
 						mtick = 10;
 					}
+				}
+				else if (type == 1) {
+					page--;
+					step = 11;
+					tick = 10;
+					mtick = 10;
 				}
 				break;
 			}
@@ -380,6 +392,8 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			case 31: { // compass look
 				if (hoverQuestId <= 0) { return; }
+				if (ClientProxy.playerData.hud.questID == hoverQuestId) { ClientProxy.playerData.hud.questID = -1; }
+				else { ClientProxy.playerData.hud.questID = hoverQuestId; }
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 				break;
 			}
@@ -438,6 +452,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiCenter + (1.0f - cos) * (guiCenter + 50.0f), guiTopLog + (1.0f - cos) * 250.0f, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					GlStateManager.popMatrix();
 					if (tick==0) {
@@ -453,6 +468,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					// right
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 					GlStateManager.popMatrix();
@@ -466,6 +482,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
@@ -476,6 +493,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
 						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
@@ -492,6 +510,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					// place
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 					if (temp > 0) {
@@ -510,8 +529,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
-						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
+						this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 					}
 					else {
 						part = (float) tick + partialTicks;
@@ -520,6 +540,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
 						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
@@ -552,14 +573,15 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
 					GlStateManager.translate(33.0f, 0.0f , 0.0f);
 					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-					if (CustomNpcs.showQuestCompass) {
-						GlStateManager.translate(142.0f, 0.0f , 0.0f);
+					if (CustomNpcs.ShowQuestCompass) {
+						GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
 						this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
 					}
 					GlStateManager.popMatrix();
 					// place
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
@@ -578,24 +600,29 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					drawBox(mouseX, mouseY, partialTicks);
 					if (!categories.isEmpty()) {
 						GlStateManager.pushMatrix();
-						GlStateManager.translate(guiLeft, guiTopLog + 7.5f, 0.0f);
-						GlStateManager.translate(0.0f, 16.0f, 0.0f);
-						int i = 0, p = 0, st = catRow * 8;
+						GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
+						this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+						int i = 0, p = 0;
 						for (String catName : categories.keySet()) {
-							if (p < st) { p++; continue; }
-							int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10) * cos);
+							int catW = (int) ((this.fontRenderer.getStringWidth(catName) + 10 + i) * cos);
 							this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
-							this.drawTexturedModalRect(5 - catW, i * 16, 0, 90 + (catSelect == p ? 0 : 16), catW, 16);
+							if (isMouseHover(mouseX, mouseY, guiLeft + (int)((5 - catW) * scaleW), (int) (guiTopLog + (23.5f + i * 16.0f) * scaleH), (int)(catW * scaleH), (int)(16.0f * scaleH))) { hoverButton = 7 + i; } // 7/15-tab categories; 
+							GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+							GlStateManager.pushMatrix();
+							GlStateManager.scale(scaleW, scaleH, 1.0f);
+							this.drawTexturedModalRect(4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
+							GlStateManager.popMatrix();
 							String name = "";
 							for (int j = 0; j < catName.length(); j++) {
 								if (this.fontRenderer.getStringWidth(name + catName.charAt(j)) > catW - 5) { break; }
 								name += catName.charAt(j);
 							}
-							this.fontRenderer.drawString(name, 10 - catW, 3 + i * 16, CustomNpcs.questLogColor, false);
-							GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+							this.fontRenderer.drawString(name, 4 - catW + 10 + i, (16.0f * scaleH - 10.0f) / 2.0f + (i * 16) * scaleH, CustomNpcs.QuestLogColor.getRGB(), false);
 							i++;
+							p++;
 							if (i >= 8) { break; }
 						}
+						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 						GlStateManager.popMatrix();
 					}
 					else { tick = 0; }
@@ -645,7 +672,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 								if (this.fontRenderer.getStringWidth(name + catName.charAt(j)) > catW - 5) { break; }
 								name += catName.charAt(j);
 							}
-							this.fontRenderer.drawString(name, 10 - catW, 3 + i * 16, CustomNpcs.questLogColor, false);
+							this.fontRenderer.drawString(name, 10 - catW, 3 + i * 16, CustomNpcs.QuestLogColor.getRGB(), false);
 							GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 							i++;
 							if (i >= 8) { break; }
@@ -717,6 +744,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
 						this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 					}
@@ -727,6 +755,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
 						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
@@ -753,6 +782,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter - (1.0f - cos) * width / 2.0f, guiTopLog, 0.0f);
 						GlStateManager.scale((1.0f - cos), 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
@@ -763,6 +793,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(guiCenter, guiTopLog, 0.0f);
 						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(3));
 						this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 					}
@@ -787,8 +818,8 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
 					GlStateManager.translate(33.0f, 0.0f , 0.0f);
 					this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
-					if (CustomNpcs.showQuestCompass) {
-						GlStateManager.translate(142.0f, 0.0f , 0.0f);
+					if (CustomNpcs.ShowQuestCompass) {
+						GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
 						this.drawTexturedModalRect(0, 0, 0, 30, 28, 30);
 					}
 					GlStateManager.popMatrix();
@@ -796,6 +827,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					// place
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 					this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
@@ -814,6 +846,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
 					GlStateManager.popMatrix();
 					
@@ -828,11 +861,12 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.translate(-128.0f * (1.0d - cos), 0.0f, 0.0f);
 						GlStateManager.scale(1.0f - cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 						if (temp > 0) {
 							this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
-							this.drawTexturedModalRect(0, 0, 128, 0, 128, 175);
+							this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 						}
 					}
 					else {
@@ -841,14 +875,15 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						if (cos < 0.0f) { cos = 0.0f; }
 						else if (cos > 1.0f) { cos = 1.0f; }
 						GlStateManager.scale(cos, 1.0f, 1.0f);
+						GlStateManager.scale(scaleW, scaleH, 1.0f);
 						this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
 						this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					}
 					GlStateManager.popMatrix();
 					
 					if (tick==0) {
-						step = 14;
 						MusicController.Instance.forcePlaySound(SoundCategory.PLAYERS, CustomNpcs.MODID+":book.down", (float) this.player.posX, (float) this.player.posY, (float) this.player.posZ, 1.0f, 0.75f + 0.25f * this.rnd.nextFloat());
+						step = 14;
 						tick = 21;
 						mtick = 20;
 						GlStateManager.disableBlend();
@@ -858,10 +893,14 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				case 14: { // close
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(guiCenter - 64.0f + cos * (guiCenter + 50.0f), guiTopLog + cos * 250.0f, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(2));
 					this.drawTexturedModalRect(0, 0, 0, 0, 128, 175);
 					GlStateManager.popMatrix();
 					if (tick==0) {
+						step = 14;
+						tick = 101;
+						mtick = 100;
 						save();
 						if (type == -1) { mc.displayGuiScreen(new GuiInventory(player)); }
 						else {
@@ -914,40 +953,40 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	private void drawBox(int mouseX, int mouseY, float partialTicks) {
 		hoverButton = -1;
 		hoverQuestId = 0;
-		for (Integer id : buttons.keySet()) {
-			int[] bd = buttons.get(id);
-			if (isMouseHover(mouseX, mouseY, bd[0], bd[1], bd[2], bd[3])) {
-				hoverButton = id;
-				break;
-			}
-		}
 		// tabs
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLeft + 10, guiTop, 0.0f);
 		boolean offset = false;
-		for (int i = 0; i < (CustomNpcs.showQuestCompass ? 4 : 3); i++) {
-			boolean hover = (hoverButton == i);
+		for (int i = 0; i < (CustomNpcs.ShowQuestCompass ? 4 : 3); i++) {
+			boolean hover = false;
 			switch(i) {
 				case 1: {
 					if (offset) { GlStateManager.translate(0.0f, 0.0f, -1.0f); }
 					offset = (type == 1);
 					GlStateManager.translate(33.0f, 0.0f, offset ? 1.0f : 0.0f);
+					hover = this.isMouseHover(mouseX, mouseY, guiLeft + 43, guiTop, 28, 30);
 					break;
 				}
 				case 2: {
 					if (offset) { GlStateManager.translate(0.0f, 0.0f, -1.0f); }
 					offset = (type == 0);
 					GlStateManager.translate(33.0f, 0.0f, offset ? 1.0f : 0.0f);
+					hover = this.isMouseHover(mouseX, mouseY, guiLeft + 76, guiTop, 28, 30);
 					break;
 				}
 				case 3: {
 					if (offset) { GlStateManager.translate(0.0f, 0.0f, -1.0f); }
 					offset = (type == 2);
-					GlStateManager.translate(142.0f, 0.0f, offset ? 1.0f : 0.0f);
+					GlStateManager.translate(-114.0f + 256.0f * scaleW, 0.0f, offset ? 1.0f : 0.0f);
+					hover = this.isMouseHover(mouseX, mouseY, (int) (guiLeft - 38.0f + 256.0f * scaleW), guiTop, 28, 30);
 					break;
 				}
-				default: break;
+				default: {
+					hover = this.isMouseHover(mouseX, mouseY, guiLeft + 10, guiTop, 28, 30);
+					break;
+				}
 			}
+			if (hover) { hoverButton = i; }
 			this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
 			this.drawTexturedModalRect(0, 0, 0, hover || offset ? 30 : 60, 28, 30);
 			
@@ -987,6 +1026,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		// place
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(guiLeft, guiTopLog, 0.0f);
+		GlStateManager.scale(scaleW, scaleH, 1.0f);
 		this.mc.renderEngine.bindTexture(GuiLog.ql.get(0));
 		this.drawTexturedModalRect(0, 0, 0, 0, 256, 175);
 		this.mc.renderEngine.bindTexture(GuiLog.ql.get(1));
@@ -995,14 +1035,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		
 		if (step == -1 && (type == 0 || type == 1)) {
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(guiLeft + 28, guiTopLog + 163, 0.0f);
-			GlStateManager.scale(0.5f, 0.5f, 0.5f);
-			fontRenderer.drawString(""+(page * 2 + 1), 0, 0, CustomNpcs.notEnableColor);
+			GlStateManager.translate(guiLLeft + 2.0f * scaleH, guiLTop + 152.5f * scaleH, 0.0f);
+			fontRenderer.drawString(""+(page * 2 + 1), 0, 0, CustomNpcs.NotEnableColor.getRGB());
 			GlStateManager.popMatrix();
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(guiLeft + 228, guiTopLog + 163, 0.0f);
-			GlStateManager.scale(0.5f, 0.5f, 0.5f);
-			fontRenderer.drawString(""+(page * 2 + 2), 0, 0, CustomNpcs.notEnableColor);
+			String p = ""+(page * 2 + 2);
+			GlStateManager.translate(guiLLeft - fontRenderer.getStringWidth(p) + 205.0f * scaleW, guiLTop + 153.0f * scaleH, 0.0f);
+			fontRenderer.drawString(p, 0, 0, CustomNpcs.NotEnableColor.getRGB());
 			GlStateManager.popMatrix();
 		}
 		if (step >= 0 && step < 10) { return; }
@@ -1014,20 +1053,28 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	private void drawQuestLog(int mouseX, int mouseY, float partialTicks) {
 		if (categories.isEmpty()) {
 			String noFaction = new TextComponentTranslation("quest.noquests").getFormattedText();
-			fontRenderer.drawSplitString(noFaction, guiLeft + 24, guiTop + 36, 98, CustomNpcs.questLogColor);
+			fontRenderer.drawSplitString(noFaction, guiLLeft, guiLTop, (int)(98.0f * scaleW), CustomNpcs.QuestLogColor.getRGB());
 			return;
 		}
 		List<String> hover = Lists.<String>newArrayList();
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiLeft, guiTopLog + 23.5f, 0.0f);
+		GlStateManager.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
 		this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
 		if (catRow > 0) { // pre Cats
-			if (isMouseHover(mouseX, mouseY, guiLeft -17, (int) (guiTopLog + 7.5f), 18, 16)) { hoverButton = 16; } // pre cat list; 
+			if (isMouseHover(mouseX, mouseY, guiLeft - (int)(17.0f * scaleW), (int) (guiTopLog + 7.5f * scaleH), (int)(18.0f * scaleW), (int)(16.0f * scaleH))) { hoverButton = 16; } // pre cat list; 
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(scaleW, scaleH, 1.0f);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(-17, -16, 111, hoverButton == 16 ? 30 : 46, 18, 16);
+			GlStateManager.popMatrix();
 		}
 		if (categories.size() - (catRow + 1) * 8 > 0) { // next Cats
-			if (isMouseHover(mouseX, mouseY, guiLeft -17, (int) (guiTopLog + 151.5f), 18, 16)) { hoverButton = 17; } // next cat list; 
+			if (isMouseHover(mouseX, mouseY, guiLeft - (int)(17.0f * scaleW), (int) (guiTopLog + 151.5f * scaleH), (int)(18.0f * scaleW), (int)(16.0f * scaleH))) { hoverButton = 17; } // next cat list; 
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(scaleW, scaleH, 1.0f);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.drawTexturedModalRect(-17, 128, 129, hoverButton == 17 ? 30 : 46, 18, 16);
+			GlStateManager.popMatrix();
 		}
 		int i = 0, p = 0, st = catRow * 8;
 		String selectCat = "";
@@ -1037,21 +1084,27 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				p++;
 				continue;
 			}
-			int catW = (int) (this.fontRenderer.getStringWidth(catName) + 10);
+			int catW = (int) (this.fontRenderer.getStringWidth(catName) + 10 + i);
 			this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
-			if (isMouseHover(mouseX, mouseY, guiLeft + 5 - catW, (int) (guiTopLog + 23.5f + i * 16.0f), catW, 16)) { hoverButton = 7 + i; } // 7/15-tab categories; 
+			if (isMouseHover(mouseX, mouseY, guiLeft + (int)((5 - catW) * scaleW), (int) (guiTopLog + (23.5f + i * 16.0f) * scaleH), (int)(catW * scaleH), (int)(16.0f * scaleH))) { hoverButton = 7 + i; } // 7/15-tab categories; 
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			this.drawTexturedModalRect(4 - catW + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), catW, 16);
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(scaleW, scaleH, 1.0f);
+			this.drawTexturedModalRect(4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
+			GlStateManager.popMatrix();
 			if (catSelect == p && step < 0) {
 				selectCat = catName;
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(3 + i, i * 16, 234 + i, 90, 22 - i, 16);
+				GlStateManager.popMatrix();
 			}
 			String name = "";
 			for (int j = 0; j < catName.length(); j++) {
 				if (this.fontRenderer.getStringWidth(name + catName.charAt(j)) > catW - 5) { break; }
 				name += catName.charAt(j);
 			}
-			this.fontRenderer.drawString(name, 10 - catW, 3 + i * 16, CustomNpcs.questLogColor, false);
+			this.fontRenderer.drawString(name, 4 - catW + 10 + i, (16.0f * scaleH - 10.0f) / 2.0f + (i * 16) * scaleH, CustomNpcs.QuestLogColor.getRGB(), false);
 			i++;
 			p++;
 			if (i >= 8) { break; }
@@ -1062,49 +1115,52 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		if (step != -1) { return; }
 		if (activeQuest != null) {
 			int first = 0;
+			// NPC
 			if (activeQuest.qData.quest.completion==EnumQuestCompletion.Npc && activeQuest.npc != null) {
 				if (page == 0) {
 					GlStateManager.pushMatrix();
 					GL11.glEnable(GL11.GL_SCISSOR_TEST);
 					int c = sw.getScaledWidth() < this.mc.displayWidth ? (int) Math.round((double) this.mc.displayWidth / (double) sw.getScaledWidth()) : 1;
-					GL11.glScissor((guiCenter - 84) * c, (guiTopLog + 90) * c, (56) * c, (44) * c);
+					GL11.glScissor(((int) (guiLLeft + 22.0f * scaleW) * c), (int) (guiLTop + (12.0f * scaleH + 81.0f) * scaleH) * c, (int) (54.0f * scaleW) * c, (int) (38.0f * scaleH) * c);
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+//this.drawGradientRect(0, 0, sw.getScaledWidth(), sw.getScaledHeight(), 0xFF00FFFF, 0xFF00FFFF);
 					this.drawNpc(activeQuest.npc);
 					GL11.glDisable(GL11.GL_SCISSOR_TEST);
 					GlStateManager.popMatrix();
 					
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(guiCenter - 89, guiTopLog + 9, 500.0f);
+					GlStateManager.translate(guiLLeft + 16.5f * scaleW, guiLTop - 4.0f * scaleH, 500.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					GlStateManager.enableBlend();
 					GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
 					this.drawTexturedModalRect(0, 0, 193, 0, 63, 52);
 					GlStateManager.popMatrix();
 				}
-				first = 60;
+				first = (int) (44.0f * scaleH);
 			}
-			
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(guiLeft + 22, guiTopLog, 1.0d);
+			// Text
 			ItemStack[] stacks = activeQuest.stacks.toArray(new ItemStack[activeQuest.stacks.size()]);
 			int j = 0, k = 0;
 			for (int l = 0; l < 2; l++) {
 				List<String> list = activeQuest.getText(first, player, fontRenderer).get(page + l);
 				if (list == null) { continue; } // empty right page
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(guiLLeft, guiLTop, 501.0d);
 				int h = 0;
 				for (String line : list) {
-					if (line.indexOf(" " + ((char) 0xffff)+ " ") !=-1) {
+					if (line.indexOf(" " + ((char) 0xffff)+ " ") !=-1 || line.indexOf(((char) 0xffff)+ " ") !=-1) {
 						if (j < stacks.length) {
 							int pos = fontRenderer.getStringWidth(line.substring(0, line.indexOf(""+((char) 0xffff)) - 1));
 							ItemStack stack = stacks[j];
-							float x = pos + (l == 1 ? 128.0f : -3.0f);
-							float y = (page==0 && l==0 ? first : 0.0f) + h * 12.0f - 7.5f;
-							if (isMouseHover(mouseX, mouseY, guiLeft + 27 + (int) x, guiTopLog + 7 + (int) y, 10, 10)) {
+							float x = pos + (l == 1 ? 105.0f : 0.0f) * scaleW;
+							float y = (page==0 && l==0 ? first : 0.0f) + h * 12.0f;
+							if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
 								hover = stack.getTooltip(player, player.capabilities.isCreativeMode ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
 								this.hoverText = hover.toArray(new String[hover.size()]);
 							}
 							GlStateManager.pushMatrix();
-							GlStateManager.translate(x, y, 0.0f);
+							GlStateManager.translate(x - 4.0f, y - 5.5f, 0.0f);
 							GlStateManager.scale(0.65f, 0.65f, 0.65f);
 							RenderHelper.enableGUIStandardItemLighting();
 							GlStateManager.translate(6.0f, 8.0f, 0.0f);
@@ -1121,14 +1177,14 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							GlStateManager.popMatrix();
 							j++;
 						}
-						line = line.replace(""+((char) 0xffff), " ");
+						line = line.replace(""+((char) 0xffff), " " + (line.indexOf(" " + ((char) 0xffff)+ " ") == -1 ? " " : ""));
 					}
 					if (line.indexOf(((char) 0xfffe)) !=-1) {
 						if (activeQuest.entitys.containsKey(k)) {
 							int pos = fontRenderer.getStringWidth(line.substring(0, line.indexOf(""+((char) 0xfffe)) - 1));
-							float x = pos + (l == 1 ? 128.0f : -3.0f);
-							float y = (page==0 && l==0 ? first : 0.0f) + h * 12.0f - 7.5f;
-							if (isMouseHover(mouseX, mouseY, guiLeft + 26 + (int) x, guiTopLog + 7 + (int) y, 10, 10)) {
+							float x = pos + (l == 1 ? 105.0f : 0.0f) * scaleW;
+							float y = (page==0 && l==0 ? first : 0.0f) + h * 12.0f;
+							if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
 								if (!hoverMob(mouseX, mouseY, activeQuest.entitys.get(k))) {
 									setHoverText(new TextComponentTranslation("quest.hover.err.log.entity").getFormattedText());
 								}
@@ -1136,7 +1192,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 							GlStateManager.pushMatrix();
 							GlStateManager.enableAlpha();
 							GlStateManager.enableBlend();
-							GlStateManager.translate(x + 4, y + 6.5f, 0.0f);
+							GlStateManager.translate(x + 0.5f, y, 0.0f);
 							GlStateManager.scale(0.3f, 0.15f, 1.0f);
 							GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
 							this.mc.renderEngine.bindTexture(killIcon);
@@ -1146,59 +1202,66 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						line = line.replace(""+((char) 0xfffe), " ");
 						k++;
 					}
-					this.fontRenderer.drawString(line, l == 1 ? 128 : 0, (page==0 && l==0 ? first : 0) + h * 12, CustomNpcs.questLogColor, false);
+					this.fontRenderer.drawString(line, (l == 1 ? 105.0f : 0.0f) * scaleW, (page==0 && l==0 ? first : 0) + h * 12, CustomNpcs.QuestLogColor.getRGB(), false);
 					h++;
 				}
+				GlStateManager.popMatrix();
 			}
-			GlStateManager.popMatrix();
 		}
 		else if (quests.containsKey(selectCat)) {
 			if (page > 0) {
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft + 12, guiTopLog + 168, 0.0f);
-				if (isMouseHover(mouseX, mouseY, guiLeft + 12, guiTopLog + 168, 18, 10)) { hoverButton = 5; } // pre cat list; 
+				GlStateManager.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
+				if (isMouseHover(mouseX, mouseY, (int)(guiLLeft - 5.0f * scaleW), (int)(guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 5; } // pre cat list; 
 				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
 				GlStateManager.popMatrix();
 			}
-			if (Math.floor(quests.size() / 10.d) > page) {
+			else if (Math.floor(quests.size() / 10.d) > page) {
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(guiLeft + 230, guiTopLog + 168, 0.0f);
-				if (isMouseHover(mouseX, mouseY, guiLeft + 230, guiTopLog + 168, 18, 10)) { hoverButton = 4; } // next cat list; 
+				GlStateManager.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
+				if (isMouseHover(mouseX, mouseY, (int)(guiLeft + 230.0f * scaleW), (int)(guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 4; } // next cat list; 
 				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
 				GlStateManager.popMatrix();
 			}
 			i = 0; p = 0; st = page * 10;
 			Color color = categories.get(selectCat);
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(guiLeft + 26, guiTopLog + 6.0f, 0.0f);
+			GlStateManager.translate(guiLLeft, guiLTop - 1.5f * scaleH, 0.0f);
 			for (int id : quests.get(selectCat).keySet()) {
 				if (p < page * 10) { p++; continue; }
-				if (i == 5) { GlStateManager.translate(105.0f, -124.0f, 0.0f); }
-				else if (i % 5 != 0) { GlStateManager.translate(0.0f, 31.0f, 0.0f); }
+				if (i == 5) { GlStateManager.translate(105.0f * scaleW, -124.0f * scaleH, 0.0f); }
+				else if (i % 5 != 0) { GlStateManager.translate(0.0f, 31.0f * scaleH, 0.0f); }
 				
 				GlStateManager.color(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, 1.0f);
 				this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(0, 0, 0, 0, 98, 30);
+				GlStateManager.popMatrix();
 				QuestData qd = quests.get(selectCat).get(id);
 				Quest quest = qd.quest;
 				
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(3.0f, 3.0f, 0.0f);
+				GlStateManager.translate(3.0f * scaleW, 3.0f * scaleH, 0.0f);
 				this.mc.renderEngine.bindTexture(quest.icon);
 				GlStateManager.scale(0.09375f, 0.09375f, 1.0f);
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 				GlStateManager.popMatrix();
 				
-				int qxPos = guiLeft + 26 + (i > 4 ? 105 : 0);
-				int qyPos = guiTopLog + 6 + (i % 5) * 31;
+				int qxPos = (int) (guiLLeft + (i > 4 ? 105 : 0) * scaleW);
+				int qyPos = (int) (guiLTop + (-1.5f + (i % 5) * 31.0f) * scaleH);
 				
 				boolean hasExtraButton = quest.extraButton != 0 || player.capabilities.isCreativeMode;
 				if (hasExtraButton) {
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(87.0f, 19.0f, 0.0f);
+					GlStateManager.translate(87.0f * scaleW, 19.0f * scaleH, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					int xo = quest.extraButton == 0 ? 9 : quest.extraButton * 9;
 					if (quest.extraButton == 0 && player.capabilities.isCreativeMode) {
 						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
@@ -1206,67 +1269,72 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						xo = (int) ((System.currentTimeMillis() % 5000) / 1000) * 9 + 9;
 					}
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
-					if (isMouseHover(mouseX, mouseY, qxPos + 87, qyPos + 19, 9, 9)) {
+					if (isMouseHover(mouseX, mouseY, qxPos + (int)(87.0f * scaleW), qyPos + (int) (19.0f * scaleH), (int) (9.0f * scaleW), (int) (9.0f * scaleH))) {
 						hoverButton = 30;
 						hoverQuestId = id;
 					}
-					this.drawTexturedModalRect(0, 0, 116 + xo, hoverButton == 30 ? 9 : 0, 9, 9);
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					this.drawTexturedModalRect(0, 0, 116 + xo, hoverButton == 30 && hoverQuestId == id ? 9 : 0, 9, 9);
 					GlStateManager.popMatrix();
 				}
 				
-				boolean hasCompassButton = quest.hasCompassSettings() && (CustomNpcs.showQuestCompass || player.capabilities.isCreativeMode);
+				boolean hasCompassButton = quest.hasCompassSettings() && (CustomNpcs.ShowQuestCompass || player.capabilities.isCreativeMode);
 				if (hasCompassButton) {
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(87.0f - (hasExtraButton ? 9 : 0), 19.0f, 0.0f);
-					if (!CustomNpcs.showQuestCompass && player.capabilities.isCreativeMode) {
+					GlStateManager.translate((87.0f - (hasExtraButton ? 9.0f : 0.0f)) * scaleW, 19.0f * scaleH, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
+					if (!CustomNpcs.ShowQuestCompass && player.capabilities.isCreativeMode) {
 						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
 						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					}
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
-					if (isMouseHover(mouseX, mouseY, qxPos + 87 - (hasExtraButton ? 9 : 0), qyPos + 19, 9, 9)) {
+					if (isMouseHover(mouseX, mouseY, qxPos + (int)((87.0f - (hasExtraButton ? 9.0f : 0.0f)) * scaleW), qyPos + (int) (19.0f * scaleH), (int) (9.0f * scaleW), (int) (9.0f * scaleH))) {
 						hoverButton = 31;
 						hoverQuestId = id;
 					}
-					this.drawTexturedModalRect(0, 0, 107 + (playerData.hud.questID == quest.id ? 0 : 9), hoverButton == 31 ? 9 : 0, 9, 9);
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					this.drawTexturedModalRect(0, 0, 107 + (playerData.hud.questID == quest.id ? 0 : 9), hoverButton == 31 && hoverQuestId == id ? 9 : 0, 9, 9);
 					GlStateManager.popMatrix();
 				}
 				
 				boolean hasCancelableButton = quest.cancelable || player.capabilities.isCreativeMode;
 				if (hasCancelableButton) {
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(87.0f - (hasExtraButton ? 9 : 0) - (hasCompassButton ? 9 : 0), 19.0f, 0.0f);
+					GlStateManager.translate((87.0f - (hasExtraButton ? 9.0f : 0.0f) - (hasCompassButton ? 9.0f : 0.0f)) * scaleW, 19.0f * scaleH, 0.0f);
+					GlStateManager.scale(scaleW, scaleH, 1.0f);
 					if (!quest.cancelable && player.capabilities.isCreativeMode) {
 						this.drawGradientRect(1, 1, 8, 8, 0x20FF0000, 0x80FF0000);
 						GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 					}
 					this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
-					if (isMouseHover(mouseX, mouseY, qxPos + 87 - (hasExtraButton ? 9 : 0) - (hasCompassButton ? 9 : 0), qyPos + 19, 9, 9)) {
+					if (isMouseHover(mouseX, mouseY, qxPos + (int)((87.0f - (hasExtraButton ? 9.0f : 0.0f) - (hasCompassButton ? 9.0f : 0.0f)) * scaleW), qyPos + (int) (19.0f * scaleH), (int) (9.0f * scaleW), (int) (9.0f * scaleH))) {
 						hoverButton = 32;
 						hoverQuestId = id;
 					}
-					this.drawTexturedModalRect(0, 0, 98, hoverButton == 32 ? 9 : 0, 9, 9);
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					this.drawTexturedModalRect(0, 0, 98, hoverButton == 32 && hoverQuestId == id ? 9 : 0, 9, 9);
 					GlStateManager.popMatrix();
 				}
 				
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(29.0f, 3.0f, 0.0f);
+				GlStateManager.translate(29.0f * scaleW, 3.0f * scaleH, 0.0f);
 				String name = "", qName = quest.getTitle();
-				if (this.fontRenderer.getStringWidth(qName) < 67) { name = qName; }
+				if (this.fontRenderer.getStringWidth(qName) < 67.0f * scaleW) { name = qName; }
 				else {
 					for (int j = 0; j < qName.length(); j++) {
-						if (this.fontRenderer.getStringWidth(name + qName.charAt(j) + "...") >= 67) { break; }
+						if (this.fontRenderer.getStringWidth(name + qName.charAt(j) + "...") >= 67.0f * scaleW) { break; }
 						name += qName.charAt(j);
 					}
 					name += "...";
 				}
-				this.fontRenderer.drawString(name, 0, 0, CustomNpcs.questLogColor, false);
+				this.fontRenderer.drawString(name, 0, 0, CustomNpcs.QuestLogColor.getRGB(), false);
 				IQuestObjective[] objs = quest.getObjectives(player);
 				int j = 0;
 				for (IQuestObjective iqo : objs) {
 					if (iqo.isCompleted()) { j++; }
 				}
 				String progress = j + " / " +  objs.length;
-				this.fontRenderer.drawString(progress, 0, 10, CustomNpcs.questLogColor, false);
+				this.fontRenderer.drawString(progress, 0, 10, CustomNpcs.QuestLogColor.getRGB(), false);
 				
 				if (hoverButton > 29 && hoverQuestId == id) {
 					if (hoverButton == 30) {
@@ -1274,13 +1342,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						if (quest.extraButton == 0 && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
 					} else if (hoverButton == 31) {
 						hover.add(new TextComponentTranslation("quest.hover.compass."+(playerData.hud.questID == quest.id)).getFormattedText());
-						if (!CustomNpcs.showQuestCompass && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
+						if (!CustomNpcs.ShowQuestCompass && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
 					} else if (hoverButton == 32) {
 						hover.add(new TextComponentTranslation("drop.quest", quest.getName()).getFormattedText());
 						if (!quest.cancelable && player.capabilities.isCreativeMode) { hover.add(new TextComponentTranslation("quest.hover.gm.info").getFormattedText()); }
 					}
 				}
-				else if (isMouseHover(mouseX, mouseY, qxPos, qyPos, 98, 30)) {
+				else if (isMouseHover(mouseX, mouseY, qxPos, qyPos, (int) (98.0f * scaleW), (int) (30.0f * scaleH))) {
 					hoverButton = 6;
 					hoverQuestId = id;
 					hover.add(((char) 167) + "7" + new TextComponentTranslation("drop.category").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + selectCat);
@@ -1302,13 +1370,13 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	}
 
 	private void drawCommpass(int mouseX, int mouseY, float partialTicks) {
-		if (!CustomNpcs.showQuestCompass || step != -1) { return; }
+		if (!CustomNpcs.ShowQuestCompass || step != -1) { return; }
 		
-		fontRenderer.drawString(new TextComponentTranslation("quest.screen.pos").getFormattedText(), guiLeft + 22, guiTopLog + 10, CustomNpcs.questLogColor);
+		fontRenderer.drawString(new TextComponentTranslation("quest.screen.pos").getFormattedText(), (int) (guiLLeft - 3.0f * scaleW), guiLTop, CustomNpcs.QuestLogColor.getRGB());
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiLeft + 22, guiTopLog + 20, 0);
-		GlStateManager.scale(0.5f, 0.5f, 0.5f);
+		GlStateManager.translate(guiLLeft - 3.0f * scaleW, guiLTop + 10, 0);
+		GlStateManager.scale(0.5f * scaleW, 0.5f * scaleH, 0.5f);
 		Gui.drawRect(-1, -1, 207, 139, 0xFF808080);
 		Gui.drawRect(0, 0, 206, 138, 0xFFF0F0F0);
 		Gui.drawRect(58, 113, 149, 139, 0xFF808080);
@@ -1319,39 +1387,39 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.popMatrix();
 
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiLeft + 22, guiTopLog + 94, 0);
+		GlStateManager.translate(guiLLeft - 3.0f * scaleW, guiLTop + 84.0f * scaleH, 0);
 		this.drawString(fontRenderer, " ", 0, 0, 0xFFFFFFFF);
-		fontRenderer.drawString("U:", 0, 0, CustomNpcs.questLogColor);
-		fontRenderer.drawString("V:", 54, 0, CustomNpcs.questLogColor);
-		fontRenderer.drawString("S:", 0, 18, CustomNpcs.questLogColor);
-		fontRenderer.drawString("T:", 0, 34, CustomNpcs.questLogColor);
-		fontRenderer.drawString("R:", 0, 50, CustomNpcs.questLogColor);
+		fontRenderer.drawString("U:", 0, 0, CustomNpcs.QuestLogColor.getRGB());
+		fontRenderer.drawString("V:", (int) (54.0f * scaleW), 0, CustomNpcs.QuestLogColor.getRGB());
+		fontRenderer.drawString("S:", 0, (int) (18.0f * scaleH), CustomNpcs.QuestLogColor.getRGB());
+		fontRenderer.drawString("T:", 0, (int) (34.0f * scaleH), CustomNpcs.QuestLogColor.getRGB());
+		fontRenderer.drawString("R:", 0, (int) (50.0f * scaleH), CustomNpcs.QuestLogColor.getRGB());
 		GlStateManager.popMatrix();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiCenter + 5, guiTopLog + 99, 0);
+		GlStateManager.translate(guiLRight + (int) (3.0f * scaleW), guiLTop + (int) (91.0f * scaleH), 0);
 		int i = 0;
 		if (this.compassData.showQuestName) {
 			String text = new TextComponentTranslation("quest.setts.q.name").getFormattedText();
-			int w = 49 - fontRenderer.getStringWidth(text) / 2;
-			fontRenderer.drawString(text, w, 0, CustomNpcs.questLogColor);
+			int w = (int) (49.0f * scaleW) - fontRenderer.getStringWidth(text) / 2;
+			fontRenderer.drawString(text, w, 0, CustomNpcs.QuestLogColor.getRGB());
 			i = 12;
 		}
 		if (this.compassData.showTaskProgress) {
 			String text = new TextComponentTranslation("quest.setts.q.tasks").getFormattedText();
-			int w = 49 - fontRenderer.getStringWidth(text) / 2;
-			fontRenderer.drawString(text, w, i, CustomNpcs.questLogColor);
+			int w = (int) (49.0f * scaleW) - fontRenderer.getStringWidth(text) / 2;
+			fontRenderer.drawString(text, w, i, CustomNpcs.QuestLogColor.getRGB());
 		}
 		GlStateManager.popMatrix();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiCenter + 54, guiTopLog + 65, 50.0f);
+		GlStateManager.translate(guiLRight + (int) (52.0f * scaleW), guiLTop + (int) (57.0f * scaleH), 50.0f);
 		float scale = -30.0f * this.compassData.scale;
 		float incline = -45.0f + this.compassData.incline;
 
 		this.mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		GlStateManager.translate(0.0f, -32.85714f * this.compassData.scale + 32.42857f, 0.0f);
-		GlStateManager.scale(scale , scale, scale);
+		GlStateManager.translate(0.0f, (-32.85714f * this.compassData.scale + 32.42857f)* scaleH, 0.0f);
+		GlStateManager.scale(scale * scaleW, scale * scaleH, scale);
 		GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
 		if (this.compassData.rot!=0.0f)  { GlStateManager.rotate(this.compassData.rot, 0.0f, 1.0f, 0.0f); }
 		GlStateManager.enableDepth();
@@ -1374,22 +1442,51 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		if (step != -1) { return; }
 		if (playerFactions.isEmpty()) {
 			String noFaction = new TextComponentTranslation("faction.nostanding").getFormattedText();
-			fontRenderer.drawSplitString(noFaction, guiLeft + 24, guiTop + 36, 98, CustomNpcs.questLogColor);
+			fontRenderer.drawSplitString(noFaction, guiLeft + 24, guiTop + 36, 98, CustomNpcs.QuestLogColor.getRGB());
 			return;
+		}
+		if (playerFactions.size() > 16) {
+			if (page > 0) { // left
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
+				if (isMouseHover(mouseX, mouseY, (int)(guiLLeft - 5.0f * scaleW), (int)(guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 5; } // pre cat list; 
+				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				this.drawTexturedModalRect(0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
+				GlStateManager.popMatrix();
+			}
+			else if (Math.floor(playerFactions.size() / 16.d) > page) { // right
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
+				if (isMouseHover(mouseX, mouseY, (int)(guiLeft + 230.0f * scaleW), (int)(guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 4; } // next cat list; 
+				this.mc.renderEngine.bindTexture(GuiLog.bookGuiTextures);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				this.drawTexturedModalRect(0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
+				GlStateManager.popMatrix();
+			}
 		}
 		int i = 0, p = 0;
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(guiLeft + 26, guiTopLog + 8.0f, 0.0f);
+		GlStateManager.translate(guiLLeft, guiLTop, 0.0f);
 		for (Faction f : playerFactions) {
 			if (f.hideFaction && !player.capabilities.isCreativeMode) { continue; }
 			if (p < page * 10) { p++; continue; }
-			if (i == 8) { GlStateManager.translate(105.0f, -7.0f * 19.0f, 0.0f); }
-			else if (i % 8 != 0) { GlStateManager.translate(0.0f, 19.0f, 0.0f); }
-			if (f.hideFaction) { this.drawGradientRect(1, 1, 90, 12, 0x20FF0000, 0x80FF0000); }
+			if (i == 8) { GlStateManager.translate(105.0f * scaleW, -7.0f * 19.0f * scaleH, 0.0f); }
+			else if (i % 8 != 0) { GlStateManager.translate(0.0f, 19.0f * scaleH, 0.0f); }
+			if (f.hideFaction) {
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
+				this.drawGradientRect(1, 1, 90, 12, 0x20FF0000, 0x80FF0000);
+				GlStateManager.popMatrix();
+			}
 			this.mc.renderEngine.bindTexture(GuiLog.ql.get(4));
 			Color c = new Color(f.color);
 			GlStateManager.color(c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, 1.0f);
+
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(scaleW, scaleH, 1.0f);
 			this.drawTexturedModalRect(0, 0, 158, 74, 98, 16);
+			GlStateManager.popMatrix();
 			
 			float w = 1.0f;
 			Color h;
@@ -1415,25 +1512,32 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			int em = (int) (89.0f * w), ew = 89 - em;
 			if (em > 0) {
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.65f);
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(90 - em, 12, 256 - em, 71, em, 3);
+				GlStateManager.popMatrix();
 			}
 			if (ew > 0) {
 				GlStateManager.color(h.getRed() / 255.0f, h.getGreen() / 255.0f, h.getBlue() / 255.0f, 0.65f);
+
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				this.drawTexturedModalRect(1, 12, 167, 71, ew, 3);
+				GlStateManager.popMatrix();
 			}
-			
+
 			String name = "", qName = f.getName();
-			if (this.fontRenderer.getStringWidth(qName) < 87) { name = qName; }
+			if (this.fontRenderer.getStringWidth(qName) < 87.0f * scaleW) { name = qName; }
 			else {
 				for (int j = 0; j < qName.length(); j++) {
-					if (this.fontRenderer.getStringWidth(name + qName.charAt(j) + "...") >= 87) { break; }
+					if (this.fontRenderer.getStringWidth(name + qName.charAt(j) + "...") >= 87.0f * scaleW) { break; }
 					name += qName.charAt(j);
 				}
 				name += "...";
 			}
-			this.fontRenderer.drawString(name, 3, 2, CustomNpcs.questLogColor, false);
+			this.fontRenderer.drawString(name, 3 * scaleW, 2 * scaleH, CustomNpcs.QuestLogColor.getRGB(), false);
 			
-			if (isMouseHover(mouseX, mouseY, guiLeft + 26 + (i > 4 ? 105 : 0), guiTopLog + 8 + (i % 8) * 19, 98, 16)) {
+			if (isMouseHover(mouseX, mouseY, (int) (guiLLeft + (i > 4 ? 105.0f : 0) * scaleW), (int) (guiLTop + (i % 8) * 19.0f * scaleH), (int) (98.0f * scaleW), (int) (16.0f * scaleH))) {
 				List<String> hover = Lists.<String>newArrayList();
 				// GM
 				if (f.hideFaction) { hover.add(new TextComponentTranslation("faction.hover.hidden").getFormattedText()); }
@@ -1457,8 +1561,9 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			this.mc.renderEngine.bindTexture(f.flag);
 			if (mc.renderEngine.getTexture(f.flag) != null) {
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(90.0f, 1.0f, 0.0f);
+				GlStateManager.translate(90.0f * scaleW, scaleH, 0.0f);
 				GlStateManager.scale(0.175f, 0.11f, 1.0f);
+				GlStateManager.scale(scaleW, scaleH, 1.0f);
 				GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 				this.drawTexturedModalRect(0, 0, 4, 4, 40, 128);
 				GlStateManager.popMatrix();
@@ -1505,7 +1610,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	private void drawNpc(EntityNPCInterface npc) {
 		if (npc == null) { return; }
-		GlStateManager.translate((sw.getScaledWidth_double() - 110.0d) / 2.0d, (sw.getScaledHeight_double() - 20.0d) / 2.0d, 0.0d);
+		GlStateManager.translate(guiLLeft + 49.0f * scaleW, guiLTop + 67.0f * scaleH, 0.0f); // 49, 67
 		String modelName = "";
 		if (npc.display.getModel() != null) { modelName = npc.display.getModel(); }
 		boolean canUpdate = GuiLog.preDrawEntity(modelName);
@@ -1514,6 +1619,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 		GlStateManager.enableDepth();
 		this.mc.getRenderManager().playerViewY = 180.0f;
 		GlStateManager.scale(25.0f, 25.0f, 25.0f);
+		GlStateManager.scale(scaleW, scaleH, 1.0f);
 		npc.ticksExisted = 100;
 		if (canUpdate) { npc.onUpdate(); }
 		this.mc.getRenderManager().renderEntity(npc, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
@@ -1526,28 +1632,28 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 	
 	public static boolean preDrawEntity(String modelName) {
 		boolean canUpdate = true;
-		if (modelName.equals("customnpcs:npcslime")) { GlStateManager.translate(-2.0f, -15.0f, 0.0f); }
+		if (modelName.equals("customnpcs:npcslime")) { GlStateManager.translate(-2.0f, -15.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:magma_cube") ||
 				modelName.equals("minecraft:silverfish") ||
-				modelName.equals("minecraft:slime")) { GlStateManager.translate(-2.0f, -21.0f, 0.0f); }
-		else if (modelName.equals("minecraft:zombie")) { GlStateManager.translate(3.0f, 9.0f, 0.0f); }
-		else if (modelName.equals("minecraft:vex")) { GlStateManager.translate(-3.0f, -15.0f, 0.0f); }
-		else if (modelName.equals("minecraft:endermite")) { GlStateManager.translate(-1.0f, -25.0f, 0.0f); }
-		else if (modelName.equals("minecraft:enderman")) { GlStateManager.translate(0.0f, 30.0f, 0.0f); }
-		else if (modelName.equals("minecraft:cave_spider")) { GlStateManager.translate(-2.0f, -18.0f, 0.0f); }
+				modelName.equals("minecraft:slime")) { GlStateManager.translate(-2.0f, -21.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:zombie")) { GlStateManager.translate(3.0f, 9.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:vex")) { GlStateManager.translate(-3.0f, -15.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:endermite")) { GlStateManager.translate(-1.0f, -25.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:enderman")) { GlStateManager.translate(0.0f, 30.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:cave_spider")) { GlStateManager.translate(-2.0f, -18.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:chicken") ||
 				modelName.equals("minecraft:wolf") ||
 				modelName.equals("minecraft:ocelot") ||
-				modelName.equals("minecraft:spider")) { GlStateManager.translate(0.0f, -15.0f, 0.0f); }
-		else if (modelName.equals("minecraft:shulker")) { GlStateManager.translate(-2.0f, -15.0f, 0.0f); }
-		else if (modelName.equals("minecraft:squid")) { GlStateManager.translate(0.0f, -5.0f, 0.0f); }
+				modelName.equals("minecraft:spider")) { GlStateManager.translate(0.0f, -15.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:shulker")) { GlStateManager.translate(-2.0f, -15.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:squid")) { GlStateManager.translate(0.0f, -5.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:guardian")) {
-			GlStateManager.translate(4.0f, -18.5f, 0.0f);
+			GlStateManager.translate(4.0f, -18.5f * scaleH, 0.0f);
 			canUpdate = false;
 		}
 		else if (modelName.equals("minecraft:parrot") ||
 				modelName.equals("minecraft:rabbit") ||
-				modelName.equals("minecraft:bat")) { GlStateManager.translate(0.0f, -19.0f, 0.0f); }
+				modelName.equals("minecraft:bat")) { GlStateManager.translate(0.0f, -19.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:horse") ||
 				modelName.equals("minecraft:illusion_illager") ||
 				modelName.equals("minecraft:villager") ||
@@ -1562,48 +1668,47 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 				modelName.equals("minecraft:mule") ||
 				modelName.equals("minecraft:evocation_illager") ||
 				modelName.equals("minecraft:zombie_pigman"))
-		{ GlStateManager.translate(0.0f, 5.0f, 0.0f); }
+		{ GlStateManager.translate(0.0f, 5.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:ender_dragon")) {
-			GlStateManager.translate(35.0f, -32.0f, 0.0f);
+			GlStateManager.translate(35.0f, -32.0f * scaleH, 0.0f);
 			GlStateManager.scale(0.5f, 0.5f, 0.5f);
 		}
 		else if (modelName.equals("minecraft:elder_guardian")) {
-			GlStateManager.translate(1.5f, -15.0f, 0.0f);
+			GlStateManager.translate(1.5f, -15.0f * scaleH, 0.0f);
 			GlStateManager.scale(0.5f, 0.5f, 0.5f);
 			canUpdate = false;
 		}
 		else if (modelName.equals("minecraft:giant")) {
-			GlStateManager.translate(0.0f, 15.0f, 0.0f);
+			GlStateManager.translate(0.0f, 15.0f * scaleH, 0.0f);
 			GlStateManager.scale(0.1875f, 0.1875f, 0.1875f);
 			canUpdate = false;
 		}
 		else if (modelName.equals("customnpcs:npcdragon")) {
-			GlStateManager.translate(22.0f, -16.0f, 0.0f);
+			GlStateManager.translate(22.0f, -16.0f * scaleH, 0.0f);
 			canUpdate = false;
 		}
-		else if (modelName.equals("customnpcs:npcpony")) { GlStateManager.translate(-5.0f, 2.0f, 0.0f); }
-		else if (modelName.equals("customnpcs:npccrystal")) { GlStateManager.translate(0.0f, 3.0f, 0.0f); }
+		else if (modelName.equals("customnpcs:npcpony")) { GlStateManager.translate(-5.0f, 2.0f * scaleH, 0.0f); }
+		else if (modelName.equals("customnpcs:npccrystal")) { GlStateManager.translate(0.0f, 3.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:wither_skeleton") ||
 				modelName.equals("minecraft:villager_golem") ||
-				modelName.equals("minecraft:customnpcs.npcgolem")) { GlStateManager.translate(0.0f, 18.0f, 0.0f); }
+				modelName.equals("minecraft:customnpcs.npcgolem")) { GlStateManager.translate(0.0f, 18.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:polar_bear")) {
-			GlStateManager.translate(-1.0f, -12.0f, 0.0f);
+			GlStateManager.translate(-1.0f, -12.0f * scaleH, 0.0f);
 			GlStateManager.scale(0.75f, 0.75f, 0.75f);
 		}
 		else if (modelName.equals("minecraft:husk") ||
-				modelName.equals("minecraft:llama")) { GlStateManager.translate(0.0f, 12.0f, 0.0f); }
-		else if (modelName.equals("minecraft:pig")) { GlStateManager.translate(0.0f, -12.0f, 0.0f); }
-		else if (modelName.equals("minecraft:sheep")) { GlStateManager.translate(0.0f, -8.0f, 0.0f); }
+				modelName.equals("minecraft:llama")) { GlStateManager.translate(0.0f, 12.0f * scaleH, 0.0f); }
+		else if (modelName.equals("minecraft:pig")) { GlStateManager.translate(0.0f, -12.0f * scaleH, 0.0f); }
 		else if (modelName.equals("minecraft:wither")) {
-			GlStateManager.translate(-3.0f, 3.0f, 0.0f);
+			GlStateManager.translate(-3.0f, 3.0f * scaleH, 0.0f);
 			GlStateManager.scale(0.5f, 0.5f, 0.5f);
 		}
 		else if (modelName.equals("minecraft:ghast")) {
-			GlStateManager.translate(-2.0f, -21.0f, 0.0f);
+			GlStateManager.translate(-2.0f, -21.0f * scaleH, 0.0f);
 			GlStateManager.scale(0.2f, 0.2f, 0.2f);
 		}
 		else if (modelName.equals("minecraft:customnpcs.customnpcalex")) { GlStateManager.translate(-1.0f, 0.0f, 0.0f); }
-		else { GlStateManager.translate(0.0f, 8.0f, 0.0f); }
+		else { GlStateManager.translate(0.0f, -8.0f * scaleH, 0.0f); }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
 		GlStateManager.rotate(210.0f, 0.0f, 1.0f, 0.0f);
@@ -1631,15 +1736,16 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
+		mouseX = this.mouseX;
+		mouseY = this.mouseY;
 		if (step >= 0) { return; }
 		if (type == 2) {
 			super.mouseClicked(mouseX, mouseY, mouseBottom);
-			if (mouseX>=guiLeft-22 && mouseX<=guiLeft+40 && mouseY>=guiTopLog+10 && mouseY<=guiTopLog+68) {
-				double x = mouseX - guiLeft + 22;
-				double y = mouseY - guiTopLog - 10;
-				
-				this.compassData.screenPos[0] = Math.round(x / 62.0d * 1000.0d)/1000.0d;
-				this.compassData.screenPos[1] = Math.round(y / 58.0d * 1000.0d)/1000.0d;
+			if (mouseX >= (int) (guiLLeft - 3.0f * scaleW) && mouseX <= (int) (guiLLeft + 100.0f * scaleW) && mouseY >= guiLTop + 10 && mouseY <= (int) (guiLTop + 10 + (69.0f * scaleH))) {
+				double x = (mouseX - (int) (guiLLeft - 3.0f * scaleW)) / scaleW;
+				double y = (mouseY - (int) (guiLTop + 10)) / scaleH;
+				this.compassData.screenPos[0] = Math.round(x / 103.0d * 1000.0d)/1000.0d;
+				this.compassData.screenPos[1] = Math.round(y / 69.0d * 1000.0d)/1000.0d;
 				initGui();
 			}
 		}
@@ -1813,6 +1919,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			text = text.replace("\r", " \r ");
 			String[] words = text.split(" ");
 			String color = ((char) 167) + "r";
+			float width = 98.0f * GuiLog.scaleW;
 			for (String word : words) {
 				Label_0236: {
 					if (!word.isEmpty()) {
@@ -1827,7 +1934,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 						}
 						String newLine;
 						if (line.isEmpty()) { newLine = word; } else { newLine = line + " " + word; }
-						if (fontRenderer.getStringWidth(newLine) > 98) {
+						if (fontRenderer.getStringWidth(newLine) > width) {
 							lines.add(color + line);
 							color = AdditionalMethods.getLastColor(color, line);
 							line = word.trim();
@@ -1837,10 +1944,10 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 					}
 				}
 			}
-			if (!line.isEmpty()) {
-				lines.add(color + line);
-			}
+			if (!line.isEmpty()) { lines.add(color + line); }
+			
 			List<String> list = Lists.<String>newArrayList();
+			float height = (3.57143f * GuiLog.scaleH + 116.42857f) * GuiLog.scaleH; // 1.0 - 120; 2.4 - 125
 			for (String l : lines) {
 				if ((list.size() * 10) > height - (curentList==0 ? first : 0)) {
 					map.put(curentList, list);
@@ -1851,6 +1958,23 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			}
 			if (!list.isEmpty()) { map.put(curentList, list); }
 			newInstance = false;
+
+			List<ItemStack> rewardist = Lists.<ItemStack>newArrayList();
+			for (int i = 0; i < qData.quest.rewardItems.getSizeInventory(); i++) {
+				ItemStack stack = qData.quest.rewardItems.getStackInSlot(i);
+				if (stack == null || stack.isEmpty()) { continue; }
+				boolean has = false;
+				if (qData.quest.rewardType == EnumRewardType.ALL) {
+					for (ItemStack it : rewardist) {
+						if (stack.isItemEqual(it) && ItemStack.areItemStackShareTagsEqual(stack, it)) {
+							has = true;
+							break;
+						}
+					}
+				}
+				if (!has) { rewardist.add(stack); }
+			}
+			if (!rewardist.isEmpty()) { stacks.addAll(rewardist); }
 			return map;
 		}
 		

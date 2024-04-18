@@ -78,7 +78,7 @@ public class SchematicWrapper {
 
 	public void build() {
 		if (this.world == null || !this.isBuilding) { return; }
-		long endPos = this.buildPos + CustomNpcs.maxBuilderBlocks;
+		long endPos = this.buildPos + CustomNpcs.MaxBuilderBlocks;
 		if (endPos > this.size) { endPos = this.size; }
 		// blocks first and next types
 		if (this.layer<2) {
@@ -417,6 +417,5 @@ public class SchematicWrapper {
 		}
 		return state;
 	}
-	
-	
+
 }

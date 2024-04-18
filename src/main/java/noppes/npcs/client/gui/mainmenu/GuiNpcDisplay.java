@@ -188,7 +188,7 @@ implements ITextfieldListener, IGuiData {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.name").getFormattedText());
 		} else if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {

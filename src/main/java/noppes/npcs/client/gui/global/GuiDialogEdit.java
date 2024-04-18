@@ -119,7 +119,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 			this.drawVerticalLine(this.guiLeft + 196, this.guiTop + 24, this.guiTop + 159, 0xFF808080);
 			this.drawHorizontalLine(this.guiLeft + 4, this.guiLeft + this.xSize - 5, this.guiTop + 159, 0xFF808080);
 		}
-		if (this.subgui !=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui !=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("dialog.hover.name").getFormattedText());
 		} else if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {

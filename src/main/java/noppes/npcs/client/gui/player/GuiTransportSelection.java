@@ -86,11 +86,11 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			x += 5;
 			y += 4;
 			if (!this.locSel.inventory.isEmpty()) {
-				this.fontRenderer.drawString(new TextComponentTranslation("market.barter").getFormattedText(), x, y, CustomNpcs.lableColor, false);
+				this.fontRenderer.drawString(new TextComponentTranslation("market.barter").getFormattedText(), x, y, CustomNpcs.LableColor.getRGB(), false);
 			}
 			if (this.locSel.money>0L) {
 				y += 32;
-				this.fontRenderer.drawString(AdditionalMethods.getTextReducedNumber(this.locSel.money, true, true, false)+" "+CustomNpcs.charCurrencies.charAt(0), x, y, CustomNpcs.lableColor, false);
+				this.fontRenderer.drawString(AdditionalMethods.getTextReducedNumber(this.locSel.money, true, true, false)+" "+CustomNpcs.CharCurrencies.charAt(0), x, y, CustomNpcs.LableColor.getRGB(), false);
 			}
 		}
 		// Items
@@ -201,7 +201,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				if (loc!=null) {
 					if (loc.money>0 || !loc.inventory.isEmpty()) {
 						if (loc.money>0) {
-							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false)+" "+CustomNpcs.charCurrencies.charAt(0);
+							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false)+" "+CustomNpcs.CharCurrencies.charAt(0);
 							if (loc.money>0 && loc.money>ClientProxy.playerData.game.getMoney()) { color = 0xFFFF0000; }
 						}
 					}

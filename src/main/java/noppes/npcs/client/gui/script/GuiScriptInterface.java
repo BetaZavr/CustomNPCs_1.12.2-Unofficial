@@ -65,8 +65,8 @@ implements IGuiData, ITextChangeListener
 		for (int i = 0; i < this.handler.getScripts().size(); ++i) {
 			this.addTopButton(top = new GuiMenuTopButton(i + 1, top, i + 1 + ""));
 		}
-		if (this.handler.getScripts().size() < CustomNpcs.scriptMaxTabs) {
-			this.addTopButton(top = new GuiMenuTopButton(CustomNpcs.scriptMaxTabs + 1, top, "+"));
+		if (this.handler.getScripts().size() < CustomNpcs.ScriptMaxTabs) {
+			this.addTopButton(top = new GuiMenuTopButton(CustomNpcs.ScriptMaxTabs + 1, top, "+"));
 		}
 		top = this.getTopButton(this.activeTab);
 		if (top == null) {
@@ -169,14 +169,14 @@ implements IGuiData, ITextChangeListener
 	
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		if (guibutton.id >= 0 && guibutton.id < CustomNpcs.scriptMaxTabs) {
+		if (guibutton.id >= 0 && guibutton.id < CustomNpcs.ScriptMaxTabs) {
 			this.setScript();
 			this.activeTab = guibutton.id;
 			this.initGui();
 		}
-		if (guibutton.id == CustomNpcs.scriptMaxTabs + 1) {
-			if (this.handler.getScripts().size() >= CustomNpcs.scriptMaxTabs) {
-				this.activeTab = CustomNpcs.scriptMaxTabs;
+		if (guibutton.id == CustomNpcs.ScriptMaxTabs + 1) {
+			if (this.handler.getScripts().size() >= CustomNpcs.ScriptMaxTabs) {
+				this.activeTab = CustomNpcs.ScriptMaxTabs;
 				this.initGui();
 				return;
 			}
@@ -256,7 +256,7 @@ implements IGuiData, ITextChangeListener
 			this.getButton(118).setEnabled(container != null && !container.getFullCode().isEmpty());
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.del").getFormattedText());
 		}

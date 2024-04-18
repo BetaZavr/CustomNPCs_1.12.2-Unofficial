@@ -72,10 +72,10 @@ extends GuiButton {
 		// text:
 		if (this.displayString.isEmpty()) { return; }
 		
-		int l = CustomNpcs.mainColor;
+		int l = CustomNpcs.MainColor.getRGB();
 		if (this.packedFGColour != 0) { l = this.packedFGColour; }
-		else if (!this.enabled) { l = CustomNpcs.notEnableColor; }
-		else if (this.hovered) { l = CustomNpcs.hoverColor; }
+		else if (!this.enabled) { l = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (this.hovered) { l = CustomNpcs.HoverColor.getRGB(); }
 		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + 2 + (this.height - ClientProxy.Font.height(this.displayString)) / 2, l);
 	}
 	

@@ -248,7 +248,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				}
 			}
 		}
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) { // add new
 			this.setHoverText(new TextComponentTranslation("faction.hover.name").getFormattedText());
 		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) { // add new

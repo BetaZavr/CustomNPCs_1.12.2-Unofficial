@@ -171,7 +171,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("faction.hover.addfrends").getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {

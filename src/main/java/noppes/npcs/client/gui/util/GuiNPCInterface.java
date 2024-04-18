@@ -255,7 +255,7 @@ implements IEditNPC {
 			GlStateManager.popMatrix();
 		}
 		GlStateManager.translate(0, 0, 1.0f);
-		this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, this.height + 10, CustomNpcs.mainColor);
+		this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, this.height + 10, CustomNpcs.MainColor.getRGB());
 		boolean hasArea = false;
 		for (GuiNpcLabel label : new ArrayList<GuiNpcLabel>(this.labels.values())) {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);
@@ -386,7 +386,7 @@ implements IEditNPC {
 
 	public void keyTyped(char c, int i) {
 		if (this.subgui != null) {
-			this.subgui.keyTyped(c, i);
+			subgui.keyTyped(c, i);
 			return;
 		}
 		boolean active = false;
@@ -401,10 +401,10 @@ implements IEditNPC {
 			boolean helpButtons = false;
 			if (i==56 || i==184) { helpButtons = Keyboard.isKeyDown(35); } // Alts
 			else if (i==35) { helpButtons = Keyboard.isKeyDown(56)||Keyboard.isKeyDown(184); }
-			if (helpButtons) { CustomNpcs.showDescriptions = !CustomNpcs.showDescriptions; }
+			if (helpButtons) { CustomNpcs.ShowDescriptions = !CustomNpcs.ShowDescriptions; }
 		}
-		if (this.closeOnEsc && (i == 1 || (!active && this.isInventoryKey(i)))) {
-			this.close();
+		if (closeOnEsc && (i == 1 || (!active && this.isInventoryKey(i)))) {
+			close();
 			return;
 		}
 		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {

@@ -95,12 +95,11 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		this.addLabel(new GuiNpcLabel(5, "quest.reward", this.guiLeft + 4, this.guiTop + 79));
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 120, this.guiTop + 74, 50, 20, this.quest.rewardItems.isEmpty() && this.quest.rewardExp <= 0 ? "selectServer.edit" : "advanced.editingmode"));
 		// tasks
-		String chr = new String(Character.toChars(0x00A7));
 		this.isGet = new String[] { "2", "", "" };
 		TreeMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
 		for (int id : dialogs.keySet()) {
 			if (dialogs.get(id).quest == this.quest.id) {
-				this.isGet = new String[] { "0", "" + id, chr + "8" + dialogs.get(id).category.title + "/" + chr + "r" + dialogs.get(id).title };
+				this.isGet = new String[] { "0", "" + id, ((char) 167) + "8" + dialogs.get(id).category.title + "/" + ((char) 167) + "r" + dialogs.get(id).title };
 				break;
 			}
 		}
@@ -109,12 +108,12 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 			for (int id : quests.keySet()) {
 				if (id != this.quest.id && quests.get(id).nextQuestid == this.quest.id) {
 					this.isGet = new String[] { "1", "" + id,
-							chr + "8" + quests.get(id).category.title + "/" + chr + "r" + quests.get(id).getTitle() };
+							((char) 167) + "8" + quests.get(id).category.title + "/" + ((char) 167) + "r" + quests.get(id).getTitle() };
 					break;
 				}
 			}
 		}
-		this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.tasks", chr + (this.isGet[0].equals("2") ? "4" : "2") + chr + "l[?]").getFormattedText(), this.guiLeft + 174, this.guiTop + 84));
+		this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.tasks", ((char) 167) + (this.isGet[0].equals("2") ? "4" : "2") + ((char) 167) + "l[?]").getFormattedText(), this.guiLeft + 174, this.guiTop + 84));
 		if (this.scrollTasks == null) {
 			(this.scrollTasks = new GuiCustomScroll(this, 6)).setSize(209, 94);
 		}
@@ -172,9 +171,9 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		this.addLabel(lable);
 		this.addButton(new GuiNpcButton(22, this.guiLeft + 172, this.guiTop + 52, 90, 20, new String[] { "quest.cancelable.true", "quest.cancelable.false" }, this.quest.isCancelable() ? 0 : 1));
 		// level
-		String[] lvls = new String[CustomNpcs.maxLv + 1];
+		String[] lvls = new String[CustomNpcs.MaxLv + 1];
 		lvls[0] = "gui.none";
-		for (int g = 1; g <= CustomNpcs.maxLv; g++) {
+		for (int g = 1; g <= CustomNpcs.MaxLv; g++) {
 			lvls[g] = "" + g;
 		}
 		this.addButton(new GuiButtonBiDirectional(23, this.guiLeft + 269, this.guiTop + 5, 50, 20, lvls, this.quest.level));
@@ -356,7 +355,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui!=null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui!=null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.quest.name").getFormattedText());
 		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {

@@ -155,20 +155,18 @@ public class PlayerEventHandler {
 				amount += size;
 				crafted.put(key, amount);
 				((QuestObjective) obj).setCrafted(data, crafted);
-
-				NBTTagCompound compound = new NBTTagCompound();
-				compound.setInteger("QuestID", data.quest.id);
-				compound.setString("Type", "craft");
-				compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
-				compound.setTag("Item", event.crafting.writeToNBT(new NBTTagCompound()));
-				compound.setInteger("MessageType", 0);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
-				if (amount >= obj.getMaxProgress()) {
-					player.sendMessage(new TextComponentTranslation("quest.message.craft.1", event.crafting.getDisplayName(),
-							data.quest.getTitle()));
-				} else {
-					player.sendMessage(new TextComponentTranslation("quest.message.craft.0", event.crafting.getDisplayName(),
-							"" + amount, "" + obj.getMaxProgress(), data.quest.getTitle()));
+				if (data.quest.showProgressInWindow) {
+					NBTTagCompound compound = new NBTTagCompound();
+					compound.setInteger("QuestID", data.quest.id);
+					compound.setString("Type", "craft");
+					compound.setIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
+					compound.setTag("Item", event.crafting.writeToNBT(new NBTTagCompound()));
+					compound.setInteger("MessageType", 0);
+					Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
+				}
+				if (data.quest.showProgressInChat) {
+					if (amount >= obj.getMaxProgress()) { player.sendMessage(new TextComponentTranslation("quest.message.craft.1", event.crafting.getDisplayName(), data.quest.getTitle())); }
+					else { player.sendMessage(new TextComponentTranslation("quest.message.craft.0", event.crafting.getDisplayName(), "" + amount, "" + obj.getMaxProgress(), data.quest.getTitle())); }
 				}
 
 				pdata.updateClient = true;
@@ -663,7 +661,7 @@ public class PlayerEventHandler {
 		data.timers.update();
 		int dimId = event.player.world.provider.getDimension();
 		if (data.game.dimID != dimId) {
-			if (CustomNpcs.setPlayerHomeWhenChangingDimension) {
+			if (CustomNpcs.SetPlayerHomeWhenChangingDimension) {
 				player.setSpawnDimension(dimId);
 				player.setSpawnPoint(player.getPosition(), true);
 				player.setSpawnChunk(player.getPosition(), true, dimId);
@@ -945,15 +943,61 @@ public class PlayerEventHandler {
 		else {
 			try {
 				/*
-				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/java"); // CustomNpcs 1.12.2
-				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "1.16.5"); // CustomNpcs 1.16.5
-				File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "net"); // Minecraft 1.12.2
+				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
+				File dirP = new File(dir, "src/main/java");
+				File dirT = new File(dir, "transition to 1.16.5");
+				if (!dirT.exists()) { dirT.mkdirs(); }
+				
+				Map<String, String> trs = Maps.<String, String>newLinkedHashMap();
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(dir, "transition.txt")), StandardCharsets.UTF_8));
+				for (String line = br.readLine(); line != null; line = br.readLine()) {
+					if (line.indexOf("=") == -1) { continue; }
+					String key = line.substring(0, line.indexOf("="));
+					String value = line.substring(line.indexOf("=")+1);
+					trs.put(key, value);
+		        }
+				br.close();
+System.out.println("CNPCs: trs size: "+trs.size());
+				List<File> list = AdditionalMethods.getFiles(dirP, ".java");
+System.out.println("CNPCs: list size: "+list.size());
+				int i = 0;
+				String rpl = dirP.getAbsolutePath().replace("\\src\\main\\java", "");
+				for (File file : list) {
+					String text = Files.toString(file, StandardCharsets.UTF_8);
+//System.out.println("CNPCs: text "+text.length());
+					for (String key : trs.keySet()) {
+						int k = 0;
+						String value = trs.get(key);
+						while (text.indexOf(key) != -1) {
+							text = text.replace(key, value);
+							i++;
+							k++;
+							if (k > 50) {
+								System.out.println("CNPCs: error FOR key: "+key);
+								break;
+							}
+						}
+					}
+					File saveFile = new File(dirT, file.getAbsolutePath().replace(rpl, ""));
+					if (!saveFile.getParentFile().exists()) { saveFile.getParentFile().mkdirs(); }
+					if (!saveFile.exists()) { saveFile.createNewFile(); }
+					Files.write(text.getBytes(), saveFile);
+				}
+System.out.println("CNPCs: changed count "+i);
+				/**/
+				/*
+				File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(), "src/main/java"); // CustomNpcs 1.12.2
+				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "1.16.5/CustomNpcs Un/src"); // CustomNpcs 1.16.5
+				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "net"); // Minecraft 1.12.2
 				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "nit"); // Minecraft 1.16.5
 				//File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "Armourers-Workshop");
 				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
 				//for (Method m : AdditionalMethods.class.getDeclaredMethods()) { found.put(m.getName(), null); }
+				//found.put("FMLPreInitializationEvent", null);
 				//found.put("System.out.println", null);
-				found.put("getLocationSkin", null);
+				found.put("\"quest.message.", null);
+				//if (dir != null) { System.out.println("dir: "+dir.exists()+" - " + dir); return; }
+				//found.put("getScaledWidth", null);
 				for (File file : AdditionalMethods.getFiles(dir, "java")) {
 					try {
 						BufferedReader reader = Files.newReader(file, Charset.forName("UTF-8"));

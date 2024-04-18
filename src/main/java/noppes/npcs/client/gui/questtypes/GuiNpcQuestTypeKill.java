@@ -164,7 +164,7 @@ implements ITextfieldListener, ICustomScrollListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null || !CustomNpcs.showDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.area.range").getFormattedText());
 		} else if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {

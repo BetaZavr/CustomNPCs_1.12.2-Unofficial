@@ -53,9 +53,9 @@ extends GuiContainerNPCInterface {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float f) {
 		super.drawScreen(mouseX, mouseY, f);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.menu!=null && this.menu.getTopButtons().length>0) {
-			char chr = Character.toChars(0x00A7)[0];
+			char chr = ((char) 167);
 			for (GuiMenuTopButton tab : this.menu.getTopButtons()) {
 				if (tab.isMouseOver()) {
 					String text = new TextComponentTranslation("display.hover."+tab.lable).getFormattedText();
@@ -162,6 +162,7 @@ extends GuiContainerNPCInterface {
 	@Override
 	public void close() {
 		if (menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
+			menu.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuDisplay);
 			return;
 		}

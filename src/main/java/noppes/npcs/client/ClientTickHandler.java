@@ -173,7 +173,7 @@ public class ClientTickHandler {
 			MusicController.Instance.cheakBards(mc.player);
 			ClientTickHandler.loadFiles();
 		}
-		if (ClientTickHandler.cheakMails || CustomNpcs.mailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
+		if (ClientTickHandler.cheakMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
 			boolean hasNewMail = false;
 			long time = System.currentTimeMillis();
 			for (PlayerMail mail : ClientProxy.playerData.mailData.playermail) {

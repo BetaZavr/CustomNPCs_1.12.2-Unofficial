@@ -95,9 +95,9 @@ implements IScriptHandler {
 	@Override
 	public void runScript(String type, Event event) {
 		if (!this.isEnabled()) { return; }
-		if (ScriptController.Instance.lastLoaded > this.lastInited) {
-			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+		if (ScriptController.Instance.lastLoaded > lastInited) {
+			lastInited = ScriptController.Instance.lastLoaded;
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
 				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
 				EventHooks.onNPCInit(this.npc);
 			}

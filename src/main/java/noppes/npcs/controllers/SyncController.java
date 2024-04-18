@@ -99,26 +99,26 @@ public class SyncController {
 				if (!syncEnd) {
 					return;
 				}
-				if (compound.hasKey("ShowLR")) { CustomNpcs.showLR = compound.getBoolean("ShowLR"); }
-				if (compound.hasKey("ShowMoney")) { CustomNpcs.showMoney = compound.getBoolean("ShowMoney"); }
+				if (compound.hasKey("ShowLR")) { CustomNpcs.ShowLR = compound.getBoolean("ShowLR"); }
+				if (compound.hasKey("ShowMoney")) { CustomNpcs.ShowMoney = compound.getBoolean("ShowMoney"); }
 
 				CustomNpcs.showServerQuestCompass = compound.getBoolean("ShowQuestCompass");
-				if (CustomNpcs.showQuestCompass && !CustomNpcs.showServerQuestCompass) { CustomNpcs.showQuestCompass = false; }
+				if (CustomNpcs.ShowQuestCompass && !CustomNpcs.showServerQuestCompass) { CustomNpcs.ShowQuestCompass = false; }
 				
-				CustomNpcs.recalculateLR = compound.getBoolean("RecalculateLR");
-				CustomNpcs.charCurrencies = compound.getString("CharCurrencies");
-				CustomNpcs.maxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
-				CustomNpcs.maxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
-				CustomNpcs.scriptMaxTabs = compound.getInteger("ScriptMaxTabs");
-				CustomNpcs.dialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
-				CustomNpcs.mailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
+				CustomNpcs.RecalculateLR = compound.getBoolean("RecalculateLR");
+				CustomNpcs.CharCurrencies = compound.getString("CharCurrencies");
+				CustomNpcs.MaxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
+				CustomNpcs.MaxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
+				CustomNpcs.ScriptMaxTabs = compound.getInteger("ScriptMaxTabs");
+				CustomNpcs.DialogShowFitsSpeed = compound.getInteger("DialogFitsSpeed");
+				CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted");
 				int[] vs = compound.getIntArray("LettersBeReceived");
 				for (int i = 0; i < vs.length; i++) {
-					CustomNpcs.mailTimeWhenLettersWillBeReceived[i] = vs[i];
+					CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
 				}
 				vs = compound.getIntArray("CostSendingLetter");
 				for (int i = 0; i < vs.length; i++) {
-					CustomNpcs.mailCostSendingLetter[i] = vs[i];
+					CustomNpcs.MailCostSendingLetter[i] = vs[i];
 				}
 				CustomNpcs.forgeEventNames.clear();
 				for (int i = 0; i < compound.getTagList("ForgeEventNames", 10).tagCount(); i++) {
@@ -333,20 +333,20 @@ public class SyncController {
 					PlayerData data = CustomNpcs.proxy.getPlayerData(player);
 					if (data != null) { data.mailData.loadNBTData(compound); }
 				}
-				if (compound.hasKey("LettersBeDeleted", 3)) { CustomNpcs.mailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted"); }
+				if (compound.hasKey("LettersBeDeleted", 3)) { CustomNpcs.MailTimeWhenLettersWillBeDeleted = compound.getInteger("LettersBeDeleted"); }
 				if (compound.hasKey("LettersBeReceived", 11)) {
 					int[] vs = compound.getIntArray("LettersBeReceived");
 					for (int i = 0; i < vs.length; i++) {
-						CustomNpcs.mailTimeWhenLettersWillBeReceived[i] = vs[i];
+						CustomNpcs.MailTimeWhenLettersWillBeReceived[i] = vs[i];
 					}
 				}
 				if (compound.hasKey("CostSendingLetter", 11)) {
 					int[] vs = compound.getIntArray("CostSendingLetter");
 					for (int i = 0; i < vs.length; i++) {
-						CustomNpcs.mailCostSendingLetter[i] = vs[i];
+						CustomNpcs.MailCostSendingLetter[i] = vs[i];
 					}
 				}
-				if (compound.hasKey("SendToYourself", 1)) { CustomNpcs.mailSendToYourself = compound.getBoolean("SendToYourself"); }
+				if (compound.hasKey("SendToYourself", 1)) { CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself"); }
 				break;
 			}
 			case Debug: {
@@ -401,23 +401,23 @@ public class SyncController {
 		AnimationController.getInstance().sendTo(player);
 
 		compound = new NBTTagCompound();
-		if (!CustomNpcs.showLR) {
-			compound.setBoolean("ShowLR", CustomNpcs.showLR);
+		if (!CustomNpcs.ShowLR) {
+			compound.setBoolean("ShowLR", CustomNpcs.ShowLR);
 		}
-		if (!CustomNpcs.showMoney) {
-			compound.setBoolean("ShowMoney", CustomNpcs.showMoney);
+		if (!CustomNpcs.ShowMoney) {
+			compound.setBoolean("ShowMoney", CustomNpcs.ShowMoney);
 		}
-		compound.setBoolean("RecalculateLR", CustomNpcs.recalculateLR);
-		compound.setBoolean("ShowQuestCompass", CustomNpcs.showQuestCompass);
-		compound.setString("CharCurrencies", CustomNpcs.charCurrencies);
-		compound.setInteger("MaxBuilderBlocks", CustomNpcs.maxBuilderBlocks);
-		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.maxItemInDropsNPC);
-		compound.setInteger("LettersBeDeleted", CustomNpcs.mailTimeWhenLettersWillBeDeleted);
-		compound.setInteger("ScriptMaxTabs", CustomNpcs.scriptMaxTabs);
-		compound.setInteger("DialogFitsSpeed", CustomNpcs.dialogShowFitsSpeed);
-		compound.setIntArray("LettersBeReceived", CustomNpcs.mailTimeWhenLettersWillBeReceived);
-		compound.setIntArray("CostSendingLetter", CustomNpcs.mailCostSendingLetter);
-		compound.setBoolean("SendToYourself", CustomNpcs.mailSendToYourself);
+		compound.setBoolean("RecalculateLR", CustomNpcs.RecalculateLR);
+		compound.setBoolean("ShowQuestCompass", CustomNpcs.ShowQuestCompass);
+		compound.setString("CharCurrencies", CustomNpcs.CharCurrencies);
+		compound.setInteger("MaxBuilderBlocks", CustomNpcs.MaxBuilderBlocks);
+		compound.setInteger("MaxItemInDropsNPC", CustomNpcs.MaxItemInDropsNPC);
+		compound.setInteger("LettersBeDeleted", CustomNpcs.MailTimeWhenLettersWillBeDeleted);
+		compound.setInteger("ScriptMaxTabs", CustomNpcs.ScriptMaxTabs);
+		compound.setInteger("DialogFitsSpeed", CustomNpcs.DialogShowFitsSpeed);
+		compound.setIntArray("LettersBeReceived", CustomNpcs.MailTimeWhenLettersWillBeReceived);
+		compound.setIntArray("CostSendingLetter", CustomNpcs.MailCostSendingLetter);
+		compound.setBoolean("SendToYourself", CustomNpcs.MailSendToYourself);
 		
 		list = new NBTTagList();
 		for (Class<?> cls : CustomNpcs.forgeEventNames.keySet()) {

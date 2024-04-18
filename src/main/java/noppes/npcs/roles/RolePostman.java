@@ -43,6 +43,7 @@ implements IRolePostman {
 			return false;
 		}
 		(this.toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0))).removeAll(this.recentlyChecked);
+		
 		List<EntityPlayer> listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, this.npc.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
 		this.recentlyChecked.retainAll(listMax);
 		this.recentlyChecked.addAll(this.toCheck);
@@ -72,4 +73,5 @@ implements IRolePostman {
 		compound.setTag("PostInv", this.inventory.getToNBT());
 		return compound;
 	}
+	
 }

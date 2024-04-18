@@ -204,7 +204,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.showDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("ai.hover.walking.range").getFormattedText());
 		} else if (this.getTextField(5)!=null && this.getTextField(5).isMouseOver()) {

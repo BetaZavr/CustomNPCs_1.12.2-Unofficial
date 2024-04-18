@@ -121,7 +121,7 @@ public class QuestInterface {
 
 	public Map<String, QuestObjective> getKeys() {
 		Map<String, QuestObjective> keys = new HashMap<String, QuestObjective>();
-		String chr = new String(Character.toChars(0x00A7));
+		String chr = ""+((char) 167);
 		for (int i = 0; i < this.tasks.length; i++) {
 			QuestObjective to = this.tasks[i];
 			String key = (i + 1) + "-";
