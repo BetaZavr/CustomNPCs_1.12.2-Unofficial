@@ -4,13 +4,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IGuiTimer;
-import noppes.npcs.api.wrapper.gui.CustomGuiComponentWrapper;
 import noppes.npcs.util.AdditionalMethods;
 
-public class CustomGuiTimerWrapper
-extends CustomGuiComponentWrapper
-implements IGuiTimer {
-	
+public class CustomGuiTimerWrapper extends CustomGuiComponentWrapper implements IGuiTimer {
+
 	int color;
 	public long start, now, end;
 	float scale;
@@ -46,41 +43,43 @@ implements IGuiTimer {
 		this.setScale(nbt.getFloat("scale"));
 		long s = nbt.getLong("start");
 		long e = nbt.getLong("end");
-		if (s!=this.start || e!=this.end || this.now==0) {
+		if (s != this.start || e != this.end || this.now == 0) {
 			this.setTime(s, e);
 		}
 		return this;
 	}
 
 	@Override
-	public  void setTime(long start, long end) {
-		this.start = start;
-		this.end = end;
-		this.now = System.currentTimeMillis();
-		this.reverse = start > end;
+	public int getColor() {
+		return this.color;
 	}
 
 	@Override
-	public int getColor() { return this.color; }
+	public int getHeight() {
+		return this.height;
+	}
 
 	@Override
-	public int getHeight() { return this.height; }
-
-	@Override
-	public float getScale() { return this.scale; }
+	public float getScale() {
+		return this.scale;
+	}
 
 	@Override
 	public String getText() {
-		long time = this.reverse ? this.now-System.currentTimeMillis() : (System.currentTimeMillis()-this.now);
+		long time = this.reverse ? this.now - System.currentTimeMillis() : (System.currentTimeMillis() - this.now);
 		time /= 50L;
 		return AdditionalMethods.ticksToElapsedTime(time, false, false, false);
 	}
 
 	@Override
-	public int getType() { return GuiComponentType.TIMER.get(); }
+	public int getType() {
+		return GuiComponentType.TIMER.get();
+	}
 
 	@Override
-	public int getWidth() { return this.width; }
+	public int getWidth() {
+		return this.width;
+	}
 
 	@Override
 	public IGuiTimer setColor(int color) {
@@ -96,12 +95,20 @@ implements IGuiTimer {
 
 	@Override
 	public IGuiTimer setSize(int width, int height) {
-		if (width  <= 0 || height <= 0) {
+		if (width <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		this.width = width;
 		this.height = height;
 		return this;
+	}
+
+	@Override
+	public void setTime(long start, long end) {
+		this.start = start;
+		this.end = end;
+		this.now = System.currentTimeMillis();
+		this.reverse = start > end;
 	}
 
 	@Override
@@ -115,6 +122,5 @@ implements IGuiTimer {
 		nbt.setBoolean("Reverse", this.reverse);
 		return nbt;
 	}
-	
-}
 
+}

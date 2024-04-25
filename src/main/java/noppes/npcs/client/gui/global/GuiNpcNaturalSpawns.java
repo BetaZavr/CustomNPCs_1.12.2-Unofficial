@@ -26,10 +26,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcNaturalSpawns
-extends GuiNPCInterface2
-implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener {
-	
+public class GuiNpcNaturalSpawns extends GuiNPCInterface2
+		implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener {
+
 	private HashMap<String, Integer> data;
 	private GuiCustomScroll scroll;
 	private SpawnData spawn;
@@ -108,6 +107,16 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		if (this.spawn.id >= 0) {
 			this.showSpawn();
 		}
+	}
+
+	@Override
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui == null) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
+		}
+		super.keyTyped(c, i);
 	}
 
 	@Override
@@ -199,15 +208,5 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 			this.data.put(this.spawn.name, this.spawn.id);
 			this.scroll.replace(old, this.spawn.name);
 		}
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
 	}
 }

@@ -15,9 +15,8 @@ import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
-public class PotionScriptData
-implements IScriptHandler {
-	
+public class PotionScriptData implements IScriptHandler {
+
 	private boolean enabled;
 	public boolean hadInteract;
 	public long lastInited;
@@ -93,29 +92,21 @@ implements IScriptHandler {
 		if (this.scripts.isEmpty() || this.scripts.get(0).script.isEmpty()) {
 			ScriptContainer script = new ScriptContainer(this, false);
 			char chr = Character.toChars(0x000A)[0];
-			script.script = "// IPotion.getCustomName() - String (custom potion name)" + chr +
-					"// IPotion.getNbt() - INbt (nbt data)" + chr +
-					"function isReady(event) {" + chr +
-					"  /* event.potion - IPotion" + chr +
-					"     event.duration - int (tiks)" + chr +
-					"     event.amplifier - int (potion power) */" + chr + "}" + chr +
-					"function performEffect(event) {" + chr +
-					"  /* event.potion - IPotion" + chr +
-					"     event.entity - IEntity" + chr +
-					"     event.amplifier - int (potion power) */" + chr + "}" + chr +
-					"function affectEntity(event) {" + chr +
-					"  /* event.potion - IPotion" + chr +
-					"     event.entity - IEntity" + chr +
-					"     event.source - IEntity" + chr +
-					"     event.indirectSource - IEntity" + chr +
-					"     event.amplifier - int (potion power)" + chr +
-					"     event.health - double (health value) */" + chr + "}" + chr +
-					"function endEffect(event) {" + chr +
-					"  /* event.potion - IPotion" + chr +
-					"     event.entity - IEntity" + chr +
-					"     event.amplifier - int (potion power) */" + chr + "}";
-			if (this.scripts.isEmpty()) { this.scripts.add(script); }
-			else {
+			script.script = "// IPotion.getCustomName() - String (custom potion name)" + chr
+					+ "// IPotion.getNbt() - INbt (nbt data)" + chr + "function isReady(event) {" + chr
+					+ "  /* event.potion - IPotion" + chr + "     event.duration - int (tiks)" + chr
+					+ "     event.amplifier - int (potion power) */" + chr + "}" + chr
+					+ "function performEffect(event) {" + chr + "  /* event.potion - IPotion" + chr
+					+ "     event.entity - IEntity" + chr + "     event.amplifier - int (potion power) */" + chr + "}"
+					+ chr + "function affectEntity(event) {" + chr + "  /* event.potion - IPotion" + chr
+					+ "     event.entity - IEntity" + chr + "     event.source - IEntity" + chr
+					+ "     event.indirectSource - IEntity" + chr + "     event.amplifier - int (potion power)" + chr
+					+ "     event.health - double (health value) */" + chr + "}" + chr + "function endEffect(event) {"
+					+ chr + "  /* event.potion - IPotion" + chr + "     event.entity - IEntity" + chr
+					+ "     event.amplifier - int (potion power) */" + chr + "}";
+			if (this.scripts.isEmpty()) {
+				this.scripts.add(script);
+			} else {
 				this.scripts.remove(0);
 				this.scripts.add(0, script);
 			}
@@ -124,16 +115,23 @@ implements IScriptHandler {
 
 	@Override
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
+		if (!this.isEnabled()) {
+			return;
+		}
 		try {
 			if (ScriptController.Instance.lastLoaded > this.lastInited) {
 				this.lastInited = ScriptController.Instance.lastLoaded;
-				if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPotoinInit(this); }
+				if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+					EventHooks.onPotoinInit(this);
+				}
 			}
 			Iterator<ScriptContainer> iterator = this.scripts.iterator();
 			boolean bo = !this.isClient();
-			while (iterator.hasNext()) { iterator.next().run(type, event, bo); }
-		} catch (Exception e) {}
+			while (iterator.hasNext()) {
+				iterator.next().run(type, event, bo);
+			}
+		} catch (Exception e) {
+		}
 	}
 
 	@Override
@@ -152,5 +150,5 @@ implements IScriptHandler {
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
-	
+
 }

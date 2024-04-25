@@ -10,7 +10,7 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IEntity<T extends Entity> {
-	
+
 	void addRider(IEntity<?> entity);
 
 	void addTag(String tag);
@@ -18,7 +18,7 @@ public interface IEntity<T extends Entity> {
 	void clearRiders();
 
 	void damage(float amount);
-	
+
 	void damage(float amount, IEntityDamageSource source);
 
 	void despawn();
@@ -154,5 +154,5 @@ public interface IEntity<T extends Entity> {
 	void storeAsClone(int tab, String name);
 
 	boolean typeOf(int type);
-	
+
 }

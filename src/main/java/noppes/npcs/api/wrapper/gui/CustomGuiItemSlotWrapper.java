@@ -11,17 +11,17 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.containers.ContainerCustomGui;
 
-public class CustomGuiItemSlotWrapper
-extends CustomGuiComponentWrapper
-implements IItemSlot {
-	
+public class CustomGuiItemSlotWrapper extends CustomGuiComponentWrapper implements IItemSlot {
+
 	public EntityPlayer player;
 	public int slotIndex;
 	public IItemStack stack;
 	public boolean showBack;
 	public Slot slot;
 
-	public CustomGuiItemSlotWrapper() { this(0, 0, null); }
+	public CustomGuiItemSlotWrapper() {
+		this(0, 0, null);
+	}
 
 	public CustomGuiItemSlotWrapper(int x, int y, IItemStack stack) {
 		this.stack = ItemStackWrapper.AIR;
@@ -61,6 +61,16 @@ implements IItemSlot {
 	}
 
 	@Override
+	public boolean isShowBack() {
+		return this.showBack;
+	}
+
+	@Override
+	public void setShowBack(boolean bo) {
+		this.showBack = bo;
+	}
+
+	@Override
 	public IItemSlot setStack(IItemStack itemStack) {
 		if (itemStack == null) {
 			this.stack = ItemStackWrapper.AIR;
@@ -68,7 +78,8 @@ implements IItemSlot {
 			this.stack = itemStack;
 		}
 		if (this.player != null && player.openContainer instanceof ContainerCustomGui) {
-			this.player.openContainer.getSlot(this.slotIndex).inventory.setInventorySlotContents(this.slotIndex, this.stack.getMCItemStack());
+			this.player.openContainer.getSlot(this.slotIndex).inventory.setInventorySlotContents(this.slotIndex,
+					this.stack.getMCItemStack());
 			this.player.openContainer.getSlot(this.slotIndex).inventory.markDirty();
 		}
 
@@ -82,10 +93,4 @@ implements IItemSlot {
 		nbt.setBoolean("ShowBack", this.showBack);
 		return nbt;
 	}
-
-	@Override
-	public boolean isShowBack() { return this.showBack; }
-
-	@Override
-	public void setShowBack(boolean bo) { this.showBack = bo; }
 }

@@ -4,10 +4,14 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.handler.data.IQuest;
 
 public interface IPlayerMail {
-	
+
 	IContainer getContainer();
 
+	int getMoney();
+
 	IQuest getQuest();
+
+	int getRansom();
 
 	String getSender();
 
@@ -15,20 +19,16 @@ public interface IPlayerMail {
 
 	String[] getText();
 
+	void setMoney(int money);
+
 	void setQuest(int id);
+
+	void setRansom(int money);
 
 	void setSender(String sender);
 
 	void setSubject(String subject);
 
 	void setText(String[] text);
-	
-	int getMoney();
-	
-	void setMoney(int money);
 
-	int getRansom();
-	
-	void setRansom(int money);
-	
 }

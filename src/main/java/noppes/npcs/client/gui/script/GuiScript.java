@@ -7,7 +7,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScript;
 
 public class GuiScript extends GuiScriptInterface {
-	
+
 	private DataScript script;
 
 	public GuiScript(EntityNPCInterface npc) {
@@ -18,15 +18,14 @@ public class GuiScript extends GuiScriptInterface {
 	}
 
 	@Override
-	public void setGuiData(NBTTagCompound compound) {
-		this.script.readFromNBT(compound);
-		super.setGuiData(compound);
-	}
-
-
-	@Override
 	public void save() {
 		super.save();
 		Client.sendData(EnumPacketServer.ScriptDataSave, this.script.writeToNBT(new NBTTagCompound()));
+	}
+
+	@Override
+	public void setGuiData(NBTTagCompound compound) {
+		this.script.readFromNBT(compound);
+		super.setGuiData(compound);
 	}
 }

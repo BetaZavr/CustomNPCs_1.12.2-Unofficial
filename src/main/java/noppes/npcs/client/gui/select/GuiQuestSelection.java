@@ -14,10 +14,8 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
 
-public class GuiQuestSelection
-extends SubGuiInterface
-implements ICustomScrollListener {
-	
+public class GuiQuestSelection extends SubGuiInterface implements ICustomScrollListener {
+
 	private HashMap<String, QuestCategory> categoryData;
 	private GuiSelectionListener listener;
 	private HashMap<String, Quest> questData;
@@ -37,6 +35,17 @@ implements ICustomScrollListener {
 		this.selectedQuest = QuestController.instance.quests.get(quest);
 		if (this.selectedQuest != null) {
 			this.selectedCategory = this.selectedQuest.category;
+		}
+	}
+
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 2) {
+			if (this.selectedQuest != null) {
+				this.scrollDoubleClicked(null, null);
+			} else {
+				this.close();
+			}
 		}
 	}
 
@@ -81,17 +90,6 @@ implements ICustomScrollListener {
 		this.scrollQuests.guiLeft = this.guiLeft + 175;
 		this.scrollQuests.guiTop = this.guiTop + 14;
 		this.addScroll(this.scrollQuests);
-	}
-
-	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 2) {
-			if (this.selectedQuest != null) {
-				this.scrollDoubleClicked(null, null);
-			} else {
-				this.close();
-			}
-		}
 	}
 
 	@Override

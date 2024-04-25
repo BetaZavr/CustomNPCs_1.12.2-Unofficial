@@ -17,10 +17,8 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobGuard;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobGuard
-extends JobInterface
-implements IJobGuard {
-	
+public class JobGuard extends JobInterface implements IJobGuard {
+
 	public List<String> targets;
 
 	public JobGuard(EntityNPCInterface npc) {

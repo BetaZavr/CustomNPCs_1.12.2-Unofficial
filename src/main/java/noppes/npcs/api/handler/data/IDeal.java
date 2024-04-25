@@ -6,54 +6,54 @@ import noppes.npcs.api.item.IItemStack;
 
 public interface IDeal {
 
-	int getId();
-	
-	String getName();
+	int getAmount();
 
-	void set(IItemStack product, IItemStack[] currencys);
-
-	void updateNew();
-	
-	IContainer getCurrency();
-	
-	IItemStack getProduct();
-
-	int getMoney();
-	
-	void setMoney(int money);
-	
-	boolean getIgnoreDamage();
-
-	boolean getIgnoreNBT();
-	
-	void setIgnoreDamage(boolean bo);
-
-	void setIgnoreNBT(boolean bo);
-	
 	IAvailability getAvailability();
 
 	int getChance();
 
-	void setChance(int chance);
+	IContainer getCurrency();
 
-	int getType();
+	int getId();
 
-	void setType(int type);
+	boolean getIgnoreDamage();
 
-	int getMinCount();
+	boolean getIgnoreNBT();
 
 	int getMaxCount();
 
-	void setCount(int min, int max);
-
-	int getAmount();
-
-	void setAmount(int amount);
-
-	void setProduct(IItemStack product);
+	IInventory getMCInventoryCurrency();
 
 	IInventory getMCInventoryProduct();
 
-	IInventory getMCInventoryCurrency();
-	
+	int getMinCount();
+
+	int getMoney();
+
+	String getName();
+
+	IItemStack getProduct();
+
+	int getType();
+
+	void set(IItemStack product, IItemStack[] currencys);
+
+	void setAmount(int amount);
+
+	void setChance(int chance);
+
+	void setCount(int min, int max);
+
+	void setIgnoreDamage(boolean bo);
+
+	void setIgnoreNBT(boolean bo);
+
+	void setMoney(int money);
+
+	void setProduct(IItemStack product);
+
+	void setType(int type);
+
+	void updateNew();
+
 }

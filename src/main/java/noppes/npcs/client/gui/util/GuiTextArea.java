@@ -16,11 +16,22 @@ import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.config.TrueTypeFont;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiTextArea
-extends Gui
-implements IGui, IKeyListener, IMouseListener
-{
+public class GuiTextArea extends Gui implements IGui, IKeyListener, IMouseListener {
 
+	class UndoData {
+		public String text;
+		public int cursorPosition;
+
+		public UndoData(String text, int cursorPosition) {
+			this.text = text;
+			this.cursorPosition = cursorPosition;
+		}
+	}
+	private static TrueTypeFont font;
+	public static String filter = ("" + (char) 9) + ("" + (char) 10) + " .+-/*=()[]{}\"\\';"; // Tab, Enter ...
+	static {
+		GuiTextArea.font = new TrueTypeFont(new Font(CustomNpcs.FontType, 0, CustomNpcs.FontSize), 1.0f);
+	}
 	public int id;
 	public int x;
 	public int y;
@@ -28,7 +39,6 @@ implements IGui, IKeyListener, IMouseListener
 	public int height;
 	private int cursorCounter;
 	private ITextChangeListener listener;
-	private static TrueTypeFont font;
 	public String text;
 	private TextContainer container;
 	public boolean active;
@@ -47,10 +57,11 @@ implements IGui, IKeyListener, IMouseListener
 	public boolean undoing;
 	public boolean hovered;
 	public boolean freeze;
+
 	private long lastClicked;
+
 	public int errorLine = -1;
-	public static String filter = (""+(char) 9)+(""+(char) 10)+" .+-/*=()[]{}\"\\';"; // Tab, Enter ...
-	
+
 	public GuiTextArea(int id, GuiScreen guiscreen, int x, int y, int width, int height, String text) {
 		this.text = null;
 		this.container = null;
@@ -78,10 +89,57 @@ implements IGui, IKeyListener, IMouseListener
 		this.freeze = false;
 		GuiTextArea.font.setSpecial('\uffff');
 	}
-	
+
+	private void addText(String s) {
+		this.setText(this.getSelectionBeforeText() + s + this.getSelectionAfterText());
+		int endSelection = this.startSelection + s.length();
+		this.cursorPosition = endSelection;
+		this.startSelection = endSelection;
+		this.endSelection = endSelection;
+	}
+
+	private int cursorDown() {
+		for (int i = 0; i < this.container.lines.size(); ++i) {
+			TextContainer.LineData data = this.container.lines.get(i);
+			if (this.cursorPosition >= data.start && this.cursorPosition < data.end) {
+				return this
+						.getSelectionPos(
+								this.x + 1
+										+ GuiTextArea.font
+												.width(data.text.substring(0, this.cursorPosition - data.start)),
+								this.y + 1 + (i + 1 - this.scrolledLine) * this.container.lineHeight);
+			}
+		}
+		return this.text.length();
+	}
+
+	private int cursorUp() {
+		int i = 0;
+		while (i < this.container.lines.size()) {
+			TextContainer.LineData data = this.container.lines.get(i);
+			if (this.cursorPosition >= data.start && this.cursorPosition < data.end) {
+				if (i == 0) {
+					return 0;
+				}
+				return this
+						.getSelectionPos(
+								this.x + 1
+										+ GuiTextArea.font
+												.width(data.text.substring(0, this.cursorPosition - data.start)),
+								this.y + 1 + (i - 1 - this.scrolledLine) * this.container.lineHeight);
+			} else {
+				++i;
+			}
+		}
+		return 0;
+	}
+
 	public void drawScreen(int xMouse, int yMouse) {
-		if (!this.visible) { return; }
-		this.hovered = xMouse >= this.x && xMouse <= this.x + this.width && yMouse >= this.y && yMouse <= this.y + this.height;
+		if (!this.visible) {
+			return;
+		}
+		this.hovered = xMouse >= this.x && xMouse <= this.x + this.width && yMouse >= this.y
+				&& yMouse <= this.y + this.height;
 		drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, -6250336);
 		drawRect(this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
 		this.container.visibleLines = this.height / this.container.lineHeight;
@@ -98,8 +156,7 @@ implements IGui, IKeyListener, IMouseListener
 					}
 					this.setCursor(i, true);
 				}
-			}
-			else if (this.doubleClicked) {
+			} else if (this.doubleClicked) {
 				this.doubleClicked = false;
 			}
 			if (this.clickScrolling) {
@@ -110,25 +167,21 @@ implements IGui, IKeyListener, IMouseListener
 		}
 		int startBracket = 0;
 		int endBracket = 0;
-		if (this.endSelection - this.startSelection == 1 || (this.startSelection == this.endSelection && this.startSelection < this.text.length())) {
+		if (this.endSelection - this.startSelection == 1
+				|| (this.startSelection == this.endSelection && this.startSelection < this.text.length())) {
 			char c = this.text.charAt(this.startSelection);
 			int found = 0;
 			if (c == '{') {
 				found = this.findClosingBracket(this.text.substring(this.startSelection), '{', '}');
-			}
-			else if (c == '[') {
+			} else if (c == '[') {
 				found = this.findClosingBracket(this.text.substring(this.startSelection), '[', ']');
-			}
-			else if (c == '(') {
+			} else if (c == '(') {
 				found = this.findClosingBracket(this.text.substring(this.startSelection), '(', ')');
-			}
-			else if (c == '}') {
+			} else if (c == '}') {
 				found = this.findOpeningBracket(this.text.substring(0, this.startSelection + 1), '{', '}');
-			}
-			else if (c == ']') {
+			} else if (c == ']') {
 				found = this.findOpeningBracket(this.text.substring(0, this.startSelection + 1), '[', ']');
-			}
-			else if (c == ')') {
+			} else if (c == ')') {
 				found = this.findOpeningBracket(this.text.substring(0, this.startSelection + 1), '(', ')');
 			}
 			if (found != 0) {
@@ -150,7 +203,8 @@ implements IGui, IKeyListener, IMouseListener
 			if (this.errorLine >= list.size()) {
 				this.errorLine = list.size() - 1;
 			}
-			if (this.errorLine >= this.scrolledLine && this.scrolledLine < (this.scrolledLine + this.container.visibleLines)) {
+			if (this.errorLine >= this.scrolledLine
+					&& this.scrolledLine < (this.scrolledLine + this.container.visibleLines)) {
 				int posY = this.y + 1 + (this.errorLine - this.scrolledLine) * this.container.lineHeight;
 				drawRect(this.x + 1, posY, this.x + this.width - 1, posY + this.container.lineHeight + 1, 0x99CC0000);
 			}
@@ -181,11 +235,13 @@ implements IGui, IKeyListener, IMouseListener
 							int s2 = GuiTextArea.font.width(line.substring(0, k.start()));
 							int e2 = GuiTextArea.font.width(line.substring(0, k.end())) + 1;
 							int posY2 = this.y + 1 + (j - this.scrolledLine) * this.container.lineHeight;
-							drawRect(this.x + 1 + s2, posY2, this.x + 1 + e2, posY2 + this.container.lineHeight + 1, -1728033792);
+							drawRect(this.x + 1 + s2, posY2, this.x + 1 + e2, posY2 + this.container.lineHeight + 1,
+									-1728033792);
 						}
 					}
 				}
-				if (j != this.errorLine && this.startSelection != this.endSelection && this.endSelection > data.start && this.startSelection <= data.end && this.startSelection < data.end) {
+				if (j != this.errorLine && this.startSelection != this.endSelection && this.endSelection > data.start
+						&& this.startSelection <= data.end && this.startSelection < data.end) {
 					int s = GuiTextArea.font.width(line.substring(0, Math.max(this.startSelection - data.start, 0)));
 					int e = GuiTextArea.font.width(line.substring(0, Math.min(this.endSelection - data.start, w))) + 1;
 					int posY = this.y + 1 + (j - this.scrolledLine) * this.container.lineHeight;
@@ -193,7 +249,8 @@ implements IGui, IKeyListener, IMouseListener
 				}
 				int yPos = this.y + (j - this.scrolledLine) * this.container.lineHeight + 1;
 				GuiTextArea.font.draw(data.getFormattedString(), (this.x + 1), yPos, -2039584); // draw text
-				if (this.active && this.isEnabled() && this.cursorCounter / 6 % 2 == 0 && this.cursorPosition >= data.start && this.cursorPosition < data.end) {
+				if (this.active && this.isEnabled() && this.cursorCounter / 6 % 2 == 0
+						&& this.cursorPosition >= data.start && this.cursorPosition < data.end) {
 					int posX = this.x + GuiTextArea.font.width(line.substring(0, this.cursorPosition - data.start));
 					drawRect(posX + 1, yPos, posX + 2, yPos + 1 + this.container.lineHeight, -3092272);
 				}
@@ -201,13 +258,19 @@ implements IGui, IKeyListener, IMouseListener
 		}
 		if (this.hasVerticalScrollbar()) {
 			Minecraft.getMinecraft().renderEngine.bindTexture(GuiCustomScroll.resource);
-			int sbSize = (int) Math.max((1.0f * this.container.visibleLines / this.container.linesCount * this.height), 2);
+			int sbSize = (int) Math.max((1.0f * this.container.visibleLines / this.container.linesCount * this.height),
+					2);
 			int posX2 = this.x + this.width - 6;
 			int posY3 = (int) ((this.y + 1.0f * this.scrolledLine / this.container.linesCount * (this.height - 4)) + 1);
 			drawRect(posX2, posY3, posX2 + 5, posY3 + sbSize, -2039584);
 		}
 	}
-	
+
+	public void enableCodeHighlighting() {
+		this.enableCodeHighlighting = true;
+		this.container.formatCodeText();
+	}
+
 	private int findClosingBracket(String str, char s, char e) {
 		int found = 0;
 		char[] chars = str.toCharArray();
@@ -215,14 +278,13 @@ implements IGui, IKeyListener, IMouseListener
 			char c = chars[i];
 			if (c == s) {
 				++found;
-			}
-			else if (c == e && --found == 0) {
+			} else if (c == e && --found == 0) {
 				return i;
 			}
 		}
 		return 0;
 	}
-	
+
 	private int findOpeningBracket(String str, char s, char e) {
 		int found = 0;
 		char[] chars = str.toCharArray();
@@ -230,14 +292,60 @@ implements IGui, IKeyListener, IMouseListener
 			char c = chars[i];
 			if (c == e) {
 				++found;
-			}
-			else if (c == s && --found == 0) {
+			} else if (c == s && --found == 0) {
 				return i - chars.length + 1;
 			}
 		}
 		return 0;
 	}
-	
+
+	public int getCursorPosition() {
+		return this.cursorPosition;
+	}
+
+	@Override
+	public int getId() {
+		return this.id;
+	}
+
+	public int getID() {
+		return this.id;
+	}
+
+	private String getIndentCurrentLine() {
+		for (TextContainer.LineData data : this.container.lines) {
+			if (this.cursorPosition > data.start && this.cursorPosition <= data.end) {
+				int i;
+				for (i = 0; i < data.text.length() && data.text.charAt(i) == ' '; ++i) {
+				}
+				return data.text.substring(0, i);
+			}
+		}
+		return "";
+	}
+
+	public String getLineText() {
+		List<TextContainer.LineData> list = new ArrayList<TextContainer.LineData>(this.container.lines);
+		for (int i = 0; i < list.size(); i++) {
+			TextContainer.LineData data = list.get(i);
+			if (this.cursorPosition >= data.start && this.cursorPosition <= data.end) {
+				return data.text;
+			}
+		}
+		return "";
+	}
+
+	public String getSelectionAfterText() {
+		return this.text.substring(this.endSelection);
+	}
+
+	public String getSelectionBeforeText() {
+		if (this.startSelection == 0) {
+			return "";
+		}
+		return this.text.substring(0, this.startSelection);
+	}
+
 	private int getSelectionPos(int xMouse, int yMouse) {
 		xMouse -= this.x + 1;
 		yMouse -= this.y + 1;
@@ -262,13 +370,99 @@ implements IGui, IKeyListener, IMouseListener
 		}
 		return this.container.text.length();
 	}
-	
-	public int getID() {
-		return this.id;
+
+	/**
+	 * 
+	 * @param xMouse
+	 * @param yMouse
+	 * @return [ int (cursor text position), String (word select), int (line number)
+	 *         ]
+	 */
+	public Object[] getSelectionText(int xMouse, int yMouse) {
+		if (!this.hovered || !this.visible) {
+			return new Object[] { -1, "", -1 };
+		}
+		int p = -1;
+		TextContainer.LineData line = null;
+		xMouse -= this.x + 1;
+		yMouse -= this.y + 1;
+		List<TextContainer.LineData> list = new ArrayList<TextContainer.LineData>(this.container.lines);
+		int row = 0;
+		String t = "";
+		for (int i = 0; i < list.size(); ++i) {
+			TextContainer.LineData data = list.get(i);
+			if (i >= this.scrolledLine && i < this.scrolledLine + this.container.visibleLines) {
+				int yPos = (i - this.scrolledLine) * this.container.lineHeight;
+				if (yMouse >= yPos && yMouse < yPos + this.container.lineHeight) {
+					int lineWidth = 0;
+					char[] chars = data.text.toCharArray();
+					boolean found = false;
+					for (int j = 1; j <= chars.length; ++j) {
+						int w = GuiTextArea.font.width(data.text.substring(0, j));
+						if (xMouse < lineWidth + (w - lineWidth) / 2) {
+							p = data.start + j - 1;
+							line = data;
+							row = i;
+							found = true;
+							break;
+						}
+						lineWidth = w;
+					}
+					if (!found) {
+						p = data.end - 1;
+						line = data;
+						row = i;
+					}
+					break;
+				}
+			}
+		}
+		if (line == null || p == -1) {
+			return new Object[] { p, "", -1 };
+		}
+		String select = AdditionalMethods.match(t, p - line.start, GuiTextArea.filter, GuiTextArea.filter);
+		p = line.text.lastIndexOf(select, p);
+		return new Object[] { p, select, row };
 	}
-	
+
+	public String getText() {
+		return this.text;
+	}
+
+	public int[] getXYPosition(int pos) {
+		int[] xy = new int[] { this.x, this.y };
+		int h = 1;
+		for (TextContainer.LineData data : this.container.lines) {
+			if (pos >= data.start && pos <= data.end) {
+				if (pos == data.end) {
+					xy[1] += (h + 1) * GuiTextArea.font.height(null);
+				} else {
+					xy[0] += pos <= data.start ? 1 : GuiTextArea.font.width(data.text.substring(0, pos - data.start));
+					xy[1] += h * GuiTextArea.font.height(null);
+				}
+				break;
+			}
+			h++;
+		}
+		return xy;
+	}
+
+	public boolean hasVerticalScrollbar() {
+		return this.container.visibleLines < this.container.linesCount;
+	}
+
+	public boolean isActive() {
+		return this.active;
+	}
+
+	public boolean isEnabled() {
+		return this.enabled && this.visible;
+	}
+
 	public void keyTyped(char c, int i) {
-		if (!this.active) { return; }
+		if (!this.active) {
+			return;
+		}
 		if (GuiScreen.isKeyComboCtrlA(i)) {
 			int n = 0;
 			this.cursorPosition = n;
@@ -370,8 +564,7 @@ implements IGui, IKeyListener, IMouseListener
 			this.startSelection = cursorPosition;
 			this.endSelection = cursorPosition;
 			this.undoing = false;
-		}
-		else {
+		} else {
 			if (i != 21 || !GuiScreen.isCtrlKeyDown()) {
 				if (i == 15) {
 					this.addText("	");
@@ -398,18 +591,41 @@ implements IGui, IKeyListener, IMouseListener
 			this.undoing = false;
 		}
 	}
-	
-	private String getIndentCurrentLine() {
-		for (TextContainer.LineData data : this.container.lines) {
-			if (this.cursorPosition > data.start && this.cursorPosition <= data.end) {
-				int i;
-				for (i = 0; i < data.text.length() && data.text.charAt(i) == ' '; ++i) {}
-				return data.text.substring(0, i);
-			}
+
+	public boolean mouseClicked(int xMouse, int yMouse, int mouseButton) {
+		if (this.freeze) {
+			return false;
 		}
-		return "";
+		this.active = (xMouse >= this.x && xMouse < this.x + this.width && yMouse >= this.y
+				&& yMouse < this.y + this.height);
+		if (this.active) {
+			int selectionPos = this.getSelectionPos(xMouse, yMouse);
+			this.cursorPosition = selectionPos;
+			this.endSelection = selectionPos;
+			this.startSelection = selectionPos;
+			this.clicked = (mouseButton == 0);
+			this.doubleClicked = false;
+			long time = System.currentTimeMillis();
+			if (this.clicked && this.container.linesCount * this.container.lineHeight > this.height
+					&& xMouse > this.x + this.width - 8) {
+				this.clicked = false;
+				this.clickScrolling = true;
+			} else if (time - this.lastClicked < 500L) {
+				this.doubleClicked = true;
+				Matcher m = this.container.regexWord.matcher(this.text);
+				while (m.find()) {
+					if (this.cursorPosition > m.start() && this.cursorPosition < m.end()) {
+						this.startSelection = m.start();
+						this.endSelection = m.end();
+						break;
+					}
+				}
+			}
+			this.lastClicked = time;
+		}
+		return this.active;
 	}
-	
+
 	private void setCursor(int i, boolean select) {
 		i = Math.min(Math.max(i, 0), this.text.length());
 		if (i == this.cursorPosition) {
@@ -425,8 +641,7 @@ implements IGui, IKeyListener, IMouseListener
 		int diff = this.cursorPosition - i;
 		if (this.cursorPosition == this.startSelection) {
 			this.startSelection -= diff;
-		}
-		else if (this.cursorPosition == this.endSelection) {
+		} else if (this.cursorPosition == this.endSelection) {
 			this.endSelection -= diff;
 		}
 		if (this.startSelection > this.endSelection) {
@@ -436,94 +651,22 @@ implements IGui, IKeyListener, IMouseListener
 		}
 		this.cursorPosition = i;
 	}
-	
-	private void addText(String s) {
-		this.setText(this.getSelectionBeforeText() + s + this.getSelectionAfterText());
-		int endSelection = this.startSelection + s.length();
-		this.cursorPosition = endSelection;
-		this.startSelection = endSelection;
-		this.endSelection = endSelection;
-	}
-	
-	private int cursorUp() {
-		int i = 0;
-		while (i < this.container.lines.size()) {
-			TextContainer.LineData data = this.container.lines.get(i);
-			if (this.cursorPosition >= data.start && this.cursorPosition < data.end) {
-				if (i == 0) {
-					return 0;
-				}
-				return this.getSelectionPos(this.x + 1 + GuiTextArea.font.width(data.text.substring(0, this.cursorPosition - data.start)), this.y + 1 + (i - 1 - this.scrolledLine) * this.container.lineHeight);
-			}
-			else {
-				++i;
-			}
+
+	public void setCursorPosition(int pos) {
+		if (pos < 0) {
+			pos = 0;
+		} else if (pos >= this.getText().length()) {
+			pos = this.getText().length() - 1;
 		}
-		return 0;
+		this.cursorPosition = pos;
+		this.startSelection = pos;
+		this.endSelection = pos;
 	}
-	
-	private int cursorDown() {
-		for (int i = 0; i < this.container.lines.size(); ++i) {
-			TextContainer.LineData data = this.container.lines.get(i);
-			if (this.cursorPosition >= data.start && this.cursorPosition < data.end) {
-				return this.getSelectionPos(this.x + 1 + GuiTextArea.font.width(data.text.substring(0, this.cursorPosition - data.start)), this.y + 1 + (i + 1 - this.scrolledLine) * this.container.lineHeight);
-			}
-		}
-		return this.text.length();
+
+	public void setListener(ITextChangeListener listener) {
+		this.listener = listener;
 	}
-	
-	public String getSelectionBeforeText() {
-		if (this.startSelection == 0) {
-			return "";
-		}
-		return this.text.substring(0, this.startSelection);
-	}
-	
-	public String getSelectionAfterText() {
-		return this.text.substring(this.endSelection);
-	}
-	
-	public boolean mouseClicked(int xMouse, int yMouse, int mouseButton) {
-		if (this.freeze) { return false; }
-		this.active = (xMouse >= this.x && xMouse < this.x + this.width && yMouse >= this.y && yMouse < this.y + this.height);
-		if (this.active) {
-			int selectionPos = this.getSelectionPos(xMouse, yMouse);
-			this.cursorPosition = selectionPos;
-			this.endSelection = selectionPos;
-			this.startSelection = selectionPos;
-			this.clicked = (mouseButton == 0);
-			this.doubleClicked = false;
-			long time = System.currentTimeMillis();
-			if (this.clicked && this.container.linesCount * this.container.lineHeight > this.height && xMouse > this.x + this.width - 8) {
-				this.clicked = false;
-				this.clickScrolling = true;
-			}
-			else if (time - this.lastClicked < 500L) {
-				this.doubleClicked = true;
-				Matcher m = this.container.regexWord.matcher(this.text);
-				while (m.find()) {
-					if (this.cursorPosition > m.start() && this.cursorPosition < m.end()) {
-						this.startSelection = m.start();
-						this.endSelection = m.end();
-						break;
-					}
-				}
-			}
-			this.lastClicked = time;
-		}
-		return this.active;
-	}
-	
-	public void updateScreen() {
-		++this.cursorCounter;
-		if (this.freeze) { return; }
-		int k2 = Mouse.getDWheel();
-		if (k2 != 0) {
-			this.scrolledLine += ((k2 > 0) ? -1 : 1);
-			this.scrolledLine = Math.max(Math.min(this.scrolledLine, this.container.linesCount - this.height / this.container.lineHeight), 0);
-		}
-	}
-	
+
 	public void setText(String text) {
 		text = text.replace("\r", "");
 		if (this.text != null && this.text.equals(text)) {
@@ -539,146 +682,26 @@ implements IGui, IKeyListener, IMouseListener
 		this.text = text;
 		this.container = new TextContainer(text);
 		this.container.init(GuiTextArea.font, this.width, this.height);
-		if (this.enableCodeHighlighting) { this.container.formatCodeText(); }
+		if (this.enableCodeHighlighting) {
+			this.container.formatCodeText();
+		}
 		if (this.scrolledLine > this.container.linesCount - this.container.visibleLines) {
 			this.scrolledLine = Math.max(0, this.container.linesCount - this.container.visibleLines);
 		}
 	}
-	
-	public String getText() {
-		return this.text;
-	}
-	
-	public boolean isEnabled() {
-		return this.enabled && this.visible;
-	}
-	
-	public boolean hasVerticalScrollbar() {
-		return this.container.visibleLines < this.container.linesCount;
-	}
-	
-	public void enableCodeHighlighting() {
-		this.enableCodeHighlighting = true;
-		this.container.formatCodeText();
-	}
-	
-	public void setListener(ITextChangeListener listener) {
-		this.listener = listener;
-	}
-	
-	public boolean isActive() {
-		return this.active;
-	}
-	
-	static {
-		GuiTextArea.font = new TrueTypeFont(new Font(CustomNpcs.FontType, 0, CustomNpcs.FontSize), 1.0f);
-	}
-	
-	class UndoData
-	{
-		public String text;
-		public int cursorPosition;
-		
-		public UndoData(String text, int cursorPosition) {
-			this.text = text;
-			this.cursorPosition = cursorPosition;
+
+	public void updateScreen() {
+		++this.cursorCounter;
+		if (this.freeze) {
+			return;
+		}
+		int k2 = Mouse.getDWheel();
+		if (k2 != 0) {
+			this.scrolledLine += ((k2 > 0) ? -1 : 1);
+			this.scrolledLine = Math.max(
+					Math.min(this.scrolledLine, this.container.linesCount - this.height / this.container.lineHeight),
+					0);
 		}
 	}
 
-	@Override
-	public int getId() { return this.id; }
-
-	public int getCursorPosition() { return this.cursorPosition; }
-
-	public String getLineText() {
-		List<TextContainer.LineData> list = new ArrayList<TextContainer.LineData>(this.container.lines);
-		for (int i = 0; i < list.size(); i++) {
-			TextContainer.LineData data = list.get(i);
-			if (this.cursorPosition >= data.start && this.cursorPosition <= data.end) {
-				return data.text;
-			}
-		}
-		return "";
-	}
-
-	/**
-	 * 
-	 * @param xMouse
-	 * @param yMouse
-	 * @return [ int (cursor text position), String (word select), int (line number) ]
-	 */
-	public Object[] getSelectionText(int xMouse, int yMouse) {
-		if (!this.hovered || !this.visible) {
-			return new Object[] { -1, "", -1 };
-		}
-		int p = -1;
-		TextContainer.LineData line = null;
-		xMouse -= this.x + 1;
-		yMouse -= this.y + 1;
-		List<TextContainer.LineData> list = new ArrayList<TextContainer.LineData>(this.container.lines);
-		int row = 0;
-		String t = "";
-		for (int i = 0; i < list.size(); ++i) {
-			TextContainer.LineData data = list.get(i);
-			if (i >= this.scrolledLine && i < this.scrolledLine + this.container.visibleLines) {
-				int yPos = (i - this.scrolledLine) * this.container.lineHeight;
-				if (yMouse >= yPos && yMouse < yPos + this.container.lineHeight) {
-					int lineWidth = 0;
-					char[] chars = data.text.toCharArray();
-					boolean found = false;
-					for (int j = 1; j <= chars.length; ++j) {
-						int w = GuiTextArea.font.width(data.text.substring(0, j));
-						if (xMouse < lineWidth + (w - lineWidth) / 2) {
-							p = data.start + j - 1;
-							line = data;
-							row = i;
-							found = true;
-							break;
-						}
-						lineWidth = w;
-					}
-					if (!found) {
-						p = data.end - 1;
-						line = data;
-						row = i;
-					}
-					break;
-				}
-			}
-		}
-		if (line == null || p == -1) { return new Object[] { p, "", -1 }; }
-		String select = AdditionalMethods.match(t, p - line.start, GuiTextArea.filter, GuiTextArea.filter);
-		p = line.text.lastIndexOf(select, p);
-		return new Object[] { p, select, row };
-	}
-	
-	public int[] getXYPosition(int pos) {
-		int[] xy = new int[] { this.x, this.y };
-		int h = 1;
-		for (TextContainer.LineData data : this.container.lines) {
-			if (pos >= data.start && pos <= data.end) {
-				if (pos == data.end) {
-					xy[1] += (h + 1) * GuiTextArea.font.height(null);
-				} else {
-					xy[0] += pos <= data.start ? 1 : GuiTextArea.font.width(data.text.substring(0, pos - data.start));
-					xy[1] += h * GuiTextArea.font.height(null);
-				}
-				break;
-			}
-			h++;
-		}
-		return xy;
-	}
-
-	public void setCursorPosition(int pos) {
-		if (pos < 0) {
-			pos = 0;
-		} else if (pos >= this.getText().length()) {
-			pos = this.getText().length() - 1;
-		}
-		this.cursorPosition = pos;
-		this.startSelection = pos;
-		this.endSelection = pos;
-	}
-	
 }

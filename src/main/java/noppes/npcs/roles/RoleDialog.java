@@ -18,10 +18,8 @@ import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleDialog
-extends RoleInterface
-implements IRoleDialog {
-	
+public class RoleDialog extends RoleInterface implements IRoleDialog {
+
 	public String dialog;
 	public HashMap<Integer, String> options;
 	public HashMap<Integer, String> optionsTexts;
@@ -37,7 +35,9 @@ implements IRoleDialog {
 	}
 
 	@Override
-	public String getDialog() { return this.dialog; }
+	public String getDialog() {
+		return this.dialog;
+	}
 
 	@Override
 	public String getOption(int option) {
@@ -62,8 +62,11 @@ implements IRoleDialog {
 				}
 				DialogOption option = new DialogOption();
 				String text = this.optionsTexts.get(entry.getKey());
-				if (text != null && !text.isEmpty()) { option.optionType = OptionType.ROLE_OPTION; }
-				else { option.optionType = OptionType.QUIT_OPTION; }
+				if (text != null && !text.isEmpty()) {
+					option.optionType = OptionType.ROLE_OPTION;
+				} else {
+					option.optionType = OptionType.QUIT_OPTION;
+				}
 				option.title = entry.getValue();
 				d.options.put(entry.getKey(), option);
 			}
@@ -71,8 +74,17 @@ implements IRoleDialog {
 		}
 		Quest quest = QuestController.instance.quests.get(this.questId);
 		if (quest != null) {
-			PlayerQuestController.addActiveQuest(quest, player);
+			PlayerQuestController.addActiveQuest(quest, player, false);
 		}
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = RoleType.DIALOG;
+		this.questId = compound.getInteger("RoleQuestId");
+		this.dialog = compound.getString("RoleDialog");
+		this.options = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptions", 10));
+		this.optionsTexts = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptionTexts", 10));
 	}
 
 	@Override
@@ -96,16 +108,6 @@ implements IRoleDialog {
 		this.optionsTexts.put(option, text);
 	}
 
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.DIALOG;
-		this.questId = compound.getInteger("RoleQuestId");
-		this.dialog = compound.getString("RoleDialog");
-		this.options = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptions", 10));
-		this.optionsTexts = NBTTags.getIntegerStringMap(compound.getTagList("RoleOptionTexts", 10));
-	}
-	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", RoleType.DIALOG.get());

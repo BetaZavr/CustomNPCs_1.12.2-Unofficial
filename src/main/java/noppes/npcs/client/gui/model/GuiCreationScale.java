@@ -17,10 +17,8 @@ import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiCreationScale
-extends GuiCreationScreenInterface
-implements ISliderListener, ICustomScrollListener {
-	
+public class GuiCreationScale extends GuiCreationScreenInterface implements ISliderListener, ICustomScrollListener {
+
 	private static EnumParts selected = EnumParts.HEAD;
 	private List<EnumParts> data;
 	private GuiCustomScroll scroll;
@@ -43,13 +41,55 @@ implements ISliderListener, ICustomScrollListener {
 	}
 
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.parts").getFormattedText());
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.size").getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
+		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.pattern").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		} else {
+			for (GuiButton b : this.buttonList) {
+				if (b != null && b.isMouseOver()) {
+					if (b.id == 10) {
+						this.setHoverText(new TextComponentTranslation("hover.scale.x").getFormattedText());
+					} else if (b.id == 11) {
+						this.setHoverText(new TextComponentTranslation("hover.scale.y").getFormattedText());
+					} else if (b.id == 12) {
+						this.setHoverText(new TextComponentTranslation("hover.scale.z").getFormattedText());
+					} else if (b.id == 500) {
+						this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText());
+					}
+				}
+			}
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+
+	@Override
 	public void initGui() {
 		super.initGui();
 		if (this.scroll == null) {
 			this.scroll = new GuiCustomScroll(this, 0);
 		}
 		List<String> list = new ArrayList<String>();
-		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT, EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
+		EnumParts[] parts = { EnumParts.HEAD, EnumParts.BODY, EnumParts.ARM_LEFT, EnumParts.ARM_RIGHT,
+				EnumParts.LEG_LEFT, EnumParts.LEG_RIGHT };
 		this.data.clear();
 		for (EnumParts part : parts) {
 			Label_0210: {
@@ -70,7 +110,8 @@ implements ISliderListener, ICustomScrollListener {
 			}
 		}
 		this.scroll.setListNotSorted(list);
-		this.scroll.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
+		this.scroll
+				.setSelected(new TextComponentTranslation("part." + GuiCreationScale.selected.name).getFormattedText());
 		this.scroll.guiLeft = this.guiLeft;
 		this.scroll.guiTop = this.guiTop + 46;
 		this.scroll.setSize(100, this.ySize - 74);
@@ -159,40 +200,5 @@ implements ISliderListener, ICustomScrollListener {
 			}
 		}
 	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.parts").getFormattedText());
-		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.size").getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.pattern").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		else {
-			for (GuiButton b : this.buttonList) {
-				if (b!=null && b.isMouseOver()) {
-					if (b.id==10) {  this.setHoverText(new TextComponentTranslation("hover.scale.x").getFormattedText()); }
-					else if (b.id==11) { this.setHoverText(new TextComponentTranslation("hover.scale.y").getFormattedText()); }
-					else if (b.id==12) { this.setHoverText(new TextComponentTranslation("hover.scale.z").getFormattedText()); }
-					else if (b.id==500) { this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText()); }
-				}
-			}
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-	
+
 }

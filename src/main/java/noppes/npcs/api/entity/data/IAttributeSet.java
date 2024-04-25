@@ -3,7 +3,7 @@ package noppes.npcs.api.entity.data;
 import net.minecraft.entity.ai.attributes.IAttribute;
 
 public interface IAttributeSet {
-	
+
 	String getAttribute();
 
 	double getChance();

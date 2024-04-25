@@ -5,12 +5,18 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 
 public interface IQuest {
-	
+
 	IQuestObjective addTask();
 
 	IQuestCategory getCategory();
 
+	ICustomNpc<?> getCompleterNpc();
+
 	String getCompleteText();
+
+	int getExtraButton();
+
+	String getExtraButtonText();
 
 	int[] getForgetDialogues();
 
@@ -48,7 +54,13 @@ public interface IQuest {
 
 	void setCancelable(boolean cancelable);
 
+	void setCompleterNpc(ICustomNpc<?> npc);
+
 	void setCompleteText(String text);
+
+	void setExtraButton(int type);
+
+	void setExtraButtonText(String hover);
 
 	void setForgetDialogues(int[] forget);
 
@@ -65,17 +77,5 @@ public interface IQuest {
 	void setRewardText(String text);
 
 	void setRewardType(int type);
-
-	void setCompleterNpc(ICustomNpc<?> npc);
-
-	ICustomNpc<?> getCompleterNpc();
-	
-	int getExtraButton();
-	
-	void setExtraButton(int type);
-	
-	String getExtraButtonText();
-	
-	void setExtraButtonText(String hover);
 
 }

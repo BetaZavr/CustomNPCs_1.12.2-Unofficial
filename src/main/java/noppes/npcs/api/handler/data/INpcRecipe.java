@@ -4,8 +4,12 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.item.IItemStack;
 
 public interface INpcRecipe {
-	
+
+	void copy(INpcRecipe recipe);
+
 	void delete();
+
+	boolean equal(INpcRecipe recipe);
 
 	IAvailability getAvailability();
 
@@ -19,6 +23,12 @@ public interface INpcRecipe {
 
 	String getName();
 
+	INbt getNbt();
+
+	String getNpcGroup();
+
+	IItemStack getProduct();
+
 	IItemStack[][] getRecipe();
 
 	int getWidth();
@@ -28,6 +38,8 @@ public interface INpcRecipe {
 	boolean isKnown();
 
 	boolean isShaped();
+
+	boolean isValid();
 
 	boolean saves();
 
@@ -40,19 +52,7 @@ public interface INpcRecipe {
 	void setIsGlobal(boolean bo);
 
 	void setKnown(boolean known);
-	
-	INbt getNbt();
-	
+
 	void setNbt(INbt nbt);
-	
-	String getNpcGroup();
-
-	IItemStack getProduct();
-
-	void copy(INpcRecipe recipe);
-
-	boolean isValid();
-	
-	boolean equal(INpcRecipe recipe);
 
 }

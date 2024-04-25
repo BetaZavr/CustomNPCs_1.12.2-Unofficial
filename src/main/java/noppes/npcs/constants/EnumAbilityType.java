@@ -1,7 +1,5 @@
 package noppes.npcs.constants;
 
-public enum EnumAbilityType
-{
-	ATTACKED, 
-	UPDATE;
+public enum EnumAbilityType {
+	ATTACKED, UPDATE;
 }

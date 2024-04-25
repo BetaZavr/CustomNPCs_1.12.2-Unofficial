@@ -29,8 +29,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.entity.EntityProjectile;
@@ -38,66 +38,65 @@ import noppes.npcs.util.NBTJsonUtil;
 
 public class Schematic implements ISchematic {
 
-	public short[] blockIdsArray = new short[0];
-	public byte[] blockMetadataArray = new byte[0];
-	public NBTTagList tileList = new NBTTagList();
-	public NBTTagList entityList = new NBTTagList();
-	public short height = 0; // Y axis
-	public short length = 0; // Z axis
-	public short width = 0; // X axis
-	public String name = "";
-	public BlockPos offset = BlockPos.ORIGIN;
-
-	public Schematic(String name) { this.name = name; }
-	
 	public static Schematic create(World world, EnumFacing fase, String name, Map<Integer, BlockPos> schMap) {
 		BlockPos p = schMap.get(0); // offset
 		BlockPos m = schMap.get(1); // min
 		BlockPos n = schMap.get(2); // max
 		AxisAlignedBB bb = new AxisAlignedBB(m, n);
-		short height = (short) (Math.abs(bb.maxY-bb.minY)+1);
-		short width = (short) (Math.abs(bb.maxX-bb.minX)+1);
-		short length = (short) (Math.abs(bb.maxZ-bb.minZ)+1);
+		short height = (short) (Math.abs(bb.maxY - bb.minY) + 1);
+		short width = (short) (Math.abs(bb.maxX - bb.minX) + 1);
+		short length = (short) (Math.abs(bb.maxZ - bb.minZ) + 1);
 		BlockPos pos = new BlockPos(bb.minX, bb.minY, bb.minZ);
-		
+
 		Schematic schema = new Schematic(name);
 		schema.height = height;
-		schema.width = (fase==EnumFacing.EAST || fase==EnumFacing.WEST) ? length : width;
-		schema.length = (fase==EnumFacing.EAST || fase==EnumFacing.WEST) ? width : length;
+		schema.width = (fase == EnumFacing.EAST || fase == EnumFacing.WEST) ? length : width;
+		schema.length = (fase == EnumFacing.EAST || fase == EnumFacing.WEST) ? width : length;
 		int size = height * width * length;
 		schema.blockIdsArray = new short[size];
 		schema.blockMetadataArray = new byte[size];
 		int rot = 0;
-		switch(fase) {
-			case EAST: { rot = 1; break; }
-			case NORTH: { rot = 2; break; }
-			case WEST: { rot = 3; break; }
-			default: { break; }
+		switch (fase) {
+		case EAST: {
+			rot = 1;
+			break;
+		}
+		case NORTH: {
+			rot = 2;
+			break;
+		}
+		case WEST: {
+			rot = 3;
+			break;
+		}
+		default: {
+			break;
+		}
 		}
 		for (int i = 0; i < size; ++i) {
 			int x, z;
 			int y = i / (width * length);
-			switch(fase) {
-				case EAST: {
-					x = i / length - y * width;
-					z = length - 1 - i % length;
-					break;
-				}
-				case NORTH: {
-					x = width - 1 - i % width;
-					z = length - 1 - (i / width) % length;
-					break;
-				}
-				case WEST: {
-					x = width - 1 - (i / length) % width;
-					z = i % length;
-					break;
-				}
-				default: { // SOUTH
-					x = i % width;
-					z = (i - x) / width % length;
-					break;
-				}
+			switch (fase) {
+			case EAST: {
+				x = i / length - y * width;
+				z = length - 1 - i % length;
+				break;
+			}
+			case NORTH: {
+				x = width - 1 - i % width;
+				z = length - 1 - (i / width) % length;
+				break;
+			}
+			case WEST: {
+				x = width - 1 - (i / length) % width;
+				z = i % length;
+				break;
+			}
+			default: { // SOUTH
+				x = i % width;
+				z = (i - x) / width % length;
+				break;
+			}
 			}
 			IBlockState state = SchematicWrapper.rotationState(world.getBlockState(pos.add(x, y, z)), rot);
 			schema.blockIdsArray[i] = (short) Block.REGISTRY.getIDForObject(state.getBlock());
@@ -105,7 +104,7 @@ public class Schematic implements ISchematic {
 			if (state.getBlock() instanceof ITileEntityProvider) {
 				TileEntity tile = world.getTileEntity(pos.add(x, y, z));
 				NBTTagCompound nbtTile = new NBTTagCompound();
-				if (tile!=null) {
+				if (tile != null) {
 					tile.writeToNBT(nbtTile);
 					int newX = i % schema.width;
 					int newZ = (i - newX) / schema.width % schema.length;
@@ -116,69 +115,79 @@ public class Schematic implements ISchematic {
 				schema.tileList.appendTag(nbtTile);
 			}
 		}
-		
+
 		/** Added by mod */
-		schema.offset = new BlockPos(bb.minX-p.getX(), 1 + (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()));
-		switch(fase) {
-			case EAST: {
-				schema.offset = new BlockPos(p.getZ()-bb.maxZ, (int) (bb.minY-p.getY()), (int) (bb.minX-p.getX()));
-				break;
-			}
-			case NORTH: {
-				schema.offset = new BlockPos(p.getX()-bb.maxX, (int) (bb.minY-p.getY()), (int) (p.getZ()-bb.maxZ));
-				break;
-			}
-			case WEST: {
-				schema.offset = new BlockPos(bb.minZ-p.getZ(), (int) (bb.minY-p.getY()), (int) (p.getX()-bb.maxX));
-				break;
-			}
-			default: { // SOUTH
-				schema.offset = new BlockPos(bb.minX-p.getX(), (int) (bb.minY-p.getY()), (int) (bb.minZ-p.getZ()));
-				break;
-			}
+		schema.offset = new BlockPos(bb.minX - p.getX(), 1 + (int) (bb.minY - p.getY()), (int) (bb.minZ - p.getZ()));
+		switch (fase) {
+		case EAST: {
+			schema.offset = new BlockPos(p.getZ() - bb.maxZ, (int) (bb.minY - p.getY()), (int) (bb.minX - p.getX()));
+			break;
+		}
+		case NORTH: {
+			schema.offset = new BlockPos(p.getX() - bb.maxX, (int) (bb.minY - p.getY()), (int) (p.getZ() - bb.maxZ));
+			break;
+		}
+		case WEST: {
+			schema.offset = new BlockPos(bb.minZ - p.getZ(), (int) (bb.minY - p.getY()), (int) (p.getX() - bb.maxX));
+			break;
+		}
+		default: { // SOUTH
+			schema.offset = new BlockPos(bb.minX - p.getX(), (int) (bb.minY - p.getY()), (int) (bb.minZ - p.getZ()));
+			break;
+		}
 		}
 		// Get Entitys:
 		schema.entityList = new NBTTagList();
-		AxisAlignedBB bbE = new AxisAlignedBB(bb.minX-0.25d, bb.minY-0.25d, bb.minZ-0.25d, bb.maxX+0.25d, bb.maxY+0.25d, bb.maxZ+0.25d);
+		AxisAlignedBB bbE = new AxisAlignedBB(bb.minX - 0.25d, bb.minY - 0.25d, bb.minZ - 0.25d, bb.maxX + 0.25d,
+				bb.maxY + 0.25d, bb.maxZ + 0.25d);
 		List<Entity> list = world.getEntitiesWithinAABB(Entity.class, bbE);
 		for (Entity e : list) {
-			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) { continue; }
+			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
+					|| e instanceof EntityPlayer) {
+				continue;
+			}
 			NBTTagCompound nbtEntity = new NBTTagCompound();
 			if (!e.writeToNBTAtomically(nbtEntity)) {
 				nbtEntity = e.writeToNBT(new NBTTagCompound());
 				ResourceLocation regName = EntityList.getKey(e);
-				if (regName==null) { continue; }
+				if (regName == null) {
+					continue;
+				}
 				nbtEntity.setString("id", regName.toString());
 			}
-			if (!nbtEntity.hasKey("UUID", 8)) { nbtEntity.setString("UUID", e.getUniqueID().toString()); }
+			if (!nbtEntity.hasKey("UUID", 8)) {
+				nbtEntity.setString("UUID", e.getUniqueID().toString());
+			}
 			NBTTagList posList = new NBTTagList();
-			double[] d = new double[] { e.posX-p.getX() - 1.0d, e.posY-p.getY(), e.posZ-p.getZ() - 1.0d };
+			double[] d = new double[] { e.posX - p.getX() - 1.0d, e.posY - p.getY(), e.posZ - p.getZ() - 1.0d };
 			double[] ed = new double[] { d[0], d[1], d[2] };
 			if (e instanceof EntityHanging) {
-				d = new double[] { e.getPosition().getX()-p.getX(), e.getPosition().getY() - 1 - p.getY(), e.getPosition().getZ()-p.getZ() };
+				d = new double[] { e.getPosition().getX() - p.getX(), e.getPosition().getY() - 1 - p.getY(),
+						e.getPosition().getZ() - p.getZ() };
 				ed = new double[] { d[0], d[1], d[2] };
 				float er = nbtEntity.getTagList("Rotation", 5).getFloatAt(0);
 				byte f = nbtEntity.getByte("Facing");
-				switch(rot) {
-					case 1:
-						f += 1;
-						er += 90.0f;
-						ed[0] = d[2];
-						ed[2] = d[0];
+				switch (rot) {
+				case 1:
+					f += 1;
+					er += 90.0f;
+					ed[0] = d[2];
+					ed[2] = d[0];
 					break;
-					case 2:
-						f += 2;
-						er += 180.0f;
-						ed[0] *= -1.0d;
-						ed[2] *= -1.0d;
-						break;
-					case 3:
-						f += 3;
-						er += 270.0f;
-						ed[0] = d[2] * -1.0d;
-						ed[2] = d[0] * -1.0d;
-						break;
-					default: break;
+				case 2:
+					f += 2;
+					er += 180.0f;
+					ed[0] *= -1.0d;
+					ed[2] *= -1.0d;
+					break;
+				case 3:
+					f += 3;
+					er += 270.0f;
+					ed[0] = d[2] * -1.0d;
+					ed[2] = d[0] * -1.0d;
+					break;
+				default:
+					break;
 				}
 				f %= (byte) 4;
 				nbtEntity.setByte("Facing", f);
@@ -189,37 +198,36 @@ public class Schematic implements ISchematic {
 				posList.appendTag(new NBTTagDouble(ed[0]));
 				posList.appendTag(new NBTTagDouble(ed[1]));
 				posList.appendTag(new NBTTagDouble(ed[2]));
-			}
-			else {
-				switch(rot) {
-					case 1:
-						ed[0] = d[2];
-						ed[2] = d[0];
+			} else {
+				switch (rot) {
+				case 1:
+					ed[0] = d[2];
+					ed[2] = d[0];
 					break;
-					case 2:
-						ed[0] *= -1.0d;
-						ed[0] -= 1.0d;
-						ed[2] *= -1.0d;
-						ed[2] -= 1.0d;
-						break;
-					case 3:
-						ed[0] = d[2] * -1.0d;
-						ed[0] -= 1.0d;
-						ed[2] = d[0] * -1.0d;
-						ed[2] -= 1.0d;
-						break;
-					default: break;
+				case 2:
+					ed[0] *= -1.0d;
+					ed[0] -= 1.0d;
+					ed[2] *= -1.0d;
+					ed[2] -= 1.0d;
+					break;
+				case 3:
+					ed[0] = d[2] * -1.0d;
+					ed[0] -= 1.0d;
+					ed[2] = d[0] * -1.0d;
+					ed[2] -= 1.0d;
+					break;
+				default:
+					break;
 				}
-				posList.appendTag(new NBTTagDouble(ed[0]-0.5d));
+				posList.appendTag(new NBTTagDouble(ed[0] - 0.5d));
 				posList.appendTag(new NBTTagDouble(ed[1]));
-				posList.appendTag(new NBTTagDouble(ed[2]-0.5d));
+				posList.appendTag(new NBTTagDouble(ed[2] - 0.5d));
 			}
 			nbtEntity.setTag("Pos", posList);
 			schema.entityList.appendTag(nbtEntity);
 		}
 		return schema;
 	}
-
 	public static Schematic create(World world, String name, BlockPos pos, short height, short width, short length) {
 		Schematic schema = new Schematic(name);
 		schema.offset = BlockPos.ORIGIN;
@@ -254,6 +262,56 @@ public class Schematic implements ISchematic {
 		}
 		return schema;
 	}
+	public short[] blockIdsArray = new short[0];
+	public byte[] blockMetadataArray = new byte[0];
+	public NBTTagList tileList = new NBTTagList();
+	public NBTTagList entityList = new NBTTagList();
+	public short height = 0; // Y axis
+	public short length = 0; // Z axis
+	public short width = 0; // X axis
+
+	public String name = "";
+
+	public BlockPos offset = BlockPos.ORIGIN;
+
+	public Schematic(String name) {
+		this.name = name;
+	}
+
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof Schematic)) {
+			return false;
+		}
+		Schematic s = (Schematic) obj;
+		if (!this.name.equals(s.name) || this.height != s.height || this.length != s.length || this.width != s.width
+				|| !this.offset.equals(s.offset) || this.blockIdsArray.length != s.blockIdsArray.length
+				|| this.blockMetadataArray.length != s.blockMetadataArray.length
+				|| this.tileList.tagCount() != s.tileList.tagCount()
+				|| this.entityList.tagCount() != s.entityList.tagCount()) {
+			return false;
+		}
+		for (int i = 0; i < this.blockIdsArray.length; i++) {
+			if (this.blockIdsArray[i] != s.blockIdsArray[i]) {
+				return false;
+			}
+		}
+		for (int i = 0; i < this.blockMetadataArray.length; i++) {
+			if (this.blockMetadataArray[i] != s.blockMetadataArray[i]) {
+				return false;
+			}
+		}
+		for (int i = 0; i < this.tileList.tagCount(); i++) {
+			if (!this.tileList.getCompoundTagAt(i).equals(s.tileList.getCompoundTagAt(i))) {
+				return false;
+			}
+		}
+		for (int i = 0; i < this.entityList.tagCount(); i++) {
+			if (!this.entityList.getCompoundTagAt(i).equals(s.entityList.getCompoundTagAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public byte[][] getBlockBytes() {
 		byte[] blocks = new byte[this.blockIdsArray.length];
@@ -261,7 +319,9 @@ public class Schematic implements ISchematic {
 		for (int i = 0; i < blocks.length; ++i) {
 			short id = this.blockIdsArray[i];
 			if (id > 255) {
-				if (addBlocks == null) { addBlocks = new byte[(blocks.length >> 1) + 1]; }
+				if (addBlocks == null) {
+					addBlocks = new byte[(blocks.length >> 1) + 1];
+				}
 				if ((i & 0x1) == 0x0) {
 					addBlocks[i >> 1] = (byte) ((addBlocks[i >> 1] & 0xF0) | (id >> 8 & 0xF));
 				} else {
@@ -270,7 +330,9 @@ public class Schematic implements ISchematic {
 			}
 			blocks[i] = (byte) id;
 		}
-		if (addBlocks == null) { return new byte[][] { blocks }; }
+		if (addBlocks == null) {
+			return new byte[][] { blocks };
+		}
 		return new byte[][] { blocks, addBlocks };
 	}
 
@@ -278,8 +340,10 @@ public class Schematic implements ISchematic {
 	@Override
 	public IBlockState getBlockState(int i) {
 		Block b = Block.getBlockById(this.blockIdsArray[i]);
-		if (b == null) { return Blocks.AIR.getDefaultState(); }
-		if (i<b.getBlockState().getValidStates().size()) {
+		if (b == null) {
+			return Blocks.AIR.getDefaultState();
+		}
+		if (i < b.getBlockState().getValidStates().size()) {
 			return b.getBlockState().getValidStates().get(i);
 		}
 		return b.getStateFromMeta(this.blockMetadataArray[i]);
@@ -297,13 +361,24 @@ public class Schematic implements ISchematic {
 	}
 
 	@Override
-	public short getHeight() { return this.height; }
+	public NBTTagList getEntitys() {
+		return this.entityList;
+	}
 
 	@Override
-	public short getLength() { return this.length; }
+	public short getHeight() {
+		return this.height;
+	}
 
 	@Override
-	public String getName() { return this.name; }
+	public short getLength() {
+		return this.length;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
 
 	@Override
 	public NBTTagCompound getNBT() {
@@ -311,12 +386,14 @@ public class Schematic implements ISchematic {
 		compound.setShort("Width", this.width);
 		compound.setShort("Height", this.height);
 		compound.setShort("Length", this.length);
-		
+
 		byte[][] arr = this.getBlockBytes();
 		compound.setByteArray("Blocks", arr[0]);
-		if (arr.length > 1) { compound.setByteArray("AddBlocks", arr[1]); }
+		if (arr.length > 1) {
+			compound.setByteArray("AddBlocks", arr[1]);
+		}
 		compound.setByteArray("Data", this.blockMetadataArray);
-		
+
 		compound.setTag("TileEntities", this.tileList);
 		compound.setTag("Entities", this.entityList);
 		// New
@@ -326,38 +403,79 @@ public class Schematic implements ISchematic {
 	}
 
 	@Override
-	public NBTTagCompound getTileEntity(int i) { return this.tileList.getCompoundTagAt(i); }
+	public BlockPos getOffset() {
+		return this.offset;
+	}
+
+	@Override
+	public NBTTagCompound getTileEntity(int i) {
+		return this.tileList.getCompoundTagAt(i);
+	}
 
 	@Override
 	public int getTileEntitySize() {
-		if (this.tileList == null) { return 0; }
+		if (this.tileList == null) {
+			return 0;
+		}
 		return this.tileList.tagCount();
 	}
 
 	@Override
-	public short getWidth() { return this.width; }
+	public short getWidth() {
+		return this.width;
+	}
+
+	@Override
+	public boolean hasEntitys() {
+		return this.entityList != null && this.entityList.tagCount() > 0;
+	}
 
 	public void load(NBTTagCompound compound) {
 		this.width = compound.getShort("Width");
 		this.height = compound.getShort("Height");
 		this.length = compound.getShort("Length");
-		
+
 		byte[] addId = compound.hasKey("AddBlocks") ? compound.getByteArray("AddBlocks") : new byte[0];
 		this.setBlockBytes(compound.getByteArray("Blocks"), addId);
-		
+
 		this.blockMetadataArray = compound.getByteArray("Data");
 		this.tileList = compound.getTagList("TileEntities", 10);
 		this.entityList = compound.getTagList("Entities", 10);
 		// New
 		int[] arr = compound.getIntArray("Offset");
-		if (arr!=null && arr.length>=3) { this.offset = new BlockPos(arr[0], arr[1], arr[2]); }
-		else { this.offset = BlockPos.ORIGIN; }
+		if (arr != null && arr.length >= 3) {
+			this.offset = new BlockPos(arr[0], arr[1], arr[2]);
+		} else {
+			this.offset = BlockPos.ORIGIN;
+		}
 		this.name = compound.getString("Name");
+	}
+
+	public void save(EntityPlayer player) {
+		if (player == null || player.world == null || !player.world.isRemote) {
+			return;
+		}
+		try {
+			File file = new File(SchematicController.getDir(), this.name);
+			CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(file));
+			ITextComponent component = new TextComponentString("Save Schematic file: \"" + file + "\"");
+			component.getStyle().setColor(TextFormatting.GRAY);
+			player.sendMessage(component);
+			if (SchematicController.Instance.map.containsKey(this.name)) {
+				SchematicController.Instance.map.put(this.name, new SchematicWrapper(this));
+			}
+
+			if (CustomNpcs.VerboseDebug) {
+				file = new File(SchematicController.getDir(), this.name.replace(".schematic", "") + ".json");
+				NBTJsonUtil.SaveFile(file, this.getNBT());
+			}
+		} catch (Exception e) {
+		}
 	}
 
 	public void setBlockBytes(byte[] blockId, byte[] addId) {
 		this.blockIdsArray = new short[blockId.length];
-		
+
 		for (int index = 0; index < blockId.length; ++index) {
 			short id = (short) (blockId[index] & 0xFF);
 			if (index >> 1 < addId.length) {
@@ -371,62 +489,8 @@ public class Schematic implements ISchematic {
 		}
 	}
 
-	public int xyzToIndex(int x, int y, int z) { return (y * this.length + z) * this.width + x; }
-
-	public void save(EntityPlayer player) {
-		if (player==null || player.world==null || !player.world.isRemote) { return; }
-		try {
-			File file = new File(SchematicController.getDir(), this.name);
-			CompressedStreamTools.writeCompressed(this.getNBT(), new FileOutputStream(file));
-			ITextComponent component = new TextComponentString("Save Schematic file: \""+file+"\"");
-			component.getStyle().setColor(TextFormatting.GRAY);
-			player.sendMessage(component);
-			if (SchematicController.Instance.map.containsKey(this.name)) {
-				SchematicController.Instance.map.put(this.name, new SchematicWrapper(this));
-			}
-			
-			if (CustomNpcs.VerboseDebug) {
-				file = new File(SchematicController.getDir(), this.name.replace(".schematic", "")+".json");
-				NBTJsonUtil.SaveFile(file, this.getNBT());
-			}
-		}
-		catch (Exception e) { }
-	}
-	
-	public boolean equals(Object obj) {
-		if (obj==null || !(obj instanceof Schematic)) { return false; }
-		Schematic s = (Schematic) obj;
-		if (!this.name.equals(s.name) ||
-				this.height!=s.height ||
-				this.length!=s.length ||
-				this.width!=s.width ||
-				!this.offset.equals(s.offset) ||
-				this.blockIdsArray.length!=s.blockIdsArray.length ||
-				this.blockMetadataArray.length!=s.blockMetadataArray.length ||
-				this.tileList.tagCount()!=s.tileList.tagCount() ||
-				this.entityList.tagCount()!=s.entityList.tagCount()) { return false; }
-		for (int i = 0; i < this.blockIdsArray.length; i++) {
-			if (this.blockIdsArray[i]!=s.blockIdsArray[i]) { return false; }
-		}
-		for (int i = 0; i < this.blockMetadataArray.length; i++) {
-			if (this.blockMetadataArray[i]!=s.blockMetadataArray[i]) { return false; }
-		}
-		for (int i = 0; i < this.tileList.tagCount(); i++) {
-			if (!this.tileList.getCompoundTagAt(i).equals(s.tileList.getCompoundTagAt(i))) { return false; }
-		}
-		for (int i = 0; i < this.entityList.tagCount(); i++) {
-			if (!this.entityList.getCompoundTagAt(i).equals(s.entityList.getCompoundTagAt(i))) { return false; }
-		}
-		return true;
+	public int xyzToIndex(int x, int y, int z) {
+		return (y * this.length + z) * this.width + x;
 	}
 
-	@Override
-	public boolean hasEntitys() { return this.entityList!=null && this.entityList.tagCount()>0; }
-
-	@Override
-	public NBTTagList getEntitys() { return this.entityList; }
-
-	@Override
-	public BlockPos getOffset() { return this.offset; }
-	
 }

@@ -17,10 +17,8 @@ import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RolePostman
-extends RoleInterface
-implements IRolePostman {
-	
+public class RolePostman extends RoleInterface implements IRolePostman {
+
 	public NpcMiscInventory inventory;
 	private List<EntityPlayer> recentlyChecked;
 	private List<EntityPlayer> toCheck;
@@ -42,14 +40,17 @@ implements IRolePostman {
 		if (this.npc.ticksExisted % 20 != 0) {
 			return false;
 		}
-		(this.toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0))).removeAll(this.recentlyChecked);
-		
-		List<EntityPlayer> listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class, this.npc.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
+		(this.toCheck = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+				this.npc.getEntityBoundingBox().grow(10.0, 10.0, 10.0))).removeAll(this.recentlyChecked);
+
+		List<EntityPlayer> listMax = this.npc.world.getEntitiesWithinAABB(EntityPlayer.class,
+				this.npc.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
 		this.recentlyChecked.retainAll(listMax);
 		this.recentlyChecked.addAll(this.toCheck);
 		for (EntityPlayer player : this.toCheck) {
 			if (PlayerData.get(player).mailData.hasMail()) {
-				this.npc.say(player, new Line(new TextComponentTranslation("mail.player.has.letter").getFormattedText()));
+				this.npc.say(player,
+						new Line(new TextComponentTranslation("mail.player.has.letter").getFormattedText()));
 			}
 		}
 		return false;
@@ -58,7 +59,8 @@ implements IRolePostman {
 	@Override
 	public void interact(EntityPlayer player) {
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, 1, 1, 0);
-		//player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailbox.ordinal(), player.world, 1, 1, 0);
+		// player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailbox.ordinal(),
+		// player.world, 1, 1, 0);
 	}
 
 	@Override
@@ -73,5 +75,5 @@ implements IRolePostman {
 		compound.setTag("PostInv", this.inventory.getToNBT());
 		return compound;
 	}
-	
+
 }

@@ -8,9 +8,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiHoverText
-extends GuiScreen {
-	
+public class GuiHoverText extends GuiScreen {
+
 	protected static ResourceLocation buttonTextures = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 	public int id;
 	private String text;

@@ -5,13 +5,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
 public class ModelClassicPlayer extends ModelNPCAlt {
-	
+
 	public ModelClassicPlayer(float scale) {
 		super(scale, false);
 	}
 
 	@Override
-	public void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6, Entity entity) {
+	public void setRotationAngles(float par1, float par2, float par3, float par4, float par5, float par6,
+			Entity entity) {
 		super.setRotationAngles(par1, par2, par3, par4, par5, par6, entity);
 		float j = 2.0f;
 		if (entity.isSprinting()) {

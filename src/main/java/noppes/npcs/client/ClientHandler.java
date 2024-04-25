@@ -8,22 +8,35 @@ import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.CustomNpcs;
 
 public class ClientHandler {
-	
+
 	static ClientHandler instance;
+
+	public static ClientHandler getInstance() {
+		if (ClientHandler.instance == null) {
+			ClientHandler.instance = new ClientHandler();
+		}
+		return ClientHandler.instance;
+	}
 
 	TreeSet<Integer> customDimensions;
 
-	public ClientHandler() { this.customDimensions = Sets.<Integer>newTreeSet(); }
-
-	public static ClientHandler getInstance() {
-		if (ClientHandler.instance == null) { ClientHandler.instance = new ClientHandler(); }
-		return ClientHandler.instance;
+	public ClientHandler() {
+		this.customDimensions = Sets.<Integer>newTreeSet();
 	}
 
 	public void cleanUp() {
 		for (int id : this.customDimensions) {
-			if (DimensionManager.isDimensionRegistered(id)) { DimensionManager.unregisterDimension(id); }
+			if (DimensionManager.isDimensionRegistered(id)) {
+				DimensionManager.unregisterDimension(id);
+			}
 		}
+	}
+
+	public boolean has(int dimensionId) {
+		if (dimensionId < 100) {
+			return false;
+		}
+		return this.customDimensions.contains(dimensionId);
 	}
 
 	public void sync(int[] dimensions) {
@@ -38,9 +51,4 @@ public class ClientHandler {
 		}
 	}
 
-	public boolean has(int dimensionId) {
-		if (dimensionId<100) { return false; }
-		return this.customDimensions.contains(dimensionId);
-	}
-	
 }

@@ -22,7 +22,7 @@ import noppes.npcs.quests.QuestInterface;
 import noppes.npcs.quests.QuestObjective;
 
 public class TileWaypoint extends TileNpcEntity implements ITickable {
-	
+
 	public String name;
 	public int range;
 	private List<EntityPlayer> recentlyChecked;
@@ -80,15 +80,25 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 			PlayerData pdata = PlayerData.get(player);
 			PlayerQuestData questData = pdata.questData;
 			for (QuestData data : questData.activeQuests.values()) {
-				if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) { continue; }
-				boolean bo = data.quest.step==1;
-				for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-					if (data.quest.step==1 && !bo) { break; }
+				if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) {
+					continue;
+				}
+				boolean bo = data.quest.step == 1;
+				for (IQuestObjective obj : data.quest
+						.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+					if (data.quest.step == 1 && !bo) {
+						break;
+					}
 					bo = obj.isCompleted();
-					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION || !((QuestObjective) obj).getTargetName().equals(this.name)) { continue; }
-					
+					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION
+							|| !((QuestObjective) obj).getTargetName().equals(this.name)) {
+						continue;
+					}
+
 					QuestInterface quest = data.quest.questInterface;
-					if (!quest.setFound(data, this.name)) { continue; }
+					if (!quest.setFound(data, this.name)) {
+						continue;
+					}
 					if (data.quest.showProgressInWindow) {
 						NBTTagCompound compound = new NBTTagCompound();
 						compound.setInteger("QuestID", data.quest.id);
@@ -98,8 +108,12 @@ public class TileWaypoint extends TileNpcEntity implements ITickable {
 						compound.setInteger("MessageType", 0);
 						Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE_DATA, compound);
 					}
-					if (data.quest.showProgressInChat) {player.sendMessage(new TextComponentTranslation("quest.message.location.1", new TextComponentTranslation(((QuestObjective) obj).getTargetName()).getFormattedText(), data.quest.getTitle())); }
-					
+					if (data.quest.showProgressInChat) {
+						player.sendMessage(new TextComponentTranslation("quest.message.location.1",
+								new TextComponentTranslation(((QuestObjective) obj).getTargetName()).getFormattedText(),
+								data.quest.getTitle()));
+					}
+
 					questData.checkQuestCompletion(player, data);
 					questData.updateClient = true;
 				}

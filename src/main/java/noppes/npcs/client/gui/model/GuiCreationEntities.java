@@ -29,10 +29,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityNpcAlex;
 import noppes.npcs.entity.EntityNpcClassicPlayer;
 
-public class GuiCreationEntities
-extends GuiCreationScreenInterface
-implements ICustomScrollListener {
-	
+public class GuiCreationEntities extends GuiCreationScreenInterface implements ICustomScrollListener {
+
 	public HashMap<String, Class<? extends EntityLivingBase>> data;
 	private List<String> list;
 	private boolean resetToSelected;
@@ -81,6 +79,39 @@ implements ICustomScrollListener {
 	}
 
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.extra").getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
+		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.part.reset").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		} else {
+			for (GuiButton b : this.buttonList) {
+				if (b != null && b.isMouseOver()) {
+					if (b.id == 500) {
+						this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText());
+					}
+				}
+			}
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+
+	@Override
 	public void initGui() {
 		super.initGui();
 		this.addButton(new GuiNpcButton(10, this.guiLeft, this.guiTop + 46, 120, 20, "Reset To NPC"));
@@ -114,8 +145,10 @@ implements ICustomScrollListener {
 		Entity entity = this.playerdata.getEntity(this.npc);
 		if (entity != null) {
 			@SuppressWarnings("rawtypes")
-			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager().getEntityClassRenderObject(entity.getClass());
-			if (!NPCRendererHelper.getTexture(render, (EntityLivingBase) entity).equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
+			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager()
+					.getEntityClassRenderObject(entity.getClass());
+			if (!NPCRendererHelper.getTexture(render, (EntityLivingBase) entity)
+					.equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
 				this.npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, (EntityLivingBase) entity));
 			}
 		} else {
@@ -126,35 +159,5 @@ implements ICustomScrollListener {
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.extra").getFormattedText());
-		}else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.reset").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		else {
-			for (GuiButton b : this.buttonList) {
-				if (b!=null && b.isMouseOver()) {
-					if (b.id==500) { this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText()); }
-				}
-			}
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
 	}
 }

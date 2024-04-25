@@ -9,18 +9,15 @@ import noppes.npcs.api.entity.IVillager;
 import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("rawtypes")
-public class VillagerWrapper<T extends EntityVillager>
-extends EntityLivingWrapper<T>
-implements IVillager {
-	
+public class VillagerWrapper<T extends EntityVillager> extends EntityLivingWrapper<T> implements IVillager {
+
 	public VillagerWrapper(T entity) {
 		super(entity);
 	}
 
 	public String getCareer() {
 		return this.entity.getProfessionForge()
-				.getCareer(ObfuscationHelper.getValue(EntityVillager.class, this.entity, 13))
-				.getName();
+				.getCareer(ObfuscationHelper.getValue(EntityVillager.class, this.entity, 13)).getName();
 	}
 
 	@SuppressWarnings("deprecation")

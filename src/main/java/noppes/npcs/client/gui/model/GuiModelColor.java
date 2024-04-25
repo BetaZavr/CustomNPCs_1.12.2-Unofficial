@@ -19,10 +19,8 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 
-public class GuiModelColor
-extends SubGuiInterface
-implements ITextfieldListener {
-	
+public class GuiModelColor extends SubGuiInterface implements ITextfieldListener {
+
 	public interface ColorCallback {
 		void color(int p0);
 	}
@@ -67,55 +65,60 @@ implements ITextfieldListener {
 			this.mc.renderEngine.bindTexture(GuiModelColor.colorgui);
 			int x = this.colorX + 128;
 			int y = this.colorY;
-			this.drawTexturedModalRect(x + 1, y-5, 9, 0, 136, 124);
-			this.drawTexturedModalRect(x, y+119, 8, 169, 137, 4);
+			this.drawTexturedModalRect(x + 1, y - 5, 9, 0, 136, 124);
+			this.drawTexturedModalRect(x, y + 119, 8, 169, 137, 4);
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 4, y, 0.0f);
 			GlStateManager.scale(0.46f, 0.46f, 0.46f);
 			this.mc.renderEngine.bindTexture(this.npcSkin);
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
-			
-		} else if (this.npc!=null && this.bufferSkin==null && !this.npc.display.getSkinTexture().isEmpty()) {
+
+		} else if (this.npc != null && this.bufferSkin == null && !this.npc.display.getSkinTexture().isEmpty()) {
 			this.npcSkin = new ResourceLocation(this.npc.display.getSkinTexture());
 			InputStream stream = null;
 			try {
 				IResource resource = this.mc.getResourceManager().getResource(this.npcSkin);
 				this.bufferSkin = ImageIO.read(stream = resource.getInputStream());
-			} catch (IOException ex) {}
-			finally {
+			} catch (IOException ex) {
+			} finally {
 				if (stream != null) {
 					try {
 						stream.close();
-					} catch (IOException ex2) { }
+					} catch (IOException ex2) {
+					}
 				}
 			}
 		}
 		this.hovered = false;
-		if (this.bufferColor==null) {
+		if (this.bufferColor == null) {
 			InputStream stream = null;
 			try {
 				IResource resource = this.mc.getResourceManager().getResource(GuiModelColor.colorPicker);
 				this.bufferColor = ImageIO.read(stream = resource.getInputStream());
-			} catch (IOException ex) {}
-			finally {
+			} catch (IOException ex) {
+			} finally {
 				if (stream != null) {
 					try {
 						stream.close();
-					} catch (IOException ex2) { }
+					} catch (IOException ex2) {
+					}
 				}
 			}
-		} else if (mouseX >= this.colorX && mouseX <= this.colorX + 120 && mouseY >= this.colorY && mouseY <= this.colorY + 120) {
+		} else if (mouseX >= this.colorX && mouseX <= this.colorX + 120 && mouseY >= this.colorY
+				&& mouseY <= this.colorY + 120) {
 			this.hover = this.bufferColor.getRGB((mouseX - this.colorX) * 4, (mouseY - this.colorY) * 4) & 0xFFFFFF;
 			this.hovered = true;
-		} else if (this.bufferSkin!=null) {
+		} else if (this.bufferSkin != null) {
 			int x = (int) ((float) (mouseX - this.colorX - 132) / 0.46f);
 			int y = (int) ((float) (mouseY - this.colorY) / 0.46f);
-			if (x>=0 && x<256 && y>=0 && y<256) {
+			if (x >= 0 && x < 256 && y >= 0 && y < 256) {
 				float w = 256.0f / (float) this.bufferSkin.getWidth();
 				float h = 256.0f / (float) this.bufferSkin.getHeight();
-				try { this.hover = this.bufferSkin.getRGB((int) ((float) x / w), (int) ((float) y / h)) & 0xFFFFFF; }
-				catch (Exception e) {}
+				try {
+					this.hover = this.bufferSkin.getRGB((int) ((float) x / w), (int) ((float) y / h)) & 0xFFFFFF;
+				} catch (Exception e) {
+				}
 				this.hovered = true;
 			}
 		}
@@ -125,10 +128,12 @@ implements ITextfieldListener {
 		this.drawGradientRect(0, 0, 20, 20, 0xFF000000 + this.hover, 0xFF000000 + this.hover);
 		this.drawGradientRect(0, 0, 20, 20, this.hover, this.hover);
 		GlStateManager.popMatrix();
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.set.color").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 		if (this.hoverText != null) {
@@ -175,7 +180,7 @@ implements ITextfieldListener {
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
-		if (this.hovered && this.hover!=0) {
+		if (this.hovered && this.hover != 0) {
 			this.color = this.hover;
 			this.callback.color(this.hover);
 			this.textfield.setTextColor(this.hover);

@@ -1,8 +1,6 @@
 package noppes.npcs.constants;
 
-public enum EnumAvailabilityPlayerName
-{
-	Only,
-	Except;
+public enum EnumAvailabilityPlayerName {
+	Only, Except;
 
 }

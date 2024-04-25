@@ -11,17 +11,15 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class ItemScriptedDoor
-extends ItemDoor
-implements IPermission {
-	
+public class ItemScriptedDoor extends ItemDoor implements IPermission {
+
 	public ItemScriptedDoor(Block block) {
 		super(block);
 		this.setRegistryName(CustomNpcs.MODID, "npcscripteddoortool");
@@ -35,11 +33,13 @@ implements IPermission {
 		return e == EnumPacketServer.ScriptDoorDataSave;
 	}
 
-	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand,
+			EnumFacing side, float hitX, float hitY, float hitZ) {
 		EnumActionResult res = super.onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
 		if (res == EnumActionResult.SUCCESS && !worldIn.isRemote) {
 			BlockPos newPos = pos.up();
-			NoppesUtilServer.sendOpenGui(playerIn, EnumGuiType.ScriptDoor, null, newPos.getX(), newPos.getY(), newPos.getZ());
+			NoppesUtilServer.sendOpenGui(playerIn, EnumGuiType.ScriptDoor, null, newPos.getX(), newPos.getY(),
+					newPos.getZ());
 			return EnumActionResult.SUCCESS;
 		}
 		return res;

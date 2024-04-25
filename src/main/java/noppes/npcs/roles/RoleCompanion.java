@@ -48,10 +48,8 @@ import noppes.npcs.roles.companion.CompanionJobInterface;
 import noppes.npcs.roles.companion.CompanionTrader;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class RoleCompanion
-extends RoleInterface
-implements IRoleCompanion {
-	
+public class RoleCompanion extends RoleInterface implements IRoleCompanion {
+
 	public boolean canAge, defendOwner, hasInv;
 	public int companionID, currentExp, eatingDelay, eatingTicks;
 	private IItemStack eating;
@@ -565,6 +563,35 @@ implements IRoleCompanion {
 		NoppesUtilServer.sendOpenGui(player, EnumGuiType.Companion, this.npc);
 	}
 
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = RoleType.COMPANION;
+		this.inventory.setFromNBT(compound.getCompoundTag("CompanionInventory"));
+		this.uuid = compound.getString("CompanionOwner");
+		this.ownerName = compound.getString("CompanionOwnerName");
+		this.companionID = compound.getInteger("CompanionID");
+		this.stage = EnumCompanionStage.values()[compound.getInteger("CompanionStage")];
+		this.currentExp = compound.getInteger("CompanionExp");
+		this.canAge = compound.getBoolean("CompanionCanAge");
+		this.ticksActive = compound.getLong("CompanionAge");
+		this.hasInv = compound.getBoolean("CompanionHasInv");
+		this.defendOwner = compound.getBoolean("CompanionDefendOwner");
+		this.foodstats.readNBT(compound);
+		NBTTagList list = compound.getTagList("CompanionTalents", 10);
+		Map<EnumCompanionTalent, Integer> talents = new TreeMap<EnumCompanionTalent, Integer>();
+		for (int i = 0; i < list.tagCount(); ++i) {
+			NBTTagCompound c = list.getCompoundTagAt(i);
+			EnumCompanionTalent talent = EnumCompanionTalent.values()[c.getInteger("Talent")];
+			talents.put(talent, c.getInteger("Exp"));
+		}
+		this.talents = talents;
+		this.setJob(compound.getInteger("CompanionJob"));
+		if (this.jobInterface != null) {
+			this.jobInterface.setNBT(compound.getCompoundTag("CompanionJobData"));
+		}
+		this.setStats();
+	}
+
 	public void setExp(EnumCompanionTalent talent, int exp) {
 		this.talents.put(talent, exp);
 	}
@@ -610,7 +637,7 @@ implements IRoleCompanion {
 			this.npc.ais.animationType = 1;
 			this.npc.ais.onAttack = 3;
 			this.npc.ais.setStartPos(new BlockPos(this.npc));
-			this.npc.getNavigator().clearPath(); 
+			this.npc.getNavigator().clearPath();
 			this.npc.setPositionAndUpdate(this.npc.getStartXPos(), this.npc.posY, this.npc.getStartZPos());
 		} else {
 			this.npc.ais.animationType = this.stage.animation;
@@ -637,36 +664,6 @@ implements IRoleCompanion {
 		this.inventory.setSize(2 + this.getTalentLevel(EnumCompanionTalent.INVENTORY) * 2);
 	}
 
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.COMPANION;
-		this.inventory.setFromNBT(compound.getCompoundTag("CompanionInventory"));
-		this.uuid = compound.getString("CompanionOwner");
-		this.ownerName = compound.getString("CompanionOwnerName");
-		this.companionID = compound.getInteger("CompanionID");
-		this.stage = EnumCompanionStage.values()[compound.getInteger("CompanionStage")];
-		this.currentExp = compound.getInteger("CompanionExp");
-		this.canAge = compound.getBoolean("CompanionCanAge");
-		this.ticksActive = compound.getLong("CompanionAge");
-		this.hasInv = compound.getBoolean("CompanionHasInv");
-		this.defendOwner = compound.getBoolean("CompanionDefendOwner");
-		this.foodstats.readNBT(compound);
-		NBTTagList list = compound.getTagList("CompanionTalents", 10);
-		Map<EnumCompanionTalent, Integer> talents = new TreeMap<EnumCompanionTalent, Integer>();
-		for (int i = 0; i < list.tagCount(); ++i) {
-			NBTTagCompound c = list.getCompoundTagAt(i);
-			EnumCompanionTalent talent = EnumCompanionTalent.values()[c.getInteger("Talent")];
-			talents.put(talent, c.getInteger("Exp"));
-		}
-		this.talents = talents;
-		this.setJob(compound.getInteger("CompanionJob"));
-		if (this.jobInterface != null) {
-			this.jobInterface.setNBT(compound.getCompoundTag("CompanionJobData"));
-		}
-		this.setStats();
-	}
-	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", RoleType.COMPANION.get());

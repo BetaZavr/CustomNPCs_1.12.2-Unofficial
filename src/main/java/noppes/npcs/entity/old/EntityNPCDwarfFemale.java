@@ -9,7 +9,7 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityNPCDwarfFemale extends EntityNPCInterface {
-	
+
 	public EntityNPCDwarfFemale(World world) {
 		super(world);
 		float n = 0.75f;

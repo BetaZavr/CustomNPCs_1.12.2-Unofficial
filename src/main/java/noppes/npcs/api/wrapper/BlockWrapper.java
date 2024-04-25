@@ -32,23 +32,46 @@ import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.LRUHashMap;
 
-public class BlockWrapper
-implements IBlock {
-	
+public class BlockWrapper implements IBlock {
+
 	public static Map<String, BlockWrapper> blockCache = new LRUHashMap<String, BlockWrapper>(400);
 
 	public static void clearCache() {
 		BlockWrapper.blockCache.clear();
 	}
 
+	/** Need convert to BlockState */
+	@Deprecated
+	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
+		Block block = state.getBlock();
+		String key = state.toString() + pos.toString();
+		BlockWrapper b = BlockWrapper.blockCache.get(key);
+		if (b == null) {
+			if (block instanceof BlockScripted) {
+				b = new BlockScriptedWrapper(world, block, pos);
+			} else if (block instanceof BlockScriptedDoor) {
+				b = new BlockScriptedDoorWrapper(world, block, pos);
+			} else if (block instanceof BlockFluidBase) {
+				b = new BlockFluidContainerWrapper(world, block, pos);
+			} else {
+				b = new BlockWrapper(world, block, pos);
+			}
+			BlockWrapper.blockCache.put(key, b);
+		}
+		if (b != null) {
+			b.setTile(world.getTileEntity(pos));
+		}
+		return b;
+	}
 	protected Block block;
 	protected BlockPosWrapper bPos;
 	protected BlockPos pos;
 	public TileNpcEntity storage;
 	private IData storeddata;
-	private IData tempdata;
 
+	private IData tempdata;
 	public TileEntity tile;
+
 	protected IWorld world;
 
 	@SuppressWarnings("deprecation")
@@ -61,32 +84,18 @@ implements IBlock {
 		} else if (world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
 			if (w != null) {
-				if (w.world == null) { w.world = world; }
+				if (w.world == null) {
+					w.world = world;
+				}
+			} else {
+				w = WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world));
 			}
-			else { w = WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world)); }
 			this.world = w;
 		}
 		this.block = block;
 		this.pos = pos;
 		this.bPos = new BlockPosWrapper(pos);
 		this.setTile(world.getTileEntity(pos));
-	}
-	
-	/** Need convert to BlockState */
-	@Deprecated
-	public static IBlock createNew(World world, BlockPos pos, IBlockState state) {
-		Block block = state.getBlock();
-		String key = state.toString() + pos.toString();
-		BlockWrapper b = BlockWrapper.blockCache.get(key);
-		if (b == null) {
-			if (block instanceof BlockScripted) { b = new BlockScriptedWrapper(world, block, pos); }
-			else if (block instanceof BlockScriptedDoor) { b = new BlockScriptedDoorWrapper(world, block, pos); }
-			else if (block instanceof BlockFluidBase) { b = new BlockFluidContainerWrapper(world, block, pos); }
-			else { b = new BlockWrapper(world, block, pos); }
-			BlockWrapper.blockCache.put(key, b);
-		}
-		if (b != null) { b.setTile(world.getTileEntity(pos)); }
-		return b;
 	}
 
 	@Override
@@ -188,7 +197,9 @@ implements IBlock {
 		World w = this.world.getMCWorld();
 		player.setWorld(w);
 		player.setPosition(this.pos.getX(), this.pos.getY(), this.pos.getZ());
-		this.block.onBlockActivated(w, this.pos, w.getBlockState(this.pos), (EntityPlayer) EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f, 0.0f, 0.0f);
+		this.block.onBlockActivated(w, this.pos, w.getBlockState(this.pos),
+				(EntityPlayer) EntityNPCInterface.CommandPlayer, EnumHand.MAIN_HAND, EnumFacing.values()[side], 0.0f,
+				0.0f, 0.0f);
 	}
 
 	@Override

@@ -5,17 +5,14 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 
 public interface IRecipeHandler {
 
-	INpcRecipe getRecipe(String group, String name);
-	
-	INpcRecipe getRecipe(int id);
-	
-	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width, int height, ItemStack[] stacks);
+	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, int width,
+			int height, ItemStack[] stacks);
 
 	INpcRecipe addRecipe(String group, String name, boolean global, boolean known, ItemStack result, Object[] objects);
 
-	boolean delete(String group, String name);
-	
 	boolean delete(int id);
+
+	boolean delete(String group, String name);
 
 	INpcRecipe[] getCarpentryData();
 
@@ -24,5 +21,9 @@ public interface IRecipeHandler {
 	INpcRecipe[] getGlobalData();
 
 	INpcRecipe[] getGlobalRecipes(String group);
+
+	INpcRecipe getRecipe(int id);
+
+	INpcRecipe getRecipe(String group, String name);
 
 }

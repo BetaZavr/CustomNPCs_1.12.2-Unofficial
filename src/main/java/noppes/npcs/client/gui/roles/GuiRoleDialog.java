@@ -17,10 +17,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleDialog;
 
-public class GuiRoleDialog
-extends GuiNPCInterface2
-implements ISubGuiListener {
-	
+public class GuiRoleDialog extends GuiNPCInterface2 implements ISubGuiListener {
+
 	private RoleDialog role;
 	private int slot;
 
@@ -65,6 +63,15 @@ implements ISubGuiListener {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+	}
+
+	@Override
 	public void save() {
 		HashMap<Integer, String> map = new HashMap<Integer, String>();
 		for (int i = 1; i <= 6; ++i) {
@@ -88,15 +95,6 @@ implements ISubGuiListener {
 			} else {
 				this.role.optionsTexts.put(this.slot, text.text);
 			}
-		}
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 }

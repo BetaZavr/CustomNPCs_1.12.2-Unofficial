@@ -290,7 +290,9 @@ public class NBTTags {
 
 	public static NBTTagList nbtIntegerCollection(Collection<Integer> set) {
 		NBTTagList nbttaglist = new NBTTagList();
-		if (set == null) { return nbttaglist; }
+		if (set == null) {
+			return nbttaglist;
+		}
 		for (int slot : set) {
 			NBTTagCompound nbttagcompound = new NBTTagCompound();
 			nbttagcompound.setInteger("Integer", slot);

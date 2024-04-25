@@ -94,13 +94,17 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
 		this.renderLegs(par7);
-		if (!this.npc.animation.showParts.get(3)) { return; }
+		if (!this.npc.animation.showParts.get(3)) {
+			return;
+		}
 		this.renderTails(par7);
 	}
 
 	private void renderLegs(float par7) {
 		ModelPartData data = this.playerdata.getPartData(EnumParts.LEGS);
-		if (data.type <= 0) { return; }
+		if (data.type <= 0) {
+			return;
+		}
 		GlStateManager.pushMatrix();
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
 		this.preRender(data);
@@ -109,7 +113,8 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
 			this.naga.render(par7);
 		} else if (data.type == 2) {
-			GlStateManager.translate(0.0, config.offsetBase[1] * 1.76f - 0.1 * config.scaleBase[1], (config.offsetBase[2] * par7));
+			GlStateManager.translate(0.0, config.offsetBase[1] * 1.76f - 0.1 * config.scaleBase[1],
+					(config.offsetBase[2] * par7));
 			GlStateManager.scale(1.06f, 1.06f, 1.06f);
 			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
 			this.spiderLegs.render(par7);
@@ -141,7 +146,8 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		}
 		GlStateManager.pushMatrix();
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
-		GlStateManager.translate(config.offsetBase[0] * par7, config.offsetBase[1] + this.rotationPointY * par7, config.offsetBase[2] * par7 + this.rotationPointZ * par7);
+		GlStateManager.translate(config.offsetBase[0] * par7, config.offsetBase[1] + this.rotationPointY * par7,
+				config.offsetBase[2] * par7 + this.rotationPointZ * par7);
 		GlStateManager.translate(0.0f, 0.0f, (config.scaleBase[2] - 1.0f) * 5.0f * par7);
 		GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
 		this.preRender(data);

@@ -15,9 +15,8 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class Faction
-implements IFaction {
-	
+public class Faction implements IFaction {
+
 	public static String formatName(String name) {
 		name = name.toLowerCase().trim();
 		return name.substring(0, 1).toUpperCase() + name.substring(1);
@@ -37,7 +36,8 @@ implements IFaction {
 	public ResourceLocation flag = new ResourceLocation(CustomNpcs.MODID + ":textures/cloak/mojang.png");
 	public FactionOptions factions = new FactionOptions();
 
-	public Faction() { }
+	public Faction() {
+	}
 
 	public Faction(int id, String name, int color, int defaultPoints) {
 		this();
@@ -71,6 +71,16 @@ implements IFaction {
 	}
 
 	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public String getFlag() {
+		return flag == null ? "" : flag.toString();
+	}
+
+	@Override
 	public int[] getHostileList() {
 		int[] a = new int[attackFactions.size()];
 		int i = 0;
@@ -91,29 +101,9 @@ implements IFaction {
 	}
 
 	@Override
-	public String getName() { return new TextComponentTranslation(name).getFormattedText(); }
-	
-	@Override
-	public String getFlag() { return flag == null ? "" : flag.toString(); }
-
-	@Override
-	public void setFlag(String flagPath) {
-		if (flagPath == null || flagPath.isEmpty()) {
-			flag = null;
-			return;
-		}
-		flag = new ResourceLocation(flagPath);
+	public String getName() {
+		return new TextComponentTranslation(name).getFormattedText();
 	}
-
-	@Override
-	public String getDescription() { return description; }
-
-	@Override
-	public void setDescription(String descr) {
-		if (descr == null) { descr = ""; }
-		description = descr;
-	}
-	
 
 	@Override
 	public boolean hasHostile(int id) {
@@ -135,7 +125,9 @@ implements IFaction {
 	}
 
 	public boolean isAggressiveToPlayer(EntityPlayer player) {
-		if (player.capabilities.isCreativeMode) { return false; }
+		if (player.capabilities.isCreativeMode) {
+			return false;
+		}
 		PlayerFactionData data = PlayerData.get(player).factionData;
 		return data.getFactionPoints(player, id) < neutralPoints;
 	}
@@ -155,15 +147,23 @@ implements IFaction {
 	public int playerStatus(IPlayer<?> player) {
 		PlayerFactionData data = PlayerData.get(player.getMCEntity()).factionData;
 		int points = data.getFactionPoints(player.getMCEntity(), id);
-		if (points >= friendlyPoints) { return 1; }
-		if (points < neutralPoints) { return -1; }
+		if (points >= friendlyPoints) {
+			return 1;
+		}
+		if (points < neutralPoints) {
+			return -1;
+		}
 		return 0;
 	}
 
 	public void readNBT(NBTTagCompound compound) {
 		name = compound.getString("Name");
-		if (compound.hasKey("Flag", 8)) { setFlag(compound.getString("Flag")); }
-		if (compound.hasKey("Description", 8)) { description = compound.getString("Description"); }
+		if (compound.hasKey("Flag", 8)) {
+			setFlag(compound.getString("Flag"));
+		}
+		if (compound.hasKey("Description", 8)) {
+			description = compound.getString("Description");
+		}
 		color = compound.getInteger("Color");
 		id = compound.getInteger("Slot");
 		neutralPoints = compound.getInteger("NeutralPoints");
@@ -177,19 +177,46 @@ implements IFaction {
 	}
 
 	@Override
-	public void removeHostile(int id) { attackFactions.remove(id); }
+	public void removeHostile(int id) {
+		attackFactions.remove(id);
+	}
 
 	@Override
-	public void save() { FactionController.instance.saveFaction(this); }
+	public void save() {
+		FactionController.instance.saveFaction(this);
+	}
 
 	@Override
-	public void setAttackedByMobs(boolean bo) { getsAttacked = bo; }
+	public void setAttackedByMobs(boolean bo) {
+		getsAttacked = bo;
+	}
 
 	@Override
-	public void setDefaultPoints(int points) { defaultPoints = points; }
+	public void setDefaultPoints(int points) {
+		defaultPoints = points;
+	}
 
 	@Override
-	public void setIsHidden(boolean bo) { hideFaction = bo; }
+	public void setDescription(String descr) {
+		if (descr == null) {
+			descr = "";
+		}
+		description = descr;
+	}
+
+	@Override
+	public void setFlag(String flagPath) {
+		if (flagPath == null || flagPath.isEmpty()) {
+			flag = null;
+			return;
+		}
+		flag = new ResourceLocation(flagPath);
+	}
+
+	@Override
+	public void setIsHidden(boolean bo) {
+		hideFaction = bo;
+	}
 
 	public NBTTagCompound writeNBT(NBTTagCompound compound) {
 		compound.setInteger("Slot", id);
@@ -207,5 +234,5 @@ implements IFaction {
 		compound.setTag("FactionPoints", factions.writeToNBT(new NBTTagCompound()));
 		return compound;
 	}
-	
+
 }

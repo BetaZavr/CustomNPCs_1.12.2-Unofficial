@@ -18,9 +18,8 @@ import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.gui.custom.components.CustomGuiSlot;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class ContainerCustomGui
-extends Container {
-	
+public class ContainerCustomGui extends Container {
+
 	public IContainer container;
 	public CustomGuiWrapper customGui;
 	public int cx;
@@ -70,13 +69,15 @@ extends Container {
 		this.inventorySlots.clear();
 		for (IItemSlot slot : this.customGui.getSlots()) {
 			int index = this.slotCount++;
-			((CustomGuiItemSlotWrapper) slot).slot = new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx, this.cy);
+			((CustomGuiItemSlotWrapper) slot).slot = new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx,
+					this.cy);
 			((CustomGuiItemSlotWrapper) slot).player = player;
 			this.addSlotToContainer(slot.getMCSlot());
 			this.guiInventory.setInventorySlotContents(index, slot.getStack().getMCItemStack());
 		}
 		if (this.customGui.getShowPlayerInv()) {
-			this.addPlayerInventory(player, this.cx + this.customGui.getPlayerInvX(), this.cy + this.customGui.getPlayerInvY());
+			this.addPlayerInventory(player, this.cx + this.customGui.getPlayerInvX(),
+					this.cy + this.customGui.getPlayerInvY());
 		}
 	}
 

@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 
 @Cancelable
 public class PackageReceived extends CustomNPCsEvent {
-	
+
 	public ChannelHandlerContext channel;
 	public boolean side;
 	public Object message;
@@ -15,5 +15,5 @@ public class PackageReceived extends CustomNPCsEvent {
 		this.message = msg;
 		this.side = side;
 	}
-	
+
 }

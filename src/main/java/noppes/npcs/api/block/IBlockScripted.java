@@ -4,9 +4,10 @@ import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.ITimers;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IBlockScripted
-extends IBlock {
-	
+public interface IBlockScripted extends IBlock {
+
+	ILayerModel createLayerModel();
+
 	String executeCommand(String command);
 
 	float getHardness();
@@ -14,6 +15,8 @@ extends IBlock {
 	boolean getIsLadder();
 
 	boolean getIsPassible();
+
+	ILayerModel[] getLayerModels();
 
 	int getLight();
 
@@ -49,6 +52,10 @@ extends IBlock {
 
 	ITimers getTimers();
 
+	boolean removeLayerModel(ILayerModel layer);
+
+	boolean removeLayerModel(int id);
+
 	void setHardness(float hardness);
 
 	void setIsLadder(boolean enabled);
@@ -57,13 +64,13 @@ extends IBlock {
 
 	void setLight(int value);
 
+	void setModel(IBlock iblock);
+
 	void setModel(IItemStack item);
 
 	void setModel(String name);
 
 	void setModel(String blockName, int meta);
-	
-	void setModel(IBlock iblock);
 
 	void setRedstonePower(int power);
 
@@ -73,16 +80,8 @@ extends IBlock {
 
 	void setScale(float x, float y, float z);
 
-	void trigger(int id, Object ... arguments);
-	
-	ILayerModel[] getLayerModels();
-	
-	ILayerModel createLayerModel();
+	void trigger(int id, Object... arguments);
 
 	void updateModel();
 
-	boolean removeLayerModel(int id);
-
-	boolean removeLayerModel(ILayerModel layer);
-	
 }

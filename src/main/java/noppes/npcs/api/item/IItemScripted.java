@@ -1,8 +1,7 @@
 package noppes.npcs.api.item;
 
-public interface IItemScripted
-extends IItemStack {
-	
+public interface IItemScripted extends IItemStack {
+
 	int getColor();
 
 	int getDurabilityColor();
@@ -26,5 +25,5 @@ extends IItemStack {
 	void setMaxStackSize(int size);
 
 	void setTexture(int damage, String texture);
-	
+
 }

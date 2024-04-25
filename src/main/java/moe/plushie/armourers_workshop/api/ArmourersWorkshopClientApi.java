@@ -6,14 +6,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class ArmourersWorkshopClientApi {
-    
-    public static ISkinRenderHandler skinRenderHandler;
-    
-    private ArmourersWorkshopClientApi() {
-        throw new IllegalAccessError();
-    }
-    
-    public static ISkinRenderHandler getSkinRenderHandler() {
-        return skinRenderHandler;
-    }
+
+	public static ISkinRenderHandler skinRenderHandler;
+
+	public static ISkinRenderHandler getSkinRenderHandler() {
+		return skinRenderHandler;
+	}
+
+	private ArmourersWorkshopClientApi() {
+		throw new IllegalAccessError();
+	}
 }

@@ -11,7 +11,7 @@ import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class MassBlockController {
-	
+
 	public interface IMassBlock {
 		EntityNPCInterface getNpc();
 

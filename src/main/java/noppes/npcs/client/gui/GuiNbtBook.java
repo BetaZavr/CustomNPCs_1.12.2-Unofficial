@@ -22,10 +22,8 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 
-public class GuiNbtBook
-extends GuiNPCInterface
-implements IGuiData {
-	
+public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
+
 	private ItemStack blockStack;
 	private NBTTagCompound compound;
 	private Entity entity;
@@ -61,11 +59,11 @@ implements IGuiData {
 			} else {
 				this.setSubGui(new SubGuiNpcTextArea(this.compound.toString()).enableHighlighting());
 			}
-		}
-		else if (button.id == 1) {
-			if (stack != null && !stack.isEmpty()) { Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound())); }
-		}
-		else if (button.id == 67) {
+		} else if (button.id == 1) {
+			if (stack != null && !stack.isEmpty()) {
+				Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
+			}
+		} else if (button.id == 67) {
 			this.getLabel(0).setLabel("Saved");
 			if (this.compound.equals(this.originalCompound)) {
 				return;
@@ -120,7 +118,8 @@ implements IGuiData {
 			GlStateManager.scale(3.0f, 3.0f, 3.0f);
 			RenderHelper.enableGUIStandardItemLighting();
 			this.itemRender.renderItemAndEffectIntoGUI(this.stack != null ? this.stack : this.blockStack, 0, 0);
-			this.itemRender.renderItemOverlays(this.fontRenderer, this.stack != null ? this.stack : this.blockStack, 0, 0);
+			this.itemRender.renderItemOverlays(this.fontRenderer, this.stack != null ? this.stack : this.blockStack, 0,
+					0);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
@@ -138,16 +137,22 @@ implements IGuiData {
 	public void initGui() {
 		super.initGui();
 		if (this.stack != null) {
-			this.addLabel(new GuiNpcLabel(11, "id: \"" + this.stack.getItem().getRegistryName()+"\"", this.guiLeft + 60, this.guiTop + 6));
+			this.addLabel(new GuiNpcLabel(11, "id: \"" + this.stack.getItem().getRegistryName() + "\"",
+					this.guiLeft + 60, this.guiTop + 6));
 			this.addButton(new GuiNpcButton(1, this.guiLeft + 38, this.guiTop + 116, 180, 20, "gui.copy"));
 		}
 		if (this.state != null) {
-			this.addLabel(new GuiNpcLabel(11, "x: " + this.x + ", y: " + this.y + ", z: " + this.z, this.guiLeft + 60, this.guiTop + 6));
-			this.addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(this.state.getBlock()), this.guiLeft + 60, this.guiTop + 16));
-			this.addLabel(new GuiNpcLabel(13, "meta: " + this.state.getBlock().getMetaFromState(this.state), this.guiLeft + 60, this.guiTop + 26));
+			this.addLabel(new GuiNpcLabel(11, "x: " + this.x + ", y: " + this.y + ", z: " + this.z, this.guiLeft + 60,
+					this.guiTop + 6));
+			this.addLabel(new GuiNpcLabel(12, "id: " + Block.REGISTRY.getNameForObject(this.state.getBlock()),
+					this.guiLeft + 60, this.guiTop + 16));
+			this.addLabel(new GuiNpcLabel(13, "meta: " + this.state.getBlock().getMetaFromState(this.state),
+					this.guiLeft + 60, this.guiTop + 26));
 		}
 		if (this.entity != null) {
-			this.addLabel(new GuiNpcLabel(12, "id: " + EntityRegistry.getEntry(this.entity.getClass()).getRegistryName(), this.guiLeft + 60, this.guiTop + 6));
+			this.addLabel(
+					new GuiNpcLabel(12, "id: " + EntityRegistry.getEntry(this.entity.getClass()).getRegistryName(),
+							this.guiLeft + 60, this.guiTop + 6));
 		}
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + 144, 180, 20, "nbt.edit"));
 		this.getButton(0).enabled = (this.compound != null && this.compound.getKeySet().size() > 0);
@@ -179,19 +184,18 @@ implements IGuiData {
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("Item") && compound.getBoolean("Item")) {
 			this.stack = new ItemStack(compound.getCompoundTag("Data"));
-		}
-		else if (compound.hasKey("EntityId")) {
+		} else if (compound.hasKey("EntityId")) {
 			this.entityId = compound.getInteger("EntityId");
 			this.entity = this.player.world.getEntityByID(this.entityId);
-		}
-		else {
+		} else {
 			this.tile = this.player.world.getTileEntity(new BlockPos(this.x, this.y, this.z));
 			this.state = this.player.world.getBlockState(new BlockPos(this.x, this.y, this.z));
-			this.blockStack = this.state.getBlock().getItem(this.player.world, new BlockPos(this.x, this.y, this.z), this.state);
+			this.blockStack = this.state.getBlock().getItem(this.player.world, new BlockPos(this.x, this.y, this.z),
+					this.state);
 		}
 		this.originalCompound = compound.getCompoundTag("Data");
 		this.compound = this.originalCompound.copy();
 		this.initGui();
 	}
-	
+
 }

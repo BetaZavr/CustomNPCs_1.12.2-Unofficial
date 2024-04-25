@@ -1,7 +1,7 @@
 package noppes.npcs.api.handler.data;
 
 public interface IDialog {
-	
+
 	IAvailability getAvailability();
 
 	IDialogCategory getCategory();
@@ -29,5 +29,5 @@ public interface IDialog {
 	void setQuest(IQuest quest);
 
 	void setText(String text);
-	
+
 }

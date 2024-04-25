@@ -10,29 +10,23 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.data.DataAnimation;
 
-public class GuiNpcEmotion
-extends GuiNPCInterface {
+public class GuiNpcEmotion extends GuiNPCInterface {
 
 	private DataAnimation animation;
-	
+
 	public GuiNpcEmotion(EntityCustomNpc npc) {
 		super(npc);
 		this.setBackground("smallbg.png");
 		this.closeOnEsc = true;
 		this.ySize = 240;
 		this.xSize = 427;
-		
+
 		this.animation = npc.animation;
-	}
-	
-	@Override
-	public void initGui() {
-		super.initGui();
 	}
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		
+
 	}
 
 	@Override
@@ -46,8 +40,13 @@ extends GuiNPCInterface {
 	}
 
 	@Override
+	public void initGui() {
+		super.initGui();
+	}
+
+	@Override
 	public void save() {
 		Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound()));
 	}
-	
+
 }

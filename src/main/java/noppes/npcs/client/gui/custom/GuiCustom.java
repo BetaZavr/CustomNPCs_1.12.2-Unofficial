@@ -50,22 +50,20 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomGui;
 
-public class GuiCustom
-extends GuiContainer
-implements ICustomScrollListener, IGuiData {
-	
-	ResourceLocation background;
-	Map<Integer, IGuiComponent> components;
-	CustomGuiWrapper gui;
-	
-	List<IClickListener> clickListeners;
-	List<ICustomKeyListener> keyListeners;
-	List<IDataHolder> dataHolders;
-	
-	protected int xSize, ySize;
-	private int stretched, bgW, bgH, bgTx, bgTy;
+public class GuiCustom extends GuiContainer implements ICustomScrollListener, IGuiData {
 
 	public static int guiLeft, guiTop;
+	ResourceLocation background;
+	Map<Integer, IGuiComponent> components;
+
+	CustomGuiWrapper gui;
+	List<IClickListener> clickListeners;
+	List<ICustomKeyListener> keyListeners;
+
+	List<IDataHolder> dataHolders;
+	protected int xSize, ySize;
+
+	private int stretched, bgW, bgH, bgTx, bgTy;
 	public String[] hoverText;
 
 	public GuiCustom(ContainerCustomGui container) {
@@ -93,50 +91,50 @@ implements ICustomScrollListener, IGuiData {
 	private void addComponent(ICustomGuiComponent component) {
 		CustomGuiComponentWrapper c = (CustomGuiComponentWrapper) component;
 		switch (c.getType()) {
-			case 0: {
-				CustomGuiButton button = CustomGuiButton.fromComponent((CustomGuiButtonWrapper) component);
-				button.setParent(this);
-				this.components.put(button.getId(), button);
-				this.addClickListener(button);
-				break;
-			}
-			case 1: {
-				CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
-				lbl.setParent(this);
-				this.components.put(lbl.getId(), lbl);
-				break;
-			}
-			case 3: {
-				CustomGuiTextField textField = CustomGuiTextField.fromComponent((CustomGuiTextFieldWrapper) component);
-				textField.setParent(this);
-				this.components.put(textField.id, textField);
-				this.addDataHolder(textField);
-				this.addClickListener(textField);
-				this.addKeyListener(textField);
-				break;
-			}
-			case 2: {
-				CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
-				rect.setParent(this);
-				this.components.put(rect.getId(), rect);
-				break;
-			}
-			case 4: {
-				CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, (GuiScreen) this, component.getId(),
-						(CustomGuiScrollWrapper) component);
-				scroll.fromComponent((CustomGuiScrollWrapper) component);
-				scroll.setParent(this);
-				this.components.put(scroll.getId(), scroll);
-				this.addDataHolder(scroll);
-				this.addClickListener(scroll);
-				break;
-			}
-			case 7: {
-				CustomGuiEntity entt = CustomGuiEntity.fromComponent((CustomGuiEntityWrapper) component);
-				entt.setParent(this);
-				this.components.put(entt.getId(), entt);
-				break;
-			}
+		case 0: {
+			CustomGuiButton button = CustomGuiButton.fromComponent((CustomGuiButtonWrapper) component);
+			button.setParent(this);
+			this.components.put(button.getId(), button);
+			this.addClickListener(button);
+			break;
+		}
+		case 1: {
+			CustomGuiLabel lbl = CustomGuiLabel.fromComponent((CustomGuiLabelWrapper) component);
+			lbl.setParent(this);
+			this.components.put(lbl.getId(), lbl);
+			break;
+		}
+		case 3: {
+			CustomGuiTextField textField = CustomGuiTextField.fromComponent((CustomGuiTextFieldWrapper) component);
+			textField.setParent(this);
+			this.components.put(textField.id, textField);
+			this.addDataHolder(textField);
+			this.addClickListener(textField);
+			this.addKeyListener(textField);
+			break;
+		}
+		case 2: {
+			CustomGuiTexturedRect rect = CustomGuiTexturedRect.fromComponent((CustomGuiTexturedRectWrapper) component);
+			rect.setParent(this);
+			this.components.put(rect.getId(), rect);
+			break;
+		}
+		case 4: {
+			CustomGuiScrollComponent scroll = new CustomGuiScrollComponent(this.mc, (GuiScreen) this, component.getId(),
+					(CustomGuiScrollWrapper) component);
+			scroll.fromComponent((CustomGuiScrollWrapper) component);
+			scroll.setParent(this);
+			this.components.put(scroll.getId(), scroll);
+			this.addDataHolder(scroll);
+			this.addClickListener(scroll);
+			break;
+		}
+		case 7: {
+			CustomGuiEntity entt = CustomGuiEntity.fromComponent((CustomGuiEntityWrapper) component);
+			entt.setParent(this);
+			this.components.put(entt.getId(), entt);
+			break;
+		}
 		}
 	}
 
@@ -161,54 +159,64 @@ implements ICustomScrollListener, IGuiData {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(this.background);
 		GlStateManager.translate((float) GuiCustom.guiLeft, (float) GuiCustom.guiTop, 0.0f);
-		if (this.bgW>0 && this.bgH>0) {
-			if (this.stretched==0) {
+		if (this.bgW > 0 && this.bgH > 0) {
+			if (this.stretched == 0) {
 				float scaleU = (float) this.xSize / (float) this.bgW;
 				float scaleV = (float) this.ySize / (float) this.bgH;
 				GlStateManager.scale(scaleU, scaleV, 1.0f);
 				this.drawTexturedModalRect(0, 0, this.bgTx, this.bgTy, this.bgW, this.bgH);
 			} else {
-				int hS = this.ySize, h=0;
-				int stepW = this.stretched==2 ? this.xSize / (int) Math.ceil((double) this.xSize / (double) this.bgW) : this.bgW;
-				int stepH = this.stretched==2 ? this.ySize / (int) Math.ceil((double) this.ySize / (double) this.bgH) : this.bgH;
-				if (this.stretched==2) {
-					if (stepW>=this.xSize) { stepW = this.xSize/2; }
-					if (stepH>=this.ySize) { stepH = this.ySize/2; }
+				int hS = this.ySize, h = 0;
+				int stepW = this.stretched == 2 ? this.xSize / (int) Math.ceil((double) this.xSize / (double) this.bgW)
+						: this.bgW;
+				int stepH = this.stretched == 2 ? this.ySize / (int) Math.ceil((double) this.ySize / (double) this.bgH)
+						: this.bgH;
+				if (this.stretched == 2) {
+					if (stepW >= this.xSize) {
+						stepW = this.xSize / 2;
+					}
+					if (stepH >= this.ySize) {
+						stepH = this.ySize / 2;
+					}
 				}
-				while (hS>0) {
+				while (hS > 0) {
 					int height = hS < stepH ? hS : stepH;
 					int startV = h * stepH;
 					int textureV = this.bgTy;
-					if (this.stretched==2) {
+					if (this.stretched == 2) {
 						if (hS <= stepH) { // last
-							if (h==0) { // and first
+							if (h == 0) { // and first
 								height = this.ySize / 2;
 								hS = height + stepH;
 							} else {
 								startV = this.ySize - height;
-								textureV += this.bgH-hS;
+								textureV += this.bgH - hS;
 								height = stepH;
 							}
 						} else {
-							if (h!=0 && stepH!=this.bgW) { textureV += (this.bgH-stepH)/2;}
+							if (h != 0 && stepH != this.bgW) {
+								textureV += (this.bgH - stepH) / 2;
+							}
 						}
 					}
-					int wS = this.xSize, w=0;
-					while (wS>0) {
+					int wS = this.xSize, w = 0;
+					while (wS > 0) {
 						int width = wS < stepW ? wS : stepW;
 						int startU = w * stepW;
 						int textureU = this.bgTx;
-						if (this.stretched==2) {
+						if (this.stretched == 2) {
 							if (wS <= stepW) { // last
-								if (w==0) { // and first
+								if (w == 0) { // and first
 									width = this.xSize / 2;
 									wS = width + stepW;
 								} else {
-									textureU += this.bgW-wS;
+									textureU += this.bgW - wS;
 									width = stepW;
 								}
 							} else {
-								if (w!=0 && stepW!=this.bgW) { textureU += (this.bgW-stepW)/2;}
+								if (w != 0 && stepW != this.bgW) {
+									textureU += (this.bgW - stepW) / 2;
+								}
 							}
 						}
 						this.drawTexturedModalRect(startU, startV, textureU, textureV, width, height);
@@ -223,11 +231,12 @@ implements ICustomScrollListener, IGuiData {
 			this.drawTexturedModalRect(0, 0, 0, 0, this.xSize, this.ySize);
 		}
 		GlStateManager.popMatrix();
-		if (this.gui.getShowPlayerSlots() && this.inventorySlots!=null) {
+		if (this.gui.getShowPlayerSlots() && this.inventorySlots != null) {
 			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (int slotId = this.inventorySlots.inventorySlots.size() - 1, i = 0; i < 36; slotId--, i++) {
 				Slot slot = this.inventorySlots.getSlot(slotId);
-				this.drawTexturedModalRect(this.getGuiLeft() + slot.xPos - 1, this.getGuiTop() + slot.yPos - 1, 0, 0, 18, 18);
+				this.drawTexturedModalRect(this.getGuiLeft() + slot.xPos - 1, this.getGuiTop() + slot.yPos - 1, 0, 0,
+						18, 18);
 			}
 		}
 	}
@@ -251,8 +260,11 @@ implements ICustomScrollListener, IGuiData {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			for (IItemSlot slot : this.gui.getSlots()) {
-				if (!slot.isShowBack()) { continue; }
-				this.drawTexturedModalRect(this.getGuiLeft() + slot.getPosX() + cx, this.getGuiTop() + slot.getPosY() + cy, 0, 0, 18, 18);
+				if (!slot.isShowBack()) {
+					continue;
+				}
+				this.drawTexturedModalRect(this.getGuiLeft() + slot.getPosX() + cx,
+						this.getGuiTop() + slot.getPosY() + cy, 0, 0, 18, 18);
 			}
 			GlStateManager.popMatrix();
 		}
@@ -336,7 +348,7 @@ implements ICustomScrollListener, IGuiData {
 		CustomGuiWrapper gui = (CustomGuiWrapper) new CustomGuiWrapper(mc.player).fromNBT(compound);
 		((ContainerCustomGui) this.inventorySlots).setGui(gui, (EntityPlayer) mc.player);
 		this.gui = gui;
-		
+
 		this.xSize = gui.getWidth();
 		this.ySize = gui.getHeight();
 		if (!gui.getBackgroundTexture().isEmpty()) {

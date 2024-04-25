@@ -15,27 +15,29 @@ import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.EntityWrapper;
 
 public class RayTraceResults {
-	
+
 	public IBlock[] blocks;
-    public IEntity<?>[] entitys;
-	
-    public RayTraceResults() {
-    	this.blocks = new IBlock[0];
-    	this.entitys = new IEntity<?>[0];
-    }
+	public IEntity<?>[] entitys;
+
+	public RayTraceResults() {
+		this.blocks = new IBlock[0];
+		this.entitys = new IEntity<?>[0];
+	}
+
+	public void add(Entity entity, double distance, Vec3d vecStart, Vec3d vecEnd) {
+		this.entitys = EntityWrapper.findEntityOnPath(entity, distance, vecStart, vecEnd);
+	}
 
 	@SuppressWarnings("deprecation")
 	public void add(World world, BlockPos pos, IBlockState state) {
 		for (IBlock bi : this.blocks) {
-			if (bi.getPos().getMCBlockPos().equals(pos)) { return; }
+			if (bi.getPos().getMCBlockPos().equals(pos)) {
+				return;
+			}
 		}
 		List<IBlock> newBlocks = Lists.newArrayList(this.blocks);
 		newBlocks.add(BlockWrapper.createNew(world, pos, state));
 		this.blocks = newBlocks.toArray(new IBlock[newBlocks.size()]);
 	}
 
-	public void add(Entity entity, double distance, Vec3d vecStart, Vec3d vecEnd) {
-		this.entitys = EntityWrapper.findEntityOnPath(entity, distance, vecStart, vecEnd);
-	}
-    
 }

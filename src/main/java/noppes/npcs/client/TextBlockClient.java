@@ -11,7 +11,7 @@ import noppes.npcs.entity.data.TextBlock;
 import noppes.npcs.util.AdditionalMethods;
 
 public class TextBlockClient extends TextBlock {
-	
+
 	public int color;
 	private String name;
 	private ICommandSender sender;
@@ -72,7 +72,11 @@ public class TextBlockClient extends TextBlock {
 						}
 					}
 					String newLine;
-					if (line.isEmpty()) { newLine = word; } else { newLine = line + " " + word; }
+					if (line.isEmpty()) {
+						newLine = word;
+					} else {
+						newLine = line + " " + word;
+					}
 					if ((mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine)) > lineWidth) {
 						this.addLine(color + line);
 						color = AdditionalMethods.getLastColor(color, line);

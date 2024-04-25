@@ -46,9 +46,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.ValueUtil;
 
-public class DataInventory
-implements IInventory, INPCInventory {
-	
+public class DataInventory implements IInventory, INPCInventory {
+
 	public Map<Integer, IItemStack> armor;
 	public final Map<Integer, DropSet> drops;
 	// New
@@ -73,19 +72,20 @@ implements IInventory, INPCInventory {
 		this.lootMode = true;
 		this.saveDropsName = "";
 		this.dropType = 0;
-		this.limitation=0;
+		this.limitation = 0;
 	}
-	
+
 	@Override
 	public ICustomDrop addDropItem(IItemStack item, double chance) {
 		if (this.drops.size() >= CustomNpcs.MaxItemInDropsNPC) {
-			throw new CustomNPCsException("Bad maximum size: " + this.drops.size() + " ("+CustomNpcs.MaxItemInDropsNPC+" slots maximum)");
+			throw new CustomNPCsException(
+					"Bad maximum size: " + this.drops.size() + " (" + CustomNpcs.MaxItemInDropsNPC + " slots maximum)");
 		}
 		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
 		DropSet ds = new DropSet(this);
 		ds.item = item;
 		ds.chance = chance;
-		ds.pos = 0+this.drops.size();
+		ds.pos = 0 + this.drops.size();
 		this.drops.put(ds.pos, ds);
 		return (ICustomDrop) ds;
 	}
@@ -105,11 +105,11 @@ implements IInventory, INPCInventory {
 	private IItemStack[] createDrops(boolean isLooted, EntityLivingBase attacking) {
 		List<IItemStack> prelist = Lists.<IItemStack>newArrayList();
 		double ch = 1.0d;
-		if (attacking!=null) {
+		if (attacking != null) {
 			IAttributeInstance l = attacking.getEntityAttribute(SharedMonsterAttributes.LUCK);
-			if (l!=null && l.getAttributeValue()!=0) {
+			if (l != null && l.getAttributeValue() != 0) {
 				double v = l.getAttributeValue();
-				if (v<0) {
+				if (v < 0) {
 					v *= -1;
 					ch -= v * v * -0.005555d + v * 0.255555d; // 1lv = 25%$ 10lv = 200%
 				} else {
@@ -119,48 +119,63 @@ implements IInventory, INPCInventory {
 			ItemStack held = attacking.getHeldItemMainhand();
 			if (held.isItemEnchanted()) {
 				double lv = (double) EnchantmentHelper.getLootingModifier(attacking);
-				if (lv>0.0d) {
+				if (lv > 0.0d) {
 					ch += lv * lv * 0.000555d + lv * 0.019444d; // 1lv = +2%$ 10lv = +25%
 				}
 			}
 		}
-		if (this.dropType==1 && !this.saveDropsName.isEmpty()) {
+		if (this.dropType == 1 && !this.saveDropsName.isEmpty()) {
 			DropController dData = DropController.getInstance();
 			prelist = dData.createDrops(this.saveDropsName, ch, isLooted, attacking);
 		}
-		if (prelist.isEmpty() || this.dropType==2) {
+		if (prelist.isEmpty() || this.dropType == 2) {
 			for (DropSet ds : this.drops.values()) {
 				double c = ds.chance * ch / 100.0d;
 				double r = Math.random();
-				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c<1.0d && c < r)) { continue; }
+				if (ds.item == null || ds.item.isEmpty() || isLooted == ds.lootMode || (c < 1.0d && c < r)) {
+					continue;
+				}
 				IItemStack stack = ds.createLoot(ch);
-				if (stack.isEmpty()) { continue; }
+				if (stack.isEmpty()) {
+					continue;
+				}
 				int qID = ds.getQuestID();
 				boolean needAdd = true;
 				if (qID > 0) {
 					needAdd = false;
 					if (attacking instanceof EntityPlayer) {
 						PlayerData data = PlayerData.get((EntityPlayer) attacking);
-						if (data == null || !data.questData.activeQuests.containsKey(qID)) { continue; }
+						if (data == null || !data.questData.activeQuests.containsKey(qID)) {
+							continue;
+						}
 						Quest quest = QuestController.instance.quests.get(qID);
-						if (quest == null) { continue; }
+						if (quest == null) {
+							continue;
+						}
 						needAdd = true;
 						for (IQuestObjective objQ : quest.getObjectives((EntityPlayer) attacking)) {
-							if (((QuestObjective) objQ).getEnumType() != EnumQuestTask.ITEM) { continue; }
-							if (((QuestObjective) objQ).getItemStack().isItemEqual(stack.getMCItemStack()) && objQ.isCompleted()) {
+							if (((QuestObjective) objQ).getEnumType() != EnumQuestTask.ITEM) {
+								continue;
+							}
+							if (((QuestObjective) objQ).getItemStack().isItemEqual(stack.getMCItemStack())
+									&& objQ.isCompleted()) {
 								needAdd = false;
 								break;
 							}
 						}
 					}
 				}
-				if (needAdd && !(ds.amount[0]==0 && ds.amount[1]==0)) { prelist.add(stack); }
+				if (needAdd && !(ds.amount[0] == 0 && ds.amount[1] == 0)) {
+					prelist.add(stack);
+				}
 			}
 		}
-		if (this.limitation>0 && this.limitation>prelist.size()) {
-			while (prelist.size()>this.limitation) {
+		if (this.limitation > 0 && this.limitation > prelist.size()) {
+			while (prelist.size() > this.limitation) {
 				int index = (int) (Math.random() * prelist.size());
-				if (index==prelist.size()) { index = prelist.size()-1; }
+				if (index == prelist.size()) {
+					index = prelist.size() - 1;
+				}
 				prelist.remove(index);
 			}
 		}
@@ -195,9 +210,13 @@ implements IInventory, INPCInventory {
 				}
 			}
 		}
-		if (i == 1) { this.weapons = var3; }
-		else if (i == 2) { this.armor = var3; }
-		else if (i == 3) { this.awItems = var3; }
+		if (i == 1) {
+			this.weapons = var3;
+		} else if (i == 2) {
+			this.armor = var3;
+		} else if (i == 3) {
+			this.awItems = var3;
+		}
 		if (var4 == null) {
 			return ItemStack.EMPTY;
 		}
@@ -208,16 +227,22 @@ implements IInventory, INPCInventory {
 		ArrayList<EntityItem> list = Lists.<EntityItem>newArrayList();
 		if (event.droppedItems != null) {
 			for (IItemStack itemD : event.droppedItems) {
-				if (itemD == null || itemD.isEmpty()) { continue; }
+				if (itemD == null || itemD.isEmpty()) {
+					continue;
+				}
 				EntityItem e = this.getEntityItem(itemD.getMCItemStack().copy(), event.droppedItems.length > 7);
-				if (e != null) { list.add(e); }
+				if (e != null) {
+					list.add(e);
+				}
 			}
 		}
 		boolean b = ForgeHooks.onLivingDrops(this.npc, damagesource, list, 0, true);
 		if (!b) {
 			if (list != null) {
 				for (EntityItem e : list) {
-					if (e == null) { continue; }
+					if (e == null) {
+						continue;
+					}
 					this.npc.world.spawnEntity(e);
 				}
 			}
@@ -227,7 +252,9 @@ implements IInventory, INPCInventory {
 						continue;
 					}
 					EntityItem e = this.getEntityItem(itemL.getMCItemStack().copy(), event.lootedItems.length > 7);
-					if (e == null) { continue; }
+					if (e == null) {
+						continue;
+					}
 					if (entity instanceof EntityPlayer) {
 						EntityPlayer player = (EntityPlayer) entity;
 						e.setPickupDelay(2);
@@ -241,7 +268,9 @@ implements IInventory, INPCInventory {
 								SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f,
 								((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 						player.onItemPickup((Entity) e, i);
-						if (stack.getCount() <= 0) { e.setDead(); }
+						if (stack.getCount() <= 0) {
+							e.setDead();
+						}
 					} else {
 						this.npc.world.spawnEntity((Entity) e);
 					}
@@ -255,11 +284,12 @@ implements IInventory, INPCInventory {
 			if (this.lootMode && entity instanceof EntityPlayer) {
 				this.npc.world.spawnEntity(new EntityXPOrb(entity.world, entity.posX, entity.posY, entity.posZ, var2));
 			} else {
-				this.npc.world.spawnEntity(new EntityXPOrb(this.npc.world, this.npc.posX, this.npc.posY, this.npc.posZ, var2));
+				this.npc.world.spawnEntity(
+						new EntityXPOrb(this.npc.world, this.npc.posX, this.npc.posY, this.npc.posZ, var2));
 			}
 		}
 	}
-	
+
 	public IItemStack getArmor(int slot) {
 		return this.armor.get(slot);
 	}
@@ -276,10 +306,11 @@ implements IInventory, INPCInventory {
 		DropSet g = this.drops.get(slot);
 		return (ICustomDrop) g;
 	}
-	
+
 	public IItemStack getDropItem(int slot) {
 		if (slot < 0 || slot >= this.drops.size()) {
-			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum", new Object[0]);
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + this.drops.size() + " maximum",
+					new Object[0]);
 		}
 		DropSet g = this.drops.get(slot);
 		return g.getItem();
@@ -296,8 +327,11 @@ implements IInventory, INPCInventory {
 	}
 
 	public EntityItem getEntityItem(ItemStack itemstack, boolean throwFar) {
-		if (itemstack == null || itemstack.isEmpty()) { return null; }
-		EntityItem entityitem = new EntityItem(this.npc.world, this.npc.posX, this.npc.posY - 0.30000001192092896 + this.npc.getEyeHeight(), this.npc.posZ, itemstack);
+		if (itemstack == null || itemstack.isEmpty()) {
+			return null;
+		}
+		EntityItem entityitem = new EntityItem(this.npc.world, this.npc.posX,
+				this.npc.posY - 0.30000001192092896 + this.npc.getEyeHeight(), this.npc.posZ, itemstack);
 		entityitem.setPickupDelay(40);
 		if (throwFar) {
 			float f2 = this.npc.getRNG().nextFloat() * 0.5f;
@@ -416,14 +450,16 @@ implements IInventory, INPCInventory {
 		this.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
 		this.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
 		this.awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
-		
+
 		Map<Integer, DropSet> drs = new HashMap<Integer, DropSet>();
 		if (compound.hasKey("DropChance", 9)) { // if old items
 			Map<Integer, IItemStack> d_old = NBTTags.getIItemStackMap(compound.getTagList("NpcInv", 10));
 			Map<Integer, Integer> dc_old = NBTTags.getIntegerIntegerMap(compound.getTagList("DropChance", 10));
 			int i = 0;
 			for (int slot : d_old.keySet()) {
-				if (dc_old.get(slot) <= 0) { continue; }
+				if (dc_old.get(slot) <= 0) {
+					continue;
+				}
 				DropSet ds = new DropSet(this);
 				ds.item = d_old.get(slot);
 				ds.chance = (double) dc_old.get(slot);
@@ -446,8 +482,12 @@ implements IInventory, INPCInventory {
 		this.saveDropsName = compound.getString("SaveDropsName");
 		this.dropType = compound.getInteger("DropType");
 		this.limitation = compound.getInteger("Limitation");
-		if (this.dropType<0) { this.dropType *= -1; }
-		if (this.dropType>2) { this.dropType %= 3; }
+		if (this.dropType < 0) {
+			this.dropType *= -1;
+		}
+		if (this.dropType > 2) {
+			this.dropType %= 3;
+		}
 	}
 
 	public boolean removeDrop(ICustomDrop drop) {
@@ -455,7 +495,10 @@ implements IInventory, INPCInventory {
 		boolean del = false;
 		int j = 0;
 		for (int slot : this.drops.keySet()) {
-			if (this.drops.get(slot) == (DropSet) drop) { del = true; continue; }
+			if (this.drops.get(slot) == (DropSet) drop) {
+				del = true;
+				continue;
+			}
 			newDrop.put(j, this.drops.get(slot));
 			newDrop.get(j).pos = j;
 			j++;
@@ -473,7 +516,9 @@ implements IInventory, INPCInventory {
 			Map<Integer, DropSet> newDrop = Maps.newTreeMap();
 			int j = 0;
 			for (int s : this.drops.keySet()) {
-				if (s==slot) { continue; }
+				if (s == slot) {
+					continue;
+				}
 				newDrop.put(j, this.drops.get(s));
 				newDrop.get(j).pos = j;
 				j++;
@@ -503,9 +548,13 @@ implements IInventory, INPCInventory {
 		if (var2.get(slot) != null) {
 			ItemStack var3 = var2.get(slot).getMCItemStack();
 			var2.put(slot, null);
-			if (i == 1) { this.weapons = var2; }
-			else if (i == 2) { this.armor = var2; }
-			else if (i == 3) { this.awItems = var2; }
+			if (i == 1) {
+				this.weapons = var2;
+			} else if (i == 2) {
+				this.armor = var2;
+			} else if (i == 3) {
+				this.awItems = var2;
+			}
 			return var3;
 		}
 		return ItemStack.EMPTY;
@@ -541,9 +590,13 @@ implements IInventory, INPCInventory {
 			i = 2;
 		}
 		var3.put(slot, NpcAPI.Instance().getIItemStack(item));
-		if (i == 1) { this.weapons = var3; }
-		else if (i == 2) { this.armor = var3; }
-		else if (i == 3) { this.awItems = var3; }
+		if (i == 1) {
+			this.weapons = var3;
+		} else if (i == 2) {
+			this.armor = var3;
+		} else if (i == 3) {
+			this.awItems = var3;
+		}
 	}
 
 	public void setLeftHand(IItemStack item) {
@@ -574,8 +627,12 @@ implements IInventory, INPCInventory {
 		NBTTagList dropList = new NBTTagList();
 		int s = 0;
 		for (int slot : this.drops.keySet()) {
-			if (this.drops.get(slot)==null) { continue; }
-			if (this.drops.get(slot).pos!=s) { this.drops.get(slot).pos = s; }
+			if (this.drops.get(slot) == null) {
+				continue;
+			}
+			if (this.drops.get(slot).pos != s) {
+				this.drops.get(slot).pos = s;
+			}
 			dropList.appendTag(this.drops.get(slot).getNBT());
 			s++;
 		}

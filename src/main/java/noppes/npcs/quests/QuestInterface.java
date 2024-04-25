@@ -29,7 +29,7 @@ import noppes.npcs.util.AdditionalMethods;
 
 // Global Changed
 public class QuestInterface {
-	
+
 	private int id = 0;
 	public NpcMiscInventory items = new NpcMiscInventory(1);
 	public QuestObjective[] tasks;
@@ -78,9 +78,13 @@ public class QuestInterface {
 		List<QuestObjective> tsl = new ArrayList<QuestObjective>();
 		Map<Integer, ItemStack> stacks = Maps.<Integer, ItemStack>newTreeMap();
 		for (int i = 0; i < this.tasks.length; i++) {
-			if (this.tasks[i] == null) { continue; }
+			if (this.tasks[i] == null) {
+				continue;
+			}
 			QuestObjective to = this.tasks[i];
-			if (to.getMaxProgress() <= 0) { to.setMaxProgress(1); }
+			if (to.getMaxProgress() <= 0) {
+				to.setMaxProgress(1);
+			}
 			stacks.put(i, ItemStack.EMPTY);
 			if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT)) {
 				stacks.put(i, to.getItemStack());
@@ -107,7 +111,8 @@ public class QuestInterface {
 	public boolean getFound(QuestData data, QuestObjective object) {
 		boolean isFound = false;
 		for (NBTBase dataNBT : data.extraData.getTagList("Locations", 10)) {
-			if (object.getTargetName().equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location")) && ((NBTTagCompound) dataNBT).getBoolean("Found")) {
+			if (object.getTargetName().equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))
+					&& ((NBTTagCompound) dataNBT).getBoolean("Found")) {
 				isFound = true;
 				break;
 			}
@@ -121,7 +126,7 @@ public class QuestInterface {
 
 	public Map<String, QuestObjective> getKeys() {
 		Map<String, QuestObjective> keys = new HashMap<String, QuestObjective>();
-		String chr = ""+((char) 167);
+		String chr = "" + ((char) 167);
 		for (int i = 0; i < this.tasks.length; i++) {
 			QuestObjective to = this.tasks[i];
 			String key = (i + 1) + "-";
@@ -132,7 +137,8 @@ public class QuestInterface {
 				Dialog d = DialogController.instance.dialogs.get(to.getTargetID());
 				if (d != null) {
 					name = chr + "8"
-							+ AdditionalMethods.instance.deleteColor(new TextComponentTranslation(d.category.getName()).getFormattedText())
+							+ AdditionalMethods.instance
+									.deleteColor(new TextComponentTranslation(d.category.getName()).getFormattedText())
 							+ "/" + chr + "r" + new TextComponentTranslation(d.getName()).getFormattedText();
 				}
 				key += "[" + chr + "bDr" + chr + "r] " + name;
@@ -284,84 +290,93 @@ public class QuestInterface {
 	public boolean isCompleted(EntityPlayer player) {
 		PlayerData playerdata = PlayerData.get(player);
 		QuestData data = playerdata.questData.activeQuests.get(this.id);
-		if (data==null) { return false; }
+		if (data == null) {
+			return false;
+		}
 		boolean complete = true;
 		for (QuestObjective to : this.tasks) {
 			switch (to.getEnumType()) {
-				case DIALOG: {
-					complete = playerdata.dialogData.dialogsRead.contains(to.getTargetID());
-					break;
-				}
-				case LOCATION: {
-					complete = this.getFound(data, to);
-					break;
-				}
-				case KILL: {
-					HashMap<String, Integer> killed = to.getKilled(data);
-					if (killed.size() == 0) { complete = false; }
-					for (String entity : killed.keySet()) {
-						if (entity.equalsIgnoreCase(to.getTargetName())) {
-							if (killed.get(entity) < to.getMaxProgress()) {
-								complete = false;
-							}
-							break;
-						}
-					}
-					break;
-				}
-				case AREAKILL: {
-					HashMap<String, Integer> killed = to.getKilled(data);
-					if (killed.size() == 0) {
-						complete = false;
-					}
-					for (String entity : killed.keySet()) {
-						if (entity.equalsIgnoreCase(to.getTargetName())) {
-							if (killed.get(entity) < to.getMaxProgress()) {
-								complete = false;
-							}
-							break;
-						}
-					}
-					break;
-				}
-				case MANUAL: {
-					HashMap<String, Integer> manual = to.getKilled(data);
-					if (manual.size() == 0) {
-						complete = false;
-					}
-					for (String entity : manual.keySet()) {
-						if (entity.equalsIgnoreCase(to.getTargetName())) {
-							if (manual.get(entity) < to.getMaxProgress()) {
-								complete = false;
-							}
-							break;
-						}
-					}
-					break;
-				}
-				case CRAFT: {
-					HashMap<ItemStack, Integer> crafted = to.getCrafted(data);
-					if (crafted.size() == 0) {
-						complete = false;
-					}
-					for (ItemStack item : crafted.keySet()) {
-						if (NoppesUtilPlayer.compareItems(to.getItemStack(), item, to.isIgnoreDamage(),
-								to.isItemIgnoreNBT())) {
-							if (crafted.get(item) < to.getMaxProgress()) {
-								complete = false;
-							}
-							break;
-						}
-					}
-					break;
-				}
-				default: { // ITEM
-					complete = NoppesUtilPlayer.compareItems(player, to.getItemStack(), to.isIgnoreDamage(), to.isItemIgnoreNBT(), to.getMaxProgress());
-				}
+			case DIALOG: {
+				complete = playerdata.dialogData.dialogsRead.contains(to.getTargetID());
+				break;
 			}
-			if (data!=null && data.quest!=null) {
-				if (!complete && data.quest.step != 2) { return false; }
-				if (complete && data.quest.step == 2) { return true; }
+			case LOCATION: {
+				complete = this.getFound(data, to);
+				break;
+			}
+			case KILL: {
+				HashMap<String, Integer> killed = to.getKilled(data);
+				if (killed.size() == 0) {
+					complete = false;
+				}
+				for (String entity : killed.keySet()) {
+					if (entity.equalsIgnoreCase(to.getTargetName())) {
+						if (killed.get(entity) < to.getMaxProgress()) {
+							complete = false;
+						}
+						break;
+					}
+				}
+				break;
+			}
+			case AREAKILL: {
+				HashMap<String, Integer> killed = to.getKilled(data);
+				if (killed.size() == 0) {
+					complete = false;
+				}
+				for (String entity : killed.keySet()) {
+					if (entity.equalsIgnoreCase(to.getTargetName())) {
+						if (killed.get(entity) < to.getMaxProgress()) {
+							complete = false;
+						}
+						break;
+					}
+				}
+				break;
+			}
+			case MANUAL: {
+				HashMap<String, Integer> manual = to.getKilled(data);
+				if (manual.size() == 0) {
+					complete = false;
+				}
+				for (String entity : manual.keySet()) {
+					if (entity.equalsIgnoreCase(to.getTargetName())) {
+						if (manual.get(entity) < to.getMaxProgress()) {
+							complete = false;
+						}
+						break;
+					}
+				}
+				break;
+			}
+			case CRAFT: {
+				HashMap<ItemStack, Integer> crafted = to.getCrafted(data);
+				if (crafted.size() == 0) {
+					complete = false;
+				}
+				for (ItemStack item : crafted.keySet()) {
+					if (NoppesUtilPlayer.compareItems(to.getItemStack(), item, to.isIgnoreDamage(),
+							to.isItemIgnoreNBT())) {
+						if (crafted.get(item) < to.getMaxProgress()) {
+							complete = false;
+						}
+						break;
+					}
+				}
+				break;
+			}
+			default: { // ITEM
+				complete = NoppesUtilPlayer.compareItems(player, to.getItemStack(), to.isIgnoreDamage(),
+						to.isItemIgnoreNBT(), to.getMaxProgress());
+			}
+			}
+			if (data != null && data.quest != null) {
+				if (!complete && data.quest.step != 2) {
+					return false;
+				}
+				if (complete && data.quest.step == 2) {
+					return true;
+				}
 			}
 		}
 		return complete;
@@ -372,7 +387,8 @@ public class QuestInterface {
 		if (!compound.hasKey("Tasks", 9)) { // Old versions
 			List<QuestObjective> oldTasks = new ArrayList<QuestObjective>();
 			if (compound.getInteger("Type") == 0) { // Item
-				this.items = new NpcMiscInventory(compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
+				this.items = new NpcMiscInventory(
+						compound.getCompoundTag("Items").getTagList("NpcMiscInv", 10).tagCount());
 				this.items.setFromNBT(compound.getCompoundTag("Items"));
 				for (ItemStack item : this.items.items) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
@@ -383,16 +399,19 @@ public class QuestInterface {
 					oldTasks.add(to);
 				}
 			} else if (compound.getInteger("Type") == 1) { // Dialogs
-				HashMap<Integer, Integer> dialogs = NBTTags.getIntegerIntegerMap(compound.getTagList("QuestDialogs", 10));
+				HashMap<Integer, Integer> dialogs = NBTTags
+						.getIntegerIntegerMap(compound.getTagList("QuestDialogs", 10));
 				for (int dId : dialogs.values()) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.DIALOG);
 					to.setTargetID(dId); // DialogID
 					oldTasks.add(to);
 				}
 			} else if (compound.getInteger("Type") == 2 || compound.getInteger("Type") == 4) { // Kill or Area Kill
-				TreeMap<String, Integer> targets = new TreeMap<String, Integer>(NBTTags.getStringIntegerMap(compound.getTagList("QuestDialogs", 10)));
+				TreeMap<String, Integer> targets = new TreeMap<String, Integer>(
+						NBTTags.getStringIntegerMap(compound.getTagList("QuestDialogs", 10)));
 				for (String name : targets.keySet()) {
-					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.values()[compound.getInteger("Type")]);
+					QuestObjective to = new QuestObjective(this.id,
+							EnumQuestTask.values()[compound.getInteger("Type")]);
 					to.setTargetName(name);
 					to.setMaxProgress(targets.get(name));
 					oldTasks.add(to);
@@ -415,7 +434,8 @@ public class QuestInterface {
 				}
 
 			} else { // Manual
-				TreeMap<String, Integer> manuals = new TreeMap<String, Integer>(NBTTags.getStringIntegerMap(compound.getTagList("QuestManual", 10)));
+				TreeMap<String, Integer> manuals = new TreeMap<String, Integer>(
+						NBTTags.getStringIntegerMap(compound.getTagList("QuestManual", 10)));
 				for (String name : manuals.keySet()) {
 					QuestObjective to = new QuestObjective(this.id, EnumQuestTask.MANUAL);
 					to.setTargetName(name);
@@ -430,10 +450,12 @@ public class QuestInterface {
 			for (int i = 0; i < compound.getTagList("Tasks", 10).tagCount(); i++) {
 				QuestObjective to = new QuestObjective(this.id, EnumQuestTask.ITEM);
 				to.load(compound.getTagList("Tasks", 10).getCompoundTagAt(i));
-				if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT) && !to.getItemStack().isEmpty()) {
+				if ((to.getEnumType() == EnumQuestTask.ITEM || to.getEnumType() == EnumQuestTask.CRAFT)
+						&& !to.getItemStack().isEmpty()) {
 					stacks.put(i, to.getItemStack());
+				} else {
+					stacks.put(i, ItemStack.EMPTY);
 				}
-				else { stacks.put(i, ItemStack.EMPTY);}
 				this.tasks[i] = to;
 			}
 			this.items = new NpcMiscInventory(stacks.size());
@@ -476,7 +498,7 @@ public class QuestInterface {
 			NBTTagCompound dataNBT = new NBTTagCompound();
 			dataNBT.setString("Location", to.getTargetName());
 			dataNBT.setBoolean("Found", true);
-			
+
 			if (data.extraData.getTagList("Locations", 10).tagCount() == 0) {
 				NBTTagList list = new NBTTagList();
 				list.appendTag(dataNBT);
@@ -489,8 +511,7 @@ public class QuestInterface {
 				if (location.equalsIgnoreCase(dataLoc.getString("Location"))) {
 					if (!dataLoc.getBoolean("Found")) {
 						data.extraData.getTagList("Locations", 10).getCompoundTagAt(i).setBoolean("Found", true);
-					}
-					else {
+					} else {
 						return false;
 					}
 					found = true;

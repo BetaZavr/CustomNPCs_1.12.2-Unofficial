@@ -4,9 +4,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.api.entity.data.ILine;
 
-public class Line
-implements ILine {
-	
+public class Line implements ILine {
+
 	public static Line formatTarget(Line line, EntityLivingBase entity) {
 		if (entity == null) {
 			return line;
@@ -73,7 +72,9 @@ implements ILine {
 
 	@Override
 	public void setText(String text) {
-		if (text == null) { text = ""; }
+		if (text == null) {
+			text = "";
+		}
 		this.text = text;
 	}
 }

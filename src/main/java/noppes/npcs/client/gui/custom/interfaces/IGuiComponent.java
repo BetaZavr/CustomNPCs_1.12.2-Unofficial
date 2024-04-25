@@ -5,19 +5,19 @@ import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.client.gui.custom.GuiCustom;
 
 public interface IGuiComponent {
-	
+
 	int getId();
 
-	void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks);
-
-	ICustomGuiComponent toComponent();
+	int[] getPosXY();
 
 	void offSet(int offsetType, double[] windowSize);
 
+	void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks);
+
 	void setParent(GuiCustom gui);
-	
-	int[] getPosXY();
-	
+
 	void setPosXY(int newX, int newY);
-	
+
+	ICustomGuiComponent toComponent();
+
 }

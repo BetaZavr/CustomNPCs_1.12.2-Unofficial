@@ -50,8 +50,17 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		return new TileBorder();
 	}
 
+	@SideOnly(Side.CLIENT)
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT;
+	}
+
 	public int getMetaFromState(IBlockState state) {
 		return state.getValue(BlockBorder.ROTATION);
+	}
+
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.MODEL;
 	}
 
 	public IBlockState getStateFromMeta(int meta) {
@@ -60,13 +69,23 @@ public class BlockBorder extends BlockInterface implements IPermission {
 
 	private TileBorder getTile(World world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (tile != null && tile instanceof TileBorder) { return (TileBorder) tile; }
+		if (tile != null && tile instanceof TileBorder) {
+			return (TileBorder) tile;
+		}
 		return null;
 	}
 
 	@Override
 	public boolean isAllowed(EnumPacketServer e) {
 		return e == EnumPacketServer.SaveTileEntity;
+	}
+
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
 	}
 
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
@@ -87,36 +106,116 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		TileBorder tile = (TileBorder) world.getTileEntity(pos);
 		TileBorder adjacent = this.getTile(world, pos.south());
 		if (adjacent == null) {
-			for (int i=0; i<26; i++) {
-				switch(i) {
-					case 0: { adjacent = this.getTile(world, pos.south()); break; }
-					case 1: { adjacent = this.getTile(world, pos.north()); break; }
-					case 2: { adjacent = this.getTile(world, pos.east()); break; }
-					case 3: { adjacent = this.getTile(world, pos.west()); break; }
-					case 4: { adjacent = this.getTile(world, pos.up()); break; }
-					case 5: { adjacent = this.getTile(world, pos.down()); break; }
-					case 6: { adjacent = this.getTile(world, pos.south().east()); break; }
-					case 7: { adjacent = this.getTile(world, pos.south().west()); break; }
-					case 8: { adjacent = this.getTile(world, pos.north().east()); break; }
-					case 9: { adjacent = this.getTile(world, pos.north().west()); break; }
-					case 10: { adjacent = this.getTile(world, pos.down().south()); break; }
-					case 11: { adjacent = this.getTile(world, pos.down().north()); break; }
-					case 12: { adjacent = this.getTile(world, pos.down().east()); break; }
-					case 13: { adjacent = this.getTile(world, pos.down().west()); break; }
-					case 14: { adjacent = this.getTile(world, pos.down().south().east()); break; }
-					case 15: { adjacent = this.getTile(world, pos.down().south().west()); break; }
-					case 16: { adjacent = this.getTile(world, pos.down().north().east()); break; }
-					case 17: { adjacent = this.getTile(world, pos.down().north().west()); break; }
-					case 18: { adjacent = this.getTile(world, pos.up().south()); break; }
-					case 19: { adjacent = this.getTile(world, pos.up().north()); break; }
-					case 20: { adjacent = this.getTile(world, pos.up().east()); break; }
-					case 21: { adjacent = this.getTile(world, pos.up().west()); break; }
-					case 22: { adjacent = this.getTile(world, pos.up().south().east()); break; }
-					case 23: { adjacent = this.getTile(world, pos.up().south().west()); break; }
-					case 24: { adjacent = this.getTile(world, pos.up().north().east()); break; }
-					case 25: { adjacent = this.getTile(world, pos.up().north().west()); break; }
+			for (int i = 0; i < 26; i++) {
+				switch (i) {
+				case 0: {
+					adjacent = this.getTile(world, pos.south());
+					break;
 				}
-				if (adjacent != null) { break; }
+				case 1: {
+					adjacent = this.getTile(world, pos.north());
+					break;
+				}
+				case 2: {
+					adjacent = this.getTile(world, pos.east());
+					break;
+				}
+				case 3: {
+					adjacent = this.getTile(world, pos.west());
+					break;
+				}
+				case 4: {
+					adjacent = this.getTile(world, pos.up());
+					break;
+				}
+				case 5: {
+					adjacent = this.getTile(world, pos.down());
+					break;
+				}
+				case 6: {
+					adjacent = this.getTile(world, pos.south().east());
+					break;
+				}
+				case 7: {
+					adjacent = this.getTile(world, pos.south().west());
+					break;
+				}
+				case 8: {
+					adjacent = this.getTile(world, pos.north().east());
+					break;
+				}
+				case 9: {
+					adjacent = this.getTile(world, pos.north().west());
+					break;
+				}
+				case 10: {
+					adjacent = this.getTile(world, pos.down().south());
+					break;
+				}
+				case 11: {
+					adjacent = this.getTile(world, pos.down().north());
+					break;
+				}
+				case 12: {
+					adjacent = this.getTile(world, pos.down().east());
+					break;
+				}
+				case 13: {
+					adjacent = this.getTile(world, pos.down().west());
+					break;
+				}
+				case 14: {
+					adjacent = this.getTile(world, pos.down().south().east());
+					break;
+				}
+				case 15: {
+					adjacent = this.getTile(world, pos.down().south().west());
+					break;
+				}
+				case 16: {
+					adjacent = this.getTile(world, pos.down().north().east());
+					break;
+				}
+				case 17: {
+					adjacent = this.getTile(world, pos.down().north().west());
+					break;
+				}
+				case 18: {
+					adjacent = this.getTile(world, pos.up().south());
+					break;
+				}
+				case 19: {
+					adjacent = this.getTile(world, pos.up().north());
+					break;
+				}
+				case 20: {
+					adjacent = this.getTile(world, pos.up().east());
+					break;
+				}
+				case 21: {
+					adjacent = this.getTile(world, pos.up().west());
+					break;
+				}
+				case 22: {
+					adjacent = this.getTile(world, pos.up().south().east());
+					break;
+				}
+				case 23: {
+					adjacent = this.getTile(world, pos.up().south().west());
+					break;
+				}
+				case 24: {
+					adjacent = this.getTile(world, pos.up().north().east());
+					break;
+				}
+				case 25: {
+					adjacent = this.getTile(world, pos.up().north().west());
+					break;
+				}
+				}
+				if (adjacent != null) {
+					break;
+				}
 			}
 		}
 		if (adjacent != null) {
@@ -126,22 +225,13 @@ public class BlockBorder extends BlockInterface implements IPermission {
 		}
 		tile.rotation = l;
 		if (entity instanceof EntityPlayer && !world.isRemote) {
-			if (adjacent==null) { // New
-				NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(), pos.getZ());
+			if (adjacent == null) { // New
+				NoppesUtilServer.sendOpenGui((EntityPlayer) entity, EnumGuiType.Border, null, pos.getX(), pos.getY(),
+						pos.getZ());
 			} else { // Copy
 				((EntityPlayer) entity).sendMessage(new TextComponentTranslation("barrier.copied.around"));
 			}
 		}
 	}
-	
-	public boolean isOpaqueCube(IBlockState state) { return false; }
-	
-	public boolean isFullCube(IBlockState state) { return false; }
-
-	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() { return BlockRenderLayer.CUTOUT; }
-	
-	public EnumBlockRenderType getRenderType(IBlockState state) { return EnumBlockRenderType.MODEL; }
-	
 
 }

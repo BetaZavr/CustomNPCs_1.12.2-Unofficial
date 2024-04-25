@@ -9,7 +9,7 @@ public class EncryptData {
 	public String path, code, name;
 	public ScriptContainer container;
 	public IScriptHandler handler;
-	
+
 	public EncryptData(String p, String n, String c, boolean t, ScriptContainer sc, IScriptHandler h) {
 		this.path = p;
 		this.name = n;

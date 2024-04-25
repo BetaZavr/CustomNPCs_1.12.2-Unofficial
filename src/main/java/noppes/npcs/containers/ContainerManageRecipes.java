@@ -49,15 +49,20 @@ public class ContainerManageRecipes extends Container {
 	}
 
 	public void saveRecipe(String group, String name, boolean shaped) {
-		if (group.isEmpty()) { group = "default"; }
-		if (name.isEmpty()) { name = "default"; }
+		if (group.isEmpty()) {
+			group = "default";
+		}
+		if (name.isEmpty()) {
+			name = "default";
+		}
 		if (this.craftingMatrix.getSizeInventory() != this.size + 1) {
 			return;
 		}
 		NonNullList<Ingredient> ingredients = NonNullList.create();
 		for (int i = 1, j = 0; i <= this.size; i++) {
 			ItemStack stack = this.craftingMatrix.getStackInSlot(i);
-			Ingredient ing = stack.isEmpty() ? Ingredient.EMPTY : Ingredient.fromStacks(new ItemStack[] { stack.copy() });
+			Ingredient ing = stack.isEmpty() ? Ingredient.EMPTY
+					: Ingredient.fromStacks(new ItemStack[] { stack.copy() });
 			if (shaped) {
 				ingredients.add(i - 1, ing);
 			} else if (ing != Ingredient.EMPTY) {
@@ -67,7 +72,8 @@ public class ContainerManageRecipes extends Container {
 		}
 		INpcRecipe recipe;
 		if (shaped) {
-			recipe = new NpcShapedRecipes(group, name, this.width, this.width, ingredients, this.craftingMatrix.getStackInSlot(0).copy());
+			recipe = new NpcShapedRecipes(group, name, this.width, this.width, ingredients,
+					this.craftingMatrix.getStackInSlot(0).copy());
 			((NpcShapedRecipes) recipe).global = this.width == 3;
 		} else {
 			recipe = new NpcShapelessRecipes(group, name, ingredients, this.craftingMatrix.getStackInSlot(0).copy());
@@ -80,14 +86,17 @@ public class ContainerManageRecipes extends Container {
 		this.recipe = recipe;
 		this.craftingMatrix.setInventorySlotContents(0, this.recipe.getProduct().getMCItemStack());
 		NonNullList<Ingredient> ings = null;
-		if (this.recipe.isShaped()) { ings = ((NpcShapedRecipes) this.recipe).getIngredients(); }
-		else { ings = ((NpcShapelessRecipes) this.recipe).getIngredients(); }
-		for (int i = 0; i < ings.size() && i < (1+this.size); i++) {
+		if (this.recipe.isShaped()) {
+			ings = ((NpcShapedRecipes) this.recipe).getIngredients();
+		} else {
+			ings = ((NpcShapelessRecipes) this.recipe).getIngredients();
+		}
+		for (int i = 0; i < ings.size() && i < (1 + this.size); i++) {
 			if (ings.get(i).getMatchingStacks().length == 0) {
-				this.craftingMatrix.setInventorySlotContents((i+1), ItemStack.EMPTY);
+				this.craftingMatrix.setInventorySlotContents((i + 1), ItemStack.EMPTY);
 				continue;
 			}
-			this.craftingMatrix.setInventorySlotContents((i+1), ings.get(i).getMatchingStacks()[0]);
+			this.craftingMatrix.setInventorySlotContents((i + 1), ings.get(i).getMatchingStacks()[0]);
 		}
 		this.detectAndSendChanges();
 	}

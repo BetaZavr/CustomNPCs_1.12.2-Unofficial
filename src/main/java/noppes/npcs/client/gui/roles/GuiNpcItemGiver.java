@@ -18,9 +18,8 @@ import noppes.npcs.containers.ContainerNpcItemGiver;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobItemGiver;
 
-public class GuiNpcItemGiver
-extends GuiContainerNPCInterface2 {
-	
+public class GuiNpcItemGiver extends GuiContainerNPCInterface2 {
+
 	private JobItemGiver role;
 
 	public GuiNpcItemGiver(EntityNPCInterface npc, ContainerNpcItemGiver container) {
@@ -79,6 +78,15 @@ extends GuiContainerNPCInterface2 {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+	}
+
+	@Override
 	public void save() {
 		List<String> lines = new ArrayList<String>();
 		for (int i = 1; i < 4; ++i) {
@@ -94,14 +102,5 @@ extends GuiContainerNPCInterface2 {
 		}
 		this.role.cooldown = cc;
 		Client.sendData(EnumPacketServer.JobSave, this.role.writeToNBT(new NBTTagCompound()));
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
 	}
 }

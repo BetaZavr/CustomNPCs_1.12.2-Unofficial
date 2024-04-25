@@ -57,20 +57,23 @@ import noppes.npcs.items.ItemScripted;
 
 @SuppressWarnings("rawtypes")
 public class ItemStackWrapper
-implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable {
+		implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable {
 
 	@CapabilityInject(IItemStackWrapperHandler.class)
 	public static Capability<IItemStackWrapperHandler> ITEM_SCRIPTED_DATA_CAPABILITY = null;
 	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "itemscripteddata");
-	
-	public static ItemStackWrapper AIR = new ItemStackEmptyWrapper();
-	private static EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
 
-	public ItemStackWrapper() { }
-	
+	public static ItemStackWrapper AIR = new ItemStackEmptyWrapper();
+	private static EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD,
+			EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
+
 	private static ItemStackWrapper createNew(ItemStack item) {
-		if (item == null || item.isEmpty()) { return ItemStackWrapper.AIR; }
-		if (item.getItem() instanceof ItemScripted) { return new ItemScriptedWrapper(item); }
+		if (item == null || item.isEmpty()) {
+			return ItemStackWrapper.AIR;
+		}
+		if (item.getItem() instanceof ItemScripted) {
+			return new ItemScriptedWrapper(item);
+		}
 		if (item.getItem() == Items.WRITTEN_BOOK || item.getItem() == Items.WRITABLE_BOOK
 				|| item.getItem() instanceof ItemWritableBook || item.getItem() instanceof ItemWrittenBook) {
 			return new ItemBookWrapper(item);
@@ -98,14 +101,26 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	}
 
 	public ItemStack item;
+
 	private IData tempdata;
 	private IData storeddata;
 	public NBTTagCompound storedData;
+	public ItemStackWrapper() {
+	}
 
 	protected ItemStackWrapper(ItemStack item) {
 		this.tempdata = new TempData();
 		this.storeddata = new StoredData(this);
 		this.item = item;
+	}
+
+	@Override
+	public void addEnchantment(int id, int level) {
+		Enchantment ench = Enchantment.getEnchantmentByID(id);
+		if (ench == null) {
+			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
+		}
+		this.item.addEnchantment(ench, level);
 	}
 
 	@Override
@@ -115,15 +130,6 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
 		}
 		this.item.addEnchantment(ench, strenght);
-	}
-	
-	@Override
-	public void addEnchantment(int id, int level) {
-		Enchantment ench = Enchantment.getEnchantmentByID(id);
-		if (ench == null) {
-			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
-		}
-		this.item.addEnchantment(ench, level);
 	}
 
 	@Override
@@ -159,7 +165,8 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 				try {
 					AttributeModifier mod = (AttributeModifier) entry.getValue();
 					damage = mod.getAmount();
-				} catch (Exception e) { }
+				} catch (Exception e) {
+				}
 			}
 		}
 		damage += EnchantmentHelper.getModifierForCreature(this.item, EnumCreatureAttribute.UNDEFINED);
@@ -265,7 +272,7 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	public String getName() {
 		return Item.REGISTRY.getNameForObject(this.item.getItem()) + "";
 	}
-	
+
 	@Override
 	public INbt getNbt() {
 		NBTTagCompound compound = this.item.getTagCompound();
@@ -327,10 +334,10 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	}
 
 	@Override
-	public boolean hasEnchant(String name) {
-		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
+	public boolean hasEnchant(int id) {
+		Enchantment ench = Enchantment.getEnchantmentByID(id);
 		if (ench == null) {
-			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
+			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
 		}
 		if (!this.isEnchanted()) {
 			return false;
@@ -345,12 +352,12 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 		}
 		return false;
 	}
-	
+
 	@Override
-	public boolean hasEnchant(int id) {
-		Enchantment ench = Enchantment.getEnchantmentByID(id);
+	public boolean hasEnchant(String name) {
+		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
 		if (ench == null) {
-			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
+			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
 		}
 		if (!this.isEnchanted()) {
 			return false;
@@ -380,7 +387,8 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 
 	@Override
 	public boolean isBook() {
-		return this.item.getItem() instanceof ItemBook || this.item.getItem() instanceof ItemEnchantedBook || this.item.getItem() instanceof ItemWritableBook || this.item.getItem() instanceof ItemWrittenBook;
+		return this.item.getItem() instanceof ItemBook || this.item.getItem() instanceof ItemEnchantedBook
+				|| this.item.getItem() instanceof ItemWritableBook || this.item.getItem() instanceof ItemWrittenBook;
 	}
 
 	@Override
@@ -404,10 +412,10 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	}
 
 	@Override
-	public boolean removeEnchant(String name) {
-		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
+	public boolean removeEnchant(int id) {
+		Enchantment ench = Enchantment.getEnchantmentByID(id);
 		if (ench == null) {
-			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
+			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
 		}
 		if (!this.isEnchanted()) {
 			return false;
@@ -429,10 +437,10 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	}
 
 	@Override
-	public boolean removeEnchant(int id) {
-		Enchantment ench = Enchantment.getEnchantmentByID(id);
+	public boolean removeEnchant(String name) {
+		Enchantment ench = Enchantment.getEnchantmentByLocation(name);
 		if (ench == null) {
-			throw new CustomNPCsException("Unknown enchant id:" + id, new Object[0]);
+			throw new CustomNPCsException("Unknown enchant name:" + name, new Object[0]);
 		}
 		if (!this.isEnchanted()) {
 			return false;
@@ -485,7 +493,8 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 			}
 		}
 		if (value != 0.0) {
-			NBTTagCompound nbttagcompound = SharedMonsterAttributes.writeAttributeModifierToNBT(new AttributeModifier(name, value, 0));
+			NBTTagCompound nbttagcompound = SharedMonsterAttributes
+					.writeAttributeModifierToNBT(new AttributeModifier(name, value, 0));
 			nbttagcompound.setString("AttributeName", name);
 			if (slot >= 0) {
 				nbttagcompound.setString("Slot", EntityEquipmentSlot.values()[slot].getName());
@@ -518,7 +527,7 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 		}
 		compound.setTag("Lore", nbtlist);
 	}
-	
+
 	public void setMCNbt(NBTTagCompound compound) {
 		this.storedData = compound.getCompoundTag("StoredData");
 	}

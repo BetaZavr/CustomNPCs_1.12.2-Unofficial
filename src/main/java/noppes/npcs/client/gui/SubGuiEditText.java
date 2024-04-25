@@ -7,9 +7,8 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class SubGuiEditText
-extends SubGuiInterface {
-	
+public class SubGuiEditText extends SubGuiInterface {
+
 	public boolean cancelled;
 	public int[] numbersOnly; // min, max, def
 	public String lable;
@@ -54,6 +53,14 @@ extends SubGuiInterface {
 		this.close();
 	}
 
+	private boolean charAllowed(char c, int i) {
+		if (this.getTextField(0) != null && (this.numbersOnly == null || Character.isDigit(c)
+				|| (c == '-' && this.getTextField(0).getText().length() == 0))) {
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		for (int i = 0; i < this.hovers.length && i < hovers.length; i++) {
@@ -74,7 +81,8 @@ extends SubGuiInterface {
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			if (this.xSize > 256) {
 				this.drawTexturedModalRect(0, this.ySize - 1, 0, 218, 250, this.ySize);
-				this.drawTexturedModalRect(250, this.ySize - 1, 256 - (this.xSize - 250), 218, this.xSize - 250, this.ySize);
+				this.drawTexturedModalRect(250, this.ySize - 1, 256 - (this.xSize - 250), 218, this.xSize - 250,
+						this.ySize);
 			} else {
 				this.drawTexturedModalRect(0, this.ySize - 1, 0, 218, this.xSize, 4);
 			}
@@ -86,11 +94,14 @@ extends SubGuiInterface {
 	public void initGui() {
 		super.initGui();
 		for (int i = 0; i < this.text.length && i < 5; i++) { // Changed
-			this.addTextField(new GuiNpcTextField(i, this.parent, this.guiLeft + 4, this.guiTop + 16 + i * 22 + (this.lable!=null ? 2 : 0), 168, 20, this.text[i]));
+			this.addTextField(new GuiNpcTextField(i, this.parent, this.guiLeft + 4,
+					this.guiTop + 16 + i * 22 + (this.lable != null ? 2 : 0), 168, 20, this.text[i]));
 		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.done"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.cancel"));
-		if (this.lable!=null) {
+		this.addButton(
+				new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.done"));
+		this.addButton(
+				new GuiNpcButton(1, this.guiLeft + 90, this.guiTop + 22 + this.text.length * 22, 80, 20, "gui.cancel"));
+		if (this.lable != null) {
 			this.addLabel(new GuiNpcLabel(0, this.lable, this.guiLeft + 7, this.guiTop + 4));
 		}
 	}
@@ -105,13 +116,8 @@ extends SubGuiInterface {
 		}
 	}
 
-	private boolean charAllowed(char c, int i) {
-		if (this.getTextField(0)!=null && (this.numbersOnly==null || Character.isDigit(c) || (c == '-' && this.getTextField(0).getText().length() == 0))) { return true; }
-		return false;
-	}
-	
 	public boolean textboxKeyTyped(char c, int i) {
 		return this.charAllowed(c, i) && this.getTextField(0).textboxKeyTyped(c, i);
 	}
-	
+
 }

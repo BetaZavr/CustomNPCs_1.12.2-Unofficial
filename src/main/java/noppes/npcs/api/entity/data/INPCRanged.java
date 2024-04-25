@@ -1,7 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCRanged {
-	
+
 	boolean getAccelerate();
 
 	int getAccuracy();
@@ -101,5 +101,5 @@ public interface INPCRanged {
 	void setSticks(boolean sticks);
 
 	void setStrength(int strength);
-	
+
 }

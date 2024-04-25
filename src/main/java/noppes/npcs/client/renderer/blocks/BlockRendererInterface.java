@@ -7,9 +7,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
-public abstract class BlockRendererInterface<T extends TileEntity>
-extends TileEntitySpecialRenderer<T> {
-	
+public abstract class BlockRendererInterface<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
+
 	public static float[][] colorTable = new float[][] { { 1.0f, 1.0f, 1.0f }, { 0.95f, 0.7f, 0.2f },
 			{ 0.9f, 0.5f, 0.85f }, { 0.6f, 0.7f, 0.95f }, { 0.9f, 0.9f, 0.2f }, { 0.5f, 0.8f, 0.1f },
 			{ 0.95f, 0.7f, 0.8f }, { 0.3f, 0.3f, 0.3f }, { 0.6f, 0.6f, 0.6f }, { 0.3f, 0.6f, 0.7f },

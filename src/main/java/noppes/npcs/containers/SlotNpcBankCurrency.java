@@ -5,9 +5,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesUtilServer;
 
-public class SlotNpcBankCurrency
-extends Slot {
-	
+public class SlotNpcBankCurrency extends Slot {
+
 	public ItemStack stack;
 
 	public SlotNpcBankCurrency(ContainerNPCBank container, IInventory iinventory, int i, int j, int k) {
@@ -23,5 +22,5 @@ extends Slot {
 		return !NoppesUtilServer.IsItemStackNull(itemstack) && (this.stack.getItem() == itemstack.getItem()
 				&& (!this.stack.getHasSubtypes() || this.stack.getItemDamage() == itemstack.getItemDamage()));
 	}
-	
+
 }

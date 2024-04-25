@@ -21,7 +21,7 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
 public class PlayerScriptData implements IScriptHandler {
-	
+
 	private static Map<Long, String> console = new TreeMap<Long, String>();
 	private static List<Integer> errored = new ArrayList<Integer>();
 	private boolean enabled;
@@ -70,7 +70,9 @@ public class PlayerScriptData implements IScriptHandler {
 	}
 
 	public IPlayer<?> getPlayer() {
-		if (this.playerAPI == null) { this.playerAPI = (IPlayer<?>) NpcAPI.Instance().getIEntity(this.player); }
+		if (this.playerAPI == null) {
+			this.playerAPI = (IPlayer<?>) NpcAPI.Instance().getIEntity(this.player);
+		}
 		return this.playerAPI;
 	}
 
@@ -94,8 +96,9 @@ public class PlayerScriptData implements IScriptHandler {
 			return "Global script";
 		}
 		BlockPos pos = this.player.getPosition();
-		return MoreObjects.toStringHelper(this.player).add("name", this.player.getName()).add("dimID", this.player.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
-				.toString();
+		return MoreObjects.toStringHelper(this.player).add("name", this.player.getName())
+				.add("dimID", this.player.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY())
+				.add("z", pos.getZ()).toString();
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -107,8 +110,11 @@ public class PlayerScriptData implements IScriptHandler {
 
 	@Override
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
-		if (ScriptController.Instance.lastLoaded > this.lastInited || ScriptController.Instance.lastPlayerUpdate > this.lastPlayerUpdate) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		if (ScriptController.Instance.lastLoaded > this.lastInited
+				|| ScriptController.Instance.lastPlayerUpdate > this.lastPlayerUpdate) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
 			PlayerScriptData.errored.clear();
 			if (this.player != null) {
@@ -120,13 +126,17 @@ public class PlayerScriptData implements IScriptHandler {
 				}
 			}
 			this.lastPlayerUpdate = ScriptController.Instance.lastPlayerUpdate;
-			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPlayerInit(this); }
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+				EventHooks.onPlayerInit(this);
+			}
 		}
 		for (int i = 0; i < this.scripts.size(); ++i) {
 			ScriptContainer script = this.scripts.get(i);
 			if (!PlayerScriptData.errored.contains(i)) {
 				script.run(type, event, !this.isClient());
-				if (script.errored) { PlayerScriptData.errored.add(i); }
+				if (script.errored) {
+					PlayerScriptData.errored.add(i);
+				}
 				for (Map.Entry<Long, String> entry : script.console.entrySet()) {
 					if (!PlayerScriptData.console.containsKey(entry.getKey())) {
 						PlayerScriptData.console.put(entry.getKey(), " tab " + (i + 1) + ":\n" + entry.getValue());

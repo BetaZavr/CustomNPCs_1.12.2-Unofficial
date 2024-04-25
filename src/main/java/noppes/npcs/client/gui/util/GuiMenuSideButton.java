@@ -6,9 +6,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiMenuSideButton
-extends GuiNpcButton {
-	
+public class GuiMenuSideButton extends GuiNpcButton {
+
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png");
 	public boolean active;
 
@@ -22,7 +21,9 @@ extends GuiNpcButton {
 	}
 
 	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
-		if (!this.visible) { return; }
+		if (!this.visible) {
+			return;
+		}
 		FontRenderer fontrenderer = minecraft.fontRenderer;
 		minecraft.renderEngine.bindTexture(GuiMenuSideButton.resource);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -46,9 +47,13 @@ extends GuiNpcButton {
 			text = this.displayString;
 		}
 		int l = CustomNpcs.MainColor.getRGB();
-		if (this.packedFGColour != 0) { l = this.packedFGColour; }
-		else if (!this.active) { l = CustomNpcs.NotEnableColor.getRGB(); }
-		else if (this.hovered) { l = CustomNpcs.HoverColor.getRGB(); }
+		if (this.packedFGColour != 0) {
+			l = this.packedFGColour;
+		} else if (!this.active) {
+			l = CustomNpcs.NotEnableColor.getRGB();
+		} else if (this.hovered) {
+			l = CustomNpcs.HoverColor.getRGB();
+		}
 		this.drawCenteredString(fontrenderer, text, this.x + width / 2, this.y + (this.height - 8) / 2, l);
 	}
 

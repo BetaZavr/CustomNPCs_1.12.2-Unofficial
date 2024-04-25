@@ -9,10 +9,8 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.data.role.IJobFollower;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobFollower
-extends JobInterface
-implements IJobFollower {
-	
+public class JobFollower extends JobInterface implements IJobFollower {
+
 	public EntityNPCInterface following;
 	public String name;
 
@@ -25,28 +23,39 @@ implements IJobFollower {
 
 	@Override
 	public boolean aiShouldExecute() {
-		if (this.npc.isAttacking()) { return false; }
-		if (this.following != null) { 
+		if (this.npc.isAttacking()) {
+			return false;
+		}
+		if (this.following != null) {
 			if (this.following.isKilled()) {
 				this.following = null;
 				return false;
 			}
 			double dist = this.npc.getDistance(this.following);
 			if (dist <= 1.5d) {
-				if (!this.npc.getNavigator().noPath()) { this.npc.getNavigator().clearPath(); }
+				if (!this.npc.getNavigator().noPath()) {
+					this.npc.getNavigator().clearPath();
+				}
+				return true;
+			} else if (dist <= this.getRange()) {
+				boolean bo = this.npc.getNavigator().tryMoveToEntityLiving(this.following, 1.0d);
+				if (!bo) {
+					this.following = null;
+				}
+			} else {
+				this.following = null;
+			}
+			if (this.following != null) {
 				return true;
 			}
-			else if (dist <= this.getRange()) {
-				boolean bo = this.npc.getNavigator().tryMoveToEntityLiving(this.following, 1.0d);
-				if (!bo) { this.following = null; }
-			}
-			else { this.following = null; }
-			if (this.following != null) { return true; }
 		}
 		this.following = null;
-		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.npc.getEntityBoundingBox().grow(this.getRange(), this.getRange(), this.getRange()));
+		List<EntityNPCInterface> list = this.npc.world.getEntitiesWithinAABB(EntityNPCInterface.class,
+				this.npc.getEntityBoundingBox().grow(this.getRange(), this.getRange(), this.getRange()));
 		for (EntityNPCInterface entity : list) {
-			if (entity == this.npc || entity.isKilled()) { continue; }
+			if (entity == this.npc || entity.isKilled()) {
+				continue;
+			}
 			if (entity.display.getName().equalsIgnoreCase(this.name)) {
 				this.following = entity;
 				break;
@@ -92,6 +101,12 @@ implements IJobFollower {
 	}
 
 	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = JobType.FOLLOWER;
+		this.name = compound.getString("FollowingEntityName");
+	}
+
+	@Override
 	public void reset() {
 	}
 
@@ -103,12 +118,6 @@ implements IJobFollower {
 	@Override
 	public void setFollowing(String name) {
 		this.name = name;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.FOLLOWER;
-		this.name = compound.getString("FollowingEntityName");
 	}
 
 	@Override

@@ -9,9 +9,8 @@ import noppes.npcs.api.entity.data.INPCJob;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobInterface
-implements INPCJob {
-	
+public class JobInterface implements INPCJob {
+
 	public EntityNPCInterface npc;
 	public boolean overrideMainHand;
 	public boolean overrideOffHand;
@@ -28,6 +27,9 @@ implements INPCJob {
 		return this.aiShouldExecute();
 	}
 
+	public void aiDeathExecute(Entity attackingEntity) {
+	}
+
 	public boolean aiShouldExecute() {
 		return false;
 	}
@@ -37,11 +39,12 @@ implements INPCJob {
 
 	public void aiUpdateTask() {
 	}
-	
-	public void aiDeathExecute(Entity attackingEntity) {
-	}
 
 	public void delete() {
+	}
+
+	public JobType getEnumType() {
+		return this.type;
 	}
 
 	public IItemStack getMainhand() {
@@ -57,18 +60,26 @@ implements INPCJob {
 	}
 
 	@Override
-	public int getType() { return this.type.get(); }
+	public int getType() {
+		return this.type.get();
+	}
 
 	public boolean isFollowing() {
 		return false;
 	}
 
 	public String itemToString(ItemStack item) {
-		if (item == null || item.isEmpty()) { return ""; }
+		if (item == null || item.isEmpty()) {
+			return "";
+		}
 		return Item.REGISTRY.getNameForObject(item.getItem()) + " - " + item.getItemDamage();
 	}
 
 	public void killed() {
+	}
+
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = JobType.get(compound.getInteger("Type"));
 	}
 
 	public void reset() {
@@ -78,7 +89,9 @@ implements INPCJob {
 	}
 
 	public ItemStack stringToItem(String s) {
-		if (s.isEmpty()) { return ItemStack.EMPTY; }
+		if (s.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
 		int damage = 0;
 		if (s.contains(" - ")) {
 			String[] split = s.split(" - ");
@@ -95,12 +108,6 @@ implements INPCJob {
 			return ItemStack.EMPTY;
 		}
 		return new ItemStack(item, 1, damage);
-	}
-
-	public JobType getEnumType() { return this.type; }
-	
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.get(compound.getInteger("Type"));
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {

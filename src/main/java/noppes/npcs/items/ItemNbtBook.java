@@ -24,27 +24,27 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class ItemNbtBook
-extends Item
-implements IPermission {
-	
+public class ItemNbtBook extends Item implements IPermission {
+
 	public ItemNbtBook() {
 		this.setRegistryName(CustomNpcs.MODID, "nbt_book");
 		this.setUnlocalizedName("nbt_book");
 		this.maxStackSize = 1;
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
-	
-	public void itemEvent(PlayerInteractEvent.RightClickItem event) {
-		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setBoolean("Item", true);
-		compound.setTag("Data", event.getEntityPlayer().getHeldItemOffhand().writeToNBT(new NBTTagCompound()));
-		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI_DATA, compound);
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list == null) {
+			return;
+		}
+		list.add(new TextComponentTranslation("info.item.nbt.book").getFormattedText());
 	}
 
 	public void blockEvent(PlayerInteractEvent.RightClickBlock event) {
-		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook,
+				event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
 		NBTTagCompound data = new NBTTagCompound();
 		TileEntity tile = event.getWorld().getTileEntity(event.getPos());
 		if (tile != null) {
@@ -66,15 +66,17 @@ implements IPermission {
 	}
 
 	public boolean isAllowed(EnumPacketServer e) {
-		return e == EnumPacketServer.NbtBookSaveItem || e == EnumPacketServer.NbtBookSaveEntity ||
-				e == EnumPacketServer.NbtBookSaveBlock || e == EnumPacketServer.NbtBookCopyStack;
+		return e == EnumPacketServer.NbtBookSaveItem || e == EnumPacketServer.NbtBookSaveEntity
+				|| e == EnumPacketServer.NbtBookSaveBlock || e == EnumPacketServer.NbtBookCopyStack;
 	}
-	
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list==null) { return; }
-		list.add(new TextComponentTranslation("info.item.nbt.book").getFormattedText());
+
+	public void itemEvent(PlayerInteractEvent.RightClickItem event) {
+		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.NbtBook,
+				event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setBoolean("Item", true);
+		compound.setTag("Data", event.getEntityPlayer().getHeldItemOffhand().writeToNBT(new NBTTagCompound()));
+		Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI_DATA, compound);
 	}
-	
+
 }

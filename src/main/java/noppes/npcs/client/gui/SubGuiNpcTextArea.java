@@ -6,10 +6,8 @@ import noppes.npcs.client.gui.util.GuiTextArea;
 import noppes.npcs.client.gui.util.ITextChangeListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 
-public class SubGuiNpcTextArea
-extends SubGuiInterface
-implements ITextChangeListener {
-	
+public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeListener {
+
 	private boolean highlighting;
 	// New
 	public String originalText;
@@ -79,7 +77,8 @@ implements ITextChangeListener {
 			this.text = this.textarea.getText();
 		}
 		int yoffset = (int) (this.ySize * 0.02);
-		(this.textarea = new GuiTextArea(2, this, this.guiLeft + 1 + yoffset, this.guiTop + yoffset, this.xSize - 100 - yoffset, this.ySize - yoffset * 2, this.text)).setListener(this);
+		(this.textarea = new GuiTextArea(2, this, this.guiLeft + 1 + yoffset, this.guiTop + yoffset,
+				this.xSize - 100 - yoffset, this.ySize - yoffset * 2, this.text)).setListener(this);
 		if (this.highlighting) {
 			this.textarea.enableCodeHighlighting();
 		}

@@ -4,20 +4,20 @@ import moe.plushie.armourers_workshop.api.common.library.ILibraryFile;
 import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
 
 public interface ISkinIdentifier {
-    
-    public boolean hasLocalId();
-    
-    public boolean hasLibraryFile();
-    
-    public boolean hasGlobalId();
-    
-    public boolean isValid();
-    
-    public int getSkinLocalId();
-    
-    public ILibraryFile getSkinLibraryFile();
-    
-    public int getSkinGlobalId();
-    
-    public ISkinType getSkinType();
+
+	public int getSkinGlobalId();
+
+	public ILibraryFile getSkinLibraryFile();
+
+	public int getSkinLocalId();
+
+	public ISkinType getSkinType();
+
+	public boolean hasGlobalId();
+
+	public boolean hasLibraryFile();
+
+	public boolean hasLocalId();
+
+	public boolean isValid();
 }

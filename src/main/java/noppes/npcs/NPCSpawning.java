@@ -35,7 +35,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class NPCSpawning {
-	
+
 	private static Set<ChunkPos> eligibleChunksForSpawning = Sets.newHashSet();
 
 	public static boolean canCreatureTypeSpawnAtLocation(SpawnData data, World world, BlockPos pos) {
@@ -144,7 +144,8 @@ public class NPCSpawning {
 	public static void performWorldGenSpawning(World world, int x, int z, Random rand) {
 		Biome biome = world.getBiomeForCoordsBody(new BlockPos(x + 8, 0, z + 8));
 		while (rand.nextFloat() < biome.getSpawningChance()) {
-			SpawnData data = SpawnController.instance.getRandomSpawnData(ObfuscationHelper.getValue(Biome.class, biome, 17), true);
+			SpawnData data = SpawnController.instance
+					.getRandomSpawnData(ObfuscationHelper.getValue(Biome.class, biome, 17), true);
 			if (data == null) {
 				continue;
 			}

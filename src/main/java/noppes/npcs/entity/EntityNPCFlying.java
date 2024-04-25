@@ -6,9 +6,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-public abstract class EntityNPCFlying
-extends EntityNPCInterface {
-	
+public abstract class EntityNPCFlying extends EntityNPCInterface {
+
 	public EntityNPCFlying(World world) {
 		super(world);
 	}

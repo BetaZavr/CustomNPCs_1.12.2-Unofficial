@@ -19,8 +19,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileRedstoneBlock;
 import noppes.npcs.constants.EnumGuiType;
@@ -50,8 +50,17 @@ public class BlockNpcRedstone extends BlockInterface implements IPermission {
 		return new TileRedstoneBlock();
 	}
 
+	@SideOnly(Side.CLIENT)
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT;
+	}
+
 	public int getMetaFromState(IBlockState state) {
 		return ((boolean) state.getValue(BlockNpcRedstone.ACTIVE)) ? 1 : 0;
+	}
+
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.MODEL;
 	}
 
 	public IBlockState getStateFromMeta(int meta) {
@@ -73,6 +82,14 @@ public class BlockNpcRedstone extends BlockInterface implements IPermission {
 	@Override
 	public boolean isAllowed(EnumPacketServer e) {
 		return e == EnumPacketServer.SaveTileEntity;
+	}
+
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
 	}
 
 	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
@@ -110,15 +127,5 @@ public class BlockNpcRedstone extends BlockInterface implements IPermission {
 	public void onPlayerDestroy(World par1World, BlockPos pos, IBlockState state) {
 		this.onBlockAdded(par1World, pos, state);
 	}
-	
-	public boolean isOpaqueCube(IBlockState state) { return false; }
-	
-	public boolean isFullCube(IBlockState state) { return false; }
-
-	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() { return BlockRenderLayer.CUTOUT; }
-	
-	public EnumBlockRenderType getRenderType(IBlockState state) { return EnumBlockRenderType.MODEL; }
-	
 
 }

@@ -12,9 +12,8 @@ import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 
-public class ContainerNpcQuestRewardItem
-extends Container {
-	
+public class ContainerNpcQuestRewardItem extends Container {
+
 	public NpcMiscInventory inv;
 	private Quest quest;
 

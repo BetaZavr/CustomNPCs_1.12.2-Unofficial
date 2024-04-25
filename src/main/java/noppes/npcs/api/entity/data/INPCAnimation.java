@@ -4,30 +4,30 @@ import noppes.npcs.api.INbt;
 
 public interface INPCAnimation {
 
-	void reset();
-
-	void stopAnimation();
-	
-	void stopEmotion();
-
 	void clear();
 
-	void update();
+	IAnimation getAnimation(int animationType, int variant);
 
 	IAnimation[] getAnimations(int animationType);
 
-	IAnimation getAnimation(int animationType, int variant);
+	INbt getNbt();
+
+	boolean removeAnimation(int type, int animationId);
+
+	void removeAnimations(int type);
+
+	void reset();
+
+	void setNbt(INbt nbt);
 
 	void startAnimation(int animationType);
 
 	void startAnimation(int animationType, int variant);
-	
-	INbt getNbt();
-	
-	void setNbt(INbt nbt);
 
-	boolean removeAnimation(int type, int animationId);
-	
-	void removeAnimations(int type);
-	
+	void stopAnimation();
+
+	void stopEmotion();
+
+	void update();
+
 }

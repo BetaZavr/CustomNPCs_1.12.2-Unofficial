@@ -3,7 +3,7 @@ package noppes.npcs.api.event;
 import noppes.npcs.api.entity.IProjectile;
 
 public class ProjectileEvent extends CustomNPCsEvent {
-	
+
 	public static class ImpactEvent extends ProjectileEvent {
 		public Object target;
 		public int type;
@@ -26,5 +26,5 @@ public class ProjectileEvent extends CustomNPCsEvent {
 	public ProjectileEvent(IProjectile<?> projectile) {
 		this.projectile = projectile;
 	}
-	
+
 }

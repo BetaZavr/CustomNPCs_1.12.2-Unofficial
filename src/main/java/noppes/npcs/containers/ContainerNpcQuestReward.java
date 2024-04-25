@@ -8,9 +8,8 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.controllers.data.Quest;
 
-public class ContainerNpcQuestReward
-extends Container {
-	
+public class ContainerNpcQuestReward extends Container {
+
 	public ContainerNpcQuestReward(EntityPlayer player) {
 		Quest quest = NoppesUtilServer.getEditingQuest(player);
 		for (int l = 0; l < 3; ++l) {

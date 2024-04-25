@@ -1,10 +1,7 @@
 package noppes.npcs.constants;
 
-public enum EnumAvailabilityScoreboard
-{
-	
-	SMALLER, 
-	EQUAL, 
-	BIGGER;
-	
+public enum EnumAvailabilityScoreboard {
+
+	SMALLER, EQUAL, BIGGER;
+
 }

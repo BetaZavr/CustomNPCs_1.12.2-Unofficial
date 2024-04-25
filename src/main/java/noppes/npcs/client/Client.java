@@ -25,13 +25,15 @@ public class Client {
 		Client.notDebugShow = new ArrayList<EnumPacketServer>();
 		Client.notDebugShow.add(EnumPacketServer.RemoteReset);
 	}
-	
+
 	public static void sendData(EnumPacketServer type, Object... obs) {
 		CustomNPCsScheduler.runTack(() -> {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (!(!Server.fillBuffer(buffer, type, obs))) {
-					if (!notDebugShow.contains(type)) { LogWriter.debug("Send: " + type); }
+					if (!notDebugShow.contains(type)) {
+						LogWriter.debug("Send: " + type);
+					}
 					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, "CustomNPCs"));
 				}
 			} catch (IOException e) {
@@ -41,15 +43,20 @@ public class Client {
 	}
 
 	public static boolean sendDataDelayCheck(EnumPacketServer type, Object key, int delayMilliSec, Object... obs) {
-		if (delayMilliSec>0 && Client.delayPackets.containsKey(key) && Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
+		if (delayMilliSec > 0 && Client.delayPackets.containsKey(key)
+				&& Client.delayPackets.get(key) + delayMilliSec > System.currentTimeMillis()) {
 			return false;
 		}
-		if (delayMilliSec>0) { Client.delayPackets.put(key, System.currentTimeMillis()); }
+		if (delayMilliSec > 0) {
+			Client.delayPackets.put(key, System.currentTimeMillis());
+		}
 		CustomNPCsScheduler.runTack(() -> {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (!(!Server.fillBuffer(buffer, type, obs))) {
-					if (!notDebugShow.contains(type)) { LogWriter.debug("Send: " + type); }
+					if (!notDebugShow.contains(type)) {
+						LogWriter.debug("Send: " + type);
+					}
 					CustomNpcs.Channel.sendToServer(new FMLProxyPacket(buffer, "CustomNPCs"));
 				}
 			} catch (IOException e) {

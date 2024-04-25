@@ -23,23 +23,47 @@ public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		switch(button.id) {
-			case 0: this.data.hasDisplay = button.getValue() == 1; break;
-			case 1: this.data.hasStats = button.getValue() == 1; break;
-			case 2: this.data.hasAi = button.getValue() == 1; break;
-			case 3: this.data.hasInv = button.getValue() == 1;break;
-			case 4: this.data.hasAdvanced = button.getValue() == 1;break;
-			case 5: this.data.hasRole = button.getValue() == 1; break;
-			case 6: this.data.hasJob = button.getValue() == 1; break;
-			case 10: {
-				this.data.editingModus = button.getValue() == 1;
-				this.save();
-				this.initGui();
-				break;
-			}
-			case 11: Client.sendData(EnumPacketServer.TransformLoad, false); break;
-			case 12: Client.sendData(EnumPacketServer.TransformLoad, true); break;
+		switch (button.id) {
+		case 0:
+			this.data.hasDisplay = button.getValue() == 1;
+			break;
+		case 1:
+			this.data.hasStats = button.getValue() == 1;
+			break;
+		case 2:
+			this.data.hasAi = button.getValue() == 1;
+			break;
+		case 3:
+			this.data.hasInv = button.getValue() == 1;
+			break;
+		case 4:
+			this.data.hasAdvanced = button.getValue() == 1;
+			break;
+		case 5:
+			this.data.hasRole = button.getValue() == 1;
+			break;
+		case 6:
+			this.data.hasJob = button.getValue() == 1;
+			break;
+		case 10: {
+			this.data.editingModus = button.getValue() == 1;
+			this.save();
+			this.initGui();
+			break;
 		}
+		case 11:
+			Client.sendData(EnumPacketServer.TransformLoad, false);
+			break;
+		case 12:
+			Client.sendData(EnumPacketServer.TransformLoad, true);
+			break;
+		}
+	}
+
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
@@ -76,28 +100,22 @@ public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui == null) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+		super.keyTyped(c, i);
+	}
+
+	@Override
 	public void save() {
 		Client.sendData(EnumPacketServer.TransformSave, this.data.writeOptions(new NBTTagCompound()));
-	}
-	
-	@Override
-	public void close() {
-		this.save();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		this.data.readOptions(compound);
 		this.initGui();
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
-		super.keyTyped(c, i);
 	}
 }

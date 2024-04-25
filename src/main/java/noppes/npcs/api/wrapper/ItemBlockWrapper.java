@@ -5,10 +5,8 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemBlock;
 
-public class ItemBlockWrapper
-extends ItemStackWrapper
-implements IItemBlock {
-	
+public class ItemBlockWrapper extends ItemStackWrapper implements IItemBlock {
+
 	protected String blockName;
 
 	protected ItemBlockWrapper(ItemStack item) {

@@ -1,9 +1,6 @@
 package noppes.npcs.api.gui;
 
-public interface IGuiTimer
-extends ICustomGuiComponent {
-
-	void setTime(long start, long end);
+public interface IGuiTimer extends ICustomGuiComponent {
 
 	int getColor();
 
@@ -20,5 +17,7 @@ extends ICustomGuiComponent {
 	IGuiTimer setScale(float scale);
 
 	IGuiTimer setSize(int width, int height);
+
+	void setTime(long start, long end);
 
 }

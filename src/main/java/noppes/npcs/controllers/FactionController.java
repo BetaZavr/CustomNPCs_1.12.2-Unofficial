@@ -25,9 +25,8 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
 import noppes.npcs.controllers.data.Faction;
 
-public class FactionController
-implements IFactionHandler {
-	
+public class FactionController implements IFactionHandler {
+
 	public static FactionController instance = new FactionController();
 	public final HashMap<Integer, Faction> factions = new HashMap<Integer, Faction>();;
 	public final HashMap<Integer, Faction> factionsSync = new HashMap<Integer, Faction>();;
@@ -73,9 +72,13 @@ implements IFactionHandler {
 	}
 
 	@Override
-	public IFaction get(int id) { return this.factions.get(id); }
+	public IFaction get(int id) {
+		return this.factions.get(id);
+	}
 
-	public Faction getFaction(int faction) { return this.factions.get(faction); }
+	public Faction getFaction(int faction) {
+		return this.factions.get(faction);
+	}
 
 	public Faction getFactionFromName(String factioname) {
 		for (Map.Entry<Integer, Faction> entryfaction : this.factions.entrySet()) {
@@ -86,9 +89,13 @@ implements IFactionHandler {
 		return null;
 	}
 
-	public Faction getFirstFaction() { return this.factions.values().iterator().next(); }
+	public Faction getFirstFaction() {
+		return this.factions.values().iterator().next();
+	}
 
-	public int getFirstFactionId() { return this.factions.keySet().iterator().next(); }
+	public int getFirstFactionId() {
+		return this.factions.keySet().iterator().next();
+	}
 
 	public String[] getNames() {
 		String[] names = new String[this.factions.size()];
@@ -211,7 +218,8 @@ implements IFactionHandler {
 	}
 
 	private void loadFactionsFile(File file) throws IOException {
-		DataInputStream var1 = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
+		DataInputStream var1 = new DataInputStream(
+				new BufferedInputStream(new GZIPInputStream(new FileInputStream(file))));
 		this.loadFactions(var1);
 		var1.close();
 	}
@@ -219,7 +227,9 @@ implements IFactionHandler {
 	public void saveFaction(Faction faction) {
 		if (faction.id < 0) {
 			faction.id = this.getUnusedId();
-			while (this.hasName(faction.name)) { faction.name += "_"; }
+			while (this.hasName(faction.name)) {
+				faction.name += "_";
+			}
 		} else {
 			Faction existing = this.factions.get(faction.id);
 			if (existing != null && !existing.name.equals(faction.name)) {
@@ -229,7 +239,8 @@ implements IFactionHandler {
 			}
 		}
 		this.factions.put(faction.id, faction);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData, faction.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData,
+				faction.writeNBT(new NBTTagCompound()));
 		this.saveFactions();
 	}
 

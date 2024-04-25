@@ -26,10 +26,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiNpcFollower
-extends GuiContainerNPCInterface
-implements IGuiData {
-	
+public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData {
+
 	private EntityNPCInterface npc;
 	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/follower.png");
 	private RoleFollower role;
@@ -54,63 +52,20 @@ implements IGuiData {
 			this.displayNPC.rotationPitch = npc.rotationPitch;
 			this.displayNPC.ais.orientation = npc.ais.orientation;
 			this.displayNPC.ais.setStandingType(1);
-			if (npc instanceof EntityCustomNpc &&
-					displayNPC instanceof EntityCustomNpc &&
-					((EntityCustomNpc) npc).modelData instanceof ModelDataShared &&
-					((EntityCustomNpc) displayNPC).modelData instanceof ModelDataShared) {
+			if (npc instanceof EntityCustomNpc && displayNPC instanceof EntityCustomNpc
+					&& ((EntityCustomNpc) npc).modelData instanceof ModelDataShared
+					&& ((EntityCustomNpc) displayNPC).modelData instanceof ModelDataShared) {
 				((ModelDataShared) ((EntityCustomNpc) displayNPC).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity;
 			}
 		}
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		this.buttonList.clear();
-		int x = this.guiLeft + 12;
-		int y = this.guiTop - 11;
-		if (!this.role.infiniteDays) { 
-			for (int i = 0; i < 3; ++i) {
-				if (this.role.rentalItems.getStackInSlot(i).isEmpty()) { continue; }
-				this.addButton(new GuiNpcButton(i, x, y += 16, 60, 13, new TextComponentTranslation("follower.extend").getFormattedText()));
-			}
-		}
-		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
-			this.addButton(new GuiNpcButton(3, x, y += 16, 60, 13, new TextComponentTranslation("follower.extend").getFormattedText()));
-		}
-		x += 52;
-		y = this.guiTop + 105;
-		this.addButton(new GuiNpcButton(5, x, y, 50, 14, new String[] { new TextComponentTranslation("follower.waiting").getFormattedText(), new TextComponentTranslation("follower.following").getFormattedText() }, (this.role.isFollowing ? 0 : 1)));
-		this.addButton(new GuiNpcButton(6, x + 54, y, 50, 14, new TextComponentTranslation("follower.fire").getFormattedText()));
-	}
-
-	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id < 4) { NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.id); }
-		else { NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.id - 5); }
-	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		for (int i = 0; i < 3; ++i) {
-			if (this.getButton(i) == null) { continue; }
-			this.getButton(i).setEnabled(this.mc.player.capabilities.isCreativeMode || AdditionalMethods.canRemoveItems(this.mc.player.inventory.mainInventory, this.role.rentalItems.getStackInSlot(i), false, false));
-		}
-		if (this.getButton(3) != null) {
-			this.getButton(3).setEnabled(this.mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= this.role.rentalMoney);
-		}
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("follower.hover.move").getFormattedText());
-		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("follower.hover.fire").getFormattedText());
+		if (button.id < 4) {
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.id);
 		} else {
-			for (int i = 0; i < 4; ++i) {
-				if (this.getButton(i) != null && this.getButton(i).isMouseOver()) {
-					this.setHoverText(new TextComponentTranslation("follower.hover.extend").getFormattedText());
-				}
-			}
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.id - 5);
 		}
 	}
 
@@ -120,7 +75,7 @@ implements IGuiData {
 		this.mc.renderEngine.bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		int index = 0;
-		if (!this.role.infiniteDays) { 
+		if (!this.role.infiniteDays) {
 			for (int slot = 0; slot < this.role.rentalItems.items.size(); ++slot) {
 				ItemStack itemstack = this.role.rentalItems.items.get(slot);
 				if (!NoppesUtilServer.IsItemStackNull(itemstack)) {
@@ -137,9 +92,15 @@ implements IGuiData {
 					this.itemRender.renderItemOverlays(this.fontRenderer, itemstack, x + 11, y);
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.disableRescaleNormal();
-					String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText() : new TextComponentTranslation("follower.days").getFormattedText());
-					this.fontRenderer.drawString(" = " + daysS, x + 27, y + 4, CustomNpcResourceListener.DefaultTextColor);
-					if (this.isPointInRegion(x - this.guiLeft + 11, y - this.guiTop, 16, 16, this.mouseX, this.mouseY)) { this.renderToolTip(itemstack, this.mouseX, this.mouseY); }
+					String daysS = days + " "
+							+ ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText()
+									: new TextComponentTranslation("follower.days").getFormattedText());
+					this.fontRenderer.drawString(" = " + daysS, x + 27, y + 4,
+							CustomNpcResourceListener.DefaultTextColor);
+					if (this.isPointInRegion(x - this.guiLeft + 11, y - this.guiTop, 16, 16, this.mouseX,
+							this.mouseY)) {
+						this.renderToolTip(itemstack, this.mouseX, this.mouseY);
+					}
 					++index;
 				}
 			}
@@ -157,7 +118,7 @@ implements IGuiData {
 			this.drawTexturedModalRect(0, 3, 115, 3, 61, 82);
 			this.drawTexturedModalRect(0, 85, 115, 220, 61, 4);
 			GlStateManager.popMatrix();
-			
+
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(this.guiLeft + 173, this.guiTop + 141, 0.0f);
 			this.mc.renderEngine.bindTexture(GuiNPCInterface.RESOURCE_SLOT);
@@ -169,22 +130,95 @@ implements IGuiData {
 		}
 		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
 			int days = this.role.rates.get(3);
-			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText() : new TextComponentTranslation("follower.days").getFormattedText());
-			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " " + CustomNpcs.CharCurrencies;
-			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 80, this.guiTop + 56, CustomNpcResourceListener.DefaultTextColor);
+			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText()
+					: new TextComponentTranslation("follower.days").getFormattedText());
+			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " "
+					+ CustomNpcs.CharCurrencies;
+			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 80, this.guiTop + 56,
+					CustomNpcResourceListener.DefaultTextColor);
 		}
-		if (displayNPC != null) { this.drawNpc(displayNPC, 33, 131, 1.0f, 0, 0, 1); }
-		else { this.drawNpc(33, 131) ;}
+		if (displayNPC != null) {
+			this.drawNpc(displayNPC, 33, 131, 1.0f, 0, 0, 1);
+		} else {
+			this.drawNpc(33, 131);
+		}
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2) {
 		long time = (System.currentTimeMillis() - this.role.hiredTime) / 50L;
-		this.fontRenderer.drawString(new TextComponentTranslation("follower.health").getFormattedText() + ": " + this.npc.getHealth() + "/" + this.npc.getMaxHealth(), 62, 70, CustomNpcResourceListener.DefaultTextColor);
+		this.fontRenderer.drawString(new TextComponentTranslation("follower.health").getFormattedText() + ": "
+				+ this.npc.getHealth() + "/" + this.npc.getMaxHealth(), 62, 70,
+				CustomNpcResourceListener.DefaultTextColor);
 		if (!this.role.infiniteDays) {
-			this.fontRenderer.drawString(new TextComponentTranslation("follower.daysleft").getFormattedText() + " " + AdditionalMethods.ticksToElapsedTime((this.role.getDays() * 28800L) - time, false, true, false), 62, 82, CustomNpcResourceListener.DefaultTextColor);
+			this.fontRenderer.drawString(
+					new TextComponentTranslation("follower.daysleft").getFormattedText() + " " + AdditionalMethods
+							.ticksToElapsedTime((this.role.getDays() * 28800L) - time, false, true, false),
+					62, 82, CustomNpcResourceListener.DefaultTextColor);
 		}
-		this.fontRenderer.drawString(new TextComponentTranslation("follower.lastday").getFormattedText() + ": " + AdditionalMethods.ticksToElapsedTime(time, false, true, false), 62, 94, CustomNpcResourceListener.DefaultTextColor);
+		this.fontRenderer.drawString(
+				new TextComponentTranslation("follower.lastday").getFormattedText() + ": "
+						+ AdditionalMethods.ticksToElapsedTime(time, false, true, false),
+				62, 94, CustomNpcResourceListener.DefaultTextColor);
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		for (int i = 0; i < 3; ++i) {
+			if (this.getButton(i) == null) {
+				continue;
+			}
+			this.getButton(i).setEnabled(this.mc.player.capabilities.isCreativeMode || AdditionalMethods.canRemoveItems(
+					this.mc.player.inventory.mainInventory, this.role.rentalItems.getStackInSlot(i), false, false));
+		}
+		if (this.getButton(3) != null) {
+			this.getButton(3).setEnabled(this.mc.player.capabilities.isCreativeMode
+					|| ClientProxy.playerData.game.getMoney() >= this.role.rentalMoney);
+		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("follower.hover.move").getFormattedText());
+		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("follower.hover.fire").getFormattedText());
+		} else {
+			for (int i = 0; i < 4; ++i) {
+				if (this.getButton(i) != null && this.getButton(i).isMouseOver()) {
+					this.setHoverText(new TextComponentTranslation("follower.hover.extend").getFormattedText());
+				}
+			}
+		}
+	}
+
+	@Override
+	public void initGui() {
+		super.initGui();
+		this.buttonList.clear();
+		int x = this.guiLeft + 12;
+		int y = this.guiTop - 11;
+		if (!this.role.infiniteDays) {
+			for (int i = 0; i < 3; ++i) {
+				if (this.role.rentalItems.getStackInSlot(i).isEmpty()) {
+					continue;
+				}
+				this.addButton(new GuiNpcButton(i, x, y += 16, 60, 13,
+						new TextComponentTranslation("follower.extend").getFormattedText()));
+			}
+		}
+		if (this.role.rates.containsKey(3) && this.role.rentalMoney > 0) {
+			this.addButton(new GuiNpcButton(3, x, y += 16, 60, 13,
+					new TextComponentTranslation("follower.extend").getFormattedText()));
+		}
+		x += 52;
+		y = this.guiTop + 105;
+		this.addButton(new GuiNpcButton(5, x, y, 50, 14,
+				new String[] { new TextComponentTranslation("follower.waiting").getFormattedText(),
+						new TextComponentTranslation("follower.following").getFormattedText() },
+				(this.role.isFollowing ? 0 : 1)));
+		this.addButton(new GuiNpcButton(6, x + 54, y, 50, 14,
+				new TextComponentTranslation("follower.fire").getFormattedText()));
 	}
 
 	@Override

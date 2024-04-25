@@ -24,23 +24,31 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.IPermission;
 
-public class ItemTeleporter
-extends Item
-implements IPermission {
-	
+public class ItemTeleporter extends Item implements IPermission {
+
 	public ItemTeleporter() {
 		this.setRegistryName(CustomNpcs.MODID, "npcteleporter");
 		this.setUnlocalizedName("npcteleporter");
 		this.setFull3D();
 		this.maxStackSize = 1;
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list == null) {
+			return;
+		}
+		list.add(new TextComponentTranslation("info.item.teleporter").getFormattedText());
+		list.add(new TextComponentTranslation("info.item.teleporter.0").getFormattedText());
 	}
 
 	public boolean isAllowed(EnumPacketServer e) {
@@ -89,7 +97,9 @@ implements IPermission {
 				}
 			}
 		}
-		if (flag) { return false; }
+		if (flag) {
+			return false;
+		}
 		if (movingobjectposition.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos pos;
 			for (pos = movingobjectposition.getBlockPos(); par3EntityPlayer.world.getBlockState(pos)
@@ -108,13 +118,5 @@ implements IPermission {
 		CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
 		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 	}
-	
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list==null) { return; }
-		list.add(new TextComponentTranslation("info.item.teleporter").getFormattedText());
-		list.add(new TextComponentTranslation("info.item.teleporter.0").getFormattedText());
-	}
-	
+
 }

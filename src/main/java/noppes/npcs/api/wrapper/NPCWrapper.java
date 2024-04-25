@@ -37,10 +37,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
 @SuppressWarnings("rawtypes")
-public class NPCWrapper<T extends EntityNPCInterface>
-extends EntityLivingWrapper<T>
-implements ICustomNpc {
-	
+public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrapper<T> implements ICustomNpc {
+
 	public NPCWrapper(T npc) {
 		super(npc);
 	}
@@ -69,16 +67,24 @@ implements ICustomNpc {
 	}
 
 	@Override
+	public INPCAnimation getAnimations() {
+		return this.entity.animation;
+	}
+
+	@Override
 	public IDialog getDialog(int slot) {
 		if (slot < 0 || slot >= this.entity.dialogs.length) {
-			throw new CustomNPCsException("Slot needs to be between 0 and "+(this.entity.dialogs.length-1), new Object[0]);
+			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1),
+					new Object[0]);
 		}
 		IDialog dialog = null;
 		int s = 0;
 		TreeMap<Integer, Dialog> dialogs = DialogController.instance.dialogs;
 		for (int dialogId : this.entity.dialogs) {
-			if (s==slot) {
-				if (dialogs.containsKey(dialogId)) { dialog = dialogs.get(dialogId); }
+			if (s == slot) {
+				if (dialogs.containsKey(dialogId)) {
+					dialog = dialogs.get(dialogId);
+				}
 				break;
 			}
 		}
@@ -189,10 +195,12 @@ implements ICustomNpc {
 	@Override
 	public void setDialog(int slot, IDialog dialog) {
 		if (slot < 0) {
-			throw new CustomNPCsException("Slot needs to be between 0 and "+(this.entity.dialogs.length-1), new Object[0]);
+			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1),
+					new Object[0]);
 		}
 		if (dialog == null && slot >= this.entity.dialogs.length) {
-			throw new CustomNPCsException("Slot needs to be between 0 and "+(this.entity.dialogs.length-1), new Object[0]);
+			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1),
+					new Object[0]);
 		}
 		int s = 0;
 		Set<Integer> newIds = Sets.<Integer>newHashSet();
@@ -283,6 +291,11 @@ implements ICustomNpc {
 	}
 
 	@Override
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), this, arguments);
+	}
+
+	@Override
 	public boolean typeOf(int type) {
 		return type == EntityType.NPC.get() || super.typeOf(type);
 	}
@@ -291,13 +304,5 @@ implements ICustomNpc {
 	public void updateClient() {
 		this.entity.updateClient();
 	}
-	
-	@Override
-	public void trigger(int id, Object ... arguments) {
-		EventHooks.onScriptTriggerEvent(this.entity.script, id, this.getWorld(), this.getPos(), this, arguments);
-	}
 
-	@Override
-	public INPCAnimation getAnimations() { return this.entity.animation; }
-	
 }

@@ -5,7 +5,7 @@ import java.util.Random;
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovGenerator {
-	
+
 	public MarkovDictionary markov;
 	public String name;
 	public Random rng;

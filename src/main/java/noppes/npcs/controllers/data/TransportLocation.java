@@ -9,9 +9,8 @@ import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.data.role.ITransportLocation;
 
-public class TransportLocation
-implements ITransportLocation {
-	
+public class TransportLocation implements ITransportLocation {
+
 	public TransportCategory category;
 	public int dimension, id, type;
 	public long money;
@@ -31,6 +30,25 @@ implements ITransportLocation {
 		this.inventory = new NpcMiscInventory(9);
 		this.yaw = 0.0f;
 		this.pitch = 0.0f;
+	}
+
+	public TransportLocation copy() {
+		TransportLocation tl = new TransportLocation();
+		tl.id = this.id;
+		tl.name = this.name;
+		tl.type = this.type;
+		tl.dimension = this.dimension;
+		tl.npc = this.npc;
+		tl.money = this.money;
+		tl.pos = this.pos;
+		tl.npc = this.npc;
+		for (int i = 0; i < this.inventory.items.size(); i++) {
+			tl.inventory.items.set(i, this.inventory.items.get(i).copy());
+		}
+		tl.category = this.category;
+		tl.yaw = this.yaw;
+		tl.pitch = this.yaw;
+		return tl;
 	}
 
 	@Override
@@ -73,7 +91,9 @@ implements ITransportLocation {
 	}
 
 	public void readNBT(NBTTagCompound compound) {
-		if (compound == null) { return; }
+		if (compound == null) {
+			return;
+		}
 		this.id = compound.getInteger("Id");
 		this.pos = new BlockPos(compound.getDouble("PosX"), compound.getDouble("PosY"), compound.getDouble("PosZ"));
 		this.type = compound.getInteger("Type");
@@ -88,13 +108,36 @@ implements ITransportLocation {
 		this.money = compound.getLong("Cost");
 		if (compound.hasKey("CostInv", 10)) {
 			this.inventory.setFromNBT(compound.getCompoundTag("CostInv"));
-			while (this.inventory.items.size()<9) { this.inventory.items.add(ItemStack.EMPTY); }
-			while (this.inventory.items.size()>9) { this.inventory.items.remove(this.inventory.items.size()-1); }
+			while (this.inventory.items.size() < 9) {
+				this.inventory.items.add(ItemStack.EMPTY);
+			}
+			while (this.inventory.items.size() > 9) {
+				this.inventory.items.remove(this.inventory.items.size() - 1);
+			}
 		} else {
 			for (int i = 0; i < this.inventory.items.size(); i++) {
 				this.inventory.items.set(i, ItemStack.EMPTY);
 			}
 		}
+	}
+
+	@Override
+	public void setPos(int dimentionID, int x, int y, int z) {
+		/*
+		 * if (!DimensionHandler.getInstance().getMapDimensionsIDs().containsValue(
+		 * dimentionID)) { throw new CustomNPCsException("Unknown dimention ID: " +
+		 * dimentionID); }
+		 */
+		this.dimension = dimentionID;
+		this.pos = new BlockPos(x, y, z);
+	}
+
+	@Override
+	public void setType(int type) {
+		if (type < 0 || type > 2) {
+			throw new CustomNPCsException("Unknown location type: " + type);
+		}
+		this.type = type;
 	}
 
 	public NBTTagCompound writeNBT() {
@@ -106,7 +149,9 @@ implements ITransportLocation {
 		compound.setInteger("Type", this.type);
 		compound.setInteger("Dimension", this.dimension);
 		compound.setString("Name", this.name);
-		if (this.npc!=null) { compound.setUniqueId("NpcUUID", this.npc); }
+		if (this.npc != null) {
+			compound.setUniqueId("NpcUUID", this.npc);
+		}
 		compound.setLong("Cost", this.money);
 		compound.setTag("CostInv", this.inventory.getToNBT());
 		compound.setFloat("PlayerYaw", this.yaw);
@@ -114,40 +159,4 @@ implements ITransportLocation {
 		return compound;
 	}
 
-	@Override
-	public void setPos(int dimentionID, int x, int y, int z) {
-		/*if (!DimensionHandler.getInstance().getMapDimensionsIDs().containsValue(dimentionID)) {
-			throw new CustomNPCsException("Unknown dimention ID: " + dimentionID);
-		}*/
-		this.dimension = dimentionID;
-		this.pos = new BlockPos(x, y, z);
-	}
-
-	@Override
-	public void setType(int type) {
-		if (type<0 || type>2) {
-			throw new CustomNPCsException("Unknown location type: " + type);
-		}
-		this.type = type;
-	}
-
-	public TransportLocation copy() {
-		TransportLocation tl = new TransportLocation();
-		tl.id = this.id;
-		tl.name = this.name;
-		tl.type = this.type;
-		tl.dimension = this.dimension;
-		tl.npc = this.npc;
-		tl.money = this.money;
-		tl.pos = this.pos;
-		tl.npc = this.npc;
-		for (int i = 0; i < this.inventory.items.size(); i++) {
-			tl.inventory.items.set(i, this.inventory.items.get(i).copy());
-		}
-		tl.category = this.category;
-		tl.yaw = this.yaw;
-		tl.pitch = this.yaw;
-		return tl;
-	}
-	
 }

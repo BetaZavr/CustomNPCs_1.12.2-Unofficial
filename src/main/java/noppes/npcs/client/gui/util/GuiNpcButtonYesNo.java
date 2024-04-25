@@ -1,8 +1,7 @@
 package noppes.npcs.client.gui.util;
 
-public class GuiNpcButtonYesNo
-extends GuiNpcButton {
-	
+public class GuiNpcButtonYesNo extends GuiNpcButton {
+
 	public GuiNpcButtonYesNo(int id, int x, int y, boolean bo) {
 		this(id, x, y, 50, 20, bo);
 	}
@@ -14,5 +13,5 @@ extends GuiNpcButton {
 	public boolean getBoolean() {
 		return this.getValue() == 1;
 	}
-	
+
 }

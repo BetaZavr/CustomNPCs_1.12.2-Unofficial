@@ -17,10 +17,8 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCAdvancedLinkedNpc
-extends GuiNPCInterface2
-implements IScrollData, ICustomScrollListener {
-	
+public class GuiNPCAdvancedLinkedNpc extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
+
 	public static GuiScreen Instance;
 	private List<String> data;
 	private GuiCustomScroll scroll;
@@ -36,6 +34,12 @@ implements IScrollData, ICustomScrollListener {
 		if (button.id == 1) {
 			Client.sendData(EnumPacketServer.LinkedSet, "");
 		}
+	}
+
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
@@ -58,12 +62,16 @@ implements IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void save() { }
-	
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui == null) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+		super.keyTyped(c, i);
+	}
+
 	@Override
-	public void close() {
-		this.save();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+	public void save() {
 	}
 
 	@Override
@@ -85,14 +93,5 @@ implements IScrollData, ICustomScrollListener {
 	public void setSelected(String selected) {
 		this.scroll.setSelected(selected);
 	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
-		super.keyTyped(c, i);
-	}
-	
+
 }

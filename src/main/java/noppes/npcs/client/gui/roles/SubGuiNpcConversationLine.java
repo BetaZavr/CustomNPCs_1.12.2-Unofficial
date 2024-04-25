@@ -8,10 +8,8 @@ import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 
-public class SubGuiNpcConversationLine
-extends SubGuiInterface
-implements ITextfieldListener, ISubGuiListener {
-	
+public class SubGuiNpcConversationLine extends SubGuiInterface implements ITextfieldListener, ISubGuiListener {
+
 	public String line;
 	public String sound;
 

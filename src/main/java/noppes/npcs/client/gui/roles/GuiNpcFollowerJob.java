@@ -16,10 +16,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobFollower;
 
-public class GuiNpcFollowerJob
-extends GuiNPCInterface2
-implements ICustomScrollListener {
-	
+public class GuiNpcFollowerJob extends GuiNPCInterface2 implements ICustomScrollListener {
+
 	private JobFollower job;
 	private GuiCustomScroll scroll;
 
@@ -53,6 +51,15 @@ implements ICustomScrollListener {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+	}
+
+	@Override
 	public void save() {
 		this.job.name = this.getTextField(1).getText();
 		Client.sendData(EnumPacketServer.JobSave, this.job.writeToNBT(new NBTTagCompound()));
@@ -65,14 +72,5 @@ implements ICustomScrollListener {
 
 	@Override
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
 	}
 }

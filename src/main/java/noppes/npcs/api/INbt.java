@@ -3,7 +3,7 @@ package noppes.npcs.api;
 import net.minecraft.nbt.NBTTagCompound;
 
 public interface INbt {
-	
+
 	void clear();
 
 	boolean getBoolean(String key);

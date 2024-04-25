@@ -1,7 +1,7 @@
 package noppes.npcs.api.block;
 
 public interface ITextPlane {
-	
+
 	float getOffsetX();
 
 	float getOffsetY();
@@ -33,5 +33,5 @@ public interface ITextPlane {
 	void setScale(float scale);
 
 	void setText(String text);
-	
+
 }

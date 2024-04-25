@@ -6,26 +6,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface IPaintType {
 
-    public ExtraColourType getColourType();
+	public int getChannelIndex();
 
-    public float getU();
+	public ExtraColourType getColourType();
 
-    public float getV();
+	public int getId();
 
-    public int getId();
+	@SideOnly(Side.CLIENT)
+	public String getLocalizedName();
 
-    public int getMarkerIndex();
+	public int getMarkerIndex();
 
-    public boolean hasAverageColourChannel();
+	public String getName();
 
-    public int getChannelIndex();
+	public float getU();
 
-    public void setColourChannelIndex(int channelIndex);
+	public String getUnlocalizedName();
 
-    public String getName();
+	public float getV();
 
-    public String getUnlocalizedName();
+	public boolean hasAverageColourChannel();
 
-    @SideOnly(Side.CLIENT)
-    public String getLocalizedName();
+	public void setColourChannelIndex(int channelIndex);
 }

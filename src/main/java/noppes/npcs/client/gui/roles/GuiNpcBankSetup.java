@@ -17,10 +17,8 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleBank;
 
-public class GuiNpcBankSetup
-extends GuiNPCInterface2
-implements IScrollData, ICustomScrollListener {
-	
+public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
+
 	private HashMap<String, Integer> data;
 	private RoleBank role;
 	private GuiCustomScroll scroll;
@@ -50,6 +48,15 @@ implements IScrollData, ICustomScrollListener {
 	@Override
 	public void initPacket() {
 		Client.sendData(EnumPacketServer.BanksGet, new Object[0]);
+	}
+
+	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
 	}
 
 	@Override
@@ -97,14 +104,5 @@ implements IScrollData, ICustomScrollListener {
 	@Override
 	public void setSelected(String selected) {
 		this.scroll.setSelected(selected);
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
 	}
 }

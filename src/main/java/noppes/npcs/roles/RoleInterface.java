@@ -7,9 +7,8 @@ import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.INPCRole;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RoleInterface
-implements INPCRole {
-	
+public class RoleInterface implements INPCRole {
+
 	public EntityNPCInterface npc;
 	public RoleType type;
 
@@ -18,32 +17,51 @@ implements INPCRole {
 		this.type = RoleType.DEFAULT;
 	}
 
-	public boolean aiContinueExecute() { return false; }
+	public boolean aiContinueExecute() {
+		return false;
+	}
 
-	public boolean aiShouldExecute() { return false; }
+	public void aiDeathExecute(Entity attackingEntity) {
+	}
 
-	public void aiStartExecuting() { }
+	public boolean aiShouldExecute() {
+		return false;
+	}
 
-	public void aiUpdateTask() { }
-	
-	public void aiDeathExecute(Entity attackingEntity) { }
+	public void aiStartExecuting() {
+	}
 
-	public void clientUpdate() { }
+	public void aiUpdateTask() {
+	}
 
-	public boolean defendOwner() { return false; }
+	public void clientUpdate() {
+	}
 
-	public void delete() { }
+	public boolean defendOwner() {
+		return false;
+	}
+
+	public void delete() {
+	}
+
+	public RoleType getEnumType() {
+		return this.type;
+	}
 
 	@Override
-	public int getType() { return this.type.get(); }
+	public int getType() {
+		return this.type.get();
+	};
 
-	public void interact(EntityPlayer player) { };
+	public void interact(EntityPlayer player) {
+	}
 
-	public boolean isFollowing() { return false; }
+	public boolean isFollowing() {
+		return false;
+	}
 
-	public void killed() { }
-
-	public RoleType getEnumType() { return this.type; }
+	public void killed() {
+	}
 
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = RoleType.get(compound.getInteger("Type"));

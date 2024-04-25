@@ -15,9 +15,8 @@ import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCGlobalMainMenu
-extends GuiNPCInterface2 {
-	
+public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
+
 	public GuiNPCGlobalMainMenu(EntityNPCInterface npc) {
 		super(npc, 5);
 	}
@@ -25,52 +24,94 @@ extends GuiNPCInterface2 {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-			case 2: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
-				break;
-			}
-			case 3: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
-				break;
-			}
-			case 4: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
-				break;
-			}
-			case 11: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
-				break;
-			}
-			case 12: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0);
-				break;
-			}
-			case 13: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc));
-				break;
-			}
-			case 14: { // Changed
-				ClientProxy.recipeGroup = "";
-				ClientProxy.recipeName = "";
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 4, 0, 0);
-				break;
-			}
-			case 15: {
-				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcNaturalSpawns(this.npc));
-				break;
-			}
-			case 16: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
-				break;
-			}
-			case 17: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0);
-				break;
-			}
-			case 19: {
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0);
-				break;
-			}
+		case 2: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageBanks);
+			break;
+		}
+		case 3: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageFactions);
+			break;
+		}
+		case 4: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs);
+			break;
+		}
+		case 11: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests);
+			break;
+		}
+		case 12: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, -1, 0, 0);
+			break;
+		}
+		case 13: {
+			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcManagePlayerData(this.npc));
+			break;
+		}
+		case 14: { // Changed
+			ClientProxy.recipeGroup = "";
+			ClientProxy.recipeName = "";
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, 4, 0, 0);
+			break;
+		}
+		case 15: {
+			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiNpcNaturalSpawns(this.npc));
+			break;
+		}
+		case 16: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageLinked);
+			break;
+		}
+		case 17: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTrader, -1, -1, 0);
+			break;
+		}
+		case 19: {
+			NoppesUtil.requestOpenGUI(EnumGuiType.ManageMail, 0, 0, 0);
+			break;
+		}
+		}
+	}
+
+	@Override
+	public void drawScreen(int i, int j, float f) {
+		super.drawScreen(i, j, f);
+		// New
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getButton(2) != null && this.getButton(2).isMouseOver()) { // add new
+			this.setHoverText(new TextComponentTranslation("global.hover.banks").getFormattedText());
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.factions").getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.dialogs").getFormattedText());
+		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.quests").getFormattedText());
+		} else if (this.getButton(12) != null && this.getButton(12).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.transports").getFormattedText());
+		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.playerdatas").getFormattedText());
+		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.recipes").getFormattedText());
+		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns")
+					.appendSibling(new TextComponentString("<br>"))
+					.appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+		} else if (this.getButton(16) != null && this.getButton(16).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.linkeds").getFormattedText());
+		} else if (this.getButton(17) != null && this.getButton(17).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.markets").getFormattedText());
+		} else if (this.getButton(18) != null && this.getButton(18).isMouseOver()) {
+			this.setHoverText(
+					new TextComponentTranslation("global.hover.auctions").appendSibling(new TextComponentString("<br>"))
+							.appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+		} else if (this.getButton(19) != null && this.getButton(19).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("global.hover.mail").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 
@@ -100,45 +141,5 @@ extends GuiNPCInterface2 {
 	@Override
 	public void save() {
 	}
-	
-	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
-		// New
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) { // add new
-			this.setHoverText(new TextComponentTranslation("global.hover.banks").getFormattedText());
-		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.factions").getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.dialogs").getFormattedText());
-		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.quests").getFormattedText());
-		} else if (this.getButton(12)!=null && this.getButton(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.transports").getFormattedText());
-		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.playerdatas").getFormattedText());
-		} else if (this.getButton(14)!=null && this.getButton(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.recipes").getFormattedText());
-		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns").
-					appendSibling(new TextComponentString("<br>")).
-					appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
-		} else if (this.getButton(16)!=null && this.getButton(16).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.linkeds").getFormattedText());
-		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.markets").getFormattedText());
-		} else if (this.getButton(18)!=null && this.getButton(18).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.auctions").
-					appendSibling(new TextComponentString("<br>")).
-					appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
-		} else if (this.getButton(19)!=null && this.getButton(19).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.mail").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-	
+
 }

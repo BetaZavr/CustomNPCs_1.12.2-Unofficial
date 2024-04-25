@@ -28,7 +28,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.containers.ContainerCarpentryBench;
 
 public class ServerNpcRecipeBookHelper {
-	
+
 	private InventoryCrafting craftMatrix;
 	private InventoryCraftResult craftResult;
 	private boolean isShiftPressed;
@@ -177,10 +177,10 @@ public class ServerNpcRecipeBookHelper {
 			return;
 		}
 		this.recipeItemHelper.clear();
-		
+
 		player.inventory.fillStackedContents(this.recipeItemHelper, false);
 		this.craftMatrix.fillStackedContents(this.recipeItemHelper);
-		
+
 		if (this.recipeItemHelper.canCraft(recipe, (IntList) null)) {
 			this.fillMaxCraftInv();
 		} else {

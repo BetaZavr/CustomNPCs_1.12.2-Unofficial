@@ -21,10 +21,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanion
-extends GuiNPCInterface2
-implements ITextfieldListener, ISliderListener {
-	
+public class GuiNpcCompanion extends GuiNPCInterface2 implements ITextfieldListener, ISliderListener {
+
 	private RoleCompanion role;
 	private List<GuiNpcCompanionTalents.GuiTalent> talents;
 
@@ -117,6 +115,15 @@ implements ITextfieldListener, ISliderListener {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+	}
+
+	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
 		if (slider.sliderValue <= 0.0f) {
 			slider.setString("gui.disabled");
@@ -144,15 +151,6 @@ implements ITextfieldListener, ISliderListener {
 	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getId() == 2) {
 			this.role.ticksActive = textfield.getInteger();
-		}
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 }

@@ -2,18 +2,18 @@ package noppes.npcs.api.entity.data;
 
 public interface IAnimationFrame {
 
-	boolean isSmooth();
+	int getEndDelay();
 
-	void setSmooth(boolean isSmooth);
+	IAnimationPart getPart(int id);
 
 	int getSpeed();
 
-	void setSpeed(int ticks);
+	boolean isSmooth();
 
 	void setEndDelay(int ticks);
 
-	int getEndDelay();
-	
-	IAnimationPart getPart(int id);
-	
+	void setSmooth(boolean isSmooth);
+
+	void setSpeed(int ticks);
+
 }

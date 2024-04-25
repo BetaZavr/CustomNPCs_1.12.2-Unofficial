@@ -26,10 +26,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.IPermission;
 
-public class ItemNpcCloner
-extends Item
-implements IPermission {
-	
+public class ItemNpcCloner extends Item implements IPermission {
+
 	public ItemNpcCloner() {
 		this.setRegistryName(CustomNpcs.MODID, "npcmobcloner");
 		this.setUnlocalizedName("npcmobcloner");
@@ -38,46 +36,20 @@ implements IPermission {
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
-	public boolean isAllowed(EnumPacketServer e) {
-		return e == EnumPacketServer.CloneList || e == EnumPacketServer.SpawnMob || e == EnumPacketServer.MobSpawner
-				|| e == EnumPacketServer.ClonePreSave || e == EnumPacketServer.CloneRemove
-				|| e == EnumPacketServer.CloneSave || e == EnumPacketServer.GetClone || e == EnumPacketServer.Gui;
-	}
-
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (world.isRemote) {
-			PlayerData data = CustomNpcs.proxy.getPlayerData(player);
-			boolean summon = false;
-			ItemStack stackCloner = player.getHeldItemMainhand();
-			if (stackCloner != null && stackCloner.getItem() instanceof ItemNpcCloner && data!=null && data.hud.hasOrKeysPressed(42, 54)) {
-				NBTTagCompound nbt = stackCloner.getTagCompound();
-				if (nbt!=null && nbt.hasKey("Settings", 10)) {
-					NBTTagCompound nbtData = nbt.getCompoundTag("Settings");
-					if (nbtData.getBoolean("isServerClone")) {
-						Client.sendData(EnumPacketServer.SpawnMob, true, pos.getX(), pos.getY(), pos.getZ(), nbtData.getString("Name"), nbtData.getInteger("Tab"));
-						summon = true;
-					} else {
-						Client.sendData(EnumPacketServer.SpawnMob, false, pos.getX(), pos.getY(), pos.getZ(), nbtData.getCompoundTag("EntityNBT"));
-						summon = true;
-					}
-				}
-			}
-			if (!summon) { Client.sendData(EnumPacketServer.Gui, EnumGuiType.MobSpawner, pos.getX(), pos.getY(), pos.getZ()); }
-		}
-		return EnumActionResult.SUCCESS;
-	}
-	
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list==null) { return; }
+		if (list == null) {
+			return;
+		}
 		list.add(new TextComponentTranslation("info.item.cloner").getFormattedText());
 		NBTTagCompound nbt = stack.getTagCompound();
-		if (nbt==null || !nbt.hasKey("Settings", 10)) {
+		if (nbt == null || !nbt.hasKey("Settings", 10)) {
 			list.add(new TextComponentTranslation("info.item.cloner.empty.0").getFormattedText());
 			list.add(new TextComponentTranslation("info.item.cloner.empty.1").getFormattedText());
 		} else {
-			list.add(new TextComponentTranslation("info.item.cloner.set.0", nbt.getCompoundTag("Settings").getString("Name")).getFormattedText());
+			list.add(new TextComponentTranslation("info.item.cloner.set.0",
+					nbt.getCompoundTag("Settings").getString("Name")).getFormattedText());
 			list.add(new TextComponentTranslation("info.item.cloner.set.1").getFormattedText());
 		}
 	}
@@ -86,7 +58,43 @@ implements IPermission {
 	@Override
 	public boolean hasEffect(ItemStack stack) {
 		NBTTagCompound nbt = stack.getTagCompound();
-		return super.hasEffect(stack) || (nbt!=null && nbt.hasKey("Settings", 10) && !nbt.getCompoundTag("Settings").getString("Name").isEmpty());
+		return super.hasEffect(stack) || (nbt != null && nbt.hasKey("Settings", 10)
+				&& !nbt.getCompoundTag("Settings").getString("Name").isEmpty());
 	}
-	
+
+	public boolean isAllowed(EnumPacketServer e) {
+		return e == EnumPacketServer.CloneList || e == EnumPacketServer.SpawnMob || e == EnumPacketServer.MobSpawner
+				|| e == EnumPacketServer.ClonePreSave || e == EnumPacketServer.CloneRemove
+				|| e == EnumPacketServer.CloneSave || e == EnumPacketServer.GetClone || e == EnumPacketServer.Gui;
+	}
+
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side,
+			float hitX, float hitY, float hitZ) {
+		if (world.isRemote) {
+			PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+			boolean summon = false;
+			ItemStack stackCloner = player.getHeldItemMainhand();
+			if (stackCloner != null && stackCloner.getItem() instanceof ItemNpcCloner && data != null
+					&& data.hud.hasOrKeysPressed(42, 54)) {
+				NBTTagCompound nbt = stackCloner.getTagCompound();
+				if (nbt != null && nbt.hasKey("Settings", 10)) {
+					NBTTagCompound nbtData = nbt.getCompoundTag("Settings");
+					if (nbtData.getBoolean("isServerClone")) {
+						Client.sendData(EnumPacketServer.SpawnMob, true, pos.getX(), pos.getY(), pos.getZ(),
+								nbtData.getString("Name"), nbtData.getInteger("Tab"));
+						summon = true;
+					} else {
+						Client.sendData(EnumPacketServer.SpawnMob, false, pos.getX(), pos.getY(), pos.getZ(),
+								nbtData.getCompoundTag("EntityNBT"));
+						summon = true;
+					}
+				}
+			}
+			if (!summon) {
+				Client.sendData(EnumPacketServer.Gui, EnumGuiType.MobSpawner, pos.getX(), pos.getY(), pos.getZ());
+			}
+		}
+		return EnumActionResult.SUCCESS;
+	}
+
 }

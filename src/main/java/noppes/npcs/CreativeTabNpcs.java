@@ -6,7 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class CreativeTabNpcs extends CreativeTabs {
-	
+
 	public Item item;
 	public int meta;
 
@@ -20,5 +20,5 @@ public class CreativeTabNpcs extends CreativeTabs {
 	public ItemStack getTabIconItem() {
 		return new ItemStack(this.item, 1, this.meta);
 	}
-    
+
 }

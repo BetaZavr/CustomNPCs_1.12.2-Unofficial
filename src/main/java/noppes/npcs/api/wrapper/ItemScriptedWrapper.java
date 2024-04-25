@@ -20,10 +20,8 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.items.ItemScripted;
 
-public class ItemScriptedWrapper
-extends ItemStackWrapper
-implements IItemScripted, IScriptHandler {
-	
+public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScripted, IScriptHandler {
+
 	public int durabilityColor;
 	public boolean durabilityShow;
 	public double durabilityValue;
@@ -156,7 +154,9 @@ implements IItemScripted, IScriptHandler {
 
 	public void loadScriptData() {
 		NBTTagCompound c = this.item.getTagCompound();
-		if (c == null) { return; }
+		if (c == null) {
+			return;
+		}
 		this.setScriptNBT(c.getCompoundTag("ScriptedData"));
 	}
 
@@ -176,7 +176,9 @@ implements IItemScripted, IScriptHandler {
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onScriptItemInit(this); }
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+				EventHooks.onScriptItemInit(this);
+			}
 		}
 		for (ScriptContainer script : this.scripts) {
 			script.run(type, event, !this.isClient());
@@ -269,7 +271,9 @@ implements IItemScripted, IScriptHandler {
 			throw new CustomNPCsException("Can't set texture for 0", new Object[0]);
 		}
 		String old = ItemScripted.Resources.get(damage);
-		if (old == texture || (old != null && texture != null && old.equals(texture))) { return; }
+		if (old == texture || (old != null && texture != null && old.equals(texture))) {
+			return;
+		}
 		ItemScripted.Resources.put(damage, texture);
 		SyncController.syncScriptItemsEverybody();
 	}

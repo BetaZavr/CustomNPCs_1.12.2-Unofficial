@@ -3,13 +3,21 @@ package noppes.npcs.api.handler.data;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IQuestObjective {
-	
+public interface IQuestObjective { // QuestObjective
+
 	int getAreaRange();
+
+	int getCompassDimension();
+
+	IPos getCompassPos();
+
+	int getCompassRange();
 
 	IItemStack getItem();
 
 	int getMaxProgress();
+
+	String getOrientationEntityName();
 
 	int getProgress();
 
@@ -21,6 +29,8 @@ public interface IQuestObjective {
 
 	int getType();
 
+	boolean isAndTitle();
+
 	boolean isCompleted();
 
 	boolean isIgnoreDamage();
@@ -29,7 +39,23 @@ public interface IQuestObjective {
 
 	boolean isItemLeave();
 
+	boolean isNotShowLogEntity();
+
+	boolean isPartName();
+
+	boolean isSetPointOnMiniMap();
+
+	void setAndTitle(boolean andTitle);
+
 	void setAreaRange(int range);
+
+	void setCompassDimension(int dimensionID);
+
+	void setCompassPos(int x, int y, int z);
+
+	void setCompassPos(IPos pos);
+
+	void setCompassRange(int range);
 
 	void setItem(IItemStack item);
 
@@ -41,6 +67,14 @@ public interface IQuestObjective {
 
 	void setMaxProgress(int value);
 
+	void setNotShowLogEntity(boolean notShowLogEntity);
+
+	void setOrientationEntityName(String name);
+
+	void setPartName(boolean isPart);
+
+	void setPointOnMiniMap(boolean bo);
+
 	void setProgress(int value);
 
 	void setTargetID(int id);
@@ -49,34 +83,4 @@ public interface IQuestObjective {
 
 	void setType(int type);
 
-	IPos getCompassPos();
-
-	void setCompassPos(IPos pos);
-
-	void setCompassPos(int x, int y, int z);
-	
-	int getCompassDimension();
-	
-	void setCompassDimension(int dimensionID);
-	
-	int getCompassRange();
-	
-	void setCompassRange(int range);
-
-	String getOrientationEntityName();
-
-	void setOrientationEntityName(String name);
-
-	boolean isPartName();
-	
-	void setPartName(boolean isPart);
-	
-	boolean isAndTitle();
-	
-	void setAndTitle(boolean andTitle);
-	
-	boolean isNotShowLogEntity();
-	
-	void setNotShowLogEntity(boolean notShowLogEntity);
-	
 }

@@ -14,10 +14,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import noppes.npcs.NoppesUtilServer;
 
-public abstract class TileNpcContainer
-extends TileColorable
-implements IInventory {
-	
+public abstract class TileNpcContainer extends TileColorable implements IInventory {
+
 	public String customName;
 	public NonNullList<ItemStack> inventoryContents;
 	public int playerUsing;
@@ -181,5 +179,5 @@ implements IInventory {
 		}
 		return super.writeToNBT(compound);
 	}
-	
+
 }

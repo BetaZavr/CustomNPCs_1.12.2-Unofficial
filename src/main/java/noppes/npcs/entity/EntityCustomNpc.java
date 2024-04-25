@@ -10,9 +10,8 @@ import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
 
-public class EntityCustomNpc
-extends EntityNPCFlying {
-	
+public class EntityCustomNpc extends EntityNPCFlying {
+
 	public ModelData modelData;
 
 	public EntityCustomNpc(World world) {
@@ -61,7 +60,8 @@ extends EntityNPCFlying {
 	public void updateHitbox() {
 		Entity entity = this.modelData.getEntity(this);
 		if (this.modelData == null || entity == null) {
-			this.baseHeight = 1.9f - this.modelData.getBodyY() + (this.modelData.getPartConfig(EnumParts.HEAD).scaleBase[1] - 1.0f) / 2.0f;
+			this.baseHeight = 1.9f - this.modelData.getBodyY()
+					+ (this.modelData.getPartConfig(EnumParts.HEAD).scaleBase[1] - 1.0f) / 2.0f;
 			super.updateHitbox();
 		} else {
 			if (entity instanceof EntityNPCInterface) {
@@ -92,6 +92,17 @@ extends EntityNPCFlying {
 		compound.setTag("NpcModelData", this.modelData.writeToNBT());
 	}
 
+	public boolean writeToNBTAtomically(NBTTagCompound compound) {
+		boolean bo = super.writeToNBTAtomically(compound);
+		if (bo) {
+			String s = this.getEntityString();
+			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
+				compound.setString("id", CustomNpcs.MODID + ":customnpc");
+			}
+		}
+		return bo;
+	}
+
 	public boolean writeToNBTOptional(NBTTagCompound compound) {
 		boolean bo = super.writeToNBTAtomically(compound);
 		if (bo) {
@@ -103,15 +114,4 @@ extends EntityNPCFlying {
 		return bo;
 	}
 
-	public boolean writeToNBTAtomically(NBTTagCompound compound) {
-		boolean bo = super.writeToNBTAtomically(compound);
-		if (bo) {
-			String s = this.getEntityString();
-			if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) {
-				compound.setString("id", CustomNpcs.MODID + ":customnpc");
-			}
-		}
-		return bo;
-	}
-	
 }

@@ -37,7 +37,9 @@ public class ContainerMail extends ContainerNpcInterface {
 
 	public void onContainerClosed(EntityPlayer player) {
 		super.onContainerClosed(player);
-		if (player.world.isRemote) { return; }
+		if (player.world.isRemote) {
+			return;
+		}
 		if (!this.canEdit) {
 			PlayerMailData data = PlayerData.get(player).mailData;
 			for (PlayerMail mail : data.playermail) {
@@ -46,19 +48,32 @@ public class ContainerMail extends ContainerNpcInterface {
 					break;
 				}
 			}
-		}
-		else {
+		} else {
 			for (int i = 0; i < 4; i++) {
 				Slot slot = this.getSlot(i);
-				if (slot == null || !slot.getHasStack()) { continue; }
-				EntityItem entityitem = new EntityItem(player.world, player.posX, player.posY + 0.16f, player.posZ, slot.getStack());
-	            entityitem.setPickupDelay(1);
-	            entityitem.setOwner(player.getName());
-	            player.world.spawnEntity(entityitem);
+				if (slot == null || !slot.getHasStack()) {
+					continue;
+				}
+				EntityItem entityitem = new EntityItem(player.world, player.posX, player.posY + 0.16f, player.posZ,
+						slot.getStack());
+				entityitem.setPickupDelay(1);
+				entityitem.setOwner(player.getName());
+				player.world.spawnEntity(entityitem);
 			}
 		}
 	}
-	
+
+	@Override
+	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
+		if (!this.canEdit && !this.canSend && slotId > -1 && slotId < 4) {
+			Slot slot = this.inventorySlots.get(slotId);
+			if (slot != null && slot.getHasStack()) {
+				return super.slotClick(slotId, 0, ClickType.QUICK_MOVE, player); // taked
+			}
+		}
+		return super.slotClick(slotId, dragType, clickTypeIn, player);
+	}
+
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer player, int slotId) {
 		ItemStack stack = ItemStack.EMPTY;
@@ -80,17 +95,6 @@ public class ContainerMail extends ContainerNpcInterface {
 			}
 		}
 		return stack;
-	}
-
-	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
-		if (!this.canEdit && !this.canSend && slotId > -1 && slotId < 4) {
-			Slot slot = this.inventorySlots.get(slotId);
-			if (slot != null && slot.getHasStack()) {
-				return super.slotClick(slotId, 0, ClickType.QUICK_MOVE, player); // taked
-			}
-		}
-		return super.slotClick(slotId, dragType, clickTypeIn, player);
 	}
 
 }

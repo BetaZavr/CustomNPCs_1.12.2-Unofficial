@@ -9,10 +9,8 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.containers.ContainerNpcInterface;
 import noppes.npcs.controllers.ScriptContainer;
 
-public class ContainerCustomChestWrapper
-extends ContainerWrapper
-implements IContainerCustomChest {
-	
+public class ContainerCustomChestWrapper extends ContainerWrapper implements IContainerCustomChest {
+
 	public String name;
 	public ScriptContainer script;
 
@@ -42,6 +40,7 @@ implements IContainerCustomChest {
 			return;
 		}
 		this.name = name;
-		Server.sendDataDelayed((EntityPlayerMP) ((ContainerNpcInterface) this.getMCContainer()).player, EnumPacketClient.CHEST_NAME, 10, name);
+		Server.sendDataDelayed((EntityPlayerMP) ((ContainerNpcInterface) this.getMCContainer()).player,
+				EnumPacketClient.CHEST_NAME, 10, name);
 	}
 }

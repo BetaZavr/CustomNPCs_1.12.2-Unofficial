@@ -16,9 +16,8 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 
-public abstract class CommandNoppesBase
-extends CommandBase {
-	
+public abstract class CommandNoppesBase extends CommandBase {
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD })
 	public @interface SubCommand {
@@ -91,7 +90,7 @@ extends CommandBase {
 	}
 
 	public abstract String getDescription();
-	
+
 	public abstract String getName();
 
 	public int getRequiredPermissionLevel() {

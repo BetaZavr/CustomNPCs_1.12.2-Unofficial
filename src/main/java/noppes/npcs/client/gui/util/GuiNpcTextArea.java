@@ -15,9 +15,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.client.ClientProxy;
 
-public class GuiNpcTextArea
-extends GuiNpcTextField {
-	
+public class GuiNpcTextArea extends GuiNpcTextField {
+
 	private boolean clickVerticalBar;
 	private int cursorCounter;
 	private int cursorPosition;

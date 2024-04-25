@@ -29,8 +29,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class Marcet
-implements IMarcet, Predicate<EntityNPCInterface> {
+public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 
 	public final Map<Integer, MarkupData> markup = Maps.<Integer, MarkupData>newTreeMap();
 	public final Map<ItemStack, Integer> inventory = Maps.<ItemStack, Integer>newHashMap();
@@ -63,14 +62,31 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 		this.updateNew();
 	}
 
-	@Override
-	public boolean isLimited() { return this.isLimited; }
-
-	@Override
-	public void setIsLimited(boolean limited) {
-		if (this.isLimited == limited) { return; }
-		this.isLimited = limited;
-		if (limited) { this.updateNew(); }
+	public void addInventoryItems(Map<ItemStack, Integer> items) {
+		for (ItemStack stack : items.keySet()) {
+			if (NoppesUtilServer.IsItemStackNull(stack)) {
+				continue;
+			}
+			boolean added = false;
+			List<ItemStack> del = Lists.<ItemStack>newArrayList();
+			for (ItemStack st : this.inventory.keySet()) {
+				if (NoppesUtilServer.IsItemStackNull(st)) {
+					del.add(st);
+					continue;
+				}
+				if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
+					this.inventory.put(st, this.inventory.get(st) + items.get(stack));
+					added = true;
+					break;
+				}
+			}
+			for (ItemStack st : del) {
+				this.inventory.remove(st);
+			}
+			if (!added) {
+				this.inventory.put(stack, items.get(stack));
+			}
+		}
 	}
 
 	public void addListener(EntityPlayer listener, boolean isServer) {
@@ -86,6 +102,33 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 		}
 	}
 
+	@Override
+	public boolean apply(EntityNPCInterface npc) {
+		return (npc.advanced.roleInterface instanceof RoleTrader)
+				&& ((RoleTrader) npc.advanced.roleInterface).getMarket().getId() == getId();
+	}
+
+	public void closeForAllPlayers() { // server only
+		if (this.listeners == null) {
+			return;
+		}
+		for (EntityPlayer player : this.listeners) {
+			if (!(player instanceof EntityPlayerMP)) {
+				return;
+			}
+			CustomNPCsScheduler.runTack(() -> {
+				((EntityPlayerMP) player).closeScreen();
+			}, 250);
+		}
+	}
+
+	public Marcet copy(int newID) {
+		Marcet marcet = new Marcet(newID > -1 ? newID : this.id);
+		marcet.readFromNBT(writeToNBT());
+		marcet.updateNew();
+		return marcet;
+	}
+
 	public void detectAndSendChanges() {
 		for (EntityPlayer listener : this.listeners) {
 			if (listener instanceof EntityPlayerMP) {
@@ -95,32 +138,107 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 	}
 
 	@Override
-	public String getName() { return this.name; }
+	public IDeal[] getAllDeals() {
+		List<IDeal> list = Lists.<IDeal>newArrayList();
+		for (MarcetSection ms : sections.values()) {
+			for (Deal deal : ms.deals) {
+				list.add(deal);
+			}
+		}
+		return list.toArray(new IDeal[list.size()]);
+	}
 
-	public String getSettingName() { return "ID:" + id + " " + ((char) 167) + (isEmpty() ? "4" : "a") + getName(); }
+	public Deal getDeal(int dealID) {
+		for (MarcetSection ms : sections.values()) {
+			for (Deal deal : ms.deals) {
+				if (deal.getId() == dealID) {
+					return deal;
+				}
+			}
+		}
+		return null;
+	}
 
-	public boolean isEmpty() { return getAllDeals().length == 0; }
+	@Override
+	public IDeal[] getDeals(int section) {
+		if (!sections.containsKey(section)) {
+			return new IDeal[0];
+		}
+		List<IDeal> list = Lists.<IDeal>newArrayList();
+		for (Deal deal : sections.get(section).deals) {
+			list.add(deal);
+		}
+		return list.toArray(new IDeal[list.size()]);
+	}
 
-	public String getShowName() { return new TextComponentTranslation(this.name).getFormattedText(); }
+	@Override
+	public int getId() {
+		return this.id;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	public int getSection(int dealID) {
+		for (MarcetSection ms : sections.values()) {
+			for (Deal deal : ms.deals) {
+				if (deal.getId() == dealID) {
+					return ms.getId();
+				}
+			}
+		}
+		return -1;
+	}
+
+	public String getSettingName() {
+		return "ID:" + id + " " + ((char) 167) + (isEmpty() ? "4" : "a") + getName();
+	}
+
+	public String getShowName() {
+		return new TextComponentTranslation(this.name).getFormattedText();
+	}
+
+	public boolean hasListener(EntityPlayer player) {
+		for (EntityPlayer listener : this.listeners) {
+			if (listener.equals(player)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isEmpty() {
+		return getAllDeals().length == 0;
+	}
+
+	@Override
+	public boolean isLimited() {
+		return this.isLimited;
+	}
 
 	public boolean isValid() {
-		if (sections.isEmpty()) { return false; }
+		if (sections.isEmpty()) {
+			return false;
+		}
 		boolean hasDeals = false;
 		for (MarcetSection ms : sections.values()) {
 			for (Deal deal : ms.deals) {
-				if (deal.isValid()) { hasDeals = true; continue; }
-				if (deal.getProduct().getMCItemStack() == null || deal.getProduct().getMCItemStack().getItem()==Items.AIR) { return false; }
-				if (deal.getMoney() == 0 && deal.getCurrency().isEmpty()) { return false; }
+				if (deal.isValid()) {
+					hasDeals = true;
+					continue;
+				}
+				if (deal.getProduct().getMCItemStack() == null
+						|| deal.getProduct().getMCItemStack().getItem() == Items.AIR) {
+					return false;
+				}
+				if (deal.getMoney() == 0 && deal.getCurrency().isEmpty()) {
+					return false;
+				}
 			}
 		}
 		return hasDeals;
-	}
-	
-	public boolean hasListener(EntityPlayer player) {
-		for (EntityPlayer listener : this.listeners) {
-			if (listener.equals(player)) { return true; }
-		}
-		return false;
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -129,7 +247,7 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 		this.isLimited = compound.getBoolean("IsLimited");
 		this.showXP = compound.getBoolean("ShowXP");
 		this.money = compound.getLong("Money");
-		
+
 		this.markup.clear();
 		for (int i = 0; i < compound.getTagList("Markup", 10).tagCount(); i++) {
 			MarkupData md = new MarkupData(compound.getTagList("Markup", 10).getCompoundTagAt(i));
@@ -140,7 +258,7 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			this.markup.put(1, new MarkupData(1, 0.0f, 0.45f, 2200));
 			this.markup.put(2, new MarkupData(2, -0.05f, 0.0f, 5000));
 		}
-		
+
 		this.inventory.clear();
 		for (int i = 0; i < compound.getTagList("Inventory", 10).tagCount(); i++) {
 			NBTTagCompound nbt = compound.getTagList("Inventory", 10).getCompoundTagAt(i);
@@ -149,10 +267,9 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 
 		this.sections.clear();
 		Map<Integer, MarcetSection> newsec = Maps.<Integer, MarcetSection>newTreeMap();
-		if (!compound.hasKey("Sections", 9) || compound.getTagList("Sections", 10).tagCount()==0) {
+		if (!compound.hasKey("Sections", 9) || compound.getTagList("Sections", 10).tagCount() == 0) {
 			newsec.put(0, new MarcetSection(0));
-		}
-		else {
+		} else {
 			for (int i = 0; i < compound.getTagList("Sections", 10).tagCount(); i++) {
 				NBTTagCompound nbt = compound.getTagList("Sections", 10).getCompoundTagAt(i);
 				MarcetSection ms = MarcetSection.create(nbt);
@@ -161,16 +278,46 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			// Sorting
 			Map<Integer, MarcetSection> sec = Maps.<Integer, MarcetSection>newTreeMap();
 			int i = 0;
-			for (MarcetSection ms : newsec.values()) { sec.put(i, ms); i++; }
+			for (MarcetSection ms : newsec.values()) {
+				sec.put(i, ms);
+				i++;
+			}
 			newsec = sec;
 		}
 		this.sections.putAll(newsec);
-		
+
 		this.limitedType = compound.getInteger("LimitedType");
 		this.updateTime = compound.getInteger("UpdateTime");
 		this.lastTime = compound.getLong("LastTime");
 		this.nextTime = compound.getLong("NextTime");
-		if (compound.hasKey("NpcLines", 10)) { this.lines.readNBT(compound.getCompoundTag("NpcLines")); }
+		if (compound.hasKey("NpcLines", 10)) {
+			this.lines.readNBT(compound.getCompoundTag("NpcLines"));
+		}
+	}
+
+	public void removeInventoryItems(Map<ItemStack, Integer> items) {
+		for (ItemStack stack : items.keySet()) {
+			if (NoppesUtilServer.IsItemStackNull(stack)) {
+				continue;
+			}
+			List<ItemStack> del = Lists.<ItemStack>newArrayList();
+			for (ItemStack st : this.inventory.keySet()) {
+				if (NoppesUtilServer.IsItemStackNull(st)) {
+					del.add(st);
+					continue;
+				}
+				if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
+					this.inventory.put(st, this.inventory.get(st) - items.get(stack));
+					if (this.inventory.get(st) <= 0) {
+						del.add(st);
+					}
+					break;
+				}
+			}
+			for (ItemStack st : del) {
+				this.inventory.remove(st);
+			}
+		}
 	}
 
 	public void removeListener(EntityPlayer player, boolean isServer) {
@@ -186,21 +333,92 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 		}
 	}
 
+	public void sendTo(EntityPlayerMP player) {
+		Server.sendData(player, EnumPacketClient.MARCET_DATA, 1, writeToNBT());
+		Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+	}
+
 	@Override
-	public void setName(String name) { this.name = name; }
+	public void setIsLimited(boolean limited) {
+		if (this.isLimited == limited) {
+			return;
+		}
+		this.isLimited = limited;
+		if (limited) {
+			this.updateNew();
+		}
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public void update() { // any 1.0 sec -> (MarcetController.update) ServerTickHandler / ServerTickEvent
-		if (this.updateTime < 5L) { return; }
-		if (this.lastTime <= System.currentTimeMillis() - 7200000L || this.lastTime + this.updateTime * 60000L < System.currentTimeMillis()) { this.updateNew(); }
+		if (this.updateTime < 5L) {
+			return;
+		}
+		if (this.lastTime <= System.currentTimeMillis() - 7200000L
+				|| this.lastTime + this.updateTime * 60000L < System.currentTimeMillis()) {
+			this.updateNew();
+		}
+	}
+
+	@Override
+	public void updateNew() {
+		this.inventory.clear();
+		this.lastTime = System.currentTimeMillis();
+		if (this.lines != null && !this.lines.isEmpty() && CustomNpcs.Server != null) {
+			for (WorldServer world : CustomNpcs.Server.worlds) {
+				List<EntityNPCInterface> npcs = world.getEntities(EntityNPCInterface.class, this);
+				for (EntityNPCInterface npc : npcs) {
+					npc.saySurrounding(this.lines.getLine(true));
+				}
+			}
+		}
+		this.money = (long) (Math.random() * 7500.0d);
+		for (MarcetSection ms : sections.values()) {
+			for (Deal deal : ms.deals) {
+				deal.updateNew();
+				this.money += (long) ((double) (deal.getMoney())
+						* (this.coefficient + Math.random() * this.coefficient));
+				for (IItemStack istack : deal.getCurrency().getItems()) {
+					ItemStack stack = istack.getMCItemStack();
+					if (NoppesUtilServer.IsItemStackNull(stack)) {
+						continue;
+					}
+					int count = (int) (((double) stack.getCount())
+							* (this.coefficient + Math.random() * this.coefficient));
+					boolean added = false;
+					for (ItemStack st : this.inventory.keySet()) {
+						if (NoppesUtilServer.IsItemStackNull(st)) {
+							continue;
+						}
+						if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
+							this.inventory.put(st, this.inventory.get(st) + count);
+							added = true;
+							break;
+						}
+					}
+					if (!added) {
+						this.inventory.put(stack, count);
+					}
+				}
+			}
+		}
+		this.detectAndSendChanges();
 	}
 
 	@SideOnly(Side.CLIENT)
-	public void updateTime() { // any 0.5 sec -> (MarcetController.updateTime) ClientTickHandler / ClientTickEvent
+	public void updateTime() { // any 0.5 sec -> (MarcetController.updateTime) ClientTickHandler /
+								// ClientTickEvent
 		if (this.nextTime < 0L) {
 			this.nextTime = 0L;
 		} else if (this.nextTime > 0L) {
 			this.nextTime -= 500L;
-			if (this.nextTime<0) { this.nextTime = 0; }
+			if (this.nextTime < 0) {
+				this.nextTime = 0;
+			}
 		}
 	}
 
@@ -228,155 +446,19 @@ implements IMarcet, Predicate<EntityNPCInterface> {
 			items.appendTag(nbt);
 		}
 		compound.setTag("Inventory", items);
-		
+
 		NBTTagList secs = new NBTTagList();
-		for (MarcetSection ms : this.sections.values()) { secs.appendTag(ms.save()); }
+		for (MarcetSection ms : this.sections.values()) {
+			secs.appendTag(ms.save());
+		}
 		compound.setTag("Sections", secs);
-		
+
 		compound.setInteger("LimitedType", this.limitedType);
 		compound.setInteger("UpdateTime", this.updateTime);
 		compound.setLong("LastTime", this.lastTime);
 		compound.setLong("NextTime", this.lastTime + this.updateTime * 60000L - System.currentTimeMillis());
 		compound.setTag("NpcLines", this.lines.writeToNBT());
 		return compound;
-	}
-
-	@Override
-	public boolean apply(EntityNPCInterface npc) {
-		return (npc.advanced.roleInterface instanceof RoleTrader) && ((RoleTrader) npc.advanced.roleInterface).getMarket().getId() == getId();
-	}
-
-	@Override
-	public int getId() { return this.id; }
-
-	public Marcet copy(int newID) {
-		Marcet marcet = new Marcet(newID > -1 ? newID : this.id);
-		marcet.readFromNBT(writeToNBT());
-		marcet.updateNew();
-		return marcet;
-	}
-
-	@Override
-	public void updateNew() {
-		this.inventory.clear();
-		this.lastTime = System.currentTimeMillis();
-		if (this.lines!=null && !this.lines.isEmpty() && CustomNpcs.Server!=null) {
-			for (WorldServer world : CustomNpcs.Server.worlds) {
-				List<EntityNPCInterface> npcs = world.getEntities(EntityNPCInterface.class, this);
-				for (EntityNPCInterface npc : npcs) { npc.saySurrounding(this.lines.getLine(true)); }
-			}
-		}
-		this.money = (long) (Math.random() * 7500.0d);
-		for (MarcetSection ms : sections.values()) {
-			for (Deal deal : ms.deals) {
-				deal.updateNew();
-				this.money += (long) ((double) (deal.getMoney()) * (this.coefficient + Math.random() * this.coefficient));
-				for (IItemStack istack : deal.getCurrency().getItems()) {
-					ItemStack stack = istack.getMCItemStack();
-					if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-					int count = (int) (((double) stack.getCount()) * (this.coefficient + Math.random() * this.coefficient));
-					boolean added = false;
-					for (ItemStack st : this.inventory.keySet()) {
-						if (NoppesUtilServer.IsItemStackNull(st)) { continue; }
-						if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
-							this.inventory.put(st, this.inventory.get(st) + count);
-							added = true;
-							break;
-						}
-					}
-					if (!added) { this.inventory.put(stack, count); }
-				}
-			}
-		}
-		this.detectAndSendChanges();
-	}
-
-	public void closeForAllPlayers() { // server only
-		if (this.listeners==null) { return; }
-		for (EntityPlayer player : this.listeners) {
-			if (!(player instanceof EntityPlayerMP)) { return; }
-			CustomNPCsScheduler.runTack(() -> { ((EntityPlayerMP) player).closeScreen(); }, 250);
-		}
-	}
-
-	public void addInventoryItems(Map<ItemStack, Integer> items) {
-		for (ItemStack stack : items.keySet()) {
-			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-			boolean added = false;
-			List<ItemStack> del = Lists.<ItemStack>newArrayList();
-			for (ItemStack st : this.inventory.keySet()) {
-				if (NoppesUtilServer.IsItemStackNull(st)) {
-					del.add(st);
-					continue;
-				}
-				if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
-					this.inventory.put(st, this.inventory.get(st) + items.get(stack));
-					added = true;
-					break;
-				}
-			}
-			for (ItemStack st : del) { this.inventory.remove(st); }
-			if (!added) { this.inventory.put(stack, items.get(stack)); }
-		}
-	}
-
-	public void removeInventoryItems(Map<ItemStack, Integer> items) {
-		for (ItemStack stack : items.keySet()) {
-			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
-			List<ItemStack> del = Lists.<ItemStack>newArrayList();
-			for (ItemStack st : this.inventory.keySet()) {
-				if (NoppesUtilServer.IsItemStackNull(st)) {
-					del.add(st);
-					continue;
-				}
-				if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
-					this.inventory.put(st, this.inventory.get(st) - items.get(stack));
-					if (this.inventory.get(st)<=0) { del.add(st); }
-					break;
-				}
-			}
-			for (ItemStack st : del) { this.inventory.remove(st); }
-		}
-	}
-
-	public void sendTo(EntityPlayerMP player) {
-		Server.sendData(player, EnumPacketClient.MARCET_DATA, 1, writeToNBT());
-		Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
-	}
-
-	@Override
-	public IDeal[] getDeals(int section) {
-		if (!sections.containsKey(section)) { return new IDeal[0]; }
-		List<IDeal> list = Lists.<IDeal>newArrayList();
-		for (Deal deal : sections.get(section).deals) { list.add(deal); }
-		return list.toArray(new IDeal[list.size()]);
-	}
-	
-	@Override
-	public IDeal[] getAllDeals() {
-		List<IDeal> list = Lists.<IDeal>newArrayList();
-		for (MarcetSection ms : sections.values()) {
-			for (Deal deal : ms.deals) { list.add(deal); }
-		}
-		return list.toArray(new IDeal[list.size()]);
-	}
-
-	public int getSection(int dealID) {
-		for (MarcetSection ms : sections.values()) {
-			for (Deal deal : ms.deals) {
-				if (deal.getId() == dealID) { return ms.getId(); }
-			}
-		}
-		return -1;
-	}
-
-	public Deal getDeal(int dealID) {
-		for (MarcetSection ms : sections.values()) {
-			for (Deal deal : ms.deals) {
-				if (deal.getId() == dealID) { return deal; }
-			}
-		}
-		return null;
 	}
 
 }

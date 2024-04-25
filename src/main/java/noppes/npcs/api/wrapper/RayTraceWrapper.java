@@ -4,9 +4,8 @@ import noppes.npcs.api.IPos;
 import noppes.npcs.api.IRayTrace;
 import noppes.npcs.api.block.IBlock;
 
-public class RayTraceWrapper
-implements IRayTrace {
-	
+public class RayTraceWrapper implements IRayTrace {
+
 	private IBlock block;
 	public IPos pos;
 	private int sideHit;

@@ -8,8 +8,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
@@ -17,7 +17,7 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
 public class ItemScripted extends Item implements IPermission {
-	
+
 	public static Map<Integer, String> Resources = new HashMap<Integer, String>();
 
 	public static ItemScriptedWrapper GetWrapper(ItemStack stack) {

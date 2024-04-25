@@ -17,10 +17,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobConversation;
 
-public class GuiNpcConversation
-extends GuiNPCInterface2
-implements ITextfieldListener, GuiSelectionListener {
-	
+public class GuiNpcConversation extends GuiNPCInterface2 implements ITextfieldListener, GuiSelectionListener {
+
 	private JobConversation job;
 	private int slot;
 
@@ -111,6 +109,15 @@ implements ITextfieldListener, GuiSelectionListener {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+		}
+	}
+
+	@Override
 	public void save() {
 		Client.sendData(EnumPacketServer.JobSave, this.job.writeToNBT(new NBTTagCompound()));
 	}
@@ -139,14 +146,5 @@ implements ITextfieldListener, GuiSelectionListener {
 			this.job.range = textfield.getInteger();
 		}
 	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
-	}
-	
+
 }

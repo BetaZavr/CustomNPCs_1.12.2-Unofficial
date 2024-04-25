@@ -7,16 +7,7 @@ import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.item.IItemStack;
 
 public class CustomGuiEvent extends CustomNPCsEvent {
-	
-	public static class KeyPressedEvent extends CustomGuiEvent {
-		public int key;
 
-		public KeyPressedEvent(IPlayer<?> player, ICustomGui gui, int k) {
-			super(player, gui);
-			this.key = k;
-		}
-	}
-	
 	public static class ButtonEvent extends CustomGuiEvent {
 		public int buttonId;
 
@@ -32,13 +23,23 @@ public class CustomGuiEvent extends CustomNPCsEvent {
 		}
 	}
 
+	public static class KeyPressedEvent extends CustomGuiEvent {
+		public int key;
+
+		public KeyPressedEvent(IPlayer<?> player, ICustomGui gui, int k) {
+			super(player, gui);
+			this.key = k;
+		}
+	}
+
 	public static class ScrollEvent extends CustomGuiEvent {
 		public boolean doubleClick;
 		public int scrollId;
 		public int scrollIndex;
 		public String[] selection;
 
-		public ScrollEvent(IPlayer<?> player, ICustomGui gui, int scrollId, int scrollIndex, String[] selection, boolean doubleClick) {
+		public ScrollEvent(IPlayer<?> player, ICustomGui gui, int scrollId, int scrollIndex, String[] selection,
+				boolean doubleClick) {
 			super(player, gui);
 			this.scrollId = scrollId;
 			this.selection = selection;
@@ -49,7 +50,7 @@ public class CustomGuiEvent extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class SlotClickEvent extends CustomGuiEvent {
-		
+
 		public String clickType;
 		public int dragType;
 		public IItemStack heldItem;
@@ -57,7 +58,8 @@ public class CustomGuiEvent extends CustomNPCsEvent {
 		public IItemStack stack;
 		public Slot slot;
 
-		public SlotClickEvent(IPlayer<?> player, ICustomGui gui, int slotId, IItemStack stack, int dragType, String clickType, IItemStack heldItem, Slot slot) {
+		public SlotClickEvent(IPlayer<?> player, ICustomGui gui, int slotId, IItemStack stack, int dragType,
+				String clickType, IItemStack heldItem, Slot slot) {
 			super(player, gui);
 			this.slotId = slotId;
 			this.stack = stack;

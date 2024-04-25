@@ -19,7 +19,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityDialogNpc;
 
 public class CmdDialog extends CommandNoppesBase {
-	
+
 	@Override
 	public String getDescription() {
 		return "Dialog operations";
@@ -57,16 +57,21 @@ public class CmdDialog extends CommandNoppesBase {
 	@SubCommand(desc = "show dialog", usage = "<player> <dialog> <name>", permission = 2)
 	public void show(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<EntityPlayerMP> players = (List<EntityPlayerMP>) CommandBase.getPlayers(server, sender, args[0]);
-		if (players == null) { throw new CommandException("Unknow player '%s'", new Object[] { args[0] }); }
+		if (players == null) {
+			throw new CommandException("Unknow player '%s'", new Object[] { args[0] });
+		}
 		int diagid;
-		try { diagid = Integer.parseInt(args[1]); } 
-		catch (NumberFormatException ex) {
+		try {
+			diagid = Integer.parseInt(args[1]);
+		} catch (NumberFormatException ex) {
 			throw new CommandException("DialogID must be an integer: " + args[1], new Object[0]);
 		}
 		Dialog dialog = DialogController.instance.dialogs.get(diagid);
-		if (dialog == null) { throw new CommandException("Unknown dialog id: " + args[1], new Object[0]); }
+		if (dialog == null) {
+			throw new CommandException("Unknown dialog id: " + args[1], new Object[0]);
+		}
 		EntityDialogNpc npc = new EntityDialogNpc(sender.getEntityWorld());
-		npc.dialogs = new int [] { diagid };
+		npc.dialogs = new int[] { diagid };
 		npc.display.setName(args[2]);
 		for (EntityPlayer player : players) {
 			EntityUtil.Copy(player, npc);

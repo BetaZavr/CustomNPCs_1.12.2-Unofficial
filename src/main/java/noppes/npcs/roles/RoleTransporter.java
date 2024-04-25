@@ -26,10 +26,8 @@ import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class RoleTransporter
-extends RoleInterface
-implements IRoleTransporter {
-	
+public class RoleTransporter extends RoleInterface implements IRoleTransporter {
+
 	public String name = "";
 	private int ticks;
 	public int transportId;
@@ -68,7 +66,9 @@ implements IRoleTransporter {
 
 	@Override
 	public TransportLocation getLocation() {
-		if (this.npc.isRemote()) { return null; }
+		if (this.npc.isRemote()) {
+			return null;
+		}
 		return TransportController.getInstance().getTransport(this.transportId);
 	}
 
@@ -88,6 +88,22 @@ implements IRoleTransporter {
 		}
 	}
 
+	private boolean isItemEqual(ItemStack stack, ItemStack other) {
+		return !other.isEmpty() && stack.getItem() == other.getItem()
+				&& (stack.getItemDamage() < 0 || stack.getItemDamage() == other.getItemDamage());
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = RoleType.TRANSPORTER;
+		this.transportId = compound.getInteger("TransporterId");
+		TransportLocation loc = this.getLocation();
+		this.name = "";
+		if (loc != null) {
+			this.name = loc.name;
+		}
+	}
+
 	public void setTransport(TransportLocation location) {
 		this.transportId = location.id;
 		this.name = location.name;
@@ -100,11 +116,14 @@ implements IRoleTransporter {
 		if (loc == null || (!loc.isDefault() && !playerdata.transportData.transports.contains(loc.id))) {
 			return;
 		}
-		RoleEvent.TransporterUseEvent event = new RoleEvent.TransporterUseEvent((EntityPlayer) player, this.npc.wrappedNPC, loc.copy());
-		if (EventHooks.onNPCRole(this.npc, event) || event.location == null) { return; }
+		RoleEvent.TransporterUseEvent event = new RoleEvent.TransporterUseEvent((EntityPlayer) player,
+				this.npc.wrappedNPC, loc.copy());
+		if (EventHooks.onNPCRole(this.npc, event) || event.location == null) {
+			return;
+		}
 		TransportLocation locEvent = (TransportLocation) event.location;
 		if (!player.capabilities.isCreativeMode) {
-			if (locEvent.money>0) {
+			if (locEvent.money > 0) {
 				if (locEvent.money > playerdata.game.getMoney()) {
 					player.sendMessage(new TextComponentTranslation("transporter.hover.not.money"));
 					return;
@@ -112,7 +131,8 @@ implements IRoleTransporter {
 				playerdata.game.addMoney(-1L * locEvent.money);
 			}
 			if (!locEvent.inventory.isEmpty()) {
-				Map<ItemStack, Boolean> barterItems = AdditionalMethods.getInventoryItemCount(player, locEvent.inventory);
+				Map<ItemStack, Boolean> barterItems = AdditionalMethods.getInventoryItemCount(player,
+						locEvent.inventory);
 				for (ItemStack stack : barterItems.keySet()) {
 					if (!barterItems.get(stack)) {
 						player.sendMessage(new TextComponentTranslation("transporter.hover.not.money"));
@@ -135,18 +155,18 @@ implements IRoleTransporter {
 				}
 				player.inventoryContainer.detectAndSendChanges();
 				for (QuestData data : playerdata.questData.activeQuests.values()) {
-					for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-						if (obj.getType() != 0) { continue; }
+					for (IQuestObjective obj : data.quest
+							.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+						if (obj.getType() != 0) {
+							continue;
+						}
 						playerdata.questData.checkQuestCompletion(player, data);
 					}
 				}
 			}
 		}
-		NoppesUtilPlayer.teleportPlayer(player, locEvent.pos.getX(), locEvent.pos.getY(), locEvent.pos.getZ(), locEvent.dimension, locEvent.yaw, locEvent.pitch);
-	}
-
-	private boolean isItemEqual(ItemStack stack, ItemStack other) {
-		return !other.isEmpty() && stack.getItem() == other.getItem() && (stack.getItemDamage() < 0 || stack.getItemDamage() == other.getItemDamage());
+		NoppesUtilPlayer.teleportPlayer(player, locEvent.pos.getX(), locEvent.pos.getY(), locEvent.pos.getZ(),
+				locEvent.dimension, locEvent.yaw, locEvent.pitch);
 	}
 
 	private void unlock(EntityPlayer player, TransportLocation loc) {
@@ -159,19 +179,11 @@ implements IRoleTransporter {
 			return;
 		}
 		data.transports.add(this.transportId);
-		player.sendMessage(new TextComponentTranslation("transporter.unlock", new TextComponentTranslation(loc.name).getFormattedText(), new TextComponentTranslation(loc.category.title).getFormattedText()));
+		player.sendMessage(new TextComponentTranslation("transporter.unlock",
+				new TextComponentTranslation(loc.name).getFormattedText(),
+				new TextComponentTranslation(loc.category.title).getFormattedText()));
 	}
 
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.TRANSPORTER;
-		this.transportId = compound.getInteger("TransporterId");
-		TransportLocation loc = this.getLocation();
-		this.name = "";
-		if (loc != null) { this.name = loc.name; }
-	}
-	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", RoleType.TRANSPORTER.get());

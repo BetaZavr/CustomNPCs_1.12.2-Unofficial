@@ -11,10 +11,8 @@ import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.Resistances;
 
-public class SubGuiNpcResistanceProperties
-extends SubGuiInterface
-implements ISliderListener {
-	
+public class SubGuiNpcResistanceProperties extends SubGuiInterface implements ISliderListener {
+
 	private Resistances resistances;
 
 	public SubGuiNpcResistanceProperties(Resistances resistances) {
@@ -29,6 +27,29 @@ implements ISliderListener {
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 66) {
 			this.close();
+		}
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getSlider(0) != null && this.getSlider(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.resist.knockback").getFormattedText());
+		} else if (this.getSlider(1) != null && this.getSlider(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.resist.range").getFormattedText());
+		} else if (this.getSlider(2) != null && this.getSlider(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.resist.melle").getFormattedText());
+		} else if (this.getSlider(3) != null && this.getSlider(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.resist.explosion").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 
@@ -75,25 +96,4 @@ implements ISliderListener {
 		}
 	}
 
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getSlider(0)!=null && this.getSlider(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.knockback").getFormattedText());
-		} else if (this.getSlider(1)!=null && this.getSlider(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.range").getFormattedText());
-		} else if (this.getSlider(2)!=null && this.getSlider(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.melle").getFormattedText());
-		} else if (this.getSlider(3)!=null && this.getSlider(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.explosion").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-	
 }

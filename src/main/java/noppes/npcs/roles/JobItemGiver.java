@@ -22,10 +22,8 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerItemGiverData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobItemGiver
-extends JobInterface
-implements IJobItemGiver {
-	
+public class JobItemGiver extends JobInterface implements IJobItemGiver {
+
 	public Availability availability;
 	public int cooldown;
 	public int cooldownType;

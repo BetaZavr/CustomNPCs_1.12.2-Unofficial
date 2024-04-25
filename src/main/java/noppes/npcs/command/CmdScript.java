@@ -26,18 +26,8 @@ import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.dimensions.DimensionHandler;
 
-public class CmdScript
-extends CommandNoppesBase {
-	
-	@Override
-	public String getDescription() {
-		return "Commands for scripts";
-	}
+public class CmdScript extends CommandNoppesBase {
 
-	public String getName() {
-		return "script";
-	}
-	
 	@SubCommand(desc = "List of available Forge event names")
 	public Boolean forgelist(MinecraftServer server, ICommandSender sender, String[] args) {
 		String list = "";
@@ -56,6 +46,15 @@ extends CommandNoppesBase {
 		return true;
 	}
 
+	@Override
+	public String getDescription() {
+		return "Commands for scripts";
+	}
+
+	public String getName() {
+		return "script";
+	}
+
 	@SubCommand(desc = "Reload scripts and saved data from disks script folder.")
 	public Boolean reload(MinecraftServer server, ICommandSender sender, String[] args) {
 		ScriptController.Instance.loadCategories();
@@ -69,8 +68,11 @@ extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading forge scripts"));
 		}
-		if (ScriptController.Instance.loadClientScripts()) { sender.sendMessage(new TextComponentString("Reload client scripts succesfully")); }
-		else { sender.sendMessage(new TextComponentString("Failed reloading client scripts")); }
+		if (ScriptController.Instance.loadClientScripts()) {
+			sender.sendMessage(new TextComponentString("Reload client scripts succesfully"));
+		} else {
+			sender.sendMessage(new TextComponentString("Failed reloading client scripts"));
+		}
 		if (ScriptController.Instance.loadPotionScripts()) {
 			sender.sendMessage(new TextComponentString("Reload potion scripts succesfully"));
 		} else {
@@ -86,7 +88,7 @@ extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading stored data"));
 		}
-		if (server!=null) {
+		if (server != null) {
 			for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
 				ScriptController.Instance.sendClientTo(player);
 			}
@@ -103,7 +105,7 @@ extends CommandNoppesBase {
 		EventHooks.onWorldScriptEvent(event);
 		return true;
 	}
-	
+
 	@SubCommand(desc = "Attempts to execute on the specified object", usage = "<dimentionID> <x> <y> <z> <entity> <trigerID> [Strings]")
 	public Boolean trigger(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		IWorld world = null;
@@ -111,9 +113,9 @@ extends CommandNoppesBase {
 		IEntity<?> entity = null;
 		int id = 0;
 		try {
-			int dimID  = Integer.parseInt(args[0]);
+			int dimID = Integer.parseInt(args[0]);
 			if (!DimensionManager.isDimensionRegistered(dimID) || DimensionHandler.getInstance().isDelete(dimID)) {
-				throw new CommandException("DimensionID: "+dimID+" - not found");
+				throw new CommandException("DimensionID: " + dimID + " - not found");
 			}
 			world = NpcAPI.Instance().getIWorld(dimID);
 		} catch (NumberFormatException ex) {
@@ -124,22 +126,25 @@ extends CommandNoppesBase {
 			double dy = parseCoordinate(sender.getPosition().getY(), args[2], 0, 255, false).getResult();
 			double dz = parseCoordinate(sender.getPosition().getZ(), args[3], true).getResult();
 			pos = NpcAPI.Instance().getIPos(dx, dy, dz);
+		} catch (NumberFormatException ex) {
 		}
-		catch (NumberFormatException ex) { }
 		IEntity<?>[] entitys = world.getNearbyEntities(pos, 2, 0);
 		for (IEntity<?> e : entitys) {
-			if (args[4].equalsIgnoreCase("player") && e.getType()==1 || e.getName().equalsIgnoreCase(args[4])) {
-				entity = e; 
+			if (args[4].equalsIgnoreCase("player") && e.getType() == 1 || e.getName().equalsIgnoreCase(args[4])) {
+				entity = e;
 				break;
 			}
 		}
-		try { id  = Integer.parseInt(args[5]); }
-		catch (NumberFormatException ex) { throw new CommandException("TrigerID must be an integer"); }
-		Object[] arguments = new String[args.length-6];
-		for (int i=0; i<args.length-6; i++) {
-			arguments[i] = args[6+i];
+		try {
+			id = Integer.parseInt(args[5]);
+		} catch (NumberFormatException ex) {
+			throw new CommandException("TrigerID must be an integer");
 		}
-		if (entity==null) {
+		Object[] arguments = new String[args.length - 6];
+		for (int i = 0; i < args.length - 6; i++) {
+			arguments[i] = args[6 + i];
+		}
+		if (entity == null) {
 			TileEntity tile = world.getMCWorld().getTileEntity(pos.getMCBlockPos());
 			if (tile instanceof TileScripted) {
 				EventHooks.onScriptTriggerEvent((TileScripted) tile, id, world, pos, null, arguments);
@@ -149,5 +154,5 @@ extends CommandNoppesBase {
 		EventHooks.onScriptTriggerEvent(id, world, pos, entity, arguments);
 		return true;
 	}
-	
+
 }

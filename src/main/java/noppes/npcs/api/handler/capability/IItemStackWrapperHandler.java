@@ -7,5 +7,5 @@ public interface IItemStackWrapperHandler {
 	NBTTagCompound getMCNbt();
 
 	void setMCNbt(NBTTagCompound compound);
-	
+
 }

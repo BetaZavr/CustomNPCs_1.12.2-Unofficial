@@ -16,9 +16,8 @@ import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
-public class ForgeScriptData
-implements IScriptHandler {
-	
+public class ForgeScriptData implements IScriptHandler {
+
 	private boolean enabled;
 	public boolean hadInteract;
 	public long lastInited;
@@ -95,19 +94,24 @@ implements IScriptHandler {
 
 	@Override
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
+		if (!this.isEnabled()) {
+			return;
+		}
 		try {
 			CustomNpcs.Server.addScheduledTask(() -> {
 				if (ScriptController.Instance.lastLoaded > this.lastInited) {
 					this.lastInited = ScriptController.Instance.lastLoaded;
-					if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
+					if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+						EventHooks.onForgeInit(this);
+					}
 				}
 				Iterator<ScriptContainer> iterator = this.scripts.iterator();
 				while (iterator.hasNext()) {
 					((ScriptContainer) iterator.next()).run(type, event, !this.isClient());
 				}
 			});
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 	}
 
 	@Override

@@ -69,6 +69,51 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 	}
 
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.attack.strength").getFormattedText());
+		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.attack.knockback").getFormattedText());
+		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.size").getFormattedText());
+		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.speed").getFormattedText());
+		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effect").getFormattedText());
+		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.gravity").getFormattedText());
+		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.accelerating").getFormattedText());
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.explosion").getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effects").getFormattedText());
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.particle").getFormattedText());
+		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.in.fire").getFormattedText());
+		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.3d").getFormattedText());
+		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.rotate").getFormattedText());
+		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.cling").getFormattedText());
+		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.effect.power").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+
+	@Override
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(1, "enchantment.arrowDamage", this.guiLeft + 5, this.guiTop + 15));
@@ -146,48 +191,5 @@ public class SubGuiNpcProjectiles extends SubGuiInterface implements ITextfieldL
 			this.stats.setEffect(this.stats.getEffectType(), this.stats.getEffectStrength(), textfield.getInteger());
 		}
 	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.strength").getFormattedText());
-		} else if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.knockback").getFormattedText());
-		} else if (this.getTextField(3)!=null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.size").getFormattedText());
-		} else if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.speed").getFormattedText());
-		} else if (this.getTextField(5)!=null && this.getTextField(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effect").getFormattedText());
-		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.gravity").getFormattedText());
-		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.accelerating").getFormattedText());
-		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.explosion").getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.attack.effects").getFormattedText());
-		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.particle").getFormattedText());
-		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.in.fire").getFormattedText());
-		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.3d").getFormattedText());
-		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.rotate").getFormattedText());
-		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.bulet.cling").getFormattedText());
-		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.effect.power").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-	
+
 }

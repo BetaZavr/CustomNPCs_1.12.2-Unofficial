@@ -16,10 +16,8 @@ import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.IEntityLivingBase;
 
 @SuppressWarnings("rawtypes")
-public class EntityLivingWrapper<T extends EntityLiving>
-extends EntityLivingBaseWrapper<T>
-implements IEntityLiving {
-	
+public class EntityLivingWrapper<T extends EntityLiving> extends EntityLivingBaseWrapper<T> implements IEntityLiving {
+
 	public EntityLivingWrapper(T entity) {
 		super(entity);
 	}
@@ -72,14 +70,16 @@ implements IEntityLiving {
 		this.entity.getNavigator().clearPath();
 		this.entity.getNavigator().tryMoveToXYZ(x, y, z, speed * 0.7);
 	}
-	
+
 	@Override
 	public void navigateTo(Integer[][] posses, double speed) {
 		PathNavigate nav = this.entity.getNavigator();
 		nav.clearPath();
 		List<PathPoint> points = Lists.<PathPoint>newArrayList();
 		for (Integer[] posId : posses) {
-			if (posId==null || posId.length<3) { return; }
+			if (posId == null || posId.length < 3) {
+				return;
+			}
 			points.add(new PathPoint(posId[0], posId[1], posId[2]));
 		}
 		nav.setPath(new Path(points.toArray(new PathPoint[points.size()])), speed);
@@ -87,8 +87,11 @@ implements IEntityLiving {
 
 	@Override
 	public void setAttackTarget(IEntityLivingBase living) {
-		if (living == null) { this.entity.setAttackTarget(null); }
-		else { this.entity.setAttackTarget(living.getMCEntity()); }
+		if (living == null) {
+			this.entity.setAttackTarget(null);
+		} else {
+			this.entity.setAttackTarget(living.getMCEntity());
+		}
 		super.setAttackTarget(living);
 	}
 }

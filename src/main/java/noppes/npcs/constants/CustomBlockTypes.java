@@ -5,11 +5,9 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.util.IStringSerializable;
 
 public class CustomBlockTypes {
-	
-	public static final PropertyEnum<TreeType> TREE_TYPE = PropertyEnum.create("type", TreeType.class);
 
 	public static enum TreeType implements IStringSerializable {
-		
+
 		NORMAL(MapColor.STONE);
 
 		private final MapColor mapColor;
@@ -23,14 +21,16 @@ public class CustomBlockTypes {
 		}
 
 		@Override
-		public String toString() {
+		public String getName() {
 			return name().toLowerCase();
 		}
 
 		@Override
-		public String getName() {
+		public String toString() {
 			return name().toLowerCase();
 		}
 	}
-	
+
+	public static final PropertyEnum<TreeType> TREE_TYPE = PropertyEnum.create("type", TreeType.class);
+
 }

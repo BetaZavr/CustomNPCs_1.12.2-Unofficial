@@ -10,9 +10,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class Blueprint
-implements ISchematic {
-	
+public class Blueprint implements ISchematic {
+
 	private String[] architects;
 	private String name;
 	private IBlockState[] pallete;
@@ -92,6 +91,11 @@ implements ISchematic {
 	}
 
 	@Override
+	public NBTTagList getEntitys() {
+		return new NBTTagList();
+	}
+
+	@Override
 	public short getHeight() {
 		return this.getSizeZ();
 	}
@@ -109,6 +113,11 @@ implements ISchematic {
 	@Override
 	public NBTTagCompound getNBT() {
 		return BlueprintUtil.writeBlueprintToNBT(this);
+	}
+
+	@Override
+	public BlockPos getOffset() {
+		return BlockPos.ORIGIN;
 	}
 
 	public IBlockState[] getPallete() {
@@ -158,6 +167,11 @@ implements ISchematic {
 		return this.getSizeX();
 	}
 
+	@Override
+	public boolean hasEntitys() {
+		return false;
+	}
+
 	public void setArchitects(String[] architects) {
 		this.architects = architects;
 	}
@@ -166,13 +180,4 @@ implements ISchematic {
 		this.name = name;
 	}
 
-	@Override
-	public boolean hasEntitys() { return false; }
-
-	@Override
-	public NBTTagList getEntitys() { return new NBTTagList(); }
-
-	@Override
-	public BlockPos getOffset() { return BlockPos.ORIGIN; }
-	
 }

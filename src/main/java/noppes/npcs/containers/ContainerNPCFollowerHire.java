@@ -6,9 +6,8 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 
-public class ContainerNPCFollowerHire
-extends ContainerNpcInterface {
-	
+public class ContainerNPCFollowerHire extends ContainerNpcInterface {
+
 	public RoleFollower role;
 	public int type = 0;
 
@@ -24,15 +23,24 @@ extends ContainerNpcInterface {
 			for (int y = 0; y < s; ++y) {
 				for (int x = 0; x < s; ++x) {
 					bo = (x + y * s) >= size;
-					if (bo) { break; }
-					this.addSlotToContainer(new Slot(this.role.inventory, x + y * s, 174 + x * 18, 142 + y * 18)); }
-				if (bo) { break; }
+					if (bo) {
+						break;
+					}
+					this.addSlotToContainer(new Slot(this.role.inventory, x + y * s, 174 + x * 18, 142 + y * 18));
+				}
+				if (bo) {
+					break;
+				}
 			}
 		}
 		for (int y = 0; y < 3; ++y) {
-			for (int x = 0; x < 9; ++x) { this.addSlotToContainer(new Slot(player.inventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 + offSet)); }
+			for (int x = 0; x < 9; ++x) {
+				this.addSlotToContainer(new Slot(player.inventory, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 + offSet));
+			}
 		}
-		for (int x = 0; x < 9; ++x) { this.addSlotToContainer(new Slot(player.inventory, x, 8 + x * 18, 142 + offSet)); }
+		for (int x = 0; x < 9; ++x) {
+			this.addSlotToContainer(new Slot(player.inventory, x, 8 + x * 18, 142 + offSet));
+		}
 	}
 
 	public void onContainerClosed(EntityPlayer entityplayer) {
@@ -47,13 +55,20 @@ extends ContainerNpcInterface {
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
 			if (index < this.role.inventory.getSizeInventory()) {
-				if (!this.mergeItemStack(itemstack1, this.role.inventory.getSizeInventory(), this.inventorySlots.size(), true)) { return ItemStack.EMPTY; }
+				if (!this.mergeItemStack(itemstack1, this.role.inventory.getSizeInventory(), this.inventorySlots.size(),
+						true)) {
+					return ItemStack.EMPTY;
+				}
+			} else if (!this.mergeItemStack(itemstack1, 0, this.role.inventory.getSizeInventory(), false)) {
+				return ItemStack.EMPTY;
 			}
-			else if (!this.mergeItemStack(itemstack1, 0, this.role.inventory.getSizeInventory(), false)) { return ItemStack.EMPTY; }
-			if (itemstack1.isEmpty()) { slot.putStack(ItemStack.EMPTY); }
-			else { slot.onSlotChanged(); }
+			if (itemstack1.isEmpty()) {
+				slot.putStack(ItemStack.EMPTY);
+			} else {
+				slot.onSlotChanged();
+			}
 		}
 		return itemstack;
 	}
-	
+
 }

@@ -31,10 +31,8 @@ import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobFarmer
-extends JobInterface
-implements MassBlockController.IMassBlock, IJobFarmer {
-	
+public class JobFarmer extends JobInterface implements MassBlockController.IMassBlock, IJobFarmer {
+
 	private int blockTicks;
 	private BlockPos chest;
 	public int chestMode;
@@ -126,20 +124,21 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 		this.npc.ais.returnToStart = (this.ripe == null);
 		if (this.ripe != null) {
 			this.npc.getNavigator().clearPath();
-			this.npc.getLookHelper().setLookPosition(this.ripe.getX(), this.ripe.getY(), this.ripe.getZ(), 10.0f, this.npc.getVerticalFaceSpeed());
+			this.npc.getLookHelper().setLookPosition(this.ripe.getX(), this.ripe.getY(), this.ripe.getZ(), 10.0f,
+					this.npc.getVerticalFaceSpeed());
 		}
 	}
 
 	private void chest() {
 		BlockPos pos = this.chest;
-		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0); 
+		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
 		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f,
 				this.npc.getVerticalFaceSpeed());
 		if (this.npc.nearPosition(pos) || this.walkTicks++ > 400) {
 			if (this.walkTicks < 400) {
 				this.npc.swingArm(EnumHand.MAIN_HAND);
 			}
-			this.npc.getNavigator().clearPath(); 
+			this.npc.getNavigator().clearPath();
 			this.ticks = 100;
 			this.walkTicks = 0;
 			IBlockState state = this.npc.world.getBlockState(pos);
@@ -198,13 +197,6 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 	}
 
 	@Override
-	public void setRange(int range) {
-		if (range<0) { range *= -1; }
-		if (range > 16) { range = 16; }
-		this.range = range;
-	}
-
-	@Override
 	public boolean isPlucking() {
 		return this.ripe != null || !this.holding.isEmpty();
 	}
@@ -230,8 +222,9 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 	@SuppressWarnings("deprecation")
 	private void pluck() {
 		BlockPos pos = this.ripe;
-		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0); 
-		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f, this.npc.getVerticalFaceSpeed());
+		this.npc.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.0);
+		this.npc.getLookHelper().setLookPosition(pos.getX(), pos.getY(), pos.getZ(), 10.0f,
+				this.npc.getVerticalFaceSpeed());
 		if (this.npc.nearPosition(pos) || this.walkTicks++ > 400) {
 			if (this.walkTicks > 400) {
 				pos = NoppesUtilServer.GetClosePos(pos, this.npc.world);
@@ -292,17 +285,28 @@ implements MassBlockController.IMassBlock, IJobFarmer {
 		this.waitingForBlocks = false;
 	}
 
-	public void setHolding(ItemStack item) {
-		this.holding = item;
-		this.npc.setJobData(this.itemToString(this.holding));
-	}
-
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = JobType.FARMER;
 		this.chestMode = compound.getInteger("JobChestMode");
 		this.holding = new ItemStack(compound.getCompoundTag("JobHolding"));
 		this.blockTicks = 1100;
+	}
+
+	public void setHolding(ItemStack item) {
+		this.holding = item;
+		this.npc.setJobData(this.itemToString(this.holding));
+	}
+
+	@Override
+	public void setRange(int range) {
+		if (range < 0) {
+			range *= -1;
+		}
+		if (range > 16) {
+			range = 16;
+		}
+		this.range = range;
 	}
 
 	@Override

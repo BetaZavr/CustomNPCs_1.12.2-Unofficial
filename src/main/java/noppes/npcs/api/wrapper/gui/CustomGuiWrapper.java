@@ -28,9 +28,8 @@ import noppes.npcs.controllers.CustomGuiController;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class CustomGuiWrapper
-implements ICustomGui {
-	
+public class CustomGuiWrapper implements ICustomGui {
+
 	String backgroundTexture;
 	List<ICustomGuiComponent> components;
 	int height;
@@ -93,7 +92,16 @@ implements ICustomGui {
 	}
 
 	@Override
-	public IItemSlot addItemSlot(int x, int y) { return this.addItemSlot(x, y, ItemScriptedWrapper.AIR); }
+	public IGuiEntity addEntity(int id, int x, int y, IEntity<?> entity) {
+		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, entity);
+		this.components.add(component);
+		return (IGuiEntity) this.components.get(this.components.size() - 1);
+	}
+
+	@Override
+	public IItemSlot addItemSlot(int x, int y) {
+		return this.addItemSlot(x, y, ItemScriptedWrapper.AIR);
+	}
 
 	@Override
 	public IItemSlot addItemSlot(int x, int y, IItemStack stack) {
@@ -154,17 +162,12 @@ implements ICustomGui {
 	}
 
 	@Override
-	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX, textureY);
+	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
+			int textureY) {
+		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height,
+				textureX, textureY);
 		this.components.add(component);
 		return (ITexturedRect) this.components.get(this.components.size() - 1);
-	}
-
-	@Override
-	public IGuiEntity addEntity(int id, int x, int y, IEntity<?> entity) {
-		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, entity);
-		this.components.add(component);
-		return (IGuiEntity) this.components.get(this.components.size() - 1);
 	}
 
 	public ICustomGui fromNBT(NBTTagCompound tag) {
@@ -189,7 +192,8 @@ implements ICustomGui {
 		List<IItemSlot> slots = new ArrayList<IItemSlot>();
 		list = tag.getTagList("slots", 10);
 		for (NBTBase b2 : list) {
-			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper.createFromNBT((NBTTagCompound) b2);
+			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper
+					.createFromNBT((NBTTagCompound) b2);
 			slots.add(component2);
 		}
 		this.slots = slots;
@@ -253,7 +257,7 @@ implements ICustomGui {
 	public boolean getShowPlayerInv() {
 		return this.showPlayerInv;
 	}
-	
+
 	public boolean getShowPlayerSlots() {
 		return this.showPlayerInv && this.showPlayerSlots;
 	}
@@ -282,6 +286,17 @@ implements ICustomGui {
 				return;
 			}
 		}
+	}
+
+	@Override
+	public void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretched,
+			String resourceLocation) {
+		this.backgroundTexture = resourceLocation;
+		this.stretched = stretched;
+		this.bgW = width;
+		this.bgH = height;
+		this.bgTx = textureX;
+		this.bgTy = textureY;
 	}
 
 	@Override
@@ -314,7 +329,7 @@ implements ICustomGui {
 
 	@Override
 	public void setSize(int width, int height) {
-		if (width  <= 0 || height <= 0) {
+		if (width <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		this.width = width;
@@ -328,7 +343,7 @@ implements ICustomGui {
 		this.playerInvX = x;
 		this.playerInvY = y;
 	}
-	
+
 	@Override
 	public void showPlayerInventory(int x, int y, boolean showSlots) {
 		this.showPlayerInv = true;
@@ -351,7 +366,9 @@ implements ICustomGui {
 		tag.setBoolean("isIndependent", this.isIndependent);
 		NBTTagList list = new NBTTagList();
 		for (ICustomGuiComponent c : this.components) {
-			if (c == null) { continue; }
+			if (c == null) {
+				continue;
+			}
 			list.appendTag(((CustomGuiComponentWrapper) c).toNBT(new NBTTagCompound()));
 		}
 		tag.setTag("components", list);
@@ -388,14 +405,4 @@ implements ICustomGui {
 		}
 	}
 
-	@Override
-	public void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretched, String resourceLocation) {
-		this.backgroundTexture = resourceLocation;
-		this.stretched = stretched;
-		this.bgW = width;
-		this.bgH = height;
-		this.bgTx = textureX;
-		this.bgTy = textureY;
-	}
-	
 }

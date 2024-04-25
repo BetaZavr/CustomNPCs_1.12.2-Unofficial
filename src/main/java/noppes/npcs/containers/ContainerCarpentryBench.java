@@ -58,7 +58,8 @@ public class ContainerCarpentryBench extends Container {
 					(double) this.pos.getZ() + 0.5D) <= 64.0D;
 		}
 		// return this.world.getBlockState(this.pos).getBlock() ==
-		// CustomRegisters.carpentyBench && par1EntityPlayer.getDistanceSq(this.pos.getX() +
+		// CustomRegisters.carpentyBench &&
+		// par1EntityPlayer.getDistanceSq(this.pos.getX() +
 		// 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5) <= 64.0;
 	}
 

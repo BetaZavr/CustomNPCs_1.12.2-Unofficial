@@ -13,9 +13,8 @@ import noppes.npcs.controllers.IScriptBlockHandler;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class DataTimers
-implements ITimers {
-	
+public class DataTimers implements ITimers {
+
 	class Timer {
 		public int id;
 		private boolean repeat;

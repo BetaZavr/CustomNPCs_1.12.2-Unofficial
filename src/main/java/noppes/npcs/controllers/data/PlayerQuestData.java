@@ -15,7 +15,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestInterface;
 
 public class PlayerQuestData {
-	
+
 	public HashMap<Integer, QuestData> activeQuests = new HashMap<Integer, QuestData>(); // [qID, data]
 	public HashMap<Integer, Long> finishedQuests = new HashMap<Integer, Long>(); // [qID, time]
 	public boolean updateClient; // ServerTickHandler.onPlayerTick() 114
@@ -26,10 +26,14 @@ public class PlayerQuestData {
 	public boolean checkQuestCompletion(EntityPlayer player, QuestData data) {
 		QuestInterface inter = data.quest.questInterface;
 		if (inter.isCompleted(player)) {
-			if (data.isCompleted) { return false; }
+			if (data.isCompleted) {
+				return false;
+			}
 			if (!data.quest.complete(player, data)) {
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.completed", data.quest.getTitle(), 2);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.completed", ": ", data.quest.getTitle());
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.completed",
+						data.quest.getTitle(), 2);
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.completed", ": ",
+						data.quest.getTitle());
 			}
 			data.isCompleted = true;
 			this.updateClient = true;
@@ -42,7 +46,8 @@ public class PlayerQuestData {
 	public QuestData getQuestCompletion(EntityPlayer player, EntityNPCInterface npc) {
 		for (QuestData data : this.activeQuests.values()) {
 			Quest quest = data.quest;
-			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completer.getName().equals(npc.getName()) && quest.questInterface.isCompleted(player)) {
+			if (quest != null && quest.completion == EnumQuestCompletion.Npc
+					&& quest.completer.getName().equals(npc.getName()) && quest.questInterface.isCompleted(player)) {
 				return data;
 			}
 		}

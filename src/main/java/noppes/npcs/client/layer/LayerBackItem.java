@@ -15,9 +15,8 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 
 @SuppressWarnings("deprecation")
-public class LayerBackItem<T extends EntityLivingBase>
-extends LayerInterface<T> {
-	
+public class LayerBackItem<T extends EntityLivingBase> extends LayerInterface<T> {
+
 	public LayerBackItem(RenderLiving<?> render) {
 		super(render);
 	}

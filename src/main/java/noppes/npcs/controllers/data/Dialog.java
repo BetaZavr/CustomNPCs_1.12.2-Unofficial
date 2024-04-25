@@ -20,9 +20,8 @@ import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.QuestController;
 
-public class Dialog
-implements ICompatibilty, IDialog {
-	
+public class Dialog implements ICompatibilty, IDialog {
+
 	public Availability availability;
 	public DialogCategory category;
 	public PlayerMail mail;
@@ -53,6 +52,14 @@ implements ICompatibilty, IDialog {
 		this.delay = 0;
 	}
 
+	public Dialog copy() {
+		Dialog dialog = new Dialog(this.category);
+		NBTTagCompound compound = new NBTTagCompound();
+		this.writeToNBT(compound);
+		dialog.readNBT(compound);
+		return dialog;
+	}
+
 	public Dialog copy(EntityPlayer player) {
 		Dialog dialog = new Dialog(this.category);
 		dialog.id = this.id;
@@ -70,12 +77,43 @@ implements ICompatibilty, IDialog {
 		dialog.stopSound = this.stopSound;
 		for (int slot : this.options.keySet()) {
 			DialogOption option = this.options.get(slot);
-			if (option.optionType == OptionType.DISABLED || player != null && !option.isAvailable(player)) { continue; }
-			if (option.optionType == OptionType.DIALOG_OPTION && !option.hasDialogs()) { continue; }
+			if (option.optionType == OptionType.DISABLED || player != null && !option.isAvailable(player)) {
+				continue;
+			}
+			if (option.optionType == OptionType.DIALOG_OPTION && !option.hasDialogs()) {
+				continue;
+			}
 			dialog.options.put(slot, option);
 		}
 		dialog.delay = this.delay;
 		return dialog;
+	}
+
+	public void downPos(int optionId) {
+		if (!this.options.containsKey(optionId) || optionId < 0 || optionId >= this.options.size() - 1) {
+			return;
+		}
+		Map<Integer, DialogOption> newOptions = Maps.<Integer, DialogOption>newTreeMap();
+		for (int id : this.options.keySet()) {
+			DialogOption option = this.options.get(id);
+			if (id == optionId) {
+				option.slot = id + 1;
+				newOptions.put(id + 1, this.options.get(id));
+				continue;
+			} else if (id == optionId + 1) {
+				option.slot = id - 1;
+				newOptions.put(id - 1, this.options.get(id));
+				continue;
+			}
+			newOptions.put(id, this.options.get(id));
+		}
+		this.options.clear();
+		this.options.putAll(newOptions);
+	}
+
+	public Map<Integer, DialogOption> fix(Map<Integer, DialogOption> newoptions) {
+
+		return newoptions;
 	}
 
 	@Override
@@ -96,6 +134,11 @@ implements ICompatibilty, IDialog {
 	@Override
 	public int getId() {
 		return this.id;
+	}
+
+	public String getKey() {
+		char c = ((char) 167);
+		return c + "7ID:" + this.id + c + "8 " + this.category.title + "/" + c + "r" + this.title;
 	}
 
 	@Override
@@ -137,7 +180,8 @@ implements ICompatibilty, IDialog {
 
 	public boolean hasDialogs(EntityPlayer player) {
 		for (DialogOption option : this.options.values()) {
-			if (option != null && option.optionType == OptionType.DIALOG_OPTION && option.hasDialogs() && option.isAvailable(player)) {
+			if (option != null && option.optionType == OptionType.DIALOG_OPTION && option.hasDialogs()
+					&& option.isAvailable(player)) {
 				return true;
 			}
 		}
@@ -174,9 +218,13 @@ implements ICompatibilty, IDialog {
 		this.mail.readNBT(compound.getCompoundTag("DialogMail"));
 		this.hideNPC = compound.getBoolean("DialogHideNPC");
 		this.showWheel = compound.getBoolean("DialogShowWheel");
-		if (compound.hasKey("DialogShowFits", 1)) { this.showFits = compound.getBoolean("DialogShowFits"); }
+		if (compound.hasKey("DialogShowFits", 1)) {
+			this.showFits = compound.getBoolean("DialogShowFits");
+		}
 		this.disableEsc = compound.getBoolean("DialogDisableEsc");
-		if (compound.hasKey("DialogStopSound", 1)) { this.stopSound = compound.getBoolean("DialogStopSound"); }
+		if (compound.hasKey("DialogStopSound", 1)) {
+			this.stopSound = compound.getBoolean("DialogStopSound");
+		}
 		NBTTagList options = compound.getTagList("Options", 10);
 		Map<Integer, DialogOption> newoptions = new HashMap<Integer, DialogOption>();
 		for (int i = 0; i < options.tagCount(); ++i) {
@@ -192,13 +240,11 @@ implements ICompatibilty, IDialog {
 		this.availability.readFromNBT(compound);
 		this.factionOptions.readFromNBT(compound);
 		this.delay = compound.getInteger("ResponseDelay");
-		if (this.delay<0) { this.delay = 0; }
-		else if (this.delay>1200) { this.delay = 1200; } 
-	}
-
-	public Map<Integer, DialogOption> fix(Map<Integer, DialogOption> newoptions) {
-		
-		return newoptions;
+		if (this.delay < 0) {
+			this.delay = 0;
+		} else if (this.delay > 1200) {
+			this.delay = 1200;
+		}
 	}
 
 	@Override
@@ -238,6 +284,28 @@ implements ICompatibilty, IDialog {
 		this.version = version;
 	}
 
+	public void upPos(int optionId) {
+		if (!this.options.containsKey(optionId) || optionId <= 0) {
+			return;
+		}
+		Map<Integer, DialogOption> newOptions = Maps.<Integer, DialogOption>newTreeMap();
+		for (int id : this.options.keySet()) {
+			DialogOption option = this.options.get(id);
+			if (id == optionId - 1) {
+				option.slot = id + 1;
+				newOptions.put(id + 1, option);
+				continue;
+			} else if (id == optionId) {
+				option.slot = id - 1;
+				newOptions.put(id - 1, option);
+				continue;
+			}
+			newOptions.put(id, option);
+		}
+		this.options.clear();
+		this.options.putAll(newOptions);
+	}
+
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("DialogId", this.id);
@@ -274,63 +342,6 @@ implements ICompatibilty, IDialog {
 		compound.setInteger("ModRev", this.version);
 		compound.setInteger("ResponseDelay", this.delay);
 		return compound;
-	}
-
-	public String getKey() {
-		char c = ((char) 167);
-		return c + "7ID:" + this.id + c + "8 " + this.category.title + "/" + c + "r" + this.title;
-	}
-
-	
-
-	public void upPos(int optionId) {
-		if (!this.options.containsKey(optionId) || optionId <= 0) { return; }
-		Map<Integer, DialogOption> newOptions = Maps.<Integer, DialogOption>newTreeMap();
-		for (int id : this.options.keySet()) {
-			DialogOption option = this.options.get(id);
-			if (id == optionId - 1) {
-				option.slot = id + 1;
-				newOptions.put(id + 1, option);
-				continue;
-			}
-			else if (id == optionId) {
-				option.slot = id - 1;
-				newOptions.put(id - 1, option);
-				continue;
-			}
-			newOptions.put(id, option);
-		}
-		this.options.clear();
-		this.options.putAll(newOptions);
-	}
-
-	public void downPos(int optionId) {
-		if (!this.options.containsKey(optionId) || optionId < 0 || optionId >= this.options.size() - 1) { return; }
-		Map<Integer, DialogOption> newOptions = Maps.<Integer, DialogOption>newTreeMap();
-		for (int id : this.options.keySet()) {
-			DialogOption option = this.options.get(id);
-			if (id == optionId) {
-				option.slot = id + 1;
-				newOptions.put(id + 1, this.options.get(id));
-				continue;
-			}
-			else if (id == optionId + 1) {
-				option.slot = id - 1;
-				newOptions.put(id - 1, this.options.get(id));
-				continue;
-			}
-			newOptions.put(id, this.options.get(id));
-		}
-		this.options.clear();
-		this.options.putAll(newOptions);
-	}
-
-	public Dialog copy() {
-		Dialog dialog = new Dialog(this.category);
-		NBTTagCompound compound = new NBTTagCompound();
-		this.writeToNBT(compound);
-		dialog.readNBT(compound);
-		return dialog;
 	}
 
 }

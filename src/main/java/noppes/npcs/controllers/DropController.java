@@ -33,9 +33,23 @@ import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.entity.data.EnchantSet;
 
 public class DropController {
-	
+
 	private static DropController instance;
+	public static DropController getInstance() {
+		if (newInstance()) {
+			DropController.instance = new DropController();
+		}
+		return DropController.instance;
+	}
+	private static boolean newInstance() {
+		if (DropController.instance == null) {
+			return true;
+		}
+		return CustomNpcs.Dir != null && !DropController.instance.filePath.equals(CustomNpcs.Dir.getAbsolutePath());
+	}
+
 	private String filePath;
+
 	public final Map<String, DropsTemplate> templates;
 
 	public DropController() {
@@ -44,71 +58,43 @@ public class DropController {
 		DropController.instance = this;
 		this.load();
 	}
-	
-	public static DropController getInstance() {
-		if (newInstance()) { DropController.instance = new DropController(); }
-		return DropController.instance;
+
+	public List<IItemStack> createDrops(String saveDropsName, double ch, boolean isLooted, EntityLivingBase attacking) {
+		List<IItemStack> list = Lists.<IItemStack>newArrayList();
+		if (saveDropsName == null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) {
+			return list;
+		}
+		DropsTemplate template = this.templates.get(saveDropsName);
+		if (template == null) {
+			return list;
+		}
+		return template.createDrops(ch, isLooted, attacking);
 	}
 
-	private static boolean newInstance() {
-		if (DropController.instance == null) { return true; }
-		return CustomNpcs.Dir != null && !DropController.instance.filePath.equals(CustomNpcs.Dir.getAbsolutePath());
+	public NBTTagCompound getNBT() {
+		NBTTagCompound nbtFile = new NBTTagCompound();
+		NBTTagList templates = new NBTTagList();
+		for (String template : this.templates.keySet()) {
+			NBTTagCompound nbtTemplate = new NBTTagCompound();
+			nbtTemplate.setString("Name", template);
+			nbtTemplate.setTag("Groups", this.templates.get(template).getNBT());
+			templates.appendTag(nbtTemplate);
+		}
+		nbtFile.setTag("Templates", templates);
+		return nbtFile;
 	}
-	
+
 	public void load() {
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.startDebug("Common", null, "loadDrops"); }
+		if (CustomNpcs.VerboseDebug) {
+			CustomNpcs.debugData.startDebug("Common", null, "loadDrops");
+		}
 		LogWriter.info("Loading Drops");
 		this.loadFile();
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.debugData.endDebug("Common", null, "loadDrops"); }
-	}
-	
-	private void loadFile() {
-		this.filePath = CustomNpcs.Dir.getAbsolutePath();
-		try {
-			File file = new File(CustomNpcs.Dir, "drops.dat");
-			if (file.exists()) {
-				try {
-					NBTTagCompound nbtFile = CompressedStreamTools
-							.readCompressed((InputStream) new FileInputStream(file));
-					this.loadNBTData(nbtFile);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				this.templates.clear();
-				this.loadDefaultDrops();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			try {
-				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
-				if (file2.exists()) {
-					try {
-						NBTTagCompound nbtFile = CompressedStreamTools
-								.readCompressed((InputStream) new FileInputStream(file2));
-						this.loadNBTData(nbtFile);
-					} catch (IOException err) {
-						err.printStackTrace();
-					}
-				}
-			} catch (Exception ee) {
-				e.printStackTrace();
-			}
+		if (CustomNpcs.VerboseDebug) {
+			CustomNpcs.debugData.endDebug("Common", null, "loadDrops");
 		}
 	}
-	
-	public void loadNBTData(NBTTagCompound nbtFile) {
-		this.templates.clear();
-		if (nbtFile.hasKey("Templates", 9)) {
-			for (int i = 0; i < nbtFile.getTagList("Templates", 10).tagCount(); i++) {
-				NBTTagCompound nbtTemplate = nbtFile.getTagList("Templates", 10).getCompoundTagAt(i);
-				if (!nbtTemplate.hasKey("Name", 8)) { continue; }
-				this.templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
-			}
-		}
-		if (this.templates.isEmpty()) {this.loadDefaultDrops(); }
-	}
-	
+
 	private void loadDefaultDrops() {
 		NpcAPI api = NpcAPI.Instance();
 		DropsTemplate temp = new DropsTemplate();
@@ -154,41 +140,73 @@ public class DropController {
 		ench0.setLevels(1, 5);
 		AttributeSet attr = (AttributeSet) df0.addAttribute(SharedMonsterAttributes.ATTACK_DAMAGE.getName());
 		attr.setChance(25.0d);
-		attr.setValues(1.0d,  3.0d);
+		attr.setValues(1.0d, 3.0d);
 		attr.setSlot(0);
-		df0.addDropNbtSet(8, 12.5d, "display.Name", new String [] { "Sword", "Axe" });
+		df0.addDropNbtSet(8, 12.5d, "display.Name", new String[] { "Sword", "Axe" });
 		temp.groups.get(1).put(0, df0);
 		this.templates.put("default", temp);
 		this.save();
 	}
-	
+
+	private void loadFile() {
+		this.filePath = CustomNpcs.Dir.getAbsolutePath();
+		try {
+			File file = new File(CustomNpcs.Dir, "drops.dat");
+			if (file.exists()) {
+				try {
+					NBTTagCompound nbtFile = CompressedStreamTools
+							.readCompressed((InputStream) new FileInputStream(file));
+					this.loadNBTData(nbtFile);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				this.templates.clear();
+				this.loadDefaultDrops();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				File file2 = new File(CustomNpcs.Dir, "recipes.dat_old");
+				if (file2.exists()) {
+					try {
+						NBTTagCompound nbtFile = CompressedStreamTools
+								.readCompressed((InputStream) new FileInputStream(file2));
+						this.loadNBTData(nbtFile);
+					} catch (IOException err) {
+						err.printStackTrace();
+					}
+				}
+			} catch (Exception ee) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void loadNBTData(NBTTagCompound nbtFile) {
+		this.templates.clear();
+		if (nbtFile.hasKey("Templates", 9)) {
+			for (int i = 0; i < nbtFile.getTagList("Templates", 10).tagCount(); i++) {
+				NBTTagCompound nbtTemplate = nbtFile.getTagList("Templates", 10).getCompoundTagAt(i);
+				if (!nbtTemplate.hasKey("Name", 8)) {
+					continue;
+				}
+				this.templates.put(nbtTemplate.getString("Name"),
+						new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
+			}
+		}
+		if (this.templates.isEmpty()) {
+			this.loadDefaultDrops();
+		}
+	}
+
 	public void save() {
 		try {
-			CompressedStreamTools.writeCompressed(this.getNBT(), (OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "drops.dat")));
+			CompressedStreamTools.writeCompressed(this.getNBT(),
+					(OutputStream) new FileOutputStream(new File(CustomNpcs.Dir, "drops.dat")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public NBTTagCompound getNBT() {
-		NBTTagCompound nbtFile = new NBTTagCompound();
-		NBTTagList templates = new NBTTagList();
-		for (String template : this.templates.keySet()) {
-			NBTTagCompound nbtTemplate = new NBTTagCompound();
-			nbtTemplate.setString("Name", template);
-			nbtTemplate.setTag("Groups", this.templates.get(template).getNBT());
-			templates.appendTag(nbtTemplate);
-		}
-		nbtFile.setTag("Templates", templates);
-		return nbtFile;
-	}
-
-	public List<IItemStack> createDrops(String saveDropsName, double ch, boolean isLooted, EntityLivingBase attacking) {
-		List<IItemStack> list = Lists.<IItemStack>newArrayList();
-		if (saveDropsName==null || saveDropsName.isEmpty() || !this.templates.containsKey(saveDropsName)) { return list;}
-		DropsTemplate template = this.templates.get(saveDropsName);
-		if (template == null) { return list; }
-		return template.createDrops(ch, isLooted, attacking);
 	}
 
 	public void setdTo(EntityPlayerMP player) {
@@ -201,5 +219,5 @@ public class DropController {
 		}
 		Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 	}
-	
+
 }

@@ -36,12 +36,42 @@ import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("rawtypes")
-public class EntityLivingBaseWrapper<T extends EntityLivingBase>
-extends EntityWrapper<T>
-implements IEntityLivingBase {
-	
+public class EntityLivingBaseWrapper<T extends EntityLivingBase> extends EntityWrapper<T> implements IEntityLivingBase {
+
 	public EntityLivingBaseWrapper(T entity) {
 		super(entity);
+	}
+
+	@Override
+	public INpcAttribute addAttribute(INpcAttribute attribute) {
+		if (attribute == null || this.hasAttribute(attribute)) {
+			return null;
+		}
+		IAttribute attr = null;
+		if (attribute.getMCAttribute() instanceof IAttribute) {
+			attr = (IAttribute) attribute.getMCAttribute();
+		} else if (attribute.getMCBaseAttribute() instanceof IAttribute) {
+			attr = (IAttribute) attribute.getMCBaseAttribute();
+		}
+		if (attr == null) {
+			return null;
+		}
+		this.entity.getAttributeMap().registerAttribute(attr);
+		INpcAttribute npcAttr = this.getIAttribute(attribute.getName());
+		if (npcAttr != null) {
+			ObfuscationHelper.setValue(AttributeWrapper.class, (AttributeWrapper) npcAttr, true, boolean.class);
+		}
+		return npcAttr;
+	}
+
+	@Override
+	public INpcAttribute addAttribute(String attributeName, String displayName, double baseValue, double minValue,
+			double maxValue) {
+		if (attributeName == null || attributeName.isEmpty() || this.hasAttribute(attributeName)) {
+			return null;
+		}
+		return this.addAttribute(
+				new AttributeWrapper(this.entity, attributeName, displayName, baseValue, minValue, maxValue));
 	}
 
 	@Override
@@ -94,6 +124,16 @@ implements IEntityLivingBase {
 		return NpcAPI.Instance().getIItemStack(this.entity.getItemStackFromSlot(this.getSlot(slot)));
 	}
 
+	private int getArmSwingAnimationEnd() {
+		if (this.entity.isPotionActive(MobEffects.HASTE)) {
+			return 6 - (1 + this.entity.getActivePotionEffect(MobEffects.HASTE).getAmplifier());
+		} else {
+			return this.entity.isPotionActive(MobEffects.MINING_FATIGUE)
+					? 6 + (1 + this.entity.getActivePotionEffect(MobEffects.MINING_FATIGUE).getAmplifier()) * 2
+					: 6;
+		}
+	}
+
 	@Override
 	public IEntityLivingBase getAttackTarget() {
 		return (IEntityLivingBase) NpcAPI.Instance().getIEntity(this.entity.getRevengeTarget());
@@ -102,6 +142,29 @@ implements IEntityLivingBase {
 	@Override
 	public float getHealth() {
 		return this.entity.getHealth();
+	}
+
+	@Override
+	public INpcAttribute getIAttribute(String attributeName) {
+		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
+				this.entity.getAttributeMap(), 1);
+		return NpcAPI.Instance().getIAttribute(attributesByName.get(attributeName));
+	}
+
+	@Override
+	public String[] getIAttributeNames() {
+		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
+				this.entity.getAttributeMap(), 1);
+		return attributesByName.keySet().toArray(new String[attributesByName.size()]);
+	}
+
+	@Override
+	public INpcAttribute[] getIAttributes() {
+		List<INpcAttribute> list = Lists.<INpcAttribute>newArrayList();
+		for (IAttributeInstance attr : this.entity.getAttributeMap().getAllAttributes()) {
+			list.add(NpcAPI.Instance().getIAttribute(attr));
+		}
+		return list.toArray(new INpcAttribute[list.size()]);
 	}
 
 	@Override
@@ -181,6 +244,23 @@ implements IEntityLivingBase {
 	}
 
 	@Override
+	public boolean hasAttribute(INpcAttribute attribute) {
+		for (IAttributeInstance attr : this.entity.getAttributeMap().getAllAttributes()) {
+			if (attr.equals(attribute.getMCAttribute())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean hasAttribute(String attributeName) {
+		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
+				this.entity.getAttributeMap(), 1);
+		return attributesByName.containsKey(attributeName);
+	}
+
+	@Override
 	public boolean isAttacking() {
 		return this.entity.getRevengeTarget() != null;
 	}
@@ -188,6 +268,49 @@ implements IEntityLivingBase {
 	@Override
 	public boolean isChild() {
 		return this.entity.isChild();
+	}
+
+	@SuppressWarnings("unlikely-arg-type")
+	@Override
+	public boolean removeAttribute(INpcAttribute attribute) {
+		if (attribute == null || !attribute.isCustom() || !this.hasAttribute(attribute)) {
+			return false;
+		}
+		Map<IAttribute, IAttributeInstance> attributes = ObfuscationHelper.getValue(AbstractAttributeMap.class,
+				this.entity.getAttributeMap(), 0);
+		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class,
+				this.entity.getAttributeMap(), 1);
+		Multimap<IAttribute, IAttribute> descendantsByParent = ObfuscationHelper.getValue(AbstractAttributeMap.class,
+				this.entity.getAttributeMap(), 2);
+		IAttribute key = null;
+		String name = null;
+		IAttribute parent = null;
+		for (IAttribute k : attributes.keySet()) {
+			if (attributes.get(k).equals(attribute.getMCAttribute())) {
+				key = k;
+				break;
+			}
+		}
+		if (key != null) {
+			name = key.getName();
+			for (IAttribute p : descendantsByParent.keySet()) {
+				if (descendantsByParent.get(p).equals(key)) {
+					parent = p;
+					break;
+				}
+			}
+		}
+		attributes.remove(key);
+		attributesByName.remove(name);
+		if (parent != null && key != null) {
+			descendantsByParent.remove(parent, key);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean removeAttribute(String attributeName) {
+		return this.removeAttribute(this.getIAttribute(attributeName));
 	}
 
 	@Override
@@ -207,8 +330,11 @@ implements IEntityLivingBase {
 
 	@Override
 	public void setAttackTarget(IEntityLivingBase living) {
-		if (living == null) { this.entity.setRevengeTarget(null); }
-		else { this.entity.setRevengeTarget(living.getMCEntity()); }
+		if (living == null) {
+			this.entity.setRevengeTarget(null);
+		} else {
+			this.entity.setRevengeTarget(living.getMCEntity());
+		}
 	}
 
 	@Override
@@ -249,135 +375,50 @@ implements IEntityLivingBase {
 		this.entity.setHeldItem(EnumHand.OFF_HAND, (item == null) ? ItemStack.EMPTY : item.getMCItemStack());
 	}
 
-	@Override
-	public void swingMainhand() { this.swim(EnumHand.MAIN_HAND); }
+	private void swim(EnumHand hand) {
+		if (!(this.entity instanceof EntityPlayerMP)) {
+			this.entity.swingArm(hand);
+			return;
+		}
+		ItemStack stack = this.entity.getHeldItem(hand);
+		if (!stack.isEmpty()) {
+			if (stack.getItem().onEntitySwing(this.entity, stack)) {
+				return;
+			}
+		}
+		if (!this.entity.isSwingInProgress || this.entity.swingProgressInt >= this.getArmSwingAnimationEnd() / 2
+				|| this.entity.swingProgressInt < 0) {
+			this.entity.swingProgressInt = -1;
+			this.entity.isSwingInProgress = true;
+			this.entity.swingingHand = hand;
+			SPacketAnimation pack = new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3);
+			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ObfuscationHelper.getValue(EntityTracker.class,
+					((WorldServer) this.entity.world).getEntityTracker(), IntHashMap.class);
+			EntityTrackerEntry entitytrackerentry = trackedEntityHashTable.lookup(this.entity.getEntityId());
+			if (entitytrackerentry != null) {
+				for (EntityPlayerMP entityplayermp : entitytrackerentry.trackingPlayers) {
+					entityplayermp.connection.sendPacket(pack);
+				}
+				if (!entitytrackerentry.trackingPlayers.contains(this.entity)) {
+					((EntityPlayerMP) this.entity).connection.sendPacket(pack);
+				}
+			}
+		}
+	}
 
 	@Override
-	public void swingOffhand() { this.swim(EnumHand.OFF_HAND); }
+	public void swingMainhand() {
+		this.swim(EnumHand.MAIN_HAND);
+	}
+
+	@Override
+	public void swingOffhand() {
+		this.swim(EnumHand.OFF_HAND);
+	}
 
 	@Override
 	public boolean typeOf(int type) {
 		return type == EntityType.LIVING.get() || super.typeOf(type);
 	}
-	
-	private void swim(EnumHand hand) {
-		if (!(this.entity instanceof EntityPlayerMP)) {
-			this.entity.swingArm(hand);
-			return;
-        }
-		ItemStack stack = this.entity.getHeldItem(hand);
-		if (!stack.isEmpty()) {
-			if (stack.getItem().onEntitySwing(this.entity, stack)) { return; }
-		}
-		if (!this.entity.isSwingInProgress || this.entity.swingProgressInt >= this.getArmSwingAnimationEnd() / 2 || this.entity.swingProgressInt < 0) {
-			this.entity.swingProgressInt = -1;
-			this.entity.isSwingInProgress = true;
-			this.entity.swingingHand = hand;
-			SPacketAnimation pack = new SPacketAnimation(this.entity, hand == EnumHand.MAIN_HAND ? 0 : 3);
-			IntHashMap<EntityTrackerEntry> trackedEntityHashTable = ObfuscationHelper.getValue(EntityTracker.class, ((WorldServer)this.entity.world).getEntityTracker(), IntHashMap.class);
-			EntityTrackerEntry entitytrackerentry = trackedEntityHashTable.lookup(this.entity.getEntityId());
-	        if (entitytrackerentry != null) {
-	        	for (EntityPlayerMP entityplayermp : entitytrackerentry.trackingPlayers) { entityplayermp.connection.sendPacket(pack); }
-	        	if (!entitytrackerentry.trackingPlayers.contains(this.entity)) { ((EntityPlayerMP) this.entity).connection.sendPacket(pack); }
-	        }
-		}
-	}
-	
-	private int getArmSwingAnimationEnd() {
-		if (this.entity.isPotionActive(MobEffects.HASTE)) { return 6 - (1 + this.entity.getActivePotionEffect(MobEffects.HASTE).getAmplifier()); }
-		else { return this.entity.isPotionActive(MobEffects.MINING_FATIGUE) ? 6 + (1 + this.entity.getActivePotionEffect(MobEffects.MINING_FATIGUE).getAmplifier()) * 2 : 6; }
-	}
 
-	@Override
-	public INpcAttribute[] getIAttributes() {
-		List<INpcAttribute> list = Lists.<INpcAttribute>newArrayList();
-		for (IAttributeInstance attr : this.entity.getAttributeMap().getAllAttributes()) {
-			list.add(NpcAPI.Instance().getIAttribute(attr));
-		}
-		return list.toArray(new INpcAttribute[list.size()]);
-	}
-
-	@Override
-	public String[] getIAttributeNames() {
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 1);
-		return attributesByName.keySet().toArray(new String[attributesByName.size()]);
-	}
-
-	@Override
-	public INpcAttribute getIAttribute(String attributeName) {
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 1);
-		return NpcAPI.Instance().getIAttribute(attributesByName.get(attributeName));
-	}
-
-	@Override
-	public boolean hasAttribute(INpcAttribute attribute) {
-		for (IAttributeInstance attr : this.entity.getAttributeMap().getAllAttributes()) {
-			if (attr.equals(attribute.getMCAttribute())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public boolean hasAttribute(String attributeName) {
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 1);
-		return attributesByName.containsKey(attributeName);
-	}
-
-	@SuppressWarnings("unlikely-arg-type")
-	@Override
-	public boolean removeAttribute(INpcAttribute attribute) {
-		if (attribute==null || !attribute.isCustom() || !this.hasAttribute(attribute)) { return false; }
-		Map<IAttribute, IAttributeInstance> attributes = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 0);
-		Map<String, IAttributeInstance> attributesByName = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 1);
-		Multimap<IAttribute, IAttribute> descendantsByParent = ObfuscationHelper.getValue(AbstractAttributeMap.class, this.entity.getAttributeMap(), 2);
-		IAttribute key = null;
-		String name = null;
-		IAttribute parent = null;
-		for (IAttribute k : attributes.keySet()) {
-			if (attributes.get(k).equals(attribute.getMCAttribute())) {
-				key = k;
-				break;
-			}
-		}
-		if (key!=null) {
-			name = key.getName();
-			for (IAttribute p : descendantsByParent.keySet()) {
-				if (descendantsByParent.get(p).equals(key)) {
-					parent = p;
-					break;
-				}
-			}
-		}
-		attributes.remove(key);
-		attributesByName.remove(name);
-		if (parent!=null && key!=null) { descendantsByParent.remove(parent, key); }
-		return true;
-	}
-
-	@Override
-	public boolean removeAttribute(String attributeName) {
-		return this.removeAttribute(this.getIAttribute(attributeName));
-	}
-
-	@Override
-	public INpcAttribute addAttribute(INpcAttribute attribute) {
-		if (attribute==null || this.hasAttribute(attribute)) { return null; }
-		IAttribute attr = null;
-		if (attribute.getMCAttribute() instanceof IAttribute) { attr = (IAttribute) attribute.getMCAttribute(); }
-		else if (attribute.getMCBaseAttribute() instanceof IAttribute) { attr = (IAttribute) attribute.getMCBaseAttribute(); }
-		if (attr==null) { return null; }
-		this.entity.getAttributeMap().registerAttribute(attr);
-		INpcAttribute npcAttr = this.getIAttribute(attribute.getName());
-		if (npcAttr !=null) { ObfuscationHelper.setValue(AttributeWrapper.class, (AttributeWrapper) npcAttr, true, boolean.class); }
-		return npcAttr;
-	}
-
-	@Override
-	public INpcAttribute addAttribute(String attributeName, String displayName, double baseValue, double minValue, double maxValue) {
-		if (attributeName==null || attributeName.isEmpty() || this.hasAttribute(attributeName)) { return null; }
-		return this.addAttribute(new AttributeWrapper(this.entity, attributeName, displayName, baseValue, minValue, maxValue));
-	}
-	
 }

@@ -3,27 +3,27 @@ package noppes.npcs.api.handler.data;
 import noppes.npcs.api.INbt;
 
 public interface IKeySetting {
-	
-	String getName();
-	
-	void setName(String name);
-	
+
 	String getCategory();
-	
-	void setCategory(String name);
 
 	int getId();
-	
+
 	int getKeyId();
-	
+
 	int getModiferType();
-	
-	void setKeyId(int keyId);
-	
-	void setModiferType(int type);
+
+	String getName();
 
 	INbt getNbt();
 
+	void setCategory(String name);
+
+	void setKeyId(int keyId);
+
+	void setModiferType(int type);
+
+	void setName(String name);
+
 	void setNbt(INbt nbt);
-	
+
 }

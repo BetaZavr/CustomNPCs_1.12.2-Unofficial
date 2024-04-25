@@ -13,23 +13,23 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.BankData;
 import noppes.npcs.controllers.data.PlayerData;
 
-public class ContainerNPCBank
-extends ContainerNpcInterface {
-	
+public class ContainerNPCBank extends ContainerNpcInterface {
+
 	public static String editPlayerBankData;
 	public BankData data;
-	
+
 	public int ceil, height;
 	public NpcMiscInventory items;
 	public Bank bank;
-	/* -1 - not stack in inventory
-	 * (max ceils) - done
-	 * else - ceil ID (not open or update) */
+	/*
+	 * -1 - not stack in inventory (max ceils) - done else - ceil ID (not open or
+	 * update)
+	 */
 	public int dataCeil; // ServerTickHandler.onPlayerTick();
 
 	public ContainerNPCBank(EntityPlayer player, Bank bank, int ceil, int slots) {
 		super(player);
-		
+
 		this.bank = bank;
 		this.ceil = ceil;
 		this.dataCeil = -2;
@@ -40,18 +40,29 @@ extends ContainerNpcInterface {
 			PlayerData pd = null;
 			if (ContainerNPCBank.editPlayerBankData != null) {
 				try {
-					List<PlayerData> list = PlayerDataController.instance.getPlayersData(player, ContainerNPCBank.editPlayerBankData);
-					if (!list.isEmpty()) { pd = list.get(0); }
+					List<PlayerData> list = PlayerDataController.instance.getPlayersData(player,
+							ContainerNPCBank.editPlayerBankData);
+					if (!list.isEmpty()) {
+						pd = list.get(0);
+					}
+				} catch (CommandException e) {
+					e.printStackTrace();
 				}
-				catch (CommandException e) { e.printStackTrace(); }
+			} else {
+				pd = PlayerData.get(player);
 			}
-			else { pd = PlayerData.get(player); }
-			if (pd != null) { this.data = pd.bankData.get(bank.id); }
-			if (this.data != null) { this.items = this.data.ceils.get(ceil); }
+			if (pd != null) {
+				this.data = pd.bankData.get(bank.id);
+			}
+			if (this.data != null) {
+				this.items = this.data.ceils.get(ceil);
+			}
 		}
 		int h = ((int) Math.ceil((double) this.items.getSizeInventory() / 9.0d) - 4) * 18;
 		int w = 0;
-		if (this.items.getSizeInventory() > 45) { h = 18; }
+		if (this.items.getSizeInventory() > 45) {
+			h = 18;
+		}
 		h -= 6;
 		// Inventory
 		if (this.items.getSizeInventory() > 45) { // Creative
@@ -63,10 +74,15 @@ extends ContainerNpcInterface {
 		} else { // 9x(2 / 5)
 			this.height = (int) Math.ceil((double) this.items.getSizeInventory() / 9.0d) * 18;
 			int u = 0, e = this.items.getSizeInventory();
-			if (this.items.getSizeInventory() % 9 != 0) { e -= this.items.getSizeInventory() % 9; }
+			if (this.items.getSizeInventory() % 9 != 0) {
+				e -= this.items.getSizeInventory() % 9;
+			}
 			for (int i = 0; i < this.items.getSizeInventory(); i++) {
-				if (i>=e) { u = (int) (((9.0d - ((double) this.items.getSizeInventory() % 9.0d)) / 2.0d) * 18.0d); }
-				this.addSlotToContainer(new Slot(this.items, i, 8 + u + (i % 9) * 18, 18 + (int) Math.floor((double) i / 9.0d) * 18));
+				if (i >= e) {
+					u = (int) (((9.0d - ((double) this.items.getSizeInventory() % 9.0d)) / 2.0d) * 18.0d);
+				}
+				this.addSlotToContainer(
+						new Slot(this.items, i, 8 + u + (i % 9) * 18, 18 + (int) Math.floor((double) i / 9.0d) * 18));
 			}
 		}
 		this.height += 19;
@@ -85,7 +101,7 @@ extends ContainerNpcInterface {
 		super.onContainerClosed(player);
 		if (!player.world.isRemote && this.data != null) { // save
 			if (this.bank.isPublic) {
-				if (this.listeners.size()==1) {
+				if (this.listeners.size() == 1) {
 					this.data.save();
 				}
 			} else {
@@ -94,7 +110,8 @@ extends ContainerNpcInterface {
 		}
 	}
 
-	public void onCraftMatrixChanged(IInventory inv) { }
+	public void onCraftMatrixChanged(IInventory inv) {
+	}
 
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
 		ItemStack itemstack = ItemStack.EMPTY;
@@ -103,13 +120,19 @@ extends ContainerNpcInterface {
 			ItemStack itemstack1 = slot.getStack();
 			itemstack = itemstack1.copy();
 			if (index < this.items.getSizeInventory()) {
-				if (!this.mergeItemStack(itemstack1, this.items.getSizeInventory(), this.inventorySlots.size(), true)) { return ItemStack.EMPTY; }
+				if (!this.mergeItemStack(itemstack1, this.items.getSizeInventory(), this.inventorySlots.size(), true)) {
+					return ItemStack.EMPTY;
+				}
+			} else if (!this.mergeItemStack(itemstack1, 0, this.items.getSizeInventory(), false)) {
+				return ItemStack.EMPTY;
 			}
-			else if (!this.mergeItemStack(itemstack1, 0, this.items.getSizeInventory(), false)) { return ItemStack.EMPTY; }
-			if (itemstack1.isEmpty()) { slot.putStack(ItemStack.EMPTY); }
-			else { slot.onSlotChanged(); }
+			if (itemstack1.isEmpty()) {
+				slot.putStack(ItemStack.EMPTY);
+			} else {
+				slot.onSlotChanged();
+			}
 		}
 		return itemstack;
 	}
-	
+
 }

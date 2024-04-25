@@ -20,9 +20,8 @@ import net.minecraft.util.text.ITextComponent;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.IChatMessages;
 
-public class RenderChatMessages
-implements IChatMessages {
-	
+public class RenderChatMessages implements IChatMessages {
+
 	private int boxLength;
 	private String lastMessage;
 	private long lastMessageTime;
@@ -39,14 +38,19 @@ implements IChatMessages {
 
 	@Override
 	public void addMessage(String message, Entity entity) {
-		if (!CustomNpcs.EnableChatBubbles) { return; }
+		if (!CustomNpcs.EnableChatBubbles) {
+			return;
+		}
 		long time = System.currentTimeMillis();
 		if (message.equals(this.lastMessage) && this.lastMessageTime + 5000L > time) {
 			return;
 		}
 		Map<Long, TextBlockClient> messages = new TreeMap<Long, TextBlockClient>(this.messages);
-		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, entity, new Object[] { Minecraft.getMinecraft().player, entity}));
-		if (messages.size() > 3) { messages.remove(messages.keySet().iterator().next()); }
+		messages.put(time, new TextBlockClient(message, this.boxLength * 4, true, entity,
+				new Object[] { Minecraft.getMinecraft().player, entity }));
+		if (messages.size() > 3) {
+			messages.remove(messages.keySet().iterator().next());
+		}
 		this.messages = messages;
 		this.lastMessage = message;
 		this.lastMessageTime = time;
@@ -107,8 +111,12 @@ implements IChatMessages {
 			}
 			size += block.lines.size();
 		}
-		for (Long key : del) { this.messages.remove(key); }
-		if (size == 0) { return; }
+		for (Long key : del) {
+			this.messages.remove(key);
+		}
+		if (size == 0) {
+			return;
+		}
 		GlStateManager.pushMatrix();
 		Minecraft mc = Minecraft.getMinecraft();
 		int textYSize = (int) (size * font.FONT_HEIGHT * this.scale);
@@ -131,18 +139,24 @@ implements IChatMessages {
 		int color = cs[0].getRGB() + (depth ? 0xFF000000 : 0x55000000);
 		int border = cs[1].getRGB() + (depth ? 0xFF000000 : 0x55000000);
 		int place = cs[2].getRGB() + (depth ? 0xBB000000 : 0x44000000);
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+				GlStateManager.DestFactor.ZERO);
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableCull();
 		int w = 0;
 		for (TextBlockClient block2 : this.messages.values()) {
 			for (ITextComponent chat : block2.lines) {
 				int g = font.getStringWidth(chat.getFormattedText()) / 3;
-				if (g > w) { w = g; }
+				if (g > w) {
+					w = g;
+				}
 			}
 		}
-		if (w > this.boxLength) { w = this.boxLength; }
-		
+		if (w > this.boxLength) {
+			w = this.boxLength;
+		}
+
 		this.drawRect(-w - 2, -2, w + 2, textYSize + 1, place, 0.11);
 		this.drawRect(-w - 1, -3, w + 1, -2, border, 0.1);
 		this.drawRect(-w - 1, textYSize + 2, -1, textYSize + 1, border, 0.1);
@@ -183,15 +197,23 @@ implements IChatMessages {
 	@Override
 	public void renderMessages(double x, double y, double z, float textscale, boolean inRange) {
 		Map<Long, TextBlockClient> messages = this.getMessages();
-		if (messages.isEmpty()) { return; }
-		if (inRange) { this.render(x, y, z, textscale, false, false); }
+		if (messages.isEmpty()) {
+			return;
+		}
+		if (inRange) {
+			this.render(x, y, z, textscale, false, false);
+		}
 		this.render(x, y, z, textscale, true, false);
 	}
-	
+
 	public void renderPlayerMessages(double x, double y, double z, float textscale, boolean inRange) {
 		Map<Long, TextBlockClient> messages = this.getMessages();
-		if (messages.isEmpty()) { return; }
-		if (inRange) { this.render(x, y, z, textscale, false, true); }
+		if (messages.isEmpty()) {
+			return;
+		}
+		if (inRange) {
+			this.render(x, y, z, textscale, false, true);
+		}
 		this.render(x, y, z, textscale, true, true);
 	}
 }

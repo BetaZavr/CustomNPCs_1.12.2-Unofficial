@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import noppes.npcs.items.ItemScripted;
 
 public class ScriptItemEventHandler {
-	
+
 	@SubscribeEvent
 	public void invoke(EntityItemPickupEvent event) {
 		if (event.getEntityPlayer().world.isRemote) {

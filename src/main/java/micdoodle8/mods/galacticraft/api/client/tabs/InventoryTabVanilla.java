@@ -18,7 +18,8 @@ public class InventoryTabVanilla extends AbstractTab {
 	public InventoryTabVanilla() {
 		super(0, 0, 0, new ItemStack(Blocks.CRAFTING_TABLE));
 		this.displayString = NoppesStringUtils.translate("stats.rarity.normal") + " ("
-				+ GameSettings.getKeyDisplayString(((KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 62)).getKeyCode())
+				+ GameSettings.getKeyDisplayString(((KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
+						Minecraft.getMinecraft().gameSettings, 62)).getKeyCode())
 				+ ")";
 	}
 

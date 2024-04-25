@@ -3,7 +3,7 @@ package noppes.npcs.api;
 import net.minecraft.util.math.BlockPos;
 
 public interface IPos {
-	
+
 	IPos add(int x, int y, int z);
 
 	IPos add(IPos pos);

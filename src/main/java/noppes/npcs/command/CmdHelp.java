@@ -9,9 +9,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.CommandNoppesBase;
 
-public class CmdHelp
-extends CommandNoppesBase {
-	
+public class CmdHelp extends CommandNoppesBase {
+
 	private CommandNoppes parent;
 
 	public CmdHelp(CommandNoppes parent) {

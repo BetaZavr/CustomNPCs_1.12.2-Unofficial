@@ -27,9 +27,8 @@ import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 
-public class BlockMailbox
-extends BlockInterface {
-	
+public class BlockMailbox extends BlockInterface {
+
 	public static PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 3);
 	public static PropertyInteger TYPE = PropertyInteger.create("type", 0, 2);
 
@@ -84,9 +83,11 @@ extends BlockInterface {
 		return false;
 	}
 
-	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
+			EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (!par1World.isRemote) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, pos.getX(), pos.getY(), pos.getZ());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.PlayerMailbox, pos.getX(),
+					pos.getY(), pos.getZ());
 		}
 		return true;
 	}

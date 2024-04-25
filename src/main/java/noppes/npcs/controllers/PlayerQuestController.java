@@ -5,31 +5,76 @@ import java.util.Vector;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.controllers.data.MiniMapData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.quests.QuestObjective;
+import noppes.npcs.util.AdditionalMethods;
 
 public class PlayerQuestController {
 
-	public static void addActiveQuest(Quest quest, EntityPlayer player) {
+	public static void addActiveQuest(Quest quest, EntityPlayer player, boolean skipBeAccepted) {
 		PlayerData playerdata = PlayerData.get(player);
 		PlayerQuestData data = playerdata.questData;
-		LogWriter.debug("AddActiveQuest: " + quest.getTitle() + "; data: " + data);
-		if (playerdata.scriptData.getPlayer().canQuestBeAccepted(quest.id)) {
-			if (EventHooks.onQuestStarted(playerdata.scriptData, quest)) { return; }
+		LogWriter.debug("AddActiveQuest: " + quest.getTitle() + "; skipAccepted: " + skipBeAccepted);
+		if (skipBeAccepted || playerdata.scriptData.getPlayer().canQuestBeAccepted(quest.id)) {
+			if (EventHooks.onQuestStarted(playerdata.scriptData, quest)) {
+				return;
+			}
 			data.activeQuests.put(quest.id, new QuestData(quest));
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.newquest", quest.getTitle(), 2);
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHAT, "quest.newquest", ": ", quest.getTitle());
 			playerdata.updateClient = true;
+			if (!(player instanceof EntityPlayerMP)) {
+				return;
+			}
+			int taskId = 0;
+			for (IQuestObjective obj : quest
+					.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayerMP) player))) {
+				if (obj.getType() == EnumQuestTask.ITEM.ordinal()) {
+					playerdata.questData.checkQuestCompletion((EntityPlayer) player,
+							playerdata.questData.activeQuests.get(quest.id));
+				}
+				if (obj.isSetPointOnMiniMap() && !playerdata.minimap.modName.equals("non")) {
+					String name = quest.getTitle() + "_";
+					if (obj.getType() == EnumQuestTask.ITEM.ordinal()
+							|| obj.getType() == EnumQuestTask.CRAFT.ordinal()) {
+						name += obj.getItem().getDisplayName();
+					}
+					if (obj.getType() == EnumQuestTask.DIALOG.ordinal()) {
+						IDialog d = DialogController.instance.get(obj.getTargetID());
+						if (d != null) {
+							name += d.getName();
+						} else {
+							name += obj.getTargetName();
+						}
+					} else {
+						name += obj.getTargetName();
+					}
+					MiniMapData mmd = playerdata.minimap.getQuestTask(quest.id, taskId, name,
+							obj.getCompassDimension());
+					if (mmd == null) {
+						mmd = (MiniMapData) playerdata.minimap.addPoint(obj.getCompassDimension());
+					}
+					mmd.setName(AdditionalMethods.instance.deleteColor(name));
+					mmd.setPos(obj.getCompassPos());
+					player.sendMessage(new TextComponentTranslation("quest.addPoint"));
+				}
+				taskId++;
+			}
 		}
 	}
 

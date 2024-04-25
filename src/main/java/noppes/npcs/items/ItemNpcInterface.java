@@ -10,8 +10,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomRegisters;
 
 public class ItemNpcInterface extends Item {
 	private boolean damageAble;
@@ -91,5 +91,5 @@ public class ItemNpcInterface extends Item {
 		this.setRegistryName(new ResourceLocation(CustomNpcs.MODID, name));
 		return this;
 	}
-	
+
 }

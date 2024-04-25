@@ -13,9 +13,8 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.blocks.tiles.TileCopy;
 import noppes.npcs.schematics.Schematic;
 
-public class BlockCopyRenderer<T extends TileEntity>
-extends BlockRendererInterface<T> {
-	
+public class BlockCopyRenderer<T extends TileEntity> extends BlockRendererInterface<T> {
+
 	private static ItemStack item = new ItemStack(CustomRegisters.copy);
 	public static BlockPos pos = null;
 	public static Schematic schematic = null;
@@ -36,18 +35,19 @@ extends BlockRendererInterface<T> {
 
 	public void render(TileEntity var1, double x, double y, double z, float var8, int blockDamage, float alpha) {
 		TileCopy tile = (TileCopy) var1;
-		
+
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderHelper.enableStandardItemLighting();
 		GlStateManager.disableBlend();
-		
+
 		GlStateManager.translate(x, y, z);
 		this.drawSelectionBox(new BlockPos(tile.width, tile.height, tile.length));
 		GlStateManager.translate(0.5f, 0.5f, 0.5f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
-		Minecraft.getMinecraft().getRenderItem().renderItem(BlockCopyRenderer.item, ItemCameraTransforms.TransformType.NONE);
+		Minecraft.getMinecraft().getRenderItem().renderItem(BlockCopyRenderer.item,
+				ItemCameraTransforms.TransformType.NONE);
 		GlStateManager.popMatrix();
 	}
 

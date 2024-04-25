@@ -25,63 +25,14 @@ import noppes.npcs.roles.RoleCompanion;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class PlayerData
-implements IPlayerDataHandler, ICapabilityProvider {
-	
+public class PlayerData implements IPlayerDataHandler, ICapabilityProvider {
+
 	@CapabilityInject(IPlayerDataHandler.class)
 	public static Capability<IPlayerDataHandler> PLAYERDATA_CAPABILITY = null;
-	
+
 	private static ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "playerdata");
-	private EntityNPCInterface activeCompanion;
-	public PlayerBankData bankData;
-	public NBTTagCompound cloned;
-	public int companionID;
-	public PlayerDialogData dialogData;
-	public int dialogId;
-	public EntityNPCInterface editingNpc;
-	public PlayerFactionData factionData;
-	// New
-	public PlayerGameData game;
-	public PlayerItemGiverData itemgiverData;
-	public PlayerMailData mailData;
-	public PlayerOverlayHUD hud;
-	public EntityPlayer player;
-	public int playerLevel;
-	public ItemStack prevHeldItem;
-	public PlayerQuestData questData;
-	public PlayerScriptData scriptData;
-	public NBTTagCompound scriptStoreddata;
-
-	public DataTimers timers;
-	public PlayerTransportData transportData;
-	public boolean updateClient; // send to -> ServerTickHandler.onPlayerTick() 112
-	public String uuid, playername;
-
-	public PlayerData() {
-		this.dialogData = new PlayerDialogData();
-		this.bankData = new PlayerBankData();
-		this.questData = new PlayerQuestData();
-		this.transportData = new PlayerTransportData();
-		this.factionData = new PlayerFactionData();
-		this.itemgiverData = new PlayerItemGiverData();
-		this.mailData = new PlayerMailData();
-		this.hud = new PlayerOverlayHUD();
-		this.timers = new DataTimers(this);
-		this.scriptStoreddata = new NBTTagCompound();
-		this.playername = "";
-		this.uuid = "";
-		this.activeCompanion = null;
-		this.companionID = 0;
-		this.playerLevel = 0;
-		this.updateClient = false;
-		this.dialogId = -1;
-		this.prevHeldItem = ItemStack.EMPTY;
-		// New
-		this.game = new PlayerGameData();
-	}
-
 	public static PlayerData get(EntityPlayer player) {
-		if (player==null || player.world.isRemote) {
+		if (player == null || player.world.isRemote) {
 			return CustomNpcs.proxy.getPlayerData(player);
 		}
 		PlayerData data = (PlayerData) player.getCapability(PlayerData.PLAYERDATA_CAPABILITY, null);
@@ -97,7 +48,6 @@ implements IPlayerDataHandler, ICapabilityProvider {
 		}
 		return data;
 	}
-
 	public static NBTTagCompound loadPlayerData(String uuid, String name) {
 		File dir = CustomNpcs.getWorldSaveDirectory("playerdata");
 		File saveDir = new File(dir, uuid);
@@ -113,32 +63,38 @@ implements IPlayerDataHandler, ICapabilityProvider {
 						try {
 							file.createNewFile();
 							NBTJsonUtil.SaveFile(file, nbt);
+						} catch (Exception e) {
+							LogWriter.error("Error create player data: " + file.getAbsolutePath(), e);
 						}
-						catch (Exception e) { LogWriter.error("Error create player data: " + file.getAbsolutePath(), e); }
 					}
 					return nbt;
 				}
+			} catch (Exception e) {
+				LogWriter.error("Error old loading: " + oldVersionFile.getAbsolutePath(), e);
 			}
-			catch (Exception e) { LogWriter.error("Error old loading: " + oldVersionFile.getAbsolutePath(), e); }
 		}
 		if (!file.exists()) {
-			try { file.createNewFile(); }
-			catch (Exception e) {
+			try {
+				file.createNewFile();
+			} catch (Exception e) {
 				LogWriter.error("Error create player data: " + file.getAbsolutePath(), e);
 			}
 			return new NBTTagCompound();
 		}
 		try {
-			if (file.exists()) { return NBTJsonUtil.LoadFile(file); }
+			if (file.exists()) {
+				return NBTJsonUtil.LoadFile(file);
+			}
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 		}
 		return new NBTTagCompound();
 	}
-
 	public static NBTTagCompound loadPlayerDataOld(String uuid, String name) {
-		File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/"+uuid);
-		if (name.isEmpty()) { name = "noplayername"; }
+		File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/" + uuid);
+		if (name.isEmpty()) {
+			name = "noplayername";
+		}
 		name += ".dat";
 		try {
 			File file = new File(saveDir, name);
@@ -164,11 +120,65 @@ implements IPlayerDataHandler, ICapabilityProvider {
 		}
 		return new NBTTagCompound();
 	}
-
 	public static void register(AttachCapabilitiesEvent<Entity> event) {
 		if (event.getObject() instanceof EntityPlayer) {
 			event.addCapability(PlayerData.key, (ICapabilityProvider) new PlayerData());
 		}
+	}
+	private EntityNPCInterface activeCompanion;
+	public PlayerBankData bankData;
+	public NBTTagCompound cloned;
+	public int companionID;
+	public PlayerDialogData dialogData;
+	public int dialogId;
+	public EntityNPCInterface editingNpc;
+	public PlayerFactionData factionData;
+	// New
+	public PlayerGameData game;
+	public PlayerItemGiverData itemgiverData;
+	public PlayerMailData mailData;
+
+	public PlayerOverlayHUD hud;
+	public PlayerQuestData questData;
+	public PlayerScriptData scriptData;
+	public PlayerMiniMapData minimap;
+
+	public EntityPlayer player;
+	public int playerLevel;
+	public ItemStack prevHeldItem;
+	public NBTTagCompound scriptStoreddata;
+
+	public DataTimers timers;
+
+	public PlayerTransportData transportData;
+
+	public boolean updateClient; // send to -> ServerTickHandler.onPlayerTick() 112
+
+	public String uuid, playername;
+
+	public PlayerData() {
+		this.dialogData = new PlayerDialogData();
+		this.bankData = new PlayerBankData();
+		this.questData = new PlayerQuestData();
+		this.transportData = new PlayerTransportData();
+		this.factionData = new PlayerFactionData();
+		this.itemgiverData = new PlayerItemGiverData();
+		this.mailData = new PlayerMailData();
+		this.hud = new PlayerOverlayHUD();
+		this.minimap = new PlayerMiniMapData();
+
+		this.timers = new DataTimers(this);
+		this.scriptStoreddata = new NBTTagCompound();
+		this.playername = "";
+		this.uuid = "";
+		this.activeCompanion = null;
+		this.companionID = 0;
+		this.playerLevel = 0;
+		this.updateClient = false;
+		this.dialogId = -1;
+		this.prevHeldItem = ItemStack.EMPTY;
+		// New
+		this.game = new PlayerGameData();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -178,7 +188,7 @@ implements IPlayerDataHandler, ICapabilityProvider {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public NBTTagCompound getNBT() {
 		if (this.player != null) {
@@ -192,13 +202,20 @@ implements IPlayerDataHandler, ICapabilityProvider {
 		this.factionData.saveNBTData(compound);
 		this.itemgiverData.saveNBTData(compound);
 		this.mailData.saveNBTData(compound);
-		this.hud.saveNBTData(compound);
-		this.game.saveNBTData(compound); // New
 		this.timers.writeToNBT(compound);
+		// New
+		this.hud.saveNBTData(compound);
+		this.game.saveNBTData(compound);
+		this.minimap.saveNBTData(compound);
+
 		compound.setInteger("PlayerCompanionId", this.companionID);
 		compound.setTag("ScriptStoreddata", this.scriptStoreddata);
-		if (this.playername != null && !this.playername.isEmpty()) { compound.setString("PlayerName", this.playername); }
-		if (this.uuid != null && !this.uuid.isEmpty()) { compound.setString("UUID", this.uuid); }
+		if (this.playername != null && !this.playername.isEmpty()) {
+			compound.setString("PlayerName", this.playername);
+		}
+		if (this.uuid != null && !this.uuid.isEmpty()) {
+			compound.setString("UUID", this.uuid);
+		}
 		if (this.hasCompanion()) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			if (this.activeCompanion.writeToNBTAtomically(nbt)) {
@@ -227,9 +244,13 @@ implements IPlayerDataHandler, ICapabilityProvider {
 	public synchronized void save(boolean update) {
 		CustomNPCsScheduler.runTack(() -> {
 			try {
-				if (this.uuid.isEmpty()) { this.uuid = "noplayeruuid"; }
-				if (this.playername.isEmpty()) { this.playername = "noplayername"; }
-				File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/"+this.uuid);
+				if (this.uuid.isEmpty()) {
+					this.uuid = "noplayeruuid";
+				}
+				if (this.playername.isEmpty()) {
+					this.playername = "noplayername";
+				}
+				File saveDir = CustomNpcs.getWorldSaveDirectory("playerdata/" + this.uuid);
 				String filename = this.playername + ".json";
 				File file = new File(saveDir, filename + "_new");
 				File file1 = new File(saveDir, filename);
@@ -249,7 +270,9 @@ implements IPlayerDataHandler, ICapabilityProvider {
 	}
 
 	public void setCompanion(EntityNPCInterface npc) {
-		if (npc==null || !(npc.advanced.roleInterface instanceof RoleCompanion)) { return; }
+		if (npc == null || !(npc.advanced.roleInterface instanceof RoleCompanion)) {
+			return;
+		}
 		++this.companionID;
 		if ((this.activeCompanion = npc) != null) {
 			((RoleCompanion) npc.advanced.roleInterface).companionID = this.companionID;

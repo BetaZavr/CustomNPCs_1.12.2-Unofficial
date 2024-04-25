@@ -1,7 +1,7 @@
 package noppes.npcs.api;
 
 public interface IScoreboard {
-	
+
 	IScoreboardObjective addObjective(String objective, String criteria);
 
 	IScoreboardTeam addTeam(String name);
@@ -35,5 +35,5 @@ public interface IScoreboard {
 	void removeTeam(String name);
 
 	void setPlayerScore(String player, String objective, int score, String datatag);
-	
+
 }

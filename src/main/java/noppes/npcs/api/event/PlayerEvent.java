@@ -22,47 +22,7 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.item.IItemStack;
 
-public class PlayerEvent
-extends CustomNPCsEvent {
-	
-	public static class OpenGUI extends PlayerEvent {
-		
-		public String newGUI, oldGUI;
-
-		public OpenGUI(IPlayer<?> player, String n, String o) {
-			super(player);
-			this.newGUI = n;
-			this.oldGUI = o;
-		}
-		
-	}
-	
-	public static class KeyActive extends PlayerEvent {
-		
-		public IKeySetting key;
-		public int id;
-
-		public KeyActive(IPlayer<?> player, IKeySetting kb) {
-			super(player);
-			this.key = kb;
-		}
-		
-	}
-	
-	@Cancelable
-	public static class CustomTeleport extends PlayerEvent {
-		
-		public IPos pos, portal;
-		public int dimension;
-
-		public CustomTeleport(IPlayer<?> player, IPos portal, IPos pos, int dimensionID) {
-			super(player);
-			this.pos = pos;
-			this.portal = portal;
-			this.dimension = dimensionID;
-		}
-		
-	}
+public class PlayerEvent extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class AttackEvent extends PlayerEvent {
@@ -74,19 +34,6 @@ extends CustomNPCsEvent {
 			this.type = type;
 			this.target = target;
 		}
-	}
-
-	@Cancelable
-	public static class PlaceEvent extends PlayerEvent {
-		
-		public IBlock block;
-		public int exp;
-
-		public PlaceEvent(IPlayer<?> player, IBlock block) {
-			super(player);
-			this.block = block;
-		}
-		
 	}
 
 	@Cancelable
@@ -130,6 +77,21 @@ extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	public static class CustomTeleport extends PlayerEvent {
+
+		public IPos pos, portal;
+		public int dimension;
+
+		public CustomTeleport(IPlayer<?> player, IPos portal, IPos pos, int dimensionID) {
+			super(player);
+			this.pos = pos;
+			this.portal = portal;
+			this.dimension = dimensionID;
+		}
+
+	}
+
+	@Cancelable
 	public static class DamagedEntityEvent extends PlayerEvent {
 		public float damage;
 		public IDamageSource damageSource;
@@ -145,7 +107,7 @@ extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class DamagedEvent extends PlayerEvent {
-		
+
 		public boolean clearTarget;
 		public float damage;
 		public IDamageSource damageSource;
@@ -195,7 +157,7 @@ extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class InteractEvent extends PlayerEvent {
-		
+
 		public Object target;
 		public int type;
 
@@ -204,7 +166,7 @@ extends CustomNPCsEvent {
 			this.type = type;
 			this.target = target;
 		}
-		
+
 	}
 
 	public static class ItemCrafted extends PlayerEvent {
@@ -235,6 +197,18 @@ extends CustomNPCsEvent {
 		}
 	}
 
+	public static class KeyActive extends PlayerEvent {
+
+		public IKeySetting key;
+		public int id;
+
+		public KeyActive(IPlayer<?> player, IKeySetting kb) {
+			super(player);
+			this.key = kb;
+		}
+
+	}
+
 	public static class KeyPressedEvent extends PlayerEvent {
 		public boolean isAltPressed;
 		public boolean isCtrlPressed;
@@ -242,7 +216,8 @@ extends CustomNPCsEvent {
 		public boolean isShiftPressed;
 		public int key;
 
-		public KeyPressedEvent(IPlayer<?> player, int key, boolean isCtrlPressed, boolean isAltPressed, boolean isShiftPressed, boolean isMetaPressed) {
+		public KeyPressedEvent(IPlayer<?> player, int key, boolean isCtrlPressed, boolean isAltPressed,
+				boolean isShiftPressed, boolean isMetaPressed) {
 			super(player);
 			this.key = key;
 			this.isCtrlPressed = isCtrlPressed;
@@ -282,6 +257,18 @@ extends CustomNPCsEvent {
 		}
 	}
 
+	public static class OpenGUI extends PlayerEvent {
+
+		public String newGUI, oldGUI;
+
+		public OpenGUI(IPlayer<?> player, String n, String o) {
+			super(player);
+			this.newGUI = n;
+			this.oldGUI = o;
+		}
+
+	}
+
 	@Cancelable
 	public static class PickUpEvent extends PlayerEvent {
 		public IItemStack item;
@@ -289,6 +276,51 @@ extends CustomNPCsEvent {
 		public PickUpEvent(IPlayer<?> player, IItemStack item) {
 			super(player);
 			this.item = item;
+		}
+	}
+
+	@Cancelable
+	public static class PlaceEvent extends PlayerEvent {
+
+		public IBlock block;
+		public int exp;
+
+		public PlaceEvent(IPlayer<?> player, IBlock block) {
+			super(player);
+			this.block = block;
+		}
+
+	}
+
+	public static class PlayerPackage extends PlayerEvent {
+
+		public INbt nbt;
+
+		public PlayerPackage(IPlayer<?> player, INbt nbt) {
+			super(player);
+			this.nbt = nbt;
+		}
+
+	}
+
+	public static class PlayerSound extends PlayerEvent {
+
+		public String name;
+		public String resource;
+		public String category;
+		public IPos pos;
+		public float volume;
+		public float pitch;
+
+		public PlayerSound(IPlayer<?> player, String resource, String name, String category, float x, float y, float z,
+				float volume, float pitch) {
+			super(player);
+			this.name = name;
+			this.resource = resource;
+			this.category = category;
+			this.pos = NpcAPI.Instance().getIPos(x, y, z);
+			this.volume = volume;
+			this.pitch = pitch;
 		}
 	}
 
@@ -330,35 +362,4 @@ extends CustomNPCsEvent {
 		this.player = player;
 	}
 
-	public static class PlayerSound extends PlayerEvent {
-		
-		public String name;
-		public String resource;
-		public String category;
-		public IPos pos;
-		public float volume;
-		public float pitch;
-		
-		public PlayerSound(IPlayer<?> player, String resource, String name, String category, float x, float y, float z, float volume, float pitch) {
-			super(player);
-			this.name = name;
-			this.resource = resource;
-			this.category = category;
-			this.pos = NpcAPI.Instance().getIPos(x, y, z);
-			this.volume = volume;
-			this.pitch = pitch;
-		}
-	}
-
-	public static class PlayerPackage extends PlayerEvent {
-		
-		public INbt nbt;
-		
-		public PlayerPackage(IPlayer<?> player, INbt nbt) {
-			super(player);
-			this.nbt = nbt;
-		}
-		
-	}
-	
 }

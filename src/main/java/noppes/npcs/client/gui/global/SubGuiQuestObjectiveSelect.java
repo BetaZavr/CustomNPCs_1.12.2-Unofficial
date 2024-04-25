@@ -38,80 +38,84 @@ public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
 	public void buttonEvent(GuiNpcButton button) {
 		QuestObjective task = null;
 		switch (button.id) {
-			case 66: {
-				this.close();
+		case 66: {
+			this.close();
+			return;
+		}
+		case 71: { // collect item
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 71: { // collect item
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.ITEM);
-				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()), this.quest.questInterface.getPos(task));
+			task.setType(EnumQuestTask.ITEM);
+			Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
+					this.quest.questInterface.getPos(task));
+			return;
+		}
+		case 72: {
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 72: {
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.CRAFT);
-				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()), this.quest.questInterface.getPos(task));
+			task.setType(EnumQuestTask.CRAFT);
+			Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
+					this.quest.questInterface.getPos(task));
+			return;
+		}
+		case 73: {
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 73: {
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.KILL);
-				this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
+			task.setType(EnumQuestTask.KILL);
+			this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
+			return;
+		}
+		case 74: {
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 74: {
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.AREAKILL);
-				this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
+			task.setType(EnumQuestTask.AREAKILL);
+			this.setSubGui(new GuiNpcQuestTypeKill(this.npc, task, this.parent));
+			return;
+		}
+		case 75: {
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 75: {
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.DIALOG);
-				this.setSubGui(new GuiNpcQuestTypeDialog(this.npc, task, this.parent));
+			task.setType(EnumQuestTask.DIALOG);
+			this.setSubGui(new GuiNpcQuestTypeDialog(this.npc, task, this.parent));
+			return;
+		}
+		case 76: {
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 76: {
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.LOCATION);
-				this.setSubGui(new GuiNpcQuestTypeLocation(this.npc, task, this.parent));
+			task.setType(EnumQuestTask.LOCATION);
+			this.setSubGui(new GuiNpcQuestTypeLocation(this.npc, task, this.parent));
+			return;
+		}
+		case 77: {
+			task = (QuestObjective) this.quest.addTask();
+			if (task == null) {
 				return;
 			}
-			case 77: {
-				task = (QuestObjective) this.quest.addTask();
-				if (task == null) {
-					return;
-				}
-				task.setType(EnumQuestTask.MANUAL);
-				this.setSubGui(new GuiNpcQuestTypeManual(this.npc, task, this.parent));
-				return;
-			}
+			task.setType(EnumQuestTask.MANUAL);
+			this.setSubGui(new GuiNpcQuestTypeManual(this.npc, task, this.parent));
+			return;
+		}
 		}
 	}
 
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
+			return;
+		}
 		if (isMouseHover(i, j, this.guiLeft + 6, this.guiTop + 20, 76, 16)) {
 			this.setHoverText(new TextComponentTranslation("drop.hover.task.0", new Object[0]).getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 87, this.guiTop + 20, 76, 16)) {

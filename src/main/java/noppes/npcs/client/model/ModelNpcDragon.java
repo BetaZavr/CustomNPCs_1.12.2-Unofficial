@@ -101,7 +101,8 @@ public class ModelNpcDragon extends ModelBase {
 	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
 		EntityNpcDragon entitydragon = (EntityNpcDragon) entity;
 		GlStateManager.pushMatrix();
-		float f6 = entitydragon.field_40173_aw + (entitydragon.field_40172_ax - entitydragon.field_40173_aw) * this.field_40317_s;
+		float f6 = entitydragon.field_40173_aw
+				+ (entitydragon.field_40172_ax - entitydragon.field_40173_aw) * this.field_40317_s;
 		this.jaw.rotateAngleX = (float) ((Math.sin(f6 * 3.1415927f * 2.0f) + 1.0) * 0.2f);
 		float f7 = (float) (Math.sin(f6 * 3.1415927f * 2.0f - 1.0f) + 1.0);
 		f7 = (f7 * f7 * 1.0f + f7 * 2.0f) * 0.05f;
@@ -112,7 +113,8 @@ public class ModelNpcDragon extends ModelBase {
 		float f10 = 0.0f;
 		float f11 = 1.5f;
 		double[] ad = entitydragon.func_40160_a(6, this.field_40317_s);
-		float f12 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0] - entitydragon.func_40160_a(10, this.field_40317_s)[0]);
+		float f12 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0]
+				- entitydragon.func_40160_a(10, this.field_40317_s)[0]);
 		float f13 = this.func_40307_a(entitydragon.func_40160_a(5, this.field_40317_s)[0] + f12 / 2.0f);
 		f8 += 2.0f;
 		float f14 = 0.0f;
@@ -157,11 +159,14 @@ public class ModelNpcDragon extends ModelBase {
 				this.wing.rotateAngleY = 0.95f;
 				this.wing.rotateAngleZ = -0.5f;
 				this.wingTip.rotateAngleZ = -0.4f;
-				this.frontLeg.rotateAngleX = MathHelper .cos((float) (f * 0.6662f + ((j == 0) ? 0.0 : 3.141592653589793))) * 0.6f * f1 + 0.45f + f7 * 0.5f;
+				this.frontLeg.rotateAngleX = MathHelper
+						.cos((float) (f * 0.6662f + ((j == 0) ? 0.0 : 3.141592653589793))) * 0.6f * f1 + 0.45f
+						+ f7 * 0.5f;
 				this.frontLegTip.rotateAngleX = -1.3f - f7 * 1.2f;
 				this.frontFoot.rotateAngleX = 0.85f + f7 * 0.5f;
 				this.frontLeg.render(f5);
-				this.rearLeg.rotateAngleX = MathHelper.cos((float) (f * 0.6662f + ((j == 0) ? 3.141592653589793 : 0.0))) * 0.6f * f1 + 0.75f + f7 * 0.5f;
+				this.rearLeg.rotateAngleX = MathHelper.cos((float) (f * 0.6662f + ((j == 0) ? 3.141592653589793 : 0.0)))
+						* 0.6f * f1 + 0.75f + f7 * 0.5f;
 				this.rearLegTip.rotateAngleX = -1.6f - f7 * 0.8f;
 				this.rearLegTip.rotationPointY = 20.0f;
 				this.rearLegTip.rotationPointZ = 2.0f;
@@ -169,7 +174,9 @@ public class ModelNpcDragon extends ModelBase {
 				this.rearLeg.render(f5);
 				this.wing.render(f5);
 				GlStateManager.scale(-1.0f, 1.0f, 1.0f);
-				if (j == 0) { GlStateManager.cullFace(GlStateManager.CullFace.FRONT); }
+				if (j == 0) {
+					GlStateManager.cullFace(GlStateManager.CullFace.FRONT);
+				}
 			}
 		} else {
 			for (int j = 0; j < 2; ++j) {

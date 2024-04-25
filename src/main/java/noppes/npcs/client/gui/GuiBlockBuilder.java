@@ -234,6 +234,11 @@ public class GuiBlockBuilder extends GuiNPCInterface
 				}
 
 				@Override
+				public NBTTagList getEntitys() {
+					return new NBTTagList();
+				}
+
+				@Override
 				public short getHeight() {
 					return compound.getShort("Height");
 				}
@@ -254,6 +259,11 @@ public class GuiBlockBuilder extends GuiNPCInterface
 				}
 
 				@Override
+				public BlockPos getOffset() {
+					return BlockPos.ORIGIN;
+				}
+
+				@Override
 				public NBTTagCompound getTileEntity(int i) {
 					return null;
 				}
@@ -271,16 +281,6 @@ public class GuiBlockBuilder extends GuiNPCInterface
 				@Override
 				public boolean hasEntitys() {
 					return false;
-				}
-
-				@Override
-				public NBTTagList getEntitys() {
-					return new NBTTagList();
-				}
-
-				@Override
-				public BlockPos getOffset() {
-					return BlockPos.ORIGIN;
 				}
 			};
 			if (TileBuilder.has(this.tile.getPos())) {

@@ -7,15 +7,14 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.ICustomParticle;
 import noppes.npcs.particles.CustomParticle;
 
-public class CustomParticleEvent
-extends CustomNPCsEvent {
-	
+public class CustomParticleEvent extends CustomNPCsEvent {
+
 	public static class CreateEvent extends CustomParticleEvent {
 
 		public CreateEvent(CustomParticle particle, EntityPlayerSP player) {
 			super(particle, player);
 		}
-		
+
 	}
 
 	@Cancelable
@@ -24,7 +23,7 @@ extends CustomNPCsEvent {
 		public RenderEvent(CustomParticle particle, EntityPlayerSP player) {
 			super(particle, player);
 		}
-		
+
 	}
 
 	@Cancelable
@@ -33,16 +32,16 @@ extends CustomNPCsEvent {
 		public UpdateEvent(CustomParticle particle, EntityPlayerSP player) {
 			super(particle, player);
 		}
-		
+
 	}
-	
+
 	public ICustomParticle particle;
 	public IPlayer<?> player;
-	
+
 	public CustomParticleEvent(CustomParticle particle, EntityPlayerSP player) {
 		super();
 		this.particle = particle;
 		this.player = player == null ? null : (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
 	}
-	
+
 }

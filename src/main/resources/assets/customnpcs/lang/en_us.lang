@@ -1749,7 +1749,9 @@ quest.has.false=§cNot set
 quest.has.true=§2Setup
 quest.show.progress.in.chat=Show quest progress in player chat
 quest.show.progress.in.window=Show quest progress in a pop-up window
+quest.set.minimap.point=Put a mark on the map
 
+quest.hover.set.minimap.point=Tries to set a pin on the minimap when the player receives this quest<br>§7Works for modifications: ''§aJourneyMap§7'', ''§fXaeroMap§7'', ''§6VoxelMap§7''
 quest.hover.show.in.chat=Increasing progress on any quest objective will be displayed in player chat
 quest.hover.show.in.window=Increasing progress on any quest objective will be shown in the achievement pop-up window
 quest.hover.gm.info=§1G§6M§7: Currently this button is only available to players in creative mode
@@ -1875,7 +1877,7 @@ quest.extra.button.text=Special text. buttons
 quest.hover.extra.button.type=Extra button in the Quest Log<br>§7Used for scripts<br>§7Function name: "%s§7"
 quest.hover.extra.button.text=Description when hovering over the extra button in the Quest Log
 quest.quests=Quests
-quest.removequest=§2Canceled Quest: %s
+quest.removequest=§cCanceled Quest: %s
 quest.removequest.not=§cCould not cancel Quest: %s
 quest.repeatable=Repeats
 quest.reward=Reward
@@ -2348,3 +2350,6 @@ property.mailwindow.hover=On-screen position of the icon indicating the presence
 property.scriptmaxtabs.hover=Maximum number of tabs for scripts (from 1 to 20). Recommended: 5.
 property.dialogshowfitsspeed.hover=Speed of dialogs that display individual letters. (number per second from 10 to 100)
 property.setplayerhomewhenchangingdimension.hover=When a player moves between worlds, their home position will change to the portal position. Eliminates teleport between dimensions when a player dies
+
+minimap.set.points.1=§f[§2CustomNpcs§f]: §8System has updated the positions for the minimap: %s
+minimap.set.points.2=§f[§2CustomNpcs§f]: §cSystem was unable to update positions for minimap: %s

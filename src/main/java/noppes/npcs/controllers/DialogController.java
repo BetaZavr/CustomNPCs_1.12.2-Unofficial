@@ -28,9 +28,8 @@ import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class DialogController
-implements IDialogHandler {
-	
+public class DialogController implements IDialogHandler {
+
 	public static DialogController instance = new DialogController();
 	public final TreeMap<Integer, DialogCategory> categories;
 	public final TreeMap<Integer, DialogCategory> categoriesSync;
@@ -200,11 +199,13 @@ implements IDialogHandler {
 		Dialog dia2 = new Dialog(cat);
 		dia2.id = 2;
 		dia2.title = "Ask about village";
-		dia2.text = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.2.text").getFormattedText());
+		dia2.text = AdditionalMethods.instance
+				.deleteColor(new TextComponentTranslation("dialog.base.2.text").getFormattedText());
 		Dialog dia3 = new Dialog(cat);
 		dia3.id = 3;
 		dia3.title = "Who are you";
-		dia3.text = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.3.text").getFormattedText());
+		dia3.text = AdditionalMethods.instance
+				.deleteColor(new TextComponentTranslation("dialog.base.3.text").getFormattedText());
 		cat.dialogs.put(dia1.id, dia1);
 		cat.dialogs.put(dia2.id, dia2);
 		cat.dialogs.put(dia3.id, dia3);
@@ -213,17 +214,20 @@ implements IDialogHandler {
 		option.addDialog(2);
 		option.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option2 = new DialogOption();
-		option2.title = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.1.option.0").getFormattedText());
+		option2.title = AdditionalMethods.instance
+				.deleteColor(new TextComponentTranslation("dialog.base.1.option.0").getFormattedText());
 		option2.addDialog(3);
 		option2.optionType = OptionType.DIALOG_OPTION;
 		DialogOption option3 = new DialogOption();
-		option3.title = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.1.option.2").getFormattedText());
+		option3.title = AdditionalMethods.instance
+				.deleteColor(new TextComponentTranslation("dialog.base.1.option.2").getFormattedText());
 		option3.optionType = OptionType.QUIT_OPTION;
 		dia1.options.put(0, option2);
 		dia1.options.put(1, option);
 		dia1.options.put(2, option3);
 		DialogOption option4 = new DialogOption();
-		option4.title = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("dialog.base.2.option.0").getFormattedText());
+		option4.title = AdditionalMethods.instance
+				.deleteColor(new TextComponentTranslation("dialog.base.2.option.0").getFormattedText());
 		option4.addDialog(1);
 		dia2.options.put(1, option4);
 		dia3.options.put(1, option4);
@@ -268,15 +272,21 @@ implements IDialogHandler {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
-			while (this.containsCategoryName(category)) { category.title += "_"; }
+			while (this.containsCategoryName(category)) {
+				category.title += "_";
+			}
 		}
 		if (this.categories.containsKey(category.id)) {
 			DialogCategory currentCategory = this.categories.get(category.id);
 			if (!currentCategory.title.equals(category.title)) {
-				while (this.containsCategoryName(category)) { category.title += "_"; }
+				while (this.containsCategoryName(category)) {
+					category.title += "_";
+				}
 				File newdir = new File(this.getDir(), category.title);
 				File olddir = new File(this.getDir(), currentCategory.title);
-				if (newdir.exists() || !olddir.renameTo(newdir)) { return; }
+				if (newdir.exists() || !olddir.renameTo(newdir)) {
+					return;
+				}
 			}
 			category.dialogs.clear();
 			category.dialogs.putAll(currentCategory.dialogs);
@@ -295,9 +305,12 @@ implements IDialogHandler {
 		}
 		this.categories.put(category.id, category);
 		for (Dialog dialog : dialogs.values()) {
-			if (dialog.category.id == category.id) { dialog.category = category; }
+			if (dialog.category.id == category.id) {
+				dialog.category = category;
+			}
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData, category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogCategoriesData,
+				category.writeNBT(new NBTTagCompound()));
 	}
 
 	public Dialog saveDialog(DialogCategory category, Dialog dialog) {
@@ -326,7 +339,8 @@ implements IDialogHandler {
 				file2.delete();
 			}
 			file.renameTo(file2);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogData, compound, category.id);
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogData, compound,
+					category.id);
 		} catch (Exception e) {
 			LogWriter.except(e);
 		}

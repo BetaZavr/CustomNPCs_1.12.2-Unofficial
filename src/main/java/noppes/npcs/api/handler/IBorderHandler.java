@@ -5,14 +5,14 @@ import noppes.npcs.api.handler.data.IBorder;
 
 public interface IBorderHandler {
 
-	IBorder getRegion(int regionId);
-
-	boolean removeRegion(int regionId);
-
-	IBorder[] getRegions(int dimID);
+	IBorder createNew(int dimID, IPos pos);
 
 	IBorder[] getAllRegions();
 
-	IBorder createNew(int dimID, IPos pos);
+	IBorder getRegion(int regionId);
+
+	IBorder[] getRegions(int dimID);
+
+	boolean removeRegion(int regionId);
 
 }

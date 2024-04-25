@@ -14,10 +14,8 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogCategory;
 
-public class GuiDialogSelection
-extends SubGuiInterface
-implements ICustomScrollListener {
-	
+public class GuiDialogSelection extends SubGuiInterface implements ICustomScrollListener {
+
 	private HashMap<String, DialogCategory> categoryData;
 	private HashMap<String, Dialog> dialogData;
 	private GuiSelectionListener listener;
@@ -74,7 +72,9 @@ implements ICustomScrollListener {
 			}
 		}
 		this.dialogData = dialogData;
-		if (this.scrollCategories == null) { (this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200); }
+		if (this.scrollCategories == null) {
+			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, 200);
+		}
 		this.scrollCategories.setList(Lists.newArrayList(categoryData.keySet()));
 		if (this.selectedCategory != null) {
 			this.scrollCategories.setSelected(this.selectedCategory.title);

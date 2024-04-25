@@ -9,88 +9,89 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ISkinPartType {
 
-    /**
-     * Gets the name this skin will be registered with. Armourer's Workshop uses the
-     * format baseType.getRegistryName() + "." + getPartName(). Example
-     * armourers:chest.leftArm is the registry name of Armourer's Workshop chest
-     * left arm skin part.
-     * 
-     * @return Registry name
-     */
-    public String getRegistryName();
+	/**
+	 * The last 3 values are used to define the size of this part, the first 3
+	 * values will change the origin. Example -5, -5, -5, 10, 10, 10, Will create a
+	 * 10x10x10 cube with it's origin in the centre.
+	 * 
+	 * @return
+	 */
+	public IRectangle3D getBuildingSpace();
 
-    /**
-     * Get the name of this part.
-     * 
-     * @return Part name
-     */
-    public String getPartName();
+	/**
+	 * The last 3 values set the size of the invisible blocks that cubes can be
+	 * placed on, the first 3 set the offset. Use 0, 0, 0, 0, 0, 0, if you don't
+	 * want to use this. Setting showArmourerDebugRender to true in the config will
+	 * show this box.
+	 * 
+	 * @return
+	 */
+	public IRectangle3D getGuideSpace();
 
-    /**
-     * The last 3 values are used to define the size of this part, the first 3
-     * values will change the origin. Example -5, -5, -5, 10, 10, 10, Will create a
-     * 10x10x10 cube with it's origin in the centre.
-     * 
-     * @return
-     */
-    public IRectangle3D getBuildingSpace();
+	@SideOnly(Side.CLIENT)
+	public IPoint3D getItemRenderOffset();
 
-    /**
-     * The last 3 values set the size of the invisible blocks that cubes can be
-     * placed on, the first 3 set the offset. Use 0, 0, 0, 0, 0, 0, if you don't
-     * want to use this. Setting showArmourerDebugRender to true in the config will
-     * show this box.
-     * 
-     * @return
-     */
-    public IRectangle3D getGuideSpace();
+	@SideOnly(Side.CLIENT)
+	public IRectangle3D getItemRenderTextureBounds();
 
-    /**
-     * This is used by the armourer to position this part
-     * 
-     * @return
-     */
-    public IPoint3D getOffset();
+	/**
+	 * Gets the maximum number of markers allowed for this skin part.
+	 * 
+	 * @return
+	 */
+	public int getMaximumMarkersNeeded();
 
-    /**
-     * 
-     * @param scale           Normally 0.0625F.
-     * @param showSkinOverlay
-     * @param showHelper
-     */
-    @SideOnly(Side.CLIENT)
-    public void renderBuildingGuide(float scale, ISkinProperties skinProps, boolean showHelper);
+	/**
+	 * Get the minimum number of markers needed for this skin part.
+	 * 
+	 * @return
+	 */
+	public int getMinimumMarkersNeeded();
 
-    /**
-     * Get the minimum number of markers needed for this skin part.
-     * 
-     * @return
-     */
-    public int getMinimumMarkersNeeded();
+	/**
+	 * This is used by the armourer to position this part
+	 * 
+	 * @return
+	 */
+	public IPoint3D getOffset();
 
-    /**
-     * Gets the maximum number of markers allowed for this skin part.
-     * 
-     * @return
-     */
-    public int getMaximumMarkersNeeded();
+	/**
+	 * Get the name of this part.
+	 * 
+	 * @return Part name
+	 */
+	public String getPartName();
 
-    /**
-     * If true this part must be present for the skin to be saved.
-     * 
-     * @return
-     */
-    public boolean isPartRequired();
+	/**
+	 * Gets the name this skin will be registered with. Armourer's Workshop uses the
+	 * format baseType.getRegistryName() + "." + getPartName(). Example
+	 * armourers:chest.leftArm is the registry name of Armourer's Workshop chest
+	 * left arm skin part.
+	 * 
+	 * @return Registry name
+	 */
+	public String getRegistryName();
 
-    @SideOnly(Side.CLIENT)
-    public IPoint3D getItemRenderOffset();
+	public boolean isModelOverridden(ISkinProperties skinProps);
 
-    @SideOnly(Side.CLIENT)
-    public IRectangle3D getItemRenderTextureBounds();
+	public boolean isOverlayOverridden(ISkinProperties skinProps);
 
-    public boolean isModelOverridden(ISkinProperties skinProps);
+	/**
+	 * If true this part must be present for the skin to be saved.
+	 * 
+	 * @return
+	 */
+	public boolean isPartRequired();
 
-    public boolean isOverlayOverridden(ISkinProperties skinProps);
+	public ISkinPart makeDummyPaintPart(int[] paintData);
 
-    public ISkinPart makeDummyPaintPart(int[] paintData);
+	/**
+	 * 
+	 * @param scale
+	 *            Normally 0.0625F.
+	 * @param showSkinOverlay
+	 * @param showHelper
+	 */
+	@SideOnly(Side.CLIENT)
+	public void renderBuildingGuide(float scale, ISkinProperties skinProps, boolean showHelper);
 }

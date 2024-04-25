@@ -6,10 +6,8 @@ import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IButton;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 
-public class CustomGuiButtonWrapper
-extends CustomGuiComponentWrapper
-implements IButton {
-	
+public class CustomGuiButtonWrapper extends CustomGuiComponentWrapper implements IButton {
+
 	int height;
 	String label;
 	String texture;
@@ -41,7 +39,8 @@ implements IButton {
 		this.setTexture(texture);
 	}
 
-	public CustomGuiButtonWrapper(int id, String label, int x, int y, int width, int height, String texture, int textureX, int textureY) {
+	public CustomGuiButtonWrapper(int id, String label, int x, int y, int width, int height, String texture,
+			int textureX, int textureY) {
 		this(id, label, x, y, width, height, texture);
 		this.setTextureOffset(textureX, textureY);
 	}
@@ -131,7 +130,7 @@ implements IButton {
 
 	@Override
 	public IButton setSize(int width, int height) {
-		if (width  <= 0 || height <= 0) {
+		if (width <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		this.width = width;

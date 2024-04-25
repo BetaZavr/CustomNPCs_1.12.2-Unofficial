@@ -6,36 +6,36 @@ public interface ICompassData {
 
 	int getDimensionID();
 
-	void setDimensionID(int dimID);
-
-	int getType();
-	
-	void setType(int type);
-
-	int getRange();
-
-	void setRange(int range);
-	
-	IPos getPos();
-	
-	void setPos(IPos pos);
-	
-	void setPos(int x, int y, int z);
-	
 	String getName();
-	
-	void setName(String name);
-	
-	String getTitle();
-	
-	void setTitle(String title);
-
-	void setShow(boolean show);
-
-	boolean isShow();
 
 	String getNPCName();
 
+	IPos getPos();
+
+	int getRange();
+
+	String getTitle();
+
+	int getType();
+
+	boolean isShow();
+
+	void setDimensionID(int dimID);
+
+	void setName(String name);
+
 	void setNPCName(String npcName);
+
+	void setPos(int x, int y, int z);
+
+	void setPos(IPos pos);
+
+	void setRange(int range);
+
+	void setShow(boolean show);
+
+	void setTitle(String title);
+
+	void setType(int type);
 
 }

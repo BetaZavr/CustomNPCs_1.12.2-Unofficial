@@ -14,7 +14,7 @@ import net.minecraft.item.ItemSword;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class ContainerNPCInv extends Container {
-	
+
 	public ContainerNPCInv(EntityNPCInterface npc, EntityPlayer player) {
 		this.addSlotToContainer(new SlotNPCArmor(npc.inventory, 0, 9, 22, EntityEquipmentSlot.HEAD));
 		this.addSlotToContainer(new SlotNPCArmor(npc.inventory, 1, 9, 40, EntityEquipmentSlot.CHEST));
@@ -43,62 +43,75 @@ public class ContainerNPCInv extends Container {
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
-		return ItemStack.EMPTY;
-	}
-	
-	@Override
 	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
 		if (clickTypeIn == ClickType.QUICK_MOVE && dragType == 0) { // shift + LMB
-			if (slotId < 0) { return ItemStack.EMPTY; }
+			if (slotId < 0) {
+				return ItemStack.EMPTY;
+			}
 			Slot slot = this.inventorySlots.get(slotId);
-            if (slot == null || !slot.canTakeStack(player) || !slot.getHasStack()) { return ItemStack.EMPTY; }
-            ItemStack stackInClickSlot = slot.getStack();
-            if (slotId < 7) { // take off your equipment
-            	if (player.inventory.addItemStackToInventory(stackInClickSlot)) { slot.putStack(ItemStack.EMPTY); }
-            }
-            else if (stackInClickSlot.getItem() instanceof ItemArmor) {
-    			Slot armSlot;
-    			switch(((ItemArmor) stackInClickSlot.getItem()).armorType) {
-	    			case HEAD: armSlot = this.inventorySlots.get(0); break;
-	    			case CHEST: armSlot = this.inventorySlots.get(1); break;
-	    			case LEGS: armSlot = this.inventorySlots.get(2); break;
-	    			case FEET: armSlot = this.inventorySlots.get(3); break;
-	    			default: armSlot = null; break;
-	    		}
-    			if (armSlot!=null) {
-    				ItemStack stackInArmSlot = armSlot.getStack().copy();
-    				armSlot.putStack(stackInClickSlot);
-    				slot.putStack(stackInArmSlot);
-    			}
-            }
-            else if (stackInClickSlot.getItem() instanceof ItemSword || stackInClickSlot.getItem() instanceof ItemBow) {
-    			Slot wpnSlot = this.inventorySlots.get(4);
-    			if (wpnSlot!=null) {
-    				ItemStack stackInWpnSlot = wpnSlot.getStack().copy();
-    				wpnSlot.putStack(stackInClickSlot);
-    				slot.putStack(stackInWpnSlot);
-    			}
-            }
-            else if (stackInClickSlot.getItem() instanceof ItemShield) {
-            	Slot sldSlot = this.inventorySlots.get(6);
-    			if (sldSlot!=null) {
-    				ItemStack stackInSldSlot = sldSlot.getStack().copy();
-    				sldSlot.putStack(stackInClickSlot);
-    				slot.putStack(stackInSldSlot);
-    			}
-            }
-            else { // any projective
-            	Slot pjcSlot = this.inventorySlots.get(5);
-    			if (pjcSlot!=null) {
-    				ItemStack stackInPjcSlot = pjcSlot.getStack().copy();
-    				pjcSlot.putStack(stackInClickSlot);
-    				slot.putStack(stackInPjcSlot);
-    			}
-            }
-            return ItemStack.EMPTY;
+			if (slot == null || !slot.canTakeStack(player) || !slot.getHasStack()) {
+				return ItemStack.EMPTY;
+			}
+			ItemStack stackInClickSlot = slot.getStack();
+			if (slotId < 7) { // take off your equipment
+				if (player.inventory.addItemStackToInventory(stackInClickSlot)) {
+					slot.putStack(ItemStack.EMPTY);
+				}
+			} else if (stackInClickSlot.getItem() instanceof ItemArmor) {
+				Slot armSlot;
+				switch (((ItemArmor) stackInClickSlot.getItem()).armorType) {
+				case HEAD:
+					armSlot = this.inventorySlots.get(0);
+					break;
+				case CHEST:
+					armSlot = this.inventorySlots.get(1);
+					break;
+				case LEGS:
+					armSlot = this.inventorySlots.get(2);
+					break;
+				case FEET:
+					armSlot = this.inventorySlots.get(3);
+					break;
+				default:
+					armSlot = null;
+					break;
+				}
+				if (armSlot != null) {
+					ItemStack stackInArmSlot = armSlot.getStack().copy();
+					armSlot.putStack(stackInClickSlot);
+					slot.putStack(stackInArmSlot);
+				}
+			} else if (stackInClickSlot.getItem() instanceof ItemSword
+					|| stackInClickSlot.getItem() instanceof ItemBow) {
+				Slot wpnSlot = this.inventorySlots.get(4);
+				if (wpnSlot != null) {
+					ItemStack stackInWpnSlot = wpnSlot.getStack().copy();
+					wpnSlot.putStack(stackInClickSlot);
+					slot.putStack(stackInWpnSlot);
+				}
+			} else if (stackInClickSlot.getItem() instanceof ItemShield) {
+				Slot sldSlot = this.inventorySlots.get(6);
+				if (sldSlot != null) {
+					ItemStack stackInSldSlot = sldSlot.getStack().copy();
+					sldSlot.putStack(stackInClickSlot);
+					slot.putStack(stackInSldSlot);
+				}
+			} else { // any projective
+				Slot pjcSlot = this.inventorySlots.get(5);
+				if (pjcSlot != null) {
+					ItemStack stackInPjcSlot = pjcSlot.getStack().copy();
+					pjcSlot.putStack(stackInClickSlot);
+					slot.putStack(stackInPjcSlot);
+				}
+			}
+			return ItemStack.EMPTY;
 		}
 		return super.slotClick(slotId, dragType, clickTypeIn, player);
 	}
-	
+
+	@Override
+	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+		return ItemStack.EMPTY;
+	}
+
 }

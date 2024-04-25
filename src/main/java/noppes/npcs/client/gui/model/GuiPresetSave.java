@@ -13,9 +13,8 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.part.ModelData;
 
-public class GuiPresetSave
-extends SubGuiInterface {
-	
+public class GuiPresetSave extends SubGuiInterface {
+
 	private ModelData data;
 	public GuiScreen parent;
 
@@ -44,22 +43,16 @@ extends SubGuiInterface {
 	}
 
 	@Override
-	public void initGui() {
-		super.initGui();
-		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft, this.guiTop + 70, 200, 20, ""));
-		this.addButton(new GuiNpcButton(0, this.guiLeft, this.guiTop + 100, 98, 20, "Save"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 100, this.guiTop + 100, 98, 20, "Cancel"));
-	}
-
-	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.name").getFormattedText());
-		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
+		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.save").getFormattedText());
-		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
+		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 		if (this.hoverText != null) {
@@ -67,5 +60,13 @@ extends SubGuiInterface {
 			this.hoverText = null;
 		}
 	}
-	
+
+	@Override
+	public void initGui() {
+		super.initGui();
+		this.addTextField(new GuiNpcTextField(0, this, this.guiLeft, this.guiTop + 70, 200, 20, ""));
+		this.addButton(new GuiNpcButton(0, this.guiLeft, this.guiTop + 100, 98, 20, "Save"));
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 100, this.guiTop + 100, 98, 20, "Cancel"));
+	}
+
 }

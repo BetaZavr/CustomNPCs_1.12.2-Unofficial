@@ -1,7 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCAi {
-	
+
 	int getAnimation();
 
 	boolean getAttackInvisible();
@@ -85,5 +85,5 @@ public interface INPCAi {
 	void setWalkingSpeed(int speed);
 
 	void setWanderingRange(int range);
-	
-} 
+
+}

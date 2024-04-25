@@ -17,10 +17,8 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcPather
-extends GuiNPCInterface
-implements IGuiData {
-	
+public class GuiNpcPather extends GuiNPCInterface implements IGuiData {
+
 	private List<int[]> path;
 	private GuiCustomScroll scroll;
 
@@ -35,11 +33,15 @@ implements IGuiData {
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (this.scroll.selected < 0) { return; }
+		if (this.scroll.selected < 0) {
+			return;
+		}
 		if (button.id == 0) { // down
 			List<int[]> list = Lists.newArrayList(this.path);
 			int selected = this.scroll.selected;
-			if (list.size() <= selected + 1) { return; }
+			if (list.size() <= selected + 1) {
+				return;
+			}
 			int[] a = list.get(selected);
 			int[] b = list.get(selected + 1);
 			list.set(selected, b);
@@ -49,7 +51,9 @@ implements IGuiData {
 			this.scroll.selected = selected + 1;
 		}
 		if (button.id == 1) { // up
-			if (this.scroll.selected - 1 < 0) { return; }
+			if (this.scroll.selected - 1 < 0) {
+				return;
+			}
 			List<int[]> list = Lists.newArrayList(this.path);
 			int selected = this.scroll.selected;
 			int[] a = list.get(selected);
@@ -62,10 +66,14 @@ implements IGuiData {
 		}
 		if (button.id == 2) { // remove
 			List<int[]> list = Lists.newArrayList(this.path);
-			if (list.size() <= 1) { return; }
+			if (list.size() <= 1) {
+				return;
+			}
 			list.remove(this.scroll.selected);
 			int selected = this.scroll.selected - 1;
-			if (selected == -1 && list.isEmpty()) { selected = 0; }
+			if (selected == -1 && list.isEmpty()) {
+				selected = 0;
+			}
 			this.scroll.selected = selected;
 			this.path = list;
 			this.initGui();
@@ -79,14 +87,15 @@ implements IGuiData {
 	@Override
 	public void initGui() {
 		int sel;
-		if (this.scroll!=null) { sel = this.scroll.selected; }
-		else {
+		if (this.scroll != null) {
+			sel = this.scroll.selected;
+		} else {
 			sel = 0;
 			Vec3d vec3d = this.player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = this.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 6.0d, vec3d2.y * 6.0d, vec3d2.z * 6.0d);
 			RayTraceResult result = this.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, true);
-			if (result!=null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.getBlockPos()!=null) {
+			if (result != null && result.typeOfHit == RayTraceResult.Type.BLOCK && result.getBlockPos() != null) {
 				int x = result.getBlockPos().getX();
 				int y = result.getBlockPos().getY();
 				int z = result.getBlockPos().getZ();

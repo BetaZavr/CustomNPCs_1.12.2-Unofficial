@@ -34,9 +34,11 @@ public class GuiNpcWaypoint extends GuiNPCInterface implements IGuiData {
 			this.close();
 		}
 		this.addLabel(new GuiNpcLabel(0, "gui.name", this.guiLeft + 1, this.guiTop + 76, 16777215));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 71, 200, 20, this.tile.name));
+		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 71, 200, 20,
+				this.tile.name));
 		this.addLabel(new GuiNpcLabel(1, "gui.range", this.guiLeft + 1, this.guiTop + 97, 16777215));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 92, 200, 20, this.tile.range + ""));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 92, 200, 20,
+				this.tile.range + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(2, 60, 10);
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 40, this.guiTop + 190, 120, 20, "Done"));

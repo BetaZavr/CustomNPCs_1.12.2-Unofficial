@@ -6,9 +6,8 @@ import noppes.npcs.api.entity.data.INPCMelee;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class DataMelee
-implements INPCMelee {
-	
+public class DataMelee implements INPCMelee {
+
 	private double attackRange;
 	private int attackSpeed;
 	private int attackStrength;
@@ -32,6 +31,14 @@ implements INPCMelee {
 	@Override
 	public int getDelay() {
 		return this.attackSpeed;
+	}
+
+	public int getDelayRNG() {
+		int delay = this.attackSpeed;
+		if (this.attackSpeed < 120 && this.attackSpeed > 10) {
+			delay += this.npc.world.rand.nextInt((int) ((double) this.attackSpeed * 0.15d));
+		}
+		return delay;
 	}
 
 	@Override
@@ -67,8 +74,11 @@ implements INPCMelee {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.attackSpeed = compound.getInteger("AttackSpeed");
 		this.setStrength(compound.getInteger("AttackStrenght"));
-		if (compound.hasKey("AttackRange", 3)) { this.attackRange = (float) compound.getInteger("AttackRange"); }
-		else { this.attackRange = compound.getDouble("AttackRange"); }
+		if (compound.hasKey("AttackRange", 3)) {
+			this.attackRange = (float) compound.getInteger("AttackRange");
+		} else {
+			this.attackRange = compound.getDouble("AttackRange");
+		}
 		this.knockback = compound.getInteger("KnockBack");
 		this.potionType = compound.getInteger("PotionEffect");
 		this.potionDuration = compound.getInteger("PotionDuration");
@@ -114,12 +124,4 @@ implements INPCMelee {
 		return compound;
 	}
 
-	public int getDelayRNG() {
-		int delay = this.attackSpeed;
-		if (this.attackSpeed < 120 && this.attackSpeed > 10) {
-			delay += this.npc.world.rand.nextInt((int) ((double) this.attackSpeed * 0.15d));
-		}
-		return delay;
-	}
-	
 }

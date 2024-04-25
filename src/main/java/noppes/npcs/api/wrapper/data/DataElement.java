@@ -9,8 +9,7 @@ import java.lang.reflect.Parameter;
 
 import noppes.npcs.api.handler.data.IDataElement;
 
-public class DataElement
-implements IDataElement {
+public class DataElement implements IDataElement {
 
 	private Object data; // parent Object
 	private String name;
@@ -111,9 +110,15 @@ implements IDataElement {
 			} else {
 				key += "default ";
 			}
-			if (Modifier.isStatic(md)) { key += "static "; }
-			if (Modifier.isSynchronized(md)) { key += "synchronized "; }
-			if (Modifier.isFinal(md)) { key += "final "; }
+			if (Modifier.isStatic(md)) {
+				key += "static ";
+			}
+			if (Modifier.isSynchronized(md)) {
+				key += "synchronized ";
+			}
+			if (Modifier.isFinal(md)) {
+				key += "final ";
+			}
 		} else if (this.object instanceof Field) {
 			Field f = (Field) this.object;
 			int md = f.getModifiers();
@@ -127,8 +132,12 @@ implements IDataElement {
 			} else {
 				key += "default ";
 			}
-			if (Modifier.isStatic(md)) { key += "static "; }
-			if (Modifier.isFinal(md)) { key += "final "; }
+			if (Modifier.isStatic(md)) {
+				key += "static ";
+			}
+			if (Modifier.isFinal(md)) {
+				key += "final ";
+			}
 			f.setAccessible(true);
 		} else if (this.object instanceof Constructor) {
 			String body = "(";
@@ -191,7 +200,8 @@ implements IDataElement {
 			((Field) this.object).setAccessible(true);
 			try {
 				return ((Field) this.object).get(this.data);
-			} catch (IllegalArgumentException | IllegalAccessException e) { }
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+			}
 		}
 		return this.object;
 	}
@@ -210,10 +220,14 @@ implements IDataElement {
 
 	@Override
 	public boolean isBelong(Class<?> cz) {
-		if (this.parent==null) { return false; }
+		if (this.parent == null) {
+			return false;
+		}
 		Class<?> sc = this.parent;
-		while(sc.getSuperclass()!=null) {
-			if (sc==cz) { return true; }
+		while (sc.getSuperclass() != null) {
+			if (sc == cz) {
+				return true;
+			}
 			sc = sc.getSuperclass();
 		}
 		return false;
@@ -233,14 +247,16 @@ implements IDataElement {
 					f.set(Modifier.isStatic(mod) ? null : this.data, value);
 					modifiersField.setInt(f, mod);
 					return true;
+				} catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+						| IllegalAccessException e) {
 				}
-				catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
 			}
 			try {
 				f.setAccessible(true);
 				f.set(this.data, value);
 				return true;
-			} catch (IllegalArgumentException | IllegalAccessException e) { }
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+			}
 		}
 		return false;
 	}

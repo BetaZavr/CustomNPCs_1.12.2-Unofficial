@@ -34,9 +34,8 @@ import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class RenderCustomNpc<T extends EntityCustomNpc>
-extends RenderNPCInterface<T> {
-	
+public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterface<T> {
+
 	private EntityLivingBase entity;
 	public ModelBiped npcmodel;
 	private float partialTicks;
@@ -58,6 +57,34 @@ extends RenderNPCInterface<T> {
 		this.addLayer(new LayerCustomArmor(this));
 	}
 
+	@Override
+	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
+		if (npc.isEntityAlive()) {
+			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
+			return;
+		}
+		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
+		if (npc.deathTime > 0) {
+			boolean flag = npc.animation.activeAnim != null ? npc.animation.activeAnim.type == AnimationKind.DIES
+					: npc.animation.getActiveAnimation(AnimationKind.DIES) != null;
+			if (flag) {
+				return;
+			}
+			float f = ((float) npc.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
+			f = MathHelper.sqrt(f);
+			if (f > 1.0F) {
+				f = 1.0F;
+			}
+			GlStateManager.rotate(f * this.getDeathMaxRotation(npc), 0.0F, 0.0F, 1.0F);
+		} else {
+			String s = TextFormatting.getTextWithoutFormattingCodes(npc.getName());
+			if (s != null && ("Dinnerbone".equals(s) || "Grumm".equals(s))) {
+				GlStateManager.translate(0.0F, npc.height + 0.1F, 0.0F);
+				GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doRender(T npc, double d, double d1, double d2, float f, float partialTicks) {
@@ -65,7 +92,9 @@ extends RenderNPCInterface<T> {
 		this.entity = npc.modelData.getEntity(npc);
 		List<LayerRenderer<T>> list = (List<LayerRenderer<T>>) this.layerRenderers;
 		for (LayerRenderer<T> layer : list) {
-			if (layer instanceof LayerPreRender) { ((LayerPreRender) layer).preRender(npc); }
+			if (layer instanceof LayerPreRender) {
+				((LayerPreRender) layer).preRender(npc);
+			}
 		}
 		if (this.entity != null) {
 			Render<?> render = this.renderManager.getEntityRenderObject(this.entity);
@@ -117,28 +146,40 @@ extends RenderNPCInterface<T> {
 			}
 			NPCRendererHelper.preRenderCallback(this.entity, f, this.renderEntity);
 			npc.display.setSize(size);
-			GlStateManager.scale(0.2f * npc.display.getSize(), 0.2f * npc.display.getSize(), 0.2f * npc.display.getSize());
+			GlStateManager.scale(0.2f * npc.display.getSize(), 0.2f * npc.display.getSize(),
+					0.2f * npc.display.getSize());
 		} else {
 			super.preRenderCallback(npc, f);
 		}
 	}
-	
-	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
+
+	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks,
+			float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
 		if (this.entity != null && this.renderEntity != null) {
-			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
+			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw,
+					headPitch, scaleIn, this.renderEntity);
 		} else {
 			List<Boolean> sp = ((EntityCustomNpc) entitylivingbaseIn).animation.showParts;
 			for (LayerRenderer<T> layerrenderer : this.layerRenderers) {
-				if ((layerrenderer instanceof LayerEyes ||
-						layerrenderer instanceof LayerHead ||
-						layerrenderer instanceof LayerHeadwear ||
-						layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(0)) { continue; }
-				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(3)) { continue; }
-				if (layerrenderer.getClass().getSimpleName().equals("SkinLayerRendererCustomNPC")) { continue; }
-				boolean flag = this.setBrightness(entitylivingbaseIn, partialTicks, layerrenderer.shouldCombineTextures());
-				layerrenderer.doRenderLayer(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
-	            if (flag) { this.unsetBrightness(); }
-	        }
+				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
+						|| layerrenderer instanceof LayerHeadwear
+						|| layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(0)) {
+					continue;
+				}
+				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(3)) {
+					continue;
+				}
+				if (layerrenderer.getClass().getSimpleName().equals("SkinLayerRendererCustomNPC")) {
+					continue;
+				}
+				boolean flag = this.setBrightness(entitylivingbaseIn, partialTicks,
+						layerrenderer.shouldCombineTextures());
+				layerrenderer.doRenderLayer(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks,
+						netHeadYaw, headPitch, scaleIn);
+				if (flag) {
+					this.unsetBrightness();
+				}
+			}
 		}
 	}
 
@@ -146,8 +187,11 @@ extends RenderNPCInterface<T> {
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
 		if (this.renderEntity != null) {
 			boolean isInvisible = npc.isInvisible();
-			if (npc.display.getVisible() == 1) { isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
-			else if (npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+			if (npc.display.getVisible() == 1) {
+				isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
+			} else if (npc.display.getVisible() == 2) {
+				isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand;
+			}
 			if (isInvisible) {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
@@ -165,11 +209,13 @@ extends RenderNPCInterface<T> {
 				}
 			}
 			model.swingProgress = this.mainModel.swingProgress;
-			model.isRiding = (this.entity.isRiding() && this.entity.getRidingEntity() != null && this.entity.getRidingEntity().shouldRiderSit());
+			model.isRiding = (this.entity.isRiding() && this.entity.getRidingEntity() != null
+					&& this.entity.getRidingEntity().shouldRiderSit());
 			model.setLivingAnimations(this.entity, par2, par3, this.partialTicks);
 			model.setRotationAngles(par2, par3, par4, par5, par6, par7, this.entity);
 			model.isChild = this.entity.isChild();
-			NPCRendererHelper.renderModel(this.entity, par2, par3, par4, par5, par6, par7, this.renderEntity, model, this.getEntityTexture(npc));
+			NPCRendererHelper.renderModel(this.entity, par2, par3, par4, par5, par6, par7, this.renderEntity, model,
+					this.getEntityTexture(npc));
 			if (!npc.display.getOverlayTexture().isEmpty()) {
 				GlStateManager.depthFunc(515);
 				if (npc.textureGlowLocation == null) {
@@ -211,29 +257,5 @@ extends RenderNPCInterface<T> {
 	public void setLightmap(EntityCustomNpc npc) {
 		super.setLightmap((T) npc);
 	}
-	
-	@Override
-	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
-		if (npc.isEntityAlive()) {
-			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
-			return;
-		}
-		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
-        if (npc.deathTime > 0) {
-        	boolean flag = npc.animation.activeAnim!=null ? npc.animation.activeAnim.type == AnimationKind.DIES : npc.animation.getActiveAnimation(AnimationKind.DIES) != null;
-            if (flag) { return; }
-        	float f = ((float) npc.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
-            f = MathHelper.sqrt(f);
-            if (f > 1.0F) { f = 1.0F; }
-            GlStateManager.rotate(f * this.getDeathMaxRotation(npc), 0.0F, 0.0F, 1.0F);
-        }
-        else {
-            String s = TextFormatting.getTextWithoutFormattingCodes(npc.getName());
-            if (s != null && ("Dinnerbone".equals(s) || "Grumm".equals(s))) {
-                GlStateManager.translate(0.0F, npc.height + 0.1F, 0.0F);
-                GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-            }
-        }
-	}
-	
+
 }

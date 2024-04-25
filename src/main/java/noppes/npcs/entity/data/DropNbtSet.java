@@ -35,126 +35,126 @@ public class DropNbtSet implements IDropNbtSet {
 
 	public String cheakValue(String value, int type) {
 		switch (type) {
-			case 0: { // boolean
+		case 0: { // boolean
+			try {
+				boolean b = Boolean.valueOf(value);
+				return String.valueOf(b);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 1: { // byte
+			try {
+				byte b = Byte.valueOf(value);
+				return String.valueOf(b);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 2: { // short
+			try {
+				short s = Short.valueOf(value);
+				return String.valueOf(s);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 3: { // integer
+			try {
+				int b = Integer.valueOf(value);
+				return String.valueOf(b);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 4: { // long
+			try {
+				long l = Long.valueOf(value);
+				return String.valueOf(l);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 5: { // float
+			try {
+				float f = Float.valueOf(value);
+				return String.valueOf(f);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 6: { // double
+			try {
+				double d = Double.valueOf(value);
+				return String.valueOf(d);
+			} catch (Exception e) {
+			}
+			break;
+		}
+		case 7: { // byte array
+			String[] br = value.split(",");
+			String text = "";
+			for (String str : br) {
 				try {
-					boolean b = Boolean.valueOf(value);
-					return String.valueOf(b);
+					byte b = Byte.valueOf(str);
+					if (text.length() > 0) {
+						text += ",";
+					}
+					text += String.valueOf(b);
 				} catch (Exception e) {
 				}
-				break;
 			}
-			case 1: { // byte
+			if (text.length() > 0) {
+				return text;
+			}
+			break;
+		}
+		case 8: { // string
+			return value;
+		}
+		case 9: { // list
+			String[] br = value.split(",");
+			String text = "";
+			for (String str : br) {
 				try {
-					byte b = Byte.valueOf(value);
-					return String.valueOf(b);
-				} catch (Exception e) {
-				}
-				break;
-			}
-			case 2: { // short
-				try {
-					short s = Short.valueOf(value);
-					return String.valueOf(s);
-				} catch (Exception e) {
-				}
-				break;
-			}
-			case 3: { // integer
-				try {
-					int b = Integer.valueOf(value);
-					return String.valueOf(b);
-				} catch (Exception e) {
-				}
-				break;
-			}
-			case 4: { // long
-				try {
-					long l = Long.valueOf(value);
-					return String.valueOf(l);
-				} catch (Exception e) {
-				}
-				break;
-			}
-			case 5: { // float
-				try {
-					float f = Float.valueOf(value);
-					return String.valueOf(f);
-				} catch (Exception e) {
-				}
-				break;
-			}
-			case 6: { // double
-				try {
-					double d = Double.valueOf(value);
-					return String.valueOf(d);
-				} catch (Exception e) {
-				}
-				break;
-			}
-			case 7: { // byte array
-				String[] br = value.split(",");
-				String text = "";
-				for (String str : br) {
-					try {
-						byte b = Byte.valueOf(str);
+					String sc = cheakValue(str, this.typeList);
+					if (sc != null) {
 						if (text.length() > 0) {
 							text += ",";
 						}
-						text += String.valueOf(b);
-					} catch (Exception e) {
+						text += sc;
 					}
+				} catch (Exception e) {
 				}
-				if (text.length() > 0) {
-					return text;
-				}
-				break;
 			}
-			case 8: { // string
-				return value;
+			if (text.length() > 0) {
+				return text;
 			}
-			case 9: { // list
-				String[] br = value.split(",");
-				String text = "";
-				for (String str : br) {
-					try {
-						String sc = cheakValue(str, this.typeList);
-						if (sc != null) {
-							if (text.length() > 0) {
-								text += ",";
-							}
-							text += sc;
+			break;
+		}
+		case 11: { // integer array
+			String[] br = value.split(",");
+			String text = "";
+			for (String str : br) {
+				try {
+					int i = Integer.valueOf(str);
+					if (text.length() > 0) {
+						if (type == this.type) {
+							text += ",";
 						}
-					} catch (Exception e) {
-					}
-				}
-				if (text.length() > 0) {
-					return text;
-				}
-				break;
-			}
-			case 11: { // integer array
-				String[] br = value.split(",");
-				String text = "";
-				for (String str : br) {
-					try {
-						int i = Integer.valueOf(str);
-						if (text.length() > 0) {
-							if (type == this.type) {
-								text += ",";
-							}
-							{
-								text += ";";
-							}
+						{
+							text += ";";
 						}
-						text += String.valueOf(i);
-					} catch (Exception e) {
 					}
+					text += String.valueOf(i);
+				} catch (Exception e) {
 				}
-				if (text.length() > 0) {
-					return text;
-				}
-				break;
 			}
+			if (text.length() > 0) {
+				return text;
+			}
+			break;
+		}
 		}
 		return null;
 	}
@@ -266,12 +266,14 @@ public class DropNbtSet implements IDropNbtSet {
 	public String getKey() {
 		String keyName = "";
 		char c = ((char) 167);
-		double ch = Math.round(this.chance*10.0d) / 10.d;
+		double ch = Math.round(this.chance * 10.0d) / 10.d;
 		String chance = String.valueOf(ch).replace(".", ",");
-		if (ch == (int) ch) { chance = String.valueOf((int) ch); }
+		if (ch == (int) ch) {
+			chance = String.valueOf((int) ch);
+		}
 		chance += "%";
 		keyName += c + "e" + chance;
-		
+
 		String key = this.path;
 		if (this.path.indexOf(".") != -1) {
 			List<String> keys = new ArrayList<String>();
@@ -281,15 +283,17 @@ public class DropNbtSet implements IDropNbtSet {
 				keys.add(preKey);
 				key = key.substring(key.indexOf(".") + 1);
 			}
-			String lastKey = ""+key;
+			String lastKey = "" + key;
 			keys.add(key);
 			key = preKey + "." + lastKey;
-			if (keys.size() > 2) { key = "..." + key; }
+			if (keys.size() > 2) {
+				key = "..." + key;
+			}
 		}
 		keyName += c + "r " + key;
-		if (this.values.length==0) {
+		if (this.values.length == 0) {
 			keyName += c + "b=" + c + "7|" + c + "cNULL" + c + "7|";
-		} else if (this.values.length==1) {
+		} else if (this.values.length == 1) {
 			keyName += c + "b=" + c + "7|" + c + "r" + this.values[0] + c + "7|";
 		} else {
 			keyName += c + "b=" + c + "7|" + c + "6" + this.values.length + c + "7|";
@@ -421,4 +425,3 @@ public class DropNbtSet implements IDropNbtSet {
 		this.values = svs;
 	}
 }
-

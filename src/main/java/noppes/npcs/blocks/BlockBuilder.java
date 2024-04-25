@@ -38,7 +38,9 @@ public class BlockBuilder extends BlockInterface implements IPermission {
 	}
 
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
-		if (TileBuilder.has(pos)) { TileBuilder.DrawPoses.remove(pos); }
+		if (TileBuilder.has(pos)) {
+			TileBuilder.DrawPoses.remove(pos);
+		}
 	}
 
 	protected BlockStateContainer createBlockState() {

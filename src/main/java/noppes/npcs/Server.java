@@ -60,7 +60,7 @@ import noppes.npcs.util.ObfuscationHelper;
 public class Server {
 
 	private static List<EnumPacketClient> list;
-	
+
 	static {
 		Server.list = new ArrayList<EnumPacketClient>();
 		Server.list.add(EnumPacketClient.EYE_BLINK);
@@ -85,7 +85,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.FORCE_PLAY_SOUND);
 		Server.list.add(EnumPacketClient.UPDATE_HUD);
 	}
-	
+
 	public static boolean fillBuffer(ByteBuf buffer, Enum<?> enu, Object... obs) throws IOException {
 		buffer.writeInt(enu.ordinal());
 		for (Object ob : obs) {
@@ -98,39 +98,73 @@ public class Server {
 					for (Entry<Object, Object> entry : map.entrySet()) {
 						NBTBase key = AdditionalMethods.instance.writeObjectToNbt(entry.getKey());
 						NBTBase value = AdditionalMethods.instance.writeObjectToNbt(entry.getValue());
-						if (key!=null && key.getId()<(byte) 9 && key.getId()!=(byte) 7) {
+						if (key != null && key.getId() < (byte) 9 && key.getId() != (byte) 7) {
 							buffer.writeByte(key.getId());
 							switch (key.getId()) {
-					            case 0: buffer.writeByte((byte) 0); break;
-					            case 1: buffer.writeByte(((NBTTagByte) key).getByte()); break;
-					            case 2: buffer.writeShort(((NBTTagShort) key).getShort()); break;
-					            case 3: buffer.writeInt(((NBTTagInt) key).getInt()); break;
-					            case 4: buffer.writeLong(((NBTTagLong) key).getLong()); break;
-					            case 5: buffer.writeFloat(((NBTTagFloat) key).getFloat()); break;
-					            case 6: buffer.writeDouble(((NBTTagDouble) key).getDouble()); break;
-					            case 8: writeString(buffer, ((NBTTagString) key).getString()); break;
-					            default: writeString(buffer, "unknown_key_"+i);
-					        }
+							case 0:
+								buffer.writeByte((byte) 0);
+								break;
+							case 1:
+								buffer.writeByte(((NBTTagByte) key).getByte());
+								break;
+							case 2:
+								buffer.writeShort(((NBTTagShort) key).getShort());
+								break;
+							case 3:
+								buffer.writeInt(((NBTTagInt) key).getInt());
+								break;
+							case 4:
+								buffer.writeLong(((NBTTagLong) key).getLong());
+								break;
+							case 5:
+								buffer.writeFloat(((NBTTagFloat) key).getFloat());
+								break;
+							case 6:
+								buffer.writeDouble(((NBTTagDouble) key).getDouble());
+								break;
+							case 8:
+								writeString(buffer, ((NBTTagString) key).getString());
+								break;
+							default:
+								writeString(buffer, "unknown_key_" + i);
+							}
 						} else {
 							buffer.writeByte((byte) 16);
-							writeString(buffer, "unknown_key_"+i);
+							writeString(buffer, "unknown_key_" + i);
 						}
-						if (value!=null && value.getId()<(byte) 9 && value.getId()!=(byte) 7) {
+						if (value != null && value.getId() < (byte) 9 && value.getId() != (byte) 7) {
 							buffer.writeByte(value.getId());
 							switch (value.getId()) {
-					            case 0: buffer.writeByte((byte) 0); break;
-					            case 1: buffer.writeByte(((NBTTagByte) value).getByte()); break;
-					            case 2: buffer.writeShort(((NBTTagShort) value).getShort()); break;
-					            case 3: buffer.writeInt(((NBTTagInt) value).getInt()); break;
-					            case 4: buffer.writeLong(((NBTTagLong) value).getLong()); break;
-					            case 5: buffer.writeFloat(((NBTTagFloat) value).getFloat()); break;
-					            case 6: buffer.writeDouble(((NBTTagDouble) value).getDouble()); break;
-					            case 8: writeString(buffer, ((NBTTagString) value).getString()); break;
-					            default: writeString(buffer, "unknown_value_"+i);
-					        }
+							case 0:
+								buffer.writeByte((byte) 0);
+								break;
+							case 1:
+								buffer.writeByte(((NBTTagByte) value).getByte());
+								break;
+							case 2:
+								buffer.writeShort(((NBTTagShort) value).getShort());
+								break;
+							case 3:
+								buffer.writeInt(((NBTTagInt) value).getInt());
+								break;
+							case 4:
+								buffer.writeLong(((NBTTagLong) value).getLong());
+								break;
+							case 5:
+								buffer.writeFloat(((NBTTagFloat) value).getFloat());
+								break;
+							case 6:
+								buffer.writeDouble(((NBTTagDouble) value).getDouble());
+								break;
+							case 8:
+								writeString(buffer, ((NBTTagString) value).getString());
+								break;
+							default:
+								writeString(buffer, "unknown_value_" + i);
+							}
 						} else {
 							buffer.writeByte((byte) 16);
-							writeString(buffer, "unknown_value_"+i);
+							writeString(buffer, "unknown_value_" + i);
 						}
 						i++;
 					}
@@ -144,7 +178,8 @@ public class Server {
 						for (String s : list) {
 							writeString(buffer, s);
 						}
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 					try {
 						@SuppressWarnings("unchecked")
 						List<Integer> list = (List<Integer>) ob;
@@ -155,7 +190,8 @@ public class Server {
 							j++;
 						}
 						writeIntArray(buffer, a);
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				} else if (ob instanceof UUID) {
 					writeString(buffer, ob.toString());
 				} else if (ob instanceof Enum) {
@@ -192,15 +228,123 @@ public class Server {
 		return true;
 	}
 
+	public static int[] readIntArray(ByteBuf buffer) {
+		int[] a = new int[buffer.readInt()];
+		for (int i = 0; i < a.length; i++) {
+			a[i] = buffer.readInt();
+		}
+		return a;
+	}
+
+	public static Map<Object, Object> readMap(ByteBuf buffer) {
+		Map<Object, Object> map = Maps.newLinkedHashMap();
+		int size = buffer.readInt();
+		for (int i = 0; i < size; i++) {
+			Object key;
+			switch (buffer.readByte()) {
+			case 0:
+				key = buffer.readByte();
+				break;
+			case 1:
+				key = buffer.readByte();
+				break;
+			case 2:
+				key = buffer.readShort();
+				break;
+			case 3:
+				key = buffer.readInt();
+				break;
+			case 4:
+				key = buffer.readLong();
+				break;
+			case 5:
+				key = buffer.readFloat();
+				break;
+			case 6:
+				key = buffer.readDouble();
+				break;
+			case 8:
+				key = readString(buffer);
+				break;
+			default:
+				key = readString(buffer);
+			}
+			Object value;
+			switch (buffer.readByte()) {
+			case 0:
+				value = buffer.readByte();
+				break;
+			case 1:
+				value = buffer.readByte();
+				break;
+			case 2:
+				value = buffer.readShort();
+				break;
+			case 3:
+				value = buffer.readInt();
+				break;
+			case 4:
+				value = buffer.readLong();
+				break;
+			case 5:
+				value = buffer.readFloat();
+				break;
+			case 6:
+				value = buffer.readDouble();
+				break;
+			case 8:
+				value = readString(buffer);
+				break;
+			default:
+				value = readString(buffer);
+			}
+			map.put(key, value);
+		}
+		return map;
+	}
+
 	public static NBTTagCompound readNBT(ByteBuf buffer) throws IOException {
 		byte[] bytes = new byte[buffer.readInt()];
 		buffer.readBytes(bytes);
-		DataInputStream datainputstream = new DataInputStream( new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes))));
+		DataInputStream datainputstream = new DataInputStream(
+				new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes))));
 		try {
 			return CompressedStreamTools.read((DataInput) datainputstream, NBTSizeTracker.INFINITE);
 		} finally {
 			datainputstream.close();
 		}
+	}
+
+	private static PathPoint readPathPoint(NBTTagCompound nbt) {
+		PathPoint point = new PathPoint(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+		point.distanceFromOrigin = nbt.getFloat("dfo");
+		point.cost = nbt.getFloat("c");
+		point.costMalus = nbt.getFloat("cm");
+		point.visited = nbt.getBoolean("dfo");
+		point.nodeType = PathNodeType.values()[nbt.getInteger("nt")];
+		point.distanceToTarget = nbt.getFloat("d");
+		return point;
+	}
+
+	public static Path readPathToNBT(NBTTagCompound nbt) {
+		PathPoint[] points = new PathPoint[nbt.getTagList("ps", 10).tagCount()];
+		PathPoint[] openSet = new PathPoint[nbt.getTagList("op", 10).tagCount()];
+		PathPoint[] closedSet = new PathPoint[nbt.getTagList("cp", 10).tagCount()];
+		for (int i = 0; i < nbt.getTagList("ps", 10).tagCount(); i++) {
+			points[i] = Server.readPathPoint(nbt.getTagList("ps", 10).getCompoundTagAt(i));
+		}
+		for (int i = 0; i < nbt.getTagList("op", 10).tagCount(); i++) {
+			openSet[i] = Server.readPathPoint(nbt.getTagList("op", 10).getCompoundTagAt(i));
+		}
+		for (int i = 0; i < nbt.getTagList("cp", 10).tagCount(); i++) {
+			closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i));
+		}
+		Path navigating = new Path(points);
+		ObfuscationHelper.setValue(Path.class, navigating, openSet, 1);
+		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
+		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
+		ObfuscationHelper.setValue(Path.class, navigating, nbt.getInteger("ci"), 4); // currentPathIndex
+		return navigating;
 	}
 
 	public static String readString(ByteBuf buffer) {
@@ -218,52 +362,16 @@ public class Server {
 		return UUID.fromString(readString(buffer));
 	}
 
-	public static int[] readIntArray(ByteBuf buffer) {
-		int[] a = new int[buffer.readInt()];
-		for (int i = 0; i < a.length; i++) { a[i] = buffer.readInt(); }
-		return a;
-	}
-
 	public static CustomWorldInfo readWorldInfo(ByteBuf buffer) {
 		return new CustomWorldInfo(ByteBufUtils.readTag(buffer));
 	}
-	
-	public static Map<Object, Object> readMap(ByteBuf buffer) {
-		Map<Object, Object> map = Maps.newLinkedHashMap();
-		int size = buffer.readInt();
-		for (int i = 0; i < size; i++) {
-			Object key;
-			switch (buffer.readByte()) {
-	            case 0: key = buffer.readByte(); break;
-	            case 1: key = buffer.readByte(); break;
-	            case 2: key = buffer.readShort(); break;
-	            case 3: key = buffer.readInt(); break;
-	            case 4: key = buffer.readLong(); break;
-	            case 5: key = buffer.readFloat(); break;
-	            case 6: key = buffer.readDouble(); break;
-	            case 8: key = readString(buffer); break;
-	            default: key = readString(buffer);
-	        }
-			Object value;
-			switch (buffer.readByte()) {
-	            case 0: value = buffer.readByte(); break;
-	            case 1: value = buffer.readByte(); break;
-	            case 2: value = buffer.readShort(); break;
-	            case 3: value = buffer.readInt(); break;
-	            case 4: value = buffer.readLong(); break;
-	            case 5: value = buffer.readFloat(); break;
-	            case 6: value = buffer.readDouble(); break;
-	            case 8: value = readString(buffer); break;
-	            default: value = readString(buffer);
-	        }
-			map.put(key, value);
-		}
-		return map;
-	}
 
 	public static void sendAssociatedData(Entity entity, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) entity.world.getEntitiesWithinAABB(EntityPlayerMP.class, entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
-		if (list.isEmpty()) { return; }
+		List<EntityPlayerMP> list = (List<EntityPlayerMP>) entity.world.getEntitiesWithinAABB(EntityPlayerMP.class,
+				entity.getEntityBoundingBox().grow(160.0, 160.0, 160.0));
+		if (list.isEmpty()) {
+			return;
+		}
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
@@ -273,7 +381,8 @@ public class Server {
 					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"), iterator.next());
+						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
+								iterator.next());
 					}
 				}
 			} catch (IOException e) {
@@ -291,8 +400,12 @@ public class Server {
 	public static boolean sendDataChecked(EntityPlayerMP player, EnumPacketClient type, Object... obs) {
 		PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 		try {
-			if (!fillBuffer((ByteBuf) buffer, type, obs)) { return false; }
-			if (!Server.list.contains(type)) { LogWriter.debug("SendDataChecked: " + type); }
+			if (!fillBuffer((ByteBuf) buffer, type, obs)) {
+				return false;
+			}
+			if (!Server.list.contains(type)) {
+				LogWriter.debug("SendDataChecked: " + type);
+			}
 			CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, "CustomNPCs"), player);
 		} catch (IOException e) {
 			LogWriter.error(type + " Errored", e);
@@ -305,7 +418,9 @@ public class Server {
 			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 			try {
 				if (fillBuffer((ByteBuf) buffer, type, obs)) {
-					if (!Server.list.contains(type)) { LogWriter.debug("SendData: " + type); }
+					if (!Server.list.contains(type)) {
+						LogWriter.debug("SendData: " + type);
+					}
 					CustomNpcs.Channel.sendTo(new FMLProxyPacket(buffer, "CustomNPCs"), player);
 				} else {
 					LogWriter.error("Not Send: " + type);
@@ -344,8 +459,11 @@ public class Server {
 	}
 
 	public static void sendRangedData(World world, BlockPos pos, int range, EnumPacketClient type, Object... obs) {
-		List<EntityPlayerMP> list = (List<EntityPlayerMP>) world.getEntitiesWithinAABB(EntityPlayerMP.class, new AxisAlignedBB(pos).grow(range, range, range));
-		if (list.isEmpty()) { return; }
+		List<EntityPlayerMP> list = (List<EntityPlayerMP>) world.getEntitiesWithinAABB(EntityPlayerMP.class,
+				new AxisAlignedBB(pos).grow(range, range, range));
+		if (list.isEmpty()) {
+			return;
+		}
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
 			try {
@@ -355,7 +473,8 @@ public class Server {
 					}
 					Iterator<EntityPlayerMP> iterator = list.iterator();
 					while (iterator.hasNext()) {
-						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"), iterator.next());
+						CustomNpcs.Channel.sendTo(new FMLProxyPacket(new PacketBuffer(buffer.copy()), "CustomNPCs"),
+								iterator.next());
 					}
 				}
 			} catch (IOException e) {
@@ -367,7 +486,9 @@ public class Server {
 	}
 
 	public static void sendToAll(MinecraftServer server, EnumPacketClient type, Object... obs) {
-		if (server==null) { return; }
+		if (server == null) {
+			return;
+		}
 		List<EntityPlayerMP> list = new ArrayList<EntityPlayerMP>(server.getPlayerList().getPlayers());
 		CustomNPCsScheduler.runTack(() -> {
 			ByteBuf buffer = Unpooled.buffer();
@@ -390,6 +511,13 @@ public class Server {
 		});
 	}
 
+	public static void writeIntArray(ByteBuf buffer, int[] a) {
+		buffer.writeInt(a.length);
+		for (int i : a) {
+			buffer.writeInt(i);
+		}
+	}
+
 	public static void writeNBT(ByteBuf buffer, NBTTagCompound compound) throws IOException {
 		ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
 		DataOutputStream dataoutputstream = new DataOutputStream(new GZIPOutputStream(bytearrayoutputstream));
@@ -401,71 +529,6 @@ public class Server {
 		byte[] bytes = bytearrayoutputstream.toByteArray();
 		buffer.writeInt(bytes.length);
 		buffer.writeBytes(bytes);
-	}
-
-	public static void writeString(ByteBuf buffer, String s) {
-		byte[] bytes = s.getBytes(Charset.forName("UTF-8"));
-		buffer.writeInt(bytes.length);
-		buffer.writeBytes(bytes);
-	}
-
-	public static void writeIntArray(ByteBuf buffer, int[] a) {
-		buffer.writeInt(a.length);
-		for (int i : a) {
-			buffer.writeInt(i);
-		}
-	}
-
-	public static void writeWorldInfo(ByteBuf buffer, WorldInfo wi) {
-		ByteBufUtils.writeTag(buffer, wi.cloneNBTCompound(null));
-	}
-
-	public static NBTTagCompound writePathToNBT(Path path) {
-		NBTTagCompound nbt = new NBTTagCompound();
-		PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
-		PathPoint[] openSet = ObfuscationHelper.getValue(Path.class, path, 1);
-	    PathPoint[] closedSet = ObfuscationHelper.getValue(Path.class, path, 2);
-	    
-	    NBTTagList ps = new NBTTagList();
-	    for (PathPoint p : points) { ps.appendTag(Server.writePathPoint(p)); }
-	    nbt.setTag("ps", ps);
-	    
-	    NBTTagList op = new NBTTagList();
-	    for (PathPoint p : openSet) { op.appendTag(Server.writePathPoint(p)); }
-	    nbt.setTag("op", op);
-
-	    NBTTagList cp = new NBTTagList();
-	    for (PathPoint p : closedSet) { cp.appendTag(Server.writePathPoint(p)); }
-	    nbt.setTag("cp", cp);
-	    
-	    nbt.setInteger("ci", ObfuscationHelper.getValue(Path.class, path, int.class));
-		return nbt;
-	}
-
-	public static Path readPathToNBT(NBTTagCompound nbt) {
-		PathPoint[] points = new PathPoint[nbt.getTagList("ps", 10).tagCount()];
-		PathPoint[] openSet = new PathPoint[nbt.getTagList("op", 10).tagCount()];
-	    PathPoint[] closedSet = new PathPoint[nbt.getTagList("cp", 10).tagCount()];
-		for (int i = 0; i < nbt.getTagList("ps", 10).tagCount(); i++) { points[i] = Server.readPathPoint(nbt.getTagList("ps", 10).getCompoundTagAt(i)); }
-		for (int i = 0; i < nbt.getTagList("op", 10).tagCount(); i++) { openSet[i] = Server.readPathPoint(nbt.getTagList("op", 10).getCompoundTagAt(i)); }
-		for (int i = 0; i < nbt.getTagList("cp", 10).tagCount(); i++) { closedSet[i] = Server.readPathPoint(nbt.getTagList("cp", 10).getCompoundTagAt(i)); }
-		Path navigating = new Path(points);
-		ObfuscationHelper.setValue(Path.class, navigating, openSet, 1);
-		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
-		ObfuscationHelper.setValue(Path.class, navigating, closedSet, 2);
-		ObfuscationHelper.setValue(Path.class, navigating, nbt.getInteger("ci"), 4); // currentPathIndex
-		return navigating;
-	}
-
-	private static PathPoint readPathPoint(NBTTagCompound nbt) {
-		PathPoint point = new PathPoint(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
-		point.distanceFromOrigin = nbt.getFloat("dfo");
-		point.cost = nbt.getFloat("c");
-		point.costMalus = nbt.getFloat("cm");
-		point.visited = nbt.getBoolean("dfo");
-		point.nodeType = PathNodeType.values()[nbt.getInteger("nt")];
-		point.distanceToTarget = nbt.getFloat("d");
-		return point;
 	}
 
 	private static NBTTagCompound writePathPoint(PathPoint point) {
@@ -480,5 +543,43 @@ public class Server {
 		nbt.setBoolean("dfo", point.visited);
 		nbt.setInteger("nt", point.nodeType.ordinal());
 		return nbt;
+	}
+
+	public static NBTTagCompound writePathToNBT(Path path) {
+		NBTTagCompound nbt = new NBTTagCompound();
+		PathPoint[] points = ObfuscationHelper.getValue(Path.class, path, 0);
+		PathPoint[] openSet = ObfuscationHelper.getValue(Path.class, path, 1);
+		PathPoint[] closedSet = ObfuscationHelper.getValue(Path.class, path, 2);
+
+		NBTTagList ps = new NBTTagList();
+		for (PathPoint p : points) {
+			ps.appendTag(Server.writePathPoint(p));
+		}
+		nbt.setTag("ps", ps);
+
+		NBTTagList op = new NBTTagList();
+		for (PathPoint p : openSet) {
+			op.appendTag(Server.writePathPoint(p));
+		}
+		nbt.setTag("op", op);
+
+		NBTTagList cp = new NBTTagList();
+		for (PathPoint p : closedSet) {
+			cp.appendTag(Server.writePathPoint(p));
+		}
+		nbt.setTag("cp", cp);
+
+		nbt.setInteger("ci", ObfuscationHelper.getValue(Path.class, path, int.class));
+		return nbt;
+	}
+
+	public static void writeString(ByteBuf buffer, String s) {
+		byte[] bytes = s.getBytes(Charset.forName("UTF-8"));
+		buffer.writeInt(bytes.length);
+		buffer.writeBytes(bytes);
+	}
+
+	public static void writeWorldInfo(ByteBuf buffer, WorldInfo wi) {
+		ByteBufUtils.writeTag(buffer, wi.cloneNBTCompound(null));
 	}
 }

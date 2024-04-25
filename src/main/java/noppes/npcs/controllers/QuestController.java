@@ -25,9 +25,8 @@ import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class QuestController
-implements IQuestHandler {
-	
+public class QuestController implements IQuestHandler {
+
 	public static QuestController instance = new QuestController();
 	public final TreeMap<Integer, QuestCategory> categories;
 	public final TreeMap<Integer, QuestCategory> categoriesSync;
@@ -171,7 +170,9 @@ implements IQuestHandler {
 
 	public void removeCategory(int category) {
 		QuestCategory cat = this.categories.get(category);
-		if (cat == null) { return; }
+		if (cat == null) {
+			return;
+		}
 		File dir = new File(this.getDir(), cat.title);
 		// if (!dir.delete()) { return; } Changed
 		// New
@@ -188,11 +189,15 @@ implements IQuestHandler {
 
 	public void removeQuest(Quest quest) {
 		File file = new File(new File(this.getDir(), quest.category.title), quest.id + ".json");
-		if (file.exists()) { file.delete(); }
+		if (file.exists()) {
+			file.delete();
+		}
 		this.quests.remove(quest.id);
 		quest.category.quests.remove(quest.id);
 		for (QuestCategory cat : this.categories.values()) {
-			if (cat.quests.containsKey(quest.id)) { cat.quests.remove(quest.id); }
+			if (cat.quests.containsKey(quest.id)) {
+				cat.quests.remove(quest.id);
+			}
 		}
 		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_REMOVE, EnumSync.QuestData, quest.id);
 	}
@@ -201,14 +206,20 @@ implements IQuestHandler {
 		category.title = NoppesStringUtils.cleanFileName(category.title);
 		if (category.title.isEmpty()) {
 			category.title = "default";
-			while (this.containsCategoryName(category)) { category.title += "_"; }
+			while (this.containsCategoryName(category)) {
+				category.title += "_";
+			}
 		}
 		if (categories.containsKey(category.id)) {
 			QuestCategory currentCategory = this.categories.get(category.id);
 			File newdir = new File(this.getDir(), category.title);
 			File olddir = new File(this.getDir(), currentCategory.title);
-			while (this.containsCategoryName(category)) { category.title += "_"; }
-			if (newdir.exists() || !olddir.renameTo(newdir)) { return; }
+			while (this.containsCategoryName(category)) {
+				category.title += "_";
+			}
+			if (newdir.exists() || !olddir.renameTo(newdir)) {
+				return;
+			}
 			category.quests.clear();
 			category.quests.putAll(currentCategory.quests);
 		} else {
@@ -220,17 +231,24 @@ implements IQuestHandler {
 				category.title += "_";
 			}
 			File dir = new File(this.getDir(), category.title);
-			if (!dir.exists()) { dir.mkdirs(); }
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
 		}
 		this.categories.put(category.id, category);
 		for (Quest quest : quests.values()) {
-			if (quest.category.id == category.id) { quest.category = category; }
+			if (quest.category.id == category.id) {
+				quest.category = category;
+			}
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData,
+				category.writeNBT(new NBTTagCompound()));
 	}
 
 	public void saveQuest(QuestCategory category, Quest quest) {
-		if (category == null) { return; }
+		if (category == null) {
+			return;
+		}
 		while (this.containsQuestName(quest.category, quest)) {
 			quest.setName(quest.getName() + "_"); // Changed
 		}
@@ -252,7 +270,8 @@ implements IQuestHandler {
 				file2.delete();
 			}
 			file.renameTo(file2);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData, quest.writeToNBT(new NBTTagCompound()), category.id);
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData,
+					quest.writeToNBT(new NBTTagCompound()), category.id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

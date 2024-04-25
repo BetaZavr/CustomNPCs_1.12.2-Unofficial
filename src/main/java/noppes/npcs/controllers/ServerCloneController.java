@@ -24,9 +24,8 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.handler.ICloneHandler;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class ServerCloneController
-implements ICloneHandler {
-	
+public class ServerCloneController implements ICloneHandler {
+
 	public static ServerCloneController Instance;
 
 	public ServerCloneController() {
@@ -96,7 +95,9 @@ implements ICloneHandler {
 	}
 
 	public NBTTagCompound getCloneData(ICommandSender player, String name, int tab) {
-		if (name == null || name.isEmpty()) { return null; }
+		if (name == null || name.isEmpty()) {
+			return null;
+		}
 		File file = new File(new File(this.getDir(), tab + ""), name + ".json");
 		if (!file.exists()) {
 			if (player != null) {
@@ -236,7 +237,8 @@ implements ICloneHandler {
 	@Override
 	public IEntity<?> spawn(double x, double y, double z, int tab, String name, IWorld world) {
 		if (world == null || world.getMCWorld().isRemote) {
-			LogWriter.debug("CloneHandler summoning Error: World is Client: "+(world == null ? "null" : world.getMCWorld().isRemote+" - "+world));
+			LogWriter.debug("CloneHandler summoning Error: World is Client: "
+					+ (world == null ? "null" : world.getMCWorld().isRemote + " - " + world));
 			return null;
 		}
 		NBTTagCompound compound = this.getCloneData(null, name, tab);
@@ -245,7 +247,9 @@ implements ICloneHandler {
 		}
 		Entity entity = NoppesUtilServer.spawnClone(compound, x, y, z, world.getMCWorld());
 		if (entity == null) {
-			LogWriter.debug("CloneHandler summoning error: Failed to create an entity based on tab: " + tab + "; name: \"" + name+ "\"; compound:" + (compound == null ? "null" : compound.toString().length()));
+			LogWriter.debug(
+					"CloneHandler summoning error: Failed to create an entity based on tab: " + tab + "; name: \""
+							+ name + "\"; compound:" + (compound == null ? "null" : compound.toString().length()));
 			return null;
 		}
 		return NpcAPI.Instance().getIEntity(entity);

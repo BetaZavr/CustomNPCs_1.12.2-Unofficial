@@ -18,17 +18,14 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IWorldInfo;
 
-public class CustomWorldInfo
-extends WorldInfo
-implements IWorldInfo
-{
-	
+public class CustomWorldInfo extends WorldInfo implements IWorldInfo {
+
+	public static final EnumDifficulty DEFAULT_DIFFICULTY = EnumDifficulty.NORMAL;
 	WorldInfo superInfo;
 	public int id = 100;
 	public String versionName;
 	public int versionId;
 	public boolean versionSnapshot;
-	public static final EnumDifficulty DEFAULT_DIFFICULTY = EnumDifficulty.NORMAL;
 	public long randomSeed;
 	public WorldType terrainType = WorldType.DEFAULT;
 	public String generatorOptions = "";
@@ -73,51 +70,60 @@ implements IWorldInfo
 		this.superInfo = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getWorldInfo();
 	}
 
-	public CustomWorldInfo(WorldSettings settings, String name) { super(settings, name); }
+	public CustomWorldInfo(WorldSettings settings, String name) {
+		super(settings, name);
+	}
 
 	@Override
-	public NBTTagCompound getPlayerNBTTagCompound() { return superInfo.getPlayerNBTTagCompound(); }
+	public boolean areCommandsAllowed() {
+		return superInfo.areCommandsAllowed();
+	}
+
+	@Override
+	public EnumDifficulty getDifficulty() {
+		return superInfo.getDifficulty();
+	}
+
+	@Override
+	public GameRules getGameRulesInstance() {
+		return superInfo.getGameRulesInstance();
+	}
+
+	@Override
+	public GameType getGameType() {
+		return superInfo.getGameType();
+	}
+
+	@Override
+	public int getId() {
+		return this.id;
+	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public long getLastTimePlayed() { return superInfo.getLastTimePlayed(); }
-
-	@Override
-	public GameType getGameType() { return superInfo.getGameType(); }
-
-	@Override
-	public boolean isHardcoreModeEnabled() { return superInfo.isHardcoreModeEnabled(); }
-
-	@Override
-	public boolean areCommandsAllowed() { return superInfo.areCommandsAllowed(); }
-
-	@Override
-	public GameRules getGameRulesInstance() { return superInfo.getGameRulesInstance(); }
-
-	@Override
-	public EnumDifficulty getDifficulty() { return superInfo.getDifficulty(); }
-
-	@Override
-	public boolean isDifficultyLocked() { return superInfo.isDifficultyLocked(); }
-
-	@Override
-	public int getId() { return this.id; }
+	public long getLastTimePlayed() {
+		return superInfo.getLastTimePlayed();
+	}
 
 	@Override
 	public INbt getNbt() {
 		return NpcAPI.Instance().getINbt(this.read());
 	}
 
-
-	public NBTTagCompound read() {
-		NBTTagCompound nbt = this.cloneNBTCompound(null);
-		nbt.getCompoundTag("Version").setInteger("Id", this.id);
-		nbt.getCompoundTag("Version").setBoolean("Snapshot", true);
-		return nbt;
+	@Override
+	public NBTTagCompound getPlayerNBTTagCompound() {
+		return superInfo.getPlayerNBTTagCompound();
 	}
 
 	@Override
-	public void setNbt(INbt inbt) { this.load(inbt.getMCNBT()); }
+	public boolean isDifficultyLocked() {
+		return superInfo.isDifficultyLocked();
+	}
+
+	@Override
+	public boolean isHardcoreModeEnabled() {
+		return superInfo.isHardcoreModeEnabled();
+	}
 
 	public void load(NBTTagCompound nbt) {
 		if (nbt.hasKey("Version", 10)) {
@@ -126,30 +132,41 @@ implements IWorldInfo
 			this.versionId = nbttagcompound.getInteger("Id");
 			this.versionSnapshot = nbttagcompound.getBoolean("Snapshot");
 		}
-		
+
 		this.randomSeed = nbt.getLong("RandomSeed");
-		
+
 		if (nbt.hasKey("generatorName", 8)) {
 			String s1 = nbt.getString("generatorName");
 			this.terrainType = WorldType.parseWorldType(s1);
-			if (this.terrainType == null) { this.terrainType = WorldType.DEFAULT; }
-			else if (this.terrainType.isVersioned()) {
+			if (this.terrainType == null) {
+				this.terrainType = WorldType.DEFAULT;
+			} else if (this.terrainType.isVersioned()) {
 				int i = 0;
-				if (nbt.hasKey("generatorVersion", 99)) { i = nbt.getInteger("generatorVersion"); }
+				if (nbt.hasKey("generatorVersion", 99)) {
+					i = nbt.getInteger("generatorVersion");
+				}
 				this.terrainType = this.terrainType.getWorldTypeForGeneratorVersion(i);
 			}
-			if (nbt.hasKey("generatorOptions", 8)) { this.generatorOptions = nbt.getString("generatorOptions"); }
+			if (nbt.hasKey("generatorOptions", 8)) {
+				this.generatorOptions = nbt.getString("generatorOptions");
+			}
 		}
-		
+
 		this.gameType = GameType.getByID(nbt.getInteger("GameType"));
-		if (nbt.hasKey("MapFeatures", 99)) { this.mapFeaturesEnabled = nbt.getBoolean("MapFeatures"); }
-		else { this.mapFeaturesEnabled = true; }
+		if (nbt.hasKey("MapFeatures", 99)) {
+			this.mapFeaturesEnabled = nbt.getBoolean("MapFeatures");
+		} else {
+			this.mapFeaturesEnabled = true;
+		}
 		this.spawnX = nbt.getInteger("SpawnX");
 		this.spawnY = nbt.getInteger("SpawnY");
 		this.spawnZ = nbt.getInteger("SpawnZ");
 		this.totalTime = nbt.getLong("Time");
-		if (nbt.hasKey("DayTime", 99)) { this.worldTime = nbt.getLong("DayTime"); }
-		else { this.worldTime = this.totalTime; }
+		if (nbt.hasKey("DayTime", 99)) {
+			this.worldTime = nbt.getLong("DayTime");
+		} else {
+			this.worldTime = this.totalTime;
+		}
 		this.lastTimePlayed = nbt.getLong("LastPlayed");
 		this.sizeOnDisk = nbt.getLong("SizeOnDisk");
 		this.levelName = nbt.getString("LevelName");
@@ -160,45 +177,88 @@ implements IWorldInfo
 		this.thunderTime = nbt.getInteger("thunderTime");
 		this.thundering = nbt.getBoolean("thundering");
 		this.hardcore = nbt.getBoolean("hardcore");
-		if (nbt.hasKey("initialized", 99)) { this.initialized = nbt.getBoolean("initialized"); }
-		else { this.initialized = true; }
+		if (nbt.hasKey("initialized", 99)) {
+			this.initialized = nbt.getBoolean("initialized");
+		} else {
+			this.initialized = true;
+		}
 
-		if (nbt.hasKey("allowCommands", 99)) { this.allowCommands = nbt.getBoolean("allowCommands"); }
-		else { this.allowCommands = this.gameType == GameType.CREATIVE; }
+		if (nbt.hasKey("allowCommands", 99)) {
+			this.allowCommands = nbt.getBoolean("allowCommands");
+		} else {
+			this.allowCommands = this.gameType == GameType.CREATIVE;
+		}
 
 		if (nbt.hasKey("Player", 10)) {
 			this.playerTag = nbt.getCompoundTag("Player");
 			this.dimension = this.playerTag.getInteger("Dimension");
 		}
 
-		if (nbt.hasKey("GameRules", 10)) { this.gameRules.readFromNBT(nbt.getCompoundTag("GameRules")); }
+		if (nbt.hasKey("GameRules", 10)) {
+			this.gameRules.readFromNBT(nbt.getCompoundTag("GameRules"));
+		}
 
-		if (nbt.hasKey("Difficulty", 99)) { this.difficulty = EnumDifficulty.getDifficultyEnum(nbt.getByte("Difficulty")); }
+		if (nbt.hasKey("Difficulty", 99)) {
+			this.difficulty = EnumDifficulty.getDifficultyEnum(nbt.getByte("Difficulty"));
+		}
 
-		if (nbt.hasKey("DifficultyLocked", 1)) { this.difficultyLocked = nbt.getBoolean("DifficultyLocked"); }
+		if (nbt.hasKey("DifficultyLocked", 1)) {
+			this.difficultyLocked = nbt.getBoolean("DifficultyLocked");
+		}
 
-		if (nbt.hasKey("BorderCenterX", 99)) { this.borderCenterX = nbt.getDouble("BorderCenterX"); }
+		if (nbt.hasKey("BorderCenterX", 99)) {
+			this.borderCenterX = nbt.getDouble("BorderCenterX");
+		}
 
-		if (nbt.hasKey("BorderCenterZ", 99)) { this.borderCenterZ = nbt.getDouble("BorderCenterZ"); }
+		if (nbt.hasKey("BorderCenterZ", 99)) {
+			this.borderCenterZ = nbt.getDouble("BorderCenterZ");
+		}
 
-		if (nbt.hasKey("BorderSize", 99)) { this.borderSize = nbt.getDouble("BorderSize"); }
+		if (nbt.hasKey("BorderSize", 99)) {
+			this.borderSize = nbt.getDouble("BorderSize");
+		}
 
-		if (nbt.hasKey("BorderSizeLerpTime", 99)) { this.borderSizeLerpTime = nbt.getLong("BorderSizeLerpTime"); }
+		if (nbt.hasKey("BorderSizeLerpTime", 99)) {
+			this.borderSizeLerpTime = nbt.getLong("BorderSizeLerpTime");
+		}
 
-		if (nbt.hasKey("BorderSizeLerpTarget", 99)) { this.borderSizeLerpTarget = nbt.getDouble("BorderSizeLerpTarget"); }
+		if (nbt.hasKey("BorderSizeLerpTarget", 99)) {
+			this.borderSizeLerpTarget = nbt.getDouble("BorderSizeLerpTarget");
+		}
 
-		if (nbt.hasKey("BorderSafeZone", 99)) { this.borderSafeZone = nbt.getDouble("BorderSafeZone"); }
+		if (nbt.hasKey("BorderSafeZone", 99)) {
+			this.borderSafeZone = nbt.getDouble("BorderSafeZone");
+		}
 
-		if (nbt.hasKey("BorderDamagePerBlock", 99)) { this.borderDamagePerBlock = nbt.getDouble("BorderDamagePerBlock"); }
+		if (nbt.hasKey("BorderDamagePerBlock", 99)) {
+			this.borderDamagePerBlock = nbt.getDouble("BorderDamagePerBlock");
+		}
 
-		if (nbt.hasKey("BorderWarningBlocks", 99)) { this.borderWarningDistance = nbt.getInteger("BorderWarningBlocks"); }
+		if (nbt.hasKey("BorderWarningBlocks", 99)) {
+			this.borderWarningDistance = nbt.getInteger("BorderWarningBlocks");
+		}
 
-		if (nbt.hasKey("BorderWarningTime", 99)) { this.borderWarningTime = nbt.getInteger("BorderWarningTime"); }
+		if (nbt.hasKey("BorderWarningTime", 99)) {
+			this.borderWarningTime = nbt.getInteger("BorderWarningTime");
+		}
 
 		if (nbt.hasKey("DimensionData", 10)) {
 			NBTTagCompound nbttagcompound1 = nbt.getCompoundTag("DimensionData");
-			for (String s : nbttagcompound1.getKeySet()) { this.dimensionData.put(Integer.parseInt(s), nbttagcompound1.getCompoundTag(s)); }
+			for (String s : nbttagcompound1.getKeySet()) {
+				this.dimensionData.put(Integer.parseInt(s), nbttagcompound1.getCompoundTag(s));
+			}
 		}
 	}
-}
 
+	public NBTTagCompound read() {
+		NBTTagCompound nbt = this.cloneNBTCompound(null);
+		nbt.getCompoundTag("Version").setInteger("Id", this.id);
+		nbt.getCompoundTag("Version").setBoolean("Snapshot", true);
+		return nbt;
+	}
+
+	@Override
+	public void setNbt(INbt inbt) {
+		this.load(inbt.getMCNBT());
+	}
+}

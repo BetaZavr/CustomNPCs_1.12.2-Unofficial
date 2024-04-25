@@ -17,9 +17,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.roles.JobFarmer;
 
-public class DataAI
-implements INPCAi {
-	
+public class DataAI implements INPCAi {
+
 	public int animationType;
 	public boolean attackInvisible;
 	public boolean avoidsSun;
@@ -88,7 +87,7 @@ implements INPCAi {
 		this.movingPattern = 0;
 		this.movingPause = true;
 		this.npc = npc;
-		//this.setStandingType(type);
+		// this.setStandingType(type);
 	}
 
 	public void appendMovingPath(int[] pos) {
@@ -153,11 +152,15 @@ implements INPCAi {
 			return list.get(0);
 		}
 		int pos = movingPos;
-		if(movingPattern == 0 && pos >= size) { pos = movingPos = 0; }
-		else if(movingPattern == 1) {
+		if (movingPattern == 0 && pos >= size) {
+			pos = movingPos = 0;
+		} else if (movingPattern == 1) {
 			int size2 = size * 2 - 1;
-			if(pos >= size2) { pos = movingPos = 0; }
-			else if(pos >= size) { pos = size2 - pos; }
+			if (pos >= size2) {
+				pos = movingPos = 0;
+			} else if (pos >= size) {
+				pos = size2 - pos;
+			}
 		}
 		return list.get(pos);
 	}
@@ -188,7 +191,8 @@ implements INPCAi {
 				this.movingPath.add(this.getStartArray());
 			} else {
 				int[] arr = this.movingPath.get(0);
-				if (arr[0]!=this.startPos.getX() || arr[1]!=this.startPos.getY() || arr[2]!=this.startPos.getZ()) {
+				if (arr[0] != this.startPos.getX() || arr[1] != this.startPos.getY()
+						|| arr[2] != this.startPos.getZ()) {
 					this.movingPath.remove(0);
 					this.movingPath.add(0, this.getStartArray());
 				}
@@ -501,8 +505,10 @@ implements INPCAi {
 	}
 
 	public boolean shouldReturnHome() {
-		return (!(this.npc.advanced.jobInterface instanceof JobBuilder) || !((JobBuilder) this.npc.advanced.jobInterface).isBuilding())
-				&& (!(this.npc.advanced.jobInterface instanceof JobFarmer) || !((JobFarmer) this.npc.advanced.jobInterface).isPlucking())
+		return (!(this.npc.advanced.jobInterface instanceof JobBuilder)
+				|| !((JobBuilder) this.npc.advanced.jobInterface).isBuilding())
+				&& (!(this.npc.advanced.jobInterface instanceof JobFarmer)
+						|| !((JobFarmer) this.npc.advanced.jobInterface).isPlucking())
 				&& this.returnToStart;
 	}
 

@@ -9,9 +9,8 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.api.handler.data.IDialogCategory;
 
-public class DialogCategory
-implements IDialogCategory {
-	
+public class DialogCategory implements IDialogCategory {
+
 	public final TreeMap<Integer, Dialog> dialogs;
 	public int id;
 	public String title;
@@ -20,6 +19,12 @@ implements IDialogCategory {
 		this.id = -1;
 		this.title = "";
 		this.dialogs = Maps.<Integer, Dialog>newTreeMap();
+	}
+
+	public DialogCategory copy() {
+		DialogCategory newCat = new DialogCategory();
+		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
+		return null;
 	}
 
 	@Override
@@ -61,11 +66,5 @@ implements IDialogCategory {
 		}
 		compound.setTag("Dialogs", dialogs);
 		return compound;
-	}
-
-	public DialogCategory copy() {
-		DialogCategory newCat = new DialogCategory();
-		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
-		return null;
 	}
 }

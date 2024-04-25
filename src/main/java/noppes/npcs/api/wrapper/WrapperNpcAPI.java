@@ -73,9 +73,8 @@ import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.LRUHashMap;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class WrapperNpcAPI
-extends NpcAPI {
-	
+public class WrapperNpcAPI extends NpcAPI {
+
 	public static EventBus EVENT_BUS = new EventBus();
 	private static NpcAPI instance = null;
 	static Map<Integer, WorldWrapper> worldCache = new LRUHashMap<Integer, WorldWrapper>(10);
@@ -86,7 +85,9 @@ extends NpcAPI {
 	}
 
 	public static NpcAPI Instance() {
-		if (WrapperNpcAPI.instance == null) { WrapperNpcAPI.instance = new WrapperNpcAPI(); }
+		if (WrapperNpcAPI.instance == null) {
+			WrapperNpcAPI.instance = new WrapperNpcAPI();
+		}
 		return WrapperNpcAPI.instance;
 	}
 
@@ -132,8 +133,37 @@ extends NpcAPI {
 	}
 
 	@Override
+	public IPlayer<?>[] getAllPlayers() {
+		List<IPlayer<?>> list = Lists.newArrayList();
+		if (CustomNpcs.Server != null) {
+			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+				if (player == null) {
+					continue;
+				}
+				list.add((IPlayer<?>) this.getIEntity(player));
+			}
+		}
+		return list.toArray(new IPlayer<?>[list.size()]);
+	}
+
+	@Override
+	public IAnimationHandler getAnimations() {
+		return AnimationController.getInstance();
+	}
+
+	@Override
+	public IBorderHandler getBorders() {
+		return BorderController.getInstance();
+	}
+
+	@Override
 	public ICloneHandler getClones() {
 		return ServerCloneController.Instance;
+	}
+
+	@Override
+	public IDimensionHandler getCustomDimention() {
+		return DimensionHandler.getInstance();
 	}
 
 	@Override
@@ -152,11 +182,21 @@ extends NpcAPI {
 		return CustomNpcs.Dir;
 	}
 
+	@Override
+	public INpcAttribute getIAttribute(IAttributeInstance mcattribute) {
+		return new AttributeWrapper(mcattribute);
+	}
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public IBlock getIBlock(World world, BlockPos pos) {
-		if (world==null) { return null; }
-		try { return BlockWrapper.createNew(world, pos, world.getBlockState(pos)); } catch (Exception e) {}
+		if (world == null) {
+			return null;
+		}
+		try {
+			return BlockWrapper.createNew(world, pos, world.getBlockState(pos));
+		} catch (Exception e) {
+		}
 		return null;
 	}
 
@@ -185,8 +225,12 @@ extends NpcAPI {
 
 	@Override
 	public IEntity<?> getIEntity(Entity entity) {
-		if (entity == null || entity.world==null) { return null; }
-		if (entity instanceof EntityNPCInterface) { return ((EntityNPCInterface) entity).wrappedNPC; }
+		if (entity == null || entity.world == null) {
+			return null;
+		}
+		if (entity instanceof EntityNPCInterface) {
+			return ((EntityNPCInterface) entity).wrappedNPC;
+		}
 		return WrapperEntityData.get(entity);
 	}
 
@@ -199,6 +243,11 @@ extends NpcAPI {
 	}
 
 	@Override
+	public IKeyBinding getIKeyBinding() {
+		return KeyController.getInstance();
+	}
+
+	@Override
 	public INbt getINbt(NBTTagCompound compound) {
 		if (compound == null) {
 			return new NBTWrapper(new NBTTagCompound());
@@ -207,13 +256,33 @@ extends NpcAPI {
 	}
 
 	@Override
-	public IPos getIPos(double x, double y, double z) {
-		return new BlockPosWrapper(new BlockPos(x, y, z));
+	public IPlayer<?> getIPlayer(String name) {
+		EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(name);
+		if (player == null) {
+			try {
+				player = CustomNpcs.Server.getPlayerList().getPlayerByUUID(UUID.fromString(name));
+			} catch (Exception e) {
+			}
+		}
+		if (player == null) {
+			for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) {
+				if (p.getName().equalsIgnoreCase(name)) {
+					player = p;
+					break;
+				}
+			}
+		}
+		return player == null ? null : (IPlayer<?>) this.getIEntity(player);
 	}
 
 	@Override
 	public IPos getIPos(BlockPos pos) {
 		return new BlockPosWrapper(pos);
+	}
+
+	@Override
+	public IPos getIPos(double x, double y, double z) {
+		return new BlockPosWrapper(new BlockPos(x, y, z));
 	}
 
 	@Override
@@ -231,9 +300,12 @@ extends NpcAPI {
 	public IWorld getIWorld(World world) {
 		WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
 		if (w != null) {
-			if (w.world == null) { w.world = world; }
+			if (w.world == null) {
+				w.world = world;
+			}
+		} else {
+			WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world));
 		}
-		else { WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world)); }
 		return w;
 	}
 
@@ -245,6 +317,16 @@ extends NpcAPI {
 			worlds[i] = this.getIWorld(CustomNpcs.Server.worlds[i]);
 		}
 		return worlds;
+	}
+
+	@Override
+	public IMarcetHandler getMarkets() {
+		return MarcetController.getInstance();
+	}
+
+	@Override
+	public IMetods getMetods() {
+		return AdditionalMethods.instance;
 	}
 
 	@Override
@@ -321,55 +403,4 @@ extends NpcAPI {
 		}
 	}
 
-	@Override
-	public IPlayer<?> getIPlayer(String name) {
-		EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(name);
-		if (player==null) {
-			try { player = CustomNpcs.Server.getPlayerList().getPlayerByUUID(UUID.fromString(name)); }
-			catch (Exception e) { }
-		}
-		if (player==null) {
-			for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) {
-				if (p.getName().equalsIgnoreCase(name)) {
-					player = p;
-					break;
-				}
-			}
-		}
-		return player == null ? null : (IPlayer<?>) this.getIEntity(player);
-	}
-
-	@Override
-	public IBorderHandler getBorders() { return BorderController.getInstance(); }
-
-	@Override
-	public IAnimationHandler getAnimations() { return AnimationController.getInstance(); }
-
-	@Override
-	public IPlayer<?>[] getAllPlayers() {
-		List<IPlayer<?>> list = Lists.newArrayList();
-		if (CustomNpcs.Server!=null) {
-			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
-				if (player == null) { continue; }
-				list.add((IPlayer<?>) this.getIEntity(player));
-			}
-		}
-		return list.toArray(new IPlayer<?>[list.size()]);
-	}
-
-	@Override
-	public IMetods getMetods() { return AdditionalMethods.instance; }
-	
-	@Override
-	public IKeyBinding getIKeyBinding() { return KeyController.getInstance(); }
-
-	@Override
-	public INpcAttribute getIAttribute(IAttributeInstance mcattribute) { return new AttributeWrapper(mcattribute); }
-
-	@Override
-	public IDimensionHandler getCustomDimention() { return DimensionHandler.getInstance(); }
-
-	@Override
-	public IMarcetHandler getMarkets() { return MarcetController.getInstance(); }
-	
 }

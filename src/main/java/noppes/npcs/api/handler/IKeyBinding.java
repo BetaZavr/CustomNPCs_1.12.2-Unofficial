@@ -5,11 +5,11 @@ import noppes.npcs.api.handler.data.IKeySetting;
 public interface IKeyBinding {
 
 	IKeySetting createKeySetting();
-	
+
 	IKeySetting getKeySetting(int id);
 
 	IKeySetting[] getKeySettings();
 
 	boolean removeKeySetting(int id);
-	
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
+import net.minecraft.command.EntitySelector;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -14,25 +15,15 @@ import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.PlayerDataController;
+import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.Quest;
-import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.util.ValueUtil;
 
-public class CmdQuest
-extends CommandNoppesBase {
+public class CmdQuest extends CommandNoppesBase {
 
-	@Override
-	public String getDescription() {
-		return "Quest operations";
-	}
-
-	public String getName() {
-		return "quest";
-	}
-	
 	@SubCommand(desc = "Finish a quest", usage = "<player> <quest>")
 	public void finish(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		String playername = args[0];
@@ -59,14 +50,24 @@ extends CommandNoppesBase {
 			}
 			try {
 				EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(playername);
-				if (!hasFinishedQuest && player!=null) {
+				if (!hasFinishedQuest && player != null) {
 					Server.sendData(player, EnumPacketClient.MESSAGE, "quest.completed", quest.getTitle(), 2);
 					Server.sendData(player, EnumPacketClient.CHAT, "quest.completed", ": ", quest.getTitle());
 				}
-			} catch (Exception e) { }
+			} catch (Exception e) {
+			}
 			playerdata.updateClient = true;
 			playerdata.save(true);
 		}
+	}
+
+	@Override
+	public String getDescription() {
+		return "Quest operations";
+	}
+
+	public String getName() {
+		return "quest";
 	}
 
 	@SubCommand(desc = "get/set objectives for quests progress", usage = "<player> <quest> [objective] [value]", permission = 2)
@@ -159,22 +160,17 @@ extends CommandNoppesBase {
 		} catch (NumberFormatException ex) {
 			throw new CommandException("QuestID must be an integer", new Object[0]);
 		}
-		List<PlayerData> data = PlayerDataController.instance.getPlayersData(sender, playername);
-		if (data.isEmpty()) {
+		List<EntityPlayerMP> players = (List<EntityPlayerMP>) EntitySelector.matchEntities(sender, playername,
+				EntityPlayerMP.class);
+		if (players.isEmpty()) {
 			throw new CommandException("Unknow player '%s'", new Object[] { playername });
 		}
 		Quest quest = QuestController.instance.quests.get(questid);
 		if (quest == null) {
 			throw new CommandException("Unknown QuestID", new Object[0]);
 		}
-		for (PlayerData playerdata : data) {
-			QuestData questdata = new QuestData(quest);
-			playerdata.questData.activeQuests.put(questid, questdata);
-			playerdata.save(true);
-			Server.sendData((EntityPlayerMP) playerdata.player, EnumPacketClient.MESSAGE, "quest.newquest",
-					quest.getTitle(), 2);
-			Server.sendData((EntityPlayerMP) playerdata.player, EnumPacketClient.CHAT, "quest.newquest", ": ",
-					quest.getTitle());
+		for (EntityPlayerMP player : players) {
+			PlayerQuestController.addActiveQuest(quest, player, true);
 		}
 	}
 
@@ -200,5 +196,5 @@ extends CommandNoppesBase {
 			playerdata.save(true);
 		}
 	}
-	
+
 }

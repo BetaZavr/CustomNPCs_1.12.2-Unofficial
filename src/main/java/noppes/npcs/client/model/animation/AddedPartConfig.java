@@ -9,7 +9,7 @@ public class AddedPartConfig extends PartConfig {
 	public ResourceLocation location;
 	public ResourceLocation obj;
 	public int parentPart;
-	
+
 	public AddedPartConfig() {
 		super();
 	}
@@ -17,7 +17,7 @@ public class AddedPartConfig extends PartConfig {
 	public AddedPartConfig(int id) {
 		super(id);
 	}
-	
+
 	@Override
 	public void clear() {
 		super.clear();
@@ -25,7 +25,7 @@ public class AddedPartConfig extends PartConfig {
 		obj = null;
 		parentPart = -1;
 	}
-	
+
 	public void readNBT(NBTTagCompound compound) {
 		super.readNBT(compound);
 		this.location = new ResourceLocation(compound.getString("Location"));
@@ -34,12 +34,14 @@ public class AddedPartConfig extends PartConfig {
 			this.obj = new ResourceLocation(compound.getString("LOBJLocationocation"));
 		}
 	}
-	
+
 	public NBTTagCompound writeNBT() {
 		NBTTagCompound compound = super.writeNBT();
 		compound.setString("Location", this.location.toString());
 		compound.setInteger("ParentPart", this.parentPart);
-		if (this.obj != null) { compound.setString("OBJLocation", this.obj.toString()); }
+		if (this.obj != null) {
+			compound.setString("OBJLocation", this.obj.toString());
+		}
 		return compound;
 	}
 }

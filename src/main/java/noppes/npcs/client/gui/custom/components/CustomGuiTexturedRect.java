@@ -13,7 +13,7 @@ import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 
 public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
-	
+
 	public static CustomGuiTexturedRect fromComponent(CustomGuiTexturedRectWrapper component) {
 		CustomGuiTexturedRect rect;
 		if (component.getTextureX() >= 0 && component.getTextureY() >= 0) {
@@ -36,14 +36,15 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 	float scale;
 	public int id, textureX, textureY, width, height, x, y, color;
 	ResourceLocation texture;
-    private final int[] offsets;
+	private final int[] offsets;
 	String[] hoverText;
 
 	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height) {
 		this(id, texture, x, y, width, height, 0, 0);
 	}
 
-	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
+	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
+			int textureY) {
 		this.scale = 1.0f;
 		this.id = id;
 		this.texture = new ResourceLocation(texture);
@@ -53,11 +54,43 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		this.height = height;
 		this.textureX = textureX;
 		this.textureY = textureY;
-        this.offsets = new int [] { 0, 0 };
-        this.color = 0xFFFFFFFF;
+		this.offsets = new int[] { 0, 0 };
+		this.color = 0xFFFFFFFF;
 	}
 
-	public int getId() { return this.id; }
+	public int getId() {
+		return this.id;
+	}
+
+	@Override
+	public int[] getPosXY() {
+		return new int[] { this.x, this.y };
+	}
+
+	@Override
+	public void offSet(int offsetType, double[] windowSize) {
+		switch (offsetType) {
+		case 1: { // left down
+			this.offsets[0] = 0;
+			this.offsets[1] = (int) windowSize[1];
+			break;
+		}
+		case 2: { // right up
+			this.offsets[0] = (int) windowSize[0];
+			this.offsets[1] = 0;
+			break;
+		}
+		case 3: { // right down
+			this.offsets[0] = (int) windowSize[0];
+			this.offsets[1] = (int) windowSize[1];
+			break;
+		}
+		default: { // left up
+			this.offsets[0] = 0;
+			this.offsets[1] = 0;
+		}
+		}
+	}
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
 		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;
@@ -69,17 +102,22 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		float a = (float) (this.color >> 24 & 255) / 255.0f;
 		float r = (float) (this.color >> 16 & 255) / 255.0f;
 		float g = (float) (this.color >> 8 & 255) / 255.0f;
-		float b = (float) (this.color & 255) / 255.0f;		
+		float b = (float) (this.color & 255) / 255.0f;
 		GlStateManager.color(r, g, b, a);
 		GlStateManager.enableBlend();
 		mc.renderEngine.bindTexture(this.texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(x, (y + this.height * this.scale), pos).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), pos).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), y, pos).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
-		bufferbuilder.pos(x, y, pos).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
+		bufferbuilder.pos(x, (y + this.height * this.scale), pos)
+				.tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), pos)
+				.tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f))
+				.endVertex();
+		bufferbuilder.pos((x + this.width * this.scale), y, pos)
+				.tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + 0) * 0.00390625f)).endVertex();
+		bufferbuilder.pos(x, y, pos).tex(((this.textureX + 0) * 0.00390625f), ((this.textureY + 0) * 0.00390625f))
+				.endVertex();
 		tessellator.draw();
 		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
 			this.parent.hoverText = this.hoverText;
@@ -87,50 +125,23 @@ public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 		GlStateManager.popMatrix();
 	}
 
-	public ICustomGuiComponent toComponent() {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(this.id, this.texture.toString(), this.x, this.y, this.width, this.height, this.textureX, this.textureY);
-		component.setHoverText(this.hoverText);
-		component.setScale(this.scale);
-		return component;
-	}
-	
-	@Override
-	public void offSet(int offsetType, double[] windowSize) {
-		switch(offsetType) {
-			case 1: { // left down
-				this.offsets[0] = 0;
-				this.offsets[1] = (int) windowSize[1];
-				break;
-			}
-			case 2: { // right up
-				this.offsets[0] = (int) windowSize[0];
-				this.offsets[1] = 0;
-				break;
-			}
-			case 3: { // right down
-				this.offsets[0] = (int) windowSize[0];
-				this.offsets[1] = (int) windowSize[1];
-				break;
-			}
-			default: { // left up
-				this.offsets[0] = 0;
-				this.offsets[1] = 0;
-			}
-		}
-	}
-	
 	@Override
 	public void setParent(GuiCustom parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	public int[] getPosXY() { return new int[] { this.x, this.y }; }
-
-	@Override
-	public void setPosXY(int newX, int newY) { 
+	public void setPosXY(int newX, int newY) {
 		this.x = newX;
 		this.y = newY;
 	}
-	
+
+	public ICustomGuiComponent toComponent() {
+		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(this.id, this.texture.toString(),
+				this.x, this.y, this.width, this.height, this.textureX, this.textureY);
+		component.setHoverText(this.hoverText);
+		component.setScale(this.scale);
+		return component;
+	}
+
 }

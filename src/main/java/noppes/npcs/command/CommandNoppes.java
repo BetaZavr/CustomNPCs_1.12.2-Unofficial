@@ -15,9 +15,8 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.api.CustomNPCsException;
 
-public class CommandNoppes
-extends CommandBase {
-	
+public class CommandNoppes extends CommandBase {
+
 	public CmdHelp help;
 	public Map<String, CommandNoppesBase> map;
 

@@ -20,9 +20,8 @@ import noppes.npcs.api.IScoreboard;
 import noppes.npcs.api.IScoreboardObjective;
 import noppes.npcs.api.IScoreboardTeam;
 
-public class ScoreboardWrapper
-implements IScoreboard {
-	
+public class ScoreboardWrapper implements IScoreboard {
+
 	private Scoreboard board;
 	private MinecraftServer server;
 
@@ -38,7 +37,8 @@ implements IScoreboard {
 			throw new CustomNPCsException("Unknown score criteria: %s", new Object[] { criteria });
 		}
 		if (objective.length() <= 0 || objective.length() > 16) {
-			throw new CustomNPCsException("Score objective must be between 1-16 characters: %s", new Object[] { objective });
+			throw new CustomNPCsException("Score objective must be between 1-16 characters: %s",
+					new Object[] { objective });
 		}
 		ScoreObjective obj = this.board.addScoreObjective(objective, icriteria);
 		return new ScoreboardObjectiveWrapper(this.board, obj);

@@ -3,6 +3,12 @@ package noppes.npcs.client.gui.questtypes;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -19,6 +25,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
 import noppes.npcs.client.gui.global.GuiQuestEdit;
+import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcCheckBox;
@@ -32,13 +39,12 @@ import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 
-public class GuiNpcQuestTypeKill
-extends SubGuiInterface
-implements ITextfieldListener, ICustomScrollListener {
-	
+public class GuiNpcQuestTypeKill extends SubGuiInterface implements ITextfieldListener, ICustomScrollListener {
+
 	public GuiScreen parent;
 	private GuiCustomScroll scroll;
 	private QuestObjective task;
+	private Map<Integer, Integer> dataDimIDs = Maps.<Integer, Integer>newHashMap();
 
 	public GuiNpcQuestTypeKill(EntityNPCInterface npc, QuestObjective task, GuiScreen parent) {
 		// Changed
@@ -49,26 +55,137 @@ implements ITextfieldListener, ICustomScrollListener {
 		this.xSize = 356;
 		this.ySize = 216;
 		this.closeOnEsc = true;
-		// New
 		this.task = task;
+	}
+
+	@Override
+	public void actionPerformed(GuiButton guibutton) {
+		super.actionPerformed(guibutton);
+		GuiNpcButton button = (GuiNpcButton) guibutton;
+		switch (button.id) {
+		case 1: {
+			this.task.setPartName(((GuiNpcCheckBox) guibutton).isSelected());
+			break;
+		}
+		case 2: {
+			this.task.setAndTitle(((GuiNpcCheckBox) guibutton).isSelected());
+			break;
+		}
+		case 4: {
+			if (!dataDimIDs.containsKey(button.getValue())) {
+				return;
+			}
+			this.task.dimensionID = dataDimIDs.get(button.getValue());
+			break;
+		}
+		case 5: {
+			this.task.setPointOnMiniMap(((GuiNpcCheckBox) guibutton).isSelected());
+			break;
+		}
+		case 10: {
+			if (this.task == null) {
+				return;
+			}
+			this.task.pos = new BlockPos(Math.floor(this.mc.player.posX), Math.floor(this.mc.player.posY),
+					Math.floor(this.mc.player.posZ));
+			this.task.dimensionID = this.mc.player.world.provider.getDimension();
+			this.initGui();
+			break;
+		}
+		case 11: {
+			if (this.task == null) {
+				return;
+			}
+			Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.task.dimensionID, this.task.pos.getX(),
+					this.task.pos.getY(), this.task.pos.getZ() });
+			break;
+		}
+		case 66: {
+			this.close();
+			break;
+		}
+		}
+	}
+
+	// New
+	@Override
+	public void drawScreen(int i, int j, float f) {
+		super.drawScreen(i, j, f);
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.area.range").getFormattedText());
+		} else if (this.getTextField(10) != null && this.getTextField(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "X")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getTextField(11) != null && this.getTextField(11).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "Y")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getTextField(12) != null && this.getTextField(12).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "Z")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getTextField(14) != null && this.getTextField(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.range")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getTextField(15) != null && this.getTextField(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.entity")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.part.name").getFormattedText());
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.add.title",
+					new TextComponentTranslation("gui.title").getFormattedText()).getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.dim")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.set.minimap.point").getFormattedText());
+		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set")
+					.appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
+		} else if (this.getButton(11) != null && this.getButton(11).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
+		} else if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.kill.name").getFormattedText());
+		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.edit.kill.value", "" + this.getTextField(1).max)
+					.getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		// int i = 0;
+		int lId = 0;
 		String text = new TextComponentTranslation("quest.player.to").getFormattedText();
-		while (text.indexOf("<br>") != -1) { text = text.replace("<br>", ""+((char) 10)); }
-		
-		this.addButton(new GuiNpcCheckBox(1, this.guiLeft + 6, this.guiTop + 6, 208, 16, "quest.kill.part.name"));
-		((GuiNpcCheckBox) this.getButton(1)).setSelected(this.task.isPartName());
-		this.addButton(new GuiNpcCheckBox(2, this.guiLeft + 6, this.guiTop + 24, 208, 16, new TextComponentTranslation("quest.kill.add.title", new TextComponentTranslation("gui.title").getFormattedText()).getFormattedText()));
-		((GuiNpcCheckBox) this.getButton(2)).setSelected(this.task.isAndTitle());
-		
-		this.addLabel(new GuiNpcLabel(0, text, this.guiLeft + 6, this.guiTop + 46));
+		while (text.indexOf("<br>") != -1) {
+			text = text.replace("<br>", "" + ((char) 10));
+		}
+
+		int x = this.guiLeft + 6;
+		int y = this.guiTop + 6;
+		this.addButton(new GuiNpcCheckBox(1, x, y, 208, 14, "quest.kill.part.name", this.task.isPartName()));
+		this.addButton(new GuiNpcCheckBox(2, x, y += 16, 208, 14,
+				new TextComponentTranslation("quest.kill.add.title",
+						new TextComponentTranslation("gui.title").getFormattedText()).getFormattedText(),
+				this.task.isAndTitle()));
+
+		this.addLabel(new GuiNpcLabel(lId++, text, x, y += 16));
+
 		// New
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 70, 180, 20, this.task.getTargetName()));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 186, this.guiTop + 70, 24, 20, this.task.getMaxProgress() + ""));
+		this.addTextField(
+				new GuiNpcTextField(0, this, this.fontRenderer, x, y += 22, 180, 14, this.task.getTargetName()));
+		this.addTextField(
+				new GuiNpcTextField(1, this, this.fontRenderer, x + 183, y, 24, 14, this.task.getMaxProgress() + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(1, Integer.MAX_VALUE, 1);
 
@@ -95,111 +212,59 @@ implements ITextfieldListener, ICustomScrollListener {
 		this.scroll.guiLeft = this.guiLeft + 220;
 		this.scroll.guiTop = this.guiTop + 14;
 		this.addScroll(this.scroll);
-		int y = 0;
+
+		this.addButton(new GuiNpcButton(66, x, this.guiTop + this.ySize - 21, 98, 16, "gui.back"));
+
 		if (this.task.getEnumType() == EnumQuestTask.AREAKILL) {
-			y = 20;
-			this.addLabel(new GuiNpcLabel(2, "gui.searchdistance", this.guiLeft + 6, this.guiTop + 97));
-			this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 120, this.guiTop + 94, 40, 13, ""+this.task.getAreaRange()));
+			this.addLabel(new GuiNpcLabel(lId++, "gui.searchdistance", x, (y += 19) + 3));
+			this.addTextField(
+					new GuiNpcTextField(2, this, this.fontRenderer, x + 114, y, 40, 14, "" + this.task.getAreaRange()));
 			this.getTextField(2).setNumbersOnly();
 			this.getTextField(2).setMinMaxDefault(3, 32, this.task.getAreaRange());
+			y += 2;
 		}
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 4, this.guiTop + 140 + y, 98, 20, "gui.back"));
-		
-		this.addLabel(new GuiNpcLabel(10, "quest.task.pos.set", this.guiLeft + 6, this.guiTop + 94 + y));
-		this.addLabel(new GuiNpcLabel(11, "X:", this.guiLeft + 6, this.guiTop + 108 + y));
-		this.addTextField(new GuiNpcTextField(10, this, this.fontRenderer, this.guiLeft + 14, this.guiTop + 106 + y, 40, 13, ""+this.task.pos.getX()));
+
+		this.addLabel(new GuiNpcLabel(lId++, "quest.task.pos.set", x, y += 17));
+		this.addLabel(new GuiNpcLabel(lId++, "X:", x, (y += 12) + 2));
+		this.addTextField(
+				new GuiNpcTextField(10, this, this.fontRenderer, x + 8, y, 40, 14, "" + this.task.pos.getX()));
 		this.getTextField(10).setNumbersOnly();
-		this.addLabel(new GuiNpcLabel(12, "Y:", this.guiLeft + 57, this.guiTop + 107 + y));
-		this.addTextField(new GuiNpcTextField(11, this, this.fontRenderer, this.guiLeft + 65, this.guiTop + 106 + y, 40, 13, ""+this.task.pos.getY()));
+		this.addLabel(new GuiNpcLabel(lId++, "Y:", x + 51, y + 2));
+		this.addTextField(
+				new GuiNpcTextField(11, this, this.fontRenderer, x + 59, y, 40, 14, "" + this.task.pos.getY()));
 		this.getTextField(11).setNumbersOnly();
-		this.addLabel(new GuiNpcLabel(13, "Z:", this.guiLeft + 108, this.guiTop + 107 + y));
-		this.addTextField(new GuiNpcTextField(12, this, this.fontRenderer, this.guiLeft + 118, this.guiTop + 106 + y, 40, 13, ""+this.task.pos.getZ()));
+		this.addLabel(new GuiNpcLabel(lId++, "Z:", x + 102, y + 2));
+		this.addTextField(
+				new GuiNpcTextField(12, this, this.fontRenderer, x + 112, y, 40, 14, "" + this.task.pos.getZ()));
 		this.getTextField(12).setNumbersOnly();
-		this.addLabel(new GuiNpcLabel(14, "D:", this.guiLeft + 6, this.guiTop + 124 + y));
-		this.addTextField(new GuiNpcTextField(13, this, this.fontRenderer, this.guiLeft + 14, this.guiTop + 123 + y, 40, 13, ""+this.task.dimensionID));
-		this.getTextField(13).setNumbersOnly();
-		this.addLabel(new GuiNpcLabel(15, "R:", this.guiLeft + 160, this.guiTop + 107 + y));
-		this.addTextField(new GuiNpcTextField(14, this, this.fontRenderer, this.guiLeft + 170, this.guiTop + 106 + y, 45, 13, ""+this.task.rangeCompass));
+		this.addLabel(new GuiNpcLabel(lId++, "R:", this.guiLeft + 160, y + 2));
+		this.addTextField(
+				new GuiNpcTextField(14, this, this.fontRenderer, x + 164, y, 45, 14, "" + this.task.rangeCompass));
 		this.getTextField(14).setNumbersOnly();
 		this.getTextField(14).setMinMaxDefault(0, 64, this.task.rangeCompass);
-		this.addButton(new GuiNpcButton(10, this.guiLeft+153, this.guiTop + 140 + y, 60, 20, "gui.set"));
-		this.addButton(new GuiNpcButton(11, this.guiLeft+131, this.guiTop + 140 + y, 20, 20, "TP"));
-		this.addLabel(new GuiNpcLabel(16, "N:", this.guiLeft + 57, this.guiTop + 124 + y));
-		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, this.guiLeft + 65, this.guiTop + 123 + y, 150, 13, this.task.entityName));
-	}
 
-	@Override
-	public void actionPerformed(GuiButton guibutton) {
-		super.actionPerformed(guibutton);
-		GuiNpcButton button = (GuiNpcButton) guibutton;
-		switch(button.id) {
-			case 0: {
-				this.close();
-				break;
+		this.addLabel(new GuiNpcLabel(lId++, "D:", x, (y += 17) + 2));
+		int p = 0, i = 0;
+		List<Integer> ids = Lists.newArrayList(DimensionManager.getStaticDimensionIDs());
+		Collections.sort(ids);
+		String[] dimIDs = new String[ids.size()];
+		for (int id : ids) {
+			dimIDs[i] = id + "";
+			dataDimIDs.put(i, id);
+			if (id == this.task.dimensionID) {
+				p = i;
 			}
-			case 1: {
-				this.task.setPartName(((GuiNpcCheckBox) guibutton).isSelected());
-				break;
-			}
-			case 2: {
-				this.task.setAndTitle(((GuiNpcCheckBox) guibutton).isSelected());
-				break;
-			}
-			case 10: {
-				if (this.task == null) { return; }
-				this.task.pos = this.mc.player.getPosition();
-				this.task.dimensionID = this.mc.player.world.provider.getDimension();
-				this.initGui();
-				break;
-			}
-			case 11: {
-				if (this.task == null) { return; }
-				Client.sendData(EnumPacketServer.TeleportTo, new Object[] { this.task.dimensionID, this.task.pos.getX(), this.task.pos.getY(), this.task.pos.getZ() });
-				break;
-			}
+			i++;
 		}
-	}
+		this.addButton(new GuiButtonBiDirectional(4, x + 8, y - 1, 60, 16, dimIDs, p));
+		this.addLabel(new GuiNpcLabel(lId++, "N:", x + 71, y + 2));
+		this.addTextField(new GuiNpcTextField(15, this, this.fontRenderer, x + 79, y, 133, 14, this.task.entityName));
 
-	// New
-	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.area.range").getFormattedText());
-		} else if (this.getTextField(10)!=null && this.getTextField(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "X").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getTextField(11)!=null && this.getTextField(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "Y").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getTextField(12)!=null && this.getTextField(12).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.pos", "Z").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getTextField(13)!=null && this.getTextField(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.dim").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getTextField(14)!=null && this.getTextField(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.range").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getTextField(15)!=null && this.getTextField(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.entity").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.part.name").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.add.title", new TextComponentTranslation("gui.title").getFormattedText()).getFormattedText());
-		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").appendSibling(new TextComponentTranslation("quest.hover.compass")).getFormattedText());
-		} else if (this.getButton(11)!=null && this.getButton(11).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.teleport").getFormattedText());
-		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.kill.name").getFormattedText());
-		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.edit.kill.value", ""+this.getTextField(1).max).getFormattedText());
-		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else if (this.getButton(10)!=null && this.getButton(10).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("quest.hover.compass.set").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
+		this.addButton(new GuiNpcButton(10, x + 150, y += 16, 60, 16, "gui.set"));
+		this.addButton(new GuiNpcButton(11, x + 128, y, 20, 16, "TP"));
+		this.addButton(
+				new GuiNpcCheckBox(5, x, y - 2, 123, 16, "quest.set.minimap.point", this.task.isSetPointOnMiniMap()));
+
 	}
 
 	@Override
@@ -247,55 +312,48 @@ implements ITextfieldListener, ICustomScrollListener {
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
-		if (this.task == null) { return; }
-		switch(textField.getId()) {
-			case 0: {
-				this.task.setTargetName(textField.getText());
-				break;
-			}
-			case 1: {
-				this.task.setMaxProgress(textField.getInteger());
-				break;
-			}
-			case 2: {
-				this.task.setAreaRange(textField.getInteger());
-				break;
-			}
-			case 10: {
-				int y = this.task.pos.getY();
-				int z = this.task.pos.getZ();
-				this.task.pos = new BlockPos(textField.getInteger(), y, z);
-				break;
-			}
-			case 11: {
-				int x = this.task.pos.getX();
-				int z = this.task.pos.getZ();
-				this.task.pos = new BlockPos(x, textField.getInteger(), z);
-				break;
-			}
-			case 12: {
-				int x = this.task.pos.getX();
-				int y = this.task.pos.getY();
-				this.task.pos = new BlockPos(x, y, textField.getInteger());
-				break;
-			}
-			case 13: {
-				int dim = textField.getInteger();
-				if (!DimensionManager.isDimensionRegistered(dim)) {
-					textField.setText(""+this.task.dimensionID);
-					return;
-				}
-				this.task.dimensionID = textField.getInteger();
-				break;
-			}
-			case 14: {
-				this.task.rangeCompass = textField.getInteger();
-				break;
-			}
-			case 15: {
-				this.task.entityName = textField.getText();
-				break;
-			}
+		if (this.task == null) {
+			return;
+		}
+		switch (textField.getId()) {
+		case 0: {
+			this.task.setTargetName(textField.getText());
+			break;
+		}
+		case 1: {
+			this.task.setMaxProgress(textField.getInteger());
+			break;
+		}
+		case 2: {
+			this.task.setAreaRange(textField.getInteger());
+			break;
+		}
+		case 10: {
+			int y = this.task.pos.getY();
+			int z = this.task.pos.getZ();
+			this.task.pos = new BlockPos(textField.getInteger(), y, z);
+			break;
+		}
+		case 11: {
+			int x = this.task.pos.getX();
+			int z = this.task.pos.getZ();
+			this.task.pos = new BlockPos(x, textField.getInteger(), z);
+			break;
+		}
+		case 12: {
+			int x = this.task.pos.getX();
+			int y = this.task.pos.getY();
+			this.task.pos = new BlockPos(x, y, textField.getInteger());
+			break;
+		}
+		case 14: {
+			this.task.rangeCompass = textField.getInteger();
+			break;
+		}
+		case 15: {
+			this.task.entityName = textField.getText();
+			break;
+		}
 		}
 	}
 

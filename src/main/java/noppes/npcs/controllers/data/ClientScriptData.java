@@ -14,9 +14,8 @@ import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
-public class ClientScriptData
-implements IScriptHandler {
-	
+public class ClientScriptData implements IScriptHandler {
+
 	private boolean enabled;
 	public boolean hadInteract;
 	public long lastInited;
@@ -46,6 +45,12 @@ implements IScriptHandler {
 		}
 	}
 
+	private void createScript() {
+		if (this.script == null) {
+			this.script = new ScriptContainer(this, true);
+		}
+	}
+
 	@Override
 	public Map<Long, String> getConsoleText() {
 		Map<Long, String> map = new TreeMap<Long, String>();
@@ -71,14 +76,10 @@ implements IScriptHandler {
 
 	@Override
 	public List<ScriptContainer> getScripts() {
-		if (this.script==null) { this.createScript(); }
-		return Lists.<ScriptContainer>newArrayList(this.script);
-	}
-
-	private void createScript() {
-		if (this.script==null) {
-			this.script = new ScriptContainer(this, true);
+		if (this.script == null) {
+			this.createScript();
 		}
+		return Lists.<ScriptContainer>newArrayList(this.script);
 	}
 
 	@Override
@@ -96,7 +97,9 @@ implements IScriptHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		if (this.script==null) { this.createScript(); }
+		if (this.script == null) {
+			this.createScript();
+		}
 		this.script.clear();
 		this.script.readFromNBT(compound.getCompoundTag("Scripts"), true);
 		this.scriptLanguage = compound.getString("ScriptLanguage");
@@ -105,12 +108,18 @@ implements IScriptHandler {
 
 	@Override
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
+		if (!this.isEnabled()) {
+			return;
+		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
-			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onClientInit(this); }
+			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
+				EventHooks.onClientInit(this);
+			}
 		}
-		if (this.script==null) { this.createScript(); }
+		if (this.script == null) {
+			this.createScript();
+		}
 		this.script.run(type, event, false);
 	}
 
@@ -125,11 +134,13 @@ implements IScriptHandler {
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		if (this.script==null) { this.createScript(); }
+		if (this.script == null) {
+			this.createScript();
+		}
 		compound.setTag("Scripts", this.script.writeToNBT(new NBTTagCompound()));
 		compound.setString("ScriptLanguage", this.scriptLanguage);
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
-	
+
 }

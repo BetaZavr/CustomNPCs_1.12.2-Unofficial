@@ -26,10 +26,8 @@ import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcTransporter
-extends GuiNPCInterface2
-implements IScrollData, IGuiData {
-	
+public class GuiNpcTransporter extends GuiNPCInterface2 implements IScrollData, IGuiData {
+
 	private HashMap<String, Integer> data;
 	public TransportLocation location;
 	private GuiCustomScroll scroll;
@@ -44,6 +42,32 @@ implements IScrollData, IGuiData {
 	public void buttonEvent(GuiNpcButton button) {
 		if (button.id == 0) {
 			this.location.type = button.getValue();
+		}
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (this.scroll != null) {
+			if (this.getTextField(0) != null) {
+				this.getTextField(0).setVisible(this.scroll.hasSelected());
+			}
+			if (this.getButton(0) != null) {
+				this.getButton(0).setVisible(this.scroll.hasSelected());
+			}
+		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("manager.hover.transport.type")
+					.appendSibling(new TextComponentTranslation("manager.hover.transport.addinfo")).getFormattedText());
+		} else if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("manager.hover.transport.loc.name").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 
@@ -63,7 +87,9 @@ implements IScrollData, IGuiData {
 		x += 147;
 		this.addLabel(new GuiNpcLabel(1, "gui.name", x, y - 11));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, x, y, 140, 20, this.location.name));
-		this.addButton(new GuiNpcButton(0, x, (y += 24), new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, this.location.type));
+		this.addButton(new GuiNpcButton(0, x, (y += 24),
+				new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" },
+				this.location.type));
 	}
 
 	@Override
@@ -71,34 +97,31 @@ implements IScrollData, IGuiData {
 		Client.sendData(EnumPacketServer.TransportCategoriesGet, -1);
 		Client.sendData(EnumPacketServer.TransportGetLocation, new Object[0]);
 	}
-	
+
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.scroll!=null) {
-			if (this.getTextField(0)!=null) { this.getTextField(0).setVisible(this.scroll.hasSelected()); }
-			if (this.getButton(0)!=null) { this.getButton(0).setVisible(this.scroll.hasSelected()); }
-		}
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.type").appendSibling(new TextComponentTranslation("manager.hover.transport.addinfo")).getFormattedText());
-		} else if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("manager.hover.transport.loc.name").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
+	public void keyTyped(char c, int i) {
+		super.keyTyped(c, i);
+		if (i == 1) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 		}
 	}
 
 	@Override
 	public void save() {
-		if (!this.scroll.hasSelected()) { return; }
+		if (!this.scroll.hasSelected()) {
+			return;
+		}
 		String name = this.getTextField(0).getText();
-		if (!name.isEmpty()) { this.location.name = name; }
+		if (!name.isEmpty()) {
+			this.location.name = name;
+		}
 		this.location.pos = new BlockPos(this.player);
 		this.location.dimension = this.player.dimension;
-		try { this.location.npc = this.npc.getUniqueID(); } catch (Exception e) { }
+		try {
+			this.location.npc = this.npc.getUniqueID();
+		} catch (Exception e) {
+		}
 		int cat = this.data.get(this.scroll.getSelected());
 		Client.sendData(EnumPacketServer.TransportSave, cat, this.location.writeNBT());
 	}
@@ -118,22 +141,28 @@ implements IScrollData, IGuiData {
 		for (String str : list) {
 			String hover = "";
 			TransportCategory cat = TransportController.getInstance().categories.get(data.get(str));
-			if (cat!=null && !cat.locations.isEmpty()) {
+			if (cat != null && !cat.locations.isEmpty()) {
 				for (int id : cat.locations.keySet()) {
-					if (!hover.isEmpty()) { hover += ";<br>"; }
-					hover += ((char) 167) + "7ID: " + ((char) 167) + "r" + id + ((char) 167) + "7 \"" + ((char) 167) + "r" + new TextComponentTranslation(cat.locations.get(id).name).getFormattedText() + ((char) 167) + "7\"";
+					if (!hover.isEmpty()) {
+						hover += ";<br>";
+					}
+					hover += ((char) 167) + "7ID: " + ((char) 167) + "r" + id + ((char) 167) + "7 \"" + ((char) 167)
+							+ "r" + new TextComponentTranslation(cat.locations.get(id).name).getFormattedText()
+							+ ((char) 167) + "7\"";
 				}
 				hover = p.getFormattedText() + "<br>" + hover;
 			}
 			this.scroll.hoversTexts[i] = hover.split("<br>");
 			i++;
 		}
-		
+
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		if (compound.getKeySet().isEmpty()) { return; }
+		if (compound.getKeySet().isEmpty()) {
+			return;
+		}
 		TransportLocation loc = new TransportLocation();
 		loc.readNBT(compound);
 		this.location = loc;
@@ -143,14 +172,5 @@ implements IScrollData, IGuiData {
 	@Override
 	public void setSelected(String selected) {
 		this.scroll.setSelected(selected);
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
 	}
 }

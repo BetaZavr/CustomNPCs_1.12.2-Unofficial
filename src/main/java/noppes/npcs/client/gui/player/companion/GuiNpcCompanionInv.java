@@ -13,9 +13,8 @@ import noppes.npcs.containers.ContainerNPCCompanion;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanionInv
-extends GuiContainerNPCInterface {
-	
+public class GuiNpcCompanionInv extends GuiContainerNPCInterface {
+
 	private EntityNPCInterface npc;
 	private ResourceLocation resource;
 	private RoleCompanion role;

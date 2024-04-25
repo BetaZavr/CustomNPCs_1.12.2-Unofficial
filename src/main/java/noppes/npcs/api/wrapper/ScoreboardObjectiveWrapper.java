@@ -9,9 +9,8 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IScoreboardObjective;
 import noppes.npcs.api.IScoreboardScore;
 
-public class ScoreboardObjectiveWrapper
-implements IScoreboardObjective {
-	
+public class ScoreboardObjectiveWrapper implements IScoreboardObjective {
+
 	private Scoreboard board;
 	private ScoreObjective objective;
 

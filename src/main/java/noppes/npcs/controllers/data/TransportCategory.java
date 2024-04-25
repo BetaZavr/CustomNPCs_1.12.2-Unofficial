@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class TransportCategory {
-	
+
 	public int id;
 	public Map<Integer, TransportLocation> locations;
 	public String title;
@@ -33,9 +33,13 @@ public class TransportCategory {
 	public void readNBT(NBTTagCompound compound) {
 		this.id = compound.getInteger("CategoryId");
 		this.title = compound.getString("CategoryTitle");
-		if (this.title.isEmpty()) { this.title = "Default"; }
+		if (this.title.isEmpty()) {
+			this.title = "Default";
+		}
 		NBTTagList locs = compound.getTagList("CategoryLocations", 10);
-		if (locs == null || locs.tagCount() == 0) { return; }
+		if (locs == null || locs.tagCount() == 0) {
+			return;
+		}
 		for (int ii = 0; ii < locs.tagCount(); ++ii) {
 			TransportLocation location = new TransportLocation();
 			location.readNBT(locs.getCompoundTagAt(ii));

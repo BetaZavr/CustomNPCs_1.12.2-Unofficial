@@ -116,7 +116,9 @@ public class CustomGuiController {
 
 	public static boolean updateGui(PlayerWrapper<?> player, CustomGuiWrapper gui) {
 		EntityPlayerMP pl = (EntityPlayerMP) player.getMCEntity();
-		if (!(pl.openContainer instanceof ContainerCustomGui)) { return false; }
+		if (!(pl.openContainer instanceof ContainerCustomGui)) {
+			return false;
+		}
 		CustomNPCsScheduler.runTack(() -> {
 			Server.sendDataChecked(pl, EnumPacketClient.GUI_DATA, gui.toNBT());
 		});

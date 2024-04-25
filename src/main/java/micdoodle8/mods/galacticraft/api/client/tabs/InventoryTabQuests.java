@@ -18,7 +18,8 @@ import noppes.npcs.util.CustomNPCsScheduler;
 public class InventoryTabQuests extends AbstractTab {
 	public InventoryTabQuests() {
 		super(0, 0, 0, new ItemStack(Items.BOOK));
-		this.displayString = NoppesStringUtils.translate("quest.quests") + " (" + GameSettings.getKeyDisplayString(ClientProxy.QuestLog.getKeyCode()) + ")";
+		this.displayString = NoppesStringUtils.translate("quest.quests") + " ("
+				+ GameSettings.getKeyDisplayString(ClientProxy.QuestLog.getKeyCode()) + ")";
 	}
 
 	@Override

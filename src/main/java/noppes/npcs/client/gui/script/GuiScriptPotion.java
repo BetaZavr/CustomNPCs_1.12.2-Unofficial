@@ -9,10 +9,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.PotionScriptData;
 
-public class GuiScriptPotion
-extends GuiScriptInterface
-implements ISubGuiListener {
-	
+public class GuiScriptPotion extends GuiScriptInterface implements ISubGuiListener {
+
 	private PotionScriptData script;
 
 	public GuiScriptPotion() {
@@ -33,15 +31,17 @@ implements ISubGuiListener {
 		super.setGuiData(compound);
 	}
 
-
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			this.script.writeToNBT(nbt);
 			String p = new String(this.path);
-			while (p.indexOf("\\") !=-1) { p = p.replace("\\", "/"); }
-			nbt.setString("Name", ((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			while (p.indexOf("\\") != -1) {
+				p = p.replace("\\", "/");
+			}
+			nbt.setString("Name",
+					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 4);
@@ -51,5 +51,5 @@ implements ISubGuiListener {
 			this.mc.setIngameFocus();
 		}
 	}
-	
+
 }

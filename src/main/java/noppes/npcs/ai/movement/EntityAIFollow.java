@@ -53,7 +53,9 @@ public class EntityAIFollow extends EntityAIBase {
 		if (this.owner.isSprinting()) {
 			speed += 0.5;
 		}
-		if (this.npc.getNavigator().tryMoveToEntityLiving(this.owner, speed) || this.npc.isInRange(this.owner, 16.0)) { return; }
+		if (this.npc.getNavigator().tryMoveToEntityLiving(this.owner, speed) || this.npc.isInRange(this.owner, 16.0)) {
+			return;
+		}
 		this.npc.tpTo(this.owner);
 	}
 }

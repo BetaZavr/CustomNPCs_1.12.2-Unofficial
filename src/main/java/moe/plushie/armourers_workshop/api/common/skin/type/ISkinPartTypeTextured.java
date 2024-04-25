@@ -6,18 +6,18 @@ import moe.plushie.armourers_workshop.api.common.IPoint3D;
 
 public interface ISkinPartTypeTextured extends ISkinPartType {
 
-    /** Location of the texture in skin storage. */
-    public Point getTextureSkinPos();
+	/** UV location of the models base texture. */
+	public Point getTextureBasePos();
 
-    /** Should this texture be mirrored? */
-    public boolean isTextureMirrored();
+	/** Size of the model the texture is used on. */
+	public IPoint3D getTextureModelSize();
 
-    /** UV location of the models base texture. */
-    public Point getTextureBasePos();
+	/** UV location of the models overlay texture. */
+	public Point getTextureOverlayPos();
 
-    /** UV location of the models overlay texture. */
-    public Point getTextureOverlayPos();
+	/** Location of the texture in skin storage. */
+	public Point getTextureSkinPos();
 
-    /** Size of the model the texture is used on. */
-    public IPoint3D getTextureModelSize();
+	/** Should this texture be mirrored? */
+	public boolean isTextureMirrored();
 }

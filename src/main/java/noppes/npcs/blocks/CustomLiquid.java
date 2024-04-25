@@ -11,28 +11,30 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 
-public class CustomLiquid
-extends BlockFluidClassic
-implements ICustomElement {
-	
+public class CustomLiquid extends BlockFluidClassic implements ICustomElement {
+
 	public NBTTagCompound nbtData = new NBTTagCompound();
 
 	public CustomLiquid(Fluid fluid, Material material, NBTTagCompound nbtBlock) {
 		super(fluid, material);
 		this.nbtData = nbtBlock;
-		String name = "custom_fluid_"+nbtBlock.getString("RegistryName");
+		String name = "custom_fluid_" + nbtBlock.getString("RegistryName");
 		this.setRegistryName(CustomNpcs.MODID, name.toLowerCase());
-		this.setUnlocalizedName(name.toLowerCase());	
+		this.setUnlocalizedName(name.toLowerCase());
 	}
 
-    public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
-        return true;
-    }
-
-    @Override
-	public INbt getCustomNbt() { return NpcAPI.Instance().getINbt(this.nbtData); }
+	@Override
+	public String getCustomName() {
+		return this.nbtData.getString("RegistryName");
+	}
 
 	@Override
-	public String getCustomName() { return this.nbtData.getString("RegistryName"); }
-    
+	public INbt getCustomNbt() {
+		return NpcAPI.Instance().getINbt(this.nbtData);
+	}
+
+	public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos) {
+		return true;
+	}
+
 }

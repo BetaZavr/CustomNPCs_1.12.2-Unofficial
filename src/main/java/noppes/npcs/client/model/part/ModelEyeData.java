@@ -8,13 +8,12 @@ import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class ModelEyeData
-extends ModelPartData {
-	
+public class ModelEyeData extends ModelPartData {
+
 	public long blinkStart;
 	public int browColor, browThickness, eyePos, skinColor;
 	public boolean glint, closed;
-	
+
 	private Random r;
 
 	public ModelEyeData() {
@@ -57,7 +56,9 @@ extends ModelPartData {
 		if (this.blinkStart < 0L) {
 			++this.blinkStart;
 		} else if (this.blinkStart == 0L) {
-			if (npc.isDead || npc.isPlayerSleeping()) { return; }
+			if (npc.isDead || npc.isPlayerSleeping()) {
+				return;
+			}
 			if (this.r.nextInt(140) == 1) {
 				this.blinkStart = System.currentTimeMillis();
 				if (npc != null) {

@@ -1,7 +1,5 @@
 package noppes.npcs.constants;
 
-public enum EnumQuestCompletion
-{
-	Npc, 
-	Instant;
+public enum EnumQuestCompletion {
+	Npc, Instant;
 }

@@ -7,14 +7,14 @@ public interface IDimensionHandler {
 
 	IWorldInfo createDimension();
 
-	void setNbt(INbt nbt);
-
-	INbt getNbt();
-
-	IWorldInfo getMCWorldInfo(int dimensionID);
+	void deleteDimension(int dimensionID);
 
 	int[] getAllIDs();
 
-	void deleteDimension(int dimensionID);
+	IWorldInfo getMCWorldInfo(int dimensionID);
+
+	INbt getNbt();
+
+	void setNbt(INbt nbt);
 
 }

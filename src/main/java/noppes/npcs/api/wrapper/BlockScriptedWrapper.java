@@ -27,15 +27,26 @@ import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.LayerModel;
 
-public class BlockScriptedWrapper
-extends BlockWrapper
-implements IBlockScripted {
-	
+public class BlockScriptedWrapper extends BlockWrapper implements IBlockScripted {
+
 	private TileScripted tile;
 
 	public BlockScriptedWrapper(World world, Block block, BlockPos pos) {
 		super(world, block, pos);
 		this.tile = (TileScripted) super.tile;
+	}
+
+	@Override
+	public ILayerModel createLayerModel() {
+		ILayerModel[] ls = new ILayerModel[this.tile.layers.length + 1];
+		int i = 0;
+		for (i = 0; i < this.tile.layers.length; i++) {
+			((LayerModel) this.tile.layers[i]).pos = i;
+			ls[i] = this.tile.layers[i];
+		}
+		ls[i] = new LayerModel(i);
+		this.tile.layers = ls;
+		return this.tile.layers[i];
 	}
 
 	@Override
@@ -46,7 +57,8 @@ implements IBlockScripted {
 		FakePlayer player = EntityNPCInterface.CommandPlayer;
 		player.setWorld(this.tile.getWorld());
 		player.setPosition(this.getX(), this.getY(), this.getZ());
-		return NoppesUtilServer.runCommand(this.tile.getWorld(), this.tile.getPos(), "ScriptBlock: " + this.tile.getPos(), command, null, player);
+		return NoppesUtilServer.runCommand(this.tile.getWorld(), this.tile.getPos(),
+				"ScriptBlock: " + this.tile.getPos(), command, null, player);
 	}
 
 	@Override
@@ -62,6 +74,14 @@ implements IBlockScripted {
 	@Override
 	public boolean getIsPassible() {
 		return this.tile.isPassible;
+	}
+
+	@Override
+	public ILayerModel[] getLayerModels() {
+		for (int i = 0; i < this.tile.layers.length; i++) {
+			((LayerModel) this.tile.layers[i]).pos = i;
+		}
+		return this.tile.layers;
 	}
 
 	@Override
@@ -150,6 +170,44 @@ implements IBlockScripted {
 	}
 
 	@Override
+	public boolean removeLayerModel(ILayerModel layer) {
+		List<ILayerModel> newLM = Lists.newArrayList();
+		boolean found = false;
+		for (int i = 0; i < this.tile.layers.length; i++) {
+			if (this.tile.layers[i] == null) {
+				continue;
+			}
+			if (!this.tile.layers[i].equals(layer)) {
+				newLM.add(this.tile.layers[i]);
+			} else {
+				found = true;
+			}
+		}
+		if (found) {
+			this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
+		}
+		return found;
+	}
+
+	@Override
+	public boolean removeLayerModel(int id) {
+		if (id < 0 || id >= this.tile.layers.length) {
+			return false;
+		}
+		List<ILayerModel> newLM = Lists.newArrayList();
+		for (int i = 0; i < this.tile.layers.length; i++) {
+			if (this.tile.layers[i] == null) {
+				continue;
+			}
+			if (i != id) {
+				newLM.add(this.tile.layers[i]);
+			}
+		}
+		this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
+		return true;
+	}
+
+	@Override
 	public void setHardness(float hardness) {
 		this.tile.blockHardness = hardness;
 	}
@@ -172,6 +230,15 @@ implements IBlockScripted {
 	}
 
 	@Override
+	public void setModel(IBlock iblock) {
+		if (iblock == null || iblock.getMCBlock() == null || iblock.getWorld() == null) {
+			this.tile.setItemModel(null, null);
+		} else {
+			this.setModel(iblock.getMCBlock().getRegistryName().toString(), iblock.getMetadata());
+		}
+	}
+
+	@Override
 	public void setModel(IItemStack item) {
 		if (item == null) {
 			this.tile.setItemModel(null, null);
@@ -190,31 +257,28 @@ implements IBlockScripted {
 			this.tile.setItemModel(new ItemStack((Item) Item.REGISTRY.getObject(loc)), block);
 		}
 	}
-	
+
 	@Override
 	public void setModel(String blockName, int meta) {
-		if (blockName == null || meta<0) {
+		if (blockName == null || meta < 0) {
 			this.tile.setItemModel(null, null);
 		} else {
 			ResourceLocation loc = new ResourceLocation(blockName);
 			Block block = Block.REGISTRY.getObject(loc);
 			ItemStack stack = new ItemStack(Item.getItemFromBlock(block));
-			if (stack.isEmpty()) { stack = new ItemStack(Item.getByNameOrId(blockName)); }
+			if (stack.isEmpty()) {
+				stack = new ItemStack(Item.getByNameOrId(blockName));
+			}
 			try {
 				@SuppressWarnings("deprecation")
 				IBlockState state = block.getStateFromMeta(meta);
-				if (state!=null) { block = state.getBlock(); }
-			} catch (Exception e) { meta = 0; }
+				if (state != null) {
+					block = state.getBlock();
+				}
+			} catch (Exception e) {
+				meta = 0;
+			}
 			this.tile.setItemModel(stack, block, meta);
-		}
-	}
-	
-	@Override
-	public void setModel(IBlock iblock) {
-		if (iblock == null || iblock.getMCBlock()==null || iblock.getWorld()==null) {
-			this.tile.setItemModel(null, null);
-		} else {
-			this.setModel(iblock.getMCBlock().getRegistryName().toString(), iblock.getMetadata());
 		}
 	}
 
@@ -243,63 +307,15 @@ implements IBlockScripted {
 		this.tile = (TileScripted) tile;
 		super.setTile(tile);
 	}
-	
-	@Override
-	public void trigger(int id, Object ... arguments) {
-		EventHooks.onScriptTriggerEvent(this.tile, id, this.getWorld(), this.getPos(), null, arguments);
-	}
 
 	@Override
-	public ILayerModel[] getLayerModels() {
-		for (int i=0; i<this.tile.layers.length; i++) {
-			((LayerModel) this.tile.layers[i]).pos = i;
-		}
-		return this.tile.layers;
-	}
-	
-	@Override
-	public boolean removeLayerModel(int id) {
-		if (id < 0 || id >= this.tile.layers.length) { return false; }
-		List<ILayerModel> newLM = Lists.newArrayList();
-		for (int i=0; i < this.tile.layers.length; i++) {
-			if (this.tile.layers[i] == null) { continue; }
-			if (i != id) { newLM.add(this.tile.layers[i]); }
-		}
-		this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
-		return true;
-	}
-	
-	@Override
-	public boolean removeLayerModel(ILayerModel layer) {
-		List<ILayerModel> newLM = Lists.newArrayList();
-		boolean found = false;
-		for (int i=0; i < this.tile.layers.length; i++) {
-			if (this.tile.layers[i] == null) { continue; }
-			if (!this.tile.layers[i].equals(layer)) { newLM.add(this.tile.layers[i]); }
-			else { found = true; }
-		}
-		if (found) {
-			this.tile.layers = newLM.toArray(new ILayerModel[newLM.size()]);
-		}
-		return found;
-	}
-	
-	@Override
-	public ILayerModel createLayerModel() {
-		ILayerModel[] ls = new ILayerModel[this.tile.layers.length+1];
-		int i = 0;
-		for (i = 0; i<this.tile.layers.length; i++) {
-			((LayerModel) this.tile.layers[i]).pos = i;
-			ls[i] = this.tile.layers[i];
-		}
-		ls[i] = new LayerModel(i);
-		this.tile.layers = ls;
-		return this.tile.layers[i];
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(this.tile, id, this.getWorld(), this.getPos(), null, arguments);
 	}
 
 	@Override
 	public void updateModel() {
 		this.tile.needsClientUpdate = true;
 	}
-	
+
 }

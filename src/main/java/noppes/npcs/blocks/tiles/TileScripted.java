@@ -38,89 +38,10 @@ import noppes.npcs.entity.data.TextBlock;
 import noppes.npcs.util.LayerModel;
 import noppes.npcs.util.ValueUtil;
 
-public class TileScripted
-extends TileNpcEntity
-implements ITickable, IScriptBlockHandler {
+public class TileScripted extends TileNpcEntity implements ITickable, IScriptBlockHandler {
 
-	public int activePowering;
-	private IBlock blockDummy;
-	public float blockHardness;
-	public Block blockModel;
-	public float blockResistance;
-	public boolean enabled;
-	public boolean isLadder;
-	public boolean isPassible;
-	public ItemStack itemModel;
-	public int metaModel; // New
-	public long lastInited;
-	public int lightValue;
-	public boolean needsClientUpdate;
-	public int newPower;
-	public int powering;
-	public int prevPower;
-	public TileEntity renderTile;
-	public boolean renderTileErrored;
-	public ITickable renderTileUpdate;
-	public int rotationX;
-	public int rotationY;
-	public int rotationZ;
-	public float scaleX;
-	public float scaleY;
-	public float scaleZ;
-	public String scriptLanguage;
-	public List<ScriptContainer> scripts;
-	public TextPlane text1;
-	public TextPlane text2;
-	public TextPlane text3;
-	public TextPlane text4;
-	public TextPlane text5;
-	public TextPlane text6;
-	private short ticksExisted;
-
-	public DataTimers timers;
-	public ILayerModel[] layers;
-
-	public TileScripted() {
-		this.scripts = new ArrayList<ScriptContainer>();
-		this.scriptLanguage = "ECMAScript";
-		this.enabled = false;
-		this.blockDummy = null;
-		this.timers = new DataTimers(this);
-		this.lastInited = -1L;
-		this.ticksExisted = 0;
-		this.itemModel = new ItemStack(CustomRegisters.scripted);
-		this.blockModel = null;
-		this.needsClientUpdate = false;
-		this.powering = 0;
-		this.activePowering = 0;
-		this.newPower = 0;
-		this.prevPower = 0;
-		this.isPassible = false;
-		this.isLadder = false;
-		this.lightValue = 0;
-		this.blockHardness = 5.0f;
-		this.blockResistance = 10.0f;
-		this.rotationX = 0;
-		this.rotationY = 0;
-		this.rotationZ = 0;
-		this.scaleX = 1.0f;
-		this.scaleY = 1.0f;
-		this.scaleZ = 1.0f;
-		this.renderTileErrored = true;
-		this.renderTileUpdate = null;
-		this.text1 = new TextPlane();
-		this.text2 = new TextPlane();
-		this.text3 = new TextPlane();
-		this.text4 = new TextPlane();
-		this.text5 = new TextPlane();
-		this.text6 = new TextPlane();
-		// New
-		this.metaModel = 0;
-		this.layers = new ILayerModel[0];
-	}
-	
 	public class TextPlane implements ITextPlane {
-		
+
 		public float offsetX;
 		public float offsetY;
 		public float offsetZ;
@@ -287,6 +208,83 @@ implements ITickable, IScriptBlockHandler {
 			TileScripted.this.needsClientUpdate = true;
 		}
 	}
+	public int activePowering;
+	private IBlock blockDummy;
+	public float blockHardness;
+	public Block blockModel;
+	public float blockResistance;
+	public boolean enabled;
+	public boolean isLadder;
+	public boolean isPassible;
+	public ItemStack itemModel;
+	public int metaModel; // New
+	public long lastInited;
+	public int lightValue;
+	public boolean needsClientUpdate;
+	public int newPower;
+	public int powering;
+	public int prevPower;
+	public TileEntity renderTile;
+	public boolean renderTileErrored;
+	public ITickable renderTileUpdate;
+	public int rotationX;
+	public int rotationY;
+	public int rotationZ;
+	public float scaleX;
+	public float scaleY;
+	public float scaleZ;
+	public String scriptLanguage;
+	public List<ScriptContainer> scripts;
+	public TextPlane text1;
+	public TextPlane text2;
+	public TextPlane text3;
+	public TextPlane text4;
+	public TextPlane text5;
+	public TextPlane text6;
+
+	private short ticksExisted;
+	public DataTimers timers;
+
+	public ILayerModel[] layers;
+
+	public TileScripted() {
+		this.scripts = new ArrayList<ScriptContainer>();
+		this.scriptLanguage = "ECMAScript";
+		this.enabled = false;
+		this.blockDummy = null;
+		this.timers = new DataTimers(this);
+		this.lastInited = -1L;
+		this.ticksExisted = 0;
+		this.itemModel = new ItemStack(CustomRegisters.scripted);
+		this.blockModel = null;
+		this.needsClientUpdate = false;
+		this.powering = 0;
+		this.activePowering = 0;
+		this.newPower = 0;
+		this.prevPower = 0;
+		this.isPassible = false;
+		this.isLadder = false;
+		this.lightValue = 0;
+		this.blockHardness = 5.0f;
+		this.blockResistance = 10.0f;
+		this.rotationX = 0;
+		this.rotationY = 0;
+		this.rotationZ = 0;
+		this.scaleX = 1.0f;
+		this.scaleY = 1.0f;
+		this.scaleZ = 1.0f;
+		this.renderTileErrored = true;
+		this.renderTileUpdate = null;
+		this.text1 = new TextPlane();
+		this.text2 = new TextPlane();
+		this.text3 = new TextPlane();
+		this.text4 = new TextPlane();
+		this.text5 = new TextPlane();
+		this.text6 = new TextPlane();
+		// New
+		this.metaModel = 0;
+		this.layers = new ILayerModel[0];
+	}
 
 	public void clearConsole() {
 		for (ScriptContainer script : this.getScripts()) {
@@ -339,7 +337,7 @@ implements ITickable, IScriptBlockHandler {
 		// New
 		compound.setInteger("ModelMeta", this.metaModel);
 		NBTTagList l = new NBTTagList();
-		for (int i=0; i<this.layers.length; i++) {
+		for (int i = 0; i < this.layers.length; i++) {
 			l.appendTag(this.layers[i].getNbt().getMCNBT());
 		}
 		compound.setTag("Layers", l);
@@ -375,6 +373,33 @@ implements ITickable, IScriptBlockHandler {
 		return this.scripts;
 	}
 
+	@SuppressWarnings("deprecation")
+	public IBlockState getState() {
+		IBlockState state = null;
+		if (this.blockModel != null && this.itemModel != null) {
+			state = this.blockModel.getStateFromMeta(this.itemModel.getItemDamage());
+			if (this.metaModel > 0) {
+				try {
+					state = this.blockModel.getStateFromMeta(this.metaModel);
+					int i = 0;
+					for (IBlockState ibs : this.blockModel.getBlockState().getValidStates()) {
+						if (i == this.metaModel) {
+							state = ibs;
+							break;
+						}
+						i++;
+					}
+					if (state != null) {
+						this.blockModel = state.getBlock();
+					}
+				} catch (Exception e) {
+					this.metaModel = 0;
+				}
+			}
+		}
+		return state;
+	}
+
 	public SPacketUpdateTileEntity getUpdatePacket() {
 		return new SPacketUpdateTileEntity(this.pos, 0, this.getUpdateTag());
 	}
@@ -408,8 +433,8 @@ implements ITickable, IScriptBlockHandler {
 
 	public String noticeString() {
 		BlockPos pos = this.getPos();
-		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
-				.toString();
+		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX())
+				.add("y", pos.getY()).add("z", pos.getZ()).toString();
 	}
 
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
@@ -423,14 +448,18 @@ implements ITickable, IScriptBlockHandler {
 		this.setDisplayNBT(compound);
 		this.timers.readFromNBT(compound);
 	}
-	
+
 	@Override
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
+		if (!this.isEnabled()) {
+			return;
+		}
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
 			if (!type.equalsIgnoreCase("init")) {
-				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
+				for (ScriptContainer tab : this.scripts) {
+					tab.getFullCode();
+				}
 				EventHooks.onScriptBlockInit(this);
 			}
 		}
@@ -479,7 +508,7 @@ implements ITickable, IScriptBlockHandler {
 		// New
 		this.metaModel = compound.getInteger("ModelMeta");
 		this.layers = new ILayerModel[compound.getTagList("Layers", 10).tagCount()];
-		for (int i=0; i<compound.getTagList("Layers", 10).tagCount(); i++) {
+		for (int i = 0; i < compound.getTagList("Layers", 10).tagCount(); i++) {
 			this.layers[i] = new LayerModel(compound.getTagList("Layers", 10).getCompoundTagAt(i));
 		}
 	}
@@ -496,7 +525,7 @@ implements ITickable, IScriptBlockHandler {
 			return;
 		}
 		this.itemModel = item;
-		this.metaModel = b!=null ? item.getItemDamage() : 0;
+		this.metaModel = b != null ? item.getItemDamage() : 0;
 		this.blockModel = b;
 		this.needsClientUpdate = true;
 	}
@@ -533,7 +562,9 @@ implements ITickable, IScriptBlockHandler {
 	}
 
 	public void setRedstonePower(int strength) {
-		if (this.powering == strength) { return; }
+		if (this.powering == strength) {
+			return;
+		}
 		int correctInt = ValueUtil.correctInt(strength, 0, 15);
 		this.activePowering = correctInt;
 		this.prevPower = correctInt;
@@ -595,27 +626,4 @@ implements ITickable, IScriptBlockHandler {
 		return super.writeToNBT(compound);
 	}
 
-	@SuppressWarnings("deprecation")
-	public IBlockState getState() {
-		IBlockState state = null;
-		if (this.blockModel!=null && this.itemModel!=null) {
-			state = this.blockModel.getStateFromMeta(this.itemModel.getItemDamage());
-			if (this.metaModel>0) {
-				try {
-					state = this.blockModel.getStateFromMeta(this.metaModel);
-					int i =0;
-					for (IBlockState ibs : this.blockModel.getBlockState().getValidStates()) {
-						if (i==this.metaModel) {
-							state = ibs;
-							break;
-						}
-						i++;
-					}
-					if (state!=null) { this.blockModel = state.getBlock(); }
-				} catch (Exception e) { this.metaModel = 0; }
-			}
-		}
-		return state;
-	}
-	
 }

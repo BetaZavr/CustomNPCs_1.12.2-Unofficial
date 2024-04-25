@@ -17,10 +17,8 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DropNbtSet;
 
-public class SubGuiDropValueNbt
-extends SubGuiInterface
-implements ITextfieldListener, ITextChangeListener {
-	
+public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldListener, ITextChangeListener {
+
 	public DropNbtSet tag;
 	private String[] tagIds;
 	private String[] tagListIds;
@@ -91,7 +89,9 @@ implements ITextfieldListener, ITextChangeListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.ShowDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
 		int t = this.tag.getType();
 		int tl = this.tag.getTypeList();
 		String gn = ((char) 167) + "2";
@@ -208,7 +208,8 @@ implements ITextfieldListener, ITextChangeListener {
 		 * GuiNpcTextField value = new GuiNpcTextField(94, (GuiScreen)this, this.guiLeft
 		 * + 4, this.guiTop + 53, 163, 65, text); this.addTextField(value);
 		 */
-		(this.textarea = new GuiTextArea(94, this, this.guiLeft + 4, this.guiTop + 53, 163, 65, text)).setListener(this);
+		(this.textarea = new GuiTextArea(94, this, this.guiLeft + 4, this.guiTop + 53, 163, 65, text))
+				.setListener(this);
 		this.textarea.active = true;
 		this.add(this.textarea);
 		// chance

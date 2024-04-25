@@ -27,11 +27,25 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.schematics.SchematicWrapper;
 
-public class TileBuilder
-extends TileEntity
-implements ITickable {
-	
+public class TileBuilder extends TileEntity implements ITickable {
+
 	public static List<BlockPos> DrawPoses = Lists.<BlockPos>newArrayList();
+	public static boolean has(BlockPos pos) {
+		if (pos == null) {
+			return false;
+		}
+		for (BlockPos p : TileBuilder.DrawPoses) {
+			if (p != null && p.equals(pos)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public static void SetDrawPos(BlockPos pos) {
+		if (!TileBuilder.has(pos)) {
+			TileBuilder.DrawPoses.add(pos);
+		}
+	}
 	public Availability availability;
 	public boolean enabled;
 	public boolean finished;
@@ -40,21 +54,10 @@ implements ITickable {
 	public int rotation;
 	private SchematicWrapper schematic;
 	public boolean started;
-	private int ticks;
-	public int yOffest;
 
-	public static void SetDrawPos(BlockPos pos) {
-		if (!TileBuilder.has(pos)) {
-			TileBuilder.DrawPoses.add(pos);
-		}
-	}
-	public static boolean has(BlockPos pos) {
-		if (pos==null) { return false; }
-		for (BlockPos p : TileBuilder.DrawPoses) {
-			if (p!=null && p.equals(pos)) { return true; }
-		}
-		return false;
-	}
+	private int ticks;
+
+	public int yOffest;
 
 	public TileBuilder() {
 		this.schematic = null;

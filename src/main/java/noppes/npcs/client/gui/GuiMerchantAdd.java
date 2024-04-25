@@ -26,12 +26,11 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerMerchantAdd;
 
 @SideOnly(Side.CLIENT)
-public class GuiMerchantAdd
-extends GuiContainer {
-	
+public class GuiMerchantAdd extends GuiContainer {
+
 	@SideOnly(Side.CLIENT)
 	static class MerchantButton extends GuiButton {
-		
+
 		private boolean forward;
 		// private static String __OBFID = "CL_00000763";
 

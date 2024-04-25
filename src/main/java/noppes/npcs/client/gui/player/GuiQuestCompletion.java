@@ -37,7 +37,8 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 	}
 
 	private void drawQuestText() {
-		TextBlockClient block = new TextBlockClient(this.quest.getCompleteText(), 172, true, this.npc, new Object[] { this.player });
+		TextBlockClient block = new TextBlockClient(this.quest.getCompleteText(), 172, true, this.npc,
+				new Object[] { this.player });
 		for (int i = 0; i < block.lines.size(); ++i) {
 			String text = block.lines.get(i).getFormattedText();
 			this.fontRenderer.drawString(text, this.guiLeft + 4, this.guiTop + 16 + i * this.fontRenderer.FONT_HEIGHT,
@@ -60,10 +61,12 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 	@Override
 	public void initGui() {
 		super.initGui();
-		String questTitle = new TextComponentTranslation("questlog.completed").getFormattedText() + new TextComponentTranslation(this.quest.getName()).getFormattedText();
+		String questTitle = new TextComponentTranslation("questlog.completed").getFormattedText()
+				+ new TextComponentTranslation(this.quest.getName()).getFormattedText();
 		int left = (this.xSize - this.fontRenderer.getStringWidth(questTitle)) / 2;
 		this.addLabel(new GuiNpcLabel(0, questTitle, this.guiLeft + left, this.guiTop + 4));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + this.ySize - 24, 100, 20, new TextComponentTranslation("quest.complete").getFormattedText()));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 38, this.guiTop + this.ySize - 24, 100, 20,
+				new TextComponentTranslation("quest.complete").getFormattedText()));
 	}
 
 	@Override
@@ -75,10 +78,9 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 
 	@Override
 	public void save() {
-		if (((Quest) this.quest).rewardType==EnumRewardType.ONE_SELECT) {
+		if (((Quest) this.quest).rewardType == EnumRewardType.ONE_SELECT) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, this.quest.getId());
-		}
-		else {
+		} else {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletion, this.quest.getId());
 		}
 	}

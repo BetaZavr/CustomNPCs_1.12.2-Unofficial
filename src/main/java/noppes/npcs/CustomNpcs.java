@@ -124,7 +124,7 @@ import noppes.npcs.util.ObfuscationHelper;
 
 @Mod(modid = "customnpcs", name = "CustomNpcs", version = "1.12", acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2", guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
-	
+
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
 	public static String CharCurrencies = "20AC";
 	@ConfigProp(info = "Number of chunk loading npcs that can be active at the same time", def = "20")
@@ -168,7 +168,8 @@ public class CustomNpcs {
 	@ConfigProp(info = "Color of message bubbles above NPC head [text, frame, base]", def = "000000,000000,FFFFFF", type = Configuration.CATEGORY_CLIENT)
 	public static Color[] ChatNpcColors = new Color[] { new Color(0x000000), new Color(0x000000), new Color(0xFFFFFF) };
 	@ConfigProp(info = "Color of message bubbles above Player head [text, frame, base]", def = "000000,2C4C00,E0FFB0", type = Configuration.CATEGORY_CLIENT)
-	public static Color[] ChatPlayerColors = new Color[] { new Color(0x000000), new Color(0x2C4C00), new Color(0xE0FFB0) };
+	public static Color[] ChatPlayerColors = new Color[] { new Color(0x000000), new Color(0x2C4C00),
+			new Color(0xE0FFB0) };
 	@ConfigProp(info = "When set to Minecraft it will use minecrafts font, when Default it will use OpenSans. Can only use fonts installed on your PC", def = "Default")
 	public static String FontType = "Default";
 	@ConfigProp(info = "Type 0 = Normal, Type 1 = Solid", def = "1", min = "0", max = "1")
@@ -223,14 +224,14 @@ public class CustomNpcs {
 	public static int MaxBuilderBlocks = 10000;
 	@ConfigProp(info = "Color of Script code elements. [Numbers, Functions, Strings, Comments]", type = Configuration.CATEGORY_CLIENT, def = "6,9,7,2")
 	public static String[] CharCodeColor = new String[] { "6", "9", "7", "2" };
-	
+
 	@ConfigProp(info = "Maximum number of items in one Drop group", def = "32", min = "1", max = "64")
 	public static int MaxItemInDropsNPC = 32;
 	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)", def = "false")
 	public static boolean SimplifiedForgeEvents = false;
 	@ConfigProp(info = "NPC scenes can be activated using special keys", def = "true")
 	public static boolean SceneButtonsEnabled = true;
-	@ConfigProp(info="NPC speech can trigger a chat event", def = "false")
+	@ConfigProp(info = "NPC speech can trigger a chat event", def = "false")
 	public static boolean NpcSpeachTriggersChatEvent = false;
 	@ConfigProp(info = "Show faction, quest and compass tabs in player inventory", def = "true")
 	public static boolean InventoryGuiEnabled = true;
@@ -270,21 +271,24 @@ public class CustomNpcs {
 	public static boolean FreezeNPCs = false, showServerQuestCompass = true;
 	public static File Dir;
 	public static ConfigLoader Config;
-	public static ITextComponent prefix = new TextComponentString(((char) 167)+"e["+((char) 167)+"2CustomNpcs"+((char) 167)+"e]"+((char) 167)+"r: ");
+	public static ITextComponent prefix = new TextComponentString(
+			((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
 	public static int colorAnimHoverPart = 0xFA7800;
-	
-	static { FluidRegistry.enableUniversalBucket(); }
 
-	public CustomNpcs() { CustomNpcs.instance = this; }
-	
-	public static File getWorldSaveDirectory() { return getWorldSaveDirectory(null); }
+	static {
+		FluidRegistry.enableUniversalBucket();
+	}
+
+	public static File getWorldSaveDirectory() {
+		return getWorldSaveDirectory(null);
+	}
 
 	public static File getWorldSaveDirectory(String s) { // Changed
 		try {
 			File dir = new File(".");
-			if (CustomNpcs.Server!=null) {
+			if (CustomNpcs.Server != null) {
 				if (!CustomNpcs.Server.isDedicatedServer()) {
 					dir = new File(Minecraft.getMinecraft().mcDataDir, "saves");
 				}
@@ -304,34 +308,90 @@ public class CustomNpcs {
 	}
 
 	@Mod.EventHandler
-	public void preload(FMLPreInitializationEvent ev) {
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
-		CustomNpcs.Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCs");
-		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
-		(CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs")).mkdir();
-		CustomNpcs.Config = new ConfigLoader(ev.getModConfigurationDirectory());
-		if (CustomNpcs.NpcNavRange < 16) { CustomNpcs.NpcNavRange = 16; }
-		CustomRegisters.load();
-		// Capabilities
-		CapabilityManager.INSTANCE.register(IPlayerDataHandler.class, new PlayerDataStorage(), PlayerData::new);
-		CapabilityManager.INSTANCE.register(IMarkDataHandler.class, new MarkDataStorage(), MarkData::new);
-		CapabilityManager.INSTANCE.register(IWrapperEntityDataHandler.class, new WrapperEntityDataStorage(), WrapperEntityData::new);
-		CapabilityManager.INSTANCE.register(IItemStackWrapperHandler.class, new ItemStackWrapperStorage(), ItemStackWrapper::new);
+	public static void postload(FMLPostInitializationEvent ev) { // New
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_postload");
 
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, CustomNpcs.proxy);
-		
-		MinecraftForge.EVENT_BUS.register(new ServerEventsHandler());
-		MinecraftForge.EVENT_BUS.register(new ServerTickHandler());
-		MinecraftForge.EVENT_BUS.register(CustomNpcs.proxy);
-		
-		NpcAPI.Instance().events().register(new AbilityEventHandler());
-		ForgeChunkManager.setForcedChunkLoadingCallback(this, (ForgeChunkManager.LoadingCallback) new ChunkController());
-		
-		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs", "CustomDimensions".hashCode(), CustomWorldProvider.class, false);
+		new AdditionalMethods();
+		for (ModContainer mod : Loader.instance().getModList()) {
+			if (mod.getModId().equals(CustomNpcs.MODID)) {
+				CustomNpcs.mod = mod;
+			}
+		}
 
-		CustomNpcs.proxy.preload();
-		ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH, Double.MAX_VALUE, 1);
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
+		forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
+		forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
+		forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
+		forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
+
+		CustomNpcs.proxy.postload();
+		LogWriter.info("Mod loaded ^_^ Have a good game!");
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_postload");
+	}
+
+	public static List<String> showDebugs() {
+		List<String> list = Lists.newArrayList();
+		String temp = "Debug information output:";
+		list.add(temp);
+		LogWriter.debug(temp);
+		CustomNpcs.debugData.stopAll();
+		boolean start = false;
+		for (String side : CustomNpcs.debugData.data.keySet()) {
+			if (start) {
+				list.add("----   ----  ----");
+				LogWriter.debug("");
+			}
+			temp = "Showing Monitoring results for \"" + side
+					+ "\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
+			list.add(temp);
+			LogWriter.debug(temp);
+			List<String> events = Lists.newArrayList(CustomNpcs.debugData.data.get(side).times.keySet());
+			Collections.sort(events);
+			int i = 0;
+			long max = Long.MIN_VALUE;
+			String[] maxName = new String[] { "", "" };
+			for (String eventName : events) {
+				Debug dd = CustomNpcs.debugData.data.get(side);
+				List<String> targets = Lists
+						.newArrayList(CustomNpcs.debugData.data.get(side).times.get(eventName).keySet());
+				Collections.sort(targets);
+				String log = "";
+				for (String target : targets) {
+					Long[] time = CustomNpcs.debugData.data.get(side).times.get(eventName).get(target);
+					if (log.length() > 0) {
+						log += "; ";
+					}
+					if (time[0] <= 0) {
+						time[0] = 1L;
+					}
+					log += "[" + target + ", " + time[0] + ", "
+							+ AdditionalMethods.ticksToElapsedTime(time[1], true, false, false) + "]";
+					if (time[1] == dd.max) {
+						maxName[0] = "\"" + eventName + "|" + target + "\": "
+								+ AdditionalMethods.ticksToElapsedTime(dd.max, true, false, false);
+					}
+					if (max < time[0]) {
+						max = time[0];
+						maxName[1] = "\"" + eventName + "|" + target + "\": " + time[0] + " runs";
+					}
+				}
+				temp = "[" + (i + 1) + "/" + events.size() + "] - \"" + eventName + "\": { " + log + " }";
+				list.add(temp);
+				LogWriter.debug(temp);
+				i++;
+			}
+			temp = "\"" + side + "\" a long time [" + maxName[0] + "]";
+			list.add(temp);
+			LogWriter.debug(temp);
+			temp = "\"" + side + "\" most often: [" + maxName[1] + "]";
+			list.add(temp);
+			LogWriter.debug(temp);
+			start = true;
+		}
+		return list;
+	}
+
+	public CustomNpcs() {
+		CustomNpcs.instance = this;
 	}
 
 	@Mod.EventHandler
@@ -359,33 +419,55 @@ public class CustomNpcs {
 		CustomNpcs.proxy.load();
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_load");
 	}
-	
+
 	@Mod.EventHandler
-	public static void postload(FMLPostInitializationEvent ev) { // New
-		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_postload");
-		
-		new AdditionalMethods();
-		for (ModContainer mod : Loader.instance().getModList()) {
-			if (mod.getModId().equals(CustomNpcs.MODID)) { CustomNpcs.mod = mod; }
+	public void preload(FMLPreInitializationEvent ev) {
+		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_preload");
+		CustomNpcs.Channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCs");
+		CustomNpcs.ChannelPlayer = NetworkRegistry.INSTANCE.newEventDrivenChannel("CustomNPCsPlayer");
+		(CustomNpcs.Dir = new File(new File(ev.getModConfigurationDirectory(), ".."), "customnpcs")).mkdir();
+		CustomNpcs.Config = new ConfigLoader(ev.getModConfigurationDirectory());
+		if (CustomNpcs.NpcNavRange < 16) {
+			CustomNpcs.NpcNavRange = 16;
 		}
-		
-		forgeClientEventNames.put(IsReadyEvent.class, "customPotionIsReady");
-		forgeClientEventNames.put(PerformEffect.class, "customPotionPerformEffect");
-		forgeClientEventNames.put(AffectEntity.class, "customPotionAffectEntity");
-		forgeClientEventNames.put(EndEffect.class, "customPotionEndEffect");
-		
-		CustomNpcs.proxy.postload();
-		LogWriter.info("Mod loaded ^_^ Have a good game!");
-		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_postload");
+		CustomRegisters.load();
+		// Capabilities
+		CapabilityManager.INSTANCE.register(IPlayerDataHandler.class, new PlayerDataStorage(), PlayerData::new);
+		CapabilityManager.INSTANCE.register(IMarkDataHandler.class, new MarkDataStorage(), MarkData::new);
+		CapabilityManager.INSTANCE.register(IWrapperEntityDataHandler.class, new WrapperEntityDataStorage(),
+				WrapperEntityData::new);
+		CapabilityManager.INSTANCE.register(IItemStackWrapperHandler.class, new ItemStackWrapperStorage(),
+				ItemStackWrapper::new);
+
+		NetworkRegistry.INSTANCE.registerGuiHandler(this, CustomNpcs.proxy);
+
+		MinecraftForge.EVENT_BUS.register(new ServerEventsHandler());
+		MinecraftForge.EVENT_BUS.register(new ServerTickHandler());
+		MinecraftForge.EVENT_BUS.register(CustomNpcs.proxy);
+
+		NpcAPI.Instance().events().register(new AbilityEventHandler());
+		ForgeChunkManager.setForcedChunkLoadingCallback(this,
+				(ForgeChunkManager.LoadingCallback) new ChunkController());
+
+		CustomNpcs.customDimensionType = DimensionType.register("CustomDimensions", "CustomNpcs",
+				"CustomDimensions".hashCode(), CustomWorldProvider.class, false);
+
+		CustomNpcs.proxy.preload();
+		ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH,
+				Double.MAX_VALUE, 1);
+		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_preload");
 	}
 
 	@Mod.EventHandler
 	public void serverstart(FMLServerStartingEvent event) {
 		CustomNpcs.debugData.startDebug("Common", "Mod", "CustomNpcs_serverstart");
 		event.registerServerCommand((ICommand) CustomNpcs.NoppesCommand);
-		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0), (GameProfile) EntityNPCInterface.ChatEventProfile);
-		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0), (GameProfile) EntityNPCInterface.CommandProfile);
-		EntityNPCInterface.GenericPlayer = new FakePlayer(event.getServer().getWorld(0), (GameProfile) EntityNPCInterface.GenericProfile);
+		EntityNPCInterface.ChatEventPlayer = new FakePlayer(event.getServer().getWorld(0),
+				(GameProfile) EntityNPCInterface.ChatEventProfile);
+		EntityNPCInterface.CommandPlayer = new FakePlayer(event.getServer().getWorld(0),
+				(GameProfile) EntityNPCInterface.CommandProfile);
+		EntityNPCInterface.GenericPlayer = new FakePlayer(event.getServer().getWorld(0),
+				(GameProfile) EntityNPCInterface.GenericProfile);
 		for (WorldServer world : CustomNpcs.Server.worlds) {
 			ServerScoreboard board = (ServerScoreboard) world.getScoreboard();
 			board.addDirtyRunnable(() -> {
@@ -396,21 +478,24 @@ public class CustomNpcs {
 						Iterator<EntityPlayerMP> iterator2 = CustomNpcs.Server.getPlayerList().getPlayers().iterator();
 						while (iterator2.hasNext()) {
 							EntityPlayerMP player = iterator2.next();
-							if (!board.entityHasObjective(player.getName(), so) && board.getObjectiveDisplaySlotCount(so) == 0) {
+							if (!board.entityHasObjective(player.getName(), so)
+									&& board.getObjectiveDisplaySlotCount(so) == 0) {
 								player.connection.sendPacket(new SPacketScoreboardObjective(so, 0));
 							}
-							player.connection.sendPacket(new SPacketUpdateScore(board.getOrCreateScore(player.getName(), so)));
+							player.connection
+									.sendPacket(new SPacketUpdateScore(board.getOrCreateScore(player.getName(), so)));
 						}
 					}
 				}
 				return;
 			});
 			board.addDirtyRunnable(() -> {
-				Iterator<EntityPlayerMP> itrPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers().iterator();
+				Iterator<EntityPlayerMP> itrPlayer = FMLCommonHandler.instance().getMinecraftServerInstance()
+						.getPlayerList().getPlayers().iterator();
 				while (itrPlayer.hasNext()) {
 					EntityPlayerMP player = itrPlayer.next();
 					PlayerData data = PlayerData.get(player);
-					if (data!=null) {
+					if (data != null) {
 						VisibilityController.onUpdate(player);
 					}
 				}
@@ -418,7 +503,7 @@ public class CustomNpcs {
 			});
 		}
 		DimensionHandler.getInstance().loadDimensions();
-		
+
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_serverstart");
 	}
 
@@ -460,7 +545,8 @@ public class CustomNpcs {
 		if (level.exists()) {
 			try {
 				NBTTagCompound nbt = CompressedStreamTools.readCompressed(new FileInputStream(level));
-				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities").getTagList("ids", 10);
+				NBTTagList list = nbt.getCompoundTag("FML").getCompoundTag("Registries")
+						.getCompoundTag("minecraft:entities").getTagList("ids", 10);
 				NBTTagList newList = new NBTTagList();
 				boolean resave = false;
 				for (int i = 0; i < list.tagCount(); i++) {
@@ -472,12 +558,15 @@ public class CustomNpcs {
 					newList.appendTag(list.getCompoundTagAt(i));
 				}
 				if (resave) {
-					nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities").setTag("ids", newList);
+					nbt.getCompoundTag("FML").getCompoundTag("Registries").getCompoundTag("minecraft:entities")
+							.setTag("ids", newList);
 					CompressedStreamTools.writeCompressed(nbt, new FileOutputStream(level));
 				}
-			} catch (Exception e) { e.printStackTrace(); }
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-		
+
 		CustomNpcs.debugData.endDebug("Common", "Mod", "CustomNpcs_setAboutToStart");
 	}
 
@@ -506,57 +595,10 @@ public class CustomNpcs {
 		ScriptController.Instance.saveItemTextures();
 		ItemScripted.Resources.clear();
 		BankController.getInstance().update();
-		if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
-		CustomNpcs.Server = null;
-	}
-
-	public static List<String> showDebugs() {
-		List<String> list = Lists.newArrayList();
-		String temp = "Debug information output:";
-		list.add(temp);
-		LogWriter.debug(temp);
-		CustomNpcs.debugData.stopAll();
-		boolean start = false;
-		for (String side : CustomNpcs.debugData.data.keySet()) {
-			if (start) {
-				list.add("----   ----  ----");
-				LogWriter.debug("");
-			}
-			temp = "Showing Monitoring results for \""+side+"\" side. |Number - EventName: { [Target name, Runs, Average time] }|:";
-			list.add(temp);
-			LogWriter.debug(temp);
-			List<String> events = Lists.newArrayList(CustomNpcs.debugData.data.get(side).times.keySet());
-			Collections.sort(events);
-			int i = 0;
-			long max = Long.MIN_VALUE;
-			String[] maxName = new String[] { "", "" };
-			for (String eventName : events) {
-				Debug dd = CustomNpcs.debugData.data.get(side);
-				List<String> targets = Lists.newArrayList(CustomNpcs.debugData.data.get(side).times.get(eventName).keySet());
-				Collections.sort(targets);
-				String log = "";
-				for (String target : targets) {
-					Long[] time = CustomNpcs.debugData.data.get(side).times.get(eventName).get(target);
-					if (log.length()>0) { log += "; "; }
-					if (time[0]<=0) { time[0] = 1L; }
-					log += "["+target+", "+time[0]+", "+AdditionalMethods.ticksToElapsedTime(time[1], true, false, false)+"]";
-					if (time[1]==dd.max) { maxName[0] = "\""+eventName+"|"+target+"\": "+AdditionalMethods.ticksToElapsedTime(dd.max, true, false, false); }
-					if (max<time[0]) { max = time[0]; maxName[1] = "\""+eventName+"|"+target+"\": "+time[0]+" runs"; }
-				}
-				temp = "["+(i+1)+"/"+events.size()+"] - \""+eventName+"\": { "+log+" }";
-				list.add(temp);
-				LogWriter.debug(temp);
-				i++;
-			}
-			temp = "\""+side+"\" a long time ["+maxName[0]+"]";
-			list.add(temp);
-			LogWriter.debug(temp);
-			temp = "\""+side+"\" most often: ["+maxName[1]+"]";
-			list.add(temp);
-			LogWriter.debug(temp);
-			start = true;
+		if (CustomNpcs.VerboseDebug) {
+			CustomNpcs.showDebugs();
 		}
-		return list;
+		CustomNpcs.Server = null;
 	}
 
 }

@@ -11,11 +11,13 @@ public class EntityAIRole extends EntityAIBase {
 	}
 
 	public boolean shouldContinueExecuting() {
-		return !this.npc.isKilled() && this.npc.advanced.roleInterface != null && this.npc.advanced.roleInterface.aiContinueExecute();
+		return !this.npc.isKilled() && this.npc.advanced.roleInterface != null
+				&& this.npc.advanced.roleInterface.aiContinueExecute();
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isKilled() && this.npc.advanced.roleInterface != null && this.npc.advanced.roleInterface.aiShouldExecute();
+		return !this.npc.isKilled() && this.npc.advanced.roleInterface != null
+				&& this.npc.advanced.roleInterface.aiShouldExecute();
 	}
 
 	public void startExecuting() {

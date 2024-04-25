@@ -10,10 +10,8 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
-public class GuiScriptDoor
-extends GuiScriptInterface
-implements ISubGuiListener {
-	
+public class GuiScriptDoor extends GuiScriptInterface implements ISubGuiListener {
+
 	private TileScriptedDoor script;
 
 	public GuiScriptDoor(int x, int y, int z) {
@@ -49,8 +47,11 @@ implements ISubGuiListener {
 			nbt.setTag("data", data);
 			this.script.getNBT(nbt);
 			String p = new String(this.path);
-			while (p.indexOf("\\") !=-1) { p = p.replace("\\", "/"); }
-			nbt.setString("Name", ((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			while (p.indexOf("\\") != -1) {
+				p = p.replace("\\", "/");
+			}
+			nbt.setString("Name",
+					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 0);
@@ -60,5 +61,5 @@ implements ISubGuiListener {
 			this.mc.setIngameFocus();
 		}
 	}
-	
+
 }

@@ -11,11 +11,6 @@ import noppes.npcs.api.entity.IPlayer;
 
 public class BlockEvent extends CustomNPCsEvent {
 
-	public IBlock block;
-	public BlockEvent(IBlock block) {
-		this.block = block;
-	}
-	
 	public static class BreakEvent extends BlockEvent {
 		public BreakEvent(IBlock block) {
 			super(block);
@@ -140,5 +135,11 @@ public class BlockEvent extends CustomNPCsEvent {
 			super(block);
 		}
 	}
-	
+
+	public IBlock block;
+
+	public BlockEvent(IBlock block) {
+		this.block = block;
+	}
+
 }

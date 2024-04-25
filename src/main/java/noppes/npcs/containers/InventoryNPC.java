@@ -10,9 +10,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.NoppesUtilServer;
 
-public class InventoryNPC
-implements IInventory {
-	
+public class InventoryNPC implements IInventory {
+
 	private Container con;
 	public NonNullList<ItemStack> inventoryContents;
 	private String inventoryTitle;

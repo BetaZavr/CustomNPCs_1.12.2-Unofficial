@@ -27,7 +27,7 @@ import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.ValueUtil;
 
 public class DataScenes {
-	
+
 	public class SceneContainer {
 		public int btn;
 		public boolean enabled;
@@ -233,10 +233,16 @@ public class DataScenes {
 				return;
 			}
 			for (SceneEvent event : this.events) {
-				if (event.ticks > this.state.ticks) { break; }
-				if (event.ticks != this.state.ticks) { continue; }
-				try { this.handle(event); }
-				catch (Exception ex) { }
+				if (event.ticks > this.state.ticks) {
+					break;
+				}
+				if (event.ticks != this.state.ticks) {
+					continue;
+				}
+				try {
+					this.handle(event);
+				} catch (Exception ex) {
+				}
 			}
 			this.ticks = this.state.ticks;
 		}

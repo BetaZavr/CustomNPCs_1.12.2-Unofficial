@@ -109,53 +109,14 @@ import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.IPermission;
 
 public class PacketHandlerServer {
-	
+
 	private static List<EnumPacketServer> list;
-	
+
 	static {
 		PacketHandlerServer.list = new ArrayList<EnumPacketServer>();
 		PacketHandlerServer.list.add(EnumPacketServer.RemoteReset);
 	}
-	
-	@SubscribeEvent
-	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
-		EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
-		ByteBuf buffer = event.getPacket().payload();
-		player.getServer().addScheduledTask(() -> {
-			EnumPacketServer type = null;
-			try {
-				type = EnumPacketServer.values()[buffer.readInt()];
-				if (CustomNpcs.OpsOnly && !NoppesUtilServer.isOp(player)) {
-					this.warn(player, "tried to use custom npcs without being an op TypePacket: "+type);
-					return;
-				}
-				if (!PacketHandlerServer.list.contains(type)) { LogWriter.debug("Received: " + type); }
-				ItemStack item = player.inventory.getCurrentItem();
-				EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
-				List<EnumPacketServer> notHasPerm = Lists.<EnumPacketServer>newArrayList();
-				if (!type.needsNpc || npc!=null) {
-					if (!type.hasPermission() || CustomNpcsPermissions.hasPermission(player, type.permission)) {
-						if (!notHasPerm.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
-							this.warn(player, "tried to use custom npcs without a tool in hand, possibly a hacker");
-						} else {
-							this.handlePacket(type, buffer, player, npc);
-						}
-					}
-				} else {
-					LogWriter.error("Error with EnumPacketServer." + type+". Not found Editing Npc");
-				}
-			} catch (Exception e) {
-				LogWriter.error("Error with EnumPacketServer." + type, e);
-			} finally {
-				buffer.release();
-			}
-		});
-	}
 
-	private void warn(EntityPlayer player, String warning) {
-		player.getServer().logWarning(player.getName() + ": " + warning);
-	}
-	
 	private boolean allowItem(ItemStack stack, EnumPacketServer type) {
 		if (stack == null || stack.getItem() == null) {
 			return false;
@@ -170,12 +131,14 @@ public class PacketHandlerServer {
 		return permission != null && permission.isAllowed(type);
 	}
 
-	private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc) throws Exception {
+	private void handlePacket(EnumPacketServer type, ByteBuf buffer, EntityPlayerMP player, EntityNPCInterface npc)
+			throws Exception {
 		CustomNpcs.debugData.startDebug("Server", type.toString(), "PacketHandlerServer_Received");
 		if (type == EnumPacketServer.Delete) {
 			if (npc.advanced.jobInterface instanceof JobBard) {
 				JobBard job = (JobBard) npc.advanced.jobInterface;
-				Server.sendData(player, EnumPacketClient.STOP_SOUND, job.song, (job.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC).ordinal());
+				Server.sendData(player, EnumPacketClient.STOP_SOUND, job.song,
+						(job.isStreamer ? SoundCategory.AMBIENT : SoundCategory.MUSIC).ordinal());
 			}
 			npc.delete();
 			NoppesUtilServer.deleteEntity(npc, player);
@@ -215,7 +178,9 @@ public class PacketHandlerServer {
 			LinkedNpcController.Instance.loadNpcData(npc);
 		} else if (type == EnumPacketServer.NpcMenuClose) {
 			npc.reset();
-			if (npc.linkedData != null) { LinkedNpcController.Instance.saveNpcData(npc); }
+			if (npc.linkedData != null) {
+				LinkedNpcController.Instance.saveNpcData(npc);
+			}
 			NoppesUtilServer.setEditingNpc(player, null);
 		} else if (type == EnumPacketServer.BanksGet) {
 			NoppesUtilServer.sendBankDataAll(player);
@@ -230,25 +195,24 @@ public class PacketHandlerServer {
 			NoppesUtilServer.sendBankDataAll(player);
 			NoppesUtilServer.sendBank(player, bank, 0);
 		} else if (type == EnumPacketServer.BankShow) {
-			/*int id = buffer.readInt();
-			if (EnumPlayerData.values().length <= id || EnumPlayerData.values()[id] != EnumPlayerData.Bank) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
-				return;
-			}
-			String playerName = Server.readString(buffer);
-			int bankId = buffer.readInt();
-			PlayerData playerdata = null;
-			EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
-			if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
-			else { playerdata = PlayerData.get(pl); }
-			if (playerdata==null || !playerdata.bankData.banks.containsKey(bankId)) { return; }
-			NBTTagCompound compound = new NBTTagCompound();
-			playerdata.bankData.saveNBTData(compound);
-			compound.setString("PlayerName", playerName);
-			Server.sendData(player, EnumPacketClient.SHOW_BANK_PLAYER, compound);
-			BankData bd = playerdata.bankData.banks.get(bankId);
-			ContainerNPCBankInterface.editBank = playerdata.bankData;
-			bd.openBankGui(player, npc, bankId, 0);*/
+			/*
+			 * int id = buffer.readInt(); if (EnumPlayerData.values().length <= id ||
+			 * EnumPlayerData.values()[id] != EnumPlayerData.Bank) {
+			 * CustomNpcs.debugData.endDebug("Server", type.toString(),
+			 * "PacketHandlerServer_Received"); return; } String playerName =
+			 * Server.readString(buffer); int bankId = buffer.readInt(); PlayerData
+			 * playerdata = null; EntityPlayer pl = (EntityPlayer)
+			 * player.getServer().getPlayerList().getPlayerByUsername(playerName); if (pl ==
+			 * null) { playerdata =
+			 * PlayerDataController.instance.getDataFromUsername(player.getServer(),
+			 * playerName); } else { playerdata = PlayerData.get(pl); } if (playerdata==null
+			 * || !playerdata.bankData.banks.containsKey(bankId)) { return; } NBTTagCompound
+			 * compound = new NBTTagCompound(); playerdata.bankData.saveNBTData(compound);
+			 * compound.setString("PlayerName", playerName); Server.sendData(player,
+			 * EnumPacketClient.SHOW_BANK_PLAYER, compound); BankData bd =
+			 * playerdata.bankData.banks.get(bankId); ContainerNPCBankInterface.editBank =
+			 * playerdata.bankData; bd.openBankGui(player, npc, bankId, 0);
+			 */
 		} else if (type == EnumPacketServer.BankAddCeil) {
 			Bank bank = BankController.getInstance().getBank(buffer.readInt());
 			if (bank == null) {
@@ -265,8 +229,7 @@ public class PacketHandlerServer {
 				Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.BankData, bankId);
 				BankController.getInstance().removeBank(bankId);
 				NoppesUtilServer.sendBankDataAll(player);
-			}
-			else {
+			} else {
 				Bank bank = BankController.getInstance().getBank(bankId);
 				if (bank == null) {
 					CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
@@ -274,7 +237,9 @@ public class PacketHandlerServer {
 				}
 				bank.removeCeil(ceilId);
 				ceilId--;
-				if (ceilId < 0) { ceilId = 0; }
+				if (ceilId < 0) {
+					ceilId = 0;
+				}
 				Server.sendData(player, EnumPacketClient.SYNC_REMOVE, EnumSync.BankCeil, ceilId, bankId);
 				NoppesUtilServer.sendBank(player, bank, ceilId);
 			}
@@ -295,17 +260,20 @@ public class PacketHandlerServer {
 			if (entity instanceof EntityNPCInterface) {
 				npc = (EntityNPCInterface) entity;
 				npc.delete();
+			} else {
+				entity.setDead();
 			}
-			else { entity.setDead();}
 			NoppesUtilServer.deleteEntity((EntityLivingBase) entity, player);
 			NoppesUtilServer.sendNearbyEntitys(player, buffer.readBoolean());
 		} else if (type == EnumPacketServer.RemoteNpcsGet) {
 			NoppesUtilServer.sendNearbyEntitys(player, buffer.readBoolean());
-			Server.sendData(player, EnumPacketClient.SCROLL_SELECTED, CustomNpcs.FreezeNPCs ? "Unfreeze Npcs" : "Freeze Npcs");
+			Server.sendData(player, EnumPacketClient.SCROLL_SELECTED,
+					CustomNpcs.FreezeNPCs ? "Unfreeze Npcs" : "Freeze Npcs");
 		} else if (type == EnumPacketServer.RemoteFreeze) {
 			CustomNpcs.FreezeNPCs = !CustomNpcs.FreezeNPCs;
 			player.sendMessage(new TextComponentString(CustomNpcs.FreezeNPCs ? "Freeze Npcs" : "Unfreeze Npcs"));
-			Server.sendData(player, EnumPacketClient.SCROLL_SELECTED, CustomNpcs.FreezeNPCs ? "Freeze Npcs" : "Unfreeze Npcs");
+			Server.sendData(player, EnumPacketClient.SCROLL_SELECTED,
+					CustomNpcs.FreezeNPCs ? "Freeze Npcs" : "Unfreeze Npcs");
 		} else if (type == EnumPacketServer.RemoteReset) {
 			Entity entity = player.world.getEntityByID(buffer.readInt());
 			if (entity == null || !(entity instanceof EntityNPCInterface)) {
@@ -434,13 +402,15 @@ public class PacketHandlerServer {
 			}
 		} else if (type == EnumPacketServer.DialogNpcRemove) {
 			int slot = buffer.readInt();
-			if (slot<0 || slot>=npc.dialogs.length) {
+			if (slot < 0 || slot >= npc.dialogs.length) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
-			int[] newIDs = new int[npc.dialogs.length-1];
-			for (int i=0, j=0; i<npc.dialogs.length; i++) {
-				if (i==slot) { continue;}
+			int[] newIDs = new int[npc.dialogs.length - 1];
+			for (int i = 0, j = 0; i < npc.dialogs.length; i++) {
+				if (i == slot) {
+					continue;
+				}
 				newIDs[j] = npc.dialogs[i];
 				j++;
 			}
@@ -466,40 +436,44 @@ public class PacketHandlerServer {
 			}
 			Quest quest = new Quest(category);
 			quest.readNBT(Server.readNBT(buffer));
-			
-			if (quest.completer==null) {
-				if (npc!=null) {
+
+			if (quest.completer == null) {
+				if (npc != null) {
 					NBTTagCompound compound = new NBTTagCompound();
 					npc.writeEntityToNBT(compound);
 					Entity e = EntityList.createEntityFromNBT(compound, npc.world);
-					if (e instanceof EntityNPCInterface) { quest.completer = (EntityNPCInterface) e; }
+					if (e instanceof EntityNPCInterface) {
+						quest.completer = (EntityNPCInterface) e;
+					}
 				}
-			}
-			else if (npc!=null && quest.completer.getName().equals(npc.getName())) {
+			} else if (npc != null && quest.completer.getName().equals(npc.getName())) {
 				NBTTagCompound compound = new NBTTagCompound();
 				npc.writeEntityToNBT(compound);
 				quest.completer.readEntityFromNBT(compound);
-			}
-			else if (CustomNpcs.Server!=null) {
+			} else if (CustomNpcs.Server != null) {
 				for (WorldServer w : CustomNpcs.Server.worlds) {
 					boolean found = false;
 					for (Entity e : w.loadedEntityList) {
 						if (e instanceof EntityNPCInterface && e.getName().equals(quest.completer.getName())) {
 							NBTTagCompound nbtNPC = new NBTTagCompound();
-							((EntityNPCInterface) e).writeEntityToNBT(nbtNPC );
+							((EntityNPCInterface) e).writeEntityToNBT(nbtNPC);
 							quest.completer.readEntityFromNBT(nbtNPC);
 							found = true;
 							break;
 						}
 					}
-					if (found) { break; }
+					if (found) {
+						break;
+					}
 				}
+			} else {
+				quest.completer.display.setName(npc.getName());
 			}
-			else { quest.completer.display.setName(npc.getName()); }
-			
+
 			QuestController.instance.saveQuest(category, quest);
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData,
+					category.writeNBT(new NBTTagCompound()));
 		} else if (type == EnumPacketServer.QuestReset) {
 			Quest quest = new Quest(null);
 			quest.readNBT(Server.readNBT(buffer));
@@ -573,9 +547,13 @@ public class PacketHandlerServer {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.QuestRemove) {
 			int id = buffer.readInt();
-			if (QuestController.instance.quests.containsKey(id)) { QuestController.instance.removeQuest(QuestController.instance.quests.get(id)); }
+			if (QuestController.instance.quests.containsKey(id)) {
+				QuestController.instance.removeQuest(QuestController.instance.quests.get(id));
+			}
 			for (QuestCategory cat : QuestController.instance.categories.values()) {
-				if (cat.quests.containsKey(id)) { cat.quests.remove(id); }
+				if (cat.quests.containsKey(id)) {
+					cat.quests.remove(id);
+				}
 			}
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 		} else if (type == EnumPacketServer.TransportCategoriesGet) {
@@ -589,7 +567,7 @@ public class PacketHandlerServer {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			int id = compound.getInteger("CategoryId");
 			TransportController.getInstance().saveCategory(compound);
-			if (id<0) {
+			if (id < 0) {
 				NoppesUtilServer.sendTransportData(player);
 			}
 		} else if (type == EnumPacketServer.TransportCategoryRemove) {
@@ -603,7 +581,8 @@ public class PacketHandlerServer {
 			}
 		} else if (type == EnumPacketServer.TransportSave) {
 			int cat = buffer.readInt();
-			TransportLocation location = TransportController.getInstance().saveLocation(cat, Server.readNBT(buffer), player, npc);
+			TransportLocation location = TransportController.getInstance().saveLocation(cat, Server.readNBT(buffer),
+					player, npc);
 			if (location != null) {
 				if (!(npc.advanced.roleInterface instanceof RoleTransporter)) {
 					CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
@@ -655,8 +634,7 @@ public class PacketHandlerServer {
 			if (EnumPlayerData.values().length <= id) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
-			}
-			else if (EnumPlayerData.values()[id]==EnumPlayerData.Wipe) {
+			} else if (EnumPlayerData.values()[id] == EnumPlayerData.Wipe) {
 				List<String> list = PlayerDataController.instance.getPlayerNames();
 				for (String username : player.getServer().getPlayerList().getOnlinePlayerNames()) {
 					list.add(username);
@@ -664,11 +642,16 @@ public class PacketHandlerServer {
 				for (String name : list) {
 					EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(name);
 					PlayerData playerdata = null;
-					if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name); }
-					else { playerdata = PlayerData.get(pl); }
+					if (pl == null) {
+						playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), name);
+					} else {
+						playerdata = PlayerData.get(pl);
+					}
 					playerdata.setNBT(new NBTTagCompound());
 					playerdata.save(true);
-					if (pl != null) { SyncController.syncPlayer((EntityPlayerMP) pl); }
+					if (pl != null) {
+						SyncController.syncPlayer((EntityPlayerMP) pl);
+					}
 				}
 				AdditionalMethods.removeFile(CustomNpcs.getWorldSaveDirectory("playerdata"));
 				CustomNpcs.getWorldSaveDirectory("playerdata").mkdirs();
@@ -703,30 +686,36 @@ public class PacketHandlerServer {
 			IItemStack stack = NpcAPI.Instance().getIItemStack(new ItemStack(compound.getCompoundTag("Item")));
 			DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
 			if (stack.isEmpty()) {
-				if (dropType==1) {
-					if (template!=null) {
-						if (slot<0) { template.removeGroup(groupId); }
-						else { template.removeDrop(groupId, slot); }
+				if (dropType == 1) {
+					if (template != null) {
+						if (slot < 0) {
+							template.removeGroup(groupId);
+						} else {
+							template.removeDrop(groupId, slot);
+						}
 					}
+				} else {
+					npc.inventory.removeDrop(slot);
 				}
-				else { npc.inventory.removeDrop(slot); }
 			} else if (slot == -1) {
 				DropSet drop = null;
-				if (dropType==1) {
-					if (template!=null) {
+				if (dropType == 1) {
+					if (template != null) {
 						template.addDropItem(groupId, stack, 1.0d);
 					}
+				} else {
+					drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d);
 				}
-				else { drop = (DropSet) npc.inventory.addDropItem(stack, 1.0d); }
-				if (drop!=null) { drop.load(compound); }
-			}
-			else {
-				if (dropType==1) {
-					if (template!=null && template.groups.containsKey(groupId) && template.groups.get(groupId).containsKey(slot)) {
+				if (drop != null) {
+					drop.load(compound);
+				}
+			} else {
+				if (dropType == 1) {
+					if (template != null && template.groups.containsKey(groupId)
+							&& template.groups.get(groupId).containsKey(slot)) {
 						template.groups.get(groupId).get(slot).load(compound);
 					}
-				}
-				else if (npc.inventory.drops.containsKey(slot)) {
+				} else if (npc.inventory.drops.containsKey(slot)) {
 					npc.inventory.drops.get(slot).load(compound);
 				}
 			}
@@ -755,28 +744,28 @@ public class PacketHandlerServer {
 			NBTTagCompound original = npc.advanced.jobInterface.writeToNBT(new NBTTagCompound());
 			NBTTagCompound compound = Server.readNBT(buffer);
 			for (String name : compound.getKeySet()) {
-				if (name.equals("DataEntitysWhenAlive") || name.equals("DataEntitysWhenDead")) { continue; }
+				if (name.equals("DataEntitysWhenAlive") || name.equals("DataEntitysWhenDead")) {
+					continue;
+				}
 				original.setTag(name, compound.getTag(name));
 			}
 			if (original.hasKey("Type", 3)) {
 				npc.advanced.jobInterface.readFromNBT(original);
 				npc.updateClient = true;
 			}
-		}
-		else if (type == EnumPacketServer.JobClear) {
+		} else if (type == EnumPacketServer.JobClear) {
 			if (!(npc.advanced.jobInterface instanceof JobSpawner)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
 			((JobSpawner) npc.advanced.jobInterface).clear(buffer.readBoolean());
-			
+
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("JobData", true);
 			npc.advanced.jobInterface.writeToNBT(compound);
 			((JobSpawner) npc.advanced.jobInterface).cleanCompound(compound);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-		}
-		else if (type == EnumPacketServer.JobGet) {
+		} else if (type == EnumPacketServer.JobGet) {
 			if (npc.advanced.jobInterface == null) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
@@ -801,12 +790,14 @@ public class PacketHandlerServer {
 				String name = Server.readString(buffer);
 				int tab = buffer.readInt();
 				SpawnNPCData sd = job.get(slot, isDead);
-				if (sd==null) {
+				if (sd == null) {
 					sd = new SpawnNPCData();
 					slot = job.size(isDead);
 				}
 				sd.compound = ServerCloneController.Instance.getCloneData(player, name, tab);
-				if (sd.compound==null) { sd.compound = new NBTTagCompound(); }
+				if (sd.compound == null) {
+					sd.compound = new NBTTagCompound();
+				}
 				sd.compound.setString("ClonedName", name);
 				sd.compound.setInteger("ClonedTab", tab);
 				sd.typeClones = 2;
@@ -814,7 +805,7 @@ public class PacketHandlerServer {
 			} else {
 				SpawnNPCData sd = job.readJobCompound(slot, isDead, Server.readNBT(buffer));
 				int tab = sd.compound.getInteger("ClonedTab");
-				sd.typeClones = (tab>0 && tab<10) ? 0 : 1;
+				sd.typeClones = (tab > 0 && tab < 10) ? 0 : 1;
 			}
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setBoolean("JobData", true);
@@ -891,7 +882,7 @@ public class PacketHandlerServer {
 			}
 		} else if (type == EnumPacketServer.MovingPathGet) {
 			NBTTagCompound compound = new NBTTagCompound();
-			compound .setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(npc.ais.getMovingPath()));
+			compound.setTag("MovingPathNew", NBTTags.nbtIntegerArraySet(npc.ais.getMovingPath()));
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.MovingPathSave) {
 			npc.ais.setMovingPath(NBTTags.getIntegerArraySet(Server.readNBT(buffer).getTagList("MovingPathNew", 10)));
@@ -926,22 +917,26 @@ public class PacketHandlerServer {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
-			if (!server) { nbtData.setTag("EntityNBT", compound); }
+			if (!server) {
+				nbtData.setTag("EntityNBT", compound);
+			}
 			Entity entity = NoppesUtilServer.spawnClone(compound, x + 0.5, y + 1, z + 0.5, player.world);
 			ItemStack stack = player.getHeldItemMainhand();
 			NBTTagCompound nbt = null;
-			if (stack!=null && stack.getItem()==CustomRegisters.cloner) {
+			if (stack != null && stack.getItem() == CustomRegisters.cloner) {
 				nbt = stack.getTagCompound();
-				if (nbt==null) { stack.setTagCompound(nbt = new NBTTagCompound()); }
+				if (nbt == null) {
+					stack.setTagCompound(nbt = new NBTTagCompound());
+				}
 			}
 			if (entity == null) {
-				if (nbt!=null && nbt.hasKey("Settings")) {
+				if (nbt != null && nbt.hasKey("Settings")) {
 					nbt.removeTag("Settings");
 					player.openContainer.detectAndSendChanges();
 				}
 				player.sendMessage(new TextComponentString("Failed to create an entity out of your clone"));
 			} else {
-				if (nbt!=null) {
+				if (nbt != null) {
 					if (!nbtData.hasKey("Name", 8) || nbtData.getString("Name").isEmpty()) {
 						nbtData.setString("Name", entity.getName());
 					}
@@ -1005,11 +1000,11 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.DimensionSettings) {
 			int id = buffer.readInt();
 			CustomWorldInfo wi = Server.readWorldInfo(buffer);
-			if (id==0) {
+			if (id == 0) {
 				DimensionHandler.getInstance().createDimension(player, wi);
 			} else {
 				CustomWorldInfo cwi = (CustomWorldInfo) DimensionHandler.getInstance().getMCWorldInfo(id);
-				if (cwi!=null) {
+				if (cwi != null) {
 					cwi.load(wi.read());
 				}
 			}
@@ -1036,9 +1031,11 @@ public class PacketHandlerServer {
 					}
 				}
 			}
-			NoppesUtilPlayer.teleportPlayer(player, coords.getX(), coords.getY(), coords.getZ(), dimension, player.rotationYaw, player.rotationPitch);
+			NoppesUtilPlayer.teleportPlayer(player, coords.getX(), coords.getY(), coords.getZ(), dimension,
+					player.rotationYaw, player.rotationPitch);
 		} else if (type == EnumPacketServer.ScriptBlockDataGet) {
-			TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+			TileEntity tile = player.world
+					.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
 			if (!(tile instanceof TileScripted)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
@@ -1048,7 +1045,8 @@ public class PacketHandlerServer {
 			compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptItemDataGet) {
-			ItemScriptedWrapper iw = (ItemScriptedWrapper) NpcAPI.Instance().getIItemStack(player.getHeldItemMainhand());
+			ItemScriptedWrapper iw = (ItemScriptedWrapper) NpcAPI.Instance()
+					.getIItemStack(player.getHeldItemMainhand());
 			NBTTagCompound compound = iw.getMCNbt();
 			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
@@ -1108,7 +1106,8 @@ public class PacketHandlerServer {
 			tile.writeToNBT(compound);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptBlockDataSave) {
-			TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+			TileEntity tile = player.world
+					.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
 			if (!(tile instanceof TileScripted)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
@@ -1117,7 +1116,8 @@ public class PacketHandlerServer {
 			script.setNBT(Server.readNBT(buffer));
 			script.lastInited = -1L;
 		} else if (type == EnumPacketServer.ScriptDoorDataSave) {
-			TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+			TileEntity tile = player.world
+					.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
 			if (!(tile instanceof TileScriptedDoor)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
@@ -1126,7 +1126,8 @@ public class PacketHandlerServer {
 			script.setNBT(Server.readNBT(buffer));
 			script.lastInited = -1L;
 		} else if (type == EnumPacketServer.ScriptDoorDataGet) {
-			TileEntity tile = player.world.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
+			TileEntity tile = player.world
+					.getTileEntity(new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt()));
 			if (!(tile instanceof TileScriptedDoor)) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
@@ -1202,11 +1203,10 @@ public class PacketHandlerServer {
 			if (entity != null) {
 				entity.readFromNBT(compound);
 			}
-		}
-		else if (type == EnumPacketServer.NbtBookSaveItem) {
+		} else if (type == EnumPacketServer.NbtBookSaveItem) {
 			NBTTagCompound stackNBT = Server.readNBT(buffer);
 			ItemStack stack = new ItemStack(stackNBT);
-			if (stack==null || stack.isEmpty()) {
+			if (stack == null || stack.isEmpty()) {
 				player.sendMessage(new TextComponentTranslation("nbt.book.not.correct.nbt"));
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
@@ -1217,22 +1217,22 @@ public class PacketHandlerServer {
 			compound.setBoolean("Item", true);
 			compound.setTag("Data", stackNBT);
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-		}
-		else if (type == EnumPacketServer.NbtBookCopyStack) {
-			EntityItem entity = new EntityItem(player.world, player.posX, player.posY, player.posZ, new ItemStack(Server.readNBT(buffer)));
+		} else if (type == EnumPacketServer.NbtBookCopyStack) {
+			EntityItem entity = new EntityItem(player.world, player.posX, player.posY, player.posZ,
+					new ItemStack(Server.readNBT(buffer)));
 			entity.setPickupDelay(5);
 			player.world.spawnEntity(entity);
-		}
-		else if (type == EnumPacketServer.RecipesAddGroup) {
+		} else if (type == EnumPacketServer.RecipesAddGroup) {
 			int size = buffer.readInt();
 			String group = Server.readString(buffer);
-			if (size==3) {
+			if (size == 3) {
 				RecipeController.getInstance().globalList.put(group, Lists.<INpcRecipe>newArrayList());
 			} else {
 				RecipeController.getInstance().modList.put(group, Lists.<INpcRecipe>newArrayList());
 			}
-			NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", size, size, NonNullList.create(), ItemStack.EMPTY);
-			recipe.global = (size==3);
+			NpcShapedRecipes recipe = new NpcShapedRecipes(group, "default", size, size, NonNullList.create(),
+					ItemStack.EMPTY);
+			recipe.global = (size == 3);
 			RecipeController.getInstance().putRecipe(recipe);
 			NoppesUtilServer.sendRecipeData(player, size, group, "default");
 			NoppesUtilServer.setRecipeGui(player, new NpcShapedRecipes());
@@ -1249,14 +1249,14 @@ public class PacketHandlerServer {
 				map.put(group, map.get(old));
 				map.remove(old);
 				for (INpcRecipe rec : map.get(group)) {
-					if (rec.getClass()==NpcShapedRecipes.class) {
+					if (rec.getClass() == NpcShapedRecipes.class) {
 						((NpcShapedRecipes) rec).group = group;
 					} else {
 						((NpcShapelessRecipes) rec).group = group;
 					}
 					IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
 					if (r instanceof INpcRecipe) {
-						if (r.getClass()==NpcShapedRecipes.class) {
+						if (r.getClass() == NpcShapedRecipes.class) {
 							((NpcShapedRecipes) r).group = group;
 						} else {
 							((NpcShapelessRecipes) r).group = group;
@@ -1269,7 +1269,7 @@ public class PacketHandlerServer {
 				NoppesUtilServer.setRecipeGui(player, rData.getRecipe(group, recipe));
 			}
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-			
+
 		} else if (type == EnumPacketServer.RecipeRemoveGroup) {
 			int size = buffer.readInt();
 			String group = Server.readString(buffer);
@@ -1301,15 +1301,17 @@ public class PacketHandlerServer {
 			Map<String, List<INpcRecipe>> map = size == 3 ? rData.globalList : rData.modList;
 			if (map.containsKey(group)) {
 				for (INpcRecipe rec : map.get(group)) {
-					if (!rec.getName().equals(old)) { continue; }
-					if (rec.getClass()==NpcShapedRecipes.class) {
+					if (!rec.getName().equals(old)) {
+						continue;
+					}
+					if (rec.getClass() == NpcShapedRecipes.class) {
 						((NpcShapedRecipes) rec).name = name;
 					} else {
 						((NpcShapelessRecipes) rec).name = name;
 					}
 					IRecipe r = RecipeController.Registry.getValue(((IRecipe) rec).getRegistryName());
 					if (r instanceof INpcRecipe) {
-						if (r.getClass()==NpcShapedRecipes.class) {
+						if (r.getClass() == NpcShapedRecipes.class) {
 							((NpcShapedRecipes) r).name = name;
 						} else {
 							((NpcShapelessRecipes) r).name = name;
@@ -1326,12 +1328,18 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.TraderMarketSave) {
 			MarcetController mData = MarcetController.getInstance();
 			NBTTagCompound compound = Server.readNBT(buffer);
-			if (compound.hasKey("DealID", 3)) { mData.loadDeal(compound); }
-			else { mData.loadMarcet(compound); }
+			if (compound.hasKey("DealID", 3)) {
+				mData.loadDeal(compound);
+			} else {
+				mData.loadMarcet(compound);
+			}
 			MarcetController.getInstance().saveMarcets();
 		} else if (type == EnumPacketServer.TraderMarketGet) {
 			int id = -1;
-			try { id = buffer.readInt(); } catch (Exception e) {}
+			try {
+				id = buffer.readInt();
+			} catch (Exception e) {
+			}
 			MarcetController.getInstance().sendTo(player, id);
 		} else if (type == EnumPacketServer.TraderMarketDel) {
 			MarcetController mData = MarcetController.getInstance();
@@ -1346,91 +1354,99 @@ public class PacketHandlerServer {
 				mData.removeDeal(dealID);
 			}
 			MarcetController.getInstance().sendTo(player, marcetID);
-		}
-		else if (type == EnumPacketServer.GetClone) {
+		} else if (type == EnumPacketServer.GetClone) {
 			NBTTagCompound npcNbt = null;
 			if (buffer.readBoolean()) {
-				if (npc!=null && npc.advanced.jobInterface instanceof JobSpawner) {
-					SpawnNPCData sd = ((JobSpawner) npc.advanced.jobInterface).get(buffer.readInt(), buffer.readBoolean());
-					if (sd!=null && sd.compound!=null) {
+				if (npc != null && npc.advanced.jobInterface instanceof JobSpawner) {
+					SpawnNPCData sd = ((JobSpawner) npc.advanced.jobInterface).get(buffer.readInt(),
+							buffer.readBoolean());
+					if (sd != null && sd.compound != null) {
 						npcNbt = sd.compound;
-						if (sd.typeClones==2) {
-							npcNbt = ServerCloneController.Instance.getCloneData(player, sd.compound.getString("ClonedName"), sd.compound.getInteger("ClonedTab"));
+						if (sd.typeClones == 2) {
+							npcNbt = ServerCloneController.Instance.getCloneData(player,
+									sd.compound.getString("ClonedName"), sd.compound.getInteger("ClonedTab"));
 						}
 					}
 				}
+			} else {
+				npcNbt = ServerCloneController.Instance.getCloneData(player, Server.readString(buffer),
+						buffer.readInt());
 			}
-			else {
-				npcNbt = ServerCloneController.Instance.getCloneData(player, Server.readString(buffer), buffer.readInt());
-			}
-			if (npcNbt!=null) {
+			if (npcNbt != null) {
 				NBTTagCompound compound = new NBTTagCompound();
 				compound.setTag("NPCData", npcNbt);
 				Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 			}
-		}
-		else if (type == EnumPacketServer.ScriptPotionGet) {
+		} else if (type == EnumPacketServer.ScriptPotionGet) {
 			PotionScriptData data = ScriptController.Instance.potionScripts;
 			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
 			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
-		}
-		else if (type == EnumPacketServer.ScriptPotionSave) {
+		} else if (type == EnumPacketServer.ScriptPotionSave) {
 			ScriptController.Instance.setPotionScripts(Server.readNBT(buffer));
-		}
-		else if (type == EnumPacketServer.TeleportTo) {
+		} else if (type == EnumPacketServer.TeleportTo) {
 			int dimensionId = buffer.readInt();
 			BlockPos pos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
-			if (player.world.provider.getDimension()==dimensionId) {
-				player.setPositionAndUpdate(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d);
+			if (player.world.provider.getDimension() == dimensionId) {
+				player.setPositionAndUpdate(pos.getX() + 0.5d, pos.getY(), pos.getZ() + 0.5d);
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
-			try { AdditionalMethods.teleportEntity(CustomNpcs.Server, player, dimensionId, pos); } catch (Exception e) { }
-		}
-		else if (type == EnumPacketServer.RegionData) {
+			try {
+				AdditionalMethods.teleportEntity(CustomNpcs.Server, player, dimensionId, pos);
+			} catch (Exception e) {
+			}
+		} else if (type == EnumPacketServer.RegionData) {
 			int t = buffer.readInt();
 			BorderController bData = BorderController.getInstance();
-			if (t==0) {
+			if (t == 0) {
 				int regId = buffer.readInt();
 				if (!bData.regions.containsKey(regId)) {
 					bData.sendTo(player);
 					CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 					return;
 				}
-				if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
+				if (!player.getHeldItemMainhand().isEmpty()
+						&& player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
 					NBTTagCompound compound = player.getHeldItemMainhand().getTagCompound();
-					if (compound==null) { player.getHeldItemMainhand().setTagCompound(compound = new NBTTagCompound()); }
+					if (compound == null) {
+						player.getHeldItemMainhand().setTagCompound(compound = new NBTTagCompound());
+					}
 					compound.setInteger("RegionID", regId);
 				}
-			}
-			else if (t==1) {
+			} else if (t == 1) {
 				int regId = buffer.readInt();
 				if (!bData.regions.containsKey(regId)) {
 					bData.sendTo(player);
 					CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 					return;
 				}
-				if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
+				if (!player.getHeldItemMainhand().isEmpty()
+						&& player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
 					NBTTagCompound compound = player.getHeldItemMainhand().getTagCompound();
-					if (compound==null) { player.getHeldItemMainhand().setTagCompound(compound = new NBTTagCompound()); }
+					if (compound == null) {
+						player.getHeldItemMainhand().setTagCompound(compound = new NBTTagCompound());
+					}
 					compound.removeTag("RegionID");
 				}
 				if (bData.removeRegion(regId)) {
-					for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) { bData.sendTo(p); }
+					for (EntityPlayerMP p : CustomNpcs.Server.getPlayerList().getPlayers()) {
+						bData.sendTo(p);
+					}
 				}
 			}
-			if (t==2) {
+			if (t == 2) {
 				Zone3D reg = bData.loadRegion(Server.readNBT(buffer));
-				if (reg!=null) {
+				if (reg != null) {
 					bData.saveRegions();
 					bData.update(reg.getId());
 				}
 			}
-		}
-		else if (type == EnumPacketServer.OpenBuilder) {
-			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) {
+		} else if (type == EnumPacketServer.OpenBuilder) {
+			if (player.getHeldItemMainhand().isEmpty()
+					|| !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder)
+					|| !player.getHeldItemMainhand().hasTagCompound()) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
@@ -1440,30 +1456,42 @@ public class PacketHandlerServer {
 				id = compound.getInteger("ID");
 				player.getHeldItemMainhand().getTagCompound().setInteger("ID", id);
 			}
-			if (!CommonProxy.dataBuilder.containsKey(id)) { CommonProxy.dataBuilder.put(id, new BuilderData()); }
+			if (!CommonProxy.dataBuilder.containsKey(id)) {
+				CommonProxy.dataBuilder.put(id, new BuilderData());
+			}
 			CommonProxy.dataBuilder.get(id).read(compound);
 			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, CommonProxy.dataBuilder.get(id).getNbt());
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BuilderSetting, null, id, 0, 0);
 		} else if (type == EnumPacketServer.BuilderSetting) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			int id = compound.getInteger("ID");
-			if (!CommonProxy.dataBuilder.containsKey(id)) { CommonProxy.dataBuilder.put(id, new BuilderData()); }
+			if (!CommonProxy.dataBuilder.containsKey(id)) {
+				CommonProxy.dataBuilder.put(id, new BuilderData());
+			}
 			CommonProxy.dataBuilder.get(id).read(compound);
-			if (player.getHeldItemMainhand().isEmpty() || !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder) || !player.getHeldItemMainhand().hasTagCompound()) {
+			if (player.getHeldItemMainhand().isEmpty()
+					|| !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder)
+					|| !player.getHeldItemMainhand().hasTagCompound()) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
 			NBTTagCompound nbtStack = player.getHeldItemMainhand().getTagCompound();
-			if (nbtStack==null) { player.getHeldItemMainhand().setTagCompound(nbtStack = new NBTTagCompound()); }
-			for (String key : compound.getKeySet()) { nbtStack.setTag(key, compound.getTag(key)); }
+			if (nbtStack == null) {
+				player.getHeldItemMainhand().setTagCompound(nbtStack = new NBTTagCompound());
+			}
+			for (String key : compound.getKeySet()) {
+				nbtStack.setTag(key, compound.getTag(key));
+			}
 		} else if (type == EnumPacketServer.DialogCategoryGet) {
 			for (DialogCategory category2 : DialogController.instance.categories.values()) {
-				Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData, category2.writeNBT(new NBTTagCompound()));
+				Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
+						category2.writeNBT(new NBTTagCompound()));
 			}
 			Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
 		} else if (type == EnumPacketServer.QuestCategoryGet) {
 			for (QuestCategory category : QuestController.instance.categories.values()) {
-				Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
+				Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
+						category.writeNBT(new NBTTagCompound()));
 			}
 			Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
 		} else if (type == EnumPacketServer.AnimationGet) {
@@ -1471,10 +1499,15 @@ public class PacketHandlerServer {
 			AnimationController.getInstance().sendTo(player);
 		} else if (type == EnumPacketServer.AnimationChange) {
 			NBTTagCompound compound = Server.readNBT(buffer);
-			if (compound.getKeySet().size()==0) { AnimationController.getInstance().animations.clear(); }
-			else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) { AnimationController.getInstance().removeAnimation(compound.getInteger("ID")); }
-			else if (compound.hasKey("save", 1) && compound.getBoolean("save")) { AnimationController.getInstance().save(); }
-			else { AnimationController.getInstance().loadAnimation(compound); }
+			if (compound.getKeySet().size() == 0) {
+				AnimationController.getInstance().animations.clear();
+			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+				AnimationController.getInstance().removeAnimation(compound.getInteger("ID"));
+			} else if (compound.hasKey("save", 1) && compound.getBoolean("save")) {
+				AnimationController.getInstance().save();
+			} else {
+				AnimationController.getInstance().loadAnimation(compound);
+			}
 			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, compound);
 		} else if (type == EnumPacketServer.AnimationSave) {
 			npc.animation.load(Server.readNBT(buffer));
@@ -1494,118 +1527,122 @@ public class PacketHandlerServer {
 			String playerName = Server.readString(buffer);
 			EntityPlayer pl = (EntityPlayer) player.getServer().getPlayerList().getPlayerByUsername(playerName);
 			PlayerData playerdata = null;
-			if (pl == null) { playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName); }
-			else { playerdata = PlayerData.get(pl); }
-			if (playerdata==null) {
+			if (pl == null) {
+				playerdata = PlayerDataController.instance.getDataFromUsername(player.getServer(), playerName);
+			} else {
+				playerdata = PlayerData.get(pl);
+			}
+			if (playerdata == null) {
 				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 				return;
 			}
 			boolean isChange = false;
 			int t = buffer.readInt();
-			switch(datatype) {
-				case Quest: {
-					int questId = buffer.readInt();
-					Quest q = QuestController.instance.quests.get(questId);
-					if (t==0 && q!=null && !playerdata.questData.finishedQuests.containsKey(questId)) {
-						if (playerdata.questData.activeQuests.containsKey(questId)) {
-							playerdata.questData.activeQuests.remove(questId);
-						}
-						if (q.repeat == EnumQuestRepeat.RLDAILY || q.repeat == EnumQuestRepeat.RLWEEKLY) {
-							playerdata.questData.finishedQuests.put(questId, System.currentTimeMillis());
-						} else {
-							playerdata.questData.finishedQuests.put(questId, player.world.getTotalWorldTime());
-						}
-						isChange = true;
-					} else if (t==1 && (playerdata.questData.finishedQuests.containsKey(questId) || playerdata.questData.activeQuests.containsKey(questId))) {
-						playerdata.questData.finishedQuests.remove(questId);
+			switch (datatype) {
+			case Quest: {
+				int questId = buffer.readInt();
+				Quest q = QuestController.instance.quests.get(questId);
+				if (t == 0 && q != null && !playerdata.questData.finishedQuests.containsKey(questId)) {
+					if (playerdata.questData.activeQuests.containsKey(questId)) {
 						playerdata.questData.activeQuests.remove(questId);
-						isChange = true;
-					} else if (t==3) {
-						playerdata.questData.finishedQuests.clear();
-						playerdata.questData.activeQuests.clear();
-						isChange = true;
 					}
-					break;
-				}
-				case Dialog: {
-					int dialogId = buffer.readInt();
-					Dialog d = DialogController.instance.dialogs.get(dialogId);
-					if (t==0 && d!=null && !playerdata.dialogData.dialogsRead.contains(dialogId)) {
-						playerdata.dialogData.dialogsRead.add(dialogId);
-						isChange = true;
-					} else if (t==1 && playerdata.dialogData.dialogsRead.contains(dialogId)) {
-						playerdata.dialogData.dialogsRead.remove(dialogId);
-						isChange = true;
-					} else if (t==3) {
-						playerdata.dialogData.dialogsRead.clear();
-						isChange = true;
-					}
-					break;
-				}
-				case Transport: {
-					int locationId = buffer.readInt();
-					TransportLocation l = TransportController.getInstance().getTransport(locationId);
-					if (t==0 && l!=null && !playerdata.transportData.transports.contains(locationId)) {
-						playerdata.transportData.transports.add(locationId);
-						isChange = true;
-					} else if (t==1 && playerdata.transportData.transports.contains(locationId)) {
-						playerdata.transportData.transports.remove(locationId);
-						isChange = true;
-					} else if (t==3) {
-						playerdata.transportData.transports.clear();
-						isChange = true;
-					}
-					break;
-				}
-				case Bank: {
-					int bankId = buffer.readInt();
-					BankData bd = playerdata.bankData.get(bankId);
-					if (t==0 && bd!=null && bd.bank!=null) {
-						bd.save();
-						isChange = true;
-					} else if (t==1) {
-						playerdata.bankData.remove(bankId);
-						isChange = true;
-					} else if (t==3) {
-						bd.clear();
-						bd.save();
-						isChange = true;
-					}
-					break;
-				}
-				case Factions: {
-					int factionId = buffer.readInt();
-					Faction f = FactionController.instance.factions.get(factionId);
-					if (t==0 && f!=null && !playerdata.factionData.factionData.containsKey(factionId)) {
-						playerdata.factionData.factionData.put(factionId, f.defaultPoints);
-						isChange = true;
-					} else if (t==1 && playerdata.factionData.factionData.containsKey(factionId)) {
-						playerdata.factionData.factionData.remove(factionId);
-						isChange = true;
-					} else if (t==2 && playerdata.factionData.factionData.containsKey(factionId)) {
-						playerdata.factionData.factionData.put(factionId, buffer.readInt());
-						isChange = true;
-					} else if (t==3) {
-						playerdata.factionData.factionData.clear();
-						isChange = true;
-					}
-					break;
-				}
-				case Game: {
-					if (t==3) {
-						playerdata.game.setMoney(0L);
-						playerdata.game.marketData.clear();
+					if (q.repeat == EnumQuestRepeat.RLDAILY || q.repeat == EnumQuestRepeat.RLWEEKLY) {
+						playerdata.questData.finishedQuests.put(questId, System.currentTimeMillis());
 					} else {
-						NBTTagCompound compound = Server.readNBT(buffer);
-						playerdata.game.readFromNBT(compound);
+						playerdata.questData.finishedQuests.put(questId, player.world.getTotalWorldTime());
 					}
 					isChange = true;
-					break;
+				} else if (t == 1 && (playerdata.questData.finishedQuests.containsKey(questId)
+						|| playerdata.questData.activeQuests.containsKey(questId))) {
+					playerdata.questData.finishedQuests.remove(questId);
+					playerdata.questData.activeQuests.remove(questId);
+					isChange = true;
+				} else if (t == 3) {
+					playerdata.questData.finishedQuests.clear();
+					playerdata.questData.activeQuests.clear();
+					isChange = true;
 				}
-				default: {
-					CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
-					return;
+				break;
+			}
+			case Dialog: {
+				int dialogId = buffer.readInt();
+				Dialog d = DialogController.instance.dialogs.get(dialogId);
+				if (t == 0 && d != null && !playerdata.dialogData.dialogsRead.contains(dialogId)) {
+					playerdata.dialogData.dialogsRead.add(dialogId);
+					isChange = true;
+				} else if (t == 1 && playerdata.dialogData.dialogsRead.contains(dialogId)) {
+					playerdata.dialogData.dialogsRead.remove(dialogId);
+					isChange = true;
+				} else if (t == 3) {
+					playerdata.dialogData.dialogsRead.clear();
+					isChange = true;
 				}
+				break;
+			}
+			case Transport: {
+				int locationId = buffer.readInt();
+				TransportLocation l = TransportController.getInstance().getTransport(locationId);
+				if (t == 0 && l != null && !playerdata.transportData.transports.contains(locationId)) {
+					playerdata.transportData.transports.add(locationId);
+					isChange = true;
+				} else if (t == 1 && playerdata.transportData.transports.contains(locationId)) {
+					playerdata.transportData.transports.remove(locationId);
+					isChange = true;
+				} else if (t == 3) {
+					playerdata.transportData.transports.clear();
+					isChange = true;
+				}
+				break;
+			}
+			case Bank: {
+				int bankId = buffer.readInt();
+				BankData bd = playerdata.bankData.get(bankId);
+				if (t == 0 && bd != null && bd.bank != null) {
+					bd.save();
+					isChange = true;
+				} else if (t == 1) {
+					playerdata.bankData.remove(bankId);
+					isChange = true;
+				} else if (t == 3) {
+					bd.clear();
+					bd.save();
+					isChange = true;
+				}
+				break;
+			}
+			case Factions: {
+				int factionId = buffer.readInt();
+				Faction f = FactionController.instance.factions.get(factionId);
+				if (t == 0 && f != null && !playerdata.factionData.factionData.containsKey(factionId)) {
+					playerdata.factionData.factionData.put(factionId, f.defaultPoints);
+					isChange = true;
+				} else if (t == 1 && playerdata.factionData.factionData.containsKey(factionId)) {
+					playerdata.factionData.factionData.remove(factionId);
+					isChange = true;
+				} else if (t == 2 && playerdata.factionData.factionData.containsKey(factionId)) {
+					playerdata.factionData.factionData.put(factionId, buffer.readInt());
+					isChange = true;
+				} else if (t == 3) {
+					playerdata.factionData.factionData.clear();
+					isChange = true;
+				}
+				break;
+			}
+			case Game: {
+				if (t == 3) {
+					playerdata.game.setMoney(0L);
+					playerdata.game.marketData.clear();
+				} else {
+					NBTTagCompound compound = Server.readNBT(buffer);
+					playerdata.game.readFromNBT(compound);
+				}
+				isChange = true;
+				break;
+			}
+			default: {
+				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
+				return;
+			}
 			}
 			if (isChange) {
 				playerdata.save(true);
@@ -1618,7 +1655,7 @@ public class PacketHandlerServer {
 			long time = buffer.readLong();
 			File dirGame = CustomNpcs.getWorldSaveDirectory().getParentFile();
 			File dirMod = CustomNpcs.getWorldSaveDirectory("playerdata");
-			
+
 			int i = 0, s = dirMod.listFiles().length;
 			List<String> opn = Lists.<String>newArrayList(player.getServer().getPlayerList().getOnlinePlayerNames());
 			for (File dir : dirMod.listFiles()) {
@@ -1640,11 +1677,17 @@ public class PacketHandlerServer {
 				if (needDelete) {
 					dir.delete(); // delete mod data
 					File advancements = new File(dirGame, "advancements/" + uuid);
-					if (advancements.exists()) { advancements.delete(); }
+					if (advancements.exists()) {
+						advancements.delete();
+					}
 					File stats = new File(dirGame, "stats/" + uuid);
-					if (stats.exists()) { stats.delete(); }
+					if (stats.exists()) {
+						stats.delete();
+					}
 					File playerdata = new File(dirGame, "playerdata/" + uuid + ".dat");
-					if (playerdata.exists()) { playerdata.delete(); }
+					if (playerdata.exists()) {
+						playerdata.delete();
+					}
 					i++;
 				}
 			}
@@ -1686,5 +1729,46 @@ public class PacketHandlerServer {
 		}
 		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
 	}
-	
+
+	@SubscribeEvent
+	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
+		EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
+		ByteBuf buffer = event.getPacket().payload();
+		player.getServer().addScheduledTask(() -> {
+			EnumPacketServer type = null;
+			try {
+				type = EnumPacketServer.values()[buffer.readInt()];
+				if (CustomNpcs.OpsOnly && !NoppesUtilServer.isOp(player)) {
+					this.warn(player, "tried to use custom npcs without being an op TypePacket: " + type);
+					return;
+				}
+				if (!PacketHandlerServer.list.contains(type)) {
+					LogWriter.debug("Received: " + type);
+				}
+				ItemStack item = player.inventory.getCurrentItem();
+				EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
+				List<EnumPacketServer> notHasPerm = Lists.<EnumPacketServer>newArrayList();
+				if (!type.needsNpc || npc != null) {
+					if (!type.hasPermission() || CustomNpcsPermissions.hasPermission(player, type.permission)) {
+						if (!notHasPerm.contains(type) && !type.isExempt() && !this.allowItem(item, type)) {
+							this.warn(player, "tried to use custom npcs without a tool in hand, possibly a hacker");
+						} else {
+							this.handlePacket(type, buffer, player, npc);
+						}
+					}
+				} else {
+					LogWriter.error("Error with EnumPacketServer." + type + ". Not found Editing Npc");
+				}
+			} catch (Exception e) {
+				LogWriter.error("Error with EnumPacketServer." + type, e);
+			} finally {
+				buffer.release();
+			}
+		});
+	}
+
+	private void warn(EntityPlayer player, String warning) {
+		player.getServer().logWarning(player.getName() + ": " + warning);
+	}
+
 }

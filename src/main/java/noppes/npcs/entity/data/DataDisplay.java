@@ -32,13 +32,12 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class DataDisplay
-implements INPCDisplay {
+public class DataDisplay implements INPCDisplay {
 
 	EntityNPCInterface npc;
 	public GameProfile playerProfile;
 	public byte skinType;
-	
+
 	private Availability availability;
 	private BossInfo.Color bossColor;
 	private boolean disableLivingAnimation, noHitbox;
@@ -111,7 +110,9 @@ implements INPCDisplay {
 
 	@Override
 	public String getModel() {
-		if (!(this.npc instanceof EntityCustomNpc)) { return null; }
+		if (!(this.npc instanceof EntityCustomNpc)) {
+			return null;
+		}
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		if (modeldata.entityClass == null) {
 			return null;
@@ -128,7 +129,9 @@ implements INPCDisplay {
 
 	@Override
 	public float[] getModelScale(int part) {
-		if (!(this.npc instanceof EntityCustomNpc)) { return new float[] { 1.0f, 1.0f, 1.0f }; }
+		if (!(this.npc instanceof EntityCustomNpc)) {
+			return new float[] { 1.0f, 1.0f, 1.0f };
+		}
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		ModelPartConfig model = null;
 		if (part == 0) {
@@ -162,6 +165,20 @@ implements INPCDisplay {
 
 	public String getRandomName() {
 		return CustomNpcs.MARKOV_GENERATOR[this.markovGeneratorId].fetch(this.markovGender);
+	}
+
+	@Override
+	public int getShadowType() {
+		if (this.shadowSize < 0.5f) {
+			return 0;
+		}
+		if (this.shadowSize < 1.0f) {
+			return 1;
+		}
+		if (this.shadowSize < 1.5f) {
+			return 2;
+		}
+		return 3;
 	}
 
 	@Override
@@ -209,7 +226,9 @@ implements INPCDisplay {
 	}
 
 	public boolean isVisibleTo(EntityPlayerMP player) {
-		if (this.visible == 1) { return !this.availability.isAvailable((EntityPlayer) player); }
+		if (this.visible == 1) {
+			return !this.availability.isAvailable((EntityPlayer) player);
+		}
 		return true;
 	}
 
@@ -277,9 +296,12 @@ implements INPCDisplay {
 		this.npc.textureGlowLocation = null;
 		this.npc.textureCloakLocation = null;
 		this.npc.updateHitbox();
-		if (displayNbt.hasKey("ShadowSize", 5)) { this.shadowSize = ValueUtil.correctFloat(displayNbt.getFloat("ShadowSize"), 0, 1.5f); }
-		else { this.shadowSize = 1.0f; }
-		
+		if (displayNbt.hasKey("ShadowSize", 5)) {
+			this.shadowSize = ValueUtil.correctFloat(displayNbt.getFloat("ShadowSize"), 0, 1.5f);
+		} else {
+			this.shadowSize = 1.0f;
+		}
+
 		VisibilityController.trackNpc(this.npc);
 	}
 
@@ -314,7 +336,9 @@ implements INPCDisplay {
 
 	@Override
 	public void setHasHitbox(boolean bo) {
-		if (this.noHitbox != bo) { return; }
+		if (this.noHitbox != bo) {
+			return;
+		}
 		this.noHitbox = !bo;
 		this.npc.updateClient = true;
 	}
@@ -341,7 +365,9 @@ implements INPCDisplay {
 
 	@Override
 	public void setModel(String id) {
-		if (!(this.npc instanceof EntityCustomNpc)) { return; }
+		if (!(this.npc instanceof EntityCustomNpc)) {
+			return;
+		}
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		if (id == null) {
 			if (modeldata.entityClass == null) {
@@ -362,7 +388,9 @@ implements INPCDisplay {
 
 	@Override
 	public void setModelScale(int part, float x, float y, float z) {
-		if (!(this.npc instanceof EntityCustomNpc)) { return; }
+		if (!(this.npc instanceof EntityCustomNpc)) {
+			return;
+		}
 		ModelData modeldata = ((EntityCustomNpc) this.npc).modelData;
 		ModelPartConfig model = null;
 		if (part == 0) {
@@ -387,7 +415,9 @@ implements INPCDisplay {
 
 	@Override
 	public void setName(String name) {
-		if (this.name.equals(name)) { return; }
+		if (this.name.equals(name)) {
+			return;
+		}
 		this.name = name;
 		this.npc.bossInfo.setName(this.npc.getDisplayName());
 		this.npc.updateClient = true;
@@ -404,8 +434,31 @@ implements INPCDisplay {
 	}
 
 	@Override
+	public void setShadowType(int type) {
+		if (type < 0) {
+			type *= -1;
+		}
+		switch (type % 4) {
+		case 0:
+			this.shadowSize = 0.0f;
+			break;
+		case 1:
+			this.shadowSize = 0.5f;
+			break;
+		case 2:
+			this.shadowSize = 1.0f;
+			break;
+		default:
+			this.shadowSize = 1.5f;
+			break;
+		}
+	}
+
+	@Override
 	public void setShowName(int type) {
-		if (type == this.showName) { return; }
+		if (type == this.showName) {
+			return;
+		}
 		this.showName = ValueUtil.correctInt(type, 0, 2);
 		this.npc.updateClient = true;
 	}
@@ -433,7 +486,9 @@ implements INPCDisplay {
 
 	@Override
 	public void setSkinTexture(String texture) {
-		if (texture == null || this.texture.equals(texture)) { return; }
+		if (texture == null || this.texture.equals(texture)) {
+			return;
+		}
 		this.texture = texture.toLowerCase();
 		this.npc.textureLocation = null;
 		this.skinType = 0;
@@ -474,28 +529,11 @@ implements INPCDisplay {
 
 	@Override
 	public void setVisible(int type) {
-		if (type == this.visible) { return; }
+		if (type == this.visible) {
+			return;
+		}
 		this.visible = ValueUtil.correctInt(type, 0, 2);
 		this.npc.updateClient = true;
-	}
-
-	@Override
-	public int getShadowType() {
-		if (this.shadowSize<0.5f) { return 0; }
-		if (this.shadowSize<1.0f) { return 1; }
-		if (this.shadowSize<1.5f) { return 2; }
-		return 3;
-	}
-
-	@Override
-	public void setShadowType(int type) {
-		if (type < 0) { type *= -1; }
-		switch(type % 4) {
-			case 0: this.shadowSize = 0.0f; break;
-			case 1: this.shadowSize = 0.5f; break;
-			case 2: this.shadowSize = 1.0f; break;
-			default: this.shadowSize = 1.5f; break;
-		}
 	}
 
 	public boolean showName() {

@@ -20,10 +20,8 @@ import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.controllers.data.BlockData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobBuilder
-extends JobInterface
-implements IJobBuilder {
-	
+public class JobBuilder extends JobInterface implements IJobBuilder {
+
 	public TileBuilder build;
 	private BlockData placing;
 	private Stack<BlockData> placingList;
@@ -61,7 +59,8 @@ implements IJobBuilder {
 	public void aiUpdateTask() {
 		if ((this.build.finished && this.placingList == null) || !this.build.enabled || this.build.isInvalid()) {
 			this.build = null;
-			this.npc.getNavigator().tryMoveToXYZ(this.npc.getStartXPos(), this.npc.getStartYPos(), this.npc.getStartZPos(), 1.0);
+			this.npc.getNavigator().tryMoveToXYZ(this.npc.getStartXPos(), this.npc.getStartYPos(),
+					this.npc.getStartZPos(), 1.0);
 			return;
 		}
 		if (this.ticks++ < 10) {
@@ -82,7 +81,8 @@ implements IJobBuilder {
 			this.tryTicks = 0;
 			this.npc.setJobData(this.blockToString(this.placing));
 		}
-		this.npc.getNavigator().tryMoveToXYZ(this.placing.pos.getX(), (this.placing.pos.getY() + 1), this.placing.pos.getZ(), 1.0);
+		this.npc.getNavigator().tryMoveToXYZ(this.placing.pos.getX(), (this.placing.pos.getY() + 1),
+				this.placing.pos.getZ(), 1.0);
 		if (this.tryTicks++ > 40 || this.npc.nearPosition(this.placing.pos)) {
 			BlockPos blockPos = this.placing.pos;
 			this.placeBlock();
@@ -125,29 +125,21 @@ implements IJobBuilder {
 		if (this.placing.state.getBlock() instanceof ITileEntityProvider && this.placing.tile != null) {
 			TileEntity tile = this.npc.world.getTileEntity(this.placing.pos);
 			if (tile != null) {
-				try { tile.readFromNBT(this.placing.tile); }
-				catch (Exception ex) { }
+				try {
+					tile.readFromNBT(this.placing.tile);
+				} catch (Exception ex) {
+				}
 			}
 		}
 		this.placing = null;
 	}
 
 	@Override
-	public void reset() {
-		this.build = null;
-		this.npc.setJobData("");
-	}
-
-	@Override
-	public void resetTask() {
-		this.reset();
-	}
-
-	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		this.type = JobType.BUILDER;
 		if (compound.hasKey("BuildX")) {
-			this.possibleBuildPos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"), compound.getInteger("BuildZ"));
+			this.possibleBuildPos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"),
+					compound.getInteger("BuildZ"));
 		}
 		if (this.possibleBuildPos != null && compound.hasKey("Placing")) {
 			Stack<BlockData> placing = new Stack<BlockData>();
@@ -162,7 +154,18 @@ implements IJobBuilder {
 		}
 		this.npc.ais.doorInteract = 1;
 	}
-	
+
+	@Override
+	public void reset() {
+		this.build = null;
+		this.npc.setJobData("");
+	}
+
+	@Override
+	public void resetTask() {
+		this.reset();
+	}
+
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setInteger("Type", JobType.BUILDER.get());

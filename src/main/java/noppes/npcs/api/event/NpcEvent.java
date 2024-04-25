@@ -21,23 +21,20 @@ import noppes.npcs.api.entity.data.ILine;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.AnimationController;
 
-public class NpcEvent
-extends CustomNPCsEvent {
-	
-	public static class StopAnimation extends NpcEvent {
-		
-		public IAnimation animation;
+public class NpcEvent extends CustomNPCsEvent {
 
-		public StopAnimation(ICustomNpc<?> npc, int type, int id) {
+	public static class CollideEvent extends NpcEvent {
+		public IEntity<?> entity;
+
+		public CollideEvent(ICustomNpc<?> npc, Entity entity) {
 			super(npc);
-			this.animation = AnimationController.getInstance().animations.get(id);
+			this.entity = NpcAPI.Instance().getIEntity(entity);
 		}
-		
 	}
-	
+
 	@Cancelable
 	public static class CustomNpcTeleport extends NpcEvent {
-		
+
 		public IPos pos, portal;
 		public int dimension;
 
@@ -47,16 +44,7 @@ extends CustomNPCsEvent {
 			this.portal = portal;
 			this.dimension = dimensionID;
 		}
-		
-	}
-	
-	public static class CollideEvent extends NpcEvent {
-		public IEntity<?> entity;
 
-		public CollideEvent(ICustomNpc<?> npc, Entity entity) {
-			super(npc);
-			this.entity = NpcAPI.Instance().getIEntity(entity);
-		}
 	}
 
 	@Cancelable
@@ -131,7 +119,7 @@ extends CustomNPCsEvent {
 	}
 
 	public static class RangedLaunchedEvent extends NpcEvent {
-		
+
 		public float damage;
 		public List<IProjectile<?>> projectiles;
 		public IEntityLivingBase<?> target;
@@ -142,6 +130,17 @@ extends CustomNPCsEvent {
 			this.target = (IEntityLivingBase<?>) NpcAPI.Instance().getIEntity(target);
 			this.damage = damage;
 		}
+	}
+
+	public static class StopAnimation extends NpcEvent {
+
+		public IAnimation animation;
+
+		public StopAnimation(ICustomNpc<?> npc, int type, int id) {
+			super(npc);
+			this.animation = AnimationController.getInstance().animations.get(id);
+		}
+
 	}
 
 	@Cancelable

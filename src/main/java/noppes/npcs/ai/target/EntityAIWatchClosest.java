@@ -28,7 +28,7 @@ public class EntityAIWatchClosest extends EntityAIBase {
 	public void resetTask() {
 		this.closestEntity = null;
 	}
-	
+
 	@Override
 	public boolean shouldContinueExecuting() {
 		return !this.npc.isInteracting() && !this.npc.isAttacking() && this.closestEntity.isEntityAlive()
@@ -47,9 +47,9 @@ public class EntityAIWatchClosest extends EntityAIBase {
 		if (this.npc.getAttackTarget() == null) {
 			if (this.watchedClass == EntityPlayer.class) {
 				this.closestEntity = this.npc.world.getClosestPlayerToEntity(this.npc, this.maxDistance);
-			}
-			else {
-				this.closestEntity = this.npc.world.findNearestEntityWithinAABB((Class<Entity>) this.watchedClass, this.npc.getEntityBoundingBox().grow(this.maxDistance, 3.0, this.maxDistance), this.npc);
+			} else {
+				this.closestEntity = this.npc.world.findNearestEntityWithinAABB((Class<Entity>) this.watchedClass,
+						this.npc.getEntityBoundingBox().grow(this.maxDistance, 3.0, this.maxDistance), this.npc);
 			}
 		}
 		if (this.closestEntity != null) {

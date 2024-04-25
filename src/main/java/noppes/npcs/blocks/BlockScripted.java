@@ -29,10 +29,8 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class BlockScripted
-extends BlockInterface
-implements IPermission {
-	
+public class BlockScripted extends BlockInterface implements IPermission {
+
 	public static AxisAlignedBB AABB = new AxisAlignedBB(0.002, 0.002, 0.002, 0.998, 0.998, 0.998);
 	public static AxisAlignedBB AABB_EMPTY = new AxisAlignedBB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -85,14 +83,18 @@ implements IPermission {
 			return;
 		}
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return; }
+		if (!(tile instanceof TileScripted)) {
+			return;
+		}
 		EventHooks.onScriptBlockRainFill((TileScripted) tile);
 	}
 
 	@Override
 	public float getBlockHardness(IBlockState state, World world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return this.blockHardness; }
+		if (!(tile instanceof TileScripted)) {
+			return this.blockHardness;
+		}
 		return ((TileScripted) tile).blockHardness;
 	}
 
@@ -104,7 +106,9 @@ implements IPermission {
 	@Override
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return BlockScripted.AABB_EMPTY; }
+		if (!(tile instanceof TileScripted)) {
+			return BlockScripted.AABB_EMPTY;
+		}
 		if (((TileScripted) tile).isPassible) {
 			return BlockScripted.AABB_EMPTY;
 		}
@@ -119,7 +123,9 @@ implements IPermission {
 	@Override
 	public float getExplosionResistance(World world, BlockPos pos, Entity exploder, Explosion explosion) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return super.getExplosionResistance(world, pos, exploder, explosion); }
+		if (!(tile instanceof TileScripted)) {
+			return super.getExplosionResistance(world, pos, exploder, explosion);
+		}
 		return ((TileScripted) world.getTileEntity(pos)).blockResistance;
 	}
 
@@ -131,7 +137,9 @@ implements IPermission {
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return super.getLightValue(state, world, pos); }
+		if (!(tile instanceof TileScripted)) {
+			return super.getLightValue(state, world, pos);
+		}
 		return ((TileScripted) tile).lightValue;
 	}
 
@@ -139,7 +147,9 @@ implements IPermission {
 	@Override
 	public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return super.getStrongPower(state, world, pos, side); }
+		if (!(tile instanceof TileScripted)) {
+			return super.getStrongPower(state, world, pos, side);
+		}
 		return ((TileScripted) tile).activePowering;
 	}
 
@@ -154,16 +164,30 @@ implements IPermission {
 	}
 
 	@Override
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
+	@Override
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return super.isLadder(state, world, pos, entity); }
+		if (!(tile instanceof TileScripted)) {
+			return super.isLadder(state, world, pos, entity);
+		}
 		return ((TileScripted) tile).isLadder;
+	}
+
+	@Override
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
 	}
 
 	@Override
 	public boolean isPassable(IBlockAccess world, BlockPos pos) {
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return false; }
+		if (!(tile instanceof TileScripted)) {
+			return false;
+		}
 		return ((TileScripted) tile).isPassible;
 	}
 
@@ -198,13 +222,15 @@ implements IPermission {
 			return true;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null
-				&& (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter)) {
+		if (currentItem != null && (currentItem.getItem() == CustomRegisters.wand
+				|| currentItem.getItem() == CustomRegisters.scripter)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptBlock, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ); }
+		if (!(tile instanceof TileScripted)) {
+			return super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
+		}
 		return !EventHooks.onScriptBlockInteract((TileScripted) tile, player, side.getIndex(), hitX, hitY, hitZ);
 	}
 
@@ -214,7 +240,9 @@ implements IPermission {
 			return;
 		}
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return; }
+		if (!(tile instanceof TileScripted)) {
+			return;
+		}
 		EventHooks.onScriptBlockClicked((TileScripted) tile, player);
 	}
 
@@ -241,18 +269,24 @@ implements IPermission {
 					pos.getZ());
 		}
 	}
-	
+
 	@Override
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entityIn) {
-		if (world.isRemote) { return; }
+	public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entityIn) {
+		if (world.isRemote) {
+			return;
+		}
 		TileEntity tile = world.getTileEntity(pos);
-		if (!(tile instanceof TileScripted)) { return; }
+		if (!(tile instanceof TileScripted)) {
+			return;
+		}
 		EventHooks.onScriptBlockCollide((TileScripted) tile, entityIn);
-    }
+	}
 
 	@Override
 	public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance) {
-		if (world.isRemote) { return; }
+		if (world.isRemote) {
+			return;
+		}
 		TileEntity tile = world.getTileEntity(pos);
 		if (!(tile instanceof TileScripted)) {
 			super.onFallenUpon(world, pos, entity, fallDistance);
@@ -267,7 +301,9 @@ implements IPermission {
 			boolean willHarvest) {
 		if (!world.isRemote) {
 			TileEntity tile = world.getTileEntity(pos);
-			if (!(tile instanceof TileScripted)) { return super.removedByPlayer(state, world, pos, player, willHarvest); }
+			if (!(tile instanceof TileScripted)) {
+				return super.removedByPlayer(state, world, pos, player, willHarvest);
+			}
 			if (EventHooks.onScriptBlockHarvest((TileScripted) tile, player)) {
 				return false;
 			}
@@ -275,10 +311,4 @@ implements IPermission {
 		return super.removedByPlayer(state, world, pos, player, willHarvest);
 	}
 
-	@Override
-	public boolean isOpaqueCube(IBlockState state) { return false; }
-
-	@Override
-	public boolean isFullCube(IBlockState state) { return false; }
-	
 }

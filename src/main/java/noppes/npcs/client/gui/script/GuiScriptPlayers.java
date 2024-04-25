@@ -9,10 +9,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.controllers.data.PlayerScriptData;
 
-public class GuiScriptPlayers
-extends GuiScriptInterface
-implements ISubGuiListener {
-	
+public class GuiScriptPlayers extends GuiScriptInterface implements ISubGuiListener {
+
 	private PlayerScriptData script;
 
 	public GuiScriptPlayers() {
@@ -39,8 +37,11 @@ implements ISubGuiListener {
 			NBTTagCompound nbt = new NBTTagCompound();
 			this.script.writeToNBT(nbt);
 			String p = new String(this.path);
-			while (p.indexOf("\\") !=-1) { p = p.replace("\\", "/"); }
-			nbt.setString("Name", ((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
+			while (p.indexOf("\\") != -1) {
+				p = p.replace("\\", "/");
+			}
+			nbt.setString("Name",
+					((GuiScriptEncrypt) subgui).getTextField(0).getText() + ((GuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", p + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", this.activeTab - 1);
 			nbt.setByte("Type", (byte) 2);
@@ -50,5 +51,5 @@ implements ISubGuiListener {
 			this.mc.setIngameFocus();
 		}
 	}
-	
+
 }

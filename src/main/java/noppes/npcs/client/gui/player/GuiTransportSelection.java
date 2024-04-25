@@ -33,10 +33,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiTransportSelection
-extends GuiNPCInterface
-implements ITopButtonListener, IScrollData, ICustomScrollListener {
-	
+public class GuiTransportSelection extends GuiNPCInterface
+		implements ITopButtonListener, IScrollData, ICustomScrollListener {
+
 	private boolean canTransport;
 	protected int bxSize, bySize;
 	private ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
@@ -60,7 +59,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0 && this.locSel!=null) {
+		if (button.id == 0 && this.locSel != null) {
 			this.close();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, this.locSel.id);
 		}
@@ -73,9 +72,11 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		this.mc.renderEngine.bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, 176, 222);
 		this.barterItems = null;
-		if (this.locSel==null) { return; }
+		if (this.locSel == null) {
+			return;
+		}
 
-		if (this.bxSize>0) {
+		if (this.bxSize > 0) {
 			int w = this.bxSize + 13;
 			int h = this.bySize + 18;
 			int x = this.guiLeft + 176;
@@ -86,11 +87,16 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			x += 5;
 			y += 4;
 			if (!this.locSel.inventory.isEmpty()) {
-				this.fontRenderer.drawString(new TextComponentTranslation("market.barter").getFormattedText(), x, y, CustomNpcs.LableColor.getRGB(), false);
+				this.fontRenderer.drawString(new TextComponentTranslation("market.barter").getFormattedText(), x, y,
+						CustomNpcs.LableColor.getRGB(), false);
 			}
-			if (this.locSel.money>0L) {
+			if (this.locSel.money > 0L) {
 				y += 32;
-				this.fontRenderer.drawString(AdditionalMethods.getTextReducedNumber(this.locSel.money, true, true, false)+" "+CustomNpcs.CharCurrencies.charAt(0), x, y, CustomNpcs.LableColor.getRGB(), false);
+				this.fontRenderer
+						.drawString(
+								AdditionalMethods.getTextReducedNumber(this.locSel.money, true, true, false) + " "
+										+ CustomNpcs.CharCurrencies.charAt(0),
+								x, y, CustomNpcs.LableColor.getRGB(), false);
 			}
 		}
 		// Items
@@ -107,9 +113,12 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				int v = this.guiTop + 30 + (slot / 3) * 18;
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				this.drawTexturedModalRect(u, v, 0, 0, 18, 18);
-				if (this.canTransport) { this.canTransport = this.barterItems.get(stack); }
+				if (this.canTransport) {
+					this.canTransport = this.barterItems.get(stack);
+				}
 				if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-					Gui.drawRect(u + 1, v + 1, u + 17, v + 17, this.barterItems.get(stack) ? 0x8000FF00 : this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000);
+					Gui.drawRect(u + 1, v + 1, u + 17, v + 17, this.barterItems.get(stack) ? 0x8000FF00
+							: this.player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000);
 				}
 				slot++;
 			}
@@ -122,11 +131,11 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			this.bySize += 14;
 		}
 	}
-	
+
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		this.drawDefaultBackground();
-		if (this.locSel!=null) {
+		if (this.locSel != null) {
 			if (!this.locSel.inventory.isEmpty()) {
 				int slot = 0;
 				for (ItemStack stack : this.barterItems.keySet()) {
@@ -137,25 +146,29 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 					RenderHelper.enableGUIStandardItemLighting();
 					this.mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
 					GlStateManager.translate(0.0f, 0.0f, 200.0f);
-					this.drawString(this.mc.fontRenderer, "" + stack.getCount(), (13 - (stack.getCount() > 9 ? 6 : 0)), 9, 0xFFFFFFFF);
+					this.drawString(this.mc.fontRenderer, "" + stack.getCount(), (13 - (stack.getCount() > 9 ? 6 : 0)),
+							9, 0xFFFFFFFF);
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(i, j, u, v, 18, 18)) {
 						List<String> list = new ArrayList<String>();
-						//list.add(new TextComponentTranslation("market.hover.item").getFormattedText());
-						list.addAll(stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+						// list.add(new
+						// TextComponentTranslation("market.hover.item").getFormattedText());
+						list.addAll(stack.getTooltip(this.mc.player,
+								this.mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
+										: TooltipFlags.NORMAL));
 						this.hoverText = list.toArray(new String[list.size()]);
 					}
-					
+
 					slot++;
 				}
 			}
 		}
-		if (this.getButton(0)!=null) {
+		if (this.getButton(0) != null) {
 			GuiNpcButton button = this.getButton(0);
-			button.setEnabled(this.canTransport && this.locSel!=null);
+			button.setEnabled(this.canTransport && this.locSel != null);
 			if (!button.enabled && button.isMouseOver()) {
-				if (this.locSel==null) {
+				if (this.locSel == null) {
 					this.setHoverText(new TextComponentTranslation("transporter.hover.not.select").getFormattedText());
 				} else if (this.locSel.money > ClientProxy.playerData.game.getMoney()) {
 					this.setHoverText(new TextComponentTranslation("transporter.hover.not.money").getFormattedText());
@@ -174,21 +187,26 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 		this.guiTop = (this.height - 222) / 2;
 		String title = "";
 		TransportController tData = TransportController.getInstance();
-		if (this.npc!=null && this.npc.advanced.roleInterface instanceof RoleTransporter) {
+		if (this.npc != null && this.npc.advanced.roleInterface instanceof RoleTransporter) {
 			int id = ((RoleTransporter) this.npc.advanced.roleInterface).transportId;
 			TransportLocation loc = tData.getTransport(id);
-			if (loc!=null) {
-				title = new TextComponentTranslation(loc.category.title).getFormattedText()+": "+new TextComponentTranslation(loc.name).getFormattedText();
+			if (loc != null) {
+				title = new TextComponentTranslation(loc.category.title).getFormattedText() + ": "
+						+ new TextComponentTranslation(loc.name).getFormattedText();
 			}
 		}
-		this.addLabel(new GuiNpcLabel(0, title, this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(title)) / 2, this.guiTop + 10));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 10, this.guiTop + 192, 156, 20, new TextComponentTranslation("transporter.travel").getFormattedText()));
-		if (this.scroll == null) { this.scroll = new GuiCustomScroll(this, 0); }
+		this.addLabel(new GuiNpcLabel(0, title,
+				this.guiLeft + (this.xSize - this.fontRenderer.getStringWidth(title)) / 2, this.guiTop + 10));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 10, this.guiTop + 192, 156, 20,
+				new TextComponentTranslation("transporter.travel").getFormattedText()));
+		if (this.scroll == null) {
+			this.scroll = new GuiCustomScroll(this, 0);
+		}
 		this.scroll.setSize(156, 165);
 		this.scroll.guiLeft = this.guiLeft + 10;
 		this.scroll.guiTop = this.guiTop + 20;
 		this.addScroll(this.scroll);
-		
+
 		List<String> list = Lists.newArrayList(this.data.keySet());
 		this.scroll.setList(list);
 		if (!this.data.isEmpty()) {
@@ -198,16 +216,20 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				int color = 0xFF00FF00;
 				String sfx = "";
 				TransportLocation loc = tData.getTransport(this.data.get(name));
-				if (loc!=null) {
-					if (loc.money>0 || !loc.inventory.isEmpty()) {
-						if (loc.money>0) {
-							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false)+" "+CustomNpcs.CharCurrencies.charAt(0);
-							if (loc.money>0 && loc.money>ClientProxy.playerData.game.getMoney()) { color = 0xFFFF0000; }
+				if (loc != null) {
+					if (loc.money > 0 || !loc.inventory.isEmpty()) {
+						if (loc.money > 0) {
+							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false) + " "
+									+ CustomNpcs.CharCurrencies.charAt(0);
+							if (loc.money > 0 && loc.money > ClientProxy.playerData.game.getMoney()) {
+								color = 0xFFFF0000;
+							}
 						}
 					}
 					if (!loc.inventory.isEmpty() && color != 0xFFFF0000) {
-						sfx += ((char) 167)+"7 ["+((char) 167)+"6I"+((char) 167)+"7]";
-						Map<ItemStack, Boolean> items = AdditionalMethods.getInventoryItemCount(this.player, loc.inventory);
+						sfx += ((char) 167) + "7 [" + ((char) 167) + "6I" + ((char) 167) + "7]";
+						Map<ItemStack, Boolean> items = AdditionalMethods.getInventoryItemCount(this.player,
+								loc.inventory);
 						for (ItemStack s : items.keySet()) {
 							if (!items.get(s)) {
 								color = 0xFFFF0000;
@@ -242,6 +264,22 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	}
 
 	@Override
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+		if (this.data.containsKey(scroll.getSelected())) {
+			this.locSel = TransportController.getInstance().getTransport(this.data.get(scroll.getSelected()));
+			this.initGui();
+		}
+	}
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+		if (this.locSel != null) {
+			this.close();
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, this.locSel.id);
+		}
+	}
+
+	@Override
 	public void setData(Vector<String> list, HashMap<String, Integer> data) {
 		this.data.clear();
 		for (String key : data.keySet()) {
@@ -252,22 +290,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void setSelected(String selected) { }
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		if (this.data.containsKey(scroll.getSelected())) {
-			this.locSel = TransportController.getInstance().getTransport(this.data.get(scroll.getSelected()));
-			this.initGui();
-		}
+	public void setSelected(String selected) {
 	}
 
-	@Override
-	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
-		if (this.locSel!=null) {
-			this.close();
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, this.locSel.id);
-		}
-	}
-	
 }

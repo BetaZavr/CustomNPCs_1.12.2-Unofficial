@@ -11,8 +11,11 @@ public class NPCRendererHelper {
 
 	private static ModelWrapper wrapper = new ModelWrapper();
 
-	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_, float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_, RenderLivingBase<EntityLivingBase> renderEntity) {
-		renderEntity.renderLayers(entity, p_177093_2_, p_177093_3_, p_177093_4_, p_177093_5_, p_177093_6_, p_177093_7_, p_177093_8_);
+	public static void drawLayers(EntityLivingBase entity, float p_177093_2_, float p_177093_3_, float p_177093_4_,
+			float p_177093_5_, float p_177093_6_, float p_177093_7_, float p_177093_8_,
+			RenderLivingBase<EntityLivingBase> renderEntity) {
+		renderEntity.renderLayers(entity, p_177093_2_, p_177093_3_, p_177093_4_, p_177093_5_, p_177093_6_, p_177093_7_,
+				p_177093_8_);
 	}
 
 	public static String getTexture(RenderLivingBase<EntityLivingBase> render, EntityLivingBase entity) {
@@ -32,7 +35,9 @@ public class NPCRendererHelper {
 		render.preRenderCallback(entity, f);
 	}
 
-	public static void renderModel(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, RenderLivingBase<EntityLivingBase> render, ModelBase main, ResourceLocation resource) {
+	public static void renderModel(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float ageInTicks,
+			float netHeadYaw, float headPitch, float scaleFactor, RenderLivingBase<EntityLivingBase> render,
+			ModelBase main, ResourceLocation resource) {
 		NPCRendererHelper.wrapper.mainModelOld = render.getMainModel();
 		if (!(main instanceof ModelWrapper)) {
 			NPCRendererHelper.wrapper.wrapped = main;

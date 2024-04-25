@@ -31,8 +31,8 @@ public class SubGuiNpcFactionPoints extends SubGuiInterface implements ITextfiel
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(2, "faction.default", this.guiLeft + 4, this.guiTop + 33));
 		this.addTextField(new GuiNpcTextField(2, this,
-				this.guiLeft + 8 + this.fontRenderer.getStringWidth(this.getLabel(2).label.get(0)), this.guiTop + 28, 70, 20,
-				this.faction.defaultPoints + ""));
+				this.guiLeft + 8 + this.fontRenderer.getStringWidth(this.getLabel(2).label.get(0)), this.guiTop + 28,
+				70, 20, this.faction.defaultPoints + ""));
 		this.getTextField(2).setMaxStringLength(6);
 		this.getTextField(2).setNumbersOnly();
 		String title = new TextComponentTranslation("faction.unfriendly").getFormattedText() + "<->"

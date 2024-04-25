@@ -73,7 +73,9 @@ public class ValueUtil {
 	}
 
 	public static double min(double... obj) {
-		if (obj == null || obj.length == 0) { return Double.MIN_VALUE; }
+		if (obj == null || obj.length == 0) {
+			return Double.MIN_VALUE;
+		}
 		double min = obj[0];
 		for (double i : obj) {
 			if (i < min) {

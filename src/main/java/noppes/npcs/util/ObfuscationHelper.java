@@ -21,36 +21,53 @@ public class ObfuscationHelper {
 					continue;
 				}
 				Class<?> clazz;
-				if (args[i] instanceof Class) { clazz = (Class<?>) args[i]; }
-				else { clazz = args[i].getClass(); }
-				
+				if (args[i] instanceof Class) {
+					clazz = (Class<?>) args[i];
+				} else {
+					clazz = args[i].getClass();
+				}
+
 				if (ps[i].getType() != clazz) {
-					switch(ps[i].getType().toString().toLowerCase()) {
-						case "boolean":
-							if (clazz!=Boolean.class) { return false; }
-							break;
-						case "byte":
-							if (clazz!=Byte.class) { return false; }
-							break;
-						case "short":
-							if (clazz!=Short.class) { return false; }
-							break;
-						case "int":
-							if (clazz!=Integer.class) { return false; }
-							break;
-						case "float":
-							if (clazz!=Float.class) { return false; }
-							break;
-						case "double":
-							if (clazz!=Double.class) { return false; }
-							break;
-						case "long":
-							if (clazz!=Long.class) { return false; }
-							break;
-						default:
+					switch (ps[i].getType().toString().toLowerCase()) {
+					case "boolean":
+						if (clazz != Boolean.class) {
 							return false;
+						}
+						break;
+					case "byte":
+						if (clazz != Byte.class) {
+							return false;
+						}
+						break;
+					case "short":
+						if (clazz != Short.class) {
+							return false;
+						}
+						break;
+					case "int":
+						if (clazz != Integer.class) {
+							return false;
+						}
+						break;
+					case "float":
+						if (clazz != Float.class) {
+							return false;
+						}
+						break;
+					case "double":
+						if (clazz != Double.class) {
+							return false;
+						}
+						break;
+					case "long":
+						if (clazz != Long.class) {
+							return false;
+						}
+						break;
+					default:
+						return false;
 					}
-					
+
 				}
 			}
 			return true;
@@ -63,23 +80,33 @@ public class ObfuscationHelper {
 			Class<?> sc;
 			Class<?> cl = (Class<?>) type;
 			for (Field t : clazz.getDeclaredFields()) {
-				if (t.getType() == cl) { return t; }
+				if (t.getType() == cl) {
+					return t;
+				}
 				sc = t.getType().getSuperclass();
-				if (sc!=null && sc!=t.getType()) {
-					while (sc!=null) {
-						if (sc == cl) { return t; }
+				if (sc != null && sc != t.getType()) {
+					while (sc != null) {
+						if (sc == cl) {
+							return t;
+						}
 						sc = sc.getSuperclass();
 					}
 				}
 			}
 		} else if (type instanceof Integer) {
 			int pos = (int) type;
-			if (pos >= 0 && pos < clazz.getDeclaredFields().length) { return clazz.getDeclaredFields()[pos]; }
+			if (pos >= 0 && pos < clazz.getDeclaredFields().length) {
+				return clazz.getDeclaredFields()[pos];
+			}
 		} else if (type instanceof String) {
 			String name = (String) type;
-			if (name.isEmpty()) { return null; }
+			if (name.isEmpty()) {
+				return null;
+			}
 			for (Field t : clazz.getDeclaredFields()) {
-				if (t.getName().equals(name)) { return t; }
+				if (t.getName().equals(name)) {
+					return t;
+				}
 			}
 		}
 		return null;
@@ -90,71 +117,39 @@ public class ObfuscationHelper {
 			Class<?> sc;
 			Class<?> cl = (Class<?>) type;
 			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getReturnType() == cl && ObfuscationHelper.checkMethod(m, args)) { return m; }
+				if (m.getReturnType() == cl && ObfuscationHelper.checkMethod(m, args)) {
+					return m;
+				}
 				sc = m.getReturnType().getSuperclass();
-				if (sc!=null && sc!=m.getReturnType() && ObfuscationHelper.checkMethod(m, args)) {
-					while (sc!=null) {
-						if (sc == cl) { return m; }
+				if (sc != null && sc != m.getReturnType() && ObfuscationHelper.checkMethod(m, args)) {
+					while (sc != null) {
+						if (sc == cl) {
+							return m;
+						}
 						sc = sc.getSuperclass();
 					}
 				}
 			}
 		} else if (type instanceof Integer) {
 			int pos = (int) type;
-			if (pos >= 0 && pos < clazz.getDeclaredMethods().length && ObfuscationHelper.checkMethod(clazz.getDeclaredMethods()[pos], args)) {
+			if (pos >= 0 && pos < clazz.getDeclaredMethods().length
+					&& ObfuscationHelper.checkMethod(clazz.getDeclaredMethods()[pos], args)) {
 				return clazz.getDeclaredMethods()[pos];
 			}
 		} else if (type instanceof String) {
 			String name = (String) type;
-			if (name.isEmpty()) { return null; }
+			if (name.isEmpty()) {
+				return null;
+			}
 			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getName().equals(name) && ObfuscationHelper.checkMethod(m, args)) { return m; }
+				if (m.getName().equals(name) && ObfuscationHelper.checkMethod(m, args)) {
+					return m;
+				}
 			}
 		}
 		return null;
 	}
 
-	/**
-	 * Get the first registered field by its content type Field access is irrelevant
-	 * Use when the class has a large number of fields
-	 * 
-	 * @param clazz
-	 *			- class in which the field is registered
-	 * @param instance
-	 *			- class from which to get the value
-	 * @param fieldType
-	 *			- class as field content (not interface)
-	 * @return - field object
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T, E> T getValue(Class<? super E> clazz, E instance, Class<? super T> fieldType) {
-		Field f = null;
-		if (fieldType == null) {
-			return null;
-		}
-		try {
-			f = ObfuscationHelper.getField(clazz, fieldType);
-			if (f != null) {
-				f.setAccessible(true);
-				return (T) f.get(instance);
-			}
-		} catch (IllegalArgumentException e) {
-			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}", fieldType.getSimpleName(), f.getType().getSimpleName(), e);
-			}
-			throw e;
-		} catch (IllegalAccessException e) {
-			if (f != null) {
-				FMLLog.log.error("Mismatch change field access type {}", f.getName(), e);
-			}
-			try {
-				throw e;
-			} catch (IllegalAccessException e1) {
-			}
-		}
-		return null;
-	}
-	
 	@SuppressWarnings("unchecked")
 	public static <T, E> T getValue(Class<? super E> clazz, Class<? super E> instance, Class<? super T> fieldType) {
 		Field f = null;
@@ -184,24 +179,40 @@ public class ObfuscationHelper {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Get the first registered field by its content type Field access is irrelevant
+	 * Use when the class has a large number of fields
+	 * 
+	 * @param clazz
+	 *            - class in which the field is registered
+	 * @param instance
+	 *            - class from which to get the value
+	 * @param fieldType
+	 *            - class as field content (not interface)
+	 * @return - field object
+	 */
 	@SuppressWarnings("unchecked")
-	public static <T, E> T getValue(Class<? super E> clazz, int index) {
+	public static <T, E> T getValue(Class<? super E> clazz, E instance, Class<? super T> fieldType) {
 		Field f = null;
+		if (fieldType == null) {
+			return null;
+		}
 		try {
-			f = ObfuscationHelper.getField(clazz, index);
+			f = ObfuscationHelper.getField(clazz, fieldType);
 			if (f != null) {
 				f.setAccessible(true);
-				return (T) f.get(clazz);
+				return (T) f.get(instance);
 			}
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
+				FMLLog.log.error("Field type mismatch {} on {}", fieldType.getSimpleName(), f.getType().getSimpleName(),
+						e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
 			if (f != null) {
-				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+				FMLLog.log.error("Mismatch change field access type {}", f.getName(), e);
 			}
 			try {
 				throw e;
@@ -216,11 +227,11 @@ public class ObfuscationHelper {
 	 * if field name would be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the field is registered
+	 *            - class in which the field is registered
 	 * @param instance
-	 *			- class from which to get the value
+	 *            - class from which to get the value
 	 * @param index
-	 *			- field registration number
+	 *            - field registration number
 	 * @return - field object
 	 */
 	@SuppressWarnings("unchecked")
@@ -254,11 +265,11 @@ public class ObfuscationHelper {
 	 * name will never be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the field is registered
+	 *            - class in which the field is registered
 	 * @param instance
-	 *			- class from which to get the value
+	 *            - class from which to get the value
 	 * @param fieldName
-	 *			- field name
+	 *            - field name
 	 * @return - field object
 	 */
 	@SuppressWarnings("unchecked")
@@ -290,32 +301,60 @@ public class ObfuscationHelper {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T, E> T getValue(Class<? super E> clazz, int index) {
+		Field f = null;
+		try {
+			f = ObfuscationHelper.getField(clazz, index);
+			if (f != null) {
+				f.setAccessible(true);
+				return (T) f.get(clazz);
+			}
+		} catch (IllegalArgumentException e) {
+			if (f != null) {
+				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
+			}
+			throw e;
+		} catch (IllegalAccessException e) {
+			if (f != null) {
+				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+			}
+			try {
+				throw e;
+			} catch (IllegalAccessException e1) {
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Tries to call a method by its content return type Method access is irrelevant
 	 * Use if the method name will never be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the method is registered
+	 *            - class in which the method is registered
 	 * @param instance
-	 *			- object from which to call the method
+	 *            - object from which to call the method
 	 * @param methodReturnType
-	 *			- class returned by the method (not interface)
+	 *            - class returned by the method (not interface)
 	 * @param args
-	 *			- specify the parameters that the method accepts. If they are not,
-	 *			then you can omit or NULL
+	 *            - specify the parameters that the method accepts. If they are not,
+	 *            then you can omit or NULL
 	 * @return - object returned by the method
 	 */
 	public static Object invoke(Class<?> clazz, Object instance, Class<?> methodReturnType, Object... args) {
 		Method m = ObfuscationHelper.getMethod(clazz, methodReturnType, args);
 		if (m == null) {
-			FMLLog.log.info("Unable to locate any metod {} on type {}", methodReturnType.getSimpleName(), clazz.getSimpleName());
+			FMLLog.log.info("Unable to locate any metod {} on type {}", methodReturnType.getSimpleName(),
+					clazz.getSimpleName());
 			return null;
 		}
 		m.setAccessible(true);
 		try {
 			return m.invoke(instance, args);
 		} catch (IllegalAccessException e) {
-			FMLLog.log.error("Unable to access any metod {} on class {}", methodReturnType.getSimpleName(), clazz.getSimpleName(), e);
+			FMLLog.log.error("Unable to access any metod {} on class {}", methodReturnType.getSimpleName(),
+					clazz.getSimpleName(), e);
 			try {
 				throw e;
 			} catch (IllegalAccessException e1) {
@@ -344,14 +383,14 @@ public class ObfuscationHelper {
 	 * irrelevant Use if the method name will never be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the method is registered
+	 *            - class in which the method is registered
 	 * @param instance
-	 *			- object from which to call the method
+	 *            - object from which to call the method
 	 * @param index
-	 *			- method registration number
+	 *            - method registration number
 	 * @param args
-	 *			- specify the parameters that the method accepts. If they are not,
-	 *			then you can omit or NULL
+	 *            - specify the parameters that the method accepts. If they are not,
+	 *            then you can omit or NULL
 	 * @return - object returned by the method
 	 */
 	public static Object invoke(Class<?> clazz, Object instance, int index, Object... args) {
@@ -392,14 +431,14 @@ public class ObfuscationHelper {
 	 * method name will never be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the method is registered
+	 *            - class in which the method is registered
 	 * @param instance
-	 *			- object from which to call the method
+	 *            - object from which to call the method
 	 * @param methodName
-	 *			- method name
+	 *            - method name
 	 * @param args
-	 *			- specify the parameters that the method accepts. If they are not,
-	 *			then you can omit or NULL
+	 *            - specify the parameters that the method accepts. If they are not,
+	 *            then you can omit or NULL
 	 * @return - object returned by the method
 	 */
 	public static Object invoke(Class<?> clazz, Object instance, String methodName, Object... args) {
@@ -436,18 +475,82 @@ public class ObfuscationHelper {
 		return null;
 	}
 
+	public static void setStaticValue(Field field, Object newValue) {
+		if (field == null) {
+			return;
+		}
+		field.setAccessible(true);
+		try {
+			if (Modifier.isFinal(field.getModifiers())) {
+				Field modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+			}
+			field.set(null, newValue);
+		} catch (NoSuchFieldException | SecurityException e) {
+			FMLLog.log.error("Unable to locate field {}", "Name:" + field.getName(), e);
+		} catch (IllegalArgumentException e) {
+			FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + field.getName(),
+					field.getType().getSimpleName(), newValue, e);
+			throw e;
+		} catch (IllegalAccessException e) {
+			FMLLog.log.error("Mismatch change field access on {}", field.getName(), e);
+		}
+	}
+
+	public static <T, E> void setValue(Class<? super T> clazz, Object value, int index) {
+		if (index < 0) {
+			return;
+		}
+		Field f = ObfuscationHelper.getField(clazz, index);
+		if (f == null) {
+			FMLLog.log.info("Unable to locate any field {} on type {}", "Index:" + index, clazz.getSimpleName());
+			return;
+		}
+		f.setAccessible(true);
+		if (Modifier.isFinal(f.getModifiers())) {
+			Field modifiersField;
+			try {
+				modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+				f.set(null, value);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
+			}
+			return;
+		}
+		try {
+			f.set(clazz, value);
+		} catch (IllegalArgumentException e) {
+			if (f != null) {
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index,
+						f.getType().getSimpleName(), value, e);
+			}
+			throw e;
+		} catch (IllegalAccessException e) {
+			if (f != null) {
+				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
+			}
+			try {
+				throw e;
+			} catch (IllegalAccessException e1) {
+			}
+		}
+	}
+
 	/**
 	 * Set the first registered field by its content type Field access is irrelevant
 	 * Use when the class has a large number of fields
 	 * 
 	 * @param clazz
-	 *			- class in which the field is registered
+	 *            - class in which the field is registered
 	 * @param instance
-	 *			- class from which to get the value
+	 *            - class from which to get the value
 	 * @param value
-	 *			- set new value
+	 *            - set new value
 	 * @param fieldType
-	 *			- class as field content (not interface)
+	 *            - class as field content (not interface)
 	 */
 	public static <T, E> void setValue(Class<? super T> clazz, T instance, Object value, Class<?> fieldType) {
 		if (fieldType == null) {
@@ -465,7 +568,7 @@ public class ObfuscationHelper {
 			try {
 				modifiersField = Field.class.getDeclaredField("modifiers");
 				modifiersField.setAccessible(true);
-				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
 			}
@@ -474,45 +577,8 @@ public class ObfuscationHelper {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Type:" + fieldType.getSimpleName(), f.getType().getSimpleName(), value, e);
-			}
-			throw e;
-		} catch (IllegalAccessException e) {
-			if (f != null) {
-				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
-			}
-			try {
-				throw e;
-			} catch (IllegalAccessException e1) {
-			}
-		}
-	}
-
-	public static <T, E> void setValue(Class<? super T> clazz, Object value, int index) {
-		if (index < 0) { return; }
-		Field f = ObfuscationHelper.getField(clazz, index);
-		if (f == null) {
-			FMLLog.log.info("Unable to locate any field {} on type {}", "Index:" + index, clazz.getSimpleName());
-			return;
-		}
-		f.setAccessible(true);
-		if (Modifier.isFinal(f.getModifiers())) {
-			Field modifiersField;
-			try {
-				modifiersField = Field.class.getDeclaredField("modifiers");
-				modifiersField.setAccessible(true);
-				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
-				f.set(null, value);
-			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
-			}
-			return;
-		}
-		try {
-			f.set(clazz, value);
-		} catch (IllegalArgumentException e) {
-			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index, f.getType().getSimpleName(), value, e);
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Type:" + fieldType.getSimpleName(),
+						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -531,13 +597,13 @@ public class ObfuscationHelper {
 	 * if field name would be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the field is registered
+	 *            - class in which the field is registered
 	 * @param instance
-	 *			- class from which to get the value
+	 *            - class from which to get the value
 	 * @param value
-	 *			- set new value
+	 *            - set new value
 	 * @param index
-	 *			- field registration number
+	 *            - field registration number
 	 */
 	public static <T, E> void setValue(Class<? super T> clazz, T instance, Object value, int index) {
 		if (index < 0) {
@@ -554,7 +620,7 @@ public class ObfuscationHelper {
 			try {
 				modifiersField = Field.class.getDeclaredField("modifiers");
 				modifiersField.setAccessible(true);
-				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
 			}
@@ -563,7 +629,8 @@ public class ObfuscationHelper {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index, f.getType().getSimpleName(), value, e);
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Index:" + index,
+						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -582,13 +649,13 @@ public class ObfuscationHelper {
 	 * name will never be obfuscated
 	 * 
 	 * @param clazz
-	 *			- class in which the field is registered
+	 *            - class in which the field is registered
 	 * @param instance
-	 *			- class from which to get the value
+	 *            - class from which to get the value
 	 * @param value
-	 *			- set new value
+	 *            - set new value
 	 * @param fieldName
-	 *			- field name
+	 *            - field name
 	 */
 	public static <T, E> void setValue(Class<? super T> clazz, T instance, Object value, String fieldName) {
 		if (fieldName == null || fieldName.isEmpty()) {
@@ -605,7 +672,7 @@ public class ObfuscationHelper {
 			try {
 				modifiersField = Field.class.getDeclaredField("modifiers");
 				modifiersField.setAccessible(true);
-				modifiersField.setInt(f, f.getModifiers() & ~ Modifier.FINAL );
+				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				FMLLog.log.error("Failed to change final field state {}", f.getName(), e);
 			}
@@ -614,7 +681,8 @@ public class ObfuscationHelper {
 			f.set(instance, value);
 		} catch (IllegalArgumentException e) {
 			if (f != null) {
-				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + fieldName, f.getType().getSimpleName(), value, e);
+				FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + fieldName,
+						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
 		} catch (IllegalAccessException e) {
@@ -628,24 +696,4 @@ public class ObfuscationHelper {
 		}
 	}
 
-	public static void setStaticValue(Field field, Object newValue) {
-		if (field==null) { return; }
-		field.setAccessible(true);
-		try {
-			if (Modifier.isFinal(field.getModifiers())) {
-				Field modifiersField = Field.class.getDeclaredField("modifiers");
-				modifiersField.setAccessible(true);
-				modifiersField.setInt(field, field.getModifiers() & ~ Modifier.FINAL);
-			}
-			field.set(null, newValue);
-		} catch (NoSuchFieldException | SecurityException e) {
-			FMLLog.log.error("Unable to locate field {}", "Name:" + field.getName(), e);
-		} catch (IllegalArgumentException e) {
-			FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + field.getName(), field.getType().getSimpleName(), newValue, e);
-			throw e;
-		} catch (IllegalAccessException e) {
-			FMLLog.log.error("Mismatch change field access on {}", field.getName(), e);
-		}
-	}
-	
 }

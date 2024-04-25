@@ -1,7 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 public interface INPCMelee {
-	
+
 	int getDelay();
 
 	int getEffectStrength();
@@ -25,6 +25,5 @@ public interface INPCMelee {
 	void setRange(double range);
 
 	void setStrength(int strength);
-	
-}
 
+}

@@ -11,7 +11,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTrader;
 
 public class ContainerNPCTrader extends ContainerNpcInterface {
-	
+
 	public Marcet marcet;
 
 	public ContainerNPCTrader(EntityNPCInterface npc, EntityPlayer player) {
@@ -53,7 +53,7 @@ public class ContainerNPCTrader extends ContainerNpcInterface {
 			this.marcet.removeListener((EntityPlayerMP) playerIn, true);
 		}
 	}
-	
+
 	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
 		return ItemStack.EMPTY;
 	}

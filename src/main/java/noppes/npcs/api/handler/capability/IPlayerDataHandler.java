@@ -7,5 +7,5 @@ public interface IPlayerDataHandler {
 	NBTTagCompound getNBT();
 
 	void setNBT(NBTTagCompound compound);
-	
+
 }

@@ -6,10 +6,10 @@ import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 
 public interface IItemStack {
-	
-	void addEnchantment(String name, int level);
-	
+
 	void addEnchantment(int id, int level);
+
+	void addEnchantment(String name, int level);
 
 	boolean compare(IItemStack item, boolean ignoreNBT);
 
@@ -55,9 +55,9 @@ public interface IItemStack {
 
 	boolean hasCustomName();
 
-	boolean hasEnchant(String name);
-
 	boolean hasEnchant(int id);
+
+	boolean hasEnchant(String name);
 
 	boolean hasNbt();
 
@@ -73,9 +73,9 @@ public interface IItemStack {
 
 	boolean isWearable();
 
-	boolean removeEnchant(String name);
-
 	boolean removeEnchant(int id);
+
+	boolean removeEnchant(String name);
 
 	void removeNbt();
 
@@ -91,5 +91,5 @@ public interface IItemStack {
 	void setLore(String[] lore);
 
 	void setStackSize(int size);
-	
+
 }

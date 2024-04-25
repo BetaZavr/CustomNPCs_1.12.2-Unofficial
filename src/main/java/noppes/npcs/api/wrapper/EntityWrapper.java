@@ -39,12 +39,37 @@ import noppes.npcs.api.wrapper.data.TempData;
 import noppes.npcs.controllers.ServerCloneController;
 
 @SuppressWarnings("rawtypes")
-public class EntityWrapper<T extends Entity>
-implements IEntity {
-	
+public class EntityWrapper<T extends Entity> implements IEntity {
+
+	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
+		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity,
+				entity.getEntityBoundingBox().grow(distance));
+		List<IEntity> result = new ArrayList<IEntity>();
+		for (Entity entity1 : list) {
+			if (entity1.canBeCollidedWith() && entity1 != entity) {
+				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
+				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
+				if (raytraceresult1 == null) {
+					continue;
+				}
+				result.add(NpcAPI.Instance().getIEntity(entity1));
+			}
+		}
+		result.sort((o1, o2) -> {
+			double d1 = entity.getDistance(o1.getMCEntity());
+			double d2 = entity.getDistance(o2.getMCEntity());
+			if (d1 == d2) {
+				return 0;
+			} else {
+				return (d1 > d2) ? 1 : -1;
+			}
+		});
+		return result.toArray(new IEntity[result.size()]);
+	}
 	protected T entity;
 	protected IData storeddata;
 	protected IData tempdata;
+
 	private IWorld worldWrapper;
 
 	@SuppressWarnings("deprecation")
@@ -54,13 +79,16 @@ implements IEntity {
 		this.storeddata = new StoredData(this);
 		if (entity.world instanceof WorldServer) {
 			this.worldWrapper = NpcAPI.Instance().getIWorld((WorldServer) entity.world);
-		}
-		else if (entity.world != null) {
+		} else if (entity.world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(entity.world.provider.getDimension());
 			if (w != null) {
-				if (w.world == null) { w.world = entity.world; }
+				if (w.world == null) {
+					w.world = entity.world;
+				}
+			} else {
+				WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(),
+						w = WorldWrapper.createNew(entity.world));
 			}
-			else { WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(), w = WorldWrapper.createNew(entity.world)); }
 			this.worldWrapper = w;
 		}
 	}
@@ -89,19 +117,24 @@ implements IEntity {
 
 	@Override
 	public void damage(float amount, IEntityDamageSource source) {
-		if (!(this.entity instanceof EntityLivingBase)) { return; }
+		if (!(this.entity instanceof EntityLivingBase)) {
+			return;
+		}
 		if (source instanceof EntityDamageSource) {
 			this.entity.attackEntityFrom((DamageSource) source, amount);
 			if (((EntityDamageSource) source).getTrueSource() instanceof EntityLivingBase) {
 				if (this.entity instanceof EntityLiving) {
-					((EntityLiving) this.entity).setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+					((EntityLiving) this.entity)
+							.setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
 				}
 				if (this.entity instanceof EntityLivingBase) {
-					((EntityLivingBase) this.entity).setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+					((EntityLivingBase) this.entity)
+							.setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
 				}
 			}
+		} else {
+			this.damage(amount);
 		}
-		else { this.damage(amount); }
 	}
 
 	@Override
@@ -117,31 +150,6 @@ implements IEntity {
 	@Override
 	public void extinguish() {
 		this.entity.extinguish();
-	}
-
-	public static IEntity[] findEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
-		List<Entity> list = entity.world.getEntitiesWithinAABBExcludingEntity(entity, entity.getEntityBoundingBox().grow(distance));
-		List<IEntity> result = new ArrayList<IEntity>();
-		for (Entity entity1 : list) {
-			if (entity1.canBeCollidedWith() && entity1 != entity) {
-				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
-				RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
-				if (raytraceresult1 == null) {
-					continue;
-				}
-				result.add(NpcAPI.Instance().getIEntity(entity1));
-			}
-		}
-		result.sort((o1, o2) -> {
-			double d1 = entity.getDistance(o1.getMCEntity());
-			double d2 = entity.getDistance(o2.getMCEntity());
-			if (d1 == d2) {
-				return 0;
-			} else {
-				return (d1 > d2) ? 1 : -1;
-			}
-		});
-		return result.toArray(new IEntity[result.size()]);
 	}
 
 	@Override
@@ -395,8 +403,11 @@ implements IEntity {
 
 	@Override
 	public void playAnimation(int type) {
-		if (!(this.worldWrapper.getMCWorld() instanceof WorldServer)) { return; }
-		((WorldServer) this.worldWrapper.getMCWorld()).getEntityTracker().sendToTrackingAndSelf(this.entity, new SPacketAnimation(this.entity, type));
+		if (!(this.worldWrapper.getMCWorld() instanceof WorldServer)) {
+			return;
+		}
+		((WorldServer) this.worldWrapper.getMCWorld()).getEntityTracker().sendToTrackingAndSelf(this.entity,
+				new SPacketAnimation(this.entity, type));
 	}
 
 	@Override
@@ -404,11 +415,13 @@ implements IEntity {
 		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
 		Vec3d vec3d2 = this.entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, true);
+		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid,
+				ignoreBlockWithoutBoundingBox, true);
 		if (result == null) {
 			return null;
 		}
-		return new RayTraceWrapper(NpcAPI.Instance().getIBlock(this.entity.world, result.getBlockPos()), result.sideHit.getIndex());
+		return new RayTraceWrapper(NpcAPI.Instance().getIBlock(this.entity.world, result.getBlockPos()),
+				result.sideHit.getIndex());
 	}
 
 	@Override
@@ -416,7 +429,8 @@ implements IEntity {
 		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
 		Vec3d vec3d2 = this.entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, false);
+		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid,
+				ignoreBlockWithoutBoundingBox, false);
 		if (result != null) {
 			vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z);
 		}
@@ -492,7 +506,8 @@ implements IEntity {
 	@Override
 	public void setPosition(double x, double y, double z) {
 		if (this.entity instanceof EntityPlayerMP) {
-			((EntityPlayerMP) this.entity).setPositionAndRotation(x, y, z, this.entity.rotationYaw, this.entity.rotationPitch);
+			((EntityPlayerMP) this.entity).setPositionAndRotation(x, y, z, this.entity.rotationYaw,
+					this.entity.rotationPitch);
 		} else {
 			this.entity.setPosition(x, y, z);
 		}
@@ -520,8 +535,10 @@ implements IEntity {
 
 	@Override
 	public void spawn() {
-		if (this.worldWrapper.getMCWorld().isRemote) { return; }
-		LogWriter.debug("Try summoning 0: "+this.entity.getName()+"; UUID: "+this.entity.getUniqueID());
+		if (this.worldWrapper.getMCWorld().isRemote) {
+			return;
+		}
+		LogWriter.debug("Try summoning 0: " + this.entity.getName() + "; UUID: " + this.entity.getUniqueID());
 		Entity el = null;
 		try {
 			for (Entity e : this.worldWrapper.getMCWorld().loadedEntityList) {
@@ -530,19 +547,21 @@ implements IEntity {
 					break;
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		catch (Exception e) { e.printStackTrace(); }
 		if (el != null) {
-			LogWriter.debug("Error summoning: "+this.entity.getName());
+			LogWriter.debug("Error summoning: " + this.entity.getName());
 			throw new CustomNPCsException("Entity is already spawned", new Object[0]);
 		}
 		this.entity.isDead = false;
-		LogWriter.debug("Try summoning 1: "+this.entity.getName());
+		LogWriter.debug("Try summoning 1: " + this.entity.getName());
 		try {
 			boolean bo = this.worldWrapper.getMCWorld().spawnEntity(this.entity);
-			LogWriter.debug("Is summoning: "+bo+"; World: "+this.entity.world.getClass().getSimpleName());
+			LogWriter.debug("Is summoning: " + bo + "; World: " + this.entity.world.getClass().getSimpleName());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	@Override

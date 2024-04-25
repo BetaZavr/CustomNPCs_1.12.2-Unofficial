@@ -4,9 +4,8 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import noppes.npcs.CustomNpcs;
 
-public abstract class BlockInterface
-extends BlockContainer {
-	
+public abstract class BlockInterface extends BlockContainer {
+
 	protected BlockInterface(Material materialIn) {
 		super(materialIn);
 	}

@@ -46,9 +46,8 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumPlayerPacket;
 
 @SideOnly(Side.CLIENT)
-public class GuiNpcRecipeBook
-extends GuiRecipeBook {
-	
+public class GuiNpcRecipeBook extends GuiRecipeBook {
+
 	protected static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
 	private InventoryCrafting craftingSlots;
 	private GuiNpcButtonRecipeTab currentTab;
@@ -87,8 +86,14 @@ extends GuiRecipeBook {
 		this.timesInventoryChanged = mc.player.inventory.getTimesChanged();
 		this.currentTab = this.recipeTabs.get(0);
 		this.currentTab.setStateTriggered(true);
-		if (this.isVisible()) { this.initVisuals(widthTooNarrow, inv); }
+		if (this.isVisible()) {
+			this.initVisuals(widthTooNarrow, inv);
+		}
 		Keyboard.enableRepeatEvents(true);
+	}
+
+	public List<GuiNpcButtonRecipeTab> getRecipeTabs() {
+		return this.recipeTabs;
 	}
 
 	public boolean hasClickedOutside(int p_193955_1_, int p_193955_2_, int p_193955_3_, int p_193955_4_,
@@ -111,7 +116,8 @@ extends GuiRecipeBook {
 		this.stackedContents.clear();
 		this.mc.player.inventory.fillStackedContents(this.stackedContents, false);
 		inv.fillStackedContents(this.stackedContents);
-		this.searchBar = new GuiTextField(0, this.mc.fontRenderer, i + 25, j + 14, 80, this.mc.fontRenderer.FONT_HEIGHT + 5);
+		this.searchBar = new GuiTextField(0, this.mc.fontRenderer, i + 25, j + 14, 80,
+				this.mc.fontRenderer.FONT_HEIGHT + 5);
 		this.searchBar.setMaxStringLength(50);
 		this.searchBar.setEnableBackgroundDrawing(false);
 		this.searchBar.setVisible(true);
@@ -246,7 +252,7 @@ extends GuiRecipeBook {
 	}
 
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		if (!this.isVisible() || this.searchBar==null) {
+		if (!this.isVisible() || this.searchBar == null) {
 			return;
 		}
 		RenderHelper.enableGUIStandardItemLighting();
@@ -370,13 +376,16 @@ extends GuiRecipeBook {
 	}
 
 	private void updateCollections(boolean bo) {
-		if (this.searchBar==null) { return; }
+		if (this.searchBar == null) {
+			return;
+		}
 		List<RecipeList> recipes = RecipeBookClient.RECIPES_BY_TAB.get(this.currentTab.getCategory());
 		if (!this.isGlobal) {
 			recipes = ClientProxy.MOD_RECIPES_BY_TAB.get(this.currentTab.getCategory());
 		}
 		recipes.forEach((recipeList) -> {
-			recipeList.canCraft(this.stackedContents, this.craftingSlots.getWidth(), this.craftingSlots.getHeight(), this.recipeBook);
+			recipeList.canCraft(this.stackedContents, this.craftingSlots.getWidth(), this.craftingSlots.getHeight(),
+					this.recipeBook);
 		});
 		List<RecipeList> list = Lists.newArrayList(recipes);
 		list.removeIf((recipeList) -> {
@@ -387,7 +396,8 @@ extends GuiRecipeBook {
 		});
 		String s = this.searchBar.getText();
 		if (!s.isEmpty()) {
-			ObjectSet<RecipeList> objectset = new ObjectLinkedOpenHashSet<RecipeList>( this.mc.getSearchTree(SearchTreeManager.RECIPES).search(s.toLowerCase(Locale.ROOT)));
+			ObjectSet<RecipeList> objectset = new ObjectLinkedOpenHashSet<RecipeList>(
+					this.mc.getSearchTree(SearchTreeManager.RECIPES).search(s.toLowerCase(Locale.ROOT)));
 			list.removeIf((recipeList) -> {
 				return !objectset.contains(recipeList);
 			});
@@ -433,7 +443,5 @@ extends GuiRecipeBook {
 			}
 		}
 	}
-
-	public List<GuiNpcButtonRecipeTab> getRecipeTabs() { return this.recipeTabs; }
 
 }

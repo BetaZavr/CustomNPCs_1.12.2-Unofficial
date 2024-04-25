@@ -18,7 +18,8 @@ public class EntityAIOwnerHurtByTarget extends EntityAITarget {
 	}
 
 	public boolean shouldExecute() {
-		if (!this.npc.isFollower() || this.npc.advanced.roleInterface == null || !this.npc.advanced.roleInterface.defendOwner()) {
+		if (!this.npc.isFollower() || this.npc.advanced.roleInterface == null
+				|| !this.npc.advanced.roleInterface.defendOwner()) {
 			return false;
 		}
 		EntityLivingBase entitylivingbase = this.npc.getOwner();

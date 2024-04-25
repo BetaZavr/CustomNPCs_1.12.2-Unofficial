@@ -4,7 +4,7 @@ import net.minecraft.util.DamageSource;
 import noppes.npcs.api.entity.IEntity;
 
 public interface IDamageSource {
-	
+
 	IEntity<?> getImmediateSource();
 
 	DamageSource getMCDamageSource();
@@ -16,5 +16,5 @@ public interface IDamageSource {
 	boolean isProjectile();
 
 	boolean isUnblockable();
-	
+
 }

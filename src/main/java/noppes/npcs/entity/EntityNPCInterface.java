@@ -166,9 +166,8 @@ import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
 import noppes.npcs.util.ObfuscationHelper;
 
-public abstract class EntityNPCInterface
-extends EntityCreature
-implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
+public abstract class EntityNPCInterface extends EntityCreature
+		implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
 
 	public static FakePlayer ChatEventPlayer;
 	public static FakePlayer CommandPlayer;
@@ -176,14 +175,22 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public static GameProfileAlt ChatEventProfile = new GameProfileAlt();
 	public static GameProfileAlt CommandProfile = new GameProfileAlt();
 	public static GameProfileAlt GenericProfile = new GameProfileAlt();
-	protected static DataParameter<Integer> Animation = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.VARINT);
-	public static DataParameter<Boolean> Attacking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Integer> FactionData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.VARINT);
-	private static DataParameter<Boolean> Interacting = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Boolean> IsDead = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
-	private static DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
-	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
-	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	protected static DataParameter<Integer> Animation = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.VARINT);
+	public static DataParameter<Boolean> Attacking = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Integer> FactionData = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.VARINT);
+	private static DataParameter<Boolean> Interacting = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> IsDead = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.STRING);
+	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.STRING);
+	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class,
+			DataSerializers.BOOLEAN);
 	public DataAbilities abilities;
 	public DataDisplay display;
 	public DataStats stats;
@@ -200,7 +207,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public double field_20061_w, field_20062_v, field_20063_u, field_20064_t, field_20065_s, field_20066_r;
 	public boolean hasDied;
 	public List<EntityLivingBase> interactingEntities;
-	
+
 	// AIs
 	public EntityAICustom aiAttackTarget;
 	public final EntityAITargetController aiTargetAnalysis;
@@ -208,7 +215,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public EntityAILook lookAi;
 	public EntityNPCInterface aiOwnerNPC;
 	public boolean aiIsSneak;
-	
+
 	// New
 	public long killedtime;
 	public int lastInteract, homeDimensionId;
@@ -282,7 +289,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.initTime = System.currentTimeMillis();
 		}
 		this.aiTargetAnalysis = new EntityAITargetController(this);
-		if (world.isRemote) { CustomNpcs.proxy.checkTexture(this); }
+		if (world.isRemote) {
+			CustomNpcs.proxy.checkTexture(this);
+		}
 	}
 
 	public void addInteract(EntityLivingBase entity) {
@@ -356,10 +365,15 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean attackEntityAsMob(Entity par1Entity) {
 		float f = this.stats.melee.getStrength();
-		if (this.stats.melee.getDelay() < 10) { par1Entity.hurtResistantTime = 0; }
+		if (this.stats.melee.getDelay() < 10) {
+			par1Entity.hurtResistantTime = 0;
+		}
 		if (par1Entity instanceof EntityLivingBase) {
-			NpcEvent.MeleeAttackEvent event = new NpcEvent.MeleeAttackEvent(this.wrappedNPC, (EntityLivingBase) par1Entity, f);
-			if (EventHooks.onNPCAttacksMelee(this, event)) { return false; }
+			NpcEvent.MeleeAttackEvent event = new NpcEvent.MeleeAttackEvent(this.wrappedNPC,
+					(EntityLivingBase) par1Entity, f);
+			if (EventHooks.onNPCAttacksMelee(this, event)) {
+				return false;
+			}
 			f = event.damage;
 		}
 		boolean var4 = par1Entity.attackEntityFrom((DamageSource) new NpcDamageSource("mob", this), f);
@@ -368,7 +382,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				EntityUtil.setRecentlyHit((EntityLivingBase) par1Entity);
 			}
 			if (this.stats.melee.getKnockback() > 0) {
-				par1Entity.addVelocity((-MathHelper.sin(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback() * 0.5f), 0.1, (MathHelper.cos(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback() * 0.5f));
+				par1Entity.addVelocity(
+						(-MathHelper.sin(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback()
+								* 0.5f),
+						0.1, (MathHelper.cos(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback()
+								* 0.5f));
 				this.motionX *= 0.6;
 				this.motionZ *= 0.6;
 			}
@@ -387,13 +405,14 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		return var4;
 	}
-	
+
 	@Override
 	public boolean attackEntityFrom(DamageSource damagesource, float damage) {
 		if (this.world.isRemote || CustomNpcs.FreezeNPCs || damagesource.damageType.equals("inWall")) {
 			return false;
 		}
-		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing() && damagesource == DamageSource.FALL) {
+		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing()
+				&& damagesource == DamageSource.FALL) {
 			return false;
 		}
 		if (damagesource.damageType.equals("outOfWorld") && this.isKilled()) {
@@ -419,7 +438,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (npc.getOwner() instanceof EntityPlayer) {
 				this.recentlyHit = 100;
 			}
-		} else if (attackingEntity instanceof EntityPlayer && this.faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
+		} else if (attackingEntity instanceof EntityPlayer
+				&& this.faction.isFriendlyToPlayer((EntityPlayer) attackingEntity)) {
 			ForgeHooks.onLivingAttack(this, damagesource, damage);
 			return false;
 		}
@@ -429,24 +449,33 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			return false;
 		}
 		damage = event.damage;
-		if (this.isKilled()) { return false; }
-		if (damagesource.damageType.indexOf("inFire") != -1) { this.setFire(8); } // -> onFire
-		
+		if (this.isKilled()) {
+			return false;
+		}
+		if (damagesource.damageType.indexOf("inFire") != -1) {
+			this.setFire(8);
+		} // -> onFire
+
 		this.aiTargetAnalysis.addDamageFromEntity(attackingEntity, damage);
 		if (attackingEntity == null) {
 			return super.attackEntityFrom(damagesource, damage);
 		}
 		try {
-			if (!(attackingEntity instanceof EntityPlayer) || !((EntityPlayer) attackingEntity).capabilities.disableDamage) {
+			if (!(attackingEntity instanceof EntityPlayer)
+					|| !((EntityPlayer) attackingEntity).capabilities.disableDamage) {
 				if (damage > 0.0f) {
-					List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class, this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
+					List<EntityNPCInterface> inRange = this.world.getEntitiesWithinAABB(EntityNPCInterface.class,
+							this.getEntityBoundingBox().grow(32.0, 16.0, 32.0));
 					for (EntityNPCInterface npc : inRange) {
-						if (npc.equals(this)) { continue; }
+						if (npc.equals(this)) {
+							continue;
+						}
 						npc.advanced.tryDefendFaction(this.faction.id, this, attackingEntity);
 					}
 				}
 				if (this.isAttacking()) {
-					if (this.getAttackTarget() != null && attackingEntity != null && this.getDistance(this.getAttackTarget()) > this.getDistance(attackingEntity)) {
+					if (this.getAttackTarget() != null && attackingEntity != null
+							&& this.getDistance(this.getAttackTarget()) > this.getDistance(attackingEntity)) {
 						this.setAttackTarget(attackingEntity);
 					}
 					return super.attackEntityFrom(damagesource, damage);
@@ -470,9 +499,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.updateAI = true;
 			return;
 		}
-		NpcEvent.RangedLaunchedEvent event = new NpcEvent.RangedLaunchedEvent(this.wrappedNPC, entity, this.stats.ranged.getStrength());
+		NpcEvent.RangedLaunchedEvent event = new NpcEvent.RangedLaunchedEvent(this.wrappedNPC, entity,
+				this.stats.ranged.getStrength());
 		for (int i = 0; i < this.stats.ranged.getShotCount(); ++i) {
-			EntityProjectile projectile = this.shoot(entity, this.stats.ranged.getAccuracy(), proj, distanceFactor == 1.0f);
+			EntityProjectile projectile = this.shoot(entity, this.stats.ranged.getAccuracy(), proj,
+					distanceFactor == 1.0f);
 			projectile.damage = event.damage;
 			ItemStack stack = entity.getHeldItemMainhand();
 			projectile.callback = ((projectile_0, pos, entity1) -> {
@@ -480,27 +511,30 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 					Entity e = ItemSoulstoneFilled.Spawn(null, stack, this.world, pos);
 					if (e instanceof EntityLivingBase && entity1 instanceof EntityLivingBase) {
 						((EntityLivingBase) e).setRevengeTarget((EntityLivingBase) entity1);
-					}
-					else if (e instanceof EntityLiving && entity1 instanceof EntityLiving) {
+					} else if (e instanceof EntityLiving && entity1 instanceof EntityLiving) {
 						((EntityLiving) e).setRevengeTarget((EntityLiving) entity1);
 					}
 				}
 				SoundEvent se = this.stats.ranged.getSoundEvent((entity1 != null) ? 1 : 2);
 				String sound = this.stats.ranged.getSound((entity1 != null) ? 1 : 2);
 				float pitch = 1.2f / (this.getRNG().nextFloat() * 0.2f + 0.9f);
-				if (se != null) { projectile_0.playSound(se, 1.0f, pitch); }
-				else if (!sound.isEmpty()) {
+				if (se != null) {
+					projectile_0.playSound(se, 1.0f, pitch);
+				} else if (!sound.isEmpty()) {
 					BlockPos pos1 = new BlockPos(this.posX, this.posY, this.posZ);
-					Server.sendRangedData(this.world, pos1, 64, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, pos1.getX(), pos1.getY(), pos1.getZ(), 1.0f, pitch);
+					Server.sendRangedData(this.world, pos1, 64, EnumPacketClient.FORCE_PLAY_SOUND,
+							SoundCategory.NEUTRAL.ordinal(), sound, pos1.getX(), pos1.getY(), pos1.getZ(), 1.0f, pitch);
 				}
 				return false;
 			});
 			SoundEvent se = this.stats.ranged.getSoundEvent(0);
 			String sound = this.stats.ranged.getSound(0);
-			if (se != null) { this.playSound(se, 2.0f, 1.0f); }
-			else if (!sound.isEmpty()) {
+			if (se != null) {
+				this.playSound(se, 2.0f, 1.0f);
+			} else if (!sound.isEmpty()) {
 				BlockPos pos = new BlockPos(this.posX, this.posY, this.posZ);
-				Server.sendRangedData(this.world, pos, 64, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 2.0f, 1.0f);
+				Server.sendRangedData(this.world, pos, 64, EnumPacketClient.FORCE_PLAY_SOUND,
+						SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 2.0f, 1.0f);
 			}
 			event.projectiles.add((IProjectile<?>) NpcAPI.Instance().getIEntity(projectile));
 		}
@@ -513,7 +547,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			IBlockState state = this.world.getBlockState(pos);
 			AxisAlignedBB bb = state.getBoundingBox((IBlockAccess) this.world, pos).offset(pos);
 			if (bb != null) {
-				if (this.ais.movementType != 2 || startPos.getY() > pos.getY() || state.getMaterial() != Material.WATER) { return bb.maxY; }
+				if (this.ais.movementType != 2 || startPos.getY() > pos.getY()
+						|| state.getMaterial() != Material.WATER) {
+					return bb.maxY;
+				}
 				pos = pos.down();
 			} else {
 				pos = pos.down();
@@ -532,7 +569,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		}
 		return pos;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public boolean canAttackClass(Class par1Class) {
 		return EntityBat.class != par1Class;
@@ -541,7 +578,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public boolean canBeCollidedWith() {
 		return !this.isKilled() && this.display.getHasHitbox();
 	}
-	
+
 	public boolean canBeLeashedTo(EntityPlayer player) {
 		return false;
 	}
@@ -675,15 +712,28 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void fall(float distance, float modifier) {
-		if (!this.stats.noFallDamage || (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) { return; }
+		if (!this.stats.noFallDamage || (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER
+				&& this.advanced.roleInterface.isFollowing())) {
+			return;
+		}
 		super.fall(distance, modifier);
 	}
 
 	public int followRange() {
-		if (this.advanced.scenes.getOwner() != null) { return 4; }
-		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing()) { return 6; }
-		if (this.advanced.roleInterface.getEnumType() == RoleType.COMPANION && this.advanced.roleInterface.isFollowing()) { return 4; }
-		if (this.advanced.jobInterface.getEnumType() == JobType.FOLLOWER && this.advanced.jobInterface.isFollowing()) { return 4; }
+		if (this.advanced.scenes.getOwner() != null) {
+			return 4;
+		}
+		if (this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER
+				&& this.advanced.roleInterface.isFollowing()) {
+			return 6;
+		}
+		if (this.advanced.roleInterface.getEnumType() == RoleType.COMPANION
+				&& this.advanced.roleInterface.isFollowing()) {
+			return 4;
+		}
+		if (this.advanced.jobInterface.getEnumType() == JobType.FOLLOWER && this.advanced.jobInterface.isFollowing()) {
+			return 4;
+		}
 		return 15;
 	}
 
@@ -737,13 +787,19 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		Set<Integer> newDS = Sets.<Integer>newHashSet();
 		Dialog dialog = null;
 		for (int dialogId : this.dialogs) {
-			if (!DialogController.instance.hasDialog(dialogId)) { continue; }
+			if (!DialogController.instance.hasDialog(dialogId)) {
+				continue;
+			}
 			newDS.add(dialogId);
-			if (dialog!=null) { continue; }
+			if (dialog != null) {
+				continue;
+			}
 			Dialog d = (Dialog) DialogController.instance.get(dialogId);
-			if (d.availability.isAvailable(player)) { dialog = d; }
+			if (d.availability.isAvailable(player)) {
+				dialog = d;
+			}
 		}
-		if (newDS.size()!=this.dialogs.length) {
+		if (newDS.size() != this.dialogs.length) {
 			this.dialogs = new int[newDS.size()];
 			int i = 0;
 			for (int id : newDS) {
@@ -787,18 +843,27 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public ItemStack getHeldItemMainhand() {
 		IItemStack item = null;
-		if (this.isAttacking()) { item = this.inventory.getRightHand(); }
-		else if (this.advanced.roleInterface instanceof RoleCompanion) { item = ((RoleCompanion) this.advanced.roleInterface).getHeldItem(); }
-		else if (this.advanced.jobInterface.overrideMainHand) { item = this.advanced.jobInterface.getMainhand(); }
-		else { item = this.inventory.getRightHand(); }
+		if (this.isAttacking()) {
+			item = this.inventory.getRightHand();
+		} else if (this.advanced.roleInterface instanceof RoleCompanion) {
+			item = ((RoleCompanion) this.advanced.roleInterface).getHeldItem();
+		} else if (this.advanced.jobInterface.overrideMainHand) {
+			item = this.advanced.jobInterface.getMainhand();
+		} else {
+			item = this.inventory.getRightHand();
+		}
 		return ItemStackWrapper.MCItem(item);
 	}
 
 	public ItemStack getHeldItemOffhand() {
 		IItemStack item = null;
-		if (this.isAttacking()) { item = this.inventory.getLeftHand(); }
-		else if (this.advanced.jobInterface.overrideOffHand) { item = this.advanced.jobInterface.getOffhand(); }
-		else { item = this.inventory.getLeftHand(); }
+		if (this.isAttacking()) {
+			item = this.inventory.getLeftHand();
+		} else if (this.advanced.jobInterface.overrideOffHand) {
+			item = this.advanced.jobInterface.getOffhand();
+		} else {
+			item = this.inventory.getLeftHand();
+		}
 		return ItemStackWrapper.MCItem(item);
 	}
 
@@ -825,6 +890,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public String getName() {
+		if (display == null) {
+			return "Display is null!";
+		}
 		return this.display.getName();
 	}
 
@@ -904,7 +972,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.world.spawnEntity(entityitem);
 		int i = item.getCount();
 		if (player.inventory.addItemStackToInventory(item)) {
-			this.world.playSound((EntityPlayer) null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7f + 1.0f) * 2.0f);
+			this.world.playSound((EntityPlayer) null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ITEM_PICKUP,
+					SoundCategory.PLAYERS, 0.2f,
+					((this.rand.nextFloat() - this.rand.nextFloat()) * 0.7f + 1.0f) * 2.0f);
 			player.onItemPickup(entityitem, i);
 			if (item.getCount() <= 0) {
 				entityitem.setDead();
@@ -914,9 +984,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean hasOwner() {
 		return this.advanced.scenes.getOwner() != null
-				|| (this.advanced.roleInterface instanceof RoleFollower && ((RoleFollower) this.advanced.roleInterface).hasOwner())
-				|| (this.advanced.roleInterface instanceof RoleCompanion && ((RoleCompanion) this.advanced.roleInterface).hasOwner())
-				|| (this.advanced.jobInterface instanceof JobFollower && ((JobFollower) this.advanced.jobInterface).hasOwner());
+				|| (this.advanced.roleInterface instanceof RoleFollower
+						&& ((RoleFollower) this.advanced.roleInterface).hasOwner())
+				|| (this.advanced.roleInterface instanceof RoleCompanion
+						&& ((RoleCompanion) this.advanced.roleInterface).hasOwner())
+				|| (this.advanced.jobInterface instanceof JobFollower
+						&& ((JobFollower) this.advanced.jobInterface).hasOwner());
 	}
 
 	public boolean isAttacking() {
@@ -928,7 +1001,22 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isFollower() {
-		return this.advanced.scenes.getOwner() != null || this.advanced.roleInterface.isFollowing() || this.advanced.jobInterface.isFollowing();
+		return this.advanced.scenes.getOwner() != null || this.advanced.roleInterface.isFollowing()
+				|| this.advanced.jobInterface.isFollowing();
+	}
+
+	public boolean isFrend(Entity entityTarget) {
+		if (!(entityTarget instanceof EntityNPCInterface)) {
+			return false;
+		}
+		EntityNPCInterface npcTarget = (EntityNPCInterface) entityTarget;
+		if (this.faction.id == npcTarget.faction.id || npcTarget.faction.frendFactions.contains(this.faction.id)
+				|| npcTarget.advanced.frendFactions.contains(this.faction.id)
+				|| this.faction.frendFactions.contains(npcTarget.faction.id)
+				|| this.advanced.frendFactions.contains(npcTarget.faction.id)) {
+			return true;
+		}
+		return false;
 	}
 
 	public boolean isInRange(double posX, double posY, double posZ, double range) {
@@ -957,11 +1045,16 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isInvisibleToPlayer(EntityPlayer player) {
-		return this.isInvisible() && player.getHeldItemMainhand().getItem()!=CustomRegisters.wand && this.display.getAvailability().isAvailable(player);
+		return this.isInvisible() && player.getHeldItemMainhand().getItem() != CustomRegisters.wand
+				&& this.display.getAvailability().isAvailable(player);
 	}
 
 	public boolean isKilled() {
 		return this.isDead || (boolean) this.dataManager.get(EntityNPCInterface.IsDead);
+	}
+
+	public boolean isMoving() {
+		return this.motionX != 0.0d || this.motionZ != 0.0d || this.motionY <= -0.085d || this.motionY > 0.0d;
 	}
 
 	public boolean isOnSameTeam(Entity entity) {
@@ -980,7 +1073,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean isPlayerSleeping() {
-		return this.getHealth()<=0.0f || this.currentAnimation == 2 && !this.isAttacking() && this.getAttackingEntity() == null && this.navigating==null;
+		return this.getHealth() <= 0.0f || this.currentAnimation == 2 && !this.isAttacking()
+				&& this.getAttackingEntity() == null && this.navigating == null;
 	}
 
 	public boolean isPotionApplicable(PotionEffect effect) {
@@ -1025,7 +1119,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void onAttack(EntityLivingBase entity) {
-		if (entity == null || entity == this || this.isAttacking() || this.ais.onAttack == 3 || entity == this.getOwner()) { return; }
+		if (entity == null || entity == this || this.isAttacking() || this.ais.onAttack == 3
+				|| entity == this.getOwner()) {
+			return;
+		}
 		super.setAttackTarget(entity);
 	}
 
@@ -1058,18 +1155,27 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.extinguish();
 		this.clearActivePotions();
 		Entity attackingEntity = NoppesUtilServer.GetDamageSourcee(damagesource);
-		if (this.advanced.roleInterface!=null) { this.advanced.roleInterface.aiDeathExecute(attackingEntity); }
-		if (this.advanced.jobInterface!=null) { this.advanced.jobInterface.aiDeathExecute(attackingEntity); }
+		if (this.advanced.roleInterface != null) {
+			this.advanced.roleInterface.aiDeathExecute(attackingEntity);
+		}
+		if (this.advanced.jobInterface != null) {
+			this.advanced.jobInterface.aiDeathExecute(attackingEntity);
+		}
 		if (!this.isRemote()) {
 			this.advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
 			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity);
-			event.droppedItems = this.inventory.getItemsRNG((attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
-			event.lootedItems = this.inventory.getItemsRNGL((attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
+			event.droppedItems = this.inventory.getItemsRNG(
+					(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
+			event.lootedItems = this.inventory.getItemsRNGL(
+					(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
 			event.expDropped = this.inventory.getExpRNG();
 			event.line = this.advanced.getKilledLine();
-			if (this.advanced.roleInterface instanceof RoleFollower && !((RoleFollower) this.advanced.roleInterface).inventory.isEmpty()) {
+			if (this.advanced.roleInterface instanceof RoleFollower
+					&& !((RoleFollower) this.advanced.roleInterface).inventory.isEmpty()) {
 				for (ItemStack stack : ((RoleFollower) this.advanced.roleInterface).inventory.items) {
-					if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) { continue; }
+					if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) {
+						continue;
+					}
 					this.entityDropItem(stack, 0.0f);
 				}
 				((RoleFollower) this.advanced.roleInterface).inventory.clear();
@@ -1078,10 +1184,11 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.bossInfo.setVisible(false);
 			this.inventory.dropStuff(event, attackingEntity, damagesource);
 			if (event.line != null) {
-				this.saySurrounding(Line.formatTarget((Line) event.line, (attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
+				this.saySurrounding(Line.formatTarget((Line) event.line,
+						(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
 		}
-		if (this.animation.getActiveAnimation(AnimationKind.DIES)!=null) {
+		if (this.animation.getActiveAnimation(AnimationKind.DIES) != null) {
 			this.motionX = 0.0d;
 			this.motionY = 0.0d;
 			this.motionZ = 0.0d;
@@ -1101,13 +1208,17 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (!this.hasDied) {
 			this.setDead();
 		}
-		if (this.killedtime < System.currentTimeMillis() && (this.stats.spawnCycle == 0 || (this.world.isDaytime() && this.stats.spawnCycle == 1) || (!this.world.isDaytime() && this.stats.spawnCycle == 2))) {
+		if (this.killedtime < System.currentTimeMillis()
+				&& (this.stats.spawnCycle == 0 || (this.world.isDaytime() && this.stats.spawnCycle == 1)
+						|| (!this.world.isDaytime() && this.stats.spawnCycle == 2))) {
 			this.reset();
 		}
 	}
 
 	public void onLivingUpdate() {
-		if (CustomNpcs.FreezeNPCs) { return; }
+		if (CustomNpcs.FreezeNPCs) {
+			return;
+		}
 		CustomNpcs.debugData.startDebug(!this.world.isRemote ? "Server" : "Client", this, "NPCLivingUpdate");
 		if (this.isAIDisabled()) {
 			super.onLivingUpdate();
@@ -1134,7 +1245,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 					}
 				}
 				if (this.faction.getsAttacked && !this.isAttacking()) {
-					List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class, this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
+					List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class,
+							this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
 					for (EntityMob mob : list) {
 						if (mob.getAttackTarget() == null && this.canSee(mob)) {
 							mob.setAttackTarget(this);
@@ -1210,7 +1322,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (this.isKilled()) {
 				this.aiTargetAnalysis.map.clear();
 			} else {
-				if (this.width <= 1.0E-5f) { this.updateHitbox(); }
+				if (this.width <= 1.0E-5f) {
+					this.updateHitbox();
+				}
 			}
 			// Path change
 			Path path = this.getNavigator().getPath();
@@ -1220,16 +1334,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 						this.navigating = path;
 						this.updateNavClient();
 					}
-				}
-				else if (this.navigating != null) {
+				} else if (this.navigating != null) {
 					this.navigating = null;
 					this.updateNavClient();
 				}
 			}
 			if (this.ais.onAttack == 1) { // Panic
-				if ((this.isBurning() || this.getAttackTarget() != null) && (this.getNavigator().noPath() || !this.isMoving())) {
+				if ((this.isBurning() || this.getAttackTarget() != null)
+						&& (this.getNavigator().noPath() || !this.isMoving())) {
 					Vec3d vec = RandomPositionGenerator.findRandomTarget(this, 5, 4);
-					if (vec != null) { this.getNavigator().tryMoveToXYZ(vec.x, vec.y, vec.z, 1.3d); }
+					if (vec != null) {
+						this.getNavigator().tryMoveToXYZ(vec.x, vec.y, vec.z, 1.3d);
+					}
 				}
 			}
 			this.startYPos = this.calculateStartYPos(this.ais.startPos()) + 1.0;
@@ -1238,7 +1354,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 			EventHooks.onNPCTick(this);
 		}
-		if (this.deathTime > 0 || (this.getAttackTarget() instanceof EntityPlayer && ((EntityPlayer) this.getAttackTarget()).capabilities.disableDamage)) {
+		if (this.deathTime > 0 || (this.getAttackTarget() instanceof EntityPlayer
+				&& ((EntityPlayer) this.getAttackTarget()).capabilities.disableDamage)) {
 			super.setAttackTarget(null);
 		}
 		this.timers.update();
@@ -1251,10 +1368,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.deathTime = 19;
 		}
 		CustomNpcs.debugData.endDebug(!this.world.isRemote ? "Server" : "Client", this, "NPCUpdate");
-	}
-	
-	public boolean isMoving() {
-		return this.motionX != 0.0d || this.motionZ != 0.0d || this.motionY <= -0.085d || this.motionY > 0.0d;
 	}
 
 	protected void playHurtSound(DamageSource source) {
@@ -1277,12 +1390,17 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public boolean processInteract(EntityPlayer player, EnumHand hand) {
-		if (this.world.isRemote) { return !this.isAttacking(); }
-		if (hand != EnumHand.MAIN_HAND) { return true; }
+		if (this.world.isRemote) {
+			return !this.isAttacking();
+		}
+		if (hand != EnumHand.MAIN_HAND) {
+			return true;
+		}
 		ItemStack stack = player.getHeldItem(hand);
 		if (stack != null) {
 			Item item = stack.getItem();
-			if (item == CustomRegisters.cloner || item == CustomRegisters.wand || item == CustomRegisters.mount || item == CustomRegisters.scripter) {
+			if (item == CustomRegisters.cloner || item == CustomRegisters.wand || item == CustomRegisters.mount
+					|| item == CustomRegisters.scripter) {
 				this.setAttackTarget(null);
 				this.setRevengeTarget(null);
 				return true;
@@ -1290,8 +1408,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (item == CustomRegisters.moving) {
 				this.setAttackTarget(null);
 				stack.setTagInfo("NPCID", new NBTTagInt(this.getEntityId()));
-				player.sendMessage(new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVINGPATH, this.getEntityId(), this.ais.writeToNBT(new NBTTagCompound()));
+				player.sendMessage(
+						new TextComponentTranslation("message.pather.reg", this.getName(), stack.getDisplayName()));
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.NPC_MOVINGPATH, this.getEntityId(),
+						this.ais.writeToNBT(new NBTTagCompound()));
 				return true;
 			}
 		}
@@ -1305,7 +1425,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		Dialog dialog = this.getDialog(player);
 		PlayerData pd = PlayerData.get(player);
 		if (!this.faction.getIsHidden() && !pd.factionData.factionData.containsKey(this.faction.id)) {
-			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent((PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player), this.faction, this.faction.defaultPoints, true);
+			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(
+					(PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player), this.faction, this.faction.defaultPoints,
+					true);
 			EventHooks.OnPlayerFactionChange(PlayerData.get(player).scriptData, event);
 			pd.factionData.factionData.put(this.faction.id, event.points);
 		}
@@ -1314,7 +1436,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.QUEST_COMPLETION, data.quest.id);
 		} else if (dialog != null) {
 			NoppesUtilServer.openDialog(player, this, dialog);
-		} else if (this.advanced.roleInterface.getType()>0) {
+		} else if (this.advanced.roleInterface.getType() > 0) {
 			this.advanced.roleInterface.interact(player);
 		} else {
 			this.say(player, this.advanced.getInteractLine());
@@ -1338,15 +1460,62 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.killedtime = compound.getLong("KilledTime");
 		this.totalTicksAlive = compound.getLong("TotalTicksAlive");
 		this.linkedName = compound.getString("LinkedNpcName");
-		if (!this.isRemote()) { LinkedNpcController.Instance.loadNpcData(this); }
+		if (!this.isRemote()) {
+			LinkedNpcController.Instance.loadNpcData(this);
+		}
 		this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(CustomNpcs.NpcNavRange);
 		this.updateAI = true;
-		if (compound.hasKey("HomeDimensionId", 3)) { this.homeDimensionId = compound.getInteger("HomeDimensionId"); }
+		if (compound.hasKey("HomeDimensionId", 3)) {
+			this.homeDimensionId = compound.getInteger("HomeDimensionId");
+		}
 	}
 
 	public void readSpawnData(ByteBuf buf) {
-		try { this.readSpawnData(Server.readNBT(buf)); }
-		catch (IOException ex) { }
+		try {
+			this.readSpawnData(Server.readNBT(buf));
+		} catch (IOException ex) {
+		}
+	}
+
+	public void readSpawnData(NBTTagCompound compound) {
+		this.display.readToNBT(compound);
+		this.animation.load(compound);
+		this.stats.setLevel(compound.getInteger("NPCLevel"));
+		this.stats.setRarity(compound.getInteger("NPCRarity"));
+		this.stats.setRarityTitle(compound.getString("NPCRarityTitle"));
+		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
+		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
+		this.stats.aggroRange = compound.getInteger("AggroRange");
+		if (this.stats.aggroRange < 1) {
+			this.stats.aggroRange = 1;
+		}
+		IAttributeInstance follow_range = this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+		if (follow_range != null) {
+			follow_range.setBaseValue(this.stats.aggroRange);
+		}
+		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
+		this.ais.setStandingType(compound.getInteger("StandingState"));
+		this.ais.setMovingType(compound.getInteger("MovingState"));
+		this.ais.orientation = compound.getInteger("Orientation");
+		this.ais.bodyOffsetX = compound.getFloat("PositionXOffset");
+		this.ais.bodyOffsetY = compound.getFloat("PositionYOffset");
+		this.ais.bodyOffsetZ = compound.getFloat("PositionZOffset");
+		this.inventory.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
+		this.inventory.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
+		if (this.advanced.jobInterface instanceof JobBard) {
+			NBTTagCompound bard = compound.getCompoundTag("Bard");
+			this.advanced.jobInterface.readFromNBT(bard);
+		}
+		if (this.advanced.jobInterface instanceof JobFollower) {
+			NBTTagCompound follower = compound.getCompoundTag("Companion");
+			this.advanced.jobInterface.readFromNBT(follower);
+		}
+		if (this instanceof EntityCustomNpc) {
+			((EntityCustomNpc) this).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
+		}
+		this.advanced.readToNBT(compound);
+		this.dataManager.set(EntityNPCInterface.IsDead, compound.getBoolean("IsDead"));
+		this.deathTime = compound.getInteger("DeathTime");
 	}
 
 	public void removeTrackingPlayer(EntityPlayerMP player) {
@@ -1354,10 +1523,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.bossInfo.removePlayer(player);
 	}
 
-	public void reset(int delay) {
-		CustomNPCsScheduler.runTack(() -> { this.reset(); }, delay);	
-	}
-	
 	public void reset() {
 		this.hasDied = false;
 		this.isDead = false;
@@ -1377,20 +1542,23 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.deathTime = 0;
 		this.setFire(0);
 		this.aiTargetAnalysis.map.clear();
-		if (this.ais.returnToStart && (this.advanced.jobInterface instanceof JobFollower || !this.hasOwner()) && !this.isRemote() && !this.isRiding()) {
+		if (this.ais.returnToStart && (this.advanced.jobInterface instanceof JobFollower || !this.hasOwner())
+				&& !this.isRemote() && !this.isRiding()) {
 			double x = this.getStartXPos();
 			double y = this.getStartYPos();
 			double z = this.getStartZPos();
-			if (this.world!=null) {
+			if (this.world != null) {
 				BlockPos pos = new BlockPos(x, y, z);
 				IBlockState state = this.world.getBlockState(pos);
 				if (state.getBlock().isPassable(this.world, pos)) { // possibly high
-					for (int i = (int) y; i >=0; i--) {
+					for (int i = (int) y; i >= 0; i--) {
 						pos = pos.down();
 						state = this.world.getBlockState(pos);
 						if (!state.getBlock().isPassable(this.world, pos)) {
 							pos = pos.up();
-							if (y - pos.getY() < 3) { y = (double) pos.getY(); }
+							if (y - pos.getY() < 3) {
+								y = (double) pos.getY();
+							}
 							break;
 						}
 					}
@@ -1414,23 +1582,38 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.bossInfo.setVisible(this.display.getBossbar() == 1);
 		this.advanced.jobInterface.reset();
 		this.animation.reset();
-		if (this.isRemote()) { this.animation.startAnimation(AnimationKind.INIT.get()); }
+		if (this.isRemote()) {
+			this.animation.startAnimation(AnimationKind.INIT.get());
+		}
 		this.updateClient = true;
-		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension() && !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER && this.advanced.roleInterface.isFollowing())) {
+		if (this.ais.returnToStart && this.homeDimensionId != this.world.provider.getDimension()
+				&& !(this.advanced.roleInterface.getEnumType() == RoleType.FOLLOWER
+						&& this.advanced.roleInterface.isFollowing())) {
 			try {
-				AdditionalMethods.teleportEntity(this.world.getMinecraftServer(), this, homeDimensionId, this.posX, this.posY, this.posZ);
+				AdditionalMethods.teleportEntity(this.world.getMinecraftServer(), this, homeDimensionId, this.posX,
+						this.posY, this.posZ);
+			} catch (CommandException e) {
+				e.printStackTrace();
 			}
-			catch (CommandException e) {e.printStackTrace(); }
 		}
 		this.stepHeight = this.ais.stepheight;
 		EventHooks.onNPCInit(this);
 	}
 
+	public void reset(int delay) {
+		CustomNPCsScheduler.runTack(() -> {
+			this.reset();
+		}, delay);
+	}
+
 	public void say(EntityPlayer player, Line line) {
-		if (line == null || !this.getEntitySenses().canSee(player)) { return; }
+		if (line == null || !this.getEntitySenses().canSee(player)) {
+			return;
+		}
 		if (!line.getSound().isEmpty()) {
 			BlockPos pos = this.getPosition();
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.PLAY_SOUND, line.getSound(), pos.getX(), pos.getY(), pos.getZ(), this.getSoundVolume(), this.getSoundPitch());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.PLAY_SOUND, line.getSound(), pos.getX(),
+					pos.getY(), pos.getZ(), this.getSoundVolume(), this.getSoundPitch());
 		}
 		boolean isEmpty = line.getText().isEmpty();
 		if (!isEmpty) {
@@ -1443,20 +1626,26 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			}
 		}
 		if (!isEmpty) {
-			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHATBUBBLE, this.getEntityId(), line.getText(), line.getShowText());
+			Server.sendData((EntityPlayerMP) player, EnumPacketClient.CHATBUBBLE, this.getEntityId(), line.getText(),
+					line.getShowText());
 		}
 	}
 
 	public void saySurrounding(Line line) {
-		if (line == null) { return; }
+		if (line == null) {
+			return;
+		}
 		if (line.getShowText() && !line.getText().isEmpty()) {
-			ServerChatEvent event = new ServerChatEvent(this.getFakeChatPlayer(), line.getText(), new TextComponentTranslation(line.getText().replace("%", "%%"), new Object[0]));
-			if (CustomNpcs.NpcSpeachTriggersChatEvent && (MinecraftForge.EVENT_BUS.post((Event) event) || event.getComponent() == null)) {
+			ServerChatEvent event = new ServerChatEvent(this.getFakeChatPlayer(), line.getText(),
+					new TextComponentTranslation(line.getText().replace("%", "%%"), new Object[0]));
+			if (CustomNpcs.NpcSpeachTriggersChatEvent
+					&& (MinecraftForge.EVENT_BUS.post((Event) event) || event.getComponent() == null)) {
 				return;
 			}
 			line.setText(event.getComponent().getUnformattedText().replace("%%", "%"));
 		}
-		List<EntityPlayer> inRange = this.world.getEntitiesWithinAABB(EntityPlayer.class, this.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
+		List<EntityPlayer> inRange = this.world.getEntitiesWithinAABB(EntityPlayer.class,
+				this.getEntityBoundingBox().grow(20.0, 20.0, 20.0));
 		for (EntityPlayer player : inRange) {
 			this.say(player, line);
 		}
@@ -1477,7 +1666,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public void setAttackTarget(EntityLivingBase entityTarget) {
-		if (this.getAttackTarget() == entityTarget) { return; }
+		if (this.getAttackTarget() == entityTarget) {
+			return;
+		}
 		// Next sets
 		if (entityTarget instanceof EntityPlayer && ((EntityPlayer) entityTarget).capabilities.disableDamage) {
 			return;
@@ -1509,28 +1700,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				return;
 			}
 		}
-		if (entityTarget != null && entityTarget != this && this.ais.onAttack != 3 && !this.isAttacking() && !this.isRemote()) {
+		if (entityTarget != null && entityTarget != this && this.ais.onAttack != 3 && !this.isAttacking()
+				&& !this.isRemote()) {
 			Line line = this.advanced.getAttackLine();
 			if (line != null) {
 				this.saySurrounding(Line.formatTarget(line, entityTarget));
 			}
 		}
-		if (entityTarget == null) { this.aiTargetAnalysis.map.clear(); }
+		if (entityTarget == null) {
+			this.aiTargetAnalysis.map.clear();
+		}
 		super.setAttackTarget(entityTarget);
 		this.updateTargetClient();
-	}
-
-	public boolean isFrend(Entity entityTarget) {
-		if (!(entityTarget instanceof EntityNPCInterface)) { return false; }
-		EntityNPCInterface npcTarget = (EntityNPCInterface) entityTarget;
-		if (this.faction.id == npcTarget.faction.id ||
-				npcTarget.faction.frendFactions.contains(this.faction.id) ||
-				npcTarget.advanced.frendFactions.contains(this.faction.id) ||
-				this.faction.frendFactions.contains(npcTarget.faction.id) ||
-				this.advanced.frendFactions.contains(npcTarget.faction.id)) {
-			return true;
-		}
-		return false;
 	}
 
 	public void setCurrentAnimation(int animation) {
@@ -1620,41 +1801,51 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.aiAttackTarget = null;
 		this.aiIsSneak = false;
 		this.aiOwnerNPC = null;
-		if (this.ais.canSprint) { this.tasks.addTask(this.taskCount++,  new EntityAISprintToTarget(this)); }
+		if (this.ais.canSprint) {
+			this.tasks.addTask(this.taskCount++, new EntityAISprintToTarget(this));
+		}
 		if (this.ais.onAttack == 2) { // Avoid
 			this.tasks.addTask(this.taskCount++, this.aiAttackTarget = new EntityAIAvoidTarget(this));
-		}
-		else if (this.ais.onAttack == 0) { // Attack
-			if (this.ais.canLeap) { this.tasks.addTask(this.taskCount++, new EntityAIPounceTarget(this)); } // can Jump
+		} else if (this.ais.onAttack == 0) { // Attack
+			if (this.ais.canLeap) {
+				this.tasks.addTask(this.taskCount++, new EntityAIPounceTarget(this));
+			} // can Jump
 			switch (this.ais.tacticalVariant) {
-				case 0: {
-					this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAIOnslaught((IRangedAttackMob) this)));
-					break;
-				}
-				case 1: {
-					this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAIDodge((IRangedAttackMob) this)));
-					break;
-				}
-				case 2: {
-					this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAISurround((IRangedAttackMob) this)));
-					break;
-				}
-				case 3: {
-					this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAIHitAndRun((IRangedAttackMob) this)));
-					break;
-				}
-				case 4: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) (this.aiAttackTarget = new EntityAICommanderTarget((IRangedAttackMob) this)));
-					break;
-				}
-				case 5: {
-					this.tasks.addTask(this.taskCount++, (EntityAIBase) (this.aiAttackTarget = new EntityAIStalkTarget((IRangedAttackMob) this)));
-					break;
-				}
-				default: {
-					this.tasks.addTask(this.taskCount++, (this.aiAttackTarget = new EntityAINoTactic((IRangedAttackMob) this)));
-					break;
-				}
+			case 0: {
+				this.tasks.addTask(this.taskCount++,
+						(this.aiAttackTarget = new EntityAIOnslaught((IRangedAttackMob) this)));
+				break;
+			}
+			case 1: {
+				this.tasks.addTask(this.taskCount++,
+						(this.aiAttackTarget = new EntityAIDodge((IRangedAttackMob) this)));
+				break;
+			}
+			case 2: {
+				this.tasks.addTask(this.taskCount++,
+						(this.aiAttackTarget = new EntityAISurround((IRangedAttackMob) this)));
+				break;
+			}
+			case 3: {
+				this.tasks.addTask(this.taskCount++,
+						(this.aiAttackTarget = new EntityAIHitAndRun((IRangedAttackMob) this)));
+				break;
+			}
+			case 4: {
+				this.tasks.addTask(this.taskCount++,
+						(EntityAIBase) (this.aiAttackTarget = new EntityAICommanderTarget((IRangedAttackMob) this)));
+				break;
+			}
+			case 5: {
+				this.tasks.addTask(this.taskCount++,
+						(EntityAIBase) (this.aiAttackTarget = new EntityAIStalkTarget((IRangedAttackMob) this)));
+				break;
+			}
+			default: {
+				this.tasks.addTask(this.taskCount++,
+						(this.aiAttackTarget = new EntityAINoTactic((IRangedAttackMob) this)));
+				break;
+			}
 			}
 			this.tasks.addTask(this.taskCount++, new EntityAITargetCannotBeReached(this));
 		}
@@ -1683,7 +1874,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public EntityProjectile shoot(EntityLivingBase entity, int accuracy, ItemStack proj, boolean indirect) {
-		return this.shoot(entity.posX, entity.getEntityBoundingBox().minY + entity.height / 2.0f, entity.posZ, accuracy, proj, indirect);
+		return this.shoot(entity.posX, entity.getEntityBoundingBox().minY + entity.height / 2.0f, entity.posZ, accuracy,
+				proj, indirect);
 	}
 
 	public boolean shouldDismountInWater(Entity rider) {
@@ -1724,8 +1916,31 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		double d3 = this.posZ;
 		super.travel(f1, f2, f3);
 		if (this.advanced.roleInterface instanceof RoleCompanion && !this.isRemote()) {
-			((RoleCompanion) this.advanced.roleInterface).addMovementStat(this.posX - d0, this.posY - d2, this.posZ - d3);
+			((RoleCompanion) this.advanced.roleInterface).addMovementStat(this.posX - d0, this.posY - d2,
+					this.posZ - d3);
 		}
+	}
+
+	public void updateAiClient() {
+		if (!this.isServerWorld() || this.aiAttackTarget == null) {
+			return;
+		}
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("EntityId", this.getEntityId());
+		this.aiAttackTarget.writeToClientNBT(compound);
+		if (compound.getKeySet().size() > 1) {
+			Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_AI_TARGET, compound);
+		}
+	}
+
+	public void updateAnimationClient() {
+		if (!this.isServerWorld()) {
+			return;
+		}
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("EntityId", this.getEntityId());
+		compound.setInteger("baseanim", this.currentAnimation);
+		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_ANIMATION, 4, compound);
 	}
 
 	public void updateClient() {
@@ -1736,40 +1951,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.updateNavClient();
 	}
 
-	public void updateNavClient() {
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("EntityId", this.getEntityId());
-		compound.setBoolean("IsNavigating", this.navigating != null);
-		if (this.navigating != null) {
-			compound.setTag("Navigating", Server.writePathToNBT(this.navigating));
-		}
-		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_NAVIGATION, compound);
-	}
-
-	public void updateTargetClient() {
-		if (!this.isServerWorld()) { return; }
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("EntityId", this.getEntityId());
-		if (this.getAttackTarget()!=null) { compound.setInteger("target", this.getAttackTarget().getEntityId()); }
-		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_TARGET, compound);
-	}
-
-	public void updateAnimationClient() {
-		if (!this.isServerWorld()) { return; }
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("EntityId", this.getEntityId());
-		compound.setInteger("baseanim", this.currentAnimation);
-		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_ANIMATION, 4, compound);
-	}
-
-	public void updateAiClient() {
-		if (!this.isServerWorld() || this.aiAttackTarget == null) { return; }
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setInteger("EntityId", this.getEntityId());
-		this.aiAttackTarget.writeToClientNBT(compound);
-		if (compound.getKeySet().size()>1) { Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_AI_TARGET, compound); }
-	}
-	
 	public void updateHitbox() {
 		if (this.currentAnimation == 2 || this.currentAnimation == 7 || this.deathTime > 0) {
 			this.width = 0.8f;
@@ -1781,7 +1962,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.width = 0.6f;
 			this.height = this.baseHeight;
 		}
-		if (this.display.getModel()==null && this instanceof EntityCustomNpc) {
+		if (this.display.getModel() == null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
 			ModelPartConfig model = modeldata.getPartConfig(EnumParts.HEAD);
 			float scaleHead = model.scaleBase[0] > model.scaleBase[2] ? model.scaleBase[0] : model.scaleBase[2];
@@ -1795,13 +1976,41 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.width = 1.0E-5f;
 		}
 		double n = this.width / 2.0f;
-		if (n > World.MAX_ENTITY_RADIUS) { World.MAX_ENTITY_RADIUS = n; }
-		if (this.getHealth() == 0) { return; }
+		if (n > World.MAX_ENTITY_RADIUS) {
+			World.MAX_ENTITY_RADIUS = n;
+		}
+		if (this.getHealth() == 0) {
+			return;
+		}
 		this.setPosition(this.posX, this.posY, this.posZ);
 	}
 
+	public void updateNavClient() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("EntityId", this.getEntityId());
+		compound.setBoolean("IsNavigating", this.navigating != null);
+		if (this.navigating != null) {
+			compound.setTag("Navigating", Server.writePathToNBT(this.navigating));
+		}
+		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_NAVIGATION, compound);
+	}
+
+	public void updateTargetClient() {
+		if (!this.isServerWorld()) {
+			return;
+		}
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("EntityId", this.getEntityId());
+		if (this.getAttackTarget() != null) {
+			compound.setInteger("target", this.getAttackTarget().getEntityId());
+		}
+		Server.sendAssociatedData(this, EnumPacketClient.UPDATE_NPC_TARGET, compound);
+	}
+
 	private void updateTasks() {
-		if (this.world == null || this.world.isRemote) { return; }
+		if (this.world == null || this.world.isRemote) {
+			return;
+		}
 		this.clearTasks(this.tasks);
 		this.clearTasks(this.targetTasks);
 		if (this.isKilled()) {
@@ -1810,7 +2019,8 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		Predicate<EntityLivingBase> attackEntitySelector = new NPCAttackSelector(this);
 		this.targetTasks.addTask(0, new EntityAIClearTarget(this));
 		this.targetTasks.addTask(1, new EntityAIHurtByTarget((EntityCreature) this, false, new Class[0]));
-		this.targetTasks.addTask(2, new EntityAIClosestTarget(this, EntityLivingBase.class, 4, this.ais.directLOS, false, attackEntitySelector));
+		this.targetTasks.addTask(2, new EntityAIClosestTarget(this, EntityLivingBase.class, 4, this.ais.directLOS,
+				false, attackEntitySelector));
 		this.targetTasks.addTask(3, new EntityAIOwnerHurtByTarget(this));
 		this.targetTasks.addTask(4, new EntityAIOwnerHurtTarget(this));
 		PathWorldListener pwl = ObfuscationHelper.getValue(World.class, this.world, 23);
@@ -1826,11 +2036,19 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			this.navigator = new PathNavigateGround(this, this.world);
 			this.tasks.addTask(0, new EntityAIWaterNav(this));
 		}
-		/*PathFinder pathFinder = ObfuscationHelper.getValue(PathNavigate.class, this.navigator, PathFinder.class);
-		NodeProcessor nodeProcessor = ObfuscationHelper.getValue(PathFinder.class, pathFinder, NodeProcessor.class);
-		if (nodeProcessor instanceof FlyingNodeProcessor) { ObfuscationHelper.setValue(PathFinder.class, pathFinder, new CustomFlyingNodeProcessor(this), NodeProcessor.class); }
-		else if (nodeProcessor instanceof SwimNodeProcessor) { ObfuscationHelper.setValue(PathFinder.class, pathFinder, new CustomSwimNodeProcessor(this), NodeProcessor.class); }
-		else if (nodeProcessor instanceof WalkNodeProcessor) { ObfuscationHelper.setValue(PathFinder.class, pathFinder, new CustomWalkNodeProcessor(this), NodeProcessor.class); }*/
+		/*
+		 * PathFinder pathFinder = ObfuscationHelper.getValue(PathNavigate.class,
+		 * this.navigator, PathFinder.class); NodeProcessor nodeProcessor =
+		 * ObfuscationHelper.getValue(PathFinder.class, pathFinder,
+		 * NodeProcessor.class); if (nodeProcessor instanceof FlyingNodeProcessor) {
+		 * ObfuscationHelper.setValue(PathFinder.class, pathFinder, new
+		 * CustomFlyingNodeProcessor(this), NodeProcessor.class); } else if
+		 * (nodeProcessor instanceof SwimNodeProcessor) {
+		 * ObfuscationHelper.setValue(PathFinder.class, pathFinder, new
+		 * CustomSwimNodeProcessor(this), NodeProcessor.class); } else if (nodeProcessor
+		 * instanceof WalkNodeProcessor) { ObfuscationHelper.setValue(PathFinder.class,
+		 * pathFinder, new CustomWalkNodeProcessor(this), NodeProcessor.class); }
+		 */
 		pwl.onEntityAdded(this);
 		this.taskCount = 1;
 		this.addRegularEntries();
@@ -1840,43 +2058,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.setMoveType();
 	}
 
-	public void readSpawnData(NBTTagCompound compound) {
-		this.display.readToNBT(compound);
-		this.animation.load(compound);
-		this.stats.setLevel(compound.getInteger("NPCLevel"));
-		this.stats.setRarity(compound.getInteger("NPCRarity"));
-		this.stats.setRarityTitle(compound.getString("NPCRarityTitle"));
-		this.stats.setMaxHealth(compound.getInteger("MaxHealth"));
-		this.stats.hideKilledBody = compound.getBoolean("DeadBody");
-		this.stats.aggroRange = compound.getInteger("AggroRange");
-		if (this.stats.aggroRange < 1) { this.stats.aggroRange = 1; }
-		IAttributeInstance follow_range = this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-		if (follow_range!=null) { follow_range.setBaseValue(this.stats.aggroRange); }
-		this.ais.setWalkingSpeed(compound.getInteger("Speed"));
-		this.ais.setStandingType(compound.getInteger("StandingState"));
-		this.ais.setMovingType(compound.getInteger("MovingState"));
-		this.ais.orientation = compound.getInteger("Orientation");
-		this.ais.bodyOffsetX = compound.getFloat("PositionXOffset");
-		this.ais.bodyOffsetY = compound.getFloat("PositionYOffset");
-		this.ais.bodyOffsetZ = compound.getFloat("PositionZOffset");
-		this.inventory.armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
-		this.inventory.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
-		if (this.advanced.jobInterface instanceof JobBard) {
-			NBTTagCompound bard = compound.getCompoundTag("Bard");
-			this.advanced.jobInterface.readFromNBT(bard);
-		}
-		if (this.advanced.jobInterface instanceof JobFollower) {
-			NBTTagCompound follower = compound.getCompoundTag("Companion");
-			this.advanced.jobInterface.readFromNBT(follower);
-		}
-		if (this instanceof EntityCustomNpc) {
-			((EntityCustomNpc) this).modelData.readFromNBT(compound.getCompoundTag("ModelData"));
-		}
-		this.advanced.readToNBT(compound);
-		this.dataManager.set(EntityNPCInterface.IsDead, compound.getBoolean("IsDead"));
-		this.deathTime = compound.getInteger("DeathTime");
-	}
-	
 	public void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
 		this.display.writeToNBT(compound);
@@ -1942,5 +2123,5 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			e.printStackTrace();
 		}
 	}
-    
+
 }

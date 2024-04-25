@@ -44,7 +44,8 @@ public class EntityAILook extends EntityAIBase {
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isAttacking() && this.npc.getNavigator().noPath() && !this.npc.isPlayerSleeping() && this.npc.isEntityAlive();
+		return !this.npc.isAttacking() && this.npc.getNavigator().noPath() && !this.npc.isPlayerSleeping()
+				&& this.npc.isEntityAlive();
 	}
 
 	public void startExecuting() {

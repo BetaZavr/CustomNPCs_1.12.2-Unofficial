@@ -15,13 +15,48 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCManageMail
-extends GuiNPCInterface2
-implements IGuiData, ITextfieldListener {
-	
+public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITextfieldListener {
+
 	public GuiNPCManageMail(EntityNPCInterface npc) {
 		super(npc);
 		Client.sendData(EnumPacketServer.PlayerMailsGet, new Object[0]);
+	}
+
+	@Override
+	public void buttonEvent(GuiNpcButton button) {
+		if (button.id == 0) {
+			CustomNpcs.MailSendToYourself = ((GuiNpcCheckBox) button).isSelected();
+		}
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.deleted.time").getFormattedText());
+		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.min.send.time").getFormattedText());
+		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.max.send.time").getFormattedText());
+		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.cost.0")
+					.appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
+		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.cost.1")
+					.appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
+		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.cost.2")
+					.appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
+		} else if (this.getTextField(6) != null && this.getTextField(6).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.cost.3")
+					.appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
+		} else if (this.getTextField(7) != null && this.getTextField(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("mail.hover.cost.4")
+					.appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
+		}
 	}
 
 	@Override
@@ -30,10 +65,11 @@ implements IGuiData, ITextfieldListener {
 		int lID = 0, x0 = this.guiLeft + 10, x1 = x0 + 80, y = this.guiTop + 20;
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.days", x0, y + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "follower.days", x1 + 65, y + 5));
-		this.addTextField(new GuiNpcTextField(0, this, x1, y, 60, 20, "" + CustomNpcs.MailTimeWhenLettersWillBeDeleted));
+		this.addTextField(
+				new GuiNpcTextField(0, this, x1, y, 60, 20, "" + CustomNpcs.MailTimeWhenLettersWillBeDeleted));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, 60, CustomNpcs.MailTimeWhenLettersWillBeDeleted);
-		
+
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.rec", x0, (y += 24) + 5));
 		int[] vd = CustomNpcs.MailTimeWhenLettersWillBeReceived;
 		if (vd[0] > vd[1]) {
@@ -52,7 +88,7 @@ implements IGuiData, ITextfieldListener {
 		this.addTextField(new GuiNpcTextField(2, this, x1, y, 60, 20, "" + vd[1]));
 		this.getTextField(2).setNumbersOnly();
 		this.getTextField(2).setMinMaxDefault(1, 3600, vd[1]);
-		
+
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.costs", x0, (y += 24) + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.0", x0, (y += 16) + 5));
 		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x1 + 65, y + 5));
@@ -83,40 +119,21 @@ implements IGuiData, ITextfieldListener {
 		this.addTextField(new GuiNpcTextField(7, this, x3, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[4]));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, 100, CustomNpcs.MailCostSendingLetter[4]);
-		
-		this.addButton(new GuiNpcCheckBox(0, x0, (y += 24), 200, 14, "mail.send.yourself", CustomNpcs.MailSendToYourself));
+
+		this.addButton(
+				new GuiNpcCheckBox(0, x0, (y += 24), 200, 14, "mail.send.yourself", CustomNpcs.MailSendToYourself));
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.hasSubGui() || !CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.deleted.time").getFormattedText());
-		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.min.send.time").getFormattedText());
-		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.max.send.time").getFormattedText());
-		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.cost.0").appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
-		} else if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.cost.1").appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
-		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.cost.2").appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
-		} else if (this.getTextField(6) != null && this.getTextField(6).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.cost.3").appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
-		} else if (this.getTextField(7) != null && this.getTextField(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("mail.hover.cost.4").appendSibling(new TextComponentTranslation("mail.hover.cost")).getFormattedText());
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui == null) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
 		}
+		super.keyTyped(c, i);
 	}
 
-	@Override
-	public void buttonEvent(GuiNpcButton button) {
-		if (button.id == 0) {
-			CustomNpcs.MailSendToYourself = ((GuiNpcCheckBox) button).isSelected();
-		}
-	}
-	
 	@Override
 	public void save() {
 		NBTTagCompound compound = new NBTTagCompound();
@@ -138,16 +155,6 @@ implements IGuiData, ITextfieldListener {
 		}
 		this.initGui();
 	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
-	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
@@ -155,44 +162,50 @@ implements IGuiData, ITextfieldListener {
 			this.initGui();
 			return;
 		}
-		switch(textField.getId()) {
-			case 0: {
-				int v = textField.getInteger();
-				if (v == 0) { v = 1; }
-				CustomNpcs.MailTimeWhenLettersWillBeDeleted = v;
-				break;
+		switch (textField.getId()) {
+		case 0: {
+			int v = textField.getInteger();
+			if (v == 0) {
+				v = 1;
 			}
-			case 1: {
-				if (this.getTextField(2) == null) { return; }
-				GuiNpcTextField textField2 = this.getTextField(2);
-				int[] vd = new int[] { textField.getInteger(), textField2.getInteger() };
-				if (vd[0] > vd[1]) {
-					int m = new Integer(vd[0]);
-					vd[0] = vd[1];
-					vd[1] = m;
-				}
-				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
-				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
-				textField.setText("" + vd[0]);
-				textField2.setText("" + vd[1]);
-				break;
+			CustomNpcs.MailTimeWhenLettersWillBeDeleted = v;
+			break;
+		}
+		case 1: {
+			if (this.getTextField(2) == null) {
+				return;
 			}
-			case 2: {
-				if (this.getTextField(1) == null) { return; }
-				GuiNpcTextField textField1 = this.getTextField(1);
-				int[] vd = new int[] { textField1.getInteger(), textField.getInteger() };
-				if (vd[0] > vd[1]) {
-					int m = new Integer(vd[0]);
-					vd[0] = vd[1];
-					vd[1] = m;
-				}
-				CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
-				CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
-				textField1.setText("" + vd[0]);
-				textField.setText("" + vd[1]);
-				break;
+			GuiNpcTextField textField2 = this.getTextField(2);
+			int[] vd = new int[] { textField.getInteger(), textField2.getInteger() };
+			if (vd[0] > vd[1]) {
+				int m = new Integer(vd[0]);
+				vd[0] = vd[1];
+				vd[1] = m;
 			}
+			CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
+			CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
+			textField.setText("" + vd[0]);
+			textField2.setText("" + vd[1]);
+			break;
+		}
+		case 2: {
+			if (this.getTextField(1) == null) {
+				return;
+			}
+			GuiNpcTextField textField1 = this.getTextField(1);
+			int[] vd = new int[] { textField1.getInteger(), textField.getInteger() };
+			if (vd[0] > vd[1]) {
+				int m = new Integer(vd[0]);
+				vd[0] = vd[1];
+				vd[1] = m;
+			}
+			CustomNpcs.MailTimeWhenLettersWillBeReceived[0] = vd[0];
+			CustomNpcs.MailTimeWhenLettersWillBeReceived[1] = vd[1];
+			textField1.setText("" + vd[0]);
+			textField.setText("" + vd[1]);
+			break;
+		}
 		}
 	}
-	
+
 }

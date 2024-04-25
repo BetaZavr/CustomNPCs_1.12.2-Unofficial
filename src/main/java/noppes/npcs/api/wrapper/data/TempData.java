@@ -15,27 +15,18 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.util.AdditionalMethods;
 
-public class TempData
-implements IData {
-	
+public class TempData implements IData {
+
 	private Map<String, Object> map;
 	private BlockWrapper block;
 
 	public TempData() {
 		this.map = Maps.<String, Object>newTreeMap();
 	}
-	
+
 	public TempData(BlockWrapper wrapper) {
 		this();
 		this.block = wrapper;
-	}
-
-	private void resetData() {
-		if (this.block != null) {
-			if (this.block.storage == null) { return; }
-			this.map = this.block.storage.tempData;
-			return;
-		}
 	}
 
 	@Override
@@ -55,6 +46,19 @@ implements IData {
 		this.resetData();
 		Set<String> sets = this.map.keySet();
 		return sets.toArray(new String[sets.size()]);
+	}
+
+	@Override
+	public INbt getNbt() {
+		this.resetData();
+		NBTTagCompound compound = new NBTTagCompound();
+		for (String key : this.map.keySet()) {
+			NBTBase nbt = AdditionalMethods.instance.writeObjectToNbt(this.map.get(key));
+			if (nbt != null) {
+				compound.setTag(key, nbt);
+			}
+		}
+		return NpcAPI.Instance().getINbt(compound);
 	}
 
 	@Override
@@ -79,15 +83,14 @@ implements IData {
 		return false;
 	}
 
-	@Override
-	public INbt getNbt() {
-		this.resetData();
-		NBTTagCompound compound = new NBTTagCompound();
-		for (String key : this.map.keySet()) {
-			NBTBase nbt = AdditionalMethods.instance.writeObjectToNbt(this.map.get(key));
-			if (nbt!=null) { compound.setTag(key, nbt); }
+	private void resetData() {
+		if (this.block != null) {
+			if (this.block.storage == null) {
+				return;
+			}
+			this.map = this.block.storage.tempData;
+			return;
 		}
-		return NpcAPI.Instance().getINbt(compound); 
 	}
 
 	@Override
@@ -96,21 +99,26 @@ implements IData {
 		List<String> del = Lists.newArrayList();
 		for (String key : this.map.keySet()) {
 			Object value = this.map.get(key);
-			if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long || value instanceof Float || value instanceof Double || value instanceof String) {
+			if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long
+					|| value instanceof Float || value instanceof Double || value instanceof String) {
 				del.add(key);
 			}
 			if (value.getClass().isArray()) {
 				Object[] vs = (Object[]) value;
-				if (vs.length>0 && vs[0] instanceof Byte || vs[0] instanceof Short || vs[0] instanceof Integer || vs[0] instanceof Long || vs[0] instanceof Float || vs[0] instanceof Double || vs[0] instanceof String) {
+				if (vs.length > 0 && vs[0] instanceof Byte || vs[0] instanceof Short || vs[0] instanceof Integer
+						|| vs[0] instanceof Long || vs[0] instanceof Float || vs[0] instanceof Double
+						|| vs[0] instanceof String) {
 					del.add(key);
 				}
 			}
 		}
 		for (String key : nbt.getMCNBT().getKeySet()) {
 			Object value = AdditionalMethods.instance.readObjectFromNbt(nbt.getMCNBT().getTag(key));
-			if (value == null) { continue; }
+			if (value == null) {
+				continue;
+			}
 			this.map.put(key, value);
 		}
 	}
-	
+
 }

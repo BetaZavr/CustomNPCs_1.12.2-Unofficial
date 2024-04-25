@@ -30,8 +30,7 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.util.ValueUtil;
 
-public class QuestObjective
-implements IQuestObjective {
+public class QuestObjective implements IQuestObjective {
 
 	private boolean ignoreDamage = false;
 	private boolean ignoreNBT = false;
@@ -39,6 +38,7 @@ implements IQuestObjective {
 	private boolean partName = false;
 	private boolean andTitle = false;
 	private boolean notShowLogEntity = false;
+	private boolean setPointOnMiniMap = false;
 	private int id = 0;
 	private int parentID = 0;
 	private int maxProgress = 1;
@@ -47,7 +47,7 @@ implements IQuestObjective {
 	private ItemStack item = ItemStack.EMPTY;
 	private String name = "";
 	private final EntityPlayer player;
-	
+
 	public int dimensionID = 0;
 	public int rangeCompass = 5;
 	public BlockPos pos = new BlockPos(0, 0, 0);
@@ -75,6 +75,7 @@ implements IQuestObjective {
 		newObj.leaveItem = this.leaveItem;
 		newObj.ignoreDamage = this.ignoreDamage;
 		newObj.ignoreNBT = this.ignoreNBT;
+		newObj.setPointOnMiniMap = this.setPointOnMiniMap;
 		newObj.partName = this.partName;
 		newObj.andTitle = this.andTitle;
 		newObj.notShowLogEntity = this.notShowLogEntity;
@@ -88,6 +89,21 @@ implements IQuestObjective {
 	@Override
 	public int getAreaRange() {
 		return this.range;
+	}
+
+	@Override
+	public int getCompassDimension() {
+		return this.dimensionID;
+	}
+
+	@Override
+	public IPos getCompassPos() {
+		return NpcAPI.Instance().getIPos(this.pos.getX(), this.pos.getY(), this.pos.getZ());
+	}
+
+	@Override
+	public int getCompassRange() {
+		return this.rangeCompass;
 	}
 
 	public HashMap<ItemStack, Integer> getCrafted(QuestData data) {
@@ -128,13 +144,14 @@ implements IQuestObjective {
 	public NBTTagCompound getNBT() {
 		NBTTagCompound nbtTask = new NBTTagCompound();
 		nbtTask.setInteger("Type", this.type.ordinal());
+		nbtTask.setBoolean("SetPointOnMiniMap", this.setPointOnMiniMap);
 		NBTTagCompound nbtCompass = new NBTTagCompound();
-		nbtCompass.setIntArray("Pos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ()});
+		nbtCompass.setIntArray("Pos", new int[] { this.pos.getX(), this.pos.getY(), this.pos.getZ() });
 		nbtCompass.setInteger("DimensionID", this.dimensionID);
 		nbtCompass.setInteger("Range", this.rangeCompass);
 		nbtCompass.setString("EntityName", this.entityName);
 		nbtTask.setTag("CompassData", nbtCompass);
-		
+
 		if (this.maxProgress > 0) {
 			nbtTask.setInteger("Progress", this.maxProgress);
 		}
@@ -157,6 +174,11 @@ implements IQuestObjective {
 			nbtTask.setBoolean("IgnoreNBT", this.ignoreNBT);
 		}
 		return nbtTask;
+	}
+
+	@Override
+	public String getOrientationEntityName() {
+		return this.entityName;
 	}
 
 	@Override
@@ -224,18 +246,23 @@ implements IQuestObjective {
 		String colorG = ((char) 167) + "2";
 		String colorR = ((char) 167) + "r";
 		if (this.type == EnumQuestTask.ITEM) { // Collect Item
-			return this.item.getDisplayName() + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress() + colorR + "/" + this.getMaxProgress() + 
-					(this.leaveItem ? new TextComponentTranslation("quest.take.log").getFormattedText() : "");
+			return this.item.getDisplayName() + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress()
+					+ colorR + "/" + this.getMaxProgress()
+					+ (this.leaveItem ? new TextComponentTranslation("quest.take.log").getFormattedText() : "");
 		}
 		if (this.type == EnumQuestTask.CRAFT) { // Craft Item
-			return this.item.getDisplayName() + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress() + colorR + "/" + this.getMaxProgress() +
-					(this.leaveItem ? new TextComponentTranslation("quest.take.log").getFormattedText() : "");
+			return this.item.getDisplayName() + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress()
+					+ colorR + "/" + this.getMaxProgress()
+					+ (this.leaveItem ? new TextComponentTranslation("quest.take.log").getFormattedText() : "");
 		}
 		if (this.type == EnumQuestTask.DIALOG) { // Dialog
-			String done = new TextComponentTranslation("quest.task.dialog." + (!this.isCompleted() ? "1" : "0")).getFormattedText();
+			String done = new TextComponentTranslation("quest.task.dialog." + (!this.isCompleted() ? "1" : "0"))
+					.getFormattedText();
 			String name = "null";
 			Dialog dialog = DialogController.instance.dialogs.get(this.id);
-			if (dialog != null) { name = new TextComponentTranslation(dialog.title).getFormattedText(); }
+			if (dialog != null) {
+				name = new TextComponentTranslation(dialog.title).getFormattedText();
+			}
 			return (this.isCompleted() ? colorG : colorD) + name + colorR + done;
 		}
 		if (this.type == EnumQuestTask.KILL || this.type == EnumQuestTask.AREAKILL) { // Kill
@@ -244,14 +271,18 @@ implements IQuestObjective {
 			if (transName.indexOf("entity.") >= 0 && transName.indexOf(".name") > 0) {
 				transName = name;
 			}
-			return transName + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress() + colorR + "/" + this.getMaxProgress();
+			return transName + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress() + colorR + "/"
+					+ this.getMaxProgress();
 		}
 		if (this.type == EnumQuestTask.LOCATION) { // Location
-			String done = new TextComponentTranslation("quest.task.location." + (!this.isCompleted() ? "1" : "0")).getFormattedText();
-			return (this.isCompleted() ? colorG : colorD) + new TextComponentTranslation(name).getFormattedText() + colorR + ": " + done;
+			String done = new TextComponentTranslation("quest.task.location." + (!this.isCompleted() ? "1" : "0"))
+					.getFormattedText();
+			return (this.isCompleted() ? colorG : colorD) + new TextComponentTranslation(name).getFormattedText()
+					+ colorR + ": " + done;
 		}
 		if (this.type == EnumQuestTask.MANUAL) { // Manual
-			return new TextComponentTranslation(name).getFormattedText() + ": " + (this.isCompleted() ? colorG : colorD) + this.getProgress() + colorR + "/" + this.getMaxProgress();
+			return new TextComponentTranslation(name).getFormattedText() + ": " + (this.isCompleted() ? colorG : colorD)
+					+ this.getProgress() + colorR + "/" + this.getMaxProgress();
 		}
 		return "null type: " + type + " #" + this.toString().substring(this.toString().indexOf("@") + 1);
 	}
@@ -262,11 +293,16 @@ implements IQuestObjective {
 	}
 
 	@Override
+	public boolean isAndTitle() {
+		return this.andTitle;
+	}
+
+	@Override
 	public boolean isCompleted() {
 		if (this.type == EnumQuestTask.ITEM) {
-			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT, this.maxProgress);
-		}
-		else if (this.type == EnumQuestTask.DIALOG) {
+			return NoppesUtilPlayer.compareItems(this.player, this.item, this.ignoreDamage, this.ignoreNBT,
+					this.maxProgress);
+		} else if (this.type == EnumQuestTask.DIALOG) {
 			return PlayerData.get(this.player).dialogData.dialogsRead.contains(this.id);
 		}
 		return this.getProgress() >= this.maxProgress;
@@ -287,8 +323,24 @@ implements IQuestObjective {
 		return this.leaveItem;
 	}
 
+	@Override
+	public boolean isNotShowLogEntity() {
+		return this.notShowLogEntity;
+	}
+
+	@Override
+	public boolean isPartName() {
+		return this.partName;
+	}
+
+	@Override
+	public boolean isSetPointOnMiniMap() {
+		return this.setPointOnMiniMap;
+	}
+
 	public void load(NBTTagCompound nbtTask) {
 		this.type = EnumQuestTask.values()[nbtTask.getInteger("Type")];
+		this.setPointOnMiniMap = nbtTask.getBoolean("SetPointOnMiniMap");
 		if (nbtTask.hasKey("CompassData", 10)) {
 			NBTTagCompound nbtCompass = nbtTask.getCompoundTag("CompassData");
 			int[] bp = nbtCompass.getIntArray("Pos");
@@ -322,11 +374,42 @@ implements IQuestObjective {
 	}
 
 	@Override
+	public void setAndTitle(boolean addTitle) {
+		this.andTitle = addTitle;
+	}
+
+	@Override
 	public void setAreaRange(int range) {
 		if (range < 3 || range > 32) {
 			throw new CustomNPCsException("Range must be between 3 and 24");
 		}
 		this.range = range;
+	}
+
+	@Override
+	public void setCompassDimension(int dimensionID) {
+		if (DimensionManager.isDimensionRegistered(dimensionID)) {
+			throw new CustomNPCsException("Dimension ID:" + dimensionID + " not found");
+		}
+		this.dimensionID = dimensionID;
+	}
+
+	@Override
+	public void setCompassPos(int x, int y, int z) {
+		this.pos = new BlockPos(x, y, z);
+	}
+
+	@Override
+	public void setCompassPos(IPos pos) {
+		this.pos = pos.getMCBlockPos();
+	}
+
+	@Override
+	public void setCompassRange(int range) {
+		if (range < 0 || range > 64) {
+			throw new CustomNPCsException("Compass Range must be between 3 and 64");
+		}
+		this.rangeCompass = range;
 	}
 
 	public void setCrafted(QuestData data, HashMap<ItemStack, Integer> crafted) {
@@ -372,6 +455,26 @@ implements IQuestObjective {
 	}
 
 	@Override
+	public void setNotShowLogEntity(boolean notShowLogEntity) {
+		this.notShowLogEntity = notShowLogEntity;
+	}
+
+	@Override
+	public void setOrientationEntityName(String name) {
+		this.entityName = name;
+	}
+
+	@Override
+	public void setPartName(boolean isPart) {
+		this.partName = isPart;
+	}
+
+	@Override
+	public void setPointOnMiniMap(boolean bo) {
+		this.setPointOnMiniMap = bo;
+	}
+
+	@Override
 	public void setProgress(int progress) {
 		if (this.type == EnumQuestTask.ITEM) {
 			throw new CustomNPCsException("Cant set the progress of ItemTask");
@@ -385,16 +488,18 @@ implements IQuestObjective {
 			boolean completed = data.dialogData.dialogsRead.contains(this.id);
 			if (progress == 0 && completed) {
 				data.dialogData.dialogsRead.remove(this.id);
-			}
-			else if (progress == 1 && !completed) {
+			} else if (progress == 1 && !completed) {
 				data.dialogData.dialogsRead.add(this.id);
+			} else {
+				return;
 			}
-			else { return; }
 			// Message
 			if (progress == 1) {
 				String dialog = "dialog ID:" + this.id;
 				IDialog d = DialogController.instance.get(this.id);
-				if (d != null) { dialog = d.getName(); }
+				if (d != null) {
+					dialog = d.getName();
+				}
 				if (questData.quest.showProgressInWindow) {
 					NBTTagCompound compound = new NBTTagCompound();
 					compound.setInteger("QuestID", questData.quest.id);
@@ -404,7 +509,10 @@ implements IQuestObjective {
 					compound.setInteger("MessageType", 0);
 					Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
 				}
-				if (questData.quest.showProgressInChat) { player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress, new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle())); }
+				if (questData.quest.showProgressInChat) {
+					player.sendMessage(new TextComponentTranslation("quest.message.dialog." + progress,
+							new TextComponentTranslation(dialog).getFormattedText(), questData.quest.getTitle()));
+				}
 			}
 			data.updateClient = true;
 		} else if (this.type == EnumQuestTask.LOCATION) {
@@ -423,7 +531,9 @@ implements IQuestObjective {
 				for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
 					if (this.name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
 						boolean completed = ((NBTTagCompound) dataNBT).getBoolean("Found");
-						if ((completed && progress == 1) || (!completed && progress == 0)) { return; }
+						if ((completed && progress == 1) || (!completed && progress == 0)) {
+							return;
+						}
 						((NBTTagCompound) dataNBT).setBoolean("Found", progress == 1);
 						found = true;
 						break;
@@ -455,7 +565,9 @@ implements IQuestObjective {
 				throw new CustomNPCsException("Progress has to be between 0 and " + this.maxProgress);
 			}
 			HashMap<String, Integer> killed = this.getKilled(questData);
-			if (killed.containsKey(this.name) && killed.get(this.name) == progress) { return; }
+			if (killed.containsKey(this.name) && killed.get(this.name) == progress) {
+				return;
+			}
 			String key = this.type == EnumQuestTask.MANUAL ? "manual" : "kill";
 			// Message
 			if (killed.get(this.name) < progress) {
@@ -467,8 +579,8 @@ implements IQuestObjective {
 				compound.setInteger("MessageType", 0);
 				Server.sendData((EntityPlayerMP) this.player, EnumPacketClient.MESSAGE_DATA, compound);
 				this.player.sendMessage(new TextComponentTranslation("quest.message." + key + ".0",
-						new TextComponentTranslation(this.name).getFormattedText(), "" + progress, "" + this.maxProgress,
-						questData.quest.getTitle()));
+						new TextComponentTranslation(this.name).getFormattedText(), "" + progress,
+						"" + this.maxProgress, questData.quest.getTitle()));
 			}
 			killed.put(this.name, progress);
 			this.setKilled(questData, killed);
@@ -512,7 +624,9 @@ implements IQuestObjective {
 			data.updateClient = true;
 		}
 		for (IQuestObjective obj : questData.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
-			if (((QuestObjective) obj).getEnumType() != this.type) { continue; }
+			if (((QuestObjective) obj).getEnumType() != this.type) {
+				continue;
+			}
 			data.questData.checkQuestCompletion(this.player, questData);
 		}
 	}
@@ -545,59 +659,4 @@ implements IQuestObjective {
 		this.type = EnumQuestTask.values()[type];
 	}
 
-	@Override
-	public IPos getCompassPos() { return NpcAPI.Instance().getIPos(this.pos.getX(), this.pos.getY(), this.pos.getZ()); }
-
-	@Override
-	public void setCompassPos(IPos pos) { this.pos = pos.getMCBlockPos(); }
-
-	@Override
-	public void setCompassPos(int x, int y, int z) { this.pos = new BlockPos(x, y, z); }
-
-	@Override
-	public int getCompassDimension() { return this.dimensionID; }
-
-	@Override
-	public void setCompassDimension(int dimensionID) {
-		if (DimensionManager.isDimensionRegistered(dimensionID)) {
-			throw new CustomNPCsException("Dimension ID:"+dimensionID+" not found");
-		}
-		this.dimensionID = dimensionID;
-	}
-
-	@Override
-	public int getCompassRange() { return this.rangeCompass; }
-
-	@Override
-	public void setCompassRange(int range) {
-		if (range < 0 || range > 64) {
-			throw new CustomNPCsException("Compass Range must be between 3 and 64");
-		}
-		this.rangeCompass = range;
-	}
-
-	@Override
-	public String getOrientationEntityName() { return this.entityName; }
-	
-	@Override
-	public void setOrientationEntityName(String name) { this.entityName = name; }
-
-	@Override
-	public boolean isPartName() { return this.partName; }
-
-	@Override
-	public void setPartName(boolean isPart) { this.partName = isPart; }
-
-	@Override
-	public boolean isAndTitle() { return this.andTitle; }
-
-	@Override
-	public void setAndTitle(boolean addTitle) { this.andTitle = addTitle;}
-
-	@Override
-	public boolean isNotShowLogEntity() { return this.notShowLogEntity; }
-
-	@Override
-	public void setNotShowLogEntity(boolean notShowLogEntity) { this.notShowLogEntity = notShowLogEntity;}
-	
 }

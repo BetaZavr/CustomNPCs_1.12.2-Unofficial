@@ -11,9 +11,8 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
 @SuppressWarnings("deprecation")
-public class CustomNpcResourceListener
-implements IResourceManagerReloadListener {
-	
+public class CustomNpcResourceListener implements IResourceManagerReloadListener {
+
 	public static int DefaultTextColor = CustomNpcs.LableColor.getRGB();
 
 	private void createTextureCache() {
@@ -32,7 +31,9 @@ implements IResourceManagerReloadListener {
 
 	private void enlargeTexture(String texture) {
 		TextureManager manager = Minecraft.getMinecraft().getTextureManager();
-		if (manager == null) { return; }
+		if (manager == null) {
+			return;
+		}
 		ResourceLocation location = new ResourceLocation(CustomNpcs.MODID, "textures/cache/" + texture + ".png");
 		ITextureObject ob = manager.getTexture(location);
 		if (ob == null || !(ob instanceof TextureCache)) {

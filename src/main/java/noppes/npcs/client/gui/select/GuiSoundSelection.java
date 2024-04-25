@@ -21,10 +21,8 @@ import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class GuiSoundSelection
-extends SubGuiInterface
-implements ICustomScrollListener {
-	
+public class GuiSoundSelection extends SubGuiInterface implements ICustomScrollListener {
+
 	private HashMap<String, List<String>> domains;
 	private GuiCustomScroll scrollCategories;
 	private GuiCustomScroll scrollQuests;
@@ -70,17 +68,21 @@ implements ICustomScrollListener {
 		super.actionPerformed(guibutton);
 		if (button.id == 1) {
 			BlockPos pos = this.player.getPosition();
-			MusicController.Instance.playSound(SoundCategory.PLAYERS, this.selectedResource.toString(), pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+			MusicController.Instance.playSound(SoundCategory.PLAYERS, this.selectedResource.toString(), pos.getX(),
+					pos.getY(), pos.getZ(), 1.0f, 1.0f);
 			this.oldPlay = this.selectedResource.toString();
 		}
-		if (button.id == 2) { this.close(); }
+		if (button.id == 2) {
+			this.close();
+		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		this.addButton(new GuiNpcButton(2, this.guiLeft + this.xSize - 26, this.guiTop + 4, 20, 20, "X"));
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 160, this.guiTop + 212, 70, 20, "gui.play", this.selectedResource != null));
+		this.addButton(new GuiNpcButton(1, this.guiLeft + 160, this.guiTop + 212, 70, 20, "gui.play",
+				this.selectedResource != null));
 		this.getButton(1).hasSound = false;
 		if (this.scrollCategories == null) {
 			(this.scrollCategories = new GuiCustomScroll(this, 0)).setSize(90, 200);
@@ -126,13 +128,15 @@ implements ICustomScrollListener {
 		}
 		this.close();
 	}
-	
+
 	public void updateScreen() {
-		if (this.selectedResource!=null && this.getButton(1)!=null) {
+		if (this.selectedResource != null && this.getButton(1) != null) {
 			boolean pl = MusicController.Instance.isPlaying(this.oldPlay);
 			this.getButton(1).setDisplayText(pl ? "gui.stop" : "gui.play");
-			if (!pl) { this.oldPlay = ""; }
+			if (!pl) {
+				this.oldPlay = "";
+			}
 		}
 	}
-	
+
 }

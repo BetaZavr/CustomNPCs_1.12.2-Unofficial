@@ -27,11 +27,10 @@ import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleCompanion;
 
-public class GuiNpcCompanionTalents
-extends GuiNPCInterface {
-	
+public class GuiNpcCompanionTalents extends GuiNPCInterface {
+
 	public static class GuiTalent extends GuiScreen {
-		
+
 		private static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/talent.png");
 		private RoleCompanion role;
 		private EnumCompanionTalent talent;
@@ -124,8 +123,8 @@ extends GuiNPCInterface {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CompanionTalentExp, talent.ordinal(), exp);
 		this.role.talents.put(talent, this.role.talents.get(talent) + exp);
 		this.role.addExp(-exp);
-		this.getLabel(this.selected.id - 10).setLabel(this.role.talents.get(talent) + "/"
-				+ this.role.getNextLevel(talent));
+		this.getLabel(this.selected.id - 10)
+				.setLabel(this.role.talents.get(talent) + "/" + this.role.getNextLevel(talent));
 	}
 
 	private void addTalent(int i, EnumCompanionTalent talent) {

@@ -31,7 +31,9 @@ public class LayerArms<T extends EntityLivingBase> extends LayerInterface<T> {
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
 		ModelPartData data = this.playerdata.getPartData(EnumParts.CLAWS);
-		if (data == null || data.pattern < 0 || data.pattern > 2) { return; }
+		if (data == null || data.pattern < 0 || data.pattern > 2) {
+			return;
+		}
 		this.preRender(data);
 		if (this.npc.animation.showParts.get(1) && (data.pattern == 0 || data.pattern == 1)) {
 			GlStateManager.pushMatrix();

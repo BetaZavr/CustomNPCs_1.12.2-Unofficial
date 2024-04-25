@@ -16,7 +16,7 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	private EntityNPCInterface npc;
 
 	// EntityAIClosestTarget <- EntityNPCInterface.updateTasks()
-	
+
 	public NPCAttackSelector(EntityNPCInterface npc) {
 		this.npc = npc;
 	}
@@ -26,7 +26,8 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 	}
 
 	public boolean isEntityApplicable(EntityLivingBase entity) {
-		if (!entity.isEntityAlive() || entity == this.npc || !this.npc.isInRange(entity, this.npc.stats.aggroRange) || entity.getHealth() < 1.0f) {
+		if (!entity.isEntityAlive() || entity == this.npc || !this.npc.isInRange(entity, this.npc.stats.aggroRange)
+				|| entity.getHealth() < 1.0f) {
 			return false;
 		}
 		if (!AdditionalMethods.npcCanSeeTarget(this.npc, entity, false, true)) {
@@ -37,7 +38,8 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 			if (this.npc.ais.getMovingType() == 1) {
 				allowedDistance += this.npc.ais.walkingRange;
 			}
-			double distance = entity.getDistanceSq(this.npc.getStartXPos(), this.npc.getStartYPos(), this.npc.getStartZPos());
+			double distance = entity.getDistanceSq(this.npc.getStartXPos(), this.npc.getStartYPos(),
+					this.npc.getStartZPos());
 			if (this.npc.ais.getMovingType() == 2) {
 				int[] arr = this.npc.ais.getCurrentMovingPath();
 				distance = entity.getDistanceSq(arr[0], arr[1], arr[2]);
@@ -46,12 +48,14 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 				return false;
 			}
 		}
-		if (this.npc.advanced.jobInterface instanceof JobGuard && ((JobGuard) this.npc.advanced.jobInterface).isEntityApplicable(entity)) {
+		if (this.npc.advanced.jobInterface instanceof JobGuard
+				&& ((JobGuard) this.npc.advanced.jobInterface).isEntityApplicable(entity)) {
 			return true;
 		}
 		if (this.npc.advanced.roleInterface instanceof RoleCompanion) {
 			RoleCompanion role = (RoleCompanion) this.npc.advanced.roleInterface;
-			if (role.job == EnumCompanionJobs.GUARD && ((CompanionGuard) role.jobInterface).isEntityApplicable(entity)) {
+			if (role.job == EnumCompanionJobs.GUARD
+					&& ((CompanionGuard) role.jobInterface).isEntityApplicable(entity)) {
 				return true;
 			}
 		}
@@ -60,7 +64,9 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 			return this.npc.advanced.isAggressiveToPlayer((EntityPlayer) entity) && !player.capabilities.disableDamage;
 		}
 		if (entity instanceof EntityNPCInterface) {
-			if (((EntityNPCInterface) entity).isKilled()) { return false; }
+			if (((EntityNPCInterface) entity).isKilled()) {
+				return false;
+			}
 			return this.npc.advanced.isAggressiveToNpc((EntityNPCInterface) entity);
 		}
 		return false;

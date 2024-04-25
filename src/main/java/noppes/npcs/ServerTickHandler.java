@@ -48,23 +48,36 @@ public class ServerTickHandler {
 	public static int ticks;
 	public long oldTime;
 
-	public ServerTickHandler() { ServerTickHandler.ticks = 0; }
-	
+	public ServerTickHandler() {
+		ServerTickHandler.ticks = 0;
+	}
+
 	@SubscribeEvent
 	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) { return; }
+		if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) {
+			return;
+		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "ServerTickHandler_onPlayerTick");
 		EntityPlayerMP player = (EntityPlayerMP) event.player;
-		if (player.getHealth() > 0 && player.getHealth() < 1.0f) { player.setHealth(1.0f); }
+		if (player.getHealth() > 0 && player.getHealth() < 1.0f) {
+			player.setHealth(1.0f);
+		}
 		PlayerData data = PlayerData.get(player);
 		long resTime = (long) player.getName().codePointAt(0);
-		if (!ServerTickHandler.visibleData.containsKey(player) || ServerTickHandler.visibleData.get(player) != player.interactionManager.getGameType() || player.world.getTotalWorldTime() % 100L == resTime % 100L || (data.prevHeldItem != player.getHeldItemMainhand() && (data.prevHeldItem.getItem() == CustomRegisters.wand || player.getHeldItemMainhand().getItem() == CustomRegisters.wand))) {
+		if (!ServerTickHandler.visibleData.containsKey(player)
+				|| ServerTickHandler.visibleData.get(player) != player.interactionManager.getGameType()
+				|| player.world.getTotalWorldTime() % 100L == resTime % 100L
+				|| (data.prevHeldItem != player.getHeldItemMainhand()
+						&& (data.prevHeldItem.getItem() == CustomRegisters.wand
+								|| player.getHeldItemMainhand().getItem() == CustomRegisters.wand))) {
 			ServerTickHandler.visibleData.put(player, player.interactionManager.getGameType());
 			VisibilityController.onUpdate(player);
 		}
 		if (player.world.getTotalWorldTime() % 20L == resTime % 20L) {
 			data.hud.updateHud(player);
-			if (player.getServer()!=null && player.getServer().getPlayerList()!=null && player.getGameProfile()!=null) {
+			data.minimap.update(player);
+			if (player.getServer() != null && player.getServer().getPlayerList() != null
+					&& player.getGameProfile() != null) {
 				boolean opn = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
 				if (data.game.op != opn) {
 					data.game.op = opn;
@@ -77,12 +90,13 @@ public class ServerTickHandler {
 				int ceil = c.bank.ceilSettings.size();
 				CeilSettings cs;
 				// open
-				if (c.items.getSizeInventory()==0) {
+				if (c.items.getSizeInventory() == 0) {
 					if (c.ceil > 0) {
 						for (int i = c.ceil - 1; i >= 0 && c.data.ceils.containsKey(i); i--) {
 							NpcMiscInventory inv = c.data.ceils.get(i);
 							cs = c.bank.ceilSettings.get(i);
-							work = inv.getSizeInventory() > 0 && cs.upgradeStack.isEmpty() || cs.maxCeils == inv.getSizeInventory();
+							work = inv.getSizeInventory() > 0 && cs.upgradeStack.isEmpty()
+									|| cs.maxCeils == inv.getSizeInventory();
 							if (!work) {
 								ceil = i;
 								break;
@@ -92,8 +106,11 @@ public class ServerTickHandler {
 					if (work) {
 						cs = c.bank.ceilSettings.get(c.ceil);
 						if (!cs.openStack.isEmpty()) {
-							int count = AdditionalMethods.inventoryItemCount((EntityPlayer) player, cs.openStack, (Availability) null, false, false);
-							if (count < cs.openStack.getCount()) { ceil = -1; }
+							int count = AdditionalMethods.inventoryItemCount((EntityPlayer) player, cs.openStack,
+									(Availability) null, false, false);
+							if (count < cs.openStack.getCount()) {
+								ceil = -1;
+							}
 						}
 					}
 				}
@@ -103,8 +120,11 @@ public class ServerTickHandler {
 					work = c.items.getSizeInventory() > 0 && c.items.getSizeInventory() < cs.maxCeils;
 					if (work) {
 						if (!cs.upgradeStack.isEmpty()) {
-							int count = AdditionalMethods.inventoryItemCount((EntityPlayer) player, cs.upgradeStack, (Availability) null, false, false);
-							if (count < cs.upgradeStack.getCount()) { ceil = -1; }
+							int count = AdditionalMethods.inventoryItemCount((EntityPlayer) player, cs.upgradeStack,
+									(Availability) null, false, false);
+							if (count < cs.upgradeStack.getCount()) {
+								ceil = -1;
+							}
 						}
 					}
 				}
@@ -116,34 +136,48 @@ public class ServerTickHandler {
 			List<FollowerSet> del = Lists.newArrayList();
 			for (FollowerSet fs : data.game.getFollowers()) {
 				EntityNPCInterface npc = null;
-				if (fs.npc != null) { npc  = fs.npc; }
+				if (fs.npc != null) {
+					npc = fs.npc;
+				}
 				if (npc == null) {
 					Entity e = AdditionalMethods.getEntityByUUID(fs.id, player.world);
-					if (e instanceof EntityNPCInterface) { npc = (EntityNPCInterface) e; }
+					if (e instanceof EntityNPCInterface) {
+						npc = (EntityNPCInterface) e;
+					}
 				}
-				if (npc == null || npc.isDead || !(npc.advanced.roleInterface instanceof RoleFollower)) { del.add(fs); }
-				else {
+				if (npc == null || npc.isDead || !(npc.advanced.roleInterface instanceof RoleFollower)) {
+					del.add(fs);
+				} else {
 					EntityPlayer owner = ((RoleFollower) npc.advanced.roleInterface).getOwner();
-					if (owner == null || !owner.equals(player)) { del.add(fs); }
-					else if (fs.npc == null) { fs.npc  = npc; }
+					if (owner == null || !owner.equals(player)) {
+						del.add(fs);
+					} else if (fs.npc == null) {
+						fs.npc = npc;
+					}
 				}
 				if (npc != null && npc.advanced.roleInterface instanceof RoleFollower) {
 					if (player.world.provider.getDimension() != npc.world.provider.getDimension()) {
 						try {
-							Entity entity = AdditionalMethods.teleportEntity(player.world.getMinecraftServer(), npc, player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
+							Entity entity = AdditionalMethods.teleportEntity(player.world.getMinecraftServer(), npc,
+									player.world.provider.getDimension(), player.posX, player.posY, player.posZ);
 							if (entity instanceof EntityNPCInterface) {
 								fs.dimId = entity.world.provider.getDimension();
 								fs.id = entity.getUniqueID();
-								((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(player, ((EntityNPCInterface) entity).ais.canSprint ? 1.3 : 1.0d);
+								((EntityNPCInterface) entity).getNavigator().tryMoveToEntityLiving(player,
+										((EntityNPCInterface) entity).ais.canSprint ? 1.3 : 1.0d);
 							}
-						} catch (CommandException e) { e.printStackTrace(); }
-					}
-					else if (npc.advanced.roleInterface instanceof RoleFollower && player.getDistance(npc) > ((RoleFollower) npc.advanced.roleInterface).getRange()) {
+						} catch (CommandException e) {
+							e.printStackTrace();
+						}
+					} else if (npc.advanced.roleInterface instanceof RoleFollower
+							&& player.getDistance(npc) > ((RoleFollower) npc.advanced.roleInterface).getRange()) {
 						npc.setPosition(player.posX, player.posY, player.posZ);
 					}
 				}
 			}
-			for (FollowerSet fs : del) { data.game.removeFollower(fs); }
+			for (FollowerSet fs : del) {
+				data.game.removeFollower(fs);
+			}
 		}
 		if (!data.mailData.playermail.isEmpty() && player.world.getTotalWorldTime() % 200L == resTime % 200L) {
 			boolean needSend = false;
@@ -159,15 +193,22 @@ public class ServerTickHandler {
 					needSend = true;
 				}
 				long timeWhenReceived = time - mail.timeWhenReceived - mail.timeWillCome;
-				if (timeToRemove >0L && timeWhenReceived > timeToRemove) {
+				if (timeToRemove > 0L && timeWhenReceived > timeToRemove) {
 					del.add(mail);
 					needSend = true;
 				}
-				if (mail.beenRead || timeWhenReceived < 0L) { continue; }
+				if (mail.beenRead || timeWhenReceived < 0L) {
+					continue;
+				}
 				needSend = true;
 			}
-			for (PlayerMail mail : del) { data.mailData.playermail.remove(mail); }
-			if (needSend) { Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, data.mailData.saveNBTData(new NBTTagCompound())); }
+			for (PlayerMail mail : del) {
+				data.mailData.playermail.remove(mail);
+			}
+			if (needSend) {
+				Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData,
+						data.mailData.saveNBTData(new NBTTagCompound()));
+			}
 		}
 		// Updates
 		if (data.updateClient) {
@@ -181,7 +222,8 @@ public class ServerTickHandler {
 			data.questData.updateClient = false;
 		}
 		if (data.game.updateClient) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.GameData, data.game.saveNBTData(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.GameData,
+					data.game.saveNBTData(new NBTTagCompound()));
 			data.game.updateClient = false;
 		}
 		data.bankData.update(player);
@@ -191,25 +233,31 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public void onServerTick(TickEvent.ServerTickEvent event) {
-		if (event.side == Side.CLIENT) { return; }
+		if (event.side == Side.CLIENT) {
+			return;
+		}
 		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 		BorderController.getInstance().update();
 		try {
-			Class<?> c = Class.forName(String.copyValueOf(new char[] { 110,111,112,112,101,115,46,110,112,99,115,46,99,111,110,116,114,111,108,108,101,114,115,46,83,99,114,105,112,116,67,111,110,116,114,111,108,108,101,114 }));
-			Object o = c.getDeclaredField(String.copyValueOf(new char[] { 73,110,115,116,97,110,99,101 })).get(c);
-			Field f0 = c.getDeclaredField(String.copyValueOf(new char[] { 105,115,76,111,97,100 }));
+			Class<?> c = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
+					115, 46, 99, 111, 110, 116, 114, 111, 108, 108, 101, 114, 115, 46, 83, 99, 114, 105, 112, 116, 67,
+					111, 110, 116, 114, 111, 108, 108, 101, 114 }));
+			Object o = c.getDeclaredField(String.copyValueOf(new char[] { 73, 110, 115, 116, 97, 110, 99, 101 }))
+					.get(c);
+			Field f0 = c.getDeclaredField(String.copyValueOf(new char[] { 105, 115, 76, 111, 97, 100 }));
 			f0.setAccessible(true);
 			if (f0.getBoolean(o)) {
 				f0.setBoolean(o, false);
 				NBTJsonUtil.checkAddedMods(o);
 			}
 			f0.setAccessible(false);
-			Field f1 = c.getDeclaredField(String.copyValueOf(new char[] { 101,110,99,114,121,112,116,68,97,116,97 }));
+			Field f1 = c.getDeclaredField(
+					String.copyValueOf(new char[] { 101, 110, 99, 114, 121, 112, 116, 68, 97, 116, 97 }));
 			if (f1.get(o) != null) {
 				NBTJsonUtil.resetAddedMods(o, f1);
 			}
+		} catch (Exception e) {
 		}
-		catch (Exception e) {}
 		if (event.phase == TickEvent.Phase.END) {
 			CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 			return;
@@ -225,48 +273,63 @@ public class ServerTickHandler {
 					++sceneState.ticks;
 				}
 			}
-			for (DataScenes.SceneContainer entry : DataScenes.ScenesToRun) { entry.update(); }
+			for (DataScenes.SceneContainer entry : DataScenes.ScenesToRun) {
+				entry.update();
+			}
 			DataScenes.ScenesToRun = new ArrayList<DataScenes.SceneContainer>();
-			if (ServerTickHandler.ticks>=6000) {
+			if (ServerTickHandler.ticks >= 6000) {
 				ServerTickHandler.ticks = 0;
 				List<Integer> del = Lists.<Integer>newArrayList();
-				for (int id :  CommonProxy.dataBuilder.keySet()) {
+				for (int id : CommonProxy.dataBuilder.keySet()) {
 					BuilderData bd = CommonProxy.dataBuilder.get(id);
-					if (bd.player==null) { del.add(id); continue; }
+					if (bd.player == null) {
+						del.add(id);
+						continue;
+					}
 					ItemStack stack = null;
 					if (ItemBuilder.isBulderItem(bd, bd.player.getHeldItemOffhand())) {
 						stack = bd.player.getHeldItemOffhand();
 					} else {
-						for(ItemStack s : bd.player.inventory.mainInventory) {
+						for (ItemStack s : bd.player.inventory.mainInventory) {
 							if (ItemBuilder.isBulderItem(bd, s)) {
 								stack = s;
 								break;
 							}
 						}
 					}
-					if (stack==null) { del.add(id); }
+					if (stack == null) {
+						del.add(id);
+					}
 				}
-				for (int id :  del) { CommonProxy.dataBuilder.remove(id); }
+				for (int id : del) {
+					CommonProxy.dataBuilder.remove(id);
+				}
 			}
 		}
-		if (ServerTickHandler.ticks % 10 == 0 && CustomNpcs.Server!=null && !CustomNpcs.Server.getPlayerList().getPlayers().isEmpty()) {
+		if (ServerTickHandler.ticks % 10 == 0 && CustomNpcs.Server != null
+				&& !CustomNpcs.Server.getPlayerList().getPlayers().isEmpty()) {
 			EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayers().get(0);
 			if (player != null) {
-				EventHooks.onEvent(PlayerData.get(player).scriptData, "worldtick", new WorldEvent.ServerTickEvent(event));
+				EventHooks.onEvent(PlayerData.get(player).scriptData, "worldtick",
+						new WorldEvent.ServerTickEvent(event));
 			}
 		}
-		if (ServerTickHandler.ticks % 1200 == 0) { BankController.getInstance().update(); }
+		if (ServerTickHandler.ticks % 1200 == 0) {
+			BankController.getInstance().update();
+		}
 		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerTick");
 	}
 
 	@SubscribeEvent
 	public void onServerWorldTick(TickEvent.WorldTickEvent event) {
-		if (event.side != Side.SERVER) { return; }
+		if (event.side != Side.SERVER) {
+			return;
+		}
 		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerWorldTick");
 		if (event.phase == TickEvent.Phase.START) {
 			NPCSpawning.findChunksForSpawning((WorldServer) event.world);
 		}
 		CustomNpcs.debugData.endDebug("Server", "Mod", "ServerTickHandler_onServerWorldTick");
 	}
-	
+
 }

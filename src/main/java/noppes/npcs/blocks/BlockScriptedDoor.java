@@ -25,9 +25,7 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class BlockScriptedDoor
-extends BlockNpcDoorInterface
-implements IPermission {
+public class BlockScriptedDoor extends BlockNpcDoorInterface implements IPermission {
 
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
@@ -107,12 +105,18 @@ implements IPermission {
 		if (world.isRemote) {
 			return true;
 		}
-		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos : pos.down();
+		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos
+				: pos.down();
 		IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
-		if (iblockstate1.getBlock() != this) { return false; }
+		if (iblockstate1.getBlock() != this) {
+			return false;
+		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem != null && (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter || currentItem.getItem() == CustomRegisters.scriptedDoorTool)) {
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1.getX(), blockpos1.getY(), blockpos1.getZ());
+		if (currentItem != null
+				&& (currentItem.getItem() == CustomRegisters.wand || currentItem.getItem() == CustomRegisters.scripter
+						|| currentItem.getItem() == CustomRegisters.scriptedDoorTool)) {
+			NoppesUtilServer.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1.getX(), blockpos1.getY(),
+					blockpos1.getZ());
 			return true;
 		}
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(blockpos1);
@@ -170,18 +174,25 @@ implements IPermission {
 
 	public void toggleDoor(World world, BlockPos pos, boolean open) {
 		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(pos);
-		if (EventHooks.onScriptBlockDoorToggle(tile)) { return; }
-		//super.toggleDoor(world, pos, open);
+		if (EventHooks.onScriptBlockDoorToggle(tile)) {
+			return;
+		}
+		// super.toggleDoor(world, pos, open);
 		IBlockState iblockstate = world.getBlockState(pos);
 		if (iblockstate.getBlock() == this) {
 			BlockPos blockpos = iblockstate.getValue(HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
 			IBlockState iblockstate1 = pos == blockpos ? iblockstate : world.getBlockState(blockpos);
-			if (iblockstate1.getBlock() == this && ((Boolean)iblockstate1.getValue(OPEN)).booleanValue() != open) {
+			if (iblockstate1.getBlock() == this && ((Boolean) iblockstate1.getValue(OPEN)).booleanValue() != open) {
 				world.setBlockState(blockpos, iblockstate1.withProperty(OPEN, Boolean.valueOf(open)), 10);
 				world.markBlockRangeForRenderUpdate(blockpos, pos);
 				String sound = open ? tile.openSound : tile.closeSound;
-				if (sound != null && !sound.isEmpty()) { Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND, SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f); }
-				else { world.playEvent((EntityPlayer)null, open ? this.blockMaterial == Material.IRON ? 1005 : 1006 : this.blockMaterial == Material.IRON ? 1011 : 1012, pos, 0); }
+				if (sound != null && !sound.isEmpty()) {
+					Server.sendRangedData(world, pos, 32, EnumPacketClient.FORCE_PLAY_SOUND,
+							SoundCategory.NEUTRAL.ordinal(), sound, pos.getX(), pos.getY(), pos.getZ(), 1.0f, 1.0f);
+				} else {
+					world.playEvent((EntityPlayer) null, open ? this.blockMaterial == Material.IRON ? 1005 : 1006
+							: this.blockMaterial == Material.IRON ? 1011 : 1012, pos, 0);
+				}
 			}
 		}
 	}

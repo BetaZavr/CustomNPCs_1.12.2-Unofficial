@@ -31,6 +31,16 @@ public class ItemNpcScripter extends Item implements IPermission {
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
 	}
 
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list == null) {
+			return;
+		}
+		list.add(new TextComponentTranslation("info.item.scripter").getFormattedText());
+		list.add(new TextComponentTranslation("info.item.scripter.0").getFormattedText());
+	}
+
 	public boolean isAllowed(EnumPacketServer e) {
 		return e == EnumPacketServer.ScriptDataGet || e == EnumPacketServer.ScriptDataSave
 				|| e == EnumPacketServer.ScriptBlockDataSave || e == EnumPacketServer.ScriptDoorDataSave
@@ -48,13 +58,5 @@ public class ItemNpcScripter extends Item implements IPermission {
 		CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.ScriptPlayers, player);
 		return (ActionResult<ItemStack>) new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
 	}
-	
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list==null) { return; }
-		list.add(new TextComponentTranslation("info.item.scripter").getFormattedText());
-		list.add(new TextComponentTranslation("info.item.scripter.0").getFormattedText());
-	}
-	
+
 }

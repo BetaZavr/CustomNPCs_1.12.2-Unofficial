@@ -10,10 +10,8 @@ import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemBook;
 
-public class ItemBookWrapper
-extends ItemStackWrapper
-implements IItemBook {
-	
+public class ItemBookWrapper extends ItemStackWrapper implements IItemBook {
+
 	protected ItemBookWrapper(ItemStack item) {
 		super(item);
 	}

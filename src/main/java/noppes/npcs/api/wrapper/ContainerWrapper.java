@@ -9,9 +9,8 @@ import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 
-public class ContainerWrapper
-implements IContainer {
-	
+public class ContainerWrapper implements IContainer {
+
 	private Container container;
 	private IInventory inventory;
 
@@ -75,6 +74,11 @@ implements IContainer {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return this.inventory == null || this.inventory.isEmpty();
+	}
+
+	@Override
 	public void setSlot(int slot, IItemStack item) {
 		if (slot < 0 || slot >= this.getSize()) {
 			throw new CustomNPCsException("Slot is out of range " + slot, new Object[0]);
@@ -86,10 +90,5 @@ implements IContainer {
 			this.container.putStackInSlot(slot, itemstack);
 			this.container.detectAndSendChanges();
 		}
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return this.inventory == null || this.inventory.isEmpty();
 	}
 }

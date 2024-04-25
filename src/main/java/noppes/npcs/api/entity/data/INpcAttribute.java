@@ -5,50 +5,50 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 
 public interface INpcAttribute {
 
+	IAttributeModifier addModifier(IAttributeModifier modifier);
+
+	IAttributeModifier addModifier(String modifierName, double amount, int operation);
+
+	double getBaseValue();
+
+	String getDisplayName();
+
+	double getMaxValue();
+
 	IAttributeInstance getMCAttribute();
 
 	IAttribute getMCBaseAttribute();
 
-	boolean isCustom();
+	double getMinValue();
+
+	IAttributeModifier getModifier(String uuidOrName);
+
+	IAttributeModifier[] getModifiers();
+
+	IAttributeModifier[] getModifiersByOperation(int operation);
 
 	String getName();
 
-	String getDisplayName();
+	double getTotalValue();
+
+	boolean hasModifier(IAttributeModifier modifier);
+
+	boolean hasModifier(String uuidOrName);
+
+	boolean isCustom();
+
+	void removeAllModifiers();
+
+	boolean removeModifier(IAttributeModifier modifier);
+
+	boolean removeModifier(String uuid);
+
+	void setBaseValue(double baseValue);
 
 	void setDisplayName(String displayName);
-	
-	double getBaseValue();
 
-    void setBaseValue(double baseValue);
-    
-	double getMinValue();
+	void setMaxValue(double maxValue);
 
-    void setMinValue(double minValue);
-    
-	double getMaxValue();
-
-    void setMaxValue(double maxValue);
-
-    IAttributeModifier[] getModifiersByOperation(int operation);
-
-    IAttributeModifier[] getModifiers();
-
-    boolean hasModifier(IAttributeModifier modifier);
-    
-    boolean hasModifier(String uuidOrName);
-
-    IAttributeModifier getModifier(String uuidOrName);
-
-    IAttributeModifier addModifier(IAttributeModifier modifier);
-    
-    IAttributeModifier addModifier(String modifierName, double amount, int operation);
-
-    boolean removeModifier(IAttributeModifier modifier);
-
-    boolean removeModifier(String uuid);
-
-    void removeAllModifiers();
-
-    double getTotalValue();
+	void setMinValue(double minValue);
 
 }

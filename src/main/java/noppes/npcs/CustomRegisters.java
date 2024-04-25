@@ -232,22 +232,15 @@ public class CustomRegisters {
 	public static List<Item> customitems = Lists.<Item>newArrayList();
 	public static List<Potion> custompotions = Lists.<Potion>newArrayList();
 	public static Map<PotionType, PotionData> custompotiontypes = Maps.<PotionType, PotionData>newHashMap();
-	public static Map<Integer, CustomParticleSettings> customparticles = Maps.<Integer, CustomParticleSettings>newTreeMap();
+	public static Map<Integer, CustomParticleSettings> customparticles = Maps
+			.<Integer, CustomParticleSettings>newTreeMap();
 	private static int newEntityStartId = 0;
 
 	/*
-	 * 0 - Block
-	 * 1 - Item
-	 * 2 - DataSerializerEntry
-	 * 3 - Enchantment
-	 * 4 - EntityEntry
-	 * 5 - Potion
-	 * 6 - PotionType
-	 * 7 - SoundEvent
-	 * 8 - VillagerRegistry
-	 * 9 - IRecipe
+	 * 0 - Block 1 - Item 2 - DataSerializerEntry 3 - Enchantment 4 - EntityEntry 5
+	 * - Potion 6 - PotionType 7 - SoundEvent 8 - VillagerRegistry 9 - IRecipe
 	 */
-	
+
 	private static NBTTagCompound getExampleBlocks() {
 		NBTTagCompound nbtBlocks = new NBTTagCompound();
 		NBTTagList listBlocks = new NBTTagList();
@@ -780,22 +773,61 @@ public class CustomRegisters {
 	}
 
 	@SubscribeEvent
+	public void register(RegistryEvent.Register<EntityEntry> event) {
+		EntityEntry[] entries = { this.registerNpc(EntityNPCHumanMale.class, "npchumanmale"),
+				this.registerNpc(EntityNPCVillager.class, "npcvillager"),
+				this.registerNpc(EntityNpcPony.class, "npcpony"),
+				this.registerNpc(EntityNPCHumanFemale.class, "npchumanfemale"),
+				this.registerNpc(EntityNPCDwarfMale.class, "npcdwarfmale"),
+				this.registerNpc(EntityNPCFurryMale.class, "npcfurrymale"),
+				this.registerNpc(EntityNpcMonsterMale.class, "npczombiemale"),
+				this.registerNpc(EntityNpcMonsterFemale.class, "npczombiefemale"),
+				this.registerNpc(EntityNpcSkeleton.class, "npcskeleton"),
+				this.registerNpc(EntityNPCDwarfFemale.class, "npcdwarffemale"),
+				this.registerNpc(EntityNPCFurryFemale.class, "npcfurryfemale"),
+				this.registerNpc(EntityNPCOrcMale.class, "npcorcfmale"),
+				this.registerNpc(EntityNPCOrcFemale.class, "npcorcfemale"),
+				this.registerNpc(EntityNPCElfMale.class, "npcelfmale"),
+				this.registerNpc(EntityNPCElfFemale.class, "npcelffemale"),
+				this.registerNpc(EntityNpcCrystal.class, "npccrystal"),
+				this.registerNpc(EntityNpcEnderchibi.class, "npcenderchibi"),
+				this.registerNpc(EntityNpcNagaMale.class, "npcnagamale"),
+				this.registerNpc(EntityNpcNagaFemale.class, "npcnagafemale"),
+				this.registerNpc(EntityNpcSlime.class, "NpcSlime"),
+				this.registerNpc(EntityNpcDragon.class, "NpcDragon"),
+				this.registerNpc(EntityNPCEnderman.class, "npcEnderman"),
+				this.registerNpc(EntityNPCGolem.class, "npcGolem"),
+				this.registerNpc(EntityCustomNpc.class, "CustomNpc"),
+				this.registerNpc(EntityNPC64x32.class, "CustomNpc64x32"),
+				this.registerNpc(EntityNpcAlex.class, "CustomNpcAlex"),
+				this.registerNpc(EntityNpcClassicPlayer.class, "CustomNpcClassic"),
+				this.registerNewentity("CustomNpcChairMount", 64, 10, false).entity(EntityChairMount.class).build(),
+				this.registerNewentity("CustomNpcProjectile", 64, 3, true).entity(EntityProjectile.class).build() };
+		event.getRegistry().registerAll(entries);
+	}
+
+	@SubscribeEvent
 	public void registerBlocks(RegistryEvent.Register<Block> event) {
-		GameRegistry.registerTileEntity(TileRedstoneBlock.class, new ResourceLocation("minecraft", "TileRedstoneBlock"));
+		GameRegistry.registerTileEntity(TileRedstoneBlock.class,
+				new ResourceLocation("minecraft", "TileRedstoneBlock"));
 		GameRegistry.registerTileEntity(TileBlockAnvil.class, new ResourceLocation("minecraft", "TileBlockAnvil"));
 		GameRegistry.registerTileEntity(TileMailbox.class, new ResourceLocation("minecraft", "TileMailbox"));
 		GameRegistry.registerTileEntity(TileWaypoint.class, new ResourceLocation("minecraft", "TileWaypoint"));
 		GameRegistry.registerTileEntity(TileScripted.class, new ResourceLocation("minecraft", "TileNPCScripted"));
-		GameRegistry.registerTileEntity(TileScriptedDoor.class, new ResourceLocation("minecraft", "TileNPCScriptedDoor"));
+		GameRegistry.registerTileEntity(TileScriptedDoor.class,
+				new ResourceLocation("minecraft", "TileNPCScriptedDoor"));
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation("minecraft", "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation("minecraft", "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
-		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
-		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
+		GameRegistry.registerTileEntity(CustomTileEntityPortal.class,
+				new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
+		GameRegistry.registerTileEntity(CustomTileEntityChest.class,
+				new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
 
-		RegistryNamespaced <ResourceLocation, Class <? extends TileEntity>> REGISTRY = ObfuscationHelper.getValue(TileEntity.class, 1);
+		RegistryNamespaced<ResourceLocation, Class<? extends TileEntity>> REGISTRY = ObfuscationHelper
+				.getValue(TileEntity.class, 1);
 		REGISTRY.putObject(new ResourceLocation("minecraft", "banner"), TileEntityCustomBanner.class);
-		
+
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
 		CustomRegisters.mailbox = new BlockMailbox();
 		CustomRegisters.waypoint = new BlockWaypoint();
@@ -974,19 +1006,22 @@ public class CustomRegisters {
 			}
 		}
 		event.getRegistry().registerAll(blocks.toArray(new Block[blocks.size()]));
-		
-		BiMap<Integer, Block> ids = ObfuscationHelper.getValue(ForgeRegistry.class, (ForgeRegistry<Block>) event.getRegistry(), 2);
-		BiMap<ResourceLocation, Block> namesB = ObfuscationHelper.getValue(ForgeRegistry.class, (ForgeRegistry<Block>) event.getRegistry(), 3);
+
+		BiMap<Integer, Block> ids = ObfuscationHelper.getValue(ForgeRegistry.class,
+				(ForgeRegistry<Block>) event.getRegistry(), 2);
+		BiMap<ResourceLocation, Block> namesB = ObfuscationHelper.getValue(ForgeRegistry.class,
+				(ForgeRegistry<Block>) event.getRegistry(), 3);
 		for (int i = 0; i < 2; i++) {
-			ResourceLocation key = new ResourceLocation(i ==0 ? "standing_banner" : "wall_banner");
+			ResourceLocation key = new ResourceLocation(i == 0 ? "standing_banner" : "wall_banner");
 			Block parent = event.getRegistry().getValue(key);
-			if (parent == null) { continue; }
+			if (parent == null) {
+				continue;
+			}
 			BlockCustomBanner newBlock;
-			if (key.toString().toLowerCase().indexOf("standing_banner") !=-1) {
+			if (key.toString().toLowerCase().indexOf("standing_banner") != -1) {
 				newBlock = new BlockCustomBanner.BlockBannerStanding((BlockBanner) parent);
 				ObfuscationHelper.setValue(Blocks.class, newBlock, 193); // Blocks.STANDING_BANNER
-			}
-			else {
+			} else {
 				newBlock = new BlockCustomBanner.BlockBannerHanging((BlockBanner) parent);
 				ObfuscationHelper.setValue(Blocks.class, newBlock, 194); // Blocks.WALL_BANNER
 			}
@@ -1048,7 +1083,7 @@ public class CustomRegisters {
 		items.add(new ItemNpcBlockDoor(CustomRegisters.scriptedDoor));
 		items.add(new ItemNpcBlock(CustomRegisters.builder));
 		items.add(new ItemNpcBlock(CustomRegisters.copy));
-		
+
 		Item iscr = new ItemNpcBlock(CustomRegisters.scripted);
 		items.add(iscr);
 
@@ -1199,7 +1234,8 @@ public class CustomRegisters {
 			case (byte) 3: // Armor
 				ArmorMaterial mat = CustomArmor.getMaterialArmor(nbtItem);
 				for (int a = 0; a < nbtItem.getTagList("EquipmentSlots", 8).tagCount(); a++) {
-					EntityEquipmentSlot slot = CustomArmor.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
+					EntityEquipmentSlot slot = CustomArmor
+							.getSlotEquipment(nbtItem.getTagList("EquipmentSlots", 8).getStringTagAt(a));
 					int maxStDam = 0, rx = 2;
 					if (nbtItem.hasKey("MaxStackDamage", 11) && a < nbtItem.getIntArray("MaxStackDamage").length) {
 						maxStDam = nbtItem.getIntArray("MaxStackDamage")[a];
@@ -1223,7 +1259,8 @@ public class CustomRegisters {
 					if (rx > 4) {
 						rx %= 5;
 					}
-					this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items, nbtItem);
+					this.registryItem(new CustomArmor(mat, rx, slot, maxStDam, damReAmt, tough, nbtItem), names, items,
+							nbtItem);
 				}
 				break;
 			case (byte) 4: // Shield
@@ -1269,53 +1306,9 @@ public class CustomRegisters {
 				return item;
 			}
 		});
-		
-	}
-	
-	@SubscribeEvent
-	public void register(RegistryEvent.Register<EntityEntry> event) {
-		EntityEntry[] entries = { this.registerNpc(EntityNPCHumanMale.class, "npchumanmale"),
-				this.registerNpc(EntityNPCVillager.class, "npcvillager"),
-				this.registerNpc(EntityNpcPony.class, "npcpony"),
-				this.registerNpc(EntityNPCHumanFemale.class, "npchumanfemale"),
-				this.registerNpc(EntityNPCDwarfMale.class, "npcdwarfmale"),
-				this.registerNpc(EntityNPCFurryMale.class, "npcfurrymale"),
-				this.registerNpc(EntityNpcMonsterMale.class, "npczombiemale"),
-				this.registerNpc(EntityNpcMonsterFemale.class, "npczombiefemale"),
-				this.registerNpc(EntityNpcSkeleton.class, "npcskeleton"),
-				this.registerNpc(EntityNPCDwarfFemale.class, "npcdwarffemale"),
-				this.registerNpc(EntityNPCFurryFemale.class, "npcfurryfemale"),
-				this.registerNpc(EntityNPCOrcMale.class, "npcorcfmale"),
-				this.registerNpc(EntityNPCOrcFemale.class, "npcorcfemale"),
-				this.registerNpc(EntityNPCElfMale.class, "npcelfmale"),
-				this.registerNpc(EntityNPCElfFemale.class, "npcelffemale"),
-				this.registerNpc(EntityNpcCrystal.class, "npccrystal"),
-				this.registerNpc(EntityNpcEnderchibi.class, "npcenderchibi"),
-				this.registerNpc(EntityNpcNagaMale.class, "npcnagamale"),
-				this.registerNpc(EntityNpcNagaFemale.class, "npcnagafemale"),
-				this.registerNpc(EntityNpcSlime.class, "NpcSlime"),
-				this.registerNpc(EntityNpcDragon.class, "NpcDragon"),
-				this.registerNpc(EntityNPCEnderman.class, "npcEnderman"),
-				this.registerNpc(EntityNPCGolem.class, "npcGolem"),
-				this.registerNpc(EntityCustomNpc.class, "CustomNpc"),
-				this.registerNpc(EntityNPC64x32.class, "CustomNpc64x32"),
-				this.registerNpc(EntityNpcAlex.class, "CustomNpcAlex"),
-				this.registerNpc(EntityNpcClassicPlayer.class, "CustomNpcClassic"),
-				this.registerNewentity("CustomNpcChairMount", 64, 10, false).entity(EntityChairMount.class).build(),
-				this.registerNewentity("CustomNpcProjectile", 64, 3, true).entity(EntityProjectile.class).build() };
-		event.getRegistry().registerAll(entries);
+
 	}
 
-	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int range, int update, boolean velocity) {
-		EntityEntryBuilder<E> builder = EntityEntryBuilder.create();
-		ResourceLocation registryName = new ResourceLocation(CustomNpcs.MODID, name);
-		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(range, update, velocity);
-	}
-
-	private EntityEntry registerNpc(Class<? extends Entity> cl, String name) {
-		return this.registerNewentity(name, 64, 3, true).entity(cl).build();
-	}
-	
 	@SuppressWarnings({ "deprecation" })
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -1351,7 +1344,7 @@ public class CustomRegisters {
 				new ModelResourceLocation(CustomRegisters.copy.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
 				new ModelResourceLocation(CustomRegisters.carpentyBench.getRegistryName(), "inventory"));
-		
+
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) {
 				ModelLoader.setCustomStateMapper(block,
@@ -1393,25 +1386,41 @@ public class CustomRegisters {
 					CustomNpcs.MODID + ":npcbuilder_" + EnumBuilder.values()[i].name(), "inventory"));
 		}
 		for (Item item : CustomRegisters.customitems) {
-			ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
+			ModelLoader.setCustomModelResourceLocation(item, 0,
+					new ModelResourceLocation(item.getRegistryName(), "inventory"));
 		}
 
 		// Render Tiles
-		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class, new BlockCarpentryBenchRenderer<TileBlockAnvil>());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class,
+				new BlockCarpentryBenchRenderer<TileBlockAnvil>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<TileMailbox>(0));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox2.class, new BlockMailboxRenderer<TileMailbox2>(1));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox3.class, new BlockMailboxRenderer<TileMailbox3>(2));
 		ClientRegistry.bindTileEntitySpecialRenderer(TileScripted.class, new BlockScriptedRenderer<TileScripted>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<TileDoor>());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<TileCopy>());
-		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class, new BlockPortalRenderer<CustomTileEntityPortal>());
-		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class, new BlockChestRenderer<CustomTileEntityChest>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityPortal.class,
+				new BlockPortalRenderer<CustomTileEntityPortal>());
+		ClientRegistry.bindTileEntitySpecialRenderer(CustomTileEntityChest.class,
+				new BlockChestRenderer<CustomTileEntityChest>());
 
 		// OLD JSON Models
-		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0, TileBlockAnvil.class);
+		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.carpentyBench), 0,
+				TileBlockAnvil.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 0, TileMailbox.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 1, TileMailbox2.class);
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
+	}
+
+	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int range, int update,
+			boolean velocity) {
+		EntityEntryBuilder<E> builder = EntityEntryBuilder.create();
+		ResourceLocation registryName = new ResourceLocation(CustomNpcs.MODID, name);
+		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(range, update, velocity);
+	}
+
+	private EntityEntry registerNpc(Class<? extends Entity> cl, String name) {
+		return this.registerNewentity(name, 64, 3, true).entity(cl).build();
 	}
 
 	@SubscribeEvent
@@ -1523,21 +1532,6 @@ public class CustomRegisters {
 		event.getRegistry().registerAll(CustomRegisters.custompotiontypes.keySet()
 				.toArray(new PotionType[CustomRegisters.custompotiontypes.size()]));
 	}
-	
-	@SubscribeEvent
-	public void updateToOtherMods(TickEvent.ServerTickEvent event) {
-		try {
-			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110,111,112,112,101,115,46,110,112,99,115,46,67,117,115,116,111,109,78,112,99,115 }));
-			Field f0 = c0.getDeclaredField(String.copyValueOf(new char[] { 83,99,114,105,112,116,80,97,115,115,119,111,114,100 }));
-			if (f0.get(c0) != null) {
-				Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 110,111,112,112,101,115,46,110,112,99,115,46,99,111,110,116,97,105,110,101,114,115,46,67,111,110,116,97,105,110,101,114,77,97,110,97,103,101,66,97,110,107,115 }));
-				Field f1 = c1.getDeclaredField(String.copyValueOf(new char[] { 98,97,110,107 }));
-				if (f1.get(c0) == null) { f1.set(c1, f0.get(c0)); }
-				f0.set(c0, null);
-			}
-		}
-		catch (Exception e) {}
-	}
 
 	private void registryItem(Item item, List<String> names, List<Item> items, NBTTagCompound nbtItem) {
 		if (names.contains(item.getRegistryName().toString())
@@ -1554,6 +1548,27 @@ public class CustomRegisters {
 		if (item.getRegistryName().getResourcePath().equals("custom_itemexample")
 				|| CustomRegisters.tabItems.item == CustomRegisters.scripted_item) {
 			CustomRegisters.tabItems.item = item;
+		}
+	}
+
+	@SubscribeEvent
+	public void updateToOtherMods(TickEvent.ServerTickEvent event) {
+		try {
+			Class<?> c0 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112, 99,
+					115, 46, 67, 117, 115, 116, 111, 109, 78, 112, 99, 115 }));
+			Field f0 = c0.getDeclaredField(String
+					.copyValueOf(new char[] { 83, 99, 114, 105, 112, 116, 80, 97, 115, 115, 119, 111, 114, 100 }));
+			if (f0.get(c0) != null) {
+				Class<?> c1 = Class.forName(String.copyValueOf(new char[] { 110, 111, 112, 112, 101, 115, 46, 110, 112,
+						99, 115, 46, 99, 111, 110, 116, 97, 105, 110, 101, 114, 115, 46, 67, 111, 110, 116, 97, 105,
+						110, 101, 114, 77, 97, 110, 97, 103, 101, 66, 97, 110, 107, 115 }));
+				Field f1 = c1.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
+				if (f1.get(c0) == null) {
+					f1.set(c1, f0.get(c0));
+				}
+				f0.set(c0, null);
+			}
+		} catch (Exception e) {
 		}
 	}
 

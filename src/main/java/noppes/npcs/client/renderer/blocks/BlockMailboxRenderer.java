@@ -9,9 +9,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.model.blocks.ModelMailboxUS;
 import noppes.npcs.client.model.blocks.ModelMailboxWow;
 
-public class BlockMailboxRenderer<T extends TileEntity>
-extends TileEntitySpecialRenderer<T> {
-	
+public class BlockMailboxRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
+
 	private static ResourceLocation text1 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox1.png");
 	private static ResourceLocation text2 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox2.png");
 	private static ResourceLocation text3 = new ResourceLocation(CustomNpcs.MODID, "textures/models/mailbox3.png");;

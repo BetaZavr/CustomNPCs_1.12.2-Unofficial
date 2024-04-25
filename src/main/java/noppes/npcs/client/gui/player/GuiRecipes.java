@@ -22,7 +22,7 @@ import noppes.npcs.items.crafting.NpcShapedRecipes;
 
 @SideOnly(Side.CLIENT)
 public class GuiRecipes extends GuiNPCInterface {
-	
+
 	private GuiNpcLabel label;
 	private GuiNpcButton left;
 	public boolean npcRecipes;

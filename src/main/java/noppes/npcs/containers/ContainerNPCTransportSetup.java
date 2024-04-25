@@ -11,7 +11,7 @@ import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
 
 public class ContainerNPCTransportSetup extends Container {
-	
+
 	public TransportLocation location;
 	public int catId;
 
@@ -20,7 +20,8 @@ public class ContainerNPCTransportSetup extends Container {
 		this.catId = catId;
 		for (int v = 0; v < 3; ++v) {
 			for (int u = 0; u < 3; ++u) {
-				this.addSlotToContainer(new Slot(location.inventory, u + v * 3, (location.id<0 ? -5000 : 0) + 215 + u * 18, (location.id<0 ? -5000 : 0) + 20 + v * 18));
+				this.addSlotToContainer(new Slot(location.inventory, u + v * 3,
+						(location.id < 0 ? -5000 : 0) + 215 + u * 18, (location.id < 0 ? -5000 : 0) + 20 + v * 18));
 			}
 		}
 		for (int i2 = 0; i2 < 3; ++i2) {
@@ -40,7 +41,9 @@ public class ContainerNPCTransportSetup extends Container {
 
 	public NBTTagCompound saveTransport(TransportCategory category) {
 		NBTTagCompound compound = new NBTTagCompound();
-		if (category==null) { return compound; }
+		if (category == null) {
+			return compound;
+		}
 		for (int i = 0; i < 9; i++) {
 			this.location.inventory.setInventorySlotContents(i, this.getSlot(i).getStack());
 		}
@@ -49,19 +52,18 @@ public class ContainerNPCTransportSetup extends Container {
 		return compound;
 	}
 
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
-		return ItemStack.EMPTY;
+	public void setDeal(Deal deal) {
+		/*
+		 * this.deal = deal; this.getSlot(0).putStack(deal!=null ?
+		 * deal.inventorySold.getStackInSlot(0) : ItemStack.EMPTY); for (int v = 0; v <
+		 * 3; ++v) { for (int u = 0; u < 3; ++u) { int pos = u + v * 3;
+		 * this.getSlot(pos+1).putStack(deal!=null ?
+		 * deal.inventoryCurrency.getStackInSlot(pos) : ItemStack.EMPTY); } }
+		 */
 	}
 
-	public void setDeal(Deal deal) {
-		/*this.deal = deal;
-		this.getSlot(0).putStack(deal!=null ? deal.inventorySold.getStackInSlot(0) : ItemStack.EMPTY);
-		for (int v = 0; v < 3; ++v) {
-			for (int u = 0; u < 3; ++u) {
-				int pos = u + v * 3;
-				this.getSlot(pos+1).putStack(deal!=null ? deal.inventoryCurrency.getStackInSlot(pos) : ItemStack.EMPTY);
-			}
-		}*/
+	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
+		return ItemStack.EMPTY;
 	}
 
 }

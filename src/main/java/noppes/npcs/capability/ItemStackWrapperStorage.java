@@ -6,17 +6,18 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
 
-public class ItemStackWrapperStorage
-implements Capability.IStorage<IItemStackWrapperHandler> {
+public class ItemStackWrapperStorage implements Capability.IStorage<IItemStackWrapperHandler> {
 
 	@Override
-	public NBTBase writeNBT(Capability<IItemStackWrapperHandler> capability, IItemStackWrapperHandler instance, EnumFacing side) {
-		return instance.getMCNbt();
+	public void readNBT(Capability<IItemStackWrapperHandler> capability, IItemStackWrapperHandler instance,
+			EnumFacing side, NBTBase nbt) {
+		instance.setMCNbt((NBTTagCompound) nbt);
 	}
 
 	@Override
-	public void readNBT(Capability<IItemStackWrapperHandler> capability, IItemStackWrapperHandler instance, EnumFacing side, NBTBase nbt) {
-        instance.setMCNbt((NBTTagCompound) nbt);
+	public NBTBase writeNBT(Capability<IItemStackWrapperHandler> capability, IItemStackWrapperHandler instance,
+			EnumFacing side) {
+		return instance.getMCNbt();
 	}
 
 }

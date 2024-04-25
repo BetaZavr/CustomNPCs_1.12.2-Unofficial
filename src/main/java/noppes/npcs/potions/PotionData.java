@@ -9,11 +9,11 @@ public class PotionData {
 	public Potion potion = null;
 	public PotionType potionType = null;
 	public NBTTagCompound nbtData = null;
-	
+
 	public PotionData(Potion potion, PotionType potionType, NBTTagCompound nbtPotion) {
 		this.potion = potion;
 		this.potionType = potionType;
 		this.nbtData = nbtPotion;
 	}
-	
+
 }

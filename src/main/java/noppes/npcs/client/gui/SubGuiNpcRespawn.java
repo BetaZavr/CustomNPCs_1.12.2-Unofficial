@@ -13,10 +13,8 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataStats;
 
-public class SubGuiNpcRespawn
-extends SubGuiInterface
-implements ITextfieldListener {
-	
+public class SubGuiNpcRespawn extends SubGuiInterface implements ITextfieldListener {
+
 	private DataStats stats;
 
 	public SubGuiNpcRespawn(DataStats stats) {
@@ -46,6 +44,29 @@ implements ITextfieldListener {
 	}
 
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.time").getFormattedText());
+		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+			ITextComponent mes = new TextComponentTranslation("stats.hover.respawn.type");
+			mes.appendSibling(new TextComponentTranslation("stats.hover.respawn.type." + this.getButton(0).getValue()));
+			this.setHoverText(mes.getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.body").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+
+	@Override
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(0, "stats.respawn", this.guiLeft + 5, this.guiTop + 35));
@@ -63,27 +84,6 @@ implements ITextfieldListener {
 					new String[] { "gui.no", "gui.yes" }, (this.stats.hideKilledBody ? 1 : 0)));
 		}
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 82, this.guiTop + 190, 98, 20, "gui.done"));
-	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(2)!=null && this.getTextField(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.time").getFormattedText());
-		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			ITextComponent mes = new TextComponentTranslation("stats.hover.respawn.type");
-			mes.appendSibling(new TextComponentTranslation("stats.hover.respawn.type."+this.getButton(0).getValue()));
-			this.setHoverText(mes.getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.respawn.body").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
 	}
 
 	@Override

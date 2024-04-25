@@ -17,9 +17,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcMenu
-implements GuiYesNoCallback {
-	
+public class GuiNpcMenu implements GuiYesNoCallback {
+
 	public int activeMenu;
 	private EntityNPCInterface npc;
 	private GuiScreen parent;
@@ -49,6 +48,10 @@ implements GuiYesNoCallback {
 		}
 	}
 
+	public GuiMenuTopButton[] getTopButtons() {
+		return topButtons;
+	}
+
 	public void initGui(int guiLeft, int guiTop, int width) {
 		Keyboard.enableRepeatEvents(true);
 		GuiMenuTopButton display = new GuiMenuTopButton(1, guiLeft + 4, guiTop - 17, "menu.display");
@@ -58,7 +61,8 @@ implements GuiYesNoCallback {
 		GuiMenuTopButton advanced = new GuiMenuTopButton(4, inv.x + inv.getWidth(), guiTop - 17, "menu.advanced");
 		GuiMenuTopButton global = new GuiMenuTopButton(5, advanced.x + advanced.getWidth(), guiTop - 17, "menu.global");
 		GuiMenuTopButton close = new GuiMenuTopButton(0, guiLeft + width - 22, guiTop - 17, "X");
-		GuiMenuTopButton delete = new GuiMenuTopButton(66, guiLeft + width - 72, guiTop - 17, "selectWorld.deleteButton");
+		GuiMenuTopButton delete = new GuiMenuTopButton(66, guiLeft + width - 72, guiTop - 17,
+				"selectWorld.deleteButton");
 		delete.x = close.x - delete.getWidth();
 		this.topButtons = new GuiMenuTopButton[] { display, stats, ai, inv, advanced, global, close, delete };
 		for (GuiMenuTopButton button : this.getTopButtons()) {
@@ -79,12 +83,18 @@ implements GuiYesNoCallback {
 
 	public void save() {
 		GuiNpcTextField.unfocus();
-		if (this.parent instanceof GuiContainerNPCInterface2) { ((GuiContainerNPCInterface2) this.parent).save(); }
-		if (this.parent instanceof GuiNPCInterface2) { ((GuiNPCInterface2) this.parent).save(); }
+		if (this.parent instanceof GuiContainerNPCInterface2) {
+			((GuiContainerNPCInterface2) this.parent).save();
+		}
+		if (this.parent instanceof GuiNPCInterface2) {
+			((GuiNPCInterface2) this.parent).save();
+		}
 	}
 
 	public void topButtonPressed(GuiMenuTopButton button) {
-		if (button.displayString.equals("" + this.activeMenu)) { return; }
+		if (button.displayString.equals("" + this.activeMenu)) {
+			return;
+		}
 		Minecraft mc = Minecraft.getMinecraft();
 		NoppesUtil.clickSound();
 		int id = button.id;
@@ -105,7 +115,8 @@ implements GuiYesNoCallback {
 			return;
 		}
 		if (id == 66) {
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, "",
+					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 			mc.displayGuiScreen((GuiScreen) guiyesno);
 			return;
 		}
@@ -125,7 +136,5 @@ implements GuiYesNoCallback {
 		}
 		this.activeMenu = id;
 	}
-
-	public GuiMenuTopButton[] getTopButtons() { return topButtons; }
 
 }

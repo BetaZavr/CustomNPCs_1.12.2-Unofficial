@@ -3,9 +3,8 @@ package noppes.npcs.api.entity;
 import net.minecraft.entity.projectile.EntityThrowable;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IProjectile<T extends EntityThrowable>
-extends IThrowable<T> {
-	
+public interface IProjectile<T extends EntityThrowable> extends IThrowable<T> {
+
 	void enableEvents();
 
 	int getAccuracy();
@@ -25,5 +24,5 @@ extends IThrowable<T> {
 	void setHeading(IEntity<?> entity);
 
 	void setItem(IItemStack item);
-	
+
 }

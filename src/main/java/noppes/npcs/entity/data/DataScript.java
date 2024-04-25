@@ -18,9 +18,8 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class DataScript
-implements IScriptHandler {
-	
+public class DataScript implements IScriptHandler {
+
 	private boolean enabled;
 	public long lastInited;
 	private EntityNPCInterface npc;
@@ -82,8 +81,9 @@ implements IScriptHandler {
 	@Override
 	public String noticeString() {
 		BlockPos pos = this.npc.getPosition();
-		return MoreObjects.toStringHelper(this.npc).add("name", this.npc.getName()).add("dimID", this.npc.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ())
-				.toString();
+		return MoreObjects.toStringHelper(this.npc).add("name", this.npc.getName())
+				.add("dimID", this.npc.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY())
+				.add("z", pos.getZ()).toString();
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -94,11 +94,15 @@ implements IScriptHandler {
 
 	@Override
 	public void runScript(String type, Event event) {
-		if (!this.isEnabled()) { return; }
+		if (!this.isEnabled()) {
+			return;
+		}
 		if (ScriptController.Instance.lastLoaded > lastInited) {
 			lastInited = ScriptController.Instance.lastLoaded;
 			if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
-				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
+				for (ScriptContainer tab : this.scripts) {
+					tab.getFullCode();
+				}
 				EventHooks.onNPCInit(this.npc);
 			}
 		}

@@ -4,38 +4,38 @@ import noppes.npcs.api.item.IItemStack;
 
 public interface ILayerModel {
 
-	int getPos();
-	
-	INbt getNbt();
-	
-	void setNbt(INbt nbt);
-
-	float getOffset(int axis);
-
-	void setOffset(float x, float y, float z);
-
 	IItemStack getModel();
 
-	void setModel(IItemStack stack);
+	INbt getNbt();
 
 	String getOBJModel();
 
-	void setOBJModel(String path);
+	float getOffset(int axis);
+
+	int getPos();
 
 	float getRotate(int axis);
 
-	void setRotate(float x, float y, float z);
+	int getRotateSpeed();
+
+	float getScale(int axis);
 
 	boolean isRotate(int axis);
 
 	void setIsRotate(boolean x, boolean y, boolean z);
 
-	float getScale(int axis);
+	void setModel(IItemStack stack);
+
+	void setNbt(INbt nbt);
+
+	void setOBJModel(String path);
+
+	void setOffset(float x, float y, float z);
+
+	void setRotate(float x, float y, float z);
+
+	void setRotateSpeed(int speed);
 
 	void setScale(float x, float y, float z);
-	
-	int getRotateSpeed();
-	
-	void setRotateSpeed(int speed);
-	
+
 }

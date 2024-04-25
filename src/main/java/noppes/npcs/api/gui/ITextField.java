@@ -1,8 +1,7 @@
 package noppes.npcs.api.gui;
 
-public interface ITextField
-extends ICustomGuiComponent {
-	
+public interface ITextField extends ICustomGuiComponent {
+
 	int getHeight();
 
 	String getText();
@@ -12,5 +11,5 @@ extends ICustomGuiComponent {
 	ITextField setSize(int width, int height);
 
 	ITextField setText(String text);
-	
+
 }

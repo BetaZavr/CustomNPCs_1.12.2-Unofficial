@@ -10,9 +10,8 @@ import noppes.npcs.api.gui.ICompassData;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.constants.EnumQuestTask;
 
-public class PlayerCompassHUDData
-implements ICompassData {
-	
+public class PlayerCompassHUDData implements ICompassData {
+
 	public String npc, name, title;
 	public BlockPos pos;
 	public boolean show;
@@ -20,17 +19,7 @@ implements ICompassData {
 	public final double[] screenPos = new double[] { 0.15d, 0.765d };
 	public float scale = 1.0f, incline = 0.0f, rot = 0.0f;
 	public boolean showQuestName, showTaskProgress;
-	
-	public PlayerCompassHUDData(int type, String name, String title, BlockPos pos, int dimensionId, int range) {
-		this();
-		if (name!=null) { this.name = name; }
-		if (title!=null) { this.title = title; }
-		if (pos!=null) { this.pos = pos; }
-		this.setDimensionID(dimensionId);
-		this.setRange(range);
-		this.setType(type);
-	}
-	
+
 	public PlayerCompassHUDData() {
 		this.name = "";
 		this.title = "";
@@ -49,6 +38,32 @@ implements ICompassData {
 		this.showTaskProgress = true;
 	}
 
+	public PlayerCompassHUDData(int type, String name, String title, BlockPos pos, int dimensionId, int range) {
+		this();
+		if (name != null) {
+			this.name = name;
+		}
+		if (title != null) {
+			this.title = title;
+		}
+		if (pos != null) {
+			this.pos = pos;
+		}
+		this.setDimensionID(dimensionId);
+		this.setRange(range);
+		this.setType(type);
+	}
+
+	@Override
+	public int getDimensionID() {
+		return this.dimensionId;
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
 	public NBTTagCompound getNbt() {
 		NBTTagCompound nbtCompass = new NBTTagCompound();
 		nbtCompass.setString("Name", this.name);
@@ -62,14 +77,45 @@ implements ICompassData {
 		nbtCompass.setFloat("Scale", this.scale);
 		nbtCompass.setFloat("Rotation", this.rot);
 		nbtCompass.setFloat("Incline", this.incline);
-		nbtCompass.setByteArray("Showed", new byte[] { (byte) (this.showQuestName ? 1 : 0), (byte) (this.showTaskProgress ? 1 : 0) }); 
-		
+		nbtCompass.setByteArray("Showed",
+				new byte[] { (byte) (this.showQuestName ? 1 : 0), (byte) (this.showTaskProgress ? 1 : 0) });
+
 		NBTTagList scP = new NBTTagList();
 		scP.appendTag(new NBTTagDouble(this.screenPos[0]));
 		scP.appendTag(new NBTTagDouble(this.screenPos[1]));
 		nbtCompass.setTag("ScreenPos", scP);
-		
+
 		return nbtCompass;
+	}
+
+	@Override
+	public String getNPCName() {
+		return this.npc;
+	}
+
+	@Override
+	public IPos getPos() {
+		return new BlockPosWrapper(this.pos);
+	}
+
+	@Override
+	public int getRange() {
+		return this.range;
+	}
+
+	@Override
+	public String getTitle() {
+		return this.title;
+	}
+
+	@Override
+	public int getType() {
+		return this.type;
+	}
+
+	@Override
+	public boolean isShow() {
+		return this.show;
 	}
 
 	public void load(NBTTagCompound nbtCompass) {
@@ -77,7 +123,9 @@ implements ICompassData {
 		this.title = nbtCompass.getString("Title");
 		this.npc = nbtCompass.getString("NPCName");
 		int[] p = nbtCompass.getIntArray("BlockPos");
-		if (p!=null && p.length>=3) { this.pos = new BlockPos(p[0], p[1], p[2]); }
+		if (p != null && p.length >= 3) {
+			this.pos = new BlockPos(p[0], p[1], p[2]);
+		}
 		this.setDimensionID(nbtCompass.getInteger("DimensionID"));
 		this.setRange(nbtCompass.getInteger("Range"));
 		this.setType(nbtCompass.getInteger("Type"));
@@ -94,39 +142,26 @@ implements ICompassData {
 	}
 
 	@Override
-	public int getType() { return this.type; }
-	
-	@Override
-	public void setType(int type) {
-		if (type<0) { type *= -1; }
-		if (type > EnumQuestTask.values().length-1) { type %= EnumQuestTask.values().length-1; }
-		this.type = type;
-	}
-
-	@Override
-	public int getRange() { return this.range; }
-	
-	@Override
-	public void setRange(int range) {
-		if (range<0) { range *= -1; }
-		if (range>64) { range = 64; }
-		this.range = range;
-	}
-
-	@Override
-	public int getDimensionID() { return this.dimensionId; }
-
-	@Override
 	public void setDimensionID(int dimID) {
-		if (DimensionManager.isDimensionRegistered(dimID)) { dimID = 0; }
+		if (DimensionManager.isDimensionRegistered(dimID)) {
+			dimID = 0;
+		}
 		this.dimensionId = dimID;
 	}
 
 	@Override
-	public IPos getPos() { return new BlockPosWrapper(this.pos); }
+	public void setName(String name) {
+		if (name != null) {
+			this.name = name;
+		}
+	}
 
 	@Override
-	public void setPos(IPos pos) { if (pos!=null) { this.pos = pos.getMCBlockPos(); } }
+	public void setNPCName(String npcName) {
+		if (npcName != null) {
+			this.name = npcName;
+		}
+	}
 
 	@Override
 	public void setPos(int x, int y, int z) {
@@ -134,27 +169,44 @@ implements ICompassData {
 	}
 
 	@Override
-	public String getName() { return this.name; }
+	public void setPos(IPos pos) {
+		if (pos != null) {
+			this.pos = pos.getMCBlockPos();
+		}
+	}
 
 	@Override
-	public void setName(String name) { if (name!=null) { this.name = name; } }
+	public void setRange(int range) {
+		if (range < 0) {
+			range *= -1;
+		}
+		if (range > 64) {
+			range = 64;
+		}
+		this.range = range;
+	}
 
 	@Override
-	public String getNPCName() { return this.npc; }
+	public void setShow(boolean show) {
+		this.show = show;
+	}
 
 	@Override
-	public void setNPCName(String npcName) { if (npcName!=null) { this.name = npcName; } }
-	
-	@Override
-	public String getTitle() { return this.title; }
+	public void setTitle(String title) {
+		if (title != null) {
+			this.title = title;
+		}
+	}
 
 	@Override
-	public void setTitle(String title) { if (title!=null) { this.title = title; } }
+	public void setType(int type) {
+		if (type < 0) {
+			type *= -1;
+		}
+		if (type > EnumQuestTask.values().length - 1) {
+			type %= EnumQuestTask.values().length - 1;
+		}
+		this.type = type;
+	}
 
-	@Override
-	public boolean isShow() { return this.show; }
-	
-	@Override
-	public void setShow(boolean show) { this.show = show; }
-	
 }

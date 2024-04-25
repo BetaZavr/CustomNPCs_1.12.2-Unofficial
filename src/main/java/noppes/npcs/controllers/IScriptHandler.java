@@ -6,7 +6,7 @@ import java.util.Map;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public interface IScriptHandler {
-	
+
 	void clearConsole();
 
 	Map<Long, String> getConsoleText();
@@ -26,5 +26,5 @@ public interface IScriptHandler {
 	void setEnabled(boolean bo);
 
 	void setLanguage(String language);
-	
+
 }

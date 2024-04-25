@@ -7,9 +7,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiMenuTopButton
-extends GuiNpcButton {
-	
+public class GuiMenuTopButton extends GuiNpcButton {
+
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menutopbutton.png");
 	public boolean active;
 	protected int height;
@@ -36,8 +35,10 @@ extends GuiNpcButton {
 	}
 
 	public void drawButton(Minecraft minecraft, int i, int j, float partialTicks) {
-		if (!this.getVisible()) { return; }
-        this.hovered = i >= this.x && j >= this.y && i < this.x + this.width && j < this.y + this.height;
+		if (!this.getVisible()) {
+			return;
+		}
+		this.hovered = i >= this.x && j >= this.y && i < this.x + this.width && j < this.y + this.height;
 		GlStateManager.pushMatrix();
 		minecraft.renderEngine.bindTexture(GuiMenuTopButton.resource);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -45,16 +46,21 @@ extends GuiNpcButton {
 		this.hover = (i >= this.x && j >= this.y && i < this.x + this.getWidth() && j < this.y + height);
 		int k = this.getHoverState(this.hover);
 		this.drawTexturedModalRect(this.x, this.y, 0, k * 20, this.getWidth() / 2, height);
-		this.drawTexturedModalRect(this.x + this.getWidth() / 2, this.y, 200 - this.getWidth() / 2, k * 20, this.getWidth() / 2, height);
+		this.drawTexturedModalRect(this.x + this.getWidth() / 2, this.y, 200 - this.getWidth() / 2, k * 20,
+				this.getWidth() / 2, height);
 		this.mouseDragged(minecraft, i, j);
 		FontRenderer fontrenderer = minecraft.fontRenderer;
 		if (this.rotated) {
 			GlStateManager.rotate(90.0f, 1.0f, 0.0f, 0.0f);
 		}
 		int l = CustomNpcs.MainColor.getRGB();
-		if (this.packedFGColour != 0) { l = this.packedFGColour; }
-		else if (this.hovered) { l = CustomNpcs.HoverColor.getRGB(); }
-		this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2, this.y + (height - 8) / 2, l);
+		if (this.packedFGColour != 0) {
+			l = this.packedFGColour;
+		} else if (this.hovered) {
+			l = CustomNpcs.HoverColor.getRGB();
+		}
+		this.drawCenteredString(fontrenderer, this.displayString, this.x + this.getWidth() / 2,
+				this.y + (height - 8) / 2, l);
 		GlStateManager.popMatrix();
 	}
 

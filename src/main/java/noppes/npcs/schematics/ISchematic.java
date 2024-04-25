@@ -6,10 +6,12 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 
 public interface ISchematic {
-	
+
 	IBlockState getBlockState(int state);
 
 	IBlockState getBlockState(int x, int y, int z);
+
+	NBTTagList getEntitys();
 
 	short getHeight();
 
@@ -19,6 +21,8 @@ public interface ISchematic {
 
 	NBTTagCompound getNBT();
 
+	BlockPos getOffset();
+
 	NBTTagCompound getTileEntity(int pos);
 
 	int getTileEntitySize();
@@ -27,8 +31,4 @@ public interface ISchematic {
 
 	boolean hasEntitys();
 
-	NBTTagList getEntitys();
-
-	BlockPos getOffset();
-	
 }

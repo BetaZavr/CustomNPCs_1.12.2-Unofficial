@@ -5,10 +5,8 @@ import noppes.npcs.api.constants.EntityType;
 import noppes.npcs.api.entity.IArrow;
 
 @SuppressWarnings("rawtypes")
-public class ArrowWrapper<T extends EntityArrow>
-extends EntityWrapper<T>
-implements IArrow {
-	
+public class ArrowWrapper<T extends EntityArrow> extends EntityWrapper<T> implements IArrow {
+
 	public ArrowWrapper(T entity) {
 		super(entity);
 	}

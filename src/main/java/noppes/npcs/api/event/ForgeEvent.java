@@ -35,23 +35,24 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 @Cancelable
 public class ForgeEvent extends CustomNPCsEvent {
-	
+
 	public static class InitEvent extends ForgeEvent {
-		
+
 		public InitEvent() {
 			super(null);
 		}
-		
+
 	}
 
 	@Cancelable
 	public static class SoundTickEvent extends ForgeEvent {
-		
+
 		public float milliSeconds, totalSecond;
 		public String name, resource;
 		public float volume, pitch;
 
-		public SoundTickEvent(IPlayer<?> player, String name, String resource, IPos pos, float volume, float pitch, float milliSeconds, float totalSecond) {
+		public SoundTickEvent(IPlayer<?> player, String name, String resource, IPos pos, float volume, float pitch,
+				float milliSeconds, float totalSecond) {
 			super(null);
 			this.milliSeconds = milliSeconds;
 			this.totalSecond = totalSecond;
@@ -59,12 +60,12 @@ public class ForgeEvent extends CustomNPCsEvent {
 			this.resource = resource;
 			this.volume = volume;
 			this.pitch = pitch;
-			
+
 			this.pos = pos;
 			this.player = player;
 		}
 	}
-	
+
 	public NpcAPI API;
 	public Event event;
 	public IEntity<?> entity;
@@ -78,132 +79,216 @@ public class ForgeEvent extends CustomNPCsEvent {
 	public ForgeEvent(Event event) {
 		this.API = NpcAPI.Instance();
 		this.event = event;
-		if (event==null || CustomNpcs.SimplifiedForgeEvents) { return; }
+		if (event == null || CustomNpcs.SimplifiedForgeEvents) {
+			return;
+		}
 		// Common
 		Block bl = null;
 		IBlockState st = null;
 		Class<?> sp = event.getClass();
-		while(this.entity==null && sp.getSuperclass()!=null && sp.getSuperclass()!=Event.class) {
+		while (this.entity == null && sp.getSuperclass() != null && sp.getSuperclass() != Event.class) {
 			for (Field f : sp.getDeclaredFields()) {
-				if (this.entity==null && f.getType().getSimpleName().indexOf("EntityPlayer")==-1 && (f.getType() == Entity.class || f.getType() == EntityLiving.class || f.getType() == EntityLivingBase.class)) {
+				if (this.entity == null && f.getType().getSimpleName().indexOf("EntityPlayer") == -1
+						&& (f.getType() == Entity.class || f.getType() == EntityLiving.class
+								|| f.getType() == EntityLivingBase.class)) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
 						this.entity = NpcAPI.Instance().getIEntity((Entity) f.get(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if (this.player==null && f.getType().getSimpleName().indexOf("EntityPlayer")!=-1) {
+				if (this.player == null && f.getType().getSimpleName().indexOf("EntityPlayer") != -1) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
 						this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((Entity) f.get(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if (this.npc==null && f.getType() == EntityNPCInterface.class) {
+				if (this.npc == null && f.getType() == EntityNPCInterface.class) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
 						this.npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity((EntityNPCInterface) f.get(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if (this.world == null && (f.getType().getSimpleName().equals("WorldClient") || f.getType() == WorldServer.class || f.getType() == World.class)) {
+				if (this.world == null && (f.getType().getSimpleName().equals("WorldClient")
+						|| f.getType() == WorldServer.class || f.getType() == World.class)) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
 						this.world = NpcAPI.Instance().getIWorld((World) f.get(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
 				if (this.pos == null && f.getType() == BlockPos.class) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
 						this.pos = NpcAPI.Instance().getIPos((BlockPos) f.get(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
 				if (this.stack == null && f.getType() == ItemStack.class) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
 						this.stack = NpcAPI.Instance().getIItemStack((ItemStack) f.get(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if ((bl==null || st==null) && (f.getType() == Block.class || f.getType() == IBlockState.class)) {
+				if ((bl == null || st == null) && (f.getType() == Block.class || f.getType() == IBlockState.class)) {
 					try {
-						if (!f.isAccessible()) { f.setAccessible(true); }
-						if (f.getType() == Block.class) { bl = (Block) f.get(event); }
-						else { st = (IBlockState) f.get(event); }
-					} catch (Exception e) { }
+						if (!f.isAccessible()) {
+							f.setAccessible(true);
+						}
+						if (f.getType() == Block.class) {
+							bl = (Block) f.get(event);
+						} else {
+							st = (IBlockState) f.get(event);
+						}
+					} catch (Exception e) {
+					}
 				}
 			}
 			for (Method m : sp.getDeclaredMethods()) {
-				if (m.getParameterCount()!=0) { continue; }
-				if (this.entity==null && m.getReturnType().getName().indexOf(".EntityPlayer")==-1 && (m.getReturnType() == Entity.class || m.getReturnType() == EntityLiving.class || m.getReturnType() == EntityLivingBase.class)) {
+				if (m.getParameterCount() != 0) {
+					continue;
+				}
+				if (this.entity == null && m.getReturnType().getName().indexOf(".EntityPlayer") == -1
+						&& (m.getReturnType() == Entity.class || m.getReturnType() == EntityLiving.class
+								|| m.getReturnType() == EntityLivingBase.class)) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
 						this.entity = NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
 
-				if (this.player==null && m.getReturnType().getName().indexOf(".EntityPlayer")!=-1) {
+				if (this.player == null && m.getReturnType().getName().indexOf(".EntityPlayer") != -1) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
 						this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayer) m.invoke(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if (this.npc==null && m.getReturnType() == EntityNPCInterface.class) {
+				if (this.npc == null && m.getReturnType() == EntityNPCInterface.class) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
 						this.npc = (ICustomNpc<?>) NpcAPI.Instance().getIEntity((EntityNPCInterface) m.invoke(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if (this.world == null && (m.getReturnType().getSimpleName().equals("WorldClient") || m.getReturnType() == WorldServer.class || m.getReturnType() == World.class)) {
+				if (this.world == null && (m.getReturnType().getSimpleName().equals("WorldClient")
+						|| m.getReturnType() == WorldServer.class || m.getReturnType() == World.class)) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
 						this.world = NpcAPI.Instance().getIWorld((World) m.invoke(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
 				if (this.pos == null && m.getReturnType() == BlockPos.class) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
 						this.pos = NpcAPI.Instance().getIPos((BlockPos) m.invoke(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
 				if (this.stack == null && m.getReturnType() == ItemStack.class) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
 						this.stack = NpcAPI.Instance().getIItemStack((ItemStack) m.invoke(event));
-					} catch (Exception e) { }
+					} catch (Exception e) {
+					}
 				}
-				if ((bl==null || st==null) && (m.getReturnType() == Block.class || m.getReturnType() == IBlockState.class)) {
+				if ((bl == null || st == null)
+						&& (m.getReturnType() == Block.class || m.getReturnType() == IBlockState.class)) {
 					try {
-						if (!m.isAccessible()) { m.setAccessible(true); }
-						if (m.getReturnType() == Block.class) { bl = (Block) m.invoke(event); }
-						else { st = (IBlockState) m.invoke(event); }
-					} catch (Exception e) { }
+						if (!m.isAccessible()) {
+							m.setAccessible(true);
+						}
+						if (m.getReturnType() == Block.class) {
+							bl = (Block) m.invoke(event);
+						} else {
+							st = (IBlockState) m.invoke(event);
+						}
+					} catch (Exception e) {
+					}
 				}
 			}
 			sp = sp.getSuperclass();
 		}
-		
+
 		// player
-		if (this.player==null && this.entity!=null && this.entity.getMCEntity() instanceof EntityPlayer) { this.player = (IPlayer<?>) this.entity; }
-		if (this.player==null && CustomNpcs.proxy.getPlayer()!=null) { this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(CustomNpcs.proxy.getPlayer()); }
-		
+		if (this.player == null && this.entity != null && this.entity.getMCEntity() instanceof EntityPlayer) {
+			this.player = (IPlayer<?>) this.entity;
+		}
+		if (this.player == null && CustomNpcs.proxy.getPlayer() != null) {
+			this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(CustomNpcs.proxy.getPlayer());
+		}
+
 		// NPC
-		if (this.npc==null && this.entity!=null && this.entity.getMCEntity() instanceof EntityNPCInterface) { this.npc = (ICustomNpc<?>) this.entity; }
-		if (this.entity==null && this.player!=null) { this.entity = this.player; }
-		if (this.entity==null && this.npc!=null) { this.entity = this.npc; }
-		
+		if (this.npc == null && this.entity != null && this.entity.getMCEntity() instanceof EntityNPCInterface) {
+			this.npc = (ICustomNpc<?>) this.entity;
+		}
+		if (this.entity == null && this.player != null) {
+			this.entity = this.player;
+		}
+		if (this.entity == null && this.npc != null) {
+			this.entity = this.npc;
+		}
+
 		// world
-		if (this.world==null && this.entity!=null) { this.world = this.entity.getWorld(); }
-		if (this.world==null && this.player!=null) { this.world = this.player.getWorld(); }
-		if (this.world==null && this.npc!=null) { this.world = this.npc.getWorld(); }
-		
+		if (this.world == null && this.entity != null) {
+			this.world = this.entity.getWorld();
+		}
+		if (this.world == null && this.player != null) {
+			this.world = this.player.getWorld();
+		}
+		if (this.world == null && this.npc != null) {
+			this.world = this.npc.getWorld();
+		}
+
 		// pos
-		if (this.pos==null && this.entity!=null) { this.pos = this.entity.getPos(); }
-		if (this.pos==null && this.player!=null) { this.pos = this.player.getPos(); }
-		if (this.pos==null && this.npc!=null) { this.pos = this.npc.getPos(); }
-		
+		if (this.pos == null && this.entity != null) {
+			this.pos = this.entity.getPos();
+		}
+		if (this.pos == null && this.player != null) {
+			this.pos = this.player.getPos();
+		}
+		if (this.pos == null && this.npc != null) {
+			this.pos = this.npc.getPos();
+		}
+
 		// block
 		this.getBlock(bl, st);
 	}
 
 	private void getBlock(Block block, IBlockState state) {
-		if ((block == null && state==null) || this.pos == null || this.pos.getMCBlockPos() == null || this.world==null || this.world.getMCWorld()==null) { return; }
+		if ((block == null && state == null) || this.pos == null || this.pos.getMCBlockPos() == null
+				|| this.world == null || this.world.getMCWorld() == null) {
+			return;
+		}
 		String key;
 		BlockPos p = this.pos.getMCBlockPos();
 		World w = this.world.getMCWorld();
@@ -214,13 +299,20 @@ public class ForgeEvent extends CustomNPCsEvent {
 			key = block.getDefaultState().toString() + p.toString();
 		}
 		if (!BlockWrapper.blockCache.containsKey(key)) {
-			if (block instanceof BlockScripted) { this.block = new BlockScriptedWrapper(w, block, p); }
-			else if (block instanceof BlockScriptedDoor) { this.block = new BlockScriptedDoorWrapper(w, block, p); }
-			else if (block instanceof BlockFluidBase) { this.block = new BlockFluidContainerWrapper(w, block, p); }
-			else { this.block = new BlockWrapper(this.world.getMCWorld(), block, p); }
+			if (block instanceof BlockScripted) {
+				this.block = new BlockScriptedWrapper(w, block, p);
+			} else if (block instanceof BlockScriptedDoor) {
+				this.block = new BlockScriptedDoorWrapper(w, block, p);
+			} else if (block instanceof BlockFluidBase) {
+				this.block = new BlockFluidContainerWrapper(w, block, p);
+			} else {
+				this.block = new BlockWrapper(this.world.getMCWorld(), block, p);
+			}
 			BlockWrapper.blockCache.put(key, (BlockWrapper) this.block);
 		}
-		if (this.block != null) { ((BlockWrapper) this.block).setTile(w.getTileEntity(p)); }
+		if (this.block != null) {
+			((BlockWrapper) this.block).setTile(w.getTileEntity(p));
+		}
 	}
-	
+
 }

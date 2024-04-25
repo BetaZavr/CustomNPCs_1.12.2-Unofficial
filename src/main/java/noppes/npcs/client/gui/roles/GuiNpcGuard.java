@@ -27,9 +27,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobGuard;
 
-public class GuiNpcGuard
-extends GuiNPCInterface2 {
-	
+public class GuiNpcGuard extends GuiNPCInterface2 {
+
 	private JobGuard role;
 	private GuiCustomScroll scroll1;
 	private GuiCustomScroll scroll2;
@@ -166,16 +165,16 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, this.role.writeToNBT(new NBTTagCompound()));
-	}
-	
-	@Override
 	public void keyTyped(char c, int i) {
 		super.keyTyped(c, i);
 		if (i == 1) {
 			this.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 		}
+	}
+
+	@Override
+	public void save() {
+		Client.sendData(EnumPacketServer.JobSave, this.role.writeToNBT(new NBTTagCompound()));
 	}
 }

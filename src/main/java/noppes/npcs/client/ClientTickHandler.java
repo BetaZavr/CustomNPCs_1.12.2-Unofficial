@@ -56,61 +56,51 @@ import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
 public class ClientTickHandler {
-	
-	private boolean otherContainer;
-	private World prevWorld;
-	private Map<String, ISound> nowPlayingSounds;
+
 	public static boolean cheakMails = false;
 	public static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
+	public static void loadFiles() {
+		if (ClientProxy.loadFiles.isEmpty()) {
+			return;
+		}
+		String isDel = "";
+		for (String key : ClientProxy.loadFiles.keySet()) {
+			TempFile file = ClientProxy.loadFiles.get(key);
+			if (file.lastLoad == 0) {
+				NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
+				file.lastLoad = System.currentTimeMillis();
+			} else if (file.lastLoad + 12000L < System.currentTimeMillis()) {
+				file.tryLoads++;
+				if (file.tryLoads > 9) {
+					LogWriter.error("Failed to load file after 10 attempts: \"" + key + "\"");
+					isDel = key;
+				} else {
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
+					file.lastLoad = System.currentTimeMillis();
+				}
+			}
+			break;
+		}
+		if (!isDel.isEmpty()) {
+			ClientProxy.loadFiles.remove(isDel);
+			ClientTickHandler.loadFiles();
+		}
+	}
+	private boolean otherContainer;
+	private World prevWorld;
+
+	private Map<String, ISound> nowPlayingSounds;
 
 	public ClientTickHandler() {
 		this.otherContainer = false;
 		this.nowPlayingSounds = Maps.<String, ISound>newHashMap();
 	}
-	
-	@SubscribeEvent
-	public void npcLivingUpdate(LivingUpdateEvent event) {
-		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) { return; }
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
-		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
-		if (ClientProxy.notVisibleNPC.containsKey(dimID) && ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
-			Minecraft.getMinecraft().world.removeEntity(event.getEntity());
-		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
-	}
-	
-	@SubscribeEvent
-	public void npcMouseInput(MouseEvent event) {
-		int key = event.getButton();
-		if (key == -1) { return; }
-		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
-		if (Minecraft.getMinecraft().currentScreen==null) {
-			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
-			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
-			boolean isAltPressed = ClientProxy.playerData.hud.hasOrKeysPressed(184, 56);
-			boolean isMetaPressed = ClientProxy.playerData.hud.hasOrKeysPressed(220, 219);
-			boolean isDown = event.isButtonstate();
-			if (isDown) { ClientProxy.playerData.hud.mousePress.add(key); }
-			else {
-				if (ClientProxy.playerData.hud.hasMousePress(key)) { ClientProxy.playerData.hud.mousePress.remove((Integer)key); }
-			}
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-		} else if (ClientProxy.playerData.hud.mousePress.size()>0) {
-			ClientProxy.playerData.hud.mousePress.clear();
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
-		}
-		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
-	}
-
-	@SubscribeEvent
-	public void npcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-		if (event.getHand() != EnumHand.MAIN_HAND) { return; }
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick, new Object[0]);
-	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void npcClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) { return; }
+		if (event.phase == TickEvent.Phase.END) {
+			return;
+		}
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcClientTick");
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && mc.player.openContainer instanceof ContainerPlayer) {
@@ -132,17 +122,24 @@ public class ClientTickHandler {
 		List<String> del = Lists.newArrayList();
 		for (String uuid : playingSounds.keySet()) { // is played
 			try {
-				if (!this.nowPlayingSounds.containsKey(uuid) || !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
+				if (!this.nowPlayingSounds.containsKey(uuid)
+						|| !this.nowPlayingSounds.containsValue(playingSounds.get(uuid))) {
 					ISound sound = playingSounds.get(uuid);
-					if (sound.getCategory()==SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
+					if (sound.getCategory() == SoundCategory.MUSIC && !ClientTickHandler.musics.containsKey(sound)) {
 						ClientTickHandler.musics.put(sound, new MusicData(sound, uuid, sm));
 					}
 					this.nowPlayingSounds.put(uuid, playingSounds.get(uuid));
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.PlaySound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
-					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.PlaySound, sound.getSound().getSoundLocation(),
+							sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
+							sound.getZPosF(), sound.getVolume(), sound.getPitch());
+					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_PLAY,
+							new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player),
+									sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
+									sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
+									sound.getVolume(), sound.getPitch()));
 				}
 			} catch (Exception e) {
-				LogWriter.error("Error set played sound: "+e);
+				LogWriter.error("Error set played sound: " + e);
 				del.add(uuid);
 			}
 		}
@@ -153,19 +150,28 @@ public class ClientTickHandler {
 					if (ClientTickHandler.musics.containsKey(sound)) {
 						ClientTickHandler.musics.remove(sound);
 					}
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.StopSound, sound.getSound().getSoundLocation(), sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch());
-					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP, new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player), sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(), sound.getVolume(), sound.getPitch()));
+					NoppesUtilPlayer.sendData(EnumPlayerPacket.StopSound, sound.getSound().getSoundLocation(),
+							sound.getSoundLocation(), sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(),
+							sound.getZPosF(), sound.getVolume(), sound.getPitch());
+					EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_STOP,
+							new PlayerEvent.PlayerSound((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player),
+									sound.getSound().getSoundLocation().toString(), sound.getSoundLocation().toString(),
+									sound.getCategory().getName(), sound.getXPosF(), sound.getYPosF(), sound.getZPosF(),
+									sound.getVolume(), sound.getPitch()));
 					del.add(uuid);
 				}
 			} catch (Exception e) {
-				LogWriter.error("Error stop played sound: "+e);
+				LogWriter.error("Error stop played sound: " + e);
 				del.add(uuid);
 			}
 		}
-		for (String uuid : del) { this.nowPlayingSounds.remove(uuid); }
+		for (String uuid : del) {
+			this.nowPlayingSounds.remove(uuid);
+		}
 		for (MusicData md : ClientTickHandler.musics.values()) {
-			if (md.sound!=null && md.source!=null && !md.source.paused()) {
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_TICK_EVENT, md.createEvent(CustomNpcs.proxy.getPlayer()));
+			if (md.sound != null && md.source != null && !md.source.paused()) {
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.SOUND_TICK_EVENT,
+						md.createEvent(CustomNpcs.proxy.getPlayer()));
 			}
 		}
 		if (CustomNpcs.ticks % 10 == 0) {
@@ -192,25 +198,35 @@ public class ClientTickHandler {
 			}
 			ClientTickHandler.cheakMails = false;
 		}
-		if (mc.currentScreen!=null) {
-			if (ClientProxy.playerData.hud.keyPress.size()>0) {
+		if (mc.currentScreen != null) {
+			if (ClientProxy.playerData.hud.keyPress.size() > 0) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 				ClientProxy.playerData.hud.keyPress.clear();
 			}
-			if (ClientProxy.playerData.hud.mousePress.size()>0) {
+			if (ClientProxy.playerData.hud.mousePress.size() > 0) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
 				ClientProxy.playerData.hud.mousePress.clear();
 			}
 		}
 		if (mc.currentScreen instanceof GuiNPCInterface || mc.currentScreen instanceof GuiContainerNPCInterface) {
 			SubGuiInterface subGui = null;
-			if (mc.currentScreen instanceof GuiNPCInterface) { subGui = ((GuiNPCInterface) mc.currentScreen).getSubGui(); }
-			else if (mc.currentScreen instanceof GuiContainerNPCInterface) { subGui = ((GuiContainerNPCInterface) mc.currentScreen).getSubGui(); }
-			if (subGui!=null && subGui.getSubGui()!=null) {
-				while (subGui.getSubGui()!=null) { subGui = subGui.getSubGui(); }
+			if (mc.currentScreen instanceof GuiNPCInterface) {
+				subGui = ((GuiNPCInterface) mc.currentScreen).getSubGui();
+			} else if (mc.currentScreen instanceof GuiContainerNPCInterface) {
+				subGui = ((GuiContainerNPCInterface) mc.currentScreen).getSubGui();
+			}
+			if (subGui != null && subGui.getSubGui() != null) {
+				while (subGui.getSubGui() != null) {
+					subGui = subGui.getSubGui();
+				}
 			}
 			if (ClientEventHandler.subgui != subGui) {
-				LogWriter.debug(((subGui == null ? "Cloce SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - " + (ClientEventHandler.subgui == null ? "null" : ClientEventHandler.subgui.getClass().getSimpleName()))+"; in GUI "+(mc.currentScreen!=null ? mc.currentScreen.getClass().getSimpleName() : "NULL"));
+				LogWriter.debug(
+						((subGui == null ? "Cloce SubGUI " : "Open SubGUI - " + subGui.getClass()) + "; SubOLD - "
+								+ (ClientEventHandler.subgui == null ? "null"
+										: ClientEventHandler.subgui.getClass().getSimpleName()))
+								+ "; in GUI "
+								+ (mc.currentScreen != null ? mc.currentScreen.getClass().getSimpleName() : "NULL"));
 				ClientEventHandler.subgui = subGui;
 			}
 		}
@@ -242,7 +258,7 @@ public class ClientTickHandler {
 				mc.setIngameFocus();
 			}
 		}
-		if (mc.currentScreen==null) {
+		if (mc.currentScreen == null) {
 			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
 			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
 			boolean isAltPressed = ClientProxy.playerData.hud.hasOrKeysPressed(184, 56);
@@ -252,44 +268,44 @@ public class ClientTickHandler {
 			if (isDown) {
 				ClientProxy.playerData.hud.keyPress.add(key);
 				ClientProxy.pressed(key);
+			} else {
+				if (ClientProxy.playerData.hud.hasOrKeysPressed(key)) {
+					ClientProxy.playerData.hud.keyPress.remove((Integer) key);
+				}
 			}
-			else {
-				if (ClientProxy.playerData.hud.hasOrKeysPressed(key)) { ClientProxy.playerData.hud.keyPress.remove((Integer)key); }
-			}
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
-		} else if (ClientProxy.playerData.hud.keyPress.size()>0) {
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed,
+					isAltPressed, isMetaPressed);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved,
+					ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(),
+							ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(),
+							ClientProxy.rightButton.getKeyCode()));
+		} else if (ClientProxy.playerData.hud.keyPress.size() > 0) {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcKeyInputEvent");
 	}
 
-	public static void loadFiles() {
-		if (ClientProxy.loadFiles.isEmpty()) { return; }
-		String isDel = "";
-		for (String key : ClientProxy.loadFiles.keySet()) {
-			TempFile file = ClientProxy.loadFiles.get(key);
-			if (file.lastLoad==0) {
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
-				file.lastLoad = System.currentTimeMillis(); 
-			}
-			else if (file.lastLoad + 12000L < System.currentTimeMillis()) {
-				file.tryLoads++;
-				if (file.tryLoads > 9) {
-					LogWriter.error("Failed to load file after 10 attempts: \""+key+"\"");
-					isDel = key;
-				} else {
-					NoppesUtilPlayer.sendData(EnumPlayerPacket.GetFilePart, file.getNextPatr(), key);
-					file.lastLoad = System.currentTimeMillis();
-				}
-			}
-			break;
+	@SubscribeEvent
+	public void npcLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+		if (event.getHand() != EnumHand.MAIN_HAND) {
+			return;
 		}
-		if (!isDel.isEmpty()) {
-			ClientProxy.loadFiles.remove(isDel);
-			ClientTickHandler.loadFiles();
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.LeftClick, new Object[0]);
+	}
+
+	@SubscribeEvent
+	public void npcLivingUpdate(LivingUpdateEvent event) {
+		if (!event.getEntity().world.isRemote || !(event.getEntity() instanceof EntityNPCInterface)) {
+			return;
 		}
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
+		int dimID = Minecraft.getMinecraft().world.provider.getDimension();
+		if (ClientProxy.notVisibleNPC.containsKey(dimID)
+				&& ClientProxy.notVisibleNPC.get(dimID).contains(event.getEntity().getUniqueID())) {
+			Minecraft.getMinecraft().world.removeEntity(event.getEntity());
+		}
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcLivingUpdate");
 	}
 
 	@SubscribeEvent
@@ -304,25 +320,63 @@ public class ClientTickHandler {
 		for (File file : AdditionalMethods.getFiles(assets, ".mtl")) {
 			try {
 				for (String line : Files.readAllLines(file.toPath())) {
-					if (line.indexOf("map_Kd")==-1) { continue; }
-					int endIndex = line.indexOf(""+((char) 10), line.indexOf("map_Kd"));
-					if (endIndex == -1) { endIndex = line.length(); }
-					String txtr = line.substring(line.indexOf(" ", line.indexOf("map_Kd"))+1, endIndex);
+					if (line.indexOf("map_Kd") == -1) {
+						continue;
+					}
+					int endIndex = line.indexOf("" + ((char) 10), line.indexOf("map_Kd"));
+					if (endIndex == -1) {
+						endIndex = line.length();
+					}
+					String txtr = line.substring(line.indexOf(" ", line.indexOf("map_Kd")) + 1, endIndex);
 					String domain = "", path = "";
-					if (txtr.indexOf(":")==-1) { path = txtr; }
-					else {
+					if (txtr.indexOf(":") == -1) {
+						path = txtr;
+					} else {
 						domain = txtr.substring(0, txtr.indexOf(":"));
-						path = txtr.substring(txtr.indexOf(":")+1);
+						path = txtr.substring(txtr.indexOf(":") + 1);
 					}
 					objTextures.add(new ResourceLocation(domain, path));
 				}
-			} catch (IOException e) { e.printStackTrace(); }
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		for (ResourceLocation res : objTextures) {
-			if (event.getMap().getTextureExtry(res.toString())!=null) { continue; }
+			if (event.getMap().getTextureExtry(res.toString()) != null) {
+				continue;
+			}
 			event.getMap().registerSprite(res);
 		}
 		CustomNpcs.debugData.endDebug("Client", "Mod", "ClientTickHandler_npcLoadAllOBJTextures");
+	}
+
+	@SubscribeEvent
+	public void npcMouseInput(MouseEvent event) {
+		int key = event.getButton();
+		if (key == -1) {
+			return;
+		}
+		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
+		if (Minecraft.getMinecraft().currentScreen == null) {
+			boolean isCtrlPressed = ClientProxy.playerData.hud.hasOrKeysPressed(157, 29);
+			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
+			boolean isAltPressed = ClientProxy.playerData.hud.hasOrKeysPressed(184, 56);
+			boolean isMetaPressed = ClientProxy.playerData.hud.hasOrKeysPressed(220, 219);
+			boolean isDown = event.isButtonstate();
+			if (isDown) {
+				ClientProxy.playerData.hud.mousePress.add(key);
+			} else {
+				if (ClientProxy.playerData.hud.hasMousePress(key)) {
+					ClientProxy.playerData.hud.mousePress.remove((Integer) key);
+				}
+			}
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, key, isDown, isCtrlPressed, isShiftPressed,
+					isAltPressed, isMetaPressed);
+		} else if (ClientProxy.playerData.hud.mousePress.size() > 0) {
+			ClientProxy.playerData.hud.mousePress.clear();
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.MousesPressed, -1);
+		}
+		CustomNpcs.debugData.endDebug("Client", "Players", "ClientTickHandler_npcMouseInput");
 	}
 
 }

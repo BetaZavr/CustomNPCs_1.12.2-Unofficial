@@ -20,10 +20,8 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.data.DataTimers;
 
-public class TileScriptedDoor
-extends TileDoor
-implements ITickable, IScriptBlockHandler {
-	
+public class TileScriptedDoor extends TileDoor implements ITickable, IScriptBlockHandler {
+
 	private IBlock blockDummy;
 	public float blockHardness;
 	public float blockResistance;
@@ -103,6 +101,13 @@ implements ITickable, IScriptBlockHandler {
 		return this.scripts;
 	}
 
+	public String getSoung(boolean isOpen) {
+		if (isOpen) {
+			return this.openSound;
+		}
+		return this.closeSound;
+	}
+
 	public boolean isClient() {
 		return this.getWorld().isRemote;
 	}
@@ -113,7 +118,8 @@ implements ITickable, IScriptBlockHandler {
 
 	public String noticeString() {
 		BlockPos pos = this.getPos();
-		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX()).add("y", pos.getY()).add("z", pos.getZ()).toString();
+		return MoreObjects.toStringHelper(this).add("dimID", this.world.provider.getDimension()).add("x", pos.getX())
+				.add("y", pos.getY()).add("z", pos.getZ()).toString();
 	}
 
 	@Override
@@ -131,7 +137,9 @@ implements ITickable, IScriptBlockHandler {
 		if (ScriptController.Instance.lastLoaded > this.lastInited) {
 			this.lastInited = ScriptController.Instance.lastLoaded;
 			if (!type.equalsIgnoreCase("init")) {
-				for (ScriptContainer tab : this.scripts) { tab.getFullCode(); }
+				for (ScriptContainer tab : this.scripts) {
+					tab.getFullCode();
+				}
 				EventHooks.onScriptBlockInit(this);
 			}
 		}
@@ -161,6 +169,17 @@ implements ITickable, IScriptBlockHandler {
 		}
 	}
 
+	public void setSound(boolean isOpen, String song) {
+		if (song == null) {
+			song = "";
+		}
+		if (isOpen) {
+			this.openSound = song;
+		} else {
+			this.closeSound = song;
+		}
+	}
+
 	@Override
 	public void update() {
 		super.update();
@@ -183,15 +202,4 @@ implements ITickable, IScriptBlockHandler {
 		return super.writeToNBT(compound);
 	}
 
-	public void setSound(boolean isOpen, String song) {
-		if (song == null) { song = ""; }
-		if (isOpen) { this.openSound = song; }
-		else { this.closeSound = song; }
-	}
-
-	public String getSoung(boolean isOpen) {
-		if (isOpen) { return this.openSound; }
-		return this.closeSound;
-	}
-	
 }

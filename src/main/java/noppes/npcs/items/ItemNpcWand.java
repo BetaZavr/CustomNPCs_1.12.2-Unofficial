@@ -19,9 +19,9 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -36,6 +36,18 @@ public class ItemNpcWand extends Item implements IPermission {
 		this.setFull3D();
 		this.maxStackSize = 1;
 		this.setCreativeTab((CreativeTabs) CustomRegisters.tab);
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+		if (list == null) {
+			return;
+		}
+		list.add(new TextComponentTranslation("info.item.wand").getFormattedText());
+		for (int i = 0; i < 3; i++) {
+			list.add(new TextComponentTranslation("info.item.wand." + i).getFormattedText());
+		}
 	}
 
 	public int getMaxItemUseDuration(ItemStack par1ItemStack) {
@@ -65,10 +77,12 @@ public class ItemNpcWand extends Item implements IPermission {
 		} else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {
 			EntityCustomNpc npc = new EntityCustomNpc(world);
 			npc.ais.setStartPos(bpos.up());
-			npc.setLocationAndAngles((bpos.getX() + 0.5f), npc.getStartYPos(), (bpos.getZ() + 0.5f), player.rotationYaw, player.rotationPitch);
+			npc.setLocationAndAngles((bpos.getX() + 0.5f), npc.getStartYPos(), (bpos.getZ() + 0.5f), player.rotationYaw,
+					player.rotationPitch);
 			world.spawnEntity(npc);
 			npc.setHealth(npc.getMaxHealth());
-			CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc), 100);
+			CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc),
+					100);
 		} else {
 			player.sendMessage(new TextComponentTranslation("availability.permission", new Object[0]));
 		}
@@ -78,15 +92,5 @@ public class ItemNpcWand extends Item implements IPermission {
 	public ItemStack onItemUseFinish(ItemStack stack, World worldIn, EntityLivingBase playerIn) {
 		return stack;
 	}
-	
-	@SideOnly(Side.CLIENT)
-	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
-		if (list==null) { return; }
-		list.add(new TextComponentTranslation("info.item.wand").getFormattedText());
-		for (int i=0; i<3; i++) {
-			list.add(new TextComponentTranslation("info.item.wand."+i).getFormattedText());
-		}
-	}
-	
+
 }

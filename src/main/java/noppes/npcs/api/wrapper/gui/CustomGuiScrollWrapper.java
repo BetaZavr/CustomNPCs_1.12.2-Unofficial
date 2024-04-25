@@ -7,10 +7,8 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.IScroll;
 
-public class CustomGuiScrollWrapper
-extends CustomGuiComponentWrapper
-implements IScroll {
-	
+public class CustomGuiScrollWrapper extends CustomGuiComponentWrapper implements IScroll {
+
 	int defaultSelection;
 	int height;
 	String[] list;
@@ -98,7 +96,7 @@ implements IScroll {
 
 	@Override
 	public IScroll setSize(int width, int height) {
-		if (width  <= 0 || height <= 0) {
+		if (width <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		this.width = width;

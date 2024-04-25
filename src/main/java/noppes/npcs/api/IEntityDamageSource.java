@@ -4,20 +4,20 @@ import noppes.npcs.api.entity.IEntity;
 
 public interface IEntityDamageSource {
 
-	String getType();
-	
-	void setType(String damageType);
-	
-	IEntity<?> getITrueSource();
-	
-	void setTrueSource(IEntity<?> entity);
-	
-	IEntity<?> getIImmediateSource();
-	
-	void setImmediateSource(IEntity<?> entity);
-	
 	String getDeadMessage();
-	
+
+	IEntity<?> getIImmediateSource();
+
+	IEntity<?> getITrueSource();
+
+	String getType();
+
 	void setDeadMessage(String message);
-	
+
+	void setImmediateSource(IEntity<?> entity);
+
+	void setTrueSource(IEntity<?> entity);
+
+	void setType(String damageType);
+
 }

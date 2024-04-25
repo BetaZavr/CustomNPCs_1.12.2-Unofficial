@@ -5,12 +5,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import noppes.npcs.api.IPos;
 
-public class BlockPosWrapper
-implements IPos {
-	
+public class BlockPosWrapper implements IPos {
+
 	private BlockPos blockPos;
 
-	public BlockPosWrapper(BlockPos pos) { this.blockPos = pos; }
+	public BlockPosWrapper(BlockPos pos) {
+		this.blockPos = pos;
+	}
 
 	@Override
 	public IPos add(int x, int y, int z) {
@@ -118,6 +119,12 @@ implements IPos {
 	}
 
 	@Override
+	public String toString() {
+		return "BlockPosWrapper {" + this.blockPos.getX() + ", " + this.blockPos.getY() + ", " + this.blockPos.getZ()
+				+ "}";
+	}
+
+	@Override
 	public IPos up() {
 		return new BlockPosWrapper(this.blockPos.up());
 	}
@@ -137,9 +144,4 @@ implements IPos {
 		return new BlockPosWrapper(this.blockPos.west(n));
 	}
 
-	@Override
-	public String toString() {
-		return "BlockPosWrapper {"+this.blockPos.getX()+", "+this.blockPos.getY()+", "+this.blockPos.getZ()+"}";
-	}
-	
 }

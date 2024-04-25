@@ -27,11 +27,13 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTransporter;
 
 public class TransportController {
-	
+
 	private static TransportController instance;
 
 	public static TransportController getInstance() {
-		if (TransportController.instance==null) { TransportController.instance = new TransportController(); }
+		if (TransportController.instance == null) {
+			TransportController.instance = new TransportController();
+		}
 		return TransportController.instance;
 	}
 
@@ -65,6 +67,10 @@ public class TransportController {
 		return false;
 	}
 
+	public Map<Integer, TransportLocation> getLocations() {
+		return this.locations;
+	}
+
 	public NBTTagCompound getNBT() {
 		NBTTagList list = new NBTTagList();
 		for (TransportCategory category : this.categories.values()) {
@@ -75,13 +81,16 @@ public class TransportController {
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
 		nbttagcompound.setInteger("lastID", this.lastUsedID);
 		nbttagcompound.setTag("NPCTransportCategories", list);
-		
+
 		Collection<Integer> set = DimensionHandler.getInstance().getMapDimensionsIDs().values();
 		int[] ws = new int[set.size()];
 		int i = 0;
-		for (int id : set) { ws[i] = id; i++; }
+		for (int id : set) {
+			ws[i] = id;
+			i++;
+		}
 		nbttagcompound.setIntArray("WorldIDs", ws);
-		
+
 		return nbttagcompound;
 	}
 
@@ -145,9 +154,10 @@ public class TransportController {
 	public void loadCategories(File file) throws IOException {
 		try {
 			this.loadCategories(CompressedStreamTools.readCompressed(new FileInputStream(file)));
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 	}
-	
+
 	public void loadCategories(NBTTagCompound compound) {
 		this.locations.clear();
 		this.categories.clear();
@@ -222,7 +232,9 @@ public class TransportController {
 
 	public void saveCategory(NBTTagCompound compound) {
 		int id = compound.getInteger("CategoryId");
-		if (id < 0) { id = this.getUniqueIdCategory(); }
+		if (id < 0) {
+			id = this.getUniqueIdCategory();
+		}
 		if (this.categories.containsKey(id)) {
 			this.categories.get(id).readNBT(compound);
 			if (CustomNpcs.Server != null) {
@@ -230,19 +242,21 @@ public class TransportController {
 					TransportLocation loc = this.categories.get(id).locations.get(locID);
 					if (loc.npc != null) {
 						WorldServer w = CustomNpcs.Server.getWorld(loc.dimension);
-						if (w == null) { continue; }
+						if (w == null) {
+							continue;
+						}
 						Entity entity = w.getEntityFromUuid(loc.npc);
-						if (entity instanceof EntityNPCInterface &&
-								((EntityNPCInterface) entity).advanced.roleInterface instanceof RoleTransporter &&
-								((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).transportId == locID &&
-								!((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).name.equals(loc.name)) {
+						if (entity instanceof EntityNPCInterface
+								&& ((EntityNPCInterface) entity).advanced.roleInterface instanceof RoleTransporter
+								&& ((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).transportId == locID
+								&& !((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).name
+										.equals(loc.name)) {
 							((RoleTransporter) ((EntityNPCInterface) entity).advanced.roleInterface).name = loc.name;
 						}
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			TransportCategory category = new TransportCategory();
 			category.readNBT(compound);
 			category.id = id;
@@ -251,9 +265,12 @@ public class TransportController {
 		this.saveCategories();
 	}
 
-	public TransportLocation saveLocation(int categoryId, NBTTagCompound compound, EntityPlayerMP player, EntityNPCInterface npc) {
+	public TransportLocation saveLocation(int categoryId, NBTTagCompound compound, EntityPlayerMP player,
+			EntityNPCInterface npc) {
 		TransportCategory category = this.categories.get(categoryId);
-		if (category == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) { return null; }
+		if (category == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) {
+			return null;
+		}
 		RoleTransporter role = (RoleTransporter) npc.advanced.roleInterface;
 		TransportLocation location = new TransportLocation();
 		location.readNBT(compound);
@@ -286,6 +303,4 @@ public class TransportController {
 		this.locations.put(location.id, location);
 		location.category.locations.put(location.id, location);
 	}
-	
-	public Map<Integer, TransportLocation> getLocations() { return this.locations; }
 }

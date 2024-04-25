@@ -3,7 +3,7 @@ package noppes.npcs.api.entity.data;
 import noppes.npcs.api.handler.data.IAvailability;
 
 public interface IMark {
-	
+
 	IAvailability getAvailability();
 
 	int getColor();

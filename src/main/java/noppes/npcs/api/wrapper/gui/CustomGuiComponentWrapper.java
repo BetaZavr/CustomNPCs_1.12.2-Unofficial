@@ -5,25 +5,42 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 
-public abstract class CustomGuiComponentWrapper
-implements ICustomGuiComponent {
-	
-	String[] hoverText;
-	int id, posX, posY, offsetType;
-	
+public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
+
 	public static CustomGuiComponentWrapper createFromNBT(NBTTagCompound nbt) {
 		switch (nbt.getInteger("type")) {
-			case 0: { return new CustomGuiButtonWrapper().fromNBT(nbt); }
-			case 1: { return new CustomGuiLabelWrapper().fromNBT(nbt); }
-			case 2: { return new CustomGuiTexturedRectWrapper().fromNBT(nbt); }
-			case 3: { return new CustomGuiTextFieldWrapper().fromNBT(nbt); }
-			case 4: { return new CustomGuiScrollWrapper().fromNBT(nbt); }
-			case 5: { return new CustomGuiItemSlotWrapper().fromNBT(nbt); }
-			case 6: { return new CustomGuiTimerWrapper().fromNBT(nbt); }
-			case 7: { return new CustomGuiEntityWrapper().fromNBT(nbt); }
-			default: { return null; }
+		case 0: {
+			return new CustomGuiButtonWrapper().fromNBT(nbt);
+		}
+		case 1: {
+			return new CustomGuiLabelWrapper().fromNBT(nbt);
+		}
+		case 2: {
+			return new CustomGuiTexturedRectWrapper().fromNBT(nbt);
+		}
+		case 3: {
+			return new CustomGuiTextFieldWrapper().fromNBT(nbt);
+		}
+		case 4: {
+			return new CustomGuiScrollWrapper().fromNBT(nbt);
+		}
+		case 5: {
+			return new CustomGuiItemSlotWrapper().fromNBT(nbt);
+		}
+		case 6: {
+			return new CustomGuiTimerWrapper().fromNBT(nbt);
+		}
+		case 7: {
+			return new CustomGuiEntityWrapper().fromNBT(nbt);
+		}
+		default: {
+			return null;
+		}
 		}
 	}
+	String[] hoverText;
+
+	int id, posX, posY, offsetType;
 
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		this.setId(nbt.getInteger("id"));
@@ -64,6 +81,14 @@ implements ICustomGuiComponent {
 	@Override
 	public boolean hasHoverText() {
 		return this.hoverText != null && this.hoverText.length > 0;
+	}
+
+	@Override
+	public void offSet(int type) {
+		if (type < 0) {
+			type *= -1;
+		}
+		this.offsetType = type % 4;
 	}
 
 	@Override
@@ -109,11 +134,4 @@ implements ICustomGuiComponent {
 		return nbt;
 	}
 
-	@Override
-	public void offSet(int type) {
-		if (type<0) { type *= -1; }
-		this.offsetType = type%4;
-	}
-	
-	
 }

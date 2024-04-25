@@ -4,19 +4,19 @@ import java.util.ArrayList;
 
 public interface IPaintTypeRegistry {
 
-    public boolean registerPaintType(IPaintType paintType);
+	public int getExtraChannels();
 
-    public int getExtraChannels();
+	public IPaintType getPaintTypeFormByte(byte index);
 
-    public IPaintType getPaintTypeFromColour(int trgb);
+	public IPaintType getPaintTypeFormName(String name);
 
-    public int setPaintTypeOnColour(IPaintType paintType, int colour);
+	public IPaintType getPaintTypeFromColour(int trgb);
 
-    public IPaintType getPaintTypeFormByte(byte index);
+	public IPaintType getPaintTypeFromIndex(int index);
 
-    public IPaintType getPaintTypeFormName(String name);
+	public ArrayList<IPaintType> getRegisteredTypes();
 
-    public ArrayList<IPaintType> getRegisteredTypes();
+	public boolean registerPaintType(IPaintType paintType);
 
-    public IPaintType getPaintTypeFromIndex(int index);
+	public int setPaintTypeOnColour(IPaintType paintType, int colour);
 }

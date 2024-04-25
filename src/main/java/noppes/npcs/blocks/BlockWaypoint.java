@@ -16,18 +16,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CustomRegisters;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileWaypoint;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.IPermission;
 
-public class BlockWaypoint
-extends BlockInterface
-implements IPermission {
-	
+public class BlockWaypoint extends BlockInterface implements IPermission {
+
 	public BlockWaypoint() {
 		super(Material.IRON);
 		this.setName("npcwaypoint");
@@ -41,9 +39,26 @@ implements IPermission {
 		return new TileWaypoint();
 	}
 
+	@SideOnly(Side.CLIENT)
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT;
+	}
+
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.MODEL;
+	}
+
 	@Override
 	public boolean isAllowed(EnumPacketServer e) {
 		return e == EnumPacketServer.SaveTileEntity;
+	}
+
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
 	}
 
 	public boolean onBlockActivated(World par1World, BlockPos pos, IBlockState state, EntityPlayer player,
@@ -67,14 +82,5 @@ implements IPermission {
 					pos.getZ());
 		}
 	}
-	
-	public boolean isOpaqueCube(IBlockState state) { return false; }
-	
-	public boolean isFullCube(IBlockState state) { return false; }
 
-	@SideOnly(Side.CLIENT)
-	public BlockRenderLayer getBlockLayer() { return BlockRenderLayer.CUTOUT; }
-	
-	public EnumBlockRenderType getRenderType(IBlockState state) { return EnumBlockRenderType.MODEL; }
-	
 }

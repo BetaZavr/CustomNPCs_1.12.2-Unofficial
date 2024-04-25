@@ -5,22 +5,22 @@ import noppes.npcs.api.handler.data.IMarcet;
 
 public interface IMarcetHandler {
 
+	IDeal addDeal();
+
 	IMarcet addMarcet();
 
-	IMarcet getMarcet(String name);
+	IDeal getDeal(int dealID);
+
+	int[] getDealIDs();
 
 	IMarcet getMarcet(int marcetId);
 
+	IMarcet getMarcet(String name);
+
 	int[] getMarketIDs();
 
-	boolean removeMarcet(int marcetID);
-
-	IDeal addDeal();
-
-	IDeal getDeal(int dealID);
-	
 	boolean removeDeal(int dealID);
 
-	int[] getDealIDs();
+	boolean removeMarcet(int marcetID);
 
 }

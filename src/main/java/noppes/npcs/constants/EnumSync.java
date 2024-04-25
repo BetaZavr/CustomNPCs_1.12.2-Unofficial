@@ -1,7 +1,7 @@
 package noppes.npcs.constants;
 
 public enum EnumSync {
-	
+
 	FactionsData, // 1
 	QuestData, // 2
 	QuestCategoriesData, // 3
@@ -14,14 +14,6 @@ public enum EnumSync {
 	KeysData, // 10
 	TransportData, // 11
 	PlayerQuestData, // 12
-	PlayerGameData,
-	AnimationData,
-	MarcetDeal,
-	MarcetData,
-	BankCeil,
-	BankData,
-	GameData,
-	MailData,
-	Debug;
-	
+	PlayerGameData, AnimationData, MarcetDeal, MarcetData, BankCeil, BankData, GameData, MailData, Debug;
+
 }

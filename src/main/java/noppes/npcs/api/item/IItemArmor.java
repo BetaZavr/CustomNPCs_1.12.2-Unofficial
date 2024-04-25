@@ -1,14 +1,13 @@
 package noppes.npcs.api.item;
 
-public interface IItemArmor
-extends IItemStack {
-	
+public interface IItemArmor extends IItemStack {
+
 	String getArmorMaterial();
 
 	int getArmorSlot();
-	
-	float getToughness();
-	
+
 	int getArmorValue();
+
+	float getToughness();
 
 }

@@ -12,10 +12,8 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.entity.EntityProjectile;
 
 @SuppressWarnings("rawtypes")
-public class ProjectileWrapper<T extends EntityProjectile>
-extends ThrowableWrapper<T>
-implements IProjectile {
-	
+public class ProjectileWrapper<T extends EntityProjectile> extends ThrowableWrapper<T> implements IProjectile {
+
 	public ProjectileWrapper(T entity) {
 		super(entity);
 	}

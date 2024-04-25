@@ -11,10 +11,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class TempTexture
-extends AbstractTexture
-{
-	
+public class TempTexture extends AbstractTexture {
+
 	protected final ResourceLocation textureLocation;
 	private final BufferedImage bufferedImage;
 
@@ -25,8 +23,11 @@ extends AbstractTexture
 
 	public void loadTexture(IResourceManager resourceManager) throws IOException {
 		this.deleteGlTexture();
-		try { TextureUtil.uploadTextureImage(this.getGlTextureId(), this.bufferedImage); }
-		catch (Exception e) { e.printStackTrace(); }
+		try {
+			TextureUtil.uploadTextureImage(this.getGlTextureId(), this.bufferedImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 }

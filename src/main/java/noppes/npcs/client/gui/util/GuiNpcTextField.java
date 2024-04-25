@@ -6,12 +6,21 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class GuiNpcTextField
-extends GuiTextField {
+public class GuiNpcTextField extends GuiTextField {
 
 	public static char[] filePath = new char[] { ':', '*', '?', '"', '<', '>', '&', '|' };
-	
+
 	private static GuiNpcTextField activeTextfield = null;
+	public static boolean isActive() {
+		return GuiNpcTextField.activeTextfield != null;
+	}
+	public static void unfocus() {
+		GuiNpcTextField prev = GuiNpcTextField.activeTextfield;
+		GuiNpcTextField.activeTextfield = null;
+		if (prev != null) {
+			prev.unFocused();
+		}
+	}
 	private int[] allowedSpecialKeys;
 	public char[] prohibitedSpecialChars;
 	public boolean enabled, inMenu, hovered;
@@ -19,10 +28,13 @@ extends GuiTextField {
 	private boolean numbersOnly;
 	private boolean doubleNumbersOnly;
 	private ITextfieldListener listener;
+
 	public long min, max, def;
+
 	public double minD, maxD, defD;
 
-	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height, String text) {
+	public GuiNpcTextField(int id, GuiScreen parent, FontRenderer fontRenderer, int x, int y, int width, int height,
+			String text) {
 		super(id, fontRenderer, x, y, width, height);
 		this.enabled = true;
 		this.inMenu = true;
@@ -49,19 +61,11 @@ extends GuiTextField {
 		this(id, parent, Minecraft.getMinecraft().fontRenderer, x, y, width, height, text);
 	}
 
-	public static boolean isActive() {
-		return GuiNpcTextField.activeTextfield != null;
-	}
-
-	public static void unfocus() {
-		GuiNpcTextField prev = GuiNpcTextField.activeTextfield;
-		GuiNpcTextField.activeTextfield = null;
-		if (prev != null) { prev.unFocused(); }
-	}
-	
 	private boolean charAllowed(char c, int i) {
 		for (char g : this.prohibitedSpecialChars) {
-			if (g == c) { return false; }
+			if (g == c) {
+				return false;
+			}
 		}
 		if (!this.numbersOnly || Character.isDigit(c) || (c == '-' && this.getText().length() == 0)) {
 			return true;
@@ -72,7 +76,9 @@ extends GuiTextField {
 			return true;
 		}
 		for (int j : this.allowedSpecialKeys) {
-			if (j == i) { return true; }
+			if (j == i) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -84,25 +90,35 @@ extends GuiTextField {
 	}
 
 	public void drawTextBox(int mouseX, int mouseY) {
-        this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
-        this.drawTextBox();
+		this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width
+				&& mouseY < this.y + this.height;
+		this.drawTextBox();
 	}
 
 	public double getDouble() {
 		double d = 0.0d;
-		try { d = Double.parseDouble(this.getText().replace(",", ".")); } catch (Exception e) {}
+		try {
+			d = Double.parseDouble(this.getText().replace(",", "."));
+		} catch (Exception e) {
+		}
 		return d;
 	}
 
 	public int getInteger() {
 		int i = 0;
-		try { i = Integer.parseInt(this.getText()); } catch (Exception e) {}
+		try {
+			i = Integer.parseInt(this.getText());
+		} catch (Exception e) {
+		}
 		return i;
 	}
 
 	public long getLong() {
 		long i = 0L;
-		try { i = Long.parseLong(this.getText()); } catch (Exception e) {}
+		try {
+			i = Long.parseLong(this.getText());
+		} catch (Exception e) {
+		}
 		return i;
 	}
 
@@ -110,7 +126,8 @@ extends GuiTextField {
 		try {
 			Double.parseDouble(this.getText().replace(",", "."));
 			return true;
-		} catch (NumberFormatException e) { }
+		} catch (NumberFormatException e) {
+		}
 		return false;
 	}
 
@@ -122,36 +139,49 @@ extends GuiTextField {
 		try {
 			Integer.parseInt(this.getText());
 			return true;
+		} catch (NumberFormatException e) {
 		}
-		catch (NumberFormatException e) { }
 		return false;
 	}
-	
+
 	public boolean isLong() {
 		try {
 			Long.parseLong(this.getText());
 			return true;
+		} catch (NumberFormatException e) {
 		}
-		catch (NumberFormatException e) { }
 		return false;
 	}
 
+	public boolean isMouseOver() {
+		return this.hovered;
+	}
+
 	public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (!this.canEdit) { return false; }
+		if (!this.canEdit) {
+			return false;
+		}
 		boolean isFocused = this.isFocused();
 		boolean clicked = hovered;
-        if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 10)) { this.setFocused(hovered); } // canLoseFocus
-        if (isFocused && hovered && mouseButton == 0) {
-            int i = mouseX - this.x;
-            if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 9)) { i -= 4; } // enableBackgroundDrawing
-            FontRenderer fontRenderer = ObfuscationHelper.getValue(GuiTextField.class, this, FontRenderer.class);
-            int lineScrollOffset = ObfuscationHelper.getValue(GuiTextField.class, this, 13);
-            String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
-            this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
-            return true;
-        }
-        else { clicked = false; }
-		if (isFocused != this.isFocused() && isFocused) { this.unFocused(); }
+		if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 10)) {
+			this.setFocused(hovered);
+		} // canLoseFocus
+		if (isFocused && hovered && mouseButton == 0) {
+			int i = mouseX - this.x;
+			if ((boolean) ObfuscationHelper.getValue(GuiTextField.class, this, 9)) {
+				i -= 4;
+			} // enableBackgroundDrawing
+			FontRenderer fontRenderer = ObfuscationHelper.getValue(GuiTextField.class, this, FontRenderer.class);
+			int lineScrollOffset = ObfuscationHelper.getValue(GuiTextField.class, this, 13);
+			String s = fontRenderer.trimStringToWidth(this.getText().substring(lineScrollOffset), this.getWidth());
+			this.setCursorPosition(fontRenderer.trimStringToWidth(s, i).length() + lineScrollOffset);
+			return true;
+		} else {
+			clicked = false;
+		}
+		if (isFocused != this.isFocused() && isFocused) {
+			this.unFocused();
+		}
 		if (this.isFocused()) {
 			GuiNpcTextField.activeTextfield = this;
 		}
@@ -207,11 +237,9 @@ extends GuiTextField {
 		if (this.listener != null) {
 			this.listener.unFocused(this);
 		}
-		if (this == GuiNpcTextField.activeTextfield) { GuiNpcTextField.activeTextfield = null; }
+		if (this == GuiNpcTextField.activeTextfield) {
+			GuiNpcTextField.activeTextfield = null;
+		}
 	}
-
-	public boolean isMouseOver() {
-        return this.hovered;
-    }
 
 }

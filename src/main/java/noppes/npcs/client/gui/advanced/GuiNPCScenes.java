@@ -16,9 +16,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 
-public class GuiNPCScenes
-extends GuiNPCInterface2 {
-	
+public class GuiNPCScenes extends GuiNPCInterface2 {
+
 	private DataScenes.SceneContainer scene;
 	private DataScenes scenes;
 
@@ -51,6 +50,12 @@ extends GuiNPCInterface2 {
 			this.scenes.addScene(this.getTextField(101).getText());
 			this.initGui();
 		}
+	}
+
+	@Override
+	public void close() {
+		this.save();
+		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
@@ -91,22 +96,16 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void save() {
-		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
-	}
-	
-	@Override
-	public void close() {
-		this.save();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-	}
-	
-	@Override
 	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
+		if (i == 1 && this.subgui == null) {
 			this.save();
 			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 		}
 		super.keyTyped(c, i);
+	}
+
+	@Override
+	public void save() {
+		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
 	}
 }

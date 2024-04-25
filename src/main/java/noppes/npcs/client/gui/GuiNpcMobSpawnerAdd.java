@@ -18,15 +18,13 @@ import noppes.npcs.client.gui.util.IGuiData;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.constants.EnumPacketServer;
 
-public class GuiNpcMobSpawnerAdd
-extends GuiNPCInterface
-implements GuiYesNoCallback, IGuiData, ITextfieldListener {
-	
+public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements GuiYesNoCallback, IGuiData, ITextfieldListener {
+
 	private static boolean serverSide = false;
 	private static int tab = 1;
 	private NBTTagCompound compound;
 	private Entity toClone;
-	private String[] arrSmbls = new String[] { "\\","/",":", "*", "?", "\"", "<", ">", "|" };
+	private String[] arrSmbls = new String[] { "\\", "/", ":", "*", "?", "\"", "<", ">", "|" };
 
 	public GuiNpcMobSpawnerAdd(NBTTagCompound compound) {
 		this.toClone = EntityList.createEntityFromNBT(compound, Minecraft.getMinecraft().world);
@@ -84,10 +82,15 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 	public void initGui() {
 		super.initGui();
 		String name = this.toClone.getName();
-		for (String c : this.arrSmbls) { while (name.indexOf(c)>-1) { name = name.replace(c, "_"); } }
-		
+		for (String c : this.arrSmbls) {
+			while (name.indexOf(c) > -1) {
+				name = name.replace(c, "_");
+			}
+		}
+
 		this.addLabel(new GuiNpcLabel(0, "Save as", this.guiLeft + 4, this.guiTop + 6));
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 18, 200, 20, name));
+		this.addTextField(
+				new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 18, 200, 20, name));
 		this.addLabel(new GuiNpcLabel(1, "Tab", this.guiLeft + 10, this.guiTop + 50));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 40, this.guiTop + 45, 20, 20,
 				new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" }, GuiNpcMobSpawnerAdd.tab - 1));
@@ -115,8 +118,14 @@ implements GuiYesNoCallback, IGuiData, ITextfieldListener {
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
 		String name = textField.getText();
-		for (String c : this.arrSmbls) { while (name.indexOf(c)>-1) { name = name.replace(c, "_"); } }
-		if (!textField.getText().equals(name)) { textField.setText(name); }
+		for (String c : this.arrSmbls) {
+			while (name.indexOf(c) > -1) {
+				name = name.replace(c, "_");
+			}
+		}
+		if (!textField.getText().equals(name)) {
+			textField.setText(name);
+		}
 	}
 
 }

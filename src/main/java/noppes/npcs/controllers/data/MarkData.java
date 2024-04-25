@@ -20,12 +20,10 @@ import noppes.npcs.api.handler.capability.IMarkDataHandler;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.constants.EnumPacketClient;
 
-public class MarkData
-implements IMarkDataHandler, ICapabilityProvider {
-	
-	public class Mark
-	implements IMark {
-		
+public class MarkData implements IMarkDataHandler, ICapabilityProvider {
+
+	public class Mark implements IMark {
+
 		public Availability availability;
 		public int color;
 		public boolean rotate, is3d;
@@ -54,10 +52,18 @@ implements IMarkDataHandler, ICapabilityProvider {
 			return this.type;
 		}
 
+		public boolean is3D() {
+			return this.is3d;
+		}
+
 		// New
 		@Override
 		public boolean isRotate() {
 			return this.rotate;
+		}
+
+		public void set3D(boolean is3d) {
+			this.is3d = is3d;
 		}
 
 		@Override
@@ -80,18 +86,16 @@ implements IMarkDataHandler, ICapabilityProvider {
 			MarkData.this.syncClients();
 		}
 
-		public boolean is3D() { return this.is3d; }
-
-		public void set3D(boolean is3d) { this.is3d = is3d; }
-
 	}
 
 	@CapabilityInject(IMarkDataHandler.class)
 	public static Capability<IMarkDataHandler> CNPCS_MARKDATA_CAPABILITY = null;
 	private static ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
-	
+
 	public static MarkData get(EntityLivingBase entity) {
-		if (!(entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null) instanceof MarkData)) { return new MarkData(); }
+		if (!(entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null) instanceof MarkData)) {
+			return new MarkData();
+		}
 		MarkData data = (MarkData) entity.getCapability(MarkData.CNPCS_MARKDATA_CAPABILITY, null);
 		if (data.entity == null) {
 			data.entity = entity;
@@ -108,7 +112,9 @@ implements IMarkDataHandler, ICapabilityProvider {
 
 	public List<Mark> marks;
 
-	public MarkData() { this.marks = new ArrayList<Mark>(); }
+	public MarkData() {
+		this.marks = new ArrayList<Mark>();
+	}
 
 	public IMark addMark(int type) {
 		Mark m = new Mark();
@@ -183,7 +189,9 @@ implements IMarkDataHandler, ICapabilityProvider {
 	}
 
 	public void syncClients() {
-		if (this.entity==null || this.entity.world==null || this.entity.world.isRemote) { return; }
+		if (this.entity == null || this.entity.world == null || this.entity.world.isRemote) {
+			return;
+		}
 		Server.sendToAll(this.entity.getServer(), EnumPacketClient.MARK_DATA, this.entity.getEntityId(), this.getNBT());
 	}
 }

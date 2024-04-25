@@ -115,15 +115,15 @@ public class AssetsBrowser {
 		this.files.clear();
 		SimpleReloadableResourceManager simplemanager = (SimpleReloadableResourceManager) Minecraft.getMinecraft()
 				.getResourceManager();
-		Map<String, IResourceManager> map = ObfuscationHelper.getValue(SimpleReloadableResourceManager.class, simplemanager, 2);
+		Map<String, IResourceManager> map = ObfuscationHelper.getValue(SimpleReloadableResourceManager.class,
+				simplemanager, 2);
 		HashSet<String> set = new HashSet<String>();
 		for (String name : map.keySet()) {
 			if (!(map.get(name) instanceof FallbackResourceManager)) {
 				continue;
 			}
 			FallbackResourceManager manager = (FallbackResourceManager) map.get(name);
-			List<IResourcePack> list = ObfuscationHelper.getValue(FallbackResourceManager.class,
-					manager, 1);
+			List<IResourcePack> list = ObfuscationHelper.getValue(FallbackResourceManager.class, manager, 1);
 			for (IResourcePack pack : list) {
 				if (pack instanceof AbstractResourcePack) {
 					AbstractResourcePack p = (AbstractResourcePack) pack;

@@ -43,7 +43,7 @@ public abstract class AbstractTab extends GuiButton {
 			int yPos = this.y + (this.enabled ? 3 : 0);
 			mc.renderEngine.bindTexture(this.texture);
 			this.drawTexturedModalRect(this.x, yPos, xOffset, yTexPos, 28, ySize);
-			
+
 			RenderHelper.enableGUIStandardItemLighting();
 			this.zLevel = 100.0f;
 			this.itemRender.zLevel = 100.0f;
@@ -60,7 +60,8 @@ public abstract class AbstractTab extends GuiButton {
 	}
 
 	public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-		boolean inWindow = this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+		boolean inWindow = this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y
+				&& mouseX < this.x + this.width && mouseY < this.y + this.height;
 		if (inWindow) {
 			this.onTabClicked();
 		}

@@ -3,10 +3,22 @@ package noppes.npcs.roles.data;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class HealerSettings {
-	
+
 	public boolean onHimself, possibleOnMobs, isMassive;
 	public int id, range, speed, time, amplifier;
 	public byte type;
+
+	public HealerSettings() {
+		this.id = 1;
+		this.range = 8;
+		this.amplifier = 0;
+		this.type = (byte) 2; // 0-friendly, 1-unfriendly, 2-all
+		this.speed = 10;
+		this.time = 100;
+		this.onHimself = false;
+		this.possibleOnMobs = true;
+		this.isMassive = true;
+	}
 
 	public HealerSettings(int id, int range, int speed, int amplifier, byte type) {
 		this.id = id;
@@ -14,18 +26,6 @@ public class HealerSettings {
 		this.amplifier = 0;
 		this.type = type;
 		this.speed = speed;
-		this.time = 100;
-		this.onHimself = false;
-		this.possibleOnMobs = true;
-		this.isMassive = true;
-	}
-	
-	public HealerSettings() {
-		this.id = 1;
-		this.range = 8;
-		this.amplifier = 0;
-		this.type = (byte) 2; // 0-friendly, 1-unfriendly, 2-all
-		this.speed = 10;
 		this.time = 100;
 		this.onHimself = false;
 		this.possibleOnMobs = true;
@@ -57,5 +57,5 @@ public class HealerSettings {
 		nbtSet.setInteger("Amplifier", this.amplifier);
 		return nbtSet;
 	}
-	
+
 }

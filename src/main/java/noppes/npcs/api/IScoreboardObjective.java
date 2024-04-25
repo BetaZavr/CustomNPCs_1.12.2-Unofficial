@@ -1,7 +1,7 @@
 package noppes.npcs.api;
 
 public interface IScoreboardObjective {
-	
+
 	IScoreboardScore createScore(String player);
 
 	String getCriteria();

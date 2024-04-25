@@ -23,10 +23,8 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.HealerSettings;
 import noppes.npcs.util.ValueUtil;
 
-public class JobHealer
-extends JobInterface
-implements IJobHealer {
-	
+public class JobHealer extends JobInterface implements IJobHealer {
+
 	private Map<Integer, List<EntityLivingBase>> affected;
 	private Random rnd;
 	public Map<Integer, HealerSettings> effects; // [ID, settings]
@@ -52,8 +50,11 @@ implements IJobHealer {
 			if (this.npc.totalTicksAlive % this.effects.get(id).speed < 3) {
 				canAdd = true;
 				int r = this.effects.get(id).range;
-				this.affected.put(id, this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class, this.npc.getEntityBoundingBox().grow(r, r / 2.0d, r)));
-				if (!this.effects.get(id).onHimself) { this.affected.get(id).remove(this.npc); }
+				this.affected.put(id, this.npc.world.getEntitiesWithinAABB(EntityLivingBase.class,
+						this.npc.getEntityBoundingBox().grow(r, r / 2.0d, r)));
+				if (!this.effects.get(id).onHimself) {
+					this.affected.get(id).remove(this.npc);
+				}
 			}
 		}
 		return canAdd;
@@ -64,18 +65,29 @@ implements IJobHealer {
 		boolean activated = false;
 		for (Integer id : this.affected.keySet()) {
 			Potion potion = Potion.getPotionById(id);
-			if (potion == null) { continue; }
+			if (potion == null) {
+				continue;
+			}
 			HealerSettings hs = this.effects.get(id);
 			if (!hs.isMassive) {
-				if (this.affected.get(id).isEmpty()) { continue; }
+				if (this.affected.get(id).isEmpty()) {
+					continue;
+				}
 				EntityLivingBase entity = null;
-				try { entity = this.affected.get(id).get(this.rnd.nextInt(this.affected.get(id).size())); } catch (Exception e) {}
-				if (entity!=null) {
+				try {
+					entity = this.affected.get(id).get(this.rnd.nextInt(this.affected.get(id).size()));
+				} catch (Exception e) {
+				}
+				if (entity != null) {
 					boolean isEnemy = this.isEnemy(entity);
 					boolean canAdd = true;
-					switch(hs.type) {
-						case (byte) 0: canAdd = !isEnemy; break;
-						case (byte) 1: canAdd = isEnemy; break;
+					switch (hs.type) {
+					case (byte) 0:
+						canAdd = !isEnemy;
+						break;
+					case (byte) 1:
+						canAdd = isEnemy;
+						break;
 					}
 					if (canAdd) {
 						entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
@@ -84,14 +96,22 @@ implements IJobHealer {
 				}
 			} else {
 				for (EntityLivingBase entity : this.affected.get(id)) {
-					if ((entity instanceof EntityMob || entity instanceof EntityAnimal) && !hs.possibleOnMobs) { continue; }
+					if ((entity instanceof EntityMob || entity instanceof EntityAnimal) && !hs.possibleOnMobs) {
+						continue;
+					}
 					boolean isEnemy = this.isEnemy(entity);
 					boolean next = false;
-					switch(hs.type) {
-						case (byte) 0: next = isEnemy; break;
-						case (byte) 1: next = !isEnemy; break;
+					switch (hs.type) {
+					case (byte) 0:
+						next = isEnemy;
+						break;
+					case (byte) 1:
+						next = !isEnemy;
+						break;
 					}
-					if (next) { continue; }
+					if (next) {
+						continue;
+					}
 					entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
 					activated = true;
 				}
@@ -99,8 +119,11 @@ implements IJobHealer {
 		}
 		this.affected.clear();
 		if (activated) {
-			if (!this.npc.getHeldItemMainhand().isEmpty()) { this.npc.swingArm(EnumHand.MAIN_HAND); }
-			else { this.npc.swingArm(EnumHand.OFF_HAND); }
+			if (!this.npc.getHeldItemMainhand().isEmpty()) {
+				this.npc.swingArm(EnumHand.MAIN_HAND);
+			} else {
+				this.npc.swingArm(EnumHand.OFF_HAND);
+			}
 		}
 	}
 
@@ -142,7 +165,7 @@ implements IJobHealer {
 			list.appendTag(hs.writeNBT());
 		}
 		compound.setTag("HealerData", list);
-		
+
 		return compound;
 	}
 }

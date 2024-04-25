@@ -1,8 +1,7 @@
 package noppes.npcs.api.item;
 
-public interface IItemBook
-extends IItemStack {
-	
+public interface IItemBook extends IItemStack {
+
 	String getAuthor();
 
 	String[] getText();
@@ -14,5 +13,5 @@ extends IItemStack {
 	void setText(String[] pages);
 
 	void setTitle(String title);
-	
+
 }

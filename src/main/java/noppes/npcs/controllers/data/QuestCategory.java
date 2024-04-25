@@ -10,9 +10,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
 
-public class QuestCategory
-implements IQuestCategory {
-	
+public class QuestCategory implements IQuestCategory {
+
 	public int id;
 	public final TreeMap<Integer, Quest> quests;
 	public String title;
@@ -23,13 +22,21 @@ implements IQuestCategory {
 		this.quests = Maps.<Integer, Quest>newTreeMap();
 	}
 
+	public QuestCategory copy() {
+		QuestCategory newCat = new QuestCategory();
+		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
+		return newCat;
+	}
+
 	@Override
 	public IQuest create() {
 		return new Quest(this);
 	}
 
 	@Override
-	public String getName() { return new TextComponentTranslation(this.title).getFormattedText(); }
+	public String getName() {
+		return new TextComponentTranslation(this.title).getFormattedText();
+	}
 
 	@Override
 	public IQuest[] quests() {
@@ -60,12 +67,6 @@ implements IQuestCategory {
 		}
 		nbttagcompound.setTag("Dialogs", dialogs);
 		return nbttagcompound;
-	}
-
-	public QuestCategory copy() {
-		QuestCategory newCat = new QuestCategory();
-		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
-		return newCat;
 	}
 
 }

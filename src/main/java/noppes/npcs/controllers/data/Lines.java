@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class Lines {
-	
+
 	private static Random random = new Random();
 	private int lastLine;
 	public Map<Integer, Line> lines;
@@ -20,13 +20,44 @@ public class Lines {
 		this.lines = Maps.<Integer, Line>newTreeMap();
 	}
 
+	public Lines copy() {
+		Lines lines = new Lines();
+		for (int i : this.lines.keySet()) {
+			lines.lines.put(i, this.lines.get(i));
+		}
+		return lines;
+	}
+
+	public void correctLines() {
+		Map<Integer, Line> newLines = Maps.<Integer, Line>newTreeMap();
+		int i = 0;
+		boolean isChanged = false;
+		for (int pos : this.lines.keySet()) {
+			if (pos != i) {
+				isChanged = true;
+			}
+			Line line = this.lines.get(pos);
+			if (line.getText().isEmpty()) {
+				isChanged = true;
+				continue;
+			}
+			newLines.put(i, line);
+			i++;
+		}
+		if (isChanged) {
+			this.lines = newLines;
+		}
+	}
+
 	public Line getLine(boolean isRandom) {
 		if (this.lines.isEmpty()) {
 			return null;
 		}
 		if (isRandom) {
 			int i = -1;
-			while (i==-1 && i!=this.lastLine) { i = Lines.random.nextInt(this.lines.size()); }
+			while (i == -1 && i != this.lastLine) {
+				i = Lines.random.nextInt(this.lines.size());
+			}
 			for (Map.Entry<Integer, Line> e : this.lines.entrySet()) {
 				if (--i < 0) {
 					this.lastLine = e.getKey();
@@ -51,29 +82,6 @@ public class Lines {
 		return this.lines.isEmpty();
 	}
 
-	public void remove(int pos) {
-		if (!this.lines.containsKey(pos)) { return; }
-		this.lines.remove(pos);
-		this.correctLines();
-	}
-	
-	public void correctLines() {
-		Map<Integer, Line> newLines = Maps.<Integer, Line>newTreeMap();
-		int i = 0;
-		boolean isChanged = false;
-		for (int pos : this.lines.keySet()) {
-			if (pos!=i) { isChanged = true; }
-			Line line = this.lines.get(pos);
-			if (line.getText().isEmpty()) {
-				isChanged = true;
-				continue;
-			}
-			newLines.put(i, line);
-			i++;
-		}
-		if (isChanged) { this.lines = newLines; }
-	}
-
 	public void readNBT(NBTTagCompound compound) {
 		NBTTagList nbttaglist = compound.getTagList("Lines", 10);
 		HashMap<Integer, Line> map = new HashMap<Integer, Line>();
@@ -85,6 +93,14 @@ public class Lines {
 			map.put(nbttagcompound.getInteger("Slot"), line);
 		}
 		this.lines = map;
+	}
+
+	public void remove(int pos) {
+		if (!this.lines.containsKey(pos)) {
+			return;
+		}
+		this.lines.remove(pos);
+		this.correctLines();
 	}
 
 	public NBTTagCompound writeToNBT() {
@@ -100,14 +116,6 @@ public class Lines {
 		}
 		nbt.setTag("Lines", list);
 		return nbt;
-	}
-
-	public Lines copy() {
-		Lines lines = new Lines();
-		for (int i : this.lines.keySet()) {
-			lines.lines.put(i, this.lines.get(i));
-		}
-		return lines;
 	}
 
 }

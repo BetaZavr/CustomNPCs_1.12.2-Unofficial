@@ -22,8 +22,23 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.AdditionalMethods;
 
 public class BankController {
-	
+
 	private static BankController instance;
+
+	public static BankController getInstance() {
+		if (newInstance()) {
+			BankController.instance = new BankController();
+		}
+		return BankController.instance;
+	}
+
+	private static boolean newInstance() {
+		if (BankController.instance == null) {
+			return true;
+		}
+		File file = CustomNpcs.getWorldSaveDirectory();
+		return file != null && !BankController.instance.filePath.equals(file.getAbsolutePath());
+	}
 
 	public HashMap<Integer, Bank> banks;
 
@@ -42,25 +57,111 @@ public class BankController {
 		}
 	}
 
-	public static BankController getInstance() {
-		if (newInstance()) {
-			BankController.instance = new BankController();
+	public void change(Bank bank) {
+		if (bank == null || !this.banks.containsKey(bank.id) || CustomNpcs.Server == null) {
+			return;
 		}
-		return BankController.instance;
-	}
-
-	private static boolean newInstance() {
-		if (BankController.instance == null) {
-			return true;
+		for (String username : CustomNpcs.Server.getOnlinePlayerNames()) {
+			EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(username);
+			PlayerData data = PlayerData.get(player);
+			if (player != null && player.openContainer instanceof ContainerNPCBank
+					&& ((ContainerNPCBank) player.openContainer).bank.id == bank.id) {
+				player.closeContainer();
+				player.sendMessage(new TextComponentTranslation("message.bank.changed"));
+			}
+			if (data.bankData.lastBank != null && data.bankData.lastBank.bank.id == bank.id) {
+				data.bankData.lastBank = null;
+			}
 		}
-		File file = CustomNpcs.getWorldSaveDirectory();
-		return file != null && !BankController.instance.filePath.equals(file.getAbsolutePath());
+		if (bank.isPublic) {
+			File banksDir = CustomNpcs.getWorldSaveDirectory("banks");
+			File fileBank = new File(banksDir, bank.id + ".dat");
+			BankData bd = new BankData(bank, "");
+			try {
+				bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			boolean isChange = false;
+			for (int c : bd.ceils.keySet()) {
+				if (!bank.ceilSettings.containsKey(c)) {
+					isChange = true;
+					break;
+				}
+				NpcMiscInventory inv = bd.ceils.get(c);
+				CeilSettings cs = bank.ceilSettings.get(c);
+				if (inv.getSizeInventory() < cs.startCeils) {
+					bd.ceils.put(c, new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCeils : 0).fill(inv));
+					isChange = true;
+				} else if (inv.getSizeInventory() > cs.maxCeils) {
+					bd.ceils.put(c, new NpcMiscInventory(cs.maxCeils).fill(inv));
+					isChange = true;
+				}
+			}
+			if (isChange) {
+				try {
+					CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(fileBank));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
+			for (File playerDir : datasDir.listFiles()) {
+				if (!playerDir.isDirectory()) {
+					continue;
+				}
+				for (File banksDir : playerDir.listFiles()) {
+					if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) {
+						continue;
+					}
+					File fileBank = new File(banksDir, bank.id + ".dat");
+					if (fileBank.exists()) {
+						BankData bd = new BankData(bank, "");
+						try {
+							bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank)));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						boolean isChange = false;
+						for (int c : bd.ceils.keySet()) {
+							if (!bank.ceilSettings.containsKey(c)) {
+								isChange = true;
+								bd.ceils.remove(c);
+								continue;
+							}
+							NpcMiscInventory inv = bd.ceils.get(c);
+							CeilSettings cs = bank.ceilSettings.get(c);
+							if (inv.getSizeInventory() < cs.startCeils) {
+								bd.ceils.put(c,
+										new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCeils : 0).fill(inv));
+								isChange = true;
+							} else if (inv.getSizeInventory() > cs.maxCeils) {
+								bd.ceils.put(c, new NpcMiscInventory(cs.maxCeils).fill(inv));
+								isChange = true;
+							}
+						}
+						if (isChange) {
+							try {
+								CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(fileBank));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public Bank getBank(int bankId) {
-		if (this.banks.containsKey(bankId)) { return this.banks.get(bankId); }
+		if (this.banks.containsKey(bankId)) {
+			return this.banks.get(bankId);
+		}
 		for (Bank bank : this.banks.values()) {
-			if (bank.id == bankId) { return bank; }
+			if (bank.id == bankId) {
+				return bank;
+			}
 		}
 		return null;
 	}
@@ -130,92 +231,16 @@ public class BankController {
 		this.banks = banks;
 	}
 
-	public void change(Bank bank) {
-		if (bank==null || !this.banks.containsKey(bank.id) || CustomNpcs.Server == null) { return; }
-		for (String username : CustomNpcs.Server.getOnlinePlayerNames()) {
-			EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(username);
-			PlayerData data = PlayerData.get(player);
-			if (player!=null && player.openContainer instanceof ContainerNPCBank && ((ContainerNPCBank) player.openContainer).bank.id == bank.id) {
-				player.closeContainer();
-				player.sendMessage(new TextComponentTranslation("message.bank.changed"));
-			}
-			if (data.bankData.lastBank != null && data.bankData.lastBank.bank.id == bank.id) {
-				data.bankData.lastBank = null;
-			}
-		}
-		if (bank.isPublic) {
-			File banksDir = CustomNpcs.getWorldSaveDirectory("banks");
-			File fileBank =new File(banksDir, bank.id + ".dat");
-			BankData bd = new BankData(bank, "");
-			try { bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank))); }
-			catch (IOException e) { e.printStackTrace(); }
-			boolean isChange = false;
-			for (int c : bd.ceils.keySet()) {
-				if (!bank.ceilSettings.containsKey(c)) {
-					isChange = true;
-					break;
-				}
-				NpcMiscInventory inv = bd.ceils.get(c);
-				CeilSettings cs = bank.ceilSettings.get(c);
-				if (inv.getSizeInventory() < cs.startCeils) {
-					bd.ceils.put(c, new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCeils : 0).fill(inv));
-					isChange = true;
-				}
-				else if (inv.getSizeInventory() > cs.maxCeils) {
-					bd.ceils.put(c, new NpcMiscInventory(cs.maxCeils).fill(inv));
-					isChange = true;
-				}
-			}
-			if (isChange) {
-				try { CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(fileBank)); }
-				catch (Exception e) { e.printStackTrace(); }
-			}
-		} else {
-			File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
-			for (File playerDir : datasDir.listFiles()) {
-				if (!playerDir.isDirectory()) { continue; }
-				for (File banksDir : playerDir.listFiles()) {
-					if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) { continue; }
-					File fileBank = new File(banksDir, bank.id + ".dat");
-					if (fileBank.exists()) {
-						BankData bd = new BankData(bank, "");
-						try { bd.readNBT(CompressedStreamTools.readCompressed(new FileInputStream(fileBank))); }
-						catch (IOException e) { e.printStackTrace(); }
-						boolean isChange = false;
-						for (int c : bd.ceils.keySet()) {
-							if (!bank.ceilSettings.containsKey(c)) {
-								isChange = true;
-								bd.ceils.remove(c);
-								continue;
-							}
-							NpcMiscInventory inv = bd.ceils.get(c);
-							CeilSettings cs = bank.ceilSettings.get(c);
-							if (inv.getSizeInventory() < cs.startCeils) {
-								bd.ceils.put(c, new NpcMiscInventory(cs.openStack.isEmpty() ? cs.startCeils : 0).fill(inv));
-								isChange = true;
-							}
-							else if (inv.getSizeInventory() > cs.maxCeils) {
-								bd.ceils.put(c, new NpcMiscInventory(cs.maxCeils).fill(inv));
-								isChange = true;
-							}
-						}
-						if (isChange) {
-							try { CompressedStreamTools.writeCompressed(bd.getNBT(), new FileOutputStream(fileBank)); }
-							catch (Exception e) { e.printStackTrace(); }
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	public void removeBank(int bankId) {
-		if (!this.banks.containsKey(bankId)) { return; }
-		if (CustomNpcs.Server!=null) {
+		if (!this.banks.containsKey(bankId)) {
+			return;
+		}
+		if (CustomNpcs.Server != null) {
 			for (String username : CustomNpcs.Server.getOnlinePlayerNames()) {
 				EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayerByUsername(username);
 				PlayerData data = PlayerData.get(player);
-				if (player!=null && player.openContainer instanceof ContainerNPCBank && ((ContainerNPCBank) player.openContainer).bank.id == bankId) {
+				if (player != null && player.openContainer instanceof ContainerNPCBank
+						&& ((ContainerNPCBank) player.openContainer).bank.id == bankId) {
 					player.closeContainer();
 					player.sendMessage(new TextComponentTranslation("message.bank.changed"));
 				}
@@ -226,15 +251,23 @@ public class BankController {
 			if (this.banks.get(bankId).isPublic) {
 				File banksDir = CustomNpcs.getWorldSaveDirectory("banks");
 				File fileBank = new File(banksDir, bankId + ".dat");
-				if (fileBank.exists()) { AdditionalMethods.removeFile(fileBank); }
+				if (fileBank.exists()) {
+					AdditionalMethods.removeFile(fileBank);
+				}
 			} else {
 				File datasDir = CustomNpcs.getWorldSaveDirectory("playerdata");
 				for (File playerDir : datasDir.listFiles()) {
-					if (!playerDir.isDirectory()) { continue; }
+					if (!playerDir.isDirectory()) {
+						continue;
+					}
 					for (File banksDir : playerDir.listFiles()) {
-						if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) { continue; }
+						if (!banksDir.isDirectory() || !banksDir.getName().equals("banks")) {
+							continue;
+						}
 						File fileBank = new File(banksDir, bankId + ".dat");
-						if (fileBank.exists()) { AdditionalMethods.removeFile(fileBank); }
+						if (fileBank.exists()) {
+							AdditionalMethods.removeFile(fileBank);
+						}
 					}
 				}
 			}
@@ -244,7 +277,9 @@ public class BankController {
 	}
 
 	public void saveBank(Bank bank) {
-		if (bank.id < 0) { bank.id = this.getUnusedId(); }
+		if (bank.id < 0) {
+			bank.id = this.getUnusedId();
+		}
 		this.banks.put(bank.id, bank);
 		this.saveBanks();
 	}
@@ -279,15 +314,18 @@ public class BankController {
 				if (CustomNpcs.Server != null) {
 					boolean clear = true;
 					for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
-						if (player.openContainer instanceof ContainerNPCBank && ((ContainerNPCBank) player.openContainer).bank.id == bank.id) {
+						if (player.openContainer instanceof ContainerNPCBank
+								&& ((ContainerNPCBank) player.openContainer).bank.id == bank.id) {
 							clear = false;
 							break;
 						}
 					}
-					if (clear) { bank.clearBankData(); }
+					if (clear) {
+						bank.clearBankData();
+					}
 				}
 			}
 		}
 	}
-	
+
 }

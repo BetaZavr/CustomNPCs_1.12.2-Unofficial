@@ -18,8 +18,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.controllers.QuestController;
 
-public class PlayerMail
-implements IInventory, IPlayerMail {
+public class PlayerMail implements IInventory, IPlayerMail {
 
 	public boolean beenRead, returned;
 	public NonNullList<ItemStack> items;
@@ -28,7 +27,7 @@ implements IInventory, IPlayerMail {
 	public int money, ransom, questId;
 	public String sender, title;
 	public long timeWillCome, timeWhenReceived;
-	
+
 	public PlayerMail() {
 		this.clear();
 		this.timeWillCome = 0L;
@@ -42,8 +41,11 @@ implements IInventory, IPlayerMail {
 		this.beenRead = false;
 		this.returned = false;
 		this.questId = -1;
-		if (this.items==null) { this.items = NonNullList.withSize(4, ItemStack.EMPTY); }
-		else { this.items.clear(); }
+		if (this.items == null) {
+			this.items = NonNullList.withSize(4, ItemStack.EMPTY);
+		} else {
+			this.items.clear();
+		}
 		this.money = 0;
 		this.ransom = 0;
 		this.timeWhenReceived = System.currentTimeMillis();
@@ -86,12 +88,22 @@ implements IInventory, IPlayerMail {
 		return 64;
 	}
 
+	@Override
+	public int getMoney() {
+		return this.money;
+	}
+
 	public String getName() {
 		return null;
 	}
 
 	public Quest getQuest() {
 		return (QuestController.instance != null) ? QuestController.instance.quests.get(this.questId) : null;
+	}
+
+	@Override
+	public int getRansom() {
+		return this.ransom;
 	}
 
 	public String getSender() {
@@ -139,6 +151,10 @@ implements IInventory, IPlayerMail {
 
 	public boolean isItemValidForSlot(int slot, ItemStack item) {
 		return true;
+	}
+
+	public boolean isReturned() {
+		return this.returned;
 	}
 
 	public boolean isUsableByPlayer(EntityPlayer player) {
@@ -195,8 +211,24 @@ implements IInventory, IPlayerMail {
 		this.markDirty();
 	}
 
+	@Override
+	public void setMoney(int money) {
+		if (money < 0) {
+			money = 0;
+		}
+		this.money = money;
+	}
+
 	public void setQuest(int id) {
 		this.questId = id;
+	}
+
+	@Override
+	public void setRansom(int money) {
+		if (money < 0) {
+			money = 0;
+		}
+		this.ransom = money;
 	}
 
 	public void setSender(String sender) {
@@ -227,7 +259,7 @@ implements IInventory, IPlayerMail {
 
 		compound.setLong("TimeWillCome", this.timeWillCome);
 		compound.setLong("TimeWhenReceived", this.timeWhenReceived);
-		
+
 		compound.setInteger("MailQuest", this.questId);
 		if (this.hasQuest()) {
 			compound.setString("MailQuestTitle", this.getQuest().getTitle());
@@ -247,25 +279,5 @@ implements IInventory, IPlayerMail {
 		compound.setInteger("Ransom", this.ransom);
 		return compound;
 	}
-
-	@Override
-	public int getMoney() { return this.money; }
-
-	@Override
-	public void setMoney(int money) {
-		if (money < 0) { money = 0; }
-		this.money = money;
-	}
-
-	@Override
-	public int getRansom() { return this.ransom; }
-
-	@Override
-	public void setRansom(int money) {
-		if (money < 0) { money = 0; }
-		this.ransom = money;
-	}
-
-	public boolean isReturned() { return this.returned; }
 
 }

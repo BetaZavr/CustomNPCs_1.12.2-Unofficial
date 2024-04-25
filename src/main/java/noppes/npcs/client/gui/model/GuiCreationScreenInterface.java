@@ -24,10 +24,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public abstract class GuiCreationScreenInterface
-extends GuiNPCInterface
-implements ISubGuiListener, ISliderListener {
-	
+public abstract class GuiCreationScreenInterface extends GuiNPCInterface implements ISubGuiListener, ISliderListener {
+
 	public static String Message = "";
 	private static float rotation = 0.5f;
 	public int active;
@@ -93,7 +91,8 @@ implements ISubGuiListener, ISliderListener {
 		} else {
 			EntityUtil.Copy(this.npc, entity);
 		}
-		this.drawNpc(entity, this.xOffset + 200, 200, 2.0f, (int) (GuiCreationScreenInterface.rotation * 360.0f - 180.0f), 0, 1);
+		this.drawNpc(entity, this.xOffset + 200, 200, 2.0f,
+				(int) (GuiCreationScreenInterface.rotation * 360.0f - 180.0f), 0, 1);
 	}
 
 	@Override

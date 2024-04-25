@@ -6,12 +6,15 @@ import noppes.npcs.api.event.PackageReceived;
 
 public class CustomPacketHandler extends ChannelInboundHandlerAdapter {
 
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		PackageReceived ev = new PackageReceived(ctx, msg, ctx.name().toString().equals(CustomNpcs.MODID + ":custom_packet_handler_server"));
+	@Override
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		PackageReceived ev = new PackageReceived(ctx, msg,
+				ctx.name().toString().equals(CustomNpcs.MODID + ":custom_packet_handler_server"));
 		EventHooks.onPackageReceived(ev);
-		if (ev.isCanceled()) { return; }
-        super.channelRead(ctx, msg);
-    }
-    
+		if (ev.isCanceled()) {
+			return;
+		}
+		super.channelRead(ctx, msg);
+	}
+
 }

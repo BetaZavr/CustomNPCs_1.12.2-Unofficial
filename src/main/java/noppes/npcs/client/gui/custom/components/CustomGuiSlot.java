@@ -10,9 +10,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.containers.ContainerCustomGui;
 
-public class CustomGuiSlot
-extends Slot {
-	
+public class CustomGuiSlot extends Slot {
+
 	public EntityPlayer player;
 	public IItemSlot slot;
 
@@ -34,5 +33,5 @@ extends Slot {
 		}
 		super.onSlotChanged();
 	}
-	
+
 }

@@ -3,7 +3,7 @@ package noppes.npcs.api.entity.data;
 import noppes.npcs.api.entity.IPlayer;
 
 public interface INPCDisplay {
-	
+
 	int getBossbar();
 
 	int getBossColor();
@@ -22,6 +22,8 @@ public interface INPCDisplay {
 
 	String getOverlayTexture();
 
+	int getShadowType();
+
 	int getShowName();
 
 	int getSize();
@@ -39,8 +41,6 @@ public interface INPCDisplay {
 	int getVisible();
 
 	boolean isVisibleTo(IPlayer<?> player);
-	
-	int getShadowType();
 
 	void setBossbar(int type);
 
@@ -60,6 +60,8 @@ public interface INPCDisplay {
 
 	void setOverlayTexture(String texture);
 
+	void setShadowType(int type);
+
 	void setShowName(int type);
 
 	void setSize(int size);
@@ -75,7 +77,5 @@ public interface INPCDisplay {
 	void setTitle(String title);
 
 	void setVisible(int type);
-	
-	void setShadowType(int type);
 
 }

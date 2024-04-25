@@ -38,10 +38,9 @@ import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNPCManageRecipes
-extends GuiContainerNPCInterface2
-implements IGuiData, ICustomScrollListener, ISubGuiListener {
-	
+public class GuiNPCManageRecipes extends GuiContainerNPCInterface2
+		implements IGuiData, ICustomScrollListener, ISubGuiListener {
+
 	private ContainerManageRecipes container;
 	private List<String> dataGroup;
 	private List<String> dataRecipe;
@@ -165,7 +164,8 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 		this.drawTexturedModalRect(this.guiLeft + 86, this.guiTop + 60, 0, 0, 18, 18);
 		if (ClientProxy.recipeName.isEmpty()) {
 			GlStateManager.color(0.75f, 0.0f, 0.75f, 0.5f);
-			Gui.drawRect(this.guiLeft + 8, this.guiTop + 35, this.guiLeft + this.container.width * 18 + 6, this.guiTop + this.container.width * 18 + 33, 0x30C000C0);
+			Gui.drawRect(this.guiLeft + 8, this.guiTop + 35, this.guiLeft + this.container.width * 18 + 6,
+					this.guiTop + this.container.width * 18 + 33, 0x30C000C0);
 			Gui.drawRect(this.guiLeft + 87, this.guiTop + 61, this.guiLeft + 103, this.guiTop + 77, 0x30C000C0);
 		}
 	}
@@ -180,7 +180,9 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 		if (this.subgui != null) {
 			return;
 		}
-		if (!CustomNpcs.ShowDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
 		if (isMouseHover(i, j, this.guiLeft + 172, this.guiTop + 8, 120, 10)) {
 			this.setHoverText(new TextComponentTranslation("recipe.hover.info.groups").getFormattedText());
 		} else if (isMouseHover(i, j, this.guiLeft + 172, this.guiTop + 8, 120, 10)) {
@@ -302,15 +304,28 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 		this.getButton(8).setEnabled(hasItem);
 		this.getButton(9).setEnabled(hasItem);
 		this.getButton(9).layerColor = hasItem ? this.container.recipe.isShaped() ? 0xFF70F070 : 0xFF7070FF : 0;
-		
+
 		if (this.container.width == 3) { // New
-			GuiNpcLabel label = new GuiNpcLabel(3, new TextComponentTranslation("gui.recipe.hover.cursor.name").getFormattedText(), this.guiLeft + 9, this.guiTop + 94);
+			GuiNpcLabel label = new GuiNpcLabel(3,
+					new TextComponentTranslation("gui.recipe.hover.cursor.name").getFormattedText(), this.guiLeft + 9,
+					this.guiTop + 94);
 			label.backColor = 0x40FF0000;
 			label.borderColor = 0x80808080;
 			label.color = 0xFF000000;
-			label.hoverText = new String[] { new TextComponentTranslation("gui.recipe.hover.cursor.info").getFormattedText() };
+			label.hoverText = new String[] {
+					new TextComponentTranslation("gui.recipe.hover.cursor.info").getFormattedText() };
 			this.addLabel(label);
 		}
+	}
+
+	@Override
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui == null) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
+		}
+		super.keyTyped(c, i);
 	}
 
 	@Override
@@ -329,31 +344,31 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void scrollClicked(int i, int j, int k, GuiCustomScroll scroll) {
 		switch (scroll.id) {
-			case 0: { // Group
-				if (ClientProxy.recipeGroup.equals(this.groups.getSelected())) {
-					return;
-				}
-				this.save();
-				ClientProxy.recipeGroup = this.groups.getSelected();
-				ClientProxy.recipeName = "";
-				this.container.craftingMatrix.clear();
-				this.recipes.setSelected(null);
-				Client.sendData(EnumPacketServer.RecipesGet, this.container.width, ClientProxy.recipeGroup,
-						ClientProxy.recipeName);
-				this.wait = true;
-				break;
+		case 0: { // Group
+			if (ClientProxy.recipeGroup.equals(this.groups.getSelected())) {
+				return;
 			}
-			case 1: { // Recipe
-				if (ClientProxy.recipeName.equals(this.recipes.getSelected())) {
-					return;
-				}
-				this.save();
-				ClientProxy.recipeName = this.recipes.getSelected();
-				Client.sendData(EnumPacketServer.RecipeGet, this.container.width, ClientProxy.recipeGroup,
-						ClientProxy.recipeName);
-				this.wait = true;
-				break;
+			this.save();
+			ClientProxy.recipeGroup = this.groups.getSelected();
+			ClientProxy.recipeName = "";
+			this.container.craftingMatrix.clear();
+			this.recipes.setSelected(null);
+			Client.sendData(EnumPacketServer.RecipesGet, this.container.width, ClientProxy.recipeGroup,
+					ClientProxy.recipeName);
+			this.wait = true;
+			break;
+		}
+		case 1: { // Recipe
+			if (ClientProxy.recipeName.equals(this.recipes.getSelected())) {
+				return;
 			}
+			this.save();
+			ClientProxy.recipeName = this.recipes.getSelected();
+			Client.sendData(EnumPacketServer.RecipeGet, this.container.width, ClientProxy.recipeGroup,
+					ClientProxy.recipeName);
+			this.wait = true;
+			break;
+		}
 		}
 	}
 
@@ -456,16 +471,6 @@ implements IGuiData, ICustomScrollListener, ISubGuiListener {
 				this.wait = true;
 			}
 		}
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
 	}
 
 }

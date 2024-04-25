@@ -10,10 +10,8 @@ import noppes.npcs.api.ITimers;
 import noppes.npcs.api.block.IBlockScriptedDoor;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 
-public class BlockScriptedDoorWrapper
-extends BlockWrapper
-implements IBlockScriptedDoor {
-	
+public class BlockScriptedDoorWrapper extends BlockWrapper implements IBlockScriptedDoor {
+
 	private TileScriptedDoor tile;
 
 	public BlockScriptedDoorWrapper(World world, Block block, BlockPos pos) {
@@ -40,6 +38,11 @@ implements IBlockScriptedDoor {
 	@Override
 	public float getResistance() {
 		return this.tile.blockResistance;
+	}
+
+	@Override
+	public String getSoung(boolean isOpen) {
+		return this.tile.getSoung(isOpen);
 	}
 
 	@Override
@@ -75,14 +78,13 @@ implements IBlockScriptedDoor {
 	}
 
 	@Override
+	public void setSound(boolean isOpen, String song) {
+		this.tile.setSound(isOpen, song);
+	}
+
+	@Override
 	public void setTile(TileEntity tile) {
 		this.tile = (TileScriptedDoor) tile;
 		super.setTile(tile);
 	}
-
-	@Override
-	public void setSound(boolean isOpen, String song) { this.tile.setSound(isOpen, song); }
-
-	@Override
-	public String getSoung(boolean isOpen) { return this.tile.getSoung(isOpen); }
 }

@@ -57,15 +57,14 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class WorldWrapper
-implements IWorld {
-	
+public class WorldWrapper implements IWorld {
+
+	public static Map<String, Object> tempData = new HashMap<String, Object>();
+
 	@Deprecated
 	public static WorldWrapper createNew(World world) {
 		return new WorldWrapper(world);
 	}
-
-	public static Map<String, Object> tempData = new HashMap<String, Object>();
 	public IDimension dimension;
 	private IData storeddata;
 	private IData tempdata;
@@ -87,7 +86,7 @@ implements IWorld {
 			CustomNpcs.Server.getPlayerList().sendMessage(new TextComponentString(message));
 		} else {
 			EntityPlayer player = CustomNpcs.proxy.getPlayer();
-			if (player!=null) {
+			if (player != null) {
 				player.sendMessage(new TextComponentString(message));
 			}
 		}
@@ -136,6 +135,12 @@ implements IWorld {
 	}
 
 	@Override
+	public void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch) {
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, categoryType,
+				sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+	}
+
+	@Override
 	public IEntity<?>[] getAllEntities(int type) {
 		@SuppressWarnings("unchecked")
 		List<Entity> entities = this.world.getEntities(this.getClassForType(type), EntitySelectors.NOT_SPECTATING);
@@ -166,27 +171,40 @@ implements IWorld {
 	public IBlock getBlock(int x, int y, int z) {
 		return NpcAPI.Instance().getIBlock(this.world, new BlockPos(x, y, z));
 	}
-	
+
 	@Override
 	public IBlock getBlock(IPos pos) {
-		if (pos==null) { return null; }
+		if (pos == null) {
+			return null;
+		}
 		return NpcAPI.Instance().getIBlock(this.world, pos.getMCBlockPos());
 	}
 
 	@SuppressWarnings("rawtypes")
 	private Class getClassForType(int type) {
-		switch(type) {
-			case 1: return EntityPlayer.class;
-			case 2: return EntityNPCInterface.class;
-			case 3: return EntityMob.class;
-			case 4: return EntityAnimal.class;
-			case 5: return EntityLivingBase.class;
-			case 6: return EntityItem.class;
-			case 7: return EntityProjectile.class;
-			case 8: return PixelmonHelper.getPixelmonClass();
-			case 9: return EntityVillager.class;
-			case 10: return EntityArrow.class;
-			case 11: return EntityThrowable.class;
+		switch (type) {
+		case 1:
+			return EntityPlayer.class;
+		case 2:
+			return EntityNPCInterface.class;
+		case 3:
+			return EntityMob.class;
+		case 4:
+			return EntityAnimal.class;
+		case 5:
+			return EntityLivingBase.class;
+		case 6:
+			return EntityItem.class;
+		case 7:
+			return EntityProjectile.class;
+		case 8:
+			return PixelmonHelper.getPixelmonClass();
+		case 9:
+			return EntityVillager.class;
+		case 10:
+			return EntityArrow.class;
+		case 11:
+			return EntityThrowable.class;
 		}
 		return Entity.class;
 	}
@@ -235,7 +253,10 @@ implements IWorld {
 	@Override
 	public IEntity<?> getEntity(String uuid) {
 		UUID id = null;
-		try { id = UUID.fromString(uuid); } catch (Exception e2) { }
+		try {
+			id = UUID.fromString(uuid);
+		} catch (Exception e2) {
+		}
 		if (id == null) {
 			throw new CustomNPCsException("Given uuid was invalid " + uuid);
 		}
@@ -255,17 +276,23 @@ implements IWorld {
 				}
 			}
 		}
-		if (e == null) { e = this.world.getPlayerEntityByUUID(id); }
-		if (e == null) { return null; }
+		if (e == null) {
+			e = this.world.getPlayerEntityByUUID(id);
+		}
+		if (e == null) {
+			return null;
+		}
 		return NpcAPI.Instance().getIEntity(e);
 	}
-	
+
 	@Override
 	public IEntity<?>[] getEntitys(int type) {
 		List<IEntity<?>> list = Lists.<IEntity<?>>newArrayList();
 		for (Entity living : this.world.loadedEntityList) {
 			IEntity<?> ie = NpcAPI.Instance().getIEntity(living);
-			if (ie.getType() != type) { continue; }
+			if (ie.getType() != type) {
+				continue;
+			}
 			list.add(NpcAPI.Instance().getIEntity(living));
 		}
 		return list.toArray(new IEntity[list.size()]);
@@ -380,12 +407,8 @@ implements IWorld {
 
 	@Override
 	public void playSoundAt(IPos pos, String sound, float volume, float pitch) {
-		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
-	}
-
-	@Override
-	public void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch) {
-		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.FORCE_PLAY_SOUND, categoryType, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
+		Server.sendRangedData(this.world, pos.getMCBlockPos(), 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(),
+				pos.getY(), pos.getZ(), volume, pitch);
 	}
 
 	@Override
@@ -453,7 +476,8 @@ implements IWorld {
 	}
 
 	@Override
-	public void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count) {
+	public void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz,
+			double speed, int count) {
 		EnumParticleTypes particleType = null;
 		for (EnumParticleTypes enumParticle : EnumParticleTypes.values()) {
 			if (enumParticle.getArgumentCount() > 0) {
@@ -477,10 +501,11 @@ implements IWorld {
 	public void thunderStrike(double x, double y, double z) {
 		this.world.addWeatherEffect(new EntityLightningBolt(this.world, x, y, z, false));
 	}
-	
+
 	@Override
-	public void trigger(int id, Object ... arguments) {
-		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this, this.getBlock(0, 0, 0).getPos(), null, arguments);
+	public void trigger(int id, Object... arguments) {
+		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this,
+				this.getBlock(0, 0, 0).getPos(), null, arguments);
 	}
 
 }

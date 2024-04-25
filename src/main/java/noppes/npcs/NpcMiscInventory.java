@@ -8,9 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 
-public class NpcMiscInventory
-implements IInventory {
-	
+public class NpcMiscInventory implements IInventory {
+
 	public NonNullList<ItemStack> items;
 	public int stackLimit;
 
@@ -70,6 +69,14 @@ implements IInventory {
 		return false;
 	}
 
+	public NpcMiscInventory fill(NpcMiscInventory inv) {
+		this.items.clear();
+		for (int i = 0; i < this.items.size() && i < inv.items.size(); i++) {
+			this.items.set(i, inv.items.get(i));
+		}
+		return this;
+	}
+
 	public int firstFreeSlot() {
 		for (int i = 0; i < this.getSizeInventory(); ++i) {
 			if ((this.items.get(i)).isEmpty()) {
@@ -77,6 +84,16 @@ implements IInventory {
 			}
 		}
 		return -1;
+	}
+
+	public int getCountEmpty() {
+		int c = 0;
+		for (int s = 0; s < this.items.size(); ++s) {
+			if (this.items.get(s).isEmpty()) {
+				c++;
+			}
+		}
+		return c;
 	}
 
 	public ITextComponent getDisplayName() {
@@ -113,7 +130,9 @@ implements IInventory {
 	}
 
 	public ItemStack getStackInSlot(int index) {
-		if (index < 0 || index >= this.items.size()) { return null; }
+		if (index < 0 || index >= this.items.size()) {
+			return null;
+		}
 		return this.items.get(index);
 	}
 
@@ -132,6 +151,15 @@ implements IInventory {
 		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
 			ItemStack item = this.getStackInSlot(slot);
 			if (!NoppesUtilServer.IsItemStackNull(item) && !item.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean isFull() {
+		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
+			if (this.getStackInSlot(slot).isEmpty()) {
 				return false;
 			}
 		}
@@ -164,41 +192,24 @@ implements IInventory {
 	}
 
 	public void setInventorySlotContents(int var1, ItemStack var2) {
-		if (var1 >= this.getSizeInventory()) { return; }
+		if (var1 >= this.getSizeInventory()) {
+			return;
+		}
 		this.items.set(var1, var2);
 	}
 
 	public void setSize(int size) {
-		if (this.items.size()==size) { return; }
+		if (this.items.size() == size) {
+			return;
+		}
 		NonNullList<ItemStack> newItems = NonNullList.withSize(size, ItemStack.EMPTY);
 		for (int slot = 0; slot < this.items.size() && slot < size; ++slot) {
-			if (this.items.get(slot).isEmpty()) { continue; }
+			if (this.items.get(slot).isEmpty()) {
+				continue;
+			}
 			newItems.add(slot, this.items.get(slot));
 		}
 		this.items = newItems;
-	}
-
-	public boolean isFull() {
-		for (int slot = 0; slot < this.getSizeInventory(); ++slot) {
-			if (this.getStackInSlot(slot).isEmpty()) { return false; }
-		}
-		return true;
-	}
-
-	public NpcMiscInventory fill(NpcMiscInventory inv) {
-		this.items.clear();
-		for (int i = 0; i < this.items.size() && i < inv.items.size(); i++) {
-			this.items.set(i, inv.items.get(i));
-		}
-		return this;
-	}
-
-	public int getCountEmpty() {
-		int c = 0;
-		for (int s = 0; s < this.items.size(); ++s) {
-			if (this.items.get(s).isEmpty()) { c++; }
-		}
-		return c;
 	}
 
 }

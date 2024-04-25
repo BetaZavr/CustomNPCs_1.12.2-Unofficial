@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class EntityAIClosestTarget extends EntityAITarget {
-	
+
 	public EntityNPCInterface npc;
 	private int targetChance;
 	private Class<EntityLivingBase> targetClass;
@@ -22,7 +22,8 @@ public class EntityAIClosestTarget extends EntityAITarget {
 	private Predicate<EntityLivingBase> targetEntitySelector;
 	private EntityAINearestAttackableTarget.Sorter theNearestAttackableTargetSorter;
 
-	public EntityAIClosestTarget(EntityNPCInterface npc, Class<EntityLivingBase> targetClass, int targetChance, boolean directLOS, boolean onlyNearby, Predicate<EntityLivingBase> attackEntitySelector) {
+	public EntityAIClosestTarget(EntityNPCInterface npc, Class<EntityLivingBase> targetClass, int targetChance,
+			boolean directLOS, boolean onlyNearby, Predicate<EntityLivingBase> attackEntitySelector) {
 		super((EntityCreature) npc, directLOS, onlyNearby);
 		this.targetClass = targetClass;
 		this.targetChance = targetChance;
@@ -38,13 +39,18 @@ public class EntityAIClosestTarget extends EntityAITarget {
 		}
 		try {
 			double dist = this.getTargetDistance();
-			List<EntityLivingBase> list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass, this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist), this.targetEntitySelector);
+			List<EntityLivingBase> list = this.taskOwner.world.getEntitiesWithinAABB(this.targetClass,
+					this.taskOwner.getEntityBoundingBox().grow(dist, MathHelper.ceil(dist / 2.0), dist),
+					this.targetEntitySelector);
 			Collections.sort(list, this.theNearestAttackableTargetSorter);
-			if (list.isEmpty()) { return false; }
+			if (list.isEmpty()) {
+				return false;
+			}
 			this.targetEntity = list.get(0);
 			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		catch (Exception e) { e.printStackTrace(); }
 		return false;
 	}
 

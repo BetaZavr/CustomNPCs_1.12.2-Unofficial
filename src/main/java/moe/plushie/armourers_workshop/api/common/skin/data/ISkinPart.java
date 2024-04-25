@@ -6,11 +6,11 @@ import net.minecraft.util.EnumFacing;
 
 public interface ISkinPart {
 
-    public ISkinPartType getPartType();
-    
-    public int getMarkerCount();
-    
-    public Point3D getMarker(int index);
-    
-    public EnumFacing getMarkerSide(int index);
+	public Point3D getMarker(int index);
+
+	public int getMarkerCount();
+
+	public EnumFacing getMarkerSide(int index);
+
+	public ISkinPartType getPartType();
 }

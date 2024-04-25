@@ -7,7 +7,7 @@ import noppes.npcs.client.model.ModelScaleRenderer;
 import noppes.npcs.constants.EnumParts;
 
 public class ModelHeadwear extends ModelScaleRenderer {
-	
+
 	public ModelHeadwear(ModelBase base) {
 		super(base, EnumParts.HEAD);
 		Model2DRenderer right = new Model2DRenderer(base, 32.0f, 8.0f, 8, 8);

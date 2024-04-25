@@ -4,7 +4,7 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 
 public interface IFaction {
-	
+
 	void addHostile(int id);
 
 	boolean getAttackedByMobs();
@@ -12,6 +12,10 @@ public interface IFaction {
 	int getColor();
 
 	int getDefaultPoints();
+
+	String getDescription();
+
+	String getFlag();
 
 	int[] getHostileList();
 
@@ -37,14 +41,10 @@ public interface IFaction {
 
 	void setDefaultPoints(int points);
 
-	void setIsHidden(boolean bo);
-	
-	String getFlag();
-	
-	void setFlag(String flagPath);
-	
-	String getDescription();
-	
 	void setDescription(String descr);
-	
+
+	void setFlag(String flagPath);
+
+	void setIsHidden(boolean bo);
+
 }

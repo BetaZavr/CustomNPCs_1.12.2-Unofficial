@@ -11,30 +11,35 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.potions.PotionData;
 
-public class CustomItemTippedArrow
-extends ItemTippedArrow {
+public class CustomItemTippedArrow extends ItemTippedArrow {
 
-	
 	public CustomItemTippedArrow() {
 		super();
 		this.setRegistryName(new ResourceLocation("tipped_arrow"));
 		this.setUnlocalizedName("tipped_arrow");
 	}
-	
+
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-		if (this.getCreativeTab() == null) { return; }
-    	for (PotionType potiontype : PotionType.REGISTRY) {
-            if (potiontype == PotionTypes.EMPTY) { continue; }
-            if (tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.containsKey(potiontype)) {
-            	PotionData data = CustomRegisters.custompotiontypes.get(potiontype);
-        		if (data.nbtData!=null && data.nbtData.hasKey("ShowInCreative", 1) && !data.nbtData.getBoolean("ShowInCreative")) { continue; }
-            	items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
-            	continue;
-            }
-            else if (tab == CreativeTabs.SEARCH || (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
-            	items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
-            }
-        }
+		if (this.getCreativeTab() == null) {
+			return;
+		}
+		for (PotionType potiontype : PotionType.REGISTRY) {
+			if (potiontype == PotionTypes.EMPTY) {
+				continue;
+			}
+			if (tab == CustomRegisters.tabItems && CustomRegisters.custompotiontypes.containsKey(potiontype)) {
+				PotionData data = CustomRegisters.custompotiontypes.get(potiontype);
+				if (data.nbtData != null && data.nbtData.hasKey("ShowInCreative", 1)
+						&& !data.nbtData.getBoolean("ShowInCreative")) {
+					continue;
+				}
+				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
+				continue;
+			} else if (tab == CreativeTabs.SEARCH
+					|| (tab == this.getCreativeTab() && !CustomRegisters.custompotiontypes.containsKey(potiontype))) {
+				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
+			}
+		}
 	}
-	
+
 }

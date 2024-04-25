@@ -10,10 +10,8 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
 import noppes.npcs.entity.EntityCustomNpc;
 
-public class LayerHeadwear<T extends EntityLivingBase>
-extends LayerInterface<T>
-implements LayerPreRender {
-	
+public class LayerHeadwear<T extends EntityLivingBase> extends LayerInterface<T> implements LayerPreRender {
+
 	private ModelHeadwear headwear;
 	public EntityCustomNpc npc;
 
@@ -25,12 +23,17 @@ implements LayerPreRender {
 	@Override
 	public void preRender(EntityCustomNpc player) {
 		this.model.bipedHeadwear.isHidden = (CustomNpcs.HeadWearType == 1);
-		if (player!=null) { this.npc  = player; }
+		if (player != null) {
+			this.npc = player;
+		}
 	}
 
 	@Override
-	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		if (CustomNpcs.HeadWearType != 1 || this.npc==null) { return; }
+	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch,
+			float scale) {
+		if (CustomNpcs.HeadWearType != 1 || this.npc == null) {
+			return;
+		}
 		if (this.npc.hurtTime <= 0 && this.npc.deathTime <= 0) {
 			int color = this.npc.display.getTint();
 			float red = (color >> 16 & 0xFF) / 255.0f;
@@ -43,8 +46,11 @@ implements LayerPreRender {
 		GlStateManager.enableBlendProfile(GlStateManager.Profile.PLAYER_SKIN);
 
 		boolean isInvisible = false;
-		if (this.npc.display.getVisible() == 1) { isInvisible = this.npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player); }
-		else if (this.npc.display.getVisible() == 2) { isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand; }
+		if (this.npc.display.getVisible() == 1) {
+			isInvisible = this.npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
+		} else if (this.npc.display.getVisible() == 2) {
+			isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand;
+		}
 		if (isInvisible) {
 			GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
@@ -64,6 +70,7 @@ implements LayerPreRender {
 	}
 
 	@Override
-	public void rotate(float par2, float par3, float par4, float par5, float par6, float par7) { }
-	
+	public void rotate(float par2, float par3, float par4, float par5, float par6, float par7) {
+	}
+
 }

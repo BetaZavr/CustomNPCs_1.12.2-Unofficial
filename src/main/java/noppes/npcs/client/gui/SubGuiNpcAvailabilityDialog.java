@@ -22,10 +22,8 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Dialog;
 
-public class SubGuiNpcAvailabilityDialog
-extends SubGuiInterface
-implements ICustomScrollListener, ISubGuiListener {
-	
+public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICustomScrollListener, ISubGuiListener {
+
 	private Availability availabitily;
 	private String chr = "" + ((char) 167);
 	private Map<String, EnumAvailabilityDialog> dataEnum;
@@ -99,16 +97,18 @@ implements ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.enum.type").getFormattedText());
-		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
+		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.dialog").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
-		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.more").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
 		if (this.hoverText != null) {

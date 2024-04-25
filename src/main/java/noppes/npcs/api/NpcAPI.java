@@ -35,14 +35,21 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
 
 public abstract class NpcAPI {
-	
+
 	private static NpcAPI instance = null;
 
 	public static NpcAPI Instance() {
-		if (NpcAPI.instance != null) { return NpcAPI.instance; }
-		if (!IsAvailable()) { return null; }
-		try { NpcAPI.instance =  WrapperNpcAPI.Instance(); }
-		catch (Exception e) { e.printStackTrace(); }
+		if (NpcAPI.instance != null) {
+			return NpcAPI.instance;
+		}
+		if (!IsAvailable()) {
+			return null;
+		}
+		try {
+			NpcAPI.instance = WrapperNpcAPI.Instance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return NpcAPI.instance;
 	}
 
@@ -60,13 +67,23 @@ public abstract class NpcAPI {
 
 	public abstract String executeCommand(IWorld world, String command);
 
+	public abstract IPlayer<?>[] getAllPlayers();
+
+	public abstract IAnimationHandler getAnimations();
+
+	public abstract IBorderHandler getBorders();
+
 	public abstract ICloneHandler getClones();
+
+	public abstract IDimensionHandler getCustomDimention();
 
 	public abstract IDialogHandler getDialogs();
 
 	public abstract IFactionHandler getFactions();
 
 	public abstract File getGlobalDir();
+
+	public abstract INpcAttribute getIAttribute(IAttributeInstance mcattribute);
 
 	public abstract IBlock getIBlock(World world, BlockPos pos);
 
@@ -75,24 +92,32 @@ public abstract class NpcAPI {
 	public abstract IContainer getIContainer(IInventory inventory);
 
 	public abstract IDamageSource getIDamageSource(DamageSource source);
-	
+
 	public abstract IEntityDamageSource getIDamageSource(String name, IEntity<?> entity);
 
 	public abstract IEntity<?> getIEntity(Entity entity);
 
 	public abstract IItemStack getIItemStack(ItemStack stack);
 
+	public abstract IKeyBinding getIKeyBinding();
+
 	public abstract INbt getINbt(NBTTagCompound nbt);
 
-	public abstract IPos getIPos(double x, double y, double z);
+	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
 
 	public abstract IPos getIPos(BlockPos pos);
+
+	public abstract IPos getIPos(double x, double y, double z);
 
 	public abstract IWorld getIWorld(int dimensionId);
 
 	public abstract IWorld getIWorld(World world);
 
 	public abstract IWorld[] getIWorlds();
+
+	public abstract IMarcetHandler getMarkets();
+
+	public abstract IMetods getMetods();
 
 	public abstract IQuestHandler getQuests();
 
@@ -113,23 +138,5 @@ public abstract class NpcAPI {
 	public abstract ICustomNpc<?> spawnNPC(World world, int x, int y, int z);
 
 	public abstract INbt stringToNbt(String str);
-	
-	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
-	
-	public abstract IPlayer<?>[] getAllPlayers();
 
-	public abstract IBorderHandler getBorders();
-	
-	public abstract IAnimationHandler getAnimations();
-
-	public abstract IMetods getMetods();
-
-	public abstract IKeyBinding getIKeyBinding();
-
-	public abstract INpcAttribute getIAttribute(IAttributeInstance mcattribute);
-	
-	public abstract IDimensionHandler getCustomDimention();
-
-	public abstract IMarcetHandler getMarkets();
-	
 }

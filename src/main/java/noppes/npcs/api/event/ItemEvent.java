@@ -6,7 +6,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemScripted;
 
 public class ItemEvent extends CustomNPCsEvent {
-	
+
 	@Cancelable
 	public static class AttackEvent extends ItemEvent {
 		public IPlayer<?> player;
@@ -88,5 +88,5 @@ public class ItemEvent extends CustomNPCsEvent {
 	public ItemEvent(IItemScripted item) {
 		this.item = item;
 	}
-	
+
 }

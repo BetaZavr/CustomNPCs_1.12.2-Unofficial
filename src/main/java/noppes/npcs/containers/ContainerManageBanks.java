@@ -9,9 +9,9 @@ import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.controllers.data.Bank;
 
 public class ContainerManageBanks extends Container {
-	
-	private IInventory inv;
+
 	public static Object bank = null;
+	private IInventory inv;
 
 	public ContainerManageBanks(EntityPlayer player) {
 		this.inv = new NpcMiscInventory(2);
@@ -30,10 +30,12 @@ public class ContainerManageBanks extends Container {
 	public boolean canInteractWith(EntityPlayer entityplayer) {
 		return true;
 	}
-	
+
 	// Server
 	public void setBank(Bank bank, int ceil) {
-		if (!bank.ceilSettings.containsKey(ceil)) { return; }
+		if (!bank.ceilSettings.containsKey(ceil)) {
+			return;
+		}
 		this.getSlot(0).putStack(bank.ceilSettings.get(ceil).openStack);
 		this.getSlot(1).putStack(bank.ceilSettings.get(ceil).upgradeStack);
 		this.detectAndSendChanges();
@@ -42,5 +44,5 @@ public class ContainerManageBanks extends Container {
 	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int i) {
 		return ItemStack.EMPTY;
 	}
-	
+
 }

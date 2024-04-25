@@ -24,57 +24,100 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
-		switch(button.id) {
-			case 0: {
-				this.ai.setMovingType(button.getValue());
-				if (this.ai.getMovingType() != 0) {
-					this.ai.animationType = 0;
-					this.ai.setStandingType(0);
-					DataAI ai = this.ai;
-					DataAI ai2 = this.ai;
-					DataAI ai3 = this.ai;
-					float bodyOffsetX = 5.0f;
-					ai3.bodyOffsetZ = bodyOffsetX;
-					ai2.bodyOffsetY = bodyOffsetX;
-					ai.bodyOffsetX = bodyOffsetX;
-				}
-				this.initGui();
-				break;
+		switch (button.id) {
+		case 0: {
+			this.ai.setMovingType(button.getValue());
+			if (this.ai.getMovingType() != 0) {
+				this.ai.animationType = 0;
+				this.ai.setStandingType(0);
+				DataAI ai = this.ai;
+				DataAI ai2 = this.ai;
+				DataAI ai3 = this.ai;
+				float bodyOffsetX = 5.0f;
+				ai3.bodyOffsetZ = bodyOffsetX;
+				ai2.bodyOffsetY = bodyOffsetX;
+				ai.bodyOffsetX = bodyOffsetX;
 			}
-			case 2: {
-				this.ai.movingPause = (button.getValue() == 1);
-				break;
-			}
-			case 4: {
-				this.ai.setAnimation(button.getValue());
-				this.initGui();
-				break;
-			}
-			case 5: {
-				this.ai.npcInteracting = (button.getValue() == 1);
-				break;
-			}
-			case 7: {
-				this.ai.setStandingType(button.getValue());
-				this.initGui();
-				break;
-			}
-			case 8: {
-				this.ai.movingPattern = button.getValue();
-				break;
-			}
-			case 13: {
-				this.ai.stopAndInteract = (button.getValue() == 1);
-				break;
-			}
-			case 15: {
-				this.ai.movementType = button.getValue();
-				break;
-			}
-			case 66: {
-				this.close();
-				break;
-			}
+			this.initGui();
+			break;
+		}
+		case 2: {
+			this.ai.movingPause = (button.getValue() == 1);
+			break;
+		}
+		case 4: {
+			this.ai.setAnimation(button.getValue());
+			this.initGui();
+			break;
+		}
+		case 5: {
+			this.ai.npcInteracting = (button.getValue() == 1);
+			break;
+		}
+		case 7: {
+			this.ai.setStandingType(button.getValue());
+			this.initGui();
+			break;
+		}
+		case 8: {
+			this.ai.movingPattern = button.getValue();
+			break;
+		}
+		case 13: {
+			this.ai.stopAndInteract = (button.getValue() == 1);
+			break;
+		}
+		case 15: {
+			this.ai.movementType = button.getValue();
+			break;
+		}
+		case 66: {
+			this.close();
+			break;
+		}
+		}
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(4) != null && this.getTextField(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.walking.range").getFormattedText());
+		} else if (this.getTextField(5) != null && this.getTextField(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.offset.r").getFormattedText());
+		} else if (this.getTextField(7) != null && this.getTextField(7).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.offset.x").getFormattedText());
+		} else if (this.getTextField(8) != null && this.getTextField(8).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.offset.y").getFormattedText());
+		} else if (this.getTextField(9) != null && this.getTextField(9).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.offset.z").getFormattedText());
+		} else if (this.getTextField(14) != null && this.getTextField(14).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.walking.speed").getFormattedText());
+		} else if (this.getTextField(15) != null && this.getTextField(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.step.height").getFormattedText());
+		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.walking.type").getFormattedText());
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.walking.stop").getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.walking.anim").getFormattedText());
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.interact").getFormattedText());
+		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.path.closed").getFormattedText());
+		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.stop.interact").getFormattedText());
+		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("ai.hover.walking").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
 		}
 	}
 
@@ -83,9 +126,11 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		super.initGui();
 		int y = this.guiTop + 4;
 		this.addLabel(new GuiNpcLabel(0, "movement.type", this.guiLeft + 4, y + 5));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 80, y, 100, 20, new String[] { "ai.standing", "ai.wandering", "ai.movingpath" }, this.ai.getMovingType()));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 80, y, 100, 20,
+				new String[] { "ai.standing", "ai.wandering", "ai.movingpath" }, this.ai.getMovingType()));
 		y += 22;
-		this.addButton(new GuiNpcButton(15, this.guiLeft + 80, y, 100, 20, new String[] { "movement.ground", "movement.flying", "movement.swimming" }, this.ai.movementType));
+		this.addButton(new GuiNpcButton(15, this.guiLeft + 80, y, 100, 20,
+				new String[] { "movement.ground", "movement.flying", "movement.swimming" }, this.ai.movementType));
 		this.addLabel(new GuiNpcLabel(15, "movement.navigation", this.guiLeft + 4, y + 5));
 		if (this.ai.getMovingType() == 1) {
 			y += 22;
@@ -94,7 +139,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.getTextField(4).setMinMaxDefault(0, 1000, 10);
 			this.addLabel(new GuiNpcLabel(4, "gui.range", this.guiLeft + 4, y + 5));
 			y += 22;
-			this.addButton(new GuiNpcButton(5, this.guiLeft + 100, y, 50, 20, new String[] { "gui.no", "gui.yes" }, (this.ai.npcInteracting ? 1 : 0)));
+			this.addButton(new GuiNpcButton(5, this.guiLeft + 100, y, 50, 20, new String[] { "gui.no", "gui.yes" },
+					(this.ai.npcInteracting ? 1 : 0)));
 			this.addLabel(new GuiNpcLabel(5, "movement.wanderinteract", this.guiLeft + 4, y + 5));
 			y += 22;
 			this.addButton(new GuiNpcButton(2, this.guiLeft + 80, y, 80, 20, new String[] { "gui.no", "gui.yes" },
@@ -117,7 +163,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.getTextField(9).setMinMaxDoubleDefault(0.0d, 10.0d, 5.0d);
 			y += 22;
 			this.addButton(new GuiNpcButton(4, this.guiLeft + 80, y, 100, 20,
-					new String[] { "stats.normal", "movement.sitting", "movement.lying", "movement.hug", "movement.sneaking", "movement.dancing", "movement.aiming", "movement.crawling" },
+					new String[] { "stats.normal", "movement.sitting", "movement.lying", "movement.hug",
+							"movement.sneaking", "movement.dancing", "movement.aiming", "movement.crawling" },
 					this.ai.animationType));
 			this.addLabel(new GuiNpcLabel(3, "movement.animation", this.guiLeft + 4, y + 5));
 			if (this.ai.animationType != 2) {
@@ -135,7 +182,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 				this.addLabel(new GuiNpcLabel(5, "(0-359)", this.guiLeft + 142, y + 5));
 			}
 			if (this.ai.getStandingType() == 1 || this.ai.getStandingType() == 3) {
-				this.addTextField( new GuiNpcTextField(5, this, this.guiLeft + 165, y, 40, 20, this.ai.orientation + ""));
+				this.addTextField(
+						new GuiNpcTextField(5, this, this.guiLeft + 165, y, 40, 20, this.ai.orientation + ""));
 				this.getTextField(5).setNumbersOnly();
 				this.getTextField(5).setMinMaxDefault(0, 359, 0);
 				this.addLabel(new GuiNpcLabel(5, "(0-359)", this.guiLeft + 207, y + 5));
@@ -151,8 +199,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		}
 		if (this.ai.getMovingType() == 2) {
 			y += 22;
-			this.addButton(new GuiNpcButton(8, this.guiLeft + 80, y, 80, 20, new String[] { "ai.looping", "ai.backtracking" },
-					this.ai.movingPattern));
+			this.addButton(new GuiNpcButton(8, this.guiLeft + 80, y, 80, 20,
+					new String[] { "ai.looping", "ai.backtracking" }, this.ai.movingPattern));
 			this.addLabel(new GuiNpcLabel(8, "movement.name", this.guiLeft + 4, y + 5));
 			y += 22;
 			this.addButton(new GuiNpcButton(2, this.guiLeft + 80, y, 80, 20, new String[] { "gui.no", "gui.yes" },
@@ -173,9 +221,9 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		this.getTextField(15).setDoubleNumbersOnly();
 		this.getTextField(15).setMinMaxDoubleDefault(0.1d, 3.0d, this.ai.stepheight);
 		this.addLabel(new GuiNpcLabel(15, "stats.stepheight", this.guiLeft + 5, y + 5));
-		
+
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, this.guiTop + 190, 60, 20, "gui.done"));
-		
+
 	}
 
 	@Override
@@ -200,46 +248,5 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.ai.stepheight = (float) textfield.getDouble();
 		}
 	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(4)!=null && this.getTextField(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.walking.range").getFormattedText());
-		} else if (this.getTextField(5)!=null && this.getTextField(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.offset.r").getFormattedText());
-		} else if (this.getTextField(7)!=null && this.getTextField(7).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.offset.x").getFormattedText());
-		} else if (this.getTextField(8)!=null && this.getTextField(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.offset.y").getFormattedText());
-		} else if (this.getTextField(9)!=null && this.getTextField(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.offset.z").getFormattedText());
-		} else if (this.getTextField(14)!=null && this.getTextField(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.walking.speed").getFormattedText());
-		} else if (this.getTextField(15)!=null && this.getTextField(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.step.height").getFormattedText());
-		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.walking.type").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.walking.stop").getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.walking.anim").getFormattedText());
-		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.interact").getFormattedText());
-		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.path.closed").getFormattedText());
-		} else if (this.getButton(13)!=null && this.getButton(13).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.stop.interact").getFormattedText());
-		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("ai.hover.walking").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
-	}
-	
+
 }

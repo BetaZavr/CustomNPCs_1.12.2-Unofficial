@@ -13,10 +13,8 @@ import noppes.npcs.api.entity.data.role.IJobChunkLoader;
 import noppes.npcs.controllers.ChunkController;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobChunkLoader
-extends JobInterface
-implements IJobChunkLoader {
-	
+public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
+
 	private List<ChunkPos> chunks;
 	private long playerLastSeen;
 	private int ticks;
@@ -83,16 +81,16 @@ implements IJobChunkLoader {
 	}
 
 	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = JobType.CHUNK_LOADER;
+		this.playerLastSeen = compound.getLong("ChunkPlayerLastSeen");
+	}
+
+	@Override
 	public void reset() {
 		ChunkController.instance.deleteNPC(this.npc);
 		this.chunks.clear();
 		this.playerLastSeen = 0L;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.CHUNK_LOADER;
-		this.playerLastSeen = compound.getLong("ChunkPlayerLastSeen");
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import noppes.npcs.api.IWorld;
 import noppes.npcs.api.entity.data.IData;
 
 public interface IBlock {
-	
+
 	void blockEvent(int type, int data);
 
 	IContainer getContainer();

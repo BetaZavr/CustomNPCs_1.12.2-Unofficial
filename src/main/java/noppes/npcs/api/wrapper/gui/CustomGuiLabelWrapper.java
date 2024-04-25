@@ -6,10 +6,8 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ILabel;
 
-public class CustomGuiLabelWrapper
-extends CustomGuiComponentWrapper
-implements ILabel {
-	
+public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements ILabel {
+
 	int color;
 	int height;
 	String label;
@@ -80,6 +78,11 @@ implements ILabel {
 	}
 
 	@Override
+	public boolean isShedow() {
+		return this.showShedow;
+	}
+
+	@Override
 	public ILabel setColor(int color) {
 		this.color = color;
 		return this;
@@ -92,8 +95,13 @@ implements ILabel {
 	}
 
 	@Override
+	public void setShedow(boolean showShedow) {
+		this.showShedow = showShedow;
+	}
+
+	@Override
 	public ILabel setSize(int width, int height) {
-		if (width  <= 0 || height <= 0) {
+		if (width <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		this.width = width;
@@ -117,10 +125,4 @@ implements ILabel {
 		nbt.setBoolean("shedow", this.showShedow);
 		return nbt;
 	}
-
-	@Override
-	public boolean isShedow() { return this.showShedow; }
-
-	@Override
-	public void setShedow(boolean showShedow) { this.showShedow = showShedow; }
 }

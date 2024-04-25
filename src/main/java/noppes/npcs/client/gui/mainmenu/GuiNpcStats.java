@@ -27,10 +27,8 @@ import noppes.npcs.entity.data.DataDisplay;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.entity.data.DataStats;
 
-public class GuiNpcStats
-extends GuiNPCInterface2
-implements ITextfieldListener, IGuiData {
-	
+public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener, IGuiData {
+
 	private DataAI ais;
 	private DataDisplay display;
 	private DataInventory inventory;
@@ -52,72 +50,72 @@ implements ITextfieldListener, IGuiData {
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-			case 0: {
-				this.setSubGui(new SubGuiNpcRespawn(this.stats));
-				break;
-			}
-			case 2: {
-				this.setSubGui(new SubGuiNpcMeleeProperties(this.stats.melee));
-				break;
-			}
-			case 3: {
-				this.setSubGui(new SubGuiNpcRangeProperties(this.stats));
-				break;
-			}
-			case 4: {
-				this.stats.immuneToFire = (button.getValue() == 1);
-				break;
-			}
-			case 5: {
-				this.stats.canDrown = (button.getValue() == 1);
-				break;
-			}
-			case 6: {
-				this.stats.burnInSun = (button.getValue() == 1);
-				break;
-			}
-			case 7: {
-				this.stats.noFallDamage = (button.getValue() == 1);
-				break;
-			}
-			case 8: {
-				this.stats.creatureType = EnumCreatureAttribute.values()[button.getValue()];
-				break;
-			}
-			case 9: {
-				this.setSubGui(new SubGuiNpcProjectiles(this.stats.ranged));
-				break;
-			}
-			case 15: {
-				this.setSubGui(new SubGuiNpcResistanceProperties(this.stats.resistances));
-				break;
-			}
-			case 17: {
-				this.stats.potionImmune = ((GuiNpcButtonYesNo) button).getBoolean();
-				break;
-			}
-			case 22: {
-				this.stats.ignoreCobweb = (button.getValue() == 0);
-				break;
-			}
-			case 40: {
-				this.save();
-				break;
-			} // New
-			case 41: {
-				this.stats.setLevel(1 + button.getValue());
-				this.setBaseStats();
-				break;
-			}
-			case 43: {
-				this.stats.setRarity(button.getValue());
-				this.setBaseStats();
-				break;
-			}
-			case 44: {
-				this.stats.calmdown = (button.getValue() == 1);
-				break;
-			}
+		case 0: {
+			this.setSubGui(new SubGuiNpcRespawn(this.stats));
+			break;
+		}
+		case 2: {
+			this.setSubGui(new SubGuiNpcMeleeProperties(this.stats.melee));
+			break;
+		}
+		case 3: {
+			this.setSubGui(new SubGuiNpcRangeProperties(this.stats));
+			break;
+		}
+		case 4: {
+			this.stats.immuneToFire = (button.getValue() == 1);
+			break;
+		}
+		case 5: {
+			this.stats.canDrown = (button.getValue() == 1);
+			break;
+		}
+		case 6: {
+			this.stats.burnInSun = (button.getValue() == 1);
+			break;
+		}
+		case 7: {
+			this.stats.noFallDamage = (button.getValue() == 1);
+			break;
+		}
+		case 8: {
+			this.stats.creatureType = EnumCreatureAttribute.values()[button.getValue()];
+			break;
+		}
+		case 9: {
+			this.setSubGui(new SubGuiNpcProjectiles(this.stats.ranged));
+			break;
+		}
+		case 15: {
+			this.setSubGui(new SubGuiNpcResistanceProperties(this.stats.resistances));
+			break;
+		}
+		case 17: {
+			this.stats.potionImmune = ((GuiNpcButtonYesNo) button).getBoolean();
+			break;
+		}
+		case 22: {
+			this.stats.ignoreCobweb = (button.getValue() == 0);
+			break;
+		}
+		case 40: {
+			this.save();
+			break;
+		} // New
+		case 41: {
+			this.stats.setLevel(1 + button.getValue());
+			this.setBaseStats();
+			break;
+		}
+		case 43: {
+			this.stats.setRarity(button.getValue());
+			this.setBaseStats();
+			break;
+		}
+		case 44: {
+			this.stats.calmdown = (button.getValue() == 1);
+			break;
+		}
 		}
 	}
 
@@ -125,44 +123,46 @@ implements ITextfieldListener, IGuiData {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.max.health").getFormattedText());
-		} else if (this.getTextField(1)!=null && this.getTextField(1).isMouseOver()) {
+		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.aggro").getFormattedText());
-		} else if (this.getTextField(14)!=null && this.getTextField(14).isMouseOver()) {
+		} else if (this.getTextField(14) != null && this.getTextField(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.health.regen").getFormattedText());
-		} else if (this.getTextField(16)!=null && this.getTextField(16).isMouseOver()) {
+		} else if (this.getTextField(16) != null && this.getTextField(16).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.health.combat").getFormattedText());
-		} else if (this.getButton(0)!=null && this.getButton(0).isMouseOver()) {
+		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.melee").getFormattedText());
-		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.range").getFormattedText());
-		} else if (this.getButton(4)!=null && this.getButton(4).isMouseOver()) {
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.resist.fire").getFormattedText());
-		} else if (this.getButton(5)!=null && this.getButton(5).isMouseOver()) {
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.water").getFormattedText());
-		} else if (this.getButton(6)!=null && this.getButton(6).isMouseOver()) {
+		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.resist.sun").getFormattedText());
-		} else if (this.getButton(7)!=null && this.getButton(7).isMouseOver()) {
+		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.fall").getFormattedText());
-		} else if (this.getButton(8)!=null && this.getButton(8).isMouseOver()) {
+		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.type").getFormattedText());
-		} else if (this.getButton(9)!=null && this.getButton(9).isMouseOver()) {
+		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.arrow").getFormattedText());
-		} else if (this.getButton(15)!=null && this.getButton(15).isMouseOver()) {
+		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.resists").getFormattedText());
-		} else if (this.getButton(17)!=null && this.getButton(17).isMouseOver()) {
+		} else if (this.getButton(17) != null && this.getButton(17).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.potion").getFormattedText());
-		} else if (this.getButton(22)!=null && this.getButton(22).isMouseOver()) {
+		} else if (this.getButton(22) != null && this.getButton(22).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.web").getFormattedText());
-		} else if (this.getButton(41)!=null && this.getButton(41).isMouseOver()) {
+		} else if (this.getButton(41) != null && this.getButton(41).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.level").getFormattedText());
-		} else if (this.getButton(43)!=null && this.getButton(43).isMouseOver()) {
+		} else if (this.getButton(43) != null && this.getButton(43).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.rarity").getFormattedText());
-		} else if (this.getButton(44)!=null && this.getButton(44).isMouseOver()) {
+		} else if (this.getButton(44) != null && this.getButton(44).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.battle").getFormattedText());
 		}
 		if (this.hoverText != null) {
@@ -270,12 +270,14 @@ implements ITextfieldListener, IGuiData {
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, Long.MAX_VALUE, 20);
 		this.addLabel(new GuiNpcLabel(1, "stats.aggro", this.guiLeft + 275, y + 5));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 355, y, 50, 18, this.stats.aggroRange + ""));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 355, y, 50, 18,
+				this.stats.aggroRange + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(1, 64, 2);
 
 		this.addLabel(new GuiNpcLabel(34, "stats.creaturetype", this.guiLeft + 140, y + 5));
-		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 217, y, 56, 20, new String[] { "stats.normal", "stats.undead", "stats.arthropod" }, this.stats.creatureType.ordinal()));
+		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 217, y, 56, 20,
+				new String[] { "stats.normal", "stats.undead", "stats.arthropod" }, this.stats.creatureType.ordinal()));
 		((GuiButtonBiDirectional) this.getButton(8)).cheakWidth = false;
 		y += 22;
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 82, y, 56, 20, "selectServer.edit"));
@@ -298,10 +300,12 @@ implements ITextfieldListener, IGuiData {
 		this.addButton(new GuiNpcButton(5, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" },
 				(this.stats.canDrown ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(11, "stats.candrown", this.guiLeft + 140, y + 5));
-		this.addTextField(new GuiNpcTextField(14, this, this.guiLeft + 355, y, 56, 20, this.stats.healthRegen + "").setNumbersOnly());
+		this.addTextField(new GuiNpcTextField(14, this, this.guiLeft + 355, y, 56, 20, this.stats.healthRegen + "")
+				.setNumbersOnly());
 		this.addLabel(new GuiNpcLabel(14, "stats.regenhealth", this.guiLeft + 275, y + 5));
 		y += 22;
-		this.addTextField(new GuiNpcTextField(16, this, this.guiLeft + 355, y, 56, 20, this.stats.combatRegen + "").setNumbersOnly());
+		this.addTextField(new GuiNpcTextField(16, this, this.guiLeft + 355, y, 56, 20, this.stats.combatRegen + "")
+				.setNumbersOnly());
 		this.addLabel(new GuiNpcLabel(16, "stats.combatregen", this.guiLeft + 275, y + 5));
 		this.addButton(new GuiNpcButton(6, this.guiLeft + 82, y, 56, 20, new String[] { "gui.no", "gui.yes" },
 				(this.stats.burnInSun ? 1 : 0)));
@@ -320,10 +324,11 @@ implements ITextfieldListener, IGuiData {
 		for (int g = 0; g < CustomNpcs.MaxLv; g++) {
 			lvls[g] = "" + (g + 1);
 		}
-		//this.addButton(new GuiNpcButton(40, this.guiLeft + 217, this.guiTop +32, 56, 20, "selectServer.edit"));
+		// this.addButton(new GuiNpcButton(40, this.guiLeft + 217, this.guiTop +32, 56,
+		// 20, "selectServer.edit"));
 		this.addButton(new GuiButtonBiDirectional(41, this.guiLeft + 217, this.guiTop + 32, 56, 20, lvls,
 				this.stats.getLevel() - 1));
-		//this.getButton(40).setEnabled(false);
+		// this.getButton(40).setEnabled(false);
 		this.addLabel(new GuiNpcLabel(42, "stats.level", this.guiLeft + 139, this.guiTop + 37));
 		this.addButton(new GuiNpcButton(43, this.guiLeft + 217, this.guiTop + 54, 56, 20,
 				new String[] { "stats.rarity.normal", "stats.rarity.elite", "stats.rarity.boss" },
@@ -348,7 +353,9 @@ implements ITextfieldListener, IGuiData {
 		int lv = this.stats.getLevel();
 		int type = this.stats.getRarity();
 		// Resistance and model size
-		if (!CustomNpcs.RecalculateLR) { return; }
+		if (!CustomNpcs.RecalculateLR) {
+			return;
+		}
 		int[] sizeModel = CustomNpcs.ModelRaritySize;
 		int time = 180;
 		float[] resist = new float[] { (float) CustomNpcs.ResistanceNormal[0] / 100.0f,
@@ -404,7 +411,8 @@ implements ITextfieldListener, IGuiData {
 		} else if (type == 1) {
 			rarity += ((char) 167) + "6Elite ";
 		}
-		rarity += ((char) 167) + "7lv." + ((char) 167) + (lv <= CustomNpcs.MaxLv / 3 ? "2" : (float) lv <= (float) CustomNpcs.MaxLv / 1.5f ? "6" : "4") + lv;
+		rarity += ((char) 167) + "7lv." + ((char) 167)
+				+ (lv <= CustomNpcs.MaxLv / 3 ? "2" : (float) lv <= (float) CustomNpcs.MaxLv / 1.5f ? "6" : "4") + lv;
 		this.stats.setRarityTitle(rarity);
 		this.initGui();
 	}
@@ -438,5 +446,5 @@ implements ITextfieldListener, IGuiData {
 			this.stats.combatRegen = textfield.getInteger();
 		}
 	}
-	
+
 }

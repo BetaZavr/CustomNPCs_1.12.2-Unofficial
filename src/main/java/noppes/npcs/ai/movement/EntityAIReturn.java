@@ -11,9 +11,8 @@ import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 
-public class EntityAIReturn
-extends EntityAIBase {
-	
+public class EntityAIReturn extends EntityAIBase {
+
 	public static int MaxTotalTicks = 100;
 	private double endPosX;
 	private double endPosY;
@@ -35,9 +34,13 @@ extends EntityAIBase {
 	}
 
 	private boolean isTooFar() {
-		if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) { return true; }
+		if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
+			return true;
+		}
 		int allowedDistance = this.npc.stats.aggroRange * 2;
-		if (this.npc.ais.getMovingType() == 1) { allowedDistance += this.npc.ais.walkingRange; }
+		if (this.npc.ais.getMovingType() == 1) {
+			allowedDistance += this.npc.ais.walkingRange;
+		}
 		double x = this.npc.posX - this.endPosX;
 		double z = this.npc.posZ - this.endPosZ;
 		return x * x + z * z > allowedDistance * allowedDistance;
@@ -78,9 +81,9 @@ extends EntityAIBase {
 		this.npc.getNavigator().clearPath();
 		if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
 			try {
-				AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc, this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
-			}
-			catch (CommandException e) {
+				AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+						this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
+			} catch (CommandException e) {
 				e.printStackTrace();
 				this.npc.getNavigator().tryMoveToXYZ(posX, posY, posZ, 1.0);
 			}
@@ -88,13 +91,13 @@ extends EntityAIBase {
 			this.npc.getNavigator().tryMoveToXYZ(posX, posY, posZ, 1.0);
 		}
 	}
-	
+
 	@Override
 	public void resetTask() {
 		this.wasAttacked = false;
 		this.npc.getNavigator().clearPath();
 	}
-	
+
 	@Override
 	public boolean shouldContinueExecuting() {
 		return this.npc.getHealth() > 0 && !this.npc.isFollower() && !this.npc.isKilled() && !this.npc.isAttacking()
@@ -102,10 +105,11 @@ extends EntityAIBase {
 				&& (!this.npc.getNavigator().noPath() || !this.wasAttacked || this.isTooFar())
 				&& this.totalTicks <= EntityAIReturn.MaxTotalTicks;
 	}
-	
+
 	@Override
 	public boolean shouldExecute() {
-		if (this.npc.hasOwner() || this.npc.isRiding() || !this.npc.ais.shouldReturnHome() || this.npc.isKilled() || !this.npc.getNavigator().noPath() || this.npc.isMoving() || this.npc.isInteracting()) {
+		if (this.npc.hasOwner() || this.npc.isRiding() || !this.npc.ais.shouldReturnHome() || this.npc.isKilled()
+				|| !this.npc.getNavigator().noPath() || this.npc.isMoving() || this.npc.isInteracting()) {
 			return false;
 		}
 		// AI Attack
@@ -121,7 +125,8 @@ extends EntityAIBase {
 			}
 		}
 		// Shelter at Night
-		if (this.npc.ais.findShelter == 0 && (!this.npc.world.isDaytime() || this.npc.world.isRaining()) && !this.npc.world.provider.hasSkyLight()) {
+		if (this.npc.ais.findShelter == 0 && (!this.npc.world.isDaytime() || this.npc.world.isRaining())
+				&& !this.npc.world.provider.hasSkyLight()) {
 			BlockPos pos = new BlockPos(this.npc.getStartXPos(), this.npc.getStartYPos(), this.npc.getStartZPos());
 			if (this.npc.world.canSeeSky(pos) || this.npc.world.getLight(pos) <= 8) {
 				return false;
@@ -141,21 +146,28 @@ extends EntityAIBase {
 			}
 			return false;
 		}
-		if (!this.npc.isAttacking() && this.wasAttacked) { return true; }
-		
-		if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) { return true; }
-		switch(this.npc.ais.getMovingType()) {
-			case 1: {
-				return !this.npc.isInRange(this.npc.getStartXPos(), -1.0, this.npc.getStartZPos(), this.npc.ais.walkingRange);
+		if (!this.npc.isAttacking() && this.wasAttacked) {
+			return true;
+		}
+
+		if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
+			return true;
+		}
+		switch (this.npc.ais.getMovingType()) {
+		case 1: {
+			return !this.npc.isInRange(this.npc.getStartXPos(), -1.0, this.npc.getStartZPos(),
+					this.npc.ais.walkingRange);
+		}
+		case 2: {
+			if (this.npc.ais.getDistanceSqToPathPoint() < CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange) {
+				return false;
 			}
-			case 2: {
-				if (this.npc.ais.getDistanceSqToPathPoint() < CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange) { return false; }
-				break;
-			}
+			break;
+		}
 		}
 		return !this.npc.isVeryNearAssignedPlace();
 	}
-	
+
 	@Override
 	public void startExecuting() {
 		this.stuckTicks = 0;
@@ -163,7 +175,7 @@ extends EntityAIBase {
 		this.stuckCount = 0;
 		this.navigate(false);
 	}
-	
+
 	@Override
 	public void updateTask() {
 		++this.totalTicks;
@@ -171,9 +183,9 @@ extends EntityAIBase {
 			this.npc.getNavigator().clearPath();
 			if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
 				try {
-					AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc, this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
-				}
-				catch (CommandException e) {
+					AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+							this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
+				} catch (CommandException e) {
 					e.printStackTrace();
 					this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
 				}
@@ -191,9 +203,9 @@ extends EntityAIBase {
 				this.npc.getNavigator().clearPath();
 				if (this.npc.homeDimensionId != this.npc.world.provider.getDimension()) {
 					try {
-						AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc, this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
-					}
-					catch (CommandException e) {
+						AdditionalMethods.teleportEntity(this.npc.world.getMinecraftServer(), this.npc,
+								this.npc.homeDimensionId, this.endPosX, this.endPosY, this.endPosZ);
+					} catch (CommandException e) {
 						e.printStackTrace();
 						this.npc.setPosition(this.endPosX, this.endPosY, this.endPosZ);
 					}

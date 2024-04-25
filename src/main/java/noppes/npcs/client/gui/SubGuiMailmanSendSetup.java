@@ -15,9 +15,8 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.data.PlayerMail;
 
-public class SubGuiMailmanSendSetup
-extends SubGuiInterface implements ITextfieldListener, GuiSelectionListener {
-	
+public class SubGuiMailmanSendSetup extends SubGuiInterface implements ITextfieldListener, GuiSelectionListener {
+
 	private PlayerMail mail;
 
 	public SubGuiMailmanSendSetup(PlayerMail mail) {
@@ -54,7 +53,8 @@ extends SubGuiInterface implements ITextfieldListener, GuiSelectionListener {
 	public void initGui() {
 		super.initGui();
 		this.addLabel(new GuiNpcLabel(1, "mailbox.subject", this.guiLeft + 4, this.guiTop + 19));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 14, 180, 20, this.mail.title));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 14, 180, 20,
+				this.mail.title));
 		this.addLabel(new GuiNpcLabel(0, "mailbox.sender", this.guiLeft + 4, this.guiTop + 41));
 		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 60, this.guiTop + 36, 180, 20,
 				this.mail.sender));

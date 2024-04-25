@@ -11,16 +11,16 @@ import net.minecraftforge.common.config.Configuration;
 @Target({ ElementType.FIELD })
 public @interface ConfigProp {
 
-	String info() default "";
-
-	String name() default "";
-	
-	String min() default "";
-	
-	String max() default "";
-	
 	String def() default "";
 
+	String info() default "";
+
+	String max() default "";
+
+	String min() default "";
+
+	String name() default "";
+
 	String type() default Configuration.CATEGORY_GENERAL;
-	
+
 }

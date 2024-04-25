@@ -13,9 +13,9 @@ import net.minecraftforge.server.permission.PermissionAPI;
 public class CustomNpcsPermissions {
 
 	public static class Permission {
-		
+
 		private static List<Permission> permissions = new ArrayList<Permission>();
-		
+
 		public boolean defaultValue;
 
 		public String name;
@@ -32,7 +32,7 @@ public class CustomNpcsPermissions {
 			Permission.permissions.add(this);
 			this.defaultValue = defaultValue;
 		}
-		
+
 	}
 
 	public static Permission EDIT_BLOCKS = new Permission(CustomNpcs.MODID + ".edit.blocks");
@@ -70,7 +70,9 @@ public class CustomNpcsPermissions {
 	public static Permission TOOL_TELEPORTER = new Permission(CustomNpcs.MODID + ".tool.teleporter");
 
 	public static boolean hasPermission(EntityPlayer player, Permission permission) {
-		if (CustomNpcs.DisablePermissions) { return permission.defaultValue; }
+		if (CustomNpcs.DisablePermissions) {
+			return permission.defaultValue;
+		}
 		return hasPermissionString(player, permission.name);
 	}
 

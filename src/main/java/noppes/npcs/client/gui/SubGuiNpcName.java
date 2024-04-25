@@ -42,12 +42,36 @@ public class SubGuiNpcName extends SubGuiInterface implements ITextfieldListener
 	}
 
 	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
+		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.name").getFormattedText());
+		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.group.name").getFormattedText());
+		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.group.either").getFormattedText());
+		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("display.hover.random.name").getFormattedText());
+		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
+			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		}
+		if (this.hoverText != null) {
+			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
+			this.hoverText = null;
+		}
+	}
+
+	@Override
 	public void initGui() {
 		super.initGui();
 		int y = this.guiTop + 4;
 		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 24, y, 20, 20, "X"));
 		y += 50;
-		this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, y, 226, 20, this.display.getName()));
+		this.addTextField(
+				new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 4, y, 226, 20, this.display.getName()));
 		y += 22;
 		this.addButton(new GuiButtonBiDirectional(1, this.guiLeft + 4, y, 200, 20,
 				new String[] { "markov.roman.name", "markov.japanese.name", "markov.slavic.name", "markov.welsh.name",
@@ -61,27 +85,6 @@ public class SubGuiNpcName extends SubGuiInterface implements ITextfieldListener
 		this.addLabel(new GuiNpcLabel(2, "markov.gender.name", this.guiLeft + 5, y + 5));
 		y += 42;
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 4, y, 70, 20, "markov.generate"));
-	}
-	
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (this.getTextField(0)!=null && this.getTextField(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.name").getFormattedText());
-		} else if (this.getButton(1)!=null && this.getButton(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.group.name").getFormattedText());
-		} else if (this.getButton(2)!=null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.group.either").getFormattedText());
-		} else if (this.getButton(3)!=null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.random.name").getFormattedText());
-		} else if (this.getButton(66)!=null && this.getButton(66).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		}
-		if (this.hoverText != null) {
-			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
-			this.hoverText = null;
-		}
 	}
 
 	@Override

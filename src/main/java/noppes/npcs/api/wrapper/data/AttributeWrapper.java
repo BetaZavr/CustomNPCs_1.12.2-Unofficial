@@ -17,43 +17,96 @@ import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.ValueUtil;
 
-public class AttributeWrapper
-implements INpcAttribute {
-	
+public class AttributeWrapper implements INpcAttribute {
+
 	private IAttributeInstance attribute;
 	private boolean custom;
-	
+
+	public AttributeWrapper(EntityLivingBase entity, INpcAttribute attribute) {
+		this(entity, attribute.getName(), attribute.getDisplayName(), attribute.getBaseValue(), attribute.getMinValue(),
+				attribute.getMaxValue());
+		this.custom = true;
+	}
+
+	public AttributeWrapper(EntityLivingBase entity, String attributeName, String displayName, double baseValue,
+			double minValue, double maxValue) {
+		minValue = ValueUtil.min(minValue, maxValue);
+		maxValue = ValueUtil.max(minValue, maxValue);
+		RangedAttribute rangedAttribute = new RangedAttribute((IAttribute) null, attributeName,
+				ValueUtil.correctDouble(baseValue, minValue, maxValue), minValue, maxValue);
+		rangedAttribute.setDescription(displayName);
+		try {
+			this.attribute = new ModifiableAttributeInstance(entity.getAttributeMap(), rangedAttribute);
+		} catch (Exception e) {
+			this.attribute = (IAttributeInstance) rangedAttribute;
+		}
+		this.custom = true;
+	}
+
 	public AttributeWrapper(IAttributeInstance mcattribute) {
 		this.attribute = mcattribute;
 		this.custom = false;
 		String name = this.getName();
-		if (!name.equals("generic.maxHealth") &&
-				!name.equals("generic.knockbackResistance") &&
-				!name.equals("generic.movementSpeed") &&
-				!name.equals("generic.armor") &&
-				!name.equals("generic.armorToughness") &&
-				!name.equals("generic.attackDamage") &&
-				!name.equals("generic.attackSpeed") &&
-				!name.equals("generic.luck") &&
-				!name.equals("generic.reachDistance") &&
-				!name.equals("forge.swimSpeed")) {
+		if (!name.equals("generic.maxHealth") && !name.equals("generic.knockbackResistance")
+				&& !name.equals("generic.movementSpeed") && !name.equals("generic.armor")
+				&& !name.equals("generic.armorToughness") && !name.equals("generic.attackDamage")
+				&& !name.equals("generic.attackSpeed") && !name.equals("generic.luck")
+				&& !name.equals("generic.reachDistance") && !name.equals("forge.swimSpeed")) {
 			this.custom = true;
 		}
 	}
 
-	public AttributeWrapper(EntityLivingBase entity, INpcAttribute attribute) {
-		this(entity, attribute.getName(), attribute.getDisplayName(), attribute.getBaseValue(), attribute.getMinValue(), attribute.getMaxValue());
-		this.custom = true;
+	@Override
+	public IAttributeModifier addModifier(IAttributeModifier modifier) {
+		if (hasModifier(modifier)) {
+			return null;
+		}
+		this.attribute.applyModifier(modifier.getMCModifier());
+		return this.getModifier(modifier.getID());
 	}
-	
-	public AttributeWrapper(EntityLivingBase entity, String attributeName, String displayName, double baseValue, double minValue, double maxValue) {
-		minValue = ValueUtil.min(minValue, maxValue);
-		maxValue = ValueUtil.max(minValue, maxValue);
-		RangedAttribute rangedAttribute = new RangedAttribute((IAttribute)null, attributeName, ValueUtil.correctDouble(baseValue, minValue, maxValue), minValue, maxValue);
-		rangedAttribute.setDescription(displayName);
-		try { this.attribute = new ModifiableAttributeInstance(entity.getAttributeMap(), rangedAttribute); }
-		catch (Exception e) { this.attribute = (IAttributeInstance) rangedAttribute; }
-		this.custom = true;
+
+	@Override
+	public IAttributeModifier addModifier(String modifierName, double amount, int operation) {
+		if (modifierName == null || modifierName.isEmpty() || this.hasModifier(modifierName)) {
+			return null;
+		}
+		AttributeModifier modifier = new AttributeModifier(modifierName, amount, operation);
+		this.attribute.applyModifier(modifier);
+		return this.getModifier(modifierName);
+	}
+
+	@Override
+	public double getBaseValue() {
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			return ((ModifiableAttributeInstance) this.attribute).getBaseValue();
+		}
+		return this.attribute.getBaseValue();
+	}
+
+	@Override
+	public String getDisplayName() {
+		Object attribute = this.attribute;
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+		}
+		if (attribute instanceof RangedAttribute) {
+			return ((RangedAttribute) attribute).getDescription();
+		}
+		return null;
+	}
+
+	@Override
+	public double getMaxValue() {
+		Object attribute = this.attribute;
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+		}
+		if (attribute instanceof RangedAttribute) {
+			return ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 1);
+		}
+		return 0.0d;
 	}
 
 	@Override
@@ -64,63 +117,18 @@ implements INpcAttribute {
 	@Override
 	public IAttribute getMCBaseAttribute() {
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			return ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			return ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
 		}
 		return null;
 	}
-
-	@Override
-	public boolean isCustom() { return this.custom; }
-
-	@Override
-	public String getName() {
-		if (this.attribute instanceof IAttribute) {
-			return ((IAttribute) this.attribute).getName();
-		}
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			return ((ModifiableAttributeInstance) this.attribute).getAttribute().getName();
-		}
-		return null;
-	}
-	
-	@Override
-	public String getDisplayName() {
-		Object attribute = this.attribute;
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
-		}
-		if (attribute instanceof RangedAttribute) {
-			return ((RangedAttribute) attribute).getDescription();
-		}
-		return null;
-	}
-	
-	@Override
-	public void setDisplayName(String displayName) {
-		Object attribute = this.attribute;
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
-		}
-		if (attribute instanceof RangedAttribute) {
-			((RangedAttribute) attribute).setDescription(displayName);
-		}
-	}
-
-	@Override
-	public double getBaseValue() {
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			return ((ModifiableAttributeInstance) this.attribute).getBaseValue();
-		}
-		return this.attribute.getBaseValue(); }
-
-	@Override
-	public void setBaseValue(double baseValue) { this.attribute.setBaseValue(baseValue); }
 
 	@Override
 	public double getMinValue() {
 		Object attribute = this.attribute;
 		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
+			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
 		}
 		if (attribute instanceof RangedAttribute) {
 			return ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 0);
@@ -129,57 +137,28 @@ implements INpcAttribute {
 	}
 
 	@Override
-	public void setMinValue(double minValue) {
-		Object attribute = this.attribute;
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
+	public IAttributeModifier getModifier(String uuidOrName) {
+		if (uuidOrName == null || uuidOrName.isEmpty()) {
+			return null;
 		}
-		if (attribute instanceof RangedAttribute) {
-			double maxValue = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 0);
-		    minValue = ValueUtil.min(minValue, maxValue);
-			maxValue = ValueUtil.max(minValue, maxValue);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, minValue, 0);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, maxValue, 1);
+		AttributeModifier modifier = null;
+		try {
+			UUID uuid = UUID.fromString(uuidOrName);
+			modifier = this.attribute.getModifier(uuid);
+		} catch (Exception e) {
 		}
-	}
-
-	@Override
-	public double getMaxValue() {
-		Object attribute = this.attribute;
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
+		if (modifier == null) {
+			for (AttributeModifier am : this.attribute.getModifiers()) {
+				if (am.getName().equals(uuidOrName)) {
+					modifier = am;
+					break;
+				}
+			}
 		}
-		if (attribute instanceof RangedAttribute) {
-			return ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 1);
+		if (modifier != null) {
+			return new AttributeModifierWrapper(this, modifier);
 		}
-		return 0.0d;
-	}
-
-	@Override
-	public void setMaxValue(double maxValue) {
-		Object attribute = this.attribute;
-		if (this.attribute instanceof ModifiableAttributeInstance) {
-			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class, (ModifiableAttributeInstance) this.attribute, IAttribute.class);
-		}
-		if (attribute instanceof RangedAttribute) {
-			double minValue = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 1);
-		    minValue = ValueUtil.min(minValue, maxValue);
-			maxValue = ValueUtil.max(minValue, maxValue);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, minValue, 0);
-			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, maxValue, 1);
-		}
-	}
-
-	@Override
-	public IAttributeModifier[] getModifiersByOperation(int operation) {
-		Collection<AttributeModifier> col = this.attribute.getModifiersByOperation(operation);
-		IAttributeModifier[] mdfs = new IAttributeModifier[col.size()];
-		int i = 0;
-		for (AttributeModifier am : col) {
-			mdfs[i] = new AttributeModifierWrapper(this, am);
-			i++;
-		}
-		return mdfs;
+		return null;
 	}
 
 	@Override
@@ -195,10 +174,42 @@ implements INpcAttribute {
 	}
 
 	@Override
+	public IAttributeModifier[] getModifiersByOperation(int operation) {
+		Collection<AttributeModifier> col = this.attribute.getModifiersByOperation(operation);
+		IAttributeModifier[] mdfs = new IAttributeModifier[col.size()];
+		int i = 0;
+		for (AttributeModifier am : col) {
+			mdfs[i] = new AttributeModifierWrapper(this, am);
+			i++;
+		}
+		return mdfs;
+	}
+
+	@Override
+	public String getName() {
+		if (this.attribute instanceof IAttribute) {
+			return ((IAttribute) this.attribute).getName();
+		}
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			return ((ModifiableAttributeInstance) this.attribute).getAttribute().getName();
+		}
+		return null;
+	}
+
+	@Override
+	public double getTotalValue() {
+		return this.attribute.getAttributeValue();
+	}
+
+	@Override
 	public boolean hasModifier(IAttributeModifier modifier) {
-		if (modifier==null) { return false; }
+		if (modifier == null) {
+			return false;
+		}
 		boolean has = this.attribute.hasModifier(modifier.getMCModifier());
-		if (has) { return true; }
+		if (has) {
+			return true;
+		}
 		for (AttributeModifier am : this.attribute.getModifiers()) {
 			if (am.getID().equals(modifier.getMCModifier().getID())) {
 				return true;
@@ -206,64 +217,56 @@ implements INpcAttribute {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean hasModifier(String uuidOrName) {
-		if (uuidOrName==null || uuidOrName.isEmpty()) { return false; }
+		if (uuidOrName == null || uuidOrName.isEmpty()) {
+			return false;
+		}
 		boolean has = false;
 		try {
 			UUID uuid = UUID.fromString(uuidOrName);
 			has = this.attribute.getModifier(uuid) != null;
-		} catch (Exception e) {}
-		if (has) { return true; }
+		} catch (Exception e) {
+		}
+		if (has) {
+			return true;
+		}
 		for (AttributeModifier am : this.attribute.getModifiers()) {
-			if (am.getName().equals(uuidOrName)) { return true; }
+			if (am.getName().equals(uuidOrName)) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	@Override
-	public IAttributeModifier getModifier(String uuidOrName) {
-		if (uuidOrName==null || uuidOrName.isEmpty()) { return null; }
-		AttributeModifier modifier = null;
-		try {
-			UUID uuid = UUID.fromString(uuidOrName);
-			modifier = this.attribute.getModifier(uuid);
-		} catch (Exception e) {}
-		if (modifier== null) {
-			for (AttributeModifier am : this.attribute.getModifiers()) {
-				if (am.getName().equals(uuidOrName)) {
-					modifier = am;
-					break;
-				}
-			}
-		}
-		if (modifier != null) { return new AttributeModifierWrapper(this, modifier); }
-		return null;
+	public boolean isCustom() {
+		return this.custom;
 	}
 
 	@Override
-	public IAttributeModifier addModifier(IAttributeModifier modifier) {
-		if (hasModifier(modifier)) { return null; }
-		this.attribute.applyModifier(modifier.getMCModifier());
-		return this.getModifier(modifier.getID());
-	}
-	
-	@Override
-	public IAttributeModifier addModifier(String modifierName, double amount, int operation) {
-		if (modifierName==null || modifierName.isEmpty() || this.hasModifier(modifierName)) { return null; }
-		AttributeModifier modifier = new AttributeModifier(modifierName, amount, operation);
-		this.attribute.applyModifier(modifier);
-		return this.getModifier(modifierName);
+	public void removeAllModifiers() {
+		List<AttributeModifier> list = Lists.<AttributeModifier>newArrayList();
+		for (AttributeModifier am : this.attribute.getModifiers()) {
+			list.add(am);
+		}
+		for (AttributeModifier am : list) {
+			this.attribute.removeModifier(am);
+		}
 	}
 
 	@Override
 	public boolean removeModifier(IAttributeModifier modifier) {
-		if (modifier==null) { return false; }
+		if (modifier == null) {
+			return false;
+		}
 		if (hasModifier(modifier)) {
 			this.attribute.removeModifier(modifier.getMCModifier());
 			boolean has = hasModifier(modifier);
-			if (!has) { return true; }
+			if (!has) {
+				return true;
+			}
 			for (AttributeModifier am : this.attribute.getModifiers()) {
 				if (am.getID().equals(modifier.getMCModifier().getID())) {
 					this.attribute.removeModifier(am);
@@ -280,14 +283,52 @@ implements INpcAttribute {
 	}
 
 	@Override
-	public void removeAllModifiers() {
-		List<AttributeModifier> list = Lists.<AttributeModifier>newArrayList();
-		for (AttributeModifier am : this.attribute.getModifiers()) { list.add(am); }
-		for (AttributeModifier am : list) { this.attribute.removeModifier(am); }
+	public void setBaseValue(double baseValue) {
+		this.attribute.setBaseValue(baseValue);
 	}
 
 	@Override
-	public double getTotalValue() { return this.attribute.getAttributeValue(); }
+	public void setDisplayName(String displayName) {
+		Object attribute = this.attribute;
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+		}
+		if (attribute instanceof RangedAttribute) {
+			((RangedAttribute) attribute).setDescription(displayName);
+		}
+	}
 
-	
+	@Override
+	public void setMaxValue(double maxValue) {
+		Object attribute = this.attribute;
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+		}
+		if (attribute instanceof RangedAttribute) {
+			double minValue = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 1);
+			minValue = ValueUtil.min(minValue, maxValue);
+			maxValue = ValueUtil.max(minValue, maxValue);
+			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, minValue, 0);
+			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, maxValue, 1);
+		}
+	}
+
+	@Override
+	public void setMinValue(double minValue) {
+		Object attribute = this.attribute;
+		if (this.attribute instanceof ModifiableAttributeInstance) {
+			attribute = ObfuscationHelper.getValue(ModifiableAttributeInstance.class,
+					(ModifiableAttributeInstance) this.attribute, IAttribute.class);
+		}
+		if (attribute instanceof RangedAttribute) {
+			double maxValue = ObfuscationHelper.getValue(RangedAttribute.class, (RangedAttribute) attribute, 0);
+			minValue = ValueUtil.min(minValue, maxValue);
+			maxValue = ValueUtil.max(minValue, maxValue);
+			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, minValue, 0);
+			ObfuscationHelper.setValue(RangedAttribute.class, (RangedAttribute) attribute, maxValue, 1);
+		}
+	}
+
 }

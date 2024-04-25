@@ -7,7 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
 public class TileNpcEntity extends TileEntity {
-	
+
 	public Map<String, Object> tempData;
 
 	public TileNpcEntity() {

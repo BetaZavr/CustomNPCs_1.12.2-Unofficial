@@ -3,9 +3,8 @@ package noppes.npcs.ai;
 import net.minecraft.entity.ai.EntityAIBase;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class EntityAIJob
- extends EntityAIBase {
-	 
+public class EntityAIJob extends EntityAIBase {
+
 	private EntityNPCInterface npc;
 
 	public EntityAIJob(EntityNPCInterface npc) {
@@ -26,11 +25,13 @@ public class EntityAIJob
 	}
 
 	public boolean shouldContinueExecuting() {
-		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null && this.npc.advanced.jobInterface.aiContinueExecute();
+		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null
+				&& this.npc.advanced.jobInterface.aiContinueExecute();
 	}
 
 	public boolean shouldExecute() {
-		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null && this.npc.advanced.jobInterface.aiShouldExecute();
+		return !this.npc.isKilled() && this.npc.advanced.jobInterface != null
+				&& this.npc.advanced.jobInterface.aiShouldExecute();
 	}
 
 	public void startExecuting() {

@@ -15,7 +15,7 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.data.PlayerData;
 
 public class ContainerCustomChest extends ContainerNpcInterface {
-	
+
 	private IContainer container;
 	private InventoryBasic craftingMatrix;
 	public int rows;

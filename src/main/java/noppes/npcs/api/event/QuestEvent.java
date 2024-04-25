@@ -9,7 +9,7 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.Quest;
 
 public class QuestEvent extends CustomNPCsEvent {
-	
+
 	@Cancelable
 	public static class QuestCanceledEvent extends QuestEvent {
 		public QuestCanceledEvent(IPlayer<?> player, IQuest quest) {
@@ -23,6 +23,12 @@ public class QuestEvent extends CustomNPCsEvent {
 		}
 	}
 
+	public static class QuestExtraButtonEvent extends QuestEvent {
+		public QuestExtraButtonEvent(IPlayer<?> player, IQuest quest) {
+			super(player, quest);
+		}
+	}
+
 	@Cancelable
 	public static class QuestStartEvent extends QuestEvent {
 		public QuestStartEvent(IPlayer<?> player, IQuest quest) {
@@ -31,7 +37,7 @@ public class QuestEvent extends CustomNPCsEvent {
 	}
 
 	public static class QuestTurnedInEvent extends QuestEvent {
-		
+
 		public int expReward, moneyReward;
 		public IItemStack[] itemRewards;
 		public FactionOptions factionOptions;
@@ -45,16 +51,10 @@ public class QuestEvent extends CustomNPCsEvent {
 			this.factionOptions = ((Quest) quest).factionOptions.copy();
 			this.mail = ((Quest) quest).mail.copy();
 			this.nextQuestId = ((Quest) quest).nextQuestid;
-			this.command = ""+((Quest) quest).command;
+			this.command = "" + ((Quest) quest).command;
 		}
 	}
-	
-	public static class QuestExtraButtonEvent extends QuestEvent {
-		public QuestExtraButtonEvent(IPlayer<?> player, IQuest quest) {
-			super(player, quest);
-		}
-	}
-	
+
 	public IPlayer<?> player;
 
 	public IQuest quest;

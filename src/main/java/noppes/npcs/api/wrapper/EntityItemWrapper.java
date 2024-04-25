@@ -9,10 +9,8 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.util.ObfuscationHelper;
 
 @SuppressWarnings("rawtypes")
-public class EntityItemWrapper<T extends EntityItem>
-extends EntityWrapper<T>
-implements IEntityItem {
-	
+public class EntityItemWrapper<T extends EntityItem> extends EntityWrapper<T> implements IEntityItem {
+
 	public EntityItemWrapper(T entity) {
 		super(entity);
 	}
@@ -78,5 +76,5 @@ implements IEntityItem {
 	public boolean typeOf(int type) {
 		return type == EntityType.ITEM.get() || super.typeOf(type);
 	}
-	
+
 }

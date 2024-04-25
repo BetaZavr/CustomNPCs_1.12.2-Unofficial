@@ -5,7 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class CustomNPCsScheduler {
-	
+
 	private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
 	public static void runTack(Runnable task) {

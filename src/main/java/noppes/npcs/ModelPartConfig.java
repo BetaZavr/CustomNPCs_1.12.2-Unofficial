@@ -4,7 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.util.ValueUtil;
 
 public class ModelPartConfig {
-	
+
 	public boolean notShared;
 	public float[] scaleBase, scaleAnimation;
 	public float[] offsetBase, offsetAnimation;
@@ -21,13 +21,17 @@ public class ModelPartConfig {
 	}
 
 	public float checkValue(float given, float min, float max) {
-		if (given < min) { return min; }
-		if (given > max) { return max; }
+		if (given < min) {
+			return min;
+		}
+		if (given > max) {
+			return max;
+		}
 		return given;
 	}
 
 	public void copyValues(ModelPartConfig config) {
-		for (int i=0; i<3; i++) {
+		for (int i = 0; i < 3; i++) {
 			this.scaleBase[i] = config.scaleBase[i];
 			this.offsetBase[i] = config.offsetBase[i];
 		}
@@ -63,7 +67,7 @@ public class ModelPartConfig {
 
 	@Override
 	public String toString() {
-		return "ScaleXYZ: " + this.scaleBase[0] + ", " + this.scaleBase[1] + ", " + this.scaleBase[2]+"]";
+		return "ScaleXYZ: " + this.scaleBase[0] + ", " + this.scaleBase[1] + ", " + this.scaleBase[2] + "]";
 	}
 
 	public NBTTagCompound writeToNBT() {

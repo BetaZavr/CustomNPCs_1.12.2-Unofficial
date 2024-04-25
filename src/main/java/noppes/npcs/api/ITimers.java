@@ -1,7 +1,7 @@
 package noppes.npcs.api;
 
 public interface ITimers {
-	
+
 	void clear();
 
 	void forceStart(int id, int ticks, boolean repeat);
@@ -13,5 +13,5 @@ public interface ITimers {
 	void start(int id, int ticks, boolean repeat);
 
 	boolean stop(int id);
-	
+
 }

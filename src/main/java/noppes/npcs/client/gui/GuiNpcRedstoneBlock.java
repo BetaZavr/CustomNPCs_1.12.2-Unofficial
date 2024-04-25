@@ -78,11 +78,13 @@ public class GuiNpcRedstoneBlock extends GuiNPCInterface implements IGuiData {
 			this.getTextField(5).setMinMaxDefault(0, 50, 10);
 		} else {
 			this.addLabel(new GuiNpcLabel(0, "bard.ondistance", this.guiLeft + 1, this.guiTop + 76, 16777215));
-			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30, 20, this.tile.onRange + ""));
+			this.addTextField(new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 71, 30,
+					20, this.tile.onRange + ""));
 			this.getTextField(0).setNumbersOnly();
 			this.getTextField(0).setMinMaxDefault(0, 50, 6);
 			this.addLabel(new GuiNpcLabel(3, "bard.offdistance", this.guiLeft - 3, this.guiTop + 99, 16777215));
-			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30, 20, this.tile.offRange + ""));
+			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, this.guiLeft + 80, this.guiTop + 94, 30,
+					20, this.tile.offRange + ""));
 			this.getTextField(3).setNumbersOnly();
 			this.getTextField(3).setMinMaxDefault(0, 50, 10);
 		}

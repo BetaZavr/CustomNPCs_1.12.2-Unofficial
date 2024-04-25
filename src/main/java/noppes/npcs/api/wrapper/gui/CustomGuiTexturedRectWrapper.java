@@ -5,10 +5,8 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ITexturedRect;
 
-public class CustomGuiTexturedRectWrapper
-extends CustomGuiComponentWrapper
-implements ITexturedRect {
-	
+public class CustomGuiTexturedRectWrapper extends CustomGuiComponentWrapper implements ITexturedRect {
+
 	float scale;
 	String texture;
 	int textureX, textureY, width, height, color;
@@ -29,7 +27,8 @@ implements ITexturedRect {
 		this.setSize(width, height);
 	}
 
-	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
+	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height, int textureX,
+			int textureY) {
 		this(id, texture, x, y, width, height);
 		this.setTextureOffset(textureX, textureY);
 	}
@@ -44,6 +43,11 @@ implements ITexturedRect {
 			this.setTextureOffset(nbt.getIntArray("texPos")[0], nbt.getIntArray("texPos")[1]);
 		}
 		return this;
+	}
+
+	@Override
+	public int getColor() {
+		return this.color;
 	}
 
 	@Override
@@ -82,6 +86,12 @@ implements ITexturedRect {
 	}
 
 	@Override
+	public ITexturedRect setColor(int color) {
+		this.color = color;
+		return this;
+	}
+
+	@Override
 	public ITexturedRect setScale(float scale) {
 		this.scale = scale;
 		return this;
@@ -89,7 +99,7 @@ implements ITexturedRect {
 
 	@Override
 	public ITexturedRect setSize(int width, int height) {
-		if (width  <= 0 || height <= 0) {
+		if (width <= 0 || height <= 0) {
 			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
 		}
 		this.width = width;
@@ -122,13 +132,4 @@ implements ITexturedRect {
 		}
 		return nbt;
 	}
-
-	@Override
-	public ITexturedRect setColor(int color) {
-		this.color = color;
-		return this;
-	}
-
-	@Override
-	public int getColor() { return this.color; }
 }

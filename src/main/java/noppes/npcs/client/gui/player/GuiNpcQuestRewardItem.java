@@ -16,9 +16,8 @@ import noppes.npcs.containers.ContainerNpcQuestRewardItem;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 
-public class GuiNpcQuestRewardItem
-extends GuiContainerNPCInterface {
-	
+public class GuiNpcQuestRewardItem extends GuiContainerNPCInterface {
+
 	private ResourceLocation resource = this.getResource("extrasmallbg.png");
 	private ResourceLocation slots = this.getResource("baseinventory.png");
 	private Quest quest;
@@ -61,7 +60,7 @@ extends GuiContainerNPCInterface {
 		if (slotIn == null) {
 			return;
 		}
-		this.reward  = slotIn.getStack();
+		this.reward = slotIn.getStack();
 		this.close();
 	}
 
@@ -77,7 +76,8 @@ extends GuiContainerNPCInterface {
 
 	@Override
 	public void save() {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletionReward, this.quest.id, this.reward.writeToNBT(new NBTTagCompound()));
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletionReward, this.quest.id,
+				this.reward.writeToNBT(new NBTTagCompound()));
 	}
 
 }

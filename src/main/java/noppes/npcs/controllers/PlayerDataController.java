@@ -28,7 +28,7 @@ import noppes.npcs.util.NBTJsonUtil;
 import noppes.npcs.util.NBTJsonUtil.JsonException;
 
 public class PlayerDataController {
-	
+
 	public static PlayerDataController instance;
 
 	public PlayerDataController() {
@@ -43,12 +43,18 @@ public class PlayerDataController {
 				try {
 					NBTTagCompound nbt = NBTJsonUtil.LoadFile(playerDir);
 					String uuid = "nouuidplayer", name = "nonameplayer";
-					if (nbt.hasKey("PlayerName", 8) && !nbt.getString("PlayerName").isEmpty()) { name = nbt.getString("PlayerName"); }
-					if (nbt.hasKey("UUID", 8) && !nbt.getString("UUID").isEmpty()) { uuid = nbt.getString("UUID"); }
-					
+					if (nbt.hasKey("PlayerName", 8) && !nbt.getString("PlayerName").isEmpty()) {
+						name = nbt.getString("PlayerName");
+					}
+					if (nbt.hasKey("UUID", 8) && !nbt.getString("UUID").isEmpty()) {
+						uuid = nbt.getString("UUID");
+					}
+
 					// banks
-					File banksDirTemp = CustomNpcs.getWorldSaveDirectory("playerdata/"+uuid+"/banks");
-					if (!banksDirTemp.exists()) { banksDirTemp.mkdirs(); }
+					File banksDirTemp = CustomNpcs.getWorldSaveDirectory("playerdata/" + uuid + "/banks");
+					if (!banksDirTemp.exists()) {
+						banksDirTemp.mkdirs();
+					}
 					if (nbt.hasKey("BankData", 9)) {
 						for (int i = 0; i < nbt.getTagList("BankData", 10).tagCount(); i++) {
 							NBTTagCompound nbtOldBank = nbt.getTagList("BankData", 10).getCompoundTagAt(i);
@@ -60,12 +66,16 @@ public class PlayerDataController {
 							for (int c = 0; c < nbtOldBank.getTagList("BankInv", 10).tagCount(); c++) {
 								NBTTagCompound nbtOldCeil = nbtOldBank.getTagList("BankInv", 10).getCompoundTagAt(c);
 								int ceilID = nbtOldCeil.getInteger("Slot");
-								if (ceilID >= maxCeils) { continue; }
+								if (ceilID >= maxCeils) {
+									continue;
+								}
 								NBTTagCompound nbtCeil = new NBTTagCompound();
 								int slots = 27;
 								for (int u = 0; u < nbtOldBank.getTagList("UpdatedSlots", 10).tagCount(); u++) {
-									if (nbtOldBank.getTagList("UpdatedSlots", 10).getCompoundTagAt(u).getInteger("Slot")==ceilID) {
-										if (nbtOldBank.getTagList("UpdatedSlots", 10).getCompoundTagAt(u).getBoolean("Boolean")) {
+									if (nbtOldBank.getTagList("UpdatedSlots", 10).getCompoundTagAt(u)
+											.getInteger("Slot") == ceilID) {
+										if (nbtOldBank.getTagList("UpdatedSlots", 10).getCompoundTagAt(u)
+												.getBoolean("Boolean")) {
 											slots = 54;
 										}
 										break;
@@ -82,26 +92,40 @@ public class PlayerDataController {
 							nbtBD.setTag("ceils", list);
 							File bankFile = new File(banksDirTemp, bankID + ".dat");
 							if (!bankFile.exists()) {
-								try { bankFile.createNewFile(); } catch (Exception e) { e.printStackTrace(); }
+								try {
+									bankFile.createNewFile();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
 							}
-							try { CompressedStreamTools.writeCompressed(nbtBD, new FileOutputStream(bankFile)); }
-							catch (Exception e) { e.printStackTrace(); }
+							try {
+								CompressedStreamTools.writeCompressed(nbtBD, new FileOutputStream(bankFile));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
 
 					// main
 					File playerDirTemp = new File(dir, uuid);
-					if (!playerDirTemp.exists()) { playerDirTemp.mkdirs(); }
+					if (!playerDirTemp.exists()) {
+						playerDirTemp.mkdirs();
+					}
 					File tempFile = new File(playerDirTemp, name + ".json");
 					if (!tempFile.exists()) {
-						try { tempFile.createNewFile(); } catch (Exception e) { e.printStackTrace(); }
+						try {
+							tempFile.createNewFile();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 					try {
 						nbt.removeTag("BankData");
 						NBTJsonUtil.SaveFile(tempFile, nbt);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					catch (Exception e) { e.printStackTrace(); }
-					
+
 					AdditionalMethods.removeFile(playerDir);
 				} catch (Exception e) {
 					LogWriter.error("Error loading Old file: " + playerDir.getAbsolutePath(), e);
@@ -124,8 +148,10 @@ public class PlayerDataController {
 	public PlayerData getDataFromUsername(MinecraftServer server, String user_name_or_uuid) {
 		EntityPlayer player = (EntityPlayer) server.getPlayerList().getPlayerByUsername(user_name_or_uuid);
 		if (player == null) {
-			try { player = (EntityPlayer) server.getPlayerList().getPlayerByUUID(UUID.fromString(user_name_or_uuid)); }
-			catch (Exception e) { }
+			try {
+				player = (EntityPlayer) server.getPlayerList().getPlayerByUUID(UUID.fromString(user_name_or_uuid));
+			} catch (Exception e) {
+			}
 		}
 		PlayerData data = null;
 		if (player == null) {
@@ -136,28 +162,37 @@ public class PlayerDataController {
 					if (f.isFile() && f.getName().endsWith(".json")) {
 						try {
 							NBTTagCompound nbt = NBTJsonUtil.LoadFile(f);
-							if (nbt == null || !nbt.hasKey("GameData", 10)) { continue; }
+							if (nbt == null || !nbt.hasKey("GameData", 10)) {
+								continue;
+							}
 							data.setNBT(nbt);
 							data.uuid = playerDir.getName();
-							if (data.playername == null || data.playername.isEmpty()) { data.playername = f.getName().substring(0, f.getName().lastIndexOf(".")); }
+							if (data.playername == null || data.playername.isEmpty()) {
+								data.playername = f.getName().substring(0, f.getName().lastIndexOf("."));
+							}
+						} catch (IOException | JsonException e) {
+							e.printStackTrace();
 						}
-						catch (IOException | JsonException e) { e.printStackTrace(); }
 					}
 				}
 			}
+		} else {
+			data = PlayerData.get(player);
 		}
-		else { data = PlayerData.get(player); }
 		return data;
 	}
 
 	private File getPlayerDirectory(String user_name_or_uuid) {
 		for (File playerDir : CustomNpcs.getWorldSaveDirectory("playerdata").listFiles()) {
-			if (!playerDir.isDirectory()) { continue; }
+			if (!playerDir.isDirectory()) {
+				continue;
+			}
 			if (playerDir.getName().equalsIgnoreCase(user_name_or_uuid)) {
 				return playerDir;
 			}
 			for (File file : playerDir.listFiles()) {
-				if (file.isFile() && file.getName().endsWith(".json") && file.getName().replace(".json", "").equalsIgnoreCase(user_name_or_uuid)) {
+				if (file.isFile() && file.getName().endsWith(".json")
+						&& file.getName().replace(".json", "").equalsIgnoreCase(user_name_or_uuid)) {
 					return playerDir;
 				}
 			}
@@ -165,9 +200,26 @@ public class PlayerDataController {
 		return null;
 	}
 
+	public List<String> getPlayerNames() {
+		List<String> list = Lists.<String>newArrayList();
+		for (File playerDir : CustomNpcs.getWorldSaveDirectory("playerdata").listFiles()) {
+			if (!playerDir.isDirectory()) {
+				continue;
+			}
+			for (File file : playerDir.listFiles()) {
+				if (file.isFile() && file.getName().endsWith(".json")) {
+					list.add(file.getName().replace(".json", ""));
+					break;
+				}
+			}
+		}
+		return list;
+	}
+
 	public List<PlayerData> getPlayersData(ICommandSender sender, String username) throws CommandException {
 		ArrayList<PlayerData> list = new ArrayList<PlayerData>();
-		List<EntityPlayerMP> players = (List<EntityPlayerMP>) EntitySelector.matchEntities(sender, username, EntityPlayerMP.class);
+		List<EntityPlayerMP> players = (List<EntityPlayerMP>) EntitySelector.matchEntities(sender, username,
+				EntityPlayerMP.class);
 		if (players.isEmpty()) {
 			PlayerData data = this.getDataFromUsername(sender.getServer(), username);
 			if (data != null) {
@@ -183,22 +235,10 @@ public class PlayerDataController {
 
 	public String hasPlayer(String user_name_or_uuid) {
 		File playerDir = this.getPlayerDirectory(user_name_or_uuid);
-		if (playerDir == null) { return ""; }
-		return playerDir.getName();
-	}
-
-	public List<String> getPlayerNames() {
-		List<String> list = Lists.<String>newArrayList();
-		for (File playerDir : CustomNpcs.getWorldSaveDirectory("playerdata").listFiles()) {
-			if (!playerDir.isDirectory()) { continue; }
-			for (File file : playerDir.listFiles()) {
-				if (file.isFile() && file.getName().endsWith(".json")) {
-					list.add(file.getName().replace(".json", ""));
-					break;
-				}
-			}
+		if (playerDir == null) {
+			return "";
 		}
-		return list;
+		return playerDir.getName();
 	}
 
 }

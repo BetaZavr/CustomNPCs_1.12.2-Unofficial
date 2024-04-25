@@ -3,22 +3,8 @@ package noppes.npcs.api.constants;
 import net.minecraft.util.EnumParticleTypes;
 
 public enum ParticleType {
-	
-	CRIT(8),
-	ENCHANT(7),
-	LARGE_SMOKE(5),
-	LIGHTNING(4),
-	MAGIC(6),
-	NONE(0),
-	PORTAL(2),
-	REDSTONE(3),
-	SMOKE(1);
-	
-	int type = -1;
-	
-	ParticleType(int t) { this.type= t; }
-	
-	public int get() { return this.type; }
+
+	CRIT(8), ENCHANT(7), LARGE_SMOKE(5), LIGHTNING(4), MAGIC(6), NONE(0), PORTAL(2), REDSTONE(3), SMOKE(1);
 
 	public static EnumParticleTypes getMCType(int type) {
 		if (type == 1) {
@@ -46,5 +32,15 @@ public enum ParticleType {
 			return EnumParticleTypes.CRIT;
 		}
 		return null;
+	}
+
+	int type = -1;
+
+	ParticleType(int t) {
+		this.type = t;
+	}
+
+	public int get() {
+		return this.type;
 	}
 }

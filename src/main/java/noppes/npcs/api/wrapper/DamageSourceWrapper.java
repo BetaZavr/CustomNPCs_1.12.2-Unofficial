@@ -5,9 +5,8 @@ import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 
-public class DamageSourceWrapper
-implements IDamageSource {
-	
+public class DamageSourceWrapper implements IDamageSource {
+
 	private DamageSource source;
 
 	public DamageSourceWrapper(DamageSource source) {
@@ -43,5 +42,5 @@ implements IDamageSource {
 	public boolean isUnblockable() {
 		return this.source.isUnblockable();
 	}
-	
+
 }

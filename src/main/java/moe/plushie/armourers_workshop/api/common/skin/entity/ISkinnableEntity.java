@@ -10,22 +10,22 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ISkinnableEntity {
-    
-    /** Return the class of the entity to be skinned. */
-    public Class<? extends Entity> getEntityClass();
-    
-    /** Return the render class for the entity. */
-    @SideOnly(Side.CLIENT)
-    public void addRenderLayer(RenderManager renderManager);
-    
-    /** Should the wand of style be usable on this entity? */
-    public boolean canUseWandOfStyle(EntityPlayer user);
-    
-    /** Should skins be right click-able on this entity? */
-    public boolean canUseSkinsOnEntity();
-    
-    /** Return a list of skins that are valid for this entity. */
-    public void getValidSkinTypes(ArrayList<ISkinType> skinTypes);
-    
-    public int getSlotsForSkinType(ISkinType skinType);
+
+	/** Return the render class for the entity. */
+	@SideOnly(Side.CLIENT)
+	public void addRenderLayer(RenderManager renderManager);
+
+	/** Should skins be right click-able on this entity? */
+	public boolean canUseSkinsOnEntity();
+
+	/** Should the wand of style be usable on this entity? */
+	public boolean canUseWandOfStyle(EntityPlayer user);
+
+	/** Return the class of the entity to be skinned. */
+	public Class<? extends Entity> getEntityClass();
+
+	public int getSlotsForSkinType(ISkinType skinType);
+
+	/** Return a list of skins that are valid for this entity. */
+	public void getValidSkinTypes(ArrayList<ISkinType> skinTypes);
 }

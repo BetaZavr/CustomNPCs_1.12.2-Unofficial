@@ -5,15 +5,20 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
 public class AniCrawling {
-	
-	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
+
+	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
+			float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
 		model.bipedHead.rotateAngleZ = netHeadYaw / -57.295776f;
-		if (model.bipedHead.rotateAngleZ < -0.707106f) { model.bipedHead.rotateAngleZ = -0.707106f; } 
-		else if (model.bipedHead.rotateAngleZ > 0.707106f) { model.bipedHead.rotateAngleZ = 0.707106f; } 
+		if (model.bipedHead.rotateAngleZ < -0.707106f) {
+			model.bipedHead.rotateAngleZ = -0.707106f;
+		} else if (model.bipedHead.rotateAngleZ > 0.707106f) {
+			model.bipedHead.rotateAngleZ = 0.707106f;
+		}
 		model.bipedHead.rotateAngleY = 0.0f;
-		
-		model.bipedHead.rotateAngleX = -0.95993114f - (0.4f * (float) Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
-		
+
+		model.bipedHead.rotateAngleX = -0.95993114f
+				- (0.4f * (float) Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
+
 		model.bipedHeadwear.rotateAngleX = model.bipedHead.rotateAngleX;
 		model.bipedHeadwear.rotateAngleY = model.bipedHead.rotateAngleY;
 		model.bipedHeadwear.rotateAngleZ = model.bipedHead.rotateAngleZ;
@@ -43,5 +48,5 @@ public class AniCrawling {
 		model.bipedRightLeg.rotationPointY = 10.4f - movement * 9.0f;
 		model.bipedRightLeg.rotationPointZ = movement * -0.6f;
 	}
-	
+
 }

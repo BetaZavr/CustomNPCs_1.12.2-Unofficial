@@ -9,41 +9,45 @@ import net.minecraft.item.ItemStack;
 
 public interface ISkinRenderHandler {
 
-    public boolean renderSkinWithHelper(ItemStack stack);
-    
-    public boolean renderSkinWithHelper(ItemStack stack, ModelBiped modelBiped);
-    
-    public boolean renderSkinWithHelper(ItemStack stack, float limb1, float limb2, float limb3, float headY, float headX);
-    
-    public boolean renderSkinWithHelper(ISkinDescriptor skinPointer);
-    
-    public boolean renderSkinWithHelper(ISkinDescriptor skinPointer, ModelBiped modelBiped);
-    
-    public boolean renderSkinWithHelper(ISkinDescriptor skinPointer, float limb1, float limb2, float limb3, float headY, float headX);
-    
-    public boolean renderSkin(ItemStack stack);
-    
-    public boolean renderSkin(ISkinDescriptor skinPointer);
-    
-    public boolean renderSkinPart(ISkinDescriptor skinPointer, ISkinPartType skinPartType);
-    
-    /**
-     * Checks if the client has a skin in it's cache.
-     * @return Returns true if the skin is in the cache.
-     */
-    public boolean isSkinInModelCache(ItemStack stack);
-    
-    /**
-     * Checks if the client has a skin in it's cache.
-     * @return Returns true if the skin is in the cache.
-     */
-    public boolean isSkinInModelCache(ISkinDescriptor skinPointer);
-    
-    public void requestSkinModelFromSever(ItemStack stack);
-    
-    public void requestSkinModelFromSever(ISkinDescriptor skinPointer);
-    
-    public ModelBase getArmourerHandModel();
-    
-    public ISkin getSkinFromModelCache(ISkinDescriptor skinPointer);
+	public ModelBase getArmourerHandModel();
+
+	public ISkin getSkinFromModelCache(ISkinDescriptor skinPointer);
+
+	/**
+	 * Checks if the client has a skin in it's cache.
+	 * 
+	 * @return Returns true if the skin is in the cache.
+	 */
+	public boolean isSkinInModelCache(ISkinDescriptor skinPointer);
+
+	/**
+	 * Checks if the client has a skin in it's cache.
+	 * 
+	 * @return Returns true if the skin is in the cache.
+	 */
+	public boolean isSkinInModelCache(ItemStack stack);
+
+	public boolean renderSkin(ISkinDescriptor skinPointer);
+
+	public boolean renderSkin(ItemStack stack);
+
+	public boolean renderSkinPart(ISkinDescriptor skinPointer, ISkinPartType skinPartType);
+
+	public boolean renderSkinWithHelper(ISkinDescriptor skinPointer);
+
+	public boolean renderSkinWithHelper(ISkinDescriptor skinPointer, float limb1, float limb2, float limb3, float headY,
+			float headX);
+
+	public boolean renderSkinWithHelper(ISkinDescriptor skinPointer, ModelBiped modelBiped);
+
+	public boolean renderSkinWithHelper(ItemStack stack);
+
+	public boolean renderSkinWithHelper(ItemStack stack, float limb1, float limb2, float limb3, float headY,
+			float headX);
+
+	public boolean renderSkinWithHelper(ItemStack stack, ModelBiped modelBiped);
+
+	public void requestSkinModelFromSever(ISkinDescriptor skinPointer);
+
+	public void requestSkinModelFromSever(ItemStack stack);
 }

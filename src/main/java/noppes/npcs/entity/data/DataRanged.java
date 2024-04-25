@@ -7,12 +7,11 @@ import noppes.npcs.api.entity.data.INPCRanged;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class DataRanged
-implements INPCRanged {
-	
+public class DataRanged implements INPCRanged {
+
 	private boolean aimWhileShooting, pGlows, pPhysics, pRender3D, pSpin, pStick, pXlr8;
-	private int accuracy, burstCount, canFireIndirect, fireRate, maxDelay, meleeDistance,
-	minDelay, pImpact, pArea, pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, shotCount;
+	private int accuracy, burstCount, canFireIndirect, fireRate, maxDelay, meleeDistance, minDelay, pImpact, pArea,
+			pDamage, pDur, pEffAmp, pEffect, pSize, pSpeed, pTrail, shotCount;
 	private double rangedRange;
 	private String fireSound, groundSound, hitSound;
 	private EntityNPCInterface npc;
@@ -165,17 +164,22 @@ implements INPCRanged {
 
 	@Override
 	public String getSound(int type) {
-		switch(type) {
-			case 0: return this.fireSound;
-			case 1: return this.hitSound;
-			case 2: return this.groundSound;
+		switch (type) {
+		case 0:
+			return this.fireSound;
+		case 1:
+			return this.hitSound;
+		case 2:
+			return this.groundSound;
 		}
 		return null;
 	}
 
 	public SoundEvent getSoundEvent(int type) {
 		String sound = this.getSound(type);
-		if (sound == null || sound.isEmpty()) { return null; }
+		if (sound == null || sound.isEmpty()) {
+			return null;
+		}
 		return SoundEvent.REGISTRY.getObject(new ResourceLocation(sound));
 	}
 
@@ -207,8 +211,11 @@ implements INPCRanged {
 		this.pSize = compound.getInteger("pSize");
 		this.pArea = compound.getInteger("pArea");
 		this.pTrail = compound.getInteger("pTrail");
-		if (compound.hasKey("MaxFiringRange", 3)) { this.rangedRange = (double) compound.getInteger("MaxFiringRange"); }
-		else { this.rangedRange = compound.getDouble("MaxFiringRange"); }
+		if (compound.hasKey("MaxFiringRange", 3)) {
+			this.rangedRange = (double) compound.getInteger("MaxFiringRange");
+		} else {
+			this.rangedRange = compound.getDouble("MaxFiringRange");
+		}
 		this.fireRate = compound.getInteger("FireRate");
 		this.minDelay = ValueUtil.correctInt(compound.getInteger("minDelay"), 1, 9999);
 		this.maxDelay = ValueUtil.correctInt(compound.getInteger("maxDelay"), 1, 9999);

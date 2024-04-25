@@ -9,16 +9,16 @@ import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DropSet;
 
-public class ContainerNPCDropSetup
-extends Container {
-	
+public class ContainerNPCDropSetup extends Container {
+
 	public DropSet inventoryDS;
 
 	public ContainerNPCDropSetup(EntityNPCInterface npc, EntityPlayer player, int dropType, int groupId, int pos) {
 		this.inventoryDS = null;
-		if (dropType==1) {
+		if (dropType == 1) {
 			DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
-			if (template!=null && template.groups.containsKey(groupId) && template.groups.get(groupId).containsKey(pos)) {
+			if (template != null && template.groups.containsKey(groupId)
+					&& template.groups.get(groupId).containsKey(pos)) {
 				this.inventoryDS = template.groups.get(groupId).get(pos);
 			}
 		} else {
@@ -26,7 +26,9 @@ extends Container {
 				this.inventoryDS = npc.inventory.drops.get(pos);
 			}
 		}
-		if (this.inventoryDS == null) { this.inventoryDS = new DropSet(npc.inventory); }
+		if (this.inventoryDS == null) {
+			this.inventoryDS = new DropSet(npc.inventory);
+		}
 		this.addSlotToContainer(new Slot(this.inventoryDS, 0, 202, 135));
 		for (int i1 = 0; i1 < 3; ++i1) {
 			for (int l2 = 0; l2 < 9; ++l2) {

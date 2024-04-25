@@ -18,6 +18,27 @@ import noppes.npcs.util.CustomNPCsScheduler;
 
 public class CmdDebug extends CommandNoppesBase {
 
+	@SubCommand(desc = "Enable or disable debugging")
+	public void activate(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		CustomNpcs.VerboseDebug = !CustomNpcs.VerboseDebug;
+		if (sender instanceof EntityPlayerMP) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setBoolean("debug", CustomNpcs.VerboseDebug);
+			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_UPDATE, EnumSync.Debug, nbt);
+		}
+		sender.sendMessage(new TextComponentTranslation("command.debug." + CustomNpcs.VerboseDebug));
+	}
+
+	@SubCommand(desc = "Delete monitoring data")
+	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		CustomNpcs.debugData.clear();
+		if (sender instanceof EntityPlayerMP) {
+			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_REMOVE, EnumSync.Debug,
+					new NBTTagCompound());
+		}
+		sender.sendMessage(new TextComponentTranslation("command.debug.clear"));
+	}
+
 	@Override
 	public String getDescription() {
 		return "Debug control";
@@ -27,38 +48,20 @@ public class CmdDebug extends CommandNoppesBase {
 	public String getName() {
 		return "debug";
 	}
-	
-	@SubCommand(desc = "Enable or disable debugging")
-	public void activate(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		CustomNpcs.VerboseDebug = !CustomNpcs.VerboseDebug;
-		if (sender instanceof EntityPlayerMP) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setBoolean("debug", CustomNpcs.VerboseDebug);
-			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_UPDATE, EnumSync.Debug, nbt);
-		}
-		sender.sendMessage(new TextComponentTranslation("command.debug."+CustomNpcs.VerboseDebug));
-	}
 
 	@SubCommand(desc = "Will display the current mod debug report")
 	public void report(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		List<String> list = CustomNpcs.showDebugs();
 		if (sender instanceof EntityPlayerMP) {
 			CustomNPCsScheduler.runTack(() -> {
-				Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug, new NBTTagCompound());
+				Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_ADD, EnumSync.Debug,
+						new NBTTagCompound());
 			}, 500);
 		}
-		for (String str : list) { sender.sendMessage(new TextComponentString(str)); }
+		for (String str : list) {
+			sender.sendMessage(new TextComponentString(str));
+		}
 		sender.sendMessage(new TextComponentTranslation("command.debug.show"));
 	}
 
-
-	@SubCommand(desc = "Delete monitoring data")
-	public void clear(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		CustomNpcs.debugData.clear();
-		if (sender instanceof EntityPlayerMP) {
-			Server.sendData((EntityPlayerMP) sender, EnumPacketClient.SYNC_REMOVE, EnumSync.Debug, new NBTTagCompound());
-		}
-		sender.sendMessage(new TextComponentTranslation("command.debug.clear"));
-	}
-	
 }

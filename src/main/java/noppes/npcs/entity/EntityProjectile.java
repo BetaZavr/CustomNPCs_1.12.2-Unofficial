@@ -47,21 +47,31 @@ import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.entity.data.DataRanged;
 
 public class EntityProjectile extends EntityThrowable {
-	
+
 	public interface IProjectileCallback {
 		boolean onImpact(EntityProjectile p0, BlockPos p1, Entity p2);
 	}
 
-	private static DataParameter<Boolean> Arrow = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Boolean> Glows = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Boolean> Gravity = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Boolean> Is3d = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
-	private static DataParameter<ItemStack> ItemStackThrown = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.ITEM_STACK);
-	private static DataParameter<Integer> Particle = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.VARINT);
-	private static DataParameter<Boolean> Rotating = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Integer> Size = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.VARINT);
-	private static DataParameter<Boolean> Sticks = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.BOOLEAN);
-	private static DataParameter<Integer> Velocity = EntityDataManager.createKey(EntityProjectile.class, DataSerializers.VARINT);
+	private static DataParameter<Boolean> Arrow = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> Glows = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> Gravity = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> Is3d = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<ItemStack> ItemStackThrown = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.ITEM_STACK);
+	private static DataParameter<Integer> Particle = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.VARINT);
+	private static DataParameter<Boolean> Rotating = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Integer> Size = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.VARINT);
+	private static DataParameter<Boolean> Sticks = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.BOOLEAN);
+	private static DataParameter<Integer> Velocity = EntityDataManager.createKey(EntityProjectile.class,
+			DataSerializers.VARINT);
 	public boolean accelerate;
 	private double accelerationX;
 	private double accelerationY;

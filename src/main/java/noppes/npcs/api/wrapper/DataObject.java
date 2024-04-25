@@ -16,8 +16,7 @@ import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.util.AdditionalMethods;
 
-public class DataObject
-implements IDataObject {
+public class DataObject implements IDataObject {
 
 	public List<IDataElement> data = Lists.newArrayList();
 	public Object object = null;
@@ -176,10 +175,13 @@ implements IDataObject {
 	@Override
 	public IDataElement getField(String name) {
 		int pos = -1;
-		try { pos = Integer.parseInt(name); } catch (Exception e) {  }
-		int i =0;
+		try {
+			pos = Integer.parseInt(name);
+		} catch (Exception e) {
+		}
+		int i = 0;
 		for (IDataElement de : this.data) {
-			if (i==pos || de.getObject() instanceof Field && de.getName().equals(name)) {
+			if (i == pos || de.getObject() instanceof Field && de.getName().equals(name)) {
 				return de;
 			}
 			i++;
@@ -279,8 +281,11 @@ implements IDataObject {
 	@Override
 	public IDataElement getMethod(String name) {
 		int pos = -1;
-		try { pos = Integer.parseInt(name); } catch (Exception e) {  }
-		int i =0;
+		try {
+			pos = Integer.parseInt(name);
+		} catch (Exception e) {
+		}
+		int i = 0;
 		for (IDataElement de : this.data) {
 			if (i == pos || de.getObject() instanceof Method && de.getName().equals(name)) {
 				return de;

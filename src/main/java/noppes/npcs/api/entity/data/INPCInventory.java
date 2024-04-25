@@ -4,13 +4,13 @@ import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.api.item.IItemStack;
 
 public interface INPCInventory {
-	
+
 	ICustomDrop addDropItem(IItemStack item, double chance);
 
 	IItemStack getArmor(int slot);
 
 	ICustomDrop getDrop(int slot);
-	
+
 	IItemStack getDropItem(int slot);
 
 	ICustomDrop[] getDrops();
@@ -22,7 +22,7 @@ public interface INPCInventory {
 	int getExpRNG();
 
 	IItemStack[] getItemsRNG(EntityLivingBase attacking);
-	
+
 	IItemStack[] getItemsRNGL(EntityLivingBase attacking);
 
 	IItemStack getLeftHand();
@@ -48,5 +48,5 @@ public interface INPCInventory {
 	void setRightHand(IItemStack item);
 
 	void setXPLootMode(boolean mode);
-	
+
 }

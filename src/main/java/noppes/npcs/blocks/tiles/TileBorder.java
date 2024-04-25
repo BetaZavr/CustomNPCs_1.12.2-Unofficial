@@ -20,10 +20,8 @@ import noppes.npcs.blocks.BlockBorder;
 import noppes.npcs.controllers.data.Availability;
 
 @SuppressWarnings("rawtypes")
-public class TileBorder
-extends TileNpcEntity
-implements Predicate, ITickable {
-	
+public class TileBorder extends TileNpcEntity implements Predicate, ITickable {
+
 	public Availability availability;
 	public AxisAlignedBB boundingbox;
 	public boolean creative;
@@ -40,6 +38,32 @@ implements Predicate, ITickable {
 
 	public boolean apply(Object ob) {
 		return this.isEntityApplicable((Entity) ob);
+	}
+
+	private boolean cheakPlayer(EntityPlayer player, int startY) {
+		if ((player.capabilities.isCreativeMode && !this.creative) || this.availability.isAvailable(player)) {
+			return false;
+		}
+		BlockPos newPos = new BlockPos(this.pos.getX(), startY, this.pos.getZ());
+		if (this.rotation == 2) {
+			newPos = newPos.south();
+		} else if (this.rotation == 0) {
+			newPos = newPos.north();
+		} else if (this.rotation == 1) {
+			newPos = newPos.east();
+		} else if (this.rotation == 3) {
+			newPos = newPos.west();
+		}
+		int i = startY - this.pos.getY();
+		while (i < this.height && (!this.world.isAirBlock(newPos) || !this.world.isAirBlock(newPos.up()))) {
+			newPos = newPos.up();
+			i++;
+		}
+		player.setPositionAndUpdate(newPos.getX() + 0.5, newPos.getY(), newPos.getZ() + 0.5);
+		if (!this.message.isEmpty()) {
+			player.sendStatusMessage(new TextComponentTranslation(this.message, new Object[0]), true);
+		}
+		return true;
 	}
 
 	public SPacketUpdateTileEntity getUpdatePacket() {
@@ -80,18 +104,22 @@ implements Predicate, ITickable {
 		super.readFromNBT(compound);
 		this.readExtraNBT(compound);
 		if (this.getWorld() != null) {
-			this.getWorld().setBlockState(this.getPos(), CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
+			this.getWorld().setBlockState(this.getPos(),
+					CustomRegisters.border.getDefaultState().withProperty(BlockBorder.ROTATION, this.rotation));
 		}
 	}
 
 	public void update() {
-		if (this.world.isRemote) { return; }
+		if (this.world.isRemote) {
+			return;
+		}
 		for (int i = 1; i < this.height && i < 3; i++) {
 			if (this.world.getBlockState(this.pos.up(i)).getBlock() instanceof BlockBorder) {
 				return;
 			}
 		}
-		AxisAlignedBB box = new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1), (this.pos.getY() + this.height + 1), (this.pos.getZ() + 1));
+		AxisAlignedBB box = new AxisAlignedBB(this.pos.getX(), this.pos.getY(), this.pos.getZ(), (this.pos.getX() + 1),
+				(this.pos.getY() + this.height + 1), (this.pos.getZ() + 1));
 		@SuppressWarnings("unchecked")
 		List<Entity> list = this.world.getEntitiesWithinAABB(Entity.class, box, (Predicate) this);
 		for (Entity entity : list) {
@@ -104,25 +132,6 @@ implements Predicate, ITickable {
 				this.cheakPlayer((EntityPlayer) entity, (int) (entity.posY + 0.5d));
 			}
 		}
-	}
-
-	private boolean cheakPlayer(EntityPlayer player, int startY) {
-		if ((player.capabilities.isCreativeMode && !this.creative) || this.availability.isAvailable(player)) { return false; }
-		BlockPos newPos = new BlockPos(this.pos.getX(), startY, this.pos.getZ());
-		if (this.rotation == 2) { newPos = newPos.south(); }
-		else if (this.rotation == 0) { newPos = newPos.north(); }
-		else if (this.rotation == 1) { newPos = newPos.east(); }
-		else if (this.rotation == 3) { newPos = newPos.west(); }
-		int i = startY - this.pos.getY();
-		while (i < this.height && (!this.world.isAirBlock(newPos) || !this.world.isAirBlock(newPos.up()))) {
-			newPos = newPos.up();
-			i++;
-		}
-		player.setPositionAndUpdate(newPos.getX() + 0.5, newPos.getY(), newPos.getZ() + 0.5);
-		if (!this.message.isEmpty()) {
-			player.sendStatusMessage(new TextComponentTranslation(this.message, new Object[0]), true);
-		}
-		return true;
 	}
 
 	public void writeExtraNBT(NBTTagCompound compound) {

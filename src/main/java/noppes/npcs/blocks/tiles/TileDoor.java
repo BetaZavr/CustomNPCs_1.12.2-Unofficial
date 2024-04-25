@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 import noppes.npcs.CustomRegisters;
 
 public class TileDoor extends TileNpcEntity implements ITickable {
-	
+
 	public Block blockModel;
 	public boolean needsClientUpdate;
 	public TileEntity renderTile;

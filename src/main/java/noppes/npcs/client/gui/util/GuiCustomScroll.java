@@ -24,21 +24,20 @@ import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NaturalOrderComparator;
 
-public class GuiCustomScroll
-extends GuiScreen {
-	
+public class GuiCustomScroll extends GuiScreen {
+
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
 
 	private GuiScreen parent;
 	private ICustomScrollListener listener;
-	
+
 	public boolean hovered;
 	public boolean isScrolling;
 	public boolean selectable;
 	public boolean visible;
 	private boolean isSorted;
 	private boolean multipleSelection;
-	
+
 	public int colorBack = 0xC0101010, border = 0xFF000000;
 	public int guiLeft;
 	public int guiTop;
@@ -50,16 +49,16 @@ extends GuiScreen {
 	private int scrollHeight;
 	public int scrollY;
 	public int selected;
-	
+
 	private long lastClickedTime;
-	
+
 	private HashSet<String> selectedList;
 	private final List<String> list;
 	private List<Integer> colors;
 	private List<String> suffixs;
 	private List<ItemStack> stacks;
 	private List<ResourceData> prefixs;
-	
+
 	public String[][] hoversTexts;
 	public String[] hoverText;
 
@@ -110,12 +109,15 @@ extends GuiScreen {
 		for (int i = 0; i < this.list.size(); ++i) {
 			int j = 4;
 			int k = 14 * i + 4 - this.scrollY;
-			if (k < 4 || k + 10 > this.height) { continue; }
+			if (k < 4 || k + 10 > this.height) {
+				continue;
+			}
 			String displayString = this.list.get(i) == null ? "null" : this.list.get(i).toString();
-			try { 
+			try {
 				displayString = new TextComponentTranslation(this.list.get(i).toString()).getFormattedText();
-			} catch (Exception e) { }
-			
+			} catch (Exception e) {
+			}
+
 			String text = "";
 			float maxWidth = (this.width + xOffset - 8) * 0.8f;
 			if (this.fontRenderer.getStringWidth(displayString) > maxWidth) {
@@ -138,8 +140,11 @@ extends GuiScreen {
 				xo = -14;
 			}
 			int c = CustomNpcs.MainColor.getRGB();
-			if (this.colors != null && i < this.colors.size()) { c = this.colors.get(i); }
-			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false)) || (!this.multipleSelection && this.selected == i)) {
+			if (this.colors != null && i < this.colors.size()) {
+				c = this.colors.get(i);
+			}
+			if ((this.multipleSelection && AdditionalMethods.containsDeleteColor(this.selectedList, text, false))
+					|| (!this.multipleSelection && this.selected == i)) {
 				this.drawVerticalLine(j - 2, k - 4, k + 10, -1);
 				this.drawVerticalLine(j + width - 17 + xOffset + xo, k - 4, k + 10, -1);
 				this.drawHorizontalLine(j - 2, j + this.width - 17 + xOffset + xo, k - 3, -1);
@@ -153,22 +158,50 @@ extends GuiScreen {
 				this.fontRenderer.drawString(text, j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			}
-			if (this.suffixs != null &&
-					i < this.suffixs.size() &&
-					!this.suffixs.get(i).isEmpty() &&
-					this.fontRenderer.getStringWidth(text+this.suffixs.get(i)) < this.width-20) {
-				this.fontRenderer.drawString(this.suffixs.get(i), this.width - 9 + (this.listHeight > this.height ? -11 : 0) - this.fontRenderer.getStringWidth(this.suffixs.get(i)), k, c);
+			if (this.suffixs != null && i < this.suffixs.size() && !this.suffixs.get(i).isEmpty()
+					&& this.fontRenderer.getStringWidth(text + this.suffixs.get(i)) < this.width - 20) {
+				this.fontRenderer.drawString(this.suffixs.get(i),
+						this.width - 9 + (this.listHeight > this.height ? -11 : 0)
+								- this.fontRenderer.getStringWidth(this.suffixs.get(i)),
+						k, c);
 			}
 		}
 	}
 
+	private void drawPrefixs() {
+		if (this.prefixs == null) {
+			return;
+		}
+		for (int i = 0; i < this.list.size() && i < this.prefixs.size(); ++i) {
+			int k = 14 * i + 4 - this.scrollY;
+			ResourceData rd = this.prefixs.get(i);
+			if (k < 4 || k + 12 >= this.height || rd == null || rd.resource == null || rd.width <= 0
+					|| rd.height <= 0) {
+				continue;
+			}
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
+			float scale = 12.0f / (float) (rd.width > rd.height ? rd.width : rd.height);
+			GlStateManager.scale(scale, scale, scale);
+			Minecraft.getMinecraft().renderEngine.bindTexture(rd.resource);
+			this.drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
+			GlStateManager.popMatrix();
+		}
+	}
+
 	public void drawScreen(int mouseX, int mouseY, float partialTicks, int mouseScrolled) {
-		if (!this.visible) { return; }
-		if (this.border!=0xFF000000) {
-			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1, this.height + this.guiTop + 1, this.border, this.border);
+		if (!this.visible) {
+			return;
+		}
+		if (this.border != 0xFF000000) {
+			this.drawGradientRect(this.guiLeft - 1, this.guiTop - 1, this.width + this.guiLeft + 1,
+					this.height + this.guiTop + 1, this.border, this.border);
 		}
 		this.hovered = this.isMouseOver(mouseX, mouseY);
-		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop, this.colorBack, this.colorBack);
+		this.drawGradientRect(this.guiLeft, this.guiTop, this.width + this.guiLeft, this.height + this.guiTop,
+				this.colorBack, this.colorBack);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		this.mc.renderEngine.bindTexture(GuiCustomScroll.resource);
 		GlStateManager.pushMatrix();
@@ -182,12 +215,18 @@ extends GuiScreen {
 		}
 		this.drawItems();
 		GlStateManager.popMatrix();
-		if (this.stacks != null && this.parent!=null &&
-				((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) ||
-				(this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) { this.drawStacks(); }
-		if (this.prefixs != null && this.parent!=null &&
-				((this.parent instanceof GuiContainerNPCInterface && !((GuiContainerNPCInterface) this.parent).hasSubGui()) ||
-				(this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) { this.drawPrefixs(); }
+		if (this.stacks != null && this.parent != null
+				&& ((this.parent instanceof GuiContainerNPCInterface
+						&& !((GuiContainerNPCInterface) this.parent).hasSubGui())
+						|| (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
+			this.drawStacks();
+		}
+		if (this.prefixs != null && this.parent != null
+				&& ((this.parent instanceof GuiContainerNPCInterface
+						&& !((GuiContainerNPCInterface) this.parent).hasSubGui())
+						|| (this.parent instanceof GuiNPCInterface && !((GuiNPCInterface) this.parent).hasSubGui()))) {
+			this.drawPrefixs();
+		}
 		if (this.scrollHeight <= this.height - 6) {
 			this.drawScrollBar(); // Changed
 			mouseX -= this.guiLeft;
@@ -200,7 +239,8 @@ extends GuiScreen {
 				this.isScrolling = false;
 			}
 			if (this.isScrolling) {
-				this.scrollY = (int) ((float) mouseY / ((float) this.height - 2.0f) * ((float) this.listHeight - (float) this.scrollHeight)); // Changed
+				this.scrollY = (int) ((float) mouseY / ((float) this.height - 2.0f)
+						* ((float) this.listHeight - (float) this.scrollHeight)); // Changed
 				if (this.scrollY < 0) {
 					this.scrollY = 0;
 				}
@@ -242,12 +282,15 @@ extends GuiScreen {
 
 	private void drawScrollBar() {
 		int posX = this.guiLeft + this.width - 9;
-		int posY = this.guiTop + (int) ((float) this.scrollY / (float) this.listHeight * ((float) this.height - 18.0f)) + 1;
+		int posY = this.guiTop + (int) ((float) this.scrollY / (float) this.listHeight * ((float) this.height - 18.0f))
+				+ 1;
 		Gui.drawRect(posX, posY, posX + 8, posY + this.scrollHeight + 1, 0xA0FFF0F0);
 	}
 
 	private void drawStacks() {
-		if (this.stacks == null) { return; }
+		if (this.stacks == null) {
+			return;
+		}
 		for (int i = 0; i < this.list.size() && i < this.stacks.size(); ++i) {
 			int k = 14 * i + 4 - this.scrollY;
 			if (k < 4 || k + 12 >= this.height) {
@@ -265,24 +308,13 @@ extends GuiScreen {
 		}
 	}
 
-	private void drawPrefixs() {
-		if (this.prefixs == null) { return; }
-		for (int i = 0; i < this.list.size() && i < this.prefixs.size(); ++i) {
-			int k = 14 * i + 4 - this.scrollY;
-			ResourceData rd = this.prefixs.get(i);
-			if (k < 4 || k + 12 >= this.height || rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) { continue; }
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.guiLeft, this.guiTop, 0.0f);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.translate(0.5f, k - 1.5f + rd.tH, 0.0f); // position X, Y, Z
-			float scale = 12.0f / (float) (rd.width > rd.height ? rd.width : rd.height);
-			GlStateManager.scale(scale, scale, scale);
-			Minecraft.getMinecraft().renderEngine.bindTexture(rd.resource);
-			this.drawTexturedModalRect(0, 0, rd.u, rd.v, rd.width, rd.height);
-			GlStateManager.popMatrix();
+	public int getColor(int pos) {
+		if (this.colors == null || this.colors.isEmpty()) {
+			return 0;
 		}
+		return this.colors.get(pos);
 	}
-	
+
 	public int getHeight() {
 		return this.height;
 	}
@@ -327,27 +359,80 @@ extends GuiScreen {
 		return this.selectedList;
 	}
 
+	public String getSuffixs(int pos) {
+		if (this.suffixs == null || this.suffixs.isEmpty()) {
+			return null;
+		}
+		return this.suffixs.get(pos);
+	}
+
 	public int getWidth() {
 		return this.width;
 	}
 
 	public boolean hasSelected() {
-		return this.selected >= 0 && this.getSelected()!=null;
+		return this.selected >= 0 && this.getSelected() != null;
 	}
 
 	public boolean isMouseOver(int x, int y) {
-		return x >= this.guiLeft && x <= this.guiLeft + this.width && y >= this.guiTop && y <= this.guiTop + this.height;
+		return x >= this.guiLeft && x <= this.guiLeft + this.width && y >= this.guiTop
+				&& y <= this.guiTop + this.height;
 	}
 
 	private boolean isSameList(List<String> list) {
-		if (this.list.size() != list.size()) { return false; }
+		if (this.list.size() != list.size()) {
+			return false;
+		}
 		for (int i = 0; i < this.list.size(); i++) {
 			String s = this.list.get(i);
-			if (!list.contains(s)) { return false; }
+			if (!list.contains(s)) {
+				return false;
+			}
 			String l = list.get(i);
-			if (!s.equalsIgnoreCase(l)) { return false; }
+			if (!s.equalsIgnoreCase(l)) {
+				return false;
+			}
 		}
 		return true;
+	}
+
+	@Override
+	public void keyTyped(char c, int i) {
+		if (!this.hovered || GuiNpcTextField.isActive()) {
+			return;
+		}
+		if (this.list.size() <= 1) {
+			return;
+		}
+		if (i == 200 || i == ClientProxy.frontButton.getKeyCode()) { // up
+			if (this.selected < 1) {
+				return;
+			}
+			this.selected--;
+			if (this.maxScrollY > 0) {
+				this.scrollY -= 14;
+				if (this.scrollY < 0) {
+					this.scrollY = 0;
+				}
+			}
+			if (this.listener != null) {
+				this.listener.scrollClicked(-1, -1, 0, this);
+			}
+		} else if (i == 208 || i == ClientProxy.backButton.getKeyCode()) { // down
+			if (this.selected >= this.getList().size() - 1) {
+				return;
+			}
+			this.selected++;
+			if (this.maxScrollY > 0) {
+				this.scrollY += 14;
+				if (this.scrollY > this.maxScrollY) {
+					this.scrollY = this.maxScrollY;
+				}
+			}
+			if (this.listener != null) {
+				this.listener.scrollClicked(-1, -1, 0, this);
+			}
+		}
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
@@ -384,17 +469,41 @@ extends GuiScreen {
 	}
 
 	public void replace(String oldName, String newName) {
-		if (!this.list.contains(oldName)) { return; }
+		if (!this.list.contains(oldName)) {
+			return;
+		}
 		String select = this.getSelected();
 		int i = this.list.indexOf(oldName);
 		this.list.remove(oldName);
 		this.list.add(i, newName);
-		if (this.isSorted) { Collections.sort(this.list, new NaturalOrderComparator()); }
+		if (this.isSorted) {
+			Collections.sort(this.list, new NaturalOrderComparator());
+		}
 		if (oldName.equals(select)) {
 			select = newName;
 		}
 		this.selected = this.list.indexOf(select);
 		this.setSize(this.width, this.height);
+	}
+
+	public void resetRoll() {
+		if (this.selected <= 0) {
+			return;
+		}
+		int pos = (this.selected + 1) * 14;
+		if (pos >= this.scrollY && pos <= this.scrollY + this.height) {
+			return;
+		}
+		this.scrollY = pos;
+		if (pos - this.height / 2 > 0) {
+			this.scrollY = pos - this.height / 2;
+		}
+		if (this.scrollY < 0) {
+			this.scrollY = 0;
+		}
+		if (this.scrollY > this.maxScrollY) {
+			this.scrollY = this.maxScrollY;
+		}
 	}
 
 	public void scrollTo(String name) {
@@ -413,13 +522,13 @@ extends GuiScreen {
 		this.colors = colors;
 	}
 
-	public void setSuffixs(List<String> suffixs) {
-		this.suffixs = suffixs;
-	}
-
 	public void setList(List<String> list) {
-		if (list==null) { list = Lists.<String>newArrayList(); }
-		if (this.isSameList(list)) { return; }
+		if (list == null) {
+			list = Lists.<String>newArrayList();
+		}
+		if (this.isSameList(list)) {
+			return;
+		}
 		this.isSorted = true;
 		this.scrollY = 0;
 		Collections.sort(list, new NaturalOrderComparator());
@@ -429,12 +538,18 @@ extends GuiScreen {
 	}
 
 	public void setListNotSorted(List<String> list) {
-		if (this.isSameList(list)) { return; }
+		if (this.isSameList(list)) {
+			return;
+		}
 		this.scrollY = 0;
 		this.list.clear();
 		this.list.addAll(list);
 		this.setSize(this.width, this.height);
 		this.isSorted = false;
+	}
+
+	public void setPrefixs(List<ResourceData> prefixs) {
+		this.prefixs = prefixs;
 	}
 
 	public void setSelected(String name) {
@@ -454,16 +569,6 @@ extends GuiScreen {
 		this.resetRoll();
 	}
 
-	public void resetRoll() {
-		if (this.selected <= 0) { return; }
-		int pos = (this.selected + 1) * 14;
-		if (pos >= this.scrollY && pos <= this.scrollY + this.height) { return; }
-		this.scrollY = pos;
-		if (pos - this.height / 2 > 0) { this.scrollY = pos - this.height / 2; }
-		if (this.scrollY < 0) { this.scrollY = 0; }
-		if (this.scrollY > this.maxScrollY) { this.scrollY = this.maxScrollY; }
-	}
-
 	public void setSelectedList(HashSet<String> selectedList) {
 		this.selectedList = selectedList;
 	}
@@ -472,61 +577,28 @@ extends GuiScreen {
 		this.height = y;
 		this.width = x;
 		this.listHeight = 14 * this.list.size();
-		if (this.listHeight > 0) { this.scrollHeight = (int) ((float) this.height * ((float) this.height - 2.0f) / (float) this.listHeight); }
-		else { this.scrollHeight = Integer.MAX_VALUE; }
+		if (this.listHeight > 0) {
+			this.scrollHeight = (int) ((float) this.height * ((float) this.height - 2.0f) / (float) this.listHeight);
+		} else {
+			this.scrollHeight = Integer.MAX_VALUE;
+		}
 		this.maxScrollY = this.listHeight - this.height;
-		if (this.maxScrollY<0) { this.maxScrollY = 0; }
+		if (this.maxScrollY < 0) {
+			this.maxScrollY = 0;
+		}
 	}
 
 	public void setStacks(List<ItemStack> stacks) {
 		this.stacks = stacks;
 	}
 
-	public void setPrefixs(List<ResourceData> prefixs) {
-		this.prefixs = prefixs;
+	public void setSuffixs(List<String> suffixs) {
+		this.suffixs = suffixs;
 	}
-	
+
 	public GuiCustomScroll setUnselectable() {
 		this.selectable = false;
 		return this;
 	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (!this.hovered || GuiNpcTextField.isActive()) { return; }
-		if (this.list.size()<=1) { return; }
-		if (i==200 || i==ClientProxy.frontButton.getKeyCode()) { // up
-			if (this.selected<1) { return; }
-			this.selected--;
-			if (this.maxScrollY>0) {
-				this.scrollY -= 14;
-				if (this.scrollY<0) { this.scrollY = 0; }
-			}
-			if (this.listener != null) {
-				this.listener.scrollClicked(-1, -1, 0, this);
-			}
-		}
-		else if (i==208 || i==ClientProxy.backButton.getKeyCode()) { // down
-			if (this.selected>=this.getList().size()-1) { return; }
-			this.selected++;
-			if (this.maxScrollY>0) {
-				this.scrollY += 14;
-				if (this.scrollY>this.maxScrollY) { this.scrollY = this.maxScrollY; }
-			}
-			if (this.listener != null) {
-				this.listener.scrollClicked(-1, -1, 0, this);
-			}
-		}
-	}
 
-	public int getColor(int pos) {
-		if (this.colors==null || this.colors.isEmpty()) { return 0; }
-		return this.colors.get(pos);
-	}
-
-	public String getSuffixs(int pos) {
-		if (this.suffixs==null || this.suffixs.isEmpty()) { return null; }
-		return this.suffixs.get(pos);
-	}
-	
 }

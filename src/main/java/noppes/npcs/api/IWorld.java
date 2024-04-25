@@ -9,7 +9,7 @@ import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
 
 public interface IWorld {
-	
+
 	void broadcast(String message);
 
 	IEntity<?> createEntity(String id);
@@ -22,6 +22,8 @@ public interface IWorld {
 
 	void explode(double x, double y, double z, float range, boolean fire, boolean grief);
 
+	void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch);
+
 	IEntity<?>[] getAllEntities(int type);
 
 	IPlayer<?>[] getAllPlayers();
@@ -30,7 +32,7 @@ public interface IWorld {
 
 	@Deprecated
 	IBlock getBlock(int x, int y, int z);
-	
+
 	IBlock getBlock(IPos pos);
 
 	@Deprecated
@@ -44,6 +46,8 @@ public interface IWorld {
 	IDimension getDimension();
 
 	IEntity<?> getEntity(String uuid);
+
+	IEntity<?>[] getEntitys(int type);
 
 	float getLightValue(int x, int y, int z);
 
@@ -87,7 +91,7 @@ public interface IWorld {
 
 	@Deprecated
 	void setBlock(int x, int y, int z, String name, int meta);
-	
+
 	void setBlock(IPos pos, String name, int meta);
 
 	void setRaining(boolean bo);
@@ -101,14 +105,11 @@ public interface IWorld {
 
 	void spawnEntity(IEntity<?> entity);
 
-	void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count);
+	void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed,
+			int count);
 
 	void thunderStrike(double x, double y, double z);
 
-	void trigger(int id, Object ... arguments);
+	void trigger(int id, Object... arguments);
 
-	IEntity<?>[] getEntitys(int type);
-
-	void forcePlaySoundAt(int categoryType, IPos pos, String sound, float volume, float pitch);
-	
 }

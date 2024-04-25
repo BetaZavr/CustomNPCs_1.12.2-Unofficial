@@ -19,10 +19,8 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCManageLinkedNpc
-extends GuiNPCInterface2
-implements IScrollData, ISubGuiListener {
-	
+public class GuiNPCManageLinkedNpc extends GuiNPCInterface2 implements IScrollData, ISubGuiListener {
+
 	public static GuiScreen Instance;
 	private List<String> data;
 	private GuiCustomScroll scroll;
@@ -60,6 +58,16 @@ implements IScrollData, ISubGuiListener {
 	}
 
 	@Override
+	public void keyTyped(char c, int i) {
+		if (i == 1 && this.subgui == null) {
+			this.save();
+			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
+			return;
+		}
+		super.keyTyped(c, i);
+	}
+
+	@Override
 	public void save() {
 	}
 
@@ -78,15 +86,5 @@ implements IScrollData, ISubGuiListener {
 		if (!((SubGuiEditText) subgui).cancelled) {
 			Client.sendData(EnumPacketServer.LinkedAdd, ((SubGuiEditText) subgui).text[0]);
 		}
-	}
-	
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui==null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
 	}
 }

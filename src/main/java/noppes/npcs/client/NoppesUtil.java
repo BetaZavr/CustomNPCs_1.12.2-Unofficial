@@ -40,7 +40,9 @@ public class NoppesUtil {
 		Map<Object, Object> map = Server.readMap(buffer);
 		for (Object name : map.keySet()) {
 			Object id = map.get(name);
-			if (!(id instanceof Integer)) { continue; }
+			if (!(id instanceof Integer)) {
+				continue;
+			}
 			NoppesUtil.data.put(name.toString(), (Integer) id);
 		}
 	}
@@ -115,17 +117,24 @@ public class NoppesUtil {
 
 	public static void setScrollData(ByteBuf buffer) {
 		GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-		if (gui == null) { return; }
+		if (gui == null) {
+			return;
+		}
 		if (gui instanceof GuiNPCInterface && ((GuiNPCInterface) gui).hasSubGui()) {
 			gui = ((GuiNPCInterface) gui).getSubGui();
 		}
 		if (gui instanceof GuiContainerNPCInterface && ((GuiContainerNPCInterface) gui).hasSubGui()) {
 			gui = ((GuiContainerNPCInterface) gui).getSubGui();
 		}
-		if (!(gui instanceof IScrollData)) { return; }
+		if (!(gui instanceof IScrollData)) {
+			return;
+		}
 		Map<Object, Object> map = Server.readMap(buffer);
 		for (Entry<Object, Object> entry : map.entrySet()) {
-			try { NoppesUtil.data.put((String) entry.getKey(), (int) entry.getValue()); } catch (Exception ex) { }
+			try {
+				NoppesUtil.data.put((String) entry.getKey(), (int) entry.getValue());
+			} catch (Exception ex) {
+			}
 		}
 		((IScrollData) gui).setData(new Vector<String>(NoppesUtil.data.keySet()), NoppesUtil.data);
 		NoppesUtil.data.clear();
@@ -144,7 +153,8 @@ public class NoppesUtil {
 			for (int size = buffer.readInt(), i = 0; i < size; ++i) {
 				data.add(Server.readString(buffer));
 			}
-		} catch (Exception ex) { }
+		} catch (Exception ex) {
+		}
 		((IScrollData) gui).setData(data, null);
 	}
 

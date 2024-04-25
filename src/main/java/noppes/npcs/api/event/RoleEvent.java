@@ -15,7 +15,7 @@ import noppes.npcs.api.entity.data.role.ITransportLocation;
 import noppes.npcs.api.item.IItemStack;
 
 public class RoleEvent extends CustomNPCsEvent {
-	
+
 	public static class BankUnlockedEvent extends RoleEvent {
 		public int slot;
 
@@ -69,7 +69,9 @@ public class RoleEvent extends CustomNPCsEvent {
 			super(player, npc);
 			this.currency = Maps.<IItemStack, Integer>newLinkedHashMap();
 			for (ItemStack stack : items.keySet()) {
-				if (stack == null || stack.isEmpty()) { continue; }
+				if (stack == null || stack.isEmpty()) {
+					continue;
+				}
 				this.currency.put(NpcAPI.Instance().getIItemStack(stack), items.get(stack));
 			}
 			this.sold = NpcAPI.Instance().getIItemStack(sold.copy());
@@ -78,7 +80,7 @@ public class RoleEvent extends CustomNPCsEvent {
 
 	@Cancelable
 	public static class TraderEvent extends RoleEvent {
-		
+
 		public Map<IItemStack, Integer> currency;
 		public IItemStack sold;
 
@@ -86,7 +88,9 @@ public class RoleEvent extends CustomNPCsEvent {
 			super(player, npc);
 			this.currency = Maps.<IItemStack, Integer>newLinkedHashMap();
 			for (ItemStack stack : items.keySet()) {
-				if (stack == null || stack.isEmpty()) { continue; }
+				if (stack == null || stack.isEmpty()) {
+					continue;
+				}
 				this.currency.put(NpcAPI.Instance().getIItemStack(stack), items.get(stack));
 			}
 			this.sold = NpcAPI.Instance().getIItemStack(sold);
@@ -118,5 +122,5 @@ public class RoleEvent extends CustomNPCsEvent {
 		this.npc = npc;
 		this.player = (IPlayer<?>) NpcAPI.Instance().getIEntity(player);
 	}
-	
+
 }

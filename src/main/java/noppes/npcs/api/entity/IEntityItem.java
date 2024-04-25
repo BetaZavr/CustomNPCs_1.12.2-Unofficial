@@ -3,9 +3,8 @@ package noppes.npcs.api.entity;
 import net.minecraft.entity.item.EntityItem;
 import noppes.npcs.api.item.IItemStack;
 
-public interface IEntityItem<T extends EntityItem>
-extends IEntity<T> {
-	
+public interface IEntityItem<T extends EntityItem> extends IEntity<T> {
+
 	long getAge();
 
 	IItemStack getItem();
@@ -25,5 +24,5 @@ extends IEntity<T> {
 	void setOwner(String name);
 
 	void setPickupDelay(int delay);
-	
+
 }

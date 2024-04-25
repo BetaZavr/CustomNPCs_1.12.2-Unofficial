@@ -12,9 +12,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 
-public class GuiScriptGlobal
-extends GuiNPCInterface {
-	
+public class GuiScriptGlobal extends GuiNPCInterface {
+
 	protected List<String> baseFuncNames = new ArrayList<String>();
 	protected List<String> baseFuncBlocks = new ArrayList<String>();
 	protected List<String> baseFuncPotions = new ArrayList<String>();
@@ -59,7 +58,9 @@ extends GuiNPCInterface {
 		Collections.sort(this.baseFuncNames);
 		this.playerEventsList = "";
 		for (String name : this.baseFuncNames) {
-			if (this.playerEventsList.length() > 0) { this.playerEventsList += ", "; }
+			if (this.playerEventsList.length() > 0) {
+				this.playerEventsList += ", ";
+			}
 			this.playerEventsList += name;
 		}
 		this.baseFuncPotions.add("isReady");
@@ -69,7 +70,9 @@ extends GuiNPCInterface {
 		Collections.sort(this.baseFuncPotions);
 		this.potionEventsList = "";
 		for (String name : this.baseFuncPotions) {
-			if (this.potionEventsList.length() > 0) { this.potionEventsList += ", "; }
+			if (this.potionEventsList.length() > 0) {
+				this.potionEventsList += ", ";
+			}
 			this.potionEventsList += name;
 		}
 
@@ -88,18 +91,31 @@ extends GuiNPCInterface {
 		Collections.sort(this.baseFuncBlocks);
 		this.blockEventsList = "";
 		for (String name : this.baseFuncBlocks) {
-			if (this.blockEventsList.length() > 0) { this.blockEventsList += ", "; }
+			if (this.blockEventsList.length() > 0) {
+				this.blockEventsList += ", ";
+			}
 			this.blockEventsList += name;
 		}
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton guibutton) {
-		switch(guibutton.id) {
-			case 1: { this.displayGuiScreen(new GuiScriptForge()); break; }
-			case 2: { this.displayGuiScreen(new GuiScriptPotion()); break; }
-			case 3: { this.displayGuiScreen(new GuiScriptClient()); break; }
-			default: { this.displayGuiScreen(new GuiScriptPlayers()); }
+		switch (guibutton.id) {
+		case 1: {
+			this.displayGuiScreen(new GuiScriptForge());
+			break;
+		}
+		case 2: {
+			this.displayGuiScreen(new GuiScriptPotion());
+			break;
+		}
+		case 3: {
+			this.displayGuiScreen(new GuiScriptClient());
+			break;
+		}
+		default: {
+			this.displayGuiScreen(new GuiScriptPlayers());
+		}
 		}
 	}
 
@@ -110,13 +126,19 @@ extends GuiNPCInterface {
 		this.mc.renderEngine.bindTexture(this.resource);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		super.drawScreen(i, j, f);
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) {
+			return;
+		}
 		if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.players", new Object[] { this.playerEventsList }) .getFormattedText());
+			this.setHoverText(
+					new TextComponentTranslation("script.hover.players", new Object[] { this.playerEventsList })
+							.getFormattedText());
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.forge").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("script.hover.potion", new Object[] { this.potionEventsList }).getFormattedText());
+			this.setHoverText(
+					new TextComponentTranslation("script.hover.potion", new Object[] { this.potionEventsList })
+							.getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("script.hover.client").getFormattedText());
 		}
@@ -125,13 +147,21 @@ extends GuiNPCInterface {
 	@Override
 	public void initGui() {
 		super.initGui();
-		for (int i=0; i<4; i++) {
+		for (int i = 0; i < 4; i++) {
 			String name;
-			switch(i) {
-				case 1: name = "Forge"; break;
-				case 2: name = "gui.help.potions"; break;
-				case 3: name = "gui.client"; break;
-				default: name = "playerdata.players"; break;
+			switch (i) {
+			case 1:
+				name = "Forge";
+				break;
+			case 2:
+				name = "gui.help.potions";
+				break;
+			case 3:
+				name = "gui.client";
+				break;
+			default:
+				name = "playerdata.players";
+				break;
 			}
 			this.addButton(new GuiNpcButton(i, this.guiLeft + 38, this.guiTop + 20 + i * 30, 100, 20, name));
 		}
@@ -141,8 +171,9 @@ extends GuiNPCInterface {
 	public void keyTyped(char c, int i) {
 		if (i == 1 || this.isInventoryKey(i)) {
 			this.close();
+		} else {
+			super.keyTyped(c, i);
 		}
-		else { super.keyTyped(c, i); }
 	}
 
 	@Override

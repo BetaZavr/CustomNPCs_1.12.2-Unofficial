@@ -16,12 +16,9 @@ import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class JobConversation
-extends JobInterface
-implements IJobConversation {
-	
-	public class ConversationLine
-	extends Line {
+public class JobConversation extends JobInterface implements IJobConversation {
+
+	public class ConversationLine extends Line {
 		public int delay;
 		public String npc;
 
@@ -153,7 +150,7 @@ implements IJobConversation {
 					this.npc.getEntityBoundingBox().grow(this.range, this.range, this.range));
 			for (EntityPlayer player : inRange) {
 				if (this.availability.isAvailable(player)) {
-					PlayerQuestController.addActiveQuest(this.getQuest(), player);
+					PlayerQuestController.addActiveQuest(this.getQuest(), player, false);
 				}
 			}
 		}
@@ -182,6 +179,31 @@ implements IJobConversation {
 	@Override
 	public void killed() {
 		this.reset();
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		this.type = JobType.CONVERSATION;
+		this.names.clear();
+		this.availability.readFromNBT(compound.getCompoundTag("ConversationAvailability"));
+		this.quest = compound.getInteger("ConversationQuest");
+		this.generalDelay = compound.getInteger("ConversationDelay");
+		this.questTitle = compound.getString("ConversationQuestTitle");
+		this.range = compound.getInteger("ConversationRange");
+		this.mode = compound.getInteger("ConversationMode");
+		NBTTagList nbttaglist = compound.getTagList("ConversationLines", 10);
+		HashMap<Integer, ConversationLine> map = new HashMap<Integer, ConversationLine>();
+		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
+			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+			ConversationLine line = new ConversationLine();
+			line.readEntityFromNBT(nbttagcompound);
+			if (!line.npc.isEmpty() && !this.names.contains(line.npc.toLowerCase())) {
+				this.names.add(line.npc.toLowerCase());
+			}
+			map.put(nbttagcompound.getInteger("Slot"), line);
+		}
+		this.lines = map;
+		this.ticks = this.generalDelay;
 	}
 
 	@Override
@@ -230,31 +252,6 @@ implements IJobConversation {
 			this.ticks = 20;
 		}
 		return bo;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = JobType.CONVERSATION;
-		this.names.clear();
-		this.availability.readFromNBT(compound.getCompoundTag("ConversationAvailability"));
-		this.quest = compound.getInteger("ConversationQuest");
-		this.generalDelay = compound.getInteger("ConversationDelay");
-		this.questTitle = compound.getString("ConversationQuestTitle");
-		this.range = compound.getInteger("ConversationRange");
-		this.mode = compound.getInteger("ConversationMode");
-		NBTTagList nbttaglist = compound.getTagList("ConversationLines", 10);
-		HashMap<Integer, ConversationLine> map = new HashMap<Integer, ConversationLine>();
-		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-			ConversationLine line = new ConversationLine();
-			line.readEntityFromNBT(nbttagcompound);
-			if (!line.npc.isEmpty() && !this.names.contains(line.npc.toLowerCase())) {
-				this.names.add(line.npc.toLowerCase());
-			}
-			map.put(nbttagcompound.getInteger("Slot"), line);
-		}
-		this.lines = map;
-		this.ticks = this.generalDelay;
 	}
 
 	@Override

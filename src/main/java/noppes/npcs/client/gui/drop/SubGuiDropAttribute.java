@@ -12,10 +12,8 @@ import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.AttributeSet;
 
-public class SubGuiDropAttribute
-extends SubGuiInterface
-implements ITextfieldListener {
-	
+public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldListener {
+
 	public AttributeSet attribute;
 	private double[] values;
 
@@ -50,7 +48,9 @@ implements ITextfieldListener {
 	@Override
 	public void drawScreen(int i, int j, float f) {
 		super.drawScreen(i, j, f);
-		if (!CustomNpcs.ShowDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions) {
+			return;
+		}
 		String tied = new TextComponentTranslation("drop.tied.random", new Object[0]).getFormattedText();
 		if (this.attribute.parent.tiedToLevel) {
 			tied = new TextComponentTranslation("drop.tied.level", new Object[0]).getFormattedText();

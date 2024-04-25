@@ -12,9 +12,8 @@ import noppes.npcs.client.model.part.horns.ModelAntlerHorns;
 import noppes.npcs.client.model.part.horns.ModelBullHorns;
 import noppes.npcs.constants.EnumParts;
 
-public class LayerHead<T extends EntityLivingBase>
-extends LayerInterface<T> {
-	
+public class LayerHead<T extends EntityLivingBase> extends LayerInterface<T> {
+
 	private ModelRenderer antennasBack;
 	private ModelRenderer antennasFront;
 	private ModelRenderer antlers;
@@ -49,14 +48,11 @@ extends LayerInterface<T> {
 		tooth.setRotationPoint(0.0f, 0.0f, 0.0f);
 		this.bunnySnout.addChild(tooth);
 		(this.beak = new ModelDuckBeak(this.model)).setRotationPoint(0.0f, 0.0f, -4.0f);
-		(this.beard = new Model2DRenderer(this.model, 56.0f, 20.0f, 8, 12)).setRotationOffset(-3.99f, 11.8f,
-				-4.0f);
+		(this.beard = new Model2DRenderer(this.model, 56.0f, 20.0f, 8, 12)).setRotationOffset(-3.99f, 11.8f, -4.0f);
 		this.beard.setScale(0.74f);
-		(this.hair = new Model2DRenderer(this.model, 56.0f, 20.0f, 8, 12)).setRotationOffset(-3.99f, 11.8f,
-				3.0f);
+		(this.hair = new Model2DRenderer(this.model, 56.0f, 20.0f, 8, 12)).setRotationOffset(-3.99f, 11.8f, 3.0f);
 		this.hair.setScale(0.75f);
-		(this.mohawk = new Model2DRenderer(this.model, 0.0f, 0.0f, 64, 64)).setRotationOffset(-9.0f, 0.1f,
-				-0.5f);
+		(this.mohawk = new Model2DRenderer(this.model, 0.0f, 0.0f, 64, 64)).setRotationOffset(-9.0f, 0.1f, -0.5f);
 		this.setRotation(this.mohawk, 0.0f, 1.5707964f, 0.0f);
 		this.mohawk.setScale(0.825f);
 		this.bull = new ModelBullHorns(this.model);

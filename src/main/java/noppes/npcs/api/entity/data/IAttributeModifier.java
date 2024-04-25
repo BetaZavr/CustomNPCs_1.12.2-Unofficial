@@ -4,20 +4,20 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 
 public interface IAttributeModifier {
 
-	AttributeModifier getMCModifier();
-	
+	double getAmount();
+
 	String getID();
 
-    String getName();
-    
-    IAttributeModifier setName(String name);
+	AttributeModifier getMCModifier();
 
-    int getOperation();
-    
-    void setOperation(int operation);
+	String getName();
 
-    double getAmount();
-    
-    IAttributeModifier setAmount(double amount);
-    
+	int getOperation();
+
+	IAttributeModifier setAmount(double amount);
+
+	IAttributeModifier setName(String name);
+
+	void setOperation(int operation);
+
 }

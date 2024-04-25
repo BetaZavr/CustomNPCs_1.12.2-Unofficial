@@ -4,9 +4,8 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 
-public class ItemStackEmptyWrapper
-extends ItemStackWrapper {
-	
+public class ItemStackEmptyWrapper extends ItemStackWrapper {
+
 	public ItemStackEmptyWrapper() {
 		super(ItemStack.EMPTY);
 	}
