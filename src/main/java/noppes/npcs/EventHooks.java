@@ -75,6 +75,7 @@ import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.ForgeScriptData;
+import noppes.npcs.controllers.data.NpcScriptData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.PotionScriptData;
@@ -89,26 +90,19 @@ public class EventHooks {
 	private static Map<String, Long> clientMap = Maps.<String, Long>newHashMap();
 
 	public static void onClientInit(ClientScriptData handler) {
-		if (!handler.isClient()) {
-			return;
-		}
-		EventHooks.onEvent(handler, EnumScriptType.INIT,
-				new PlayerEvent.InitEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(CustomNpcs.proxy.getPlayer())));
+		if (!handler.isClient()) { return; }
+		EventHooks.onEvent(handler, EnumScriptType.INIT, new PlayerEvent.InitEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(CustomNpcs.proxy.getPlayer())));
 	}
 
 	public static void onCustomChestClicked(CustomContainerEvent.SlotClickedEvent event) {
 		ContainerCustomChestWrapper container = (ContainerCustomChestWrapper) event.container;
-		if (!container.script.isValid()) {
-			return;
-		}
+		if (!container.script.isValid()) { return; }
 		EventHooks.onEvent(container.script, EnumScriptType.CUSTOM_CHEST_CLICKED, event);
 	}
 
 	public static void onCustomChestClosed(CustomContainerEvent.CloseEvent event) {
 		ContainerCustomChestWrapper container = (ContainerCustomChestWrapper) event.container;
-		if (!container.script.isValid()) {
-			return;
-		}
+		if (!container.script.isValid()) { return; }
 		EventHooks.onEvent(container.script, EnumScriptType.CUSTOM_CHEST_CLOSED, event);
 	}
 
@@ -120,72 +114,65 @@ public class EventHooks {
 		CustomGuiController.onClose(new CustomGuiEvent.CloseEvent(player, gui));
 	}
 
-	public static void onCustomGuiScrollClick(PlayerWrapper<?> player, ICustomGui gui, int scrollId, int scrollIndex,
-			String[] selection, boolean doubleClick) {
-		CustomGuiController.onScrollClick(
-				new CustomGuiEvent.ScrollEvent(player, gui, scrollId, scrollIndex, selection, doubleClick));
+	public static void onCustomGuiScrollClick(PlayerWrapper<?> player, ICustomGui gui, int scrollId, int scrollIndex, String[] selection, boolean doubleClick) {
+		CustomGuiController.onScrollClick(new CustomGuiEvent.ScrollEvent(player, gui, scrollId, scrollIndex, selection, doubleClick));
 	}
 
-	public static void onCustomGuiSlot(PlayerWrapper<?> player, ICustomGui gui, int slotId, IItemStack stack,
-			IItemStack heldItem) {
+	public static void onCustomGuiSlot(PlayerWrapper<?> player, ICustomGui gui, int slotId, IItemStack stack, IItemStack heldItem) {
 		CustomGuiController.onSlotChange(new CustomGuiEvent.SlotEvent(player, gui, slotId, stack, heldItem));
 	}
 
-	public static boolean onCustomGuiSlotClicked(PlayerWrapper<?> player, ICustomGui gui, int slotId, int dragType,
-			String clickType, IItemStack heldItem, Slot slot) {
-		return CustomGuiController.onSlotClick(new CustomGuiEvent.SlotClickEvent(player, gui, slotId,
-				player.getOpenContainer().getSlot(slotId), dragType, clickType, heldItem, slot));
+	public static boolean onCustomGuiSlotClicked(PlayerWrapper<?> player, ICustomGui gui, int slotId, int dragType, String clickType, IItemStack heldItem, Slot slot) {
+		return CustomGuiController.onSlotClick(new CustomGuiEvent.SlotClickEvent(player, gui, slotId, player.getOpenContainer().getSlot(slotId), dragType, clickType, heldItem, slot));
 	}
 
 	public static void onCustomPotionAffectEntity(AffectEntity event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || data.isClient()) {
-			return;
-		}
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_AFFECT, event);
 	}
 
 	public static void onCustomPotionEndEffect(EndEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || data.isClient()) {
-			return;
-		}
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_END, event);
 	}
 
 	public static void onCustomPotionIsReady(IsReadyEvent event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || data.isClient()) {
-			return;
-		}
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_IS_READY, event);
 	}
 
 	public static void onCustomPotionPerformEffect(PerformEffect event) {
 		PotionScriptData data = ScriptController.Instance.potionScripts;
-		if (!data.isEnabled() || data.isClient()) {
-			return;
-		}
+		if (!data.isEnabled() || data.isClient()) { return; }
 		EventHooks.onEvent(data, EnumScriptType.POTION_PERFORM, event);
 	}
 
 	public static boolean onEvent(IScriptHandler handler, EnumScriptType enumFunction, Event event) {
+		if (handler instanceof DataScript  && ((DataScript) handler).npc.ais.aiDisabled) { return false; }
 		if (handler instanceof PlayerScriptData) {
 			if (handler.getEnabled() != ScriptController.Instance.playerScripts.getEnabled()) {
 				handler.setEnabled(ScriptController.Instance.playerScripts.getEnabled());
 			}
 		}
-		if (handler == null || !handler.getEnabled() || event == null || enumFunction == null) {
-			return false;
+		if (event == null || enumFunction == null || enumFunction.function.isEmpty()) { return false; }
+		if ((handler instanceof DataScript || handler instanceof NpcScriptData) && ScriptController.Instance.npcsScripts.getEnabled()) {
+			ScriptController.Instance.npcsScripts.runScript(enumFunction.function, event);
 		}
+		if (handler == null || !handler.getEnabled()) { return false; }
 		handler.runScript(enumFunction.function, event);
 		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
 
 	public static boolean onEvent(IScriptHandler handler, String enumFunction, Event event) {
-		if (handler == null || !handler.getEnabled() || event == null || enumFunction == null) {
-			return false;
+		if (handler instanceof DataScript  && ((DataScript) handler).npc.ais.aiDisabled) { return false; }
+		if (event == null || enumFunction == null || enumFunction.isEmpty()) { return false; }
+		if ((handler instanceof DataScript || handler instanceof NpcScriptData) && ScriptController.Instance.npcsScripts.getEnabled()) {
+			ScriptController.Instance.npcsScripts.runScript(enumFunction, event);
 		}
+		if (handler == null || !handler.getEnabled()) { return false; }
 		handler.runScript(enumFunction, event);
 		return WrapperNpcAPI.EVENT_BUS.post(event) && event.isCanceled();
 	}
@@ -201,9 +188,16 @@ public class EventHooks {
 	public static void onForgeEvent(ForgeEvent event) {
 		ForgeScriptData handler = ScriptController.Instance.forgeScripts;
 		String eventName;
-		if (!handler.isClient() && handler.isEnabled()
-				&& CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
-			eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
+		if (!handler.isClient() && handler.isEnabled()) {
+			if (!CustomNpcs.forgeEventNames.containsKey(event.event.getClass())) {
+				eventName = (event.event == null ? event.getClass() : event.event.getClass()).getName();
+				int i = eventName.lastIndexOf(".");
+				eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
+				CustomNpcs.forgeEventNames.put(event.event.getClass(), eventName);
+				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+event.event.getClass().getName());
+			} else {
+				eventName = CustomNpcs.forgeEventNames.get(event.event.getClass());
+			}
 			try {
 				handler.runScript(eventName, event);
 				if (event.isCanceled() && event.event.isCancelable()) {
@@ -216,41 +210,39 @@ public class EventHooks {
 			} catch (Exception e) {
 			}
 		}
-
 		if (handler.isClient()) {
 			ClientScriptData handlerClient = ScriptController.Instance.clientScripts;
-			if (!handlerClient.isClient()) {
+			if (!handlerClient.isClient() || !handlerClient.isEnabled()) { return; }
+			if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
+				eventName = (event.event == null ? event.getClass() : event.event.getClass()).getName();
+				int i = eventName.lastIndexOf(".");
+				eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
+				CustomNpcs.forgeClientEventNames.put(event.event.getClass(), eventName);
+				LogWriter.info("Found new Forge Event \"" + eventName + "\" to event: "+event.event.getClass().getName());
+			} else {
+				eventName = CustomNpcs.forgeClientEventNames.get(event.event.getClass());
+			}
+			if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName) && EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) {
 				return;
 			}
-			if (handlerClient.isEnabled()) {
-				if (!CustomNpcs.forgeClientEventNames.containsKey(event.event.getClass())) {
-					eventName = event.getClass().getName();
-					int i = eventName.lastIndexOf(".");
-					eventName = StringUtils.uncapitalize(eventName.substring(i + 1).replace("$", ""));
-					CustomNpcs.forgeClientEventNames.put(event.event.getClass(), eventName);
-				} else {
-					eventName = CustomNpcs.forgeClientEventNames.get(event.event.getClass());
+			EventHooks.clientMap.put(eventName, System.currentTimeMillis());
+			try {
+				handlerClient.runScript(eventName, event);
+				if (event.isCanceled() && event.event.isCancelable()) {
+					event.event.setCanceled(true);
 				}
-				if (eventName.isEmpty() || (EventHooks.clientMap.containsKey(eventName)
-						&& EventHooks.clientMap.get(eventName) == System.currentTimeMillis())) {
-					return;
-				}
-				EventHooks.clientMap.put(eventName, System.currentTimeMillis());
-				try {
-					handlerClient.runScript(eventName, event);
-					if (event.isCanceled() && event.event.isCancelable()) {
-						event.event.setCanceled(true);
-					}
-					WrapperNpcAPI.EVENT_BUS.post(event.event);
-				} catch (Exception e) {
-				}
-			}
-			return;
+				WrapperNpcAPI.EVENT_BUS.post(event.event);
+			} catch (Exception e) { }
 		}
 	}
 
 	public static void onForgeInit(ForgeScriptData handler) {
 		EventHooks.onEvent(handler, EnumScriptType.INIT, new ForgeEvent.InitEvent());
+	}
+
+
+	public static void onNPCsInit(NpcScriptData handler) {
+		EventHooks.onEvent(handler, EnumScriptType.INIT, new NpcEvent.InitEvent(null));
 	}
 
 	public static void onGlobalFactionsLoaded(IFactionHandler handler) {
@@ -401,8 +393,7 @@ public class EventHooks {
 
 	public static void onNPCTick(EntityNPCInterface npc) {
 		if (npc.script.isClient()) {
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK,
-					new NpcEvent.UpdateEvent(npc.wrappedNPC));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new NpcEvent.UpdateEvent(npc.wrappedNPC));
 			return;
 		}
 		EventHooks.onEvent(npc.script, EnumScriptType.TICK, new NpcEvent.UpdateEvent(npc.wrappedNPC));
@@ -462,7 +453,7 @@ public class EventHooks {
 				new PlayerEvent.DiedEvent(handler.getPlayer(), source, entity));
 	}
 
-	public static void OnPlayerFactionChange(PlayerScriptData handler, PlayerEvent.FactionUpdateEvent event) {
+	public static void onPlayerFactionChange(PlayerScriptData handler, PlayerEvent.FactionUpdateEvent event) {
 		if (handler.isClient()) {
 			return;
 		}
@@ -807,8 +798,7 @@ public class EventHooks {
 		if (handler.isClient()) {
 			return false;
 		}
-		return EventHooks.onEvent(handler, EnumScriptType.SPAWN,
-				new ItemEvent.SpawnEvent(handler, (IEntityItem<?>) NpcAPI.Instance().getIEntity(entity)));
+		return EventHooks.onEvent(handler, EnumScriptType.SPAWN, new ItemEvent.SpawnEvent(handler, (IEntityItem<?>) NpcAPI.Instance().getIEntity(entity)));
 	}
 
 	public static boolean onScriptItemTossed(ItemScriptedWrapper handler, EntityPlayer player, EntityItem entity) {

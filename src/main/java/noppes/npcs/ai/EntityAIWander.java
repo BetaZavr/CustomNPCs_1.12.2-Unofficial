@@ -88,7 +88,7 @@ public class EntityAIWander extends EntityAIBase {
 				line = new Line("... ... ...");
 			}
 			line.setShowText(false);
-			talk.saySurrounding(line);
+			if (talk.isEntityAlive()) { talk.saySurrounding(line); }
 			this.entity.addInteract(this.nearbyNPC);
 			this.nearbyNPC.addInteract(this.entity);
 		}

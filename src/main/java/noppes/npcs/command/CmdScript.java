@@ -63,6 +63,11 @@ public class CmdScript extends CommandNoppesBase {
 		} else {
 			sender.sendMessage(new TextComponentString("Failed reloading player scripts"));
 		}
+		if (ScriptController.Instance.loadNPCsScripts()) {
+			sender.sendMessage(new TextComponentString("Reload NPCs scripts succesfully"));
+		} else {
+			sender.sendMessage(new TextComponentString("Failed reloading NPCs scripts"));
+		}
 		if (ScriptController.Instance.loadForgeScripts()) {
 			sender.sendMessage(new TextComponentString("Reload forge scripts succesfully"));
 		} else {

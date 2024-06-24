@@ -28,6 +28,7 @@ import net.minecraft.world.World;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumSync;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicBlockData;
@@ -35,10 +36,11 @@ import noppes.npcs.schematics.SchematicBlockData;
 public class BuilderData {
 
 	// General
-	public int type = 0;
+	private int type = 0; // 0:remover; 1:builder; 2:replace; 3:placer; 4:saver
+	private int id = -1;
+	
 	public int[] region = new int[] { 5, 2, 3 };
 	public int fasing = 0;
-	public int id = 0;
 	public NpcMiscInventory inv = new NpcMiscInventory(10);
 	public EntityPlayer player = null;
 	public boolean addAir = false, replaseAir = false, isSolid = false;
@@ -54,7 +56,9 @@ public class BuilderData {
 	// tecnical
 	private long lastWork = 0L, lastMessage = 0L;
 
-	public BuilderData() {
+	public BuilderData(int id, int type) {
+		this.id = id;
+		this.type = type;
 	}
 
 	public void add(List<SchematicBlockData> listB, List<Entity> listE) {
@@ -474,15 +478,6 @@ public class BuilderData {
 			chList.appendTag(c);
 		}
 		nbtData.setTag("Chances", chList);
-
-		/*
-		 * NBTTagCompound undo = new NBTTagCompound(); undo.setInteger("CurentPos",
-		 * this.doPos); NBTTagCompound undoMap = new NBTTagCompound(); for (int p :
-		 * this.doMap.keySet()) { NBTTagList undoList = new NBTTagList(); for
-		 * (SchematicBlockData bd : this.doMap.get(p)) {
-		 * undoList.appendTag(bd.getNbt()); } undoMap.setTag("ID_"+p, undoList); }
-		 * undo.setTag("Data", undoMap); nbtData.setTag("doData", undo);
-		 */
 		if (this.type < 3) {
 			nbtData.setTag("Inventory", this.inv.getToNBT());
 		}
@@ -500,7 +495,7 @@ public class BuilderData {
 		if (nbtData.hasKey("Region", 11)) {
 			this.region = nbtData.getIntArray("Region");
 		}
-		if (nbtData.hasKey("ID", 3)) {
+		if (nbtData.hasKey("ID", 8)) {
 			this.id = nbtData.getInteger("ID");
 		}
 		if (nbtData.hasKey("AddAir", 1)) {
@@ -512,7 +507,6 @@ public class BuilderData {
 		if (nbtData.hasKey("IsSolid", 1)) {
 			this.isSolid = nbtData.getBoolean("IsSolid");
 		}
-
 		if (nbtData.hasKey("Schematica", 10)) {
 			NBTTagCompound sch = nbtData.getCompoundTag("Schematica");
 			if (sch.hasKey("FileName", 8)) {
@@ -533,18 +527,6 @@ public class BuilderData {
 				this.chances.put(c.getInteger("Slot"), c.getInteger("Value"));
 			}
 		}
-
-		/*
-		 * NBTTagCompound undo = nbtData.getCompoundTag("doData"); this.doPos =
-		 * undo.getInteger("CurentPos"); this.doMap.clear(); for (String key :
-		 * undo.getCompoundTag("Data").getKeySet()) { int i = -1; try { i =
-		 * Integer.parseInt(key.replace("ID_", "")); } catch (Exception e) { } if
-		 * (i==-1) { continue; } List<SchematicBlockData> bd =
-		 * Lists.<SchematicBlockData>newArrayList(); for (int j=0;
-		 * j<undo.getCompoundTag("Data").getTagList(key, 10).tagCount(); j++) {
-		 * bd.add(new SchematicBlockData(undo.getCompoundTag("Data").getTagList(key,
-		 * 10).getCompoundTagAt(j))); } this.doMap.put(i, bd); }
-		 */
 		if (nbtData.hasKey("Inventory", 10)) {
 			this.inv.setFromNBT(nbtData.getCompoundTag("Inventory"));
 		}
@@ -664,12 +646,11 @@ public class BuilderData {
 			}
 			}
 			this.lastWork = System.currentTimeMillis();
-			Server.sendData(player, EnumPacketClient.SET_SCHEMATIC, this.getNbt());
+			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.BuilderData, this.getNbt());
 			return;
 		}
 		this.lastWork = System.currentTimeMillis() - size;
-		Schematic schema = Schematic.create(player.world, player.getHorizontalFacing(),
-				this.schematicaName + ".schematic", this.schMap);
+		Schematic schema = Schematic.create(player.world, player.getHorizontalFacing(), this.schematicaName + ".schematic", this.schMap);
 		Server.sendData(player, EnumPacketClient.SAVE_SCHEMATIC, schema.getNBT());
 	}
 
@@ -689,10 +670,8 @@ public class BuilderData {
 		List<Entity> listE = Lists.<Entity>newArrayList();
 		// remove Entity
 		for (Entity e : player.world.getEntitiesWithinAABB(Entity.class,
-				new AxisAlignedBB(d[0] - 0.25d, d[1] - 0.25d, d[2] - 0.25d, d[3] + 0.25d, d[4] + 0.25d, d[5] + 0.25d)
-						.offset(pos))) {
-			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
-					|| e instanceof EntityPlayer) {
+				new AxisAlignedBB(d[0] - 0.25d, d[1] - 0.25d, d[2] - 0.25d, d[3] + 0.25d, d[4] + 0.25d, d[5] + 0.25d).offset(pos))) {
+			if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow || e instanceof EntityPlayer) {
 				continue;
 			}
 			listE.add(e);
@@ -795,8 +774,7 @@ public class BuilderData {
 						}
 						if (!tempBlocks.isEmpty()) {
 							for (SchematicBlockData bd : tempBlocks.values()) {
-								if (bd.state.getBlock() == state.getBlock() && state.getBlock()
-										.getMetaFromState(state) == bd.state.getBlock().getMetaFromState(bd.state)) {
+								if (bd.state.getBlock() == state.getBlock()) {
 									listB.add(new SchematicBlockData(player.world, state, p));
 									player.world.setBlockState(p, Blocks.AIR.getDefaultState());
 									break;
@@ -944,8 +922,7 @@ public class BuilderData {
 		}
 		size = (int) (0.875d * (double) size + 250.0d);
 		if (this.lastWork + size > System.currentTimeMillis()) {
-			this.sendMessage("builder.wait", AdditionalMethods
-					.ticksToElapsedTime(this.lastWork + size - System.currentTimeMillis(), true, true, false));
+			this.sendMessage("builder.wait", AdditionalMethods.ticksToElapsedTime(this.lastWork + size - System.currentTimeMillis(), true, true, false));
 			return;
 		}
 		this.lastWork = System.currentTimeMillis();
@@ -958,5 +935,9 @@ public class BuilderData {
 			this.setBlocks(player, pos);
 		}
 	}
+
+	public int getID() { return this.id; }
+	
+	public int getType() { return this.type; }
 
 }

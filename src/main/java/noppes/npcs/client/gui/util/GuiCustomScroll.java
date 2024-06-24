@@ -24,7 +24,9 @@ import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.NaturalOrderComparator;
 
-public class GuiCustomScroll extends GuiScreen {
+public class GuiCustomScroll
+extends GuiScreen
+implements IComponentGui {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
 
@@ -79,17 +81,21 @@ public class GuiCustomScroll extends GuiScreen {
 		this.scrollY = 0;
 		this.scrollHeight = 0;
 		this.isScrolling = false;
-		if (parent instanceof ICustomScrollListener) {
-			this.listener = (ICustomScrollListener) parent;
-		}
+		this.setParent(parent);
 		this.list = new ArrayList<String>();
 		this.id = id;
 		// New
-		this.parent = parent;
 		this.hoversTexts = null;
 		this.colors = null;
 		this.stacks = null;
 		this.setSize(this.width, this.height);
+	}
+
+	public void setParent(GuiScreen parent) {
+		this.parent = parent;
+		if (parent instanceof ICustomScrollListener) {
+			this.listener = (ICustomScrollListener) parent;
+		}
 	}
 
 	public GuiCustomScroll(GuiScreen parent, int id, boolean multipleSelection) {
@@ -158,7 +164,7 @@ public class GuiCustomScroll extends GuiScreen {
 				this.fontRenderer.drawString(text, j, k, c);
 				c = CustomNpcs.MainColor.getRGB();
 			}
-			if (this.suffixs != null && i < this.suffixs.size() && !this.suffixs.get(i).isEmpty()
+			if (this.suffixs != null && i < this.suffixs.size() && this.suffixs.get(i) != null && !this.suffixs.get(i).isEmpty()
 					&& this.fontRenderer.getStringWidth(text + this.suffixs.get(i)) < this.width - 20) {
 				this.fontRenderer.drawString(this.suffixs.get(i),
 						this.width - 9 + (this.listHeight > this.height ? -11 : 0)
@@ -601,4 +607,9 @@ public class GuiCustomScroll extends GuiScreen {
 		return this;
 	}
 
+	@Override
+	public int[] getCenter() {
+		return new int[] { this.guiLeft + this.width / 2, this.guiTop + this.height / 2};
+	}
+	
 }

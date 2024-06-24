@@ -79,6 +79,10 @@
     "category": "player",
     "sounds": [{"name": "customnpcs:songs/TheKyleb - Bard", "stream": true}]
   },
+  "songs.macarena": {
+    "category": "player",
+    "sounds": [{"name": "customnpcs:songs/macarena", "stream": true}]
+  },
   "human.female.evil.attack": {
     "category": "player",
     "sounds": ["customnpcs:human/female/evil/Attack 1","customnpcs:human/female/evil/Attack 2"]

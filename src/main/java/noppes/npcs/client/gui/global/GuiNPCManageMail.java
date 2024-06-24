@@ -91,19 +91,19 @@ public class GuiNPCManageMail extends GuiNPCInterface2 implements IGuiData, ITex
 
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.costs", x0, (y += 24) + 5));
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.0", x0, (y += 16) + 5));
-		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x1 + 65, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.displayCurrencies, x1 + 65, y + 5));
 		this.addTextField(new GuiNpcTextField(3, this, x1, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[0]));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.MailCostSendingLetter[0]);
 		int x2 = x1 + 120, x3 = x2 + 80;
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.1", x2, y + 5));
-		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x3 + 65, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.displayCurrencies, x3 + 65, y + 5));
 		this.addTextField(new GuiNpcTextField(4, this, x3, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[1]));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.MailCostSendingLetter[1]);
 
 		this.addLabel(new GuiNpcLabel(lID++, "mail.time.cost.2", x0, (y += 24) + 5));
-		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.CharCurrencies, x1 + 65, y + 5));
+		this.addLabel(new GuiNpcLabel(lID++, CustomNpcs.displayCurrencies, x1 + 65, y + 5));
 		this.addTextField(new GuiNpcTextField(5, this, x1, y, 60, 20, "" + CustomNpcs.MailCostSendingLetter[2]));
 		this.getTextField(3).setNumbersOnly();
 		this.getTextField(3).setMinMaxDefault(0, Integer.MAX_VALUE, CustomNpcs.MailCostSendingLetter[2]);

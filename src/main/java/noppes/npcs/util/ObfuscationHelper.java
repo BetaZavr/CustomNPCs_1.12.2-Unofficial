@@ -168,14 +168,13 @@ public class ObfuscationHelper {
 						e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access type {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 		return null;
 	}
@@ -210,14 +209,13 @@ public class ObfuscationHelper {
 						e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access type {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 		return null;
 	}
@@ -248,14 +246,13 @@ public class ObfuscationHelper {
 				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 		return null;
 	}
@@ -289,14 +286,13 @@ public class ObfuscationHelper {
 				FMLLog.log.error("Field type mismatch {} on {}", "Name:" + fieldName, f.getType().getSimpleName(), e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 		return null;
 	}
@@ -315,14 +311,13 @@ public class ObfuscationHelper {
 				FMLLog.log.error("Field type mismatch {} on {}", "Index:" + index, f.getName(), e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 		return null;
 	}
@@ -365,15 +360,14 @@ public class ObfuscationHelper {
 						m.getReturnType().getSimpleName(), e);
 			}
 			throw e;
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			if (m != null) {
 				FMLLog.log.error("Type mismatch of one of the parameters of Method {}",
 						methodReturnType.getSimpleName(), e);
 			}
 			try {
 				throw e;
-			} catch (InvocationTargetException e1) {
-			}
+			} catch (InvocationTargetException e1) { }
 		}
 		return null;
 	}
@@ -414,14 +408,13 @@ public class ObfuscationHelper {
 						e);
 			}
 			throw e;
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			if (m != null) {
 				FMLLog.log.error("Type mismatch of one of the parameters of Method {}", "Index:" + index, e);
 			}
 			try {
 				throw e;
-			} catch (InvocationTargetException e1) {
-			}
+			} catch (InvocationTargetException e1) { }
 		}
 		return null;
 	}
@@ -463,14 +456,13 @@ public class ObfuscationHelper {
 						m.getReturnType().getSimpleName(), e);
 			}
 			throw e;
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			if (m != null) {
 				FMLLog.log.error("Type mismatch of one of the parameters of Method {}", "Name:" + methodName, e);
 			}
 			try {
 				throw e;
-			} catch (InvocationTargetException e1) {
-			}
+			} catch (InvocationTargetException e1) { }
 		}
 		return null;
 	}
@@ -493,7 +485,7 @@ public class ObfuscationHelper {
 			FMLLog.log.error("Field type mismatch {} on {}.class; value: {}", "Name:" + field.getName(),
 					field.getType().getSimpleName(), newValue, e);
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			FMLLog.log.error("Mismatch change field access on {}", field.getName(), e);
 		}
 	}
@@ -528,14 +520,13 @@ public class ObfuscationHelper {
 						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 	}
 
@@ -558,8 +549,7 @@ public class ObfuscationHelper {
 		}
 		Field f = ObfuscationHelper.getField(clazz, fieldType);
 		if (f == null) {
-			FMLLog.log.info("Unable to locate any field {} on type {}", "Type:" + fieldType.getSimpleName(),
-					clazz.getSimpleName());
+			FMLLog.log.info("Unable to locate any field {} on type {}", "Type:" + fieldType.getSimpleName(), clazz.getSimpleName());
 			return;
 		}
 		f.setAccessible(true);
@@ -581,7 +571,7 @@ public class ObfuscationHelper {
 						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
@@ -633,14 +623,13 @@ public class ObfuscationHelper {
 						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 	}
 
@@ -685,14 +674,13 @@ public class ObfuscationHelper {
 						f.getType().getSimpleName(), value, e);
 			}
 			throw e;
-		} catch (IllegalAccessException e) {
+		} catch (Exception e) {
 			if (f != null) {
 				FMLLog.log.error("Mismatch change field access on {}", f.getName(), e);
 			}
 			try {
 				throw e;
-			} catch (IllegalAccessException e1) {
-			}
+			} catch (IllegalAccessException e1) { }
 		}
 	}
 

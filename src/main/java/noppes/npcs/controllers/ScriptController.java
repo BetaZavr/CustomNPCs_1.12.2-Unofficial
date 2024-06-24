@@ -41,6 +41,8 @@ import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.controllers.data.EncryptData;
 import noppes.npcs.controllers.data.ForgeScriptData;
+import noppes.npcs.controllers.data.NpcScriptData;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.controllers.data.PotionScriptData;
 import noppes.npcs.items.ItemScripted;
@@ -61,47 +63,37 @@ public class ScriptController {
 		}
 		return false;
 	}
-	private ScriptEngineManager manager;
+	
+	private ScriptEngineManager manager = new ScriptEngineManager();
 
-	private boolean isLoad;
-	public boolean shouldSave;
-	public long lastLoaded, lastPlayerUpdate;
-	public NBTTagCompound compound;
-	public NBTTagCompound constants;
+	public boolean isLoad = false;
+	public boolean shouldSave = false;
+	public long lastLoaded = 0L;
+	public long lastPlayerUpdate = 0L;
+	public NBTTagCompound compound = new NBTTagCompound();
+	public NBTTagCompound constants = new NBTTagCompound();
 	public File dir, clientDir;
-	public ForgeScriptData forgeScripts;
-	public ClientScriptData clientScripts;
-	public final Map<String, ScriptEngineFactory> factories;
-	public final Map<String, String> languages;
-	public final Map<String, Long> sizes, clientSizes;
-	public final Map<String, String> scripts, clients;
-	public PlayerScriptData playerScripts;
-	public PotionScriptData potionScripts;
+	
+	public final Map<String, ScriptEngineFactory> factories = Maps.<String, ScriptEngineFactory>newTreeMap();
+	public final Map<String, String> languages = Maps.<String, String>newTreeMap();
+	public final Map<String, Long> sizes = Maps.<String, Long>newTreeMap();
+	public final Map<String, Long> clientSizes = Maps.<String, Long>newTreeMap();
+	public final Map<String, String> scripts = Maps.<String, String>newTreeMap();
+	public final Map<String, String> clients = Maps.<String, String>newTreeMap();
 
 	public EncryptData encryptData;
+	
+	public ForgeScriptData forgeScripts = new ForgeScriptData();
+	public ClientScriptData clientScripts = new ClientScriptData();
+	public PlayerScriptData playerScripts = new PlayerScriptData(null);
+	public PotionScriptData potionScripts = new PotionScriptData();
+	public NpcScriptData npcsScripts = new NpcScriptData();
 
 	public ScriptController() {
-		this.languages = Maps.<String, String>newTreeMap();
-		this.factories = Maps.<String, ScriptEngineFactory>newTreeMap();
-		this.scripts = Maps.<String, String>newTreeMap();
-		this.clients = Maps.<String, String>newTreeMap();
-		this.sizes = Maps.<String, Long>newTreeMap();
-		this.clientSizes = Maps.<String, Long>newTreeMap();
-		this.playerScripts = new PlayerScriptData(null);
-		this.forgeScripts = new ForgeScriptData();
-		this.clientScripts = new ClientScriptData();
-		this.potionScripts = new PotionScriptData();
-		this.lastLoaded = 0L;
-		this.lastPlayerUpdate = 0L;
-		this.compound = new NBTTagCompound();
-		this.constants = new NBTTagCompound();
-		this.shouldSave = false;
-		this.isLoad = false;
 		ScriptController.Instance = this;
 		if (!CustomNpcs.NashorArguments.isEmpty()) {
 			System.setProperty("nashorn.args", CustomNpcs.NashorArguments);
 		}
-		this.manager = new ScriptEngineManager();
 		try {
 			if (this.manager.getEngineByName("ecmascript") == null) {
 				LogWriter.debug("Try create Nashorn Script Engine");
@@ -119,7 +111,7 @@ public class ScriptController {
 				this.manager.registerEngineName("ecmascript", factory);
 				this.manager.registerEngineExtension("js", factory);
 				this.manager.registerEngineMimeType("application/ecmascript", factory);
-				this.languages.put(factory.getLanguageName(), ".js");
+				this.languages.put(AdditionalMethods.instance.deleteColor(factory.getLanguageName()), ".js");
 				this.factories.put(factory.getLanguageName().toLowerCase(), factory);
 			}
 		} catch (Throwable t) {
@@ -131,7 +123,7 @@ public class ScriptController {
 			this.manager.registerEngineName("kotlin", factory);
 			this.manager.registerEngineExtension("ktl", factory);
 			this.manager.registerEngineMimeType("application/kotlin", factory);
-			this.languages.put(factory.getLanguageName(), ".ktl");
+			this.languages.put(AdditionalMethods.instance.deleteColor(factory.getLanguageName()), ".ktl");
 			this.factories.put(factory.getLanguageName().toLowerCase(), factory);
 		} catch (Throwable t2) {
 		}
@@ -153,7 +145,7 @@ public class ScriptController {
 				String ext = "." + fac.getExtensions().get(0).toLowerCase();
 				LogWriter.info("Added script Library: \"" + fac.getLanguageName() + "\"; type: \""
 						+ fac.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
-				this.languages.put(fac.getLanguageName(), ext);
+				this.languages.put(AdditionalMethods.instance.deleteColor(fac.getLanguageName()), ext);
 				this.factories.put(fac.getLanguageName().toLowerCase(), fac);
 			} catch (Throwable t3) {
 				LogWriter.error("Error Added Script Library: \"" + fac.getLanguageName() + "\": " + t3);
@@ -161,6 +153,12 @@ public class ScriptController {
 		}
 	}
 
+	public synchronized void encrypt() {
+		if (this.isLoad) {
+			/* the code is hidden because it uses a CustomNpcs.ScriptPassword */
+		}
+	}
+	
 	private File clientScriptsFile() {
 		return new File(this.dir, "client_scripts.json");
 	}
@@ -169,16 +167,26 @@ public class ScriptController {
 		return new File(this.dir, "constant_scripts.json");
 	}
 
-	public synchronized void encrypt() {
-		if (this.isLoad) {
-			/* the code is hidden because it uses a CustomNpcs.ScriptPassword */
-		}
+	private File npcsScriptsFile() {
+		return new File(this.dir, "npc_scripts.json");
 	}
-
+	
 	private File forgeScriptsFile() {
 		return new File(this.dir, "forge_scripts.json");
 	}
 
+	private File playerScriptsFile() {
+		return new File(this.dir, "player_scripts.json");
+	}
+
+	private File potionScriptsFile() {
+		return new File(this.dir, "potion_scripts.json");
+	}
+
+	private File worldDataFile() {
+		return new File(this.dir, "world_data.json");
+	}
+	
 	public ScriptEngine getEngineByName(String language) {
 		if (language.equalsIgnoreCase("ECMAScript") && ScriptController.hasGraalLib()) {
 			return this.getNewGraalEngine();
@@ -325,10 +333,8 @@ public class ScriptController {
 
 	private List<String> getScripts(String language, boolean isClient) {
 		List<String> list = new ArrayList<String>();
-		String ext = this.languages.get(language);
-		if (ext == null) {
-			return list;
-		}
+		String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
+		if (ext == null) { return list; }
 		for (String script : (isClient ? this.clients : this.scripts).keySet()) {
 			if (script.endsWith(ext) || script.endsWith(ext.replace(".", ".p"))) {
 				list.add(script);
@@ -343,6 +349,7 @@ public class ScriptController {
 		sData.loadStoredData();
 		sData.loadPlayerScripts();
 		sData.loadForgeScripts();
+		sData.loadNPCsScripts();
 		sData.loadClientScripts();
 		sData.loadPotionScripts();
 		sData.loadConstantData();
@@ -371,7 +378,7 @@ public class ScriptController {
 		this.clients.clear();
 		this.clientSizes.clear();
 		for (String language : this.languages.keySet()) {
-			String ext = this.languages.get(language);
+			String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
 			File scriptDir = new File(this.dir, language.toLowerCase());
 			if (!scriptDir.exists()) {
 				scriptDir.mkdir();
@@ -396,9 +403,7 @@ public class ScriptController {
 		this.clientScripts.clear();
 		File file = this.clientScriptsFile();
 		try {
-			if (!file.exists()) {
-				return false;
-			}
+			if (!file.exists()) { return false; }
 			this.clientScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
 		} catch (Exception e) {
 			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
@@ -417,8 +422,7 @@ public class ScriptController {
 			} else {
 				NBTTagCompound nbtC = new NBTTagCompound();
 				nbtC.setInteger("value", 0);
-				nbtC.setString("sData",
-						"Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getStoreddata()");
+				nbtC.setString("sData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getStoreddata()");
 				nbtC.setString("tData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getTempdata()");
 				nbtC.setString("System", "Java.type(\"java.lang.System\")");
 				nbtC.setString("JLists", "Java.type(\"com.google.common.collect.Lists\")");
@@ -469,14 +473,10 @@ public class ScriptController {
 				nbtC.setString("NSc", "Java.type(\"noppes.npcs.controllers.ScriptContainer\")");
 				nbtC.setString("NTrP", "Java.type(\"noppes.npcs.controllers.TransportController\")");
 				NBTTagList list = new NBTTagList();
-				list.appendTag(new NBTTagString(
-						"function getField(key,object) { try { var f = dump(object).getField(key); if (f) { return f.getValue(); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found in \"'+object.getClass().getName()+'\"');} return null; }"));
-				list.appendTag(new NBTTagString(
-						"function setField(value,object,key) { try { var f = dump(object).getField(key); if (f) { return f.setValue(object,value); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found, or not type mismatch in \"'+object.getClass().getName()+'\"'); } return false; }"));
-				list.appendTag(new NBTTagString(
-						"function invoke(value,object,key) { try { var m = dump(object).getMethod(key); if (m) { var jo = Java.type('java.lang.Object[]'); if (value!=jo) { try { if (value.length>=0) { var v = new jo(value.length); for (var i=0; i<value.length; i++) { v[i] = value[i]; } return m.invoke(v); } } catch (err) { } var v = new jo(1); v[0] = value; return m.invoke(v); } else { return m.invoke(value); } } } catch (error) { log('Error: \"'+key+'\" is not a Method or not found, or not type mismatch in \"'+object.getClass().getName()+'\"'); } return null; }"));
-				list.appendTag(new NBTTagString(
-						"function getCustomFunction(name, ev) {var fhm;try {var actor=\"Any\";if (ev) {if (ev.player) { actor = \"Player\"; }else if (ev.npc) { actor = \"NPC\"; }else if (ev.block) { actor = \"Block\"; }};fhm = api.getIWorld(0).getTempdata().get(\"functions\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)};if (name!=\"loadFile\") {var dir = existsDir(api.getWorldDir().toPath().resolve(\"data\").resolve(\"functions\"));gFunc(\"loadFile\",ev)(dir.resolve(name+\".json\"), \"fhm\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)}}} catch (error) {if (fhm && fhm instanceof JHMap) {gFunc(\"errorMes\",ev)(actor, error, \"Name: \u00A7f\"+name, ev);}};return eval(\"function fnull(a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,r,s,t,q,v) {return;}\");}"));
+				list.appendTag(new NBTTagString("function getField(key,object) { try { var f = dump(object).getField(key); if (f) { return f.getValue(); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found in \"'+object.getClass().getName()+'\"');} return null; }"));
+				list.appendTag(new NBTTagString("function setField(value,object,key) { try { var f = dump(object).getField(key); if (f) { return f.setValue(value); } } catch (error) { log('Error: \"'+key+'\" is not a Field or not found, or not type mismatch in \"'+object.getClass().getName()+'\". Error: ' + error); } return false; }"));
+				list.appendTag(new NBTTagString("function invoke(value,object,key) { try { var m = dump(object).getMethod(key); if (m) { var jo = Java.type('java.lang.Object[]'); if (value!=jo) { try { if (value.length>=0) { var v = new jo(value.length); for (var i=0; i<value.length; i++) { v[i] = value[i]; } return m.invoke(v); } } catch (err) { } var v = new jo(1); v[0] = value; return m.invoke(v); } else { return m.invoke(value); } } } catch (error) { log('Error: \"'+key+'\" is not a Method or not found, or not type mismatch in \"'+object.getClass().getName()+'\"'); } return null; }"));
+				list.appendTag(new NBTTagString("function getCustomFunction(name, ev) {var fhm;try {var actor=\"Any\";if (ev) {if (ev.player) { actor = \"Player\"; }else if (ev.npc) { actor = \"NPC\"; }else if (ev.block) { actor = \"Block\"; }};fhm = api.getIWorld(0).getTempdata().get(\"functions\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)};if (name!=\"loadFile\") {var dir = existsDir(api.getWorldDir().toPath().resolve(\"data\").resolve(\"functions\"));gFunc(\"loadFile\",ev)(dir.resolve(name+\".json\"), \"fhm\");if (fhm instanceof JHMap && fhm.containsKey(name)) {return fhm.get(name)}}} catch (error) {if (fhm && fhm instanceof JHMap) {gFunc(\"errorMes\",ev)(actor, error, \"Name: \u00A7f\"+name, ev);}};return eval(\"function fnull(a,b,c,d,e,f,g,h,i,k,l,m,n,o,p,r,s,t,q,v) {return;}\");}"));
 				this.constants.setTag("Constants", nbtC);
 				this.constants.setTag("Functions", list);
 				try {
@@ -494,28 +494,19 @@ public class ScriptController {
 		return isLoad;
 	}
 
-	private void loadDir(File dir, String name, String ext, boolean isClient) {
-		for (File file : dir.listFiles()) {
-			String filename = name + file.getName().toLowerCase();
-			if (file.isDirectory()) {
-				this.loadDir(file, filename + "/", ext, isClient);
-			} else if (filename.endsWith(ext)) {
-				try {
-					String code = this.readFile(file);
-					if (isClient) {
-						this.clients.put(filename, code);
-						this.clientSizes.put(filename, file.length());
-					} else {
-						this.scripts.put(filename, code);
-						this.sizes.put(filename, file.length());
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+	public boolean loadNPCsScripts() {
+		this.npcsScripts.clear();
+		File file = this.npcsScriptsFile();
+		try {
+			if (!file.exists()) { return false; }
+			this.npcsScripts.readFromNBT(NBTJsonUtil.LoadFile(file));
+		} catch (Exception e) {
+			LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
+			return false;
 		}
+		return true;
 	}
-
+	
 	public boolean loadForgeScripts() {
 		this.forgeScripts.clear();
 		File file = this.forgeScriptsFile();
@@ -596,10 +587,32 @@ public class ScriptController {
 		return isLoad;
 	}
 
+	public void loadDir(File dir, String name, String ext, boolean isClient) {
+		for (File file : dir.listFiles()) {
+			String filename = name + file.getName().toLowerCase();
+			if (file.isDirectory()) {
+				this.loadDir(file, filename + "/", ext, isClient);
+			} else if (filename.endsWith(ext)) {
+				try {
+					String code = this.readFile(file);
+					if (isClient) {
+						this.clients.put(filename, code);
+						this.clientSizes.put(filename, file.length());
+					} else {
+						this.scripts.put(filename, code);
+						this.sizes.put(filename, file.length());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	public NBTTagList nbtLanguages(boolean isClient) {
 		NBTTagList list = new NBTTagList();
 		for (String language : this.languages.keySet()) {
-			String ext = this.languages.get(language);
+			String ext = this.languages.get(AdditionalMethods.instance.deleteColor(language));
 			NBTTagCompound compound = new NBTTagCompound();
 			NBTTagList scripts = new NBTTagList();
 			for (String script : this.getScripts(language, isClient)) {
@@ -621,14 +634,6 @@ public class ScriptController {
 			list.appendTag(compound);
 		}
 		return list;
-	}
-
-	private File playerScriptsFile() {
-		return new File(this.dir, "player_scripts.json");
-	}
-
-	private File potionScriptsFile() {
-		return new File(this.dir, "potion_scripts.json");
 	}
 
 	private String readFile(File file) throws IOException {
@@ -673,8 +678,7 @@ public class ScriptController {
 
 	@SubscribeEvent
 	public void saveWorld(WorldEvent.Save event) {
-		if (!this.shouldSave || event.getWorld().isRemote
-				|| event.getWorld() != event.getWorld().getMinecraftServer().worlds[0]) {
+		if (!this.shouldSave || event.getWorld().isRemote || event.getWorld() != event.getWorld().getMinecraftServer().worlds[0]) {
 			return;
 		}
 		try {
@@ -725,6 +729,19 @@ public class ScriptController {
 		}
 	}
 
+	public void setNPCsScripts(NBTTagCompound compound) {
+		this.npcsScripts.readFromNBT(compound);
+		File file = this.npcsScriptsFile();
+		try {
+			NBTJsonUtil.SaveFile(file, compound);
+			this.npcsScripts.lastInited = -1L;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NBTJsonUtil.JsonException e2) {
+			e2.printStackTrace();
+		}
+	}
+	
 	public void setForgeScripts(NBTTagCompound compound) {
 		this.forgeScripts.readFromNBT(compound);
 		File file = this.forgeScriptsFile();
@@ -740,6 +757,14 @@ public class ScriptController {
 
 	public void setPlayerScripts(NBTTagCompound compound) {
 		this.playerScripts.readFromNBT(compound);
+		if (CustomNpcs.Server != null) {
+			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
+				PlayerData data = PlayerData.get(player);
+				if (data != null) {
+					data.scriptData.readFromNBT(compound);
+				}
+			}
+		}
 		File file = this.playerScriptsFile();
 		try {
 			NBTJsonUtil.SaveFile(file, compound);
@@ -762,10 +787,6 @@ public class ScriptController {
 		} catch (NBTJsonUtil.JsonException e2) {
 			e2.printStackTrace();
 		}
-	}
-
-	private File worldDataFile() {
-		return new File(this.dir, "world_data.json");
 	}
 
 }

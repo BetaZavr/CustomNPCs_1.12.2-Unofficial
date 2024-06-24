@@ -8,7 +8,9 @@ import net.minecraft.entity.ai.EntityAIBase;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class EntityAILook extends EntityAIBase {
+public class EntityAILook
+extends EntityAIBase {
+	
 	private boolean forced;
 	private Entity forcedEntity;
 	private int idle;
@@ -49,7 +51,7 @@ public class EntityAILook extends EntityAIBase {
 	}
 
 	public void startExecuting() {
-		this.rotatebody = (this.npc.ais.getStandingType() == 0 || this.npc.ais.getStandingType() == 3);
+		this.rotatebody = (this.npc.ais.getStandingType() == 0 || this.npc.ais.getStandingType() == 3 || this.npc.ais.getStandingType() == 4);
 	}
 
 	public void updateTask() {
@@ -72,13 +74,22 @@ public class EntityAILook extends EntityAIBase {
 					ita.remove();
 				}
 			}
-		} else if (this.npc.ais.getStandingType() == 2) {
+		} else if (this.npc.ais.getStandingType() == 2 || this.npc.ais.getStandingType() == 4) {
 			lookat = this.npc.world.getClosestPlayerToEntity(this.npc, 16.0);
 		}
 		if (lookat != null) {
-			this.npc.getLookHelper().setLookPositionWithEntity(lookat, 10.0f, this.npc.getVerticalFaceSpeed());
+			this.npc.updateLook = this.npc.lookat == null || !this.npc.lookat.equals(lookat);
+			this.npc.lookat = lookat;
+			if (this.npc.ais.getStandingType() == 4) {
+				this.npc.renderYawOffset = this.npc.ais.orientation;
+				this.npc.rotationYaw = this.npc.ais.orientation;
+				this.npc.rotationYawHead = this.npc.ais.orientation;
+			}
+			else { this.npc.getLookHelper().setLookPositionWithEntity(lookat, 4.5f, this.npc.getVerticalFaceSpeed()); }
 			return;
 		}
+		this.npc.updateLook = this.npc.lookat != null;
+		this.npc.lookat = null;
 		if (this.rotatebody) {
 			if (this.idle == 0 && this.npc.getRNG().nextFloat() < 0.004f) {
 				double var1 = 6.283185307179586 * this.npc.getRNG().nextDouble();
@@ -93,7 +104,7 @@ public class EntityAILook extends EntityAIBase {
 			if (this.idle > 0) {
 				--this.idle;
 				this.npc.getLookHelper().setLookPosition(this.npc.posX + this.lookX,
-						this.npc.posY + this.npc.getEyeHeight(), this.npc.posZ + this.lookZ, 10.0f,
+						this.npc.posY + this.npc.getEyeHeight(), this.npc.posZ + this.lookZ, 6.5f,
 						this.npc.getVerticalFaceSpeed());
 			}
 		}
@@ -103,4 +114,5 @@ public class EntityAILook extends EntityAIBase {
 			this.npc.rotationYawHead = this.npc.ais.orientation;
 		}
 	}
+
 }

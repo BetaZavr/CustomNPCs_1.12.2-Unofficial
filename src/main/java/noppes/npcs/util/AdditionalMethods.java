@@ -63,6 +63,7 @@ import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.SlotCrafting;
+import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTBase;
@@ -97,6 +98,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.IMetods;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
@@ -120,10 +122,12 @@ import noppes.npcs.controllers.data.PlayerQuestData;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.items.CustomArmor;
 
 public class AdditionalMethods implements IMetods {
 
-	public static AdditionalMethods instance;
+	public final static AdditionalMethods instance = new AdditionalMethods();
+	
 	public static boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack,
 			Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
 		if (inventory == null || addStack.isEmpty()) {
@@ -298,8 +302,7 @@ public class AdditionalMethods implements IMetods {
 	public static EntityNPCInterface copyToGUI(EntityNPCInterface npcParent, World world, boolean copyRotation) {
 		NBTTagCompound npcNbt = new NBTTagCompound();
 		if (npcParent == null) {
-			npcParent = (EntityNPCInterface) EntityList
-					.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
+			npcParent = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), world);
 		}
 		npcParent.writeEntityToNBT(npcNbt);
 		npcParent.writeToNBTOptional(npcNbt);
@@ -316,20 +319,21 @@ public class AdditionalMethods implements IMetods {
 		npc.display.setShowName(1);
 		npc.setHealth(npc.getMaxHealth());
 		npc.deathTime = 0;
+		npc.rotationYaw = 0;
+		npc.prevRotationYaw = 0;
+		npc.rotationYawHead = 0;
+		npc.rotationPitch = 0;
+		npc.prevRotationPitch = 0;
+		npc.ais.orientation = 0;
 		if (copyRotation) {
-			npc.rotationYaw = npcParent.rotationYaw;
-			npc.prevRotationYaw = npcParent.prevRotationYaw;
+			npc.rotationYaw = npcParent.rotationYawHead;
+			npc.prevRotationYaw = npcParent.rotationYawHead;
 			npc.rotationYawHead = npcParent.rotationYawHead;
+			npc.prevRotationYawHead = npcParent.rotationYawHead;
+			
 			npc.rotationPitch = npcParent.rotationPitch;
-			npc.prevRotationPitch = npcParent.prevRotationPitch;
+			npc.prevRotationPitch = npcParent.rotationPitch;
 			npc.ais.orientation = npcParent.ais.orientation;
-		} else {
-			npc.rotationYaw = 0;
-			npc.prevRotationYaw = 0;
-			npc.rotationYawHead = 0;
-			npc.rotationPitch = 0;
-			npc.prevRotationPitch = 0;
-			npc.ais.orientation = 0;
 		}
 		npc.ais.setStandingType(1);
 		npc.ticksExisted = 100;
@@ -1372,7 +1376,6 @@ public class AdditionalMethods implements IMetods {
 	private Method copyDataFromOld;
 
 	public AdditionalMethods() {
-		AdditionalMethods.instance = this;
 		try {
 			this.copyDataFromOld = Entity.class.getDeclaredMethod(
 					(Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment") ? "copyDataFromOld"
@@ -1933,4 +1936,71 @@ public class AdditionalMethods implements IMetods {
 		}
 		return null;
 	}
+
+	public void sort(NonNullList<ItemStack> items) {
+		Map<String, List<ItemStack>> mapArmor = Maps.<String, List<ItemStack>>newTreeMap();
+		Map<String, List<ItemStack>> mapPotion = Maps.<String, List<ItemStack>>newTreeMap();
+		Map<Integer, List<ItemStack>> mapSimple = Maps.<Integer, List<ItemStack>>newTreeMap();
+		Map<String, List<ItemStack>> mapAny = Maps.<String, List<ItemStack>>newTreeMap();
+		// Collect
+		for (ItemStack stack : items) {
+			if (stack.getItem() instanceof CustomArmor) {
+				String key = ((CustomArmor) stack.getItem()).getCustomName();
+				if (!mapArmor.containsKey(key)) { mapArmor.put(key, Lists.<ItemStack>newArrayList()); }
+				mapArmor.get(key).add(stack);
+			}
+			else if (stack.getItem() instanceof ItemPotion) {
+				String key = stack.getItem().getClass().getSimpleName();
+				if (!mapPotion.containsKey(key)) { mapPotion.put(key, Lists.<ItemStack>newArrayList()); }
+				mapPotion.get(key).add(stack);
+			}
+			else if (stack.getItem() instanceof ICustomElement) {
+				int key = ((ICustomElement) stack.getItem()).getType();
+				if (!mapSimple.containsKey(key)) { mapSimple.put(key, Lists.<ItemStack>newArrayList()); }
+				mapSimple.get(key).add(stack);
+			}
+			else {
+				String key = stack.getItem().getClass().getSimpleName();
+				if (!mapAny.containsKey(key)) { mapAny.put(key, Lists.<ItemStack>newArrayList()); }
+				mapAny.get(key).add(stack);
+			}
+		}
+		items.clear();
+		// sort
+		for (List<ItemStack> list: mapArmor.values()) {
+			Collections.sort(list, new Comparator<ItemStack>() {
+				public int compare(ItemStack st_0, ItemStack st_1) {
+					CustomArmor a_0 = (CustomArmor) st_0.getItem();
+					CustomArmor a_1 = (CustomArmor) st_1.getItem();
+					return Integer.compare(a_0.getEquipmentSlot().ordinal(), a_1.getEquipmentSlot().ordinal());
+				}
+			});
+			items.addAll(list);
+		}
+		for (List<ItemStack> list: mapPotion.values()) {
+			Collections.sort(list, new Comparator<ItemStack>() {
+				public int compare(ItemStack st_0, ItemStack st_1) {
+					return st_1.getDisplayName().compareTo(st_0.getDisplayName());
+				}
+			});
+			items.addAll(list);
+		}
+		for (List<ItemStack> list: mapSimple.values()) {
+			Collections.sort(list, new Comparator<ItemStack>() {
+				public int compare(ItemStack st_0, ItemStack st_1) {
+					return st_1.getDisplayName().compareTo(st_0.getDisplayName());
+				}
+			});
+			items.addAll(list);
+		}
+		for (List<ItemStack> list: mapAny.values()) {
+			Collections.sort(list, new Comparator<ItemStack>() {
+				public int compare(ItemStack st_0, ItemStack st_1) {
+					return st_1.getDisplayName().compareTo(st_0.getDisplayName());
+				}
+			});
+			items.addAll(list);
+		}
+	}
+	
 }

@@ -2,12 +2,16 @@ package noppes.npcs.api.event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import noppes.npcs.ai.target.EntityAITargetController;
 import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
@@ -72,13 +76,33 @@ public class NpcEvent extends CustomNPCsEvent {
 		public IItemStack[] lootedItems;
 		public IEntity<?> source;
 		public String type;
+		
+		private final Map<IEntity<?>, Double> damageMap = Maps.<IEntity<?>, Double>newHashMap();
 
-		public DiedEvent(ICustomNpc<?> npc, DamageSource damagesource, Entity entity) {
+		public DiedEvent(ICustomNpc<?> npc, DamageSource damagesource, Entity entity, EntityAITargetController aiTargetAnalysis) {
 			super(npc);
 			this.type = damagesource.damageType;
 			this.source = NpcAPI.Instance().getIEntity(entity);
 			this.damageSource = NpcAPI.Instance().getIDamageSource(damagesource);
+			for (EntityLivingBase e : aiTargetAnalysis.map.keySet()) {
+				damageMap.put(NpcAPI.Instance().getIEntity(e), aiTargetAnalysis.map.get(e));
+			}
 		}
+		
+		public IEntity<?>[] getEntitys() { return damageMap.keySet().toArray(new IEntity<?>[damageMap.size()]); }
+		
+		public double getDamageFromEntity(IEntity<?> entity) {
+			if (damageMap.containsKey(entity)) { return damageMap.get(entity); }
+			else if (entity != null) {
+				for (IEntity<?> ie : damageMap.keySet()) {
+					if (entity.getMCEntity().equals(ie.getMCEntity())) {
+						return damageMap.get(ie);
+					}
+				}
+			}
+			return 0.0d;
+		}
+		
 	}
 
 	public static class InitEvent extends NpcEvent {

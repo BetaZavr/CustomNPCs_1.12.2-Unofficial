@@ -31,8 +31,8 @@ public class ModelData extends ModelDataShared {
 				}
 				try {
 					this.entity.readEntityFromNBT(this.extra);
-				} catch (Exception ex) {
 				}
+				catch (Exception ex) { }
 				this.entity.setEntityInvulnerable(true);
 				this.entity.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(npc.getMaxHealth());
 				for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {

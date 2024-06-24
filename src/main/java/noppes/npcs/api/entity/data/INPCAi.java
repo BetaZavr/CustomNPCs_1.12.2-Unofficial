@@ -85,5 +85,9 @@ public interface INPCAi {
 	void setWalkingSpeed(int speed);
 
 	void setWanderingRange(int range);
-
+	
+	boolean isAIDisabled();
+	
+	void setIsAIDisabled(boolean aiDisabled);
+	
 }

@@ -78,4 +78,8 @@ public interface INPCDisplay {
 
 	void setVisible(int type);
 
+	boolean isNormalModel();
+
+	void setNormalModel(boolean bo);
+
 }

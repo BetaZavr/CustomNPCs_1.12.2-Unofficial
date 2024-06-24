@@ -2,8 +2,8 @@ package noppes.npcs.client.model.animation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
+import noppes.npcs.client.model.ModelRendererAlt;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class AniBow {
@@ -18,6 +18,8 @@ public class AniBow {
 			ticks2 = 1.0f;
 		}
 		ticks += (ticks2 - ticks) * Minecraft.getMinecraft().getRenderPartialTicks();
+		if (model.bipedLeftArm instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedLeftArm).setIsNormal(true); }
+		if (model.bipedRightArm instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedRightArm).setIsNormal(true); }
 		model.bipedBody.rotateAngleX = ticks;
 		model.bipedHead.rotateAngleX = ticks;
 		model.bipedLeftArm.rotateAngleX = ticks;
@@ -27,10 +29,8 @@ public class AniBow {
 		model.bipedHead.rotationPointZ = -ticks * 10.0f;
 		model.bipedHead.rotationPointY = ticks * 6.0f;
 		model.bipedLeftArm.rotationPointZ = -ticks * 10.0f;
-		ModelRenderer bipedLeftArm = model.bipedLeftArm;
-		bipedLeftArm.rotationPointY += ticks * 6.0f;
+		model.bipedLeftArm.rotationPointY += ticks * 6.0f;
 		model.bipedRightArm.rotationPointZ = -ticks * 10.0f;
-		ModelRenderer bipedRightArm = model.bipedRightArm;
-		bipedRightArm.rotationPointY += ticks * 6.0f;
+		model.bipedRightArm.rotationPointY += ticks * 6.0f;
 	}
 }

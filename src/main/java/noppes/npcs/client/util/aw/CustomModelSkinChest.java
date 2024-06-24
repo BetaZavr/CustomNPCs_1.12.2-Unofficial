@@ -1,7 +1,7 @@
 package noppes.npcs.client.util.aw;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
@@ -10,14 +10,13 @@ import moe.plushie.armourers_workshop.api.common.skin.data.ISkinPart;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import noppes.npcs.client.model.ModelScaleRenderer;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityNPCInterface;
 
 /** Changed AWMod.client.model.skin.ModelSkinOutfit extends ModelSkinChest */
 public class CustomModelSkinChest extends ModelBiped {
 
-	public void render(EntityCustomNpc npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale,
-			List<Boolean> showList) {
+	public void render(EntityNPCInterface npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale, Map<EnumParts, Boolean> ba) {
 		if (skin == null || npc == null) {
 			return;
 		}
@@ -37,13 +36,13 @@ public class CustomModelSkinChest extends ModelBiped {
 				GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
 				GL11.glDisable(GL11.GL_CULL_FACE);
 				GL11.glEnable(GL11.GL_ALPHA_TEST);
-				if (showList.get(3)) {
+				if (ba.get(EnumParts.BODY)) {
 					bipedBody.render(scale);
 				}
-				if (showList.get(1)) {
+				if (ba.get(EnumParts.ARM_LEFT)) {
 					bipedLeftArm.render(scale);
 				}
-				if (showList.get(2)) {
+				if (ba.get(EnumParts.ARM_RIGHT)) {
 					bipedRightArm.render(scale);
 				}
 				GL11.glPopAttrib();
@@ -60,35 +59,25 @@ public class CustomModelSkinChest extends ModelBiped {
 				if (isSneak) {
 					GL11.glTranslatef(0.0F, 0.2F, 0.0F);
 				}
-
-				if (part.getPartType().getRegistryName().equals("armourers:chest.base") && showList.get(3)) {
+				if (part.getPartType().getRegistryName().equals("armourers:chest.base") && ba.get(EnumParts.BODY)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedBody).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedBody).postAWRender(scale);
-					} else {
-						modelBiped.bipedBody.postRender(scale);
-					}
-					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
-					// boolean overrideChest = (boolean)
-					// awsp.getValue.invoke(awsp.PROP_MODEL_OVERRIDE_CHEST,
-					// skin.getSkinType().getProperties());
-					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:chest.leftArm") && showList.get(1)) {
-					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedLeftArm).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedLeftArm).postAWRender(scale);
-					} else {
-						modelBiped.bipedLeftArm.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedBody.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:chest.rightArm") && showList.get(2)) {
+				} else if (part.getPartType().getRegistryName().equals("armourers:chest.leftArm") && ba.get(EnumParts.ARM_LEFT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedRightArm).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightArm).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightArm.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedLeftArm.postRender(scale);
+					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
+					GL11.glPopMatrix();
+				} else if (part.getPartType().getRegistryName().equals("armourers:chest.rightArm") && ba.get(EnumParts.ARM_RIGHT)) {
+					GL11.glPushMatrix();
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightArm.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				}

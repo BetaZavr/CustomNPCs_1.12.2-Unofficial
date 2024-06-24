@@ -26,9 +26,7 @@ public class PlayerQuestData {
 	public boolean checkQuestCompletion(EntityPlayer player, QuestData data) {
 		QuestInterface inter = data.quest.questInterface;
 		if (inter.isCompleted(player)) {
-			if (data.isCompleted) {
-				return false;
-			}
+			if (data.isCompleted && data.quest.completion == EnumQuestCompletion.Npc) { return false; }
 			if (!data.quest.complete(player, data)) {
 				Server.sendData((EntityPlayerMP) player, EnumPacketClient.MESSAGE, "quest.completed",
 						data.quest.getTitle(), 2);

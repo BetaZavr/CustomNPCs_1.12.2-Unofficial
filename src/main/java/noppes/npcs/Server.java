@@ -83,6 +83,7 @@ public class Server {
 		Server.list.add(EnumPacketClient.NPC_DATA);
 		Server.list.add(EnumPacketClient.NPC_VISUAL_DATA);
 		Server.list.add(EnumPacketClient.FORCE_PLAY_SOUND);
+		Server.list.add(EnumPacketClient.NPC_LOOK_POS);
 		Server.list.add(EnumPacketClient.UPDATE_HUD);
 	}
 

@@ -20,4 +20,14 @@ public interface IGuiEntity extends ICustomGuiComponent {
 
 	void setShowArmorAndItems(boolean show);
 
+	int getRotationType();
+	
+	void setRotationType(int type);
+	
+	int getYaw();
+	
+	int getPitch();
+	
+	void setRotation(int yaw, int pitch);
+	
 }

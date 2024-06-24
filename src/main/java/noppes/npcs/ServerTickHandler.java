@@ -28,12 +28,14 @@ import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.MassBlockController;
 import noppes.npcs.controllers.SchematicController;
+import noppes.npcs.controllers.SyncController;
 import noppes.npcs.controllers.VisibilityController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerGameData.FollowerSet;
 import noppes.npcs.controllers.data.PlayerMail;
+import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 import noppes.npcs.items.ItemBuilder;
@@ -179,35 +181,43 @@ public class ServerTickHandler {
 				data.game.removeFollower(fs);
 			}
 		}
-		if (!data.mailData.playermail.isEmpty() && player.world.getTotalWorldTime() % 200L == resTime % 200L) {
-			boolean needSend = false;
-			long time = System.currentTimeMillis();
-			long timeToRemove = -1L;
-			if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
-				timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L;
+		
+		if (player.world.getTotalWorldTime() % 200L == resTime % 200L) {
+			if (data.hud.currentGUI.equalsIgnoreCase("guichat") || data.hud.currentGUI.equalsIgnoreCase("guiingame")) {
+				for (QuestData questData : data.questData.activeQuests.values()) {
+					data.questData.checkQuestCompletion(player, questData);
+				}
 			}
-			List<PlayerMail> del = Lists.<PlayerMail>newArrayList();
-			for (PlayerMail mail : data.mailData.playermail) {
-				if (player.capabilities.isCreativeMode && mail.timeWillCome > 0L) {
-					mail.timeWillCome = 0L;
+			if (!data.mailData.playermail.isEmpty()) {
+				boolean needSend = false;
+				long time = System.currentTimeMillis();
+				long timeToRemove = -1L;
+				if (CustomNpcs.MailTimeWhenLettersWillBeDeleted > 0) {
+					timeToRemove = CustomNpcs.MailTimeWhenLettersWillBeDeleted * 86400000L;
+				}
+				List<PlayerMail> del = Lists.<PlayerMail>newArrayList();
+				for (PlayerMail mail : data.mailData.playermail) {
+					if (player.capabilities.isCreativeMode && mail.timeWillCome > 0L) {
+						mail.timeWillCome = 0L;
+						needSend = true;
+					}
+					long timeWhenReceived = time - mail.timeWhenReceived - mail.timeWillCome;
+					if (timeToRemove > 0L && timeWhenReceived > timeToRemove) {
+						del.add(mail);
+						needSend = true;
+					}
+					if (mail.beenRead || timeWhenReceived < 0L) {
+						continue;
+					}
 					needSend = true;
 				}
-				long timeWhenReceived = time - mail.timeWhenReceived - mail.timeWillCome;
-				if (timeToRemove > 0L && timeWhenReceived > timeToRemove) {
-					del.add(mail);
-					needSend = true;
+				for (PlayerMail mail : del) {
+					data.mailData.playermail.remove(mail);
 				}
-				if (mail.beenRead || timeWhenReceived < 0L) {
-					continue;
+				if (needSend) {
+					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData,
+							data.mailData.saveNBTData(new NBTTagCompound()));
 				}
-				needSend = true;
-			}
-			for (PlayerMail mail : del) {
-				data.mailData.playermail.remove(mail);
-			}
-			if (needSend) {
-				Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData,
-						data.mailData.saveNBTData(new NBTTagCompound()));
 			}
 		}
 		// Updates
@@ -277,41 +287,32 @@ public class ServerTickHandler {
 				entry.update();
 			}
 			DataScenes.ScenesToRun = new ArrayList<DataScenes.SceneContainer>();
-			if (ServerTickHandler.ticks >= 6000) {
-				ServerTickHandler.ticks = 0;
+			if (ServerTickHandler.ticks % 6000 == 0) { // Удаление строительной даты из базы каждые 5 min, для дат без игрока
 				List<Integer> del = Lists.<Integer>newArrayList();
-				for (int id : CommonProxy.dataBuilder.keySet()) {
-					BuilderData bd = CommonProxy.dataBuilder.get(id);
+				for (int id : SyncController.dataBuilder.keySet()) {
+					BuilderData bd = SyncController.dataBuilder.get(id);
 					if (bd.player == null) {
 						del.add(id);
 						continue;
 					}
 					ItemStack stack = null;
-					if (ItemBuilder.isBulderItem(bd, bd.player.getHeldItemOffhand())) {
-						stack = bd.player.getHeldItemOffhand();
-					} else {
-						for (ItemStack s : bd.player.inventory.mainInventory) {
-							if (ItemBuilder.isBulderItem(bd, s)) {
-								stack = s;
-								break;
-							}
+					for (ItemStack s : bd.player.inventory.mainInventory) {
+						if (ItemBuilder.isBuilder(s, bd)) {
+							stack = s;
+							break;
 						}
 					}
-					if (stack == null) {
-						del.add(id);
-					}
+					if (stack == null) { del.add(id); }
 				}
-				for (int id : del) {
-					CommonProxy.dataBuilder.remove(id);
+				for (Integer id : del) {
+					SyncController.dataBuilder.remove(id);
 				}
 			}
 		}
-		if (ServerTickHandler.ticks % 10 == 0 && CustomNpcs.Server != null
-				&& !CustomNpcs.Server.getPlayerList().getPlayers().isEmpty()) {
+		if (ServerTickHandler.ticks % 10 == 0 && CustomNpcs.Server != null && !CustomNpcs.Server.getPlayerList().getPlayers().isEmpty()) {
 			EntityPlayerMP player = CustomNpcs.Server.getPlayerList().getPlayers().get(0);
 			if (player != null) {
-				EventHooks.onEvent(PlayerData.get(player).scriptData, "worldtick",
-						new WorldEvent.ServerTickEvent(event));
+				EventHooks.onEvent(PlayerData.get(player).scriptData, "worldtick", new WorldEvent.ServerTickEvent(event));
 			}
 		}
 		if (ServerTickHandler.ticks % 1200 == 0) {
@@ -322,9 +323,7 @@ public class ServerTickHandler {
 
 	@SubscribeEvent
 	public void onServerWorldTick(TickEvent.WorldTickEvent event) {
-		if (event.side != Side.SERVER) {
-			return;
-		}
+		if (event.side != Side.SERVER) { return; }
 		CustomNpcs.debugData.startDebug("Server", "Mod", "ServerTickHandler_onServerWorldTick");
 		if (event.phase == TickEvent.Phase.START) {
 			NPCSpawning.findChunksForSpawning((WorldServer) event.world);

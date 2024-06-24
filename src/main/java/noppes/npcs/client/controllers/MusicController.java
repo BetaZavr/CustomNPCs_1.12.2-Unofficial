@@ -111,9 +111,9 @@ public class MusicController {
 							y = job.maxPos[1];
 							z = job.maxPos[2];
 						}
-						int xD = (int) Math.abs(player.posX - musicBard.posX);
-						int yD = (int) Math.abs(player.posY - musicBard.posY);
-						int zD = (int) Math.abs(player.posZ - musicBard.posZ);
+						int xD = (int) Math.abs(player.posX - songBard.posX);
+						int yD = (int) Math.abs(player.posY - songBard.posY);
+						int zD = (int) Math.abs(player.posZ - songBard.posZ);
 						if (xD > x || yD > y || zD > z) {
 							this.stopSound(this.song, SoundCategory.AMBIENT);
 						}
@@ -131,8 +131,7 @@ public class MusicController {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (cat == SoundCategory.MUSIC) {
 			Minecraft.getMinecraft().getSoundHandler().stop("", SoundCategory.MUSIC);
-			ObfuscationHelper.setValue(MusicTicker.class, Minecraft.getMinecraft().getMusicTicker(), null,
-					ISound.class);
+			ObfuscationHelper.setValue(MusicTicker.class, Minecraft.getMinecraft().getMusicTicker(), null, ISound.class);
 			aType = ISound.AttenuationType.NONE;
 			x = mc.player != null ? (float) mc.player.posX : 0.0f;
 			y = mc.player != null ? (float) mc.player.posY + 0.5f : 0.0f;
@@ -175,8 +174,7 @@ public class MusicController {
 			y = 0.0f;
 			z = 0.0f;
 		}
-		Minecraft.getMinecraft().getSoundHandler()
-				.playSound(new PositionedSoundRecord(res, category, volume, pitch, false, 0, aType, x, y, z));
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(res, category, volume, pitch, false, 0, aType, x, y, z));
 	}
 
 	public void setNewPosSong(String song, float x, float y, float z) {

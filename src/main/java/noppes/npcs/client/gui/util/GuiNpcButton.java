@@ -10,8 +10,15 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiNpcButton extends GuiButton {
+public class GuiNpcButton
+extends GuiButton
+implements IComponentGui {
 
+	@Override
+	public int[] getCenter() {
+		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	}
+	
 	protected String[] display;
 	private int displayValue;
 	public int id, mouseButtonId;
@@ -234,4 +241,5 @@ public class GuiNpcButton extends GuiButton {
 	public void setVisible(boolean b) {
 		this.visible = b;
 	}
+	
 }

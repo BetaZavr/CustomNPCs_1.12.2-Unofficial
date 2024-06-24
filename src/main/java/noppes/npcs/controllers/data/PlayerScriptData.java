@@ -16,33 +16,26 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.util.AdditionalMethods;
 
-public class PlayerScriptData implements IScriptHandler {
+public class PlayerScriptData
+extends BaseScriptData {
 
 	private static Map<Long, String> console = new TreeMap<Long, String>();
 	private static List<Integer> errored = new ArrayList<Integer>();
-	private boolean enabled;
-	public boolean hadInteract;
-	public long lastInited;
-	private long lastPlayerUpdate;
+	
+	private long lastPlayerUpdate = 0L;
 	private EntityPlayer player;
 	private IPlayer<?> playerAPI;
-	private String scriptLanguage;
-	private List<ScriptContainer> scripts;
 
 	public PlayerScriptData(EntityPlayer player) {
-		this.scripts = new ArrayList<ScriptContainer>();
-		this.scriptLanguage = "ECMAScript";
-		this.lastPlayerUpdate = 0L;
-		this.lastInited = -1L;
-		this.hadInteract = true;
-		this.enabled = false;
+		super();
 		this.player = player;
 	}
 
+	@Override
 	public void clear() {
 		PlayerScriptData.console = new TreeMap<Long, String>();
 		PlayerScriptData.errored = new ArrayList<Integer>();
@@ -59,37 +52,12 @@ public class PlayerScriptData implements IScriptHandler {
 		return PlayerScriptData.console;
 	}
 
-	@Override
-	public boolean getEnabled() {
-		return this.enabled;
-	}
-
-	@Override
-	public String getLanguage() {
-		return this.scriptLanguage;
-	}
-
 	public IPlayer<?> getPlayer() {
 		if (this.playerAPI == null) {
 			this.playerAPI = (IPlayer<?>) NpcAPI.Instance().getIEntity(this.player);
 		}
 		return this.playerAPI;
 	}
-
-	@Override
-	public List<ScriptContainer> getScripts() {
-		return this.scripts;
-	}
-
-	@Override
-	public boolean isClient() {
-		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
-	}
-
-	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && (this.player == null || !this.player.world.isRemote);
-	}
-
 	@Override
 	public String noticeString() {
 		if (this.player == null) {
@@ -103,7 +71,7 @@ public class PlayerScriptData implements IScriptHandler {
 
 	public void readFromNBT(NBTTagCompound compound) {
 		this.scripts = NBTTags.GetScript(compound.getTagList("Scripts", 10), this, false);
-		this.scriptLanguage = compound.getString("ScriptLanguage");
+		this.scriptLanguage = AdditionalMethods.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
 		PlayerScriptData.console = NBTTags.GetLongStringMap(compound.getTagList("ScriptConsole", 10));
 	}
@@ -146,17 +114,7 @@ public class PlayerScriptData implements IScriptHandler {
 			}
 		}
 	}
-
-	@Override
-	public void setEnabled(boolean bo) {
-		this.enabled = bo;
-	}
-
-	@Override
-	public void setLanguage(String lang) {
-		this.scriptLanguage = lang;
-	}
-
+	
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound.setTag("Scripts", NBTTags.NBTScript(this.scripts));
 		compound.setString("ScriptLanguage", this.scriptLanguage);

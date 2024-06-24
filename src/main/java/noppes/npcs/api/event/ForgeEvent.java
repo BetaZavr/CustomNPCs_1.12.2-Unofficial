@@ -36,6 +36,17 @@ import noppes.npcs.entity.EntityNPCInterface;
 @Cancelable
 public class ForgeEvent extends CustomNPCsEvent {
 
+	public static class RunNameEvent extends ForgeEvent {
+
+		public String eventName;
+		
+		public RunNameEvent(String name) {
+			super(null);
+			this.eventName = name;
+		}
+
+	}
+
 	public static class InitEvent extends ForgeEvent {
 
 		public InitEvent() {

@@ -710,7 +710,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 					.setLabel(new TextComponentTranslation("mailbox.cost.send",
 							"" + (this.totalCost == 0L ? 0
 									: AdditionalMethods.getTextReducedNumber(this.totalCost, true, false, false)),
-							CustomNpcs.CharCurrencies).getFormattedText());
+							CustomNpcs.displayCurrencies).getFormattedText());
 		}
 		if (this.canEdit && this.canSend && this.getButton(0) != null) {
 			this.type = 0;
@@ -1354,7 +1354,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		// Player Money
 		if (this.mc != null && this.canSend) {
 			String text = AdditionalMethods.getTextReducedNumber(ClientProxy.playerData.game.getMoney(), true, true,
-					false) + CustomNpcs.CharCurrencies;
+					false) + CustomNpcs.displayCurrencies;
 			int x = this.guiLeft + 166, y = this.guiTop + 150;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
@@ -1381,7 +1381,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.0",
 							AdditionalMethods.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20,
 									false, true, true),
-							"" + this.totalCost, CustomNpcs.CharCurrencies);
+							"" + this.totalCost, CustomNpcs.displayCurrencies);
 					for (int i : this.cost.keySet()) {
 						if (this.cost.get(i) > 0L) {
 							String p0 = "" + this.cost.get(i);
@@ -1405,13 +1405,13 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 								break;
 							}
 							mes.appendSibling(new TextComponentTranslation("mailbox.hover.send.2." + i, p0,
-									CustomNpcs.CharCurrencies, p1, CustomNpcs.CharCurrencies, p2));
+									CustomNpcs.displayCurrencies, p1, CustomNpcs.displayCurrencies, p2));
 						}
 					}
 					this.setHoverText(mes.getFormattedText());
 				} else if (this.type == 2) {
 					ITextComponent mes = new TextComponentTranslation("mailbox.hover.send.2", "" + this.totalCost,
-							CustomNpcs.CharCurrencies);
+							CustomNpcs.displayCurrencies);
 					for (int i : this.cost.keySet()) {
 						if (this.cost.get(i) > 0L) {
 							String p0 = "" + this.cost.get(i);
@@ -1435,7 +1435,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 								break;
 							}
 							mes.appendSibling(new TextComponentTranslation("mailbox.hover.send.2." + i, p0,
-									CustomNpcs.CharCurrencies, p1, CustomNpcs.CharCurrencies, p2));
+									CustomNpcs.displayCurrencies, p1, CustomNpcs.displayCurrencies, p2));
 						}
 					}
 					this.setHoverText(mes.getFormattedText());
@@ -1512,7 +1512,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.addLabel(
 						new GuiNpcLabel(8,
 								AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.ransom, true, false, false)
-										+ " " + CustomNpcs.CharCurrencies,
+										+ " " + CustomNpcs.displayCurrencies,
 								x + 2, y + 28, CustomNpcs.LableColor.getRGB()));
 			}
 			if (GuiMailmanWrite.mail.money > 0) {
@@ -1520,7 +1520,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 				this.addLabel(
 						new GuiNpcLabel(8,
 								AdditionalMethods.getTextReducedNumber(GuiMailmanWrite.mail.money, true, false, false)
-										+ " " + CustomNpcs.CharCurrencies,
+										+ " " + CustomNpcs.displayCurrencies,
 								x + 2, y + 28, CustomNpcs.LableColor.getRGB()));
 			}
 		}
@@ -1529,7 +1529,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 		if (this.canEdit) {
 			this.addLabel(new GuiNpcLabel(3, "market.currency", x, (y += 19) + 4, CustomNpcs.LableColor.getRGB()));
 			this.addLabel(
-					new GuiNpcLabel(6, CustomNpcs.CharCurrencies, x + 102, y + 4, CustomNpcs.LableColor.getRGB()));
+					new GuiNpcLabel(6, CustomNpcs.displayCurrencies, x + 102, y + 4, CustomNpcs.LableColor.getRGB()));
 			this.addTextField(new GuiNpcTextField(3, this, this.fontRenderer, x + 48, y, 50, 16,
 					"" + GuiMailmanWrite.mail.money));
 			this.getTextField(3).setNumbersOnly();
@@ -1538,7 +1538,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface
 
 			this.addLabel(new GuiNpcLabel(7, "mailbox.ransom", x, (y += 19) + 4, CustomNpcs.LableColor.getRGB()));
 			this.addLabel(
-					new GuiNpcLabel(8, CustomNpcs.CharCurrencies, x + 102, y + 4, CustomNpcs.LableColor.getRGB()));
+					new GuiNpcLabel(8, CustomNpcs.displayCurrencies, x + 102, y + 4, CustomNpcs.LableColor.getRGB()));
 			this.addTextField(new GuiNpcTextField(4, this, this.fontRenderer, x + 48, y, 50, 16,
 					"" + GuiMailmanWrite.mail.ransom));
 			this.getTextField(4).setNumbersOnly();

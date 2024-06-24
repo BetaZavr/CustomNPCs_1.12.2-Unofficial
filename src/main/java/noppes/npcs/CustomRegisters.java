@@ -110,7 +110,7 @@ import noppes.npcs.client.renderer.blocks.BlockDoorRenderer;
 import noppes.npcs.client.renderer.blocks.BlockMailboxRenderer;
 import noppes.npcs.client.renderer.blocks.BlockPortalRenderer;
 import noppes.npcs.client.renderer.blocks.BlockScriptedRenderer;
-import noppes.npcs.constants.EnumBuilder;
+import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityChairMount;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPC64x32;
@@ -163,6 +163,10 @@ import noppes.npcs.items.ItemNpcCloner;
 import noppes.npcs.items.ItemNpcMovingPath;
 import noppes.npcs.items.ItemNpcScripter;
 import noppes.npcs.items.ItemNpcWand;
+import noppes.npcs.items.ItemPlacer;
+import noppes.npcs.items.ItemRemover;
+import noppes.npcs.items.ItemReplacer;
+import noppes.npcs.items.ItemSaver;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.items.ItemScriptedDoor;
 import noppes.npcs.items.ItemSoulstoneEmpty;
@@ -219,6 +223,14 @@ public class CustomRegisters {
 	public static ItemBoundary npcboundary = null;
 	@GameRegistry.ObjectHolder("npcbuilder") // New
 	public static Item npcbuilder = null;
+	@GameRegistry.ObjectHolder("npcremover") // New
+	public static Item npcremover = null;
+	@GameRegistry.ObjectHolder("npcplacer") // New
+	public static Item npcplacer = null;
+	@GameRegistry.ObjectHolder("npcreplacer") // New
+	public static Item npcreplacer = null;
+	@GameRegistry.ObjectHolder("npcsaver") // New
+	public static Item npcsaver = null;
 
 	@GameRegistry.ObjectHolder("nbt_book")
 	public static ItemNbtBook nbt_book = null;
@@ -415,6 +427,21 @@ public class CustomRegisters {
 		exampleTool.setTag("CollectionBlocks", collectionBlocks);
 		exampleTool.setBoolean("CreateAllFiles", true);
 		listItems.appendTag(exampleTool);
+		
+		NBTTagCompound exampleAxe = new NBTTagCompound();
+		exampleAxe.setString("RegistryName", "axeexample");
+		exampleAxe.setByte("ItemType", (byte) 2);
+		exampleAxe.setInteger("MaxStackDamage", 2200);
+		exampleAxe.setBoolean("IsFull3D", true);
+		exampleAxe.setFloat("Efficiency", 4.25f);
+		exampleAxe.setDouble("EntityDamage", 5.0d);
+		exampleAxe.setString("ToolClass", "axe");
+		exampleAxe.setString("Material", "GOLD");
+		exampleAxe.setTag("RepairItem", (new ItemStack(Items.GOLD_INGOT)).writeToNBT(new NBTTagCompound()));
+		exampleAxe.setInteger("HarvestLevel", 2);
+		exampleAxe.setInteger("Enchantability", 28);
+		exampleAxe.setBoolean("CreateAllFiles", true);
+		listItems.appendTag(exampleAxe);
 
 		NBTTagCompound exampleArmor = new NBTTagCompound();
 		exampleArmor.setString("RegistryName", "armorexample");
@@ -424,7 +451,6 @@ public class CustomRegisters {
 		exampleArmor.setString("Material", "GOLD");
 		exampleArmor.setTag("RepairItem", (new ItemStack(Items.GOLD_NUGGET)).writeToNBT(new NBTTagCompound()));
 		exampleArmor.setBoolean("CreateAllFiles", true);
-
 		exampleArmor.setIntArray("MaxStackDamage", new int[] { 2250, 3100, 1800 });
 		NBTTagList slots = new NBTTagList();
 		slots.appendTag(new NBTTagString("HEAD"));
@@ -438,6 +464,420 @@ public class CustomRegisters {
 		toughness.appendTag(new NBTTagFloat(1.8f));
 		exampleArmor.setTag("Toughness", toughness);
 		listItems.appendTag(exampleArmor);
+		
+		NBTTagCompound exampleOBJArmor = new NBTTagCompound();
+		exampleOBJArmor.setString("RegistryName", "armorobjexample");
+		exampleOBJArmor.setByte("ItemType", (byte) 3);
+		toughness = new NBTTagList();
+		toughness.appendTag(new NBTTagFloat(2.2f));
+		toughness.appendTag(new NBTTagFloat(3.5f));
+		toughness.appendTag(new NBTTagFloat(2.6f));
+		toughness.appendTag(new NBTTagFloat(1.8f));
+		exampleOBJArmor.setTag("Toughness", toughness);
+		exampleOBJArmor.setIntArray("DamageReduceAmount", new int[] { 5, 7, 6, 4 });
+		exampleOBJArmor.setString("Material", "IRON");
+		exampleOBJArmor.setTag("RepairItem", (new ItemStack(Items.IRON_INGOT)).writeToNBT(new NBTTagCompound()));
+		exampleOBJArmor.setIntArray("MaxStackDamage", new int[] { 2250, 3100, 2700, 1800 });
+		slots = new NBTTagList();
+		slots.appendTag(new NBTTagString("HEAD"));
+		slots.appendTag(new NBTTagString("Chest"));
+		slots.appendTag(new NBTTagString("LeGs"));
+		slots.appendTag(new NBTTagString("feet"));
+		exampleOBJArmor.setTag("EquipmentSlots", slots);
+		exampleOBJArmor.setDouble("EntityDamage", 0.0d);
+		NBTTagCompound objData = new NBTTagCompound();
+			NBTTagList meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.HEAD.name));
+			objData.setTag("Head Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.BODY.name));
+			objData.setTag("Body Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.ARM_RIGHT.name));
+			objData.setTag("Arm Right Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.WRIST_RIGHT.name));
+			objData.setTag("Wrist Right Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.ARM_LEFT.name));
+			objData.setTag("Arm Left Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.WRIST_LEFT.name));
+			objData.setTag("Wrist Left Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.BELT.name));
+			objData.setTag("Belt Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.LEG_RIGHT.name));
+			objData.setTag("Leg Right Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.FOOT_RIGHT.name));
+			objData.setTag("Foot Right Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.LEG_LEFT.name));
+			objData.setTag("Leg Left Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.FOOT_LEFT.name));
+			objData.setTag("Foot Left Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.FEET_LEFT.name));
+			objData.setTag("Boot Left Mesh Names", meshes);
+			meshes = new NBTTagList();
+			meshes.appendTag(new NBTTagString(EnumParts.FEET_RIGHT.name));
+			objData.setTag("Boot Right Mesh Names", meshes);
+		exampleOBJArmor.setTag("OBJData", objData);
+		
+		NBTTagCompound display = new NBTTagCompound();
+		for (int s = 0; s < 4; s++) {
+			String slot = s == 0 ? "CHEST" : s == 1 ? "LEGS" : s == 2 ? "FEET" : "HEAD";
+			NBTTagCompound cameraData = new NBTTagCompound();
+			for (int i = 0; i < 8; i++) {
+				String part;
+				NBTTagList rotation = new NBTTagList();
+				NBTTagList translation = new NBTTagList();
+				NBTTagList scale = new NBTTagList();
+				switch(i) {
+					case 0: { // THIRD_PERSON_LEFT_HAND
+						part = "thirdperson_lefthand";
+						switch(slot) {
+							case "CHEST": {
+								translation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+							case "LEGS": {
+								translation.appendTag(new NBTTagFloat(-0.15f));
+								translation.appendTag(new NBTTagFloat(0.35f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(90.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(1.15f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
+								break;
+							}
+							default: {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(1.0f));
+								translation.appendTag(new NBTTagFloat(-0.375f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+						}
+						break;
+					}
+					case 1: { // THIRD_PERSON_RIGHT_HAND
+						part = "thirdperson_righthand";
+						switch(slot) {
+							case "CHEST": {
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+							case "LEGS": {
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.35f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(90.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
+								break;
+							}
+							default: {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(-0.375f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+						}
+						break;
+					}
+					case 2: { // FIRST_PERSON_LEFT_HAND
+						part = "firstperson_lefthand";
+						switch(slot) {
+							case "CHEST": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.57f));
+								translation.appendTag(new NBTTagFloat(0.1f));
+								translation.appendTag(new NBTTagFloat(-0.085f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+							case "LEGS": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.65f));
+								translation.appendTag(new NBTTagFloat(0.4f));
+								translation.appendTag(new NBTTagFloat(-0.085f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.72f));
+								translation.appendTag(new NBTTagFloat(0.435f));
+								translation.appendTag(new NBTTagFloat(-0.585f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.85f)); }
+								break;
+							}
+							default: {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.57f));
+								translation.appendTag(new NBTTagFloat(-0.225f));
+								translation.appendTag(new NBTTagFloat(-0.085f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+						}
+						break;
+					}
+					case 3: { // FIRST_PERSON_RIGHT_HAND
+						part = "firstperson_righthand";
+						switch(slot) {
+							case "CHEST": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.85f));
+								translation.appendTag(new NBTTagFloat(-0.1f));
+								translation.appendTag(new NBTTagFloat(0.2f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
+								break;
+							}
+							case "LEGS": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.95f));
+								translation.appendTag(new NBTTagFloat(0.25f));
+								translation.appendTag(new NBTTagFloat(0.2f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.95f));
+								translation.appendTag(new NBTTagFloat(0.4f));
+								translation.appendTag(new NBTTagFloat(0.2f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.85f)); }
+								break;
+							}
+							default: {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(280.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.85f));
+								translation.appendTag(new NBTTagFloat(-0.5f));
+								translation.appendTag(new NBTTagFloat(0.2f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
+								break;
+							}
+						}
+						break;
+					}
+					case 4: { // HEAD
+						part = "head";
+						switch(slot) {
+							case "CHEST": {
+								rotation.appendTag(new NBTTagFloat(270.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(1.0f));
+								translation.appendTag(new NBTTagFloat(1.65f));
+								break;
+							}
+							case "LEGS": {
+								rotation.appendTag(new NBTTagFloat(270.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(1.0f));
+								translation.appendTag(new NBTTagFloat(1.0f));
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.925f));
+								translation.appendTag(new NBTTagFloat(0.4f));
+								break;
+							}
+							default: { break; }
+						}
+						break;
+					}
+					case 5: { // GUI
+						part = "gui";
+						switch(slot) {
+							case "CHEST": {
+								rotation.appendTag(new NBTTagFloat(30.0f));
+								rotation.appendTag(new NBTTagFloat(45.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.49f));
+								translation.appendTag(new NBTTagFloat(-0.41f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.9f)); }
+								break;
+							}
+							case "LEGS": {
+								rotation.appendTag(new NBTTagFloat(30.0f));
+								rotation.appendTag(new NBTTagFloat(45.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.05f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(30.0f));
+								rotation.appendTag(new NBTTagFloat(45.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.3f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								break;
+							}
+							default: {
+								rotation.appendTag(new NBTTagFloat(30.0f));
+								rotation.appendTag(new NBTTagFloat(45.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(-1.0f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								break;
+							}
+						}
+						break;
+					}
+					case 6: { // GROUND
+						part = "ground";
+						switch(slot) {
+							case "CHEST": {
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+							case "LEGS": {
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.25f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.6f)); }
+								break;
+							}
+							case "FEET": {
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.35f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.65f)); }
+								break;
+							}
+							default: {
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(-0.375f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.5f)); }
+								break;
+							}
+						}
+						break;
+					}
+					default: { // FIXED
+						part = "fixed";
+						switch(slot) {
+							case "CHEST": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(-0.65f));
+								translation.appendTag(new NBTTagFloat(0.45f));
+								break;
+							}
+							case "LEGS": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.05f));
+								translation.appendTag(new NBTTagFloat(0.475f));
+								break;
+							}
+							case "FEET": {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(0.2f));
+								translation.appendTag(new NBTTagFloat(0.475f));
+								break;
+							}
+							default: {
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								rotation.appendTag(new NBTTagFloat(180.0f));
+								rotation.appendTag(new NBTTagFloat(0.0f));
+								translation.appendTag(new NBTTagFloat(0.5f));
+								translation.appendTag(new NBTTagFloat(-0.85f));
+								translation.appendTag(new NBTTagFloat(0.4f));
+								for (int l = 0; l < 3; l++) { scale.appendTag(new NBTTagFloat(0.75f)); }
+								break;
+							}
+						}
+						break;
+					}
+				}
+				NBTTagCompound transform = new NBTTagCompound();
+				if (rotation.tagCount() > 0) { transform.setTag("rotation", rotation); }
+				if (translation.tagCount() > 0) { transform.setTag("translation", translation); }
+				if (scale.tagCount() > 0) { transform.setTag("scale", scale); }
+				cameraData.setTag(part, transform);
+			}
+			display.setTag(slot, cameraData);
+		}
+		exampleOBJArmor.setTag("Display", display);
+		
+		exampleOBJArmor.setBoolean("CreateAllFiles", true);
+		listItems.appendTag(exampleOBJArmor);
+		
+		
 
 		NBTTagCompound exampleShield = new NBTTagCompound();
 		exampleShield.setString("RegistryName", "shieldexample");
@@ -808,24 +1248,19 @@ public class CustomRegisters {
 
 	@SubscribeEvent
 	public void registerBlocks(RegistryEvent.Register<Block> event) {
-		GameRegistry.registerTileEntity(TileRedstoneBlock.class,
-				new ResourceLocation("minecraft", "TileRedstoneBlock"));
+		GameRegistry.registerTileEntity(TileRedstoneBlock.class, new ResourceLocation("minecraft", "TileRedstoneBlock"));
 		GameRegistry.registerTileEntity(TileBlockAnvil.class, new ResourceLocation("minecraft", "TileBlockAnvil"));
 		GameRegistry.registerTileEntity(TileMailbox.class, new ResourceLocation("minecraft", "TileMailbox"));
 		GameRegistry.registerTileEntity(TileWaypoint.class, new ResourceLocation("minecraft", "TileWaypoint"));
 		GameRegistry.registerTileEntity(TileScripted.class, new ResourceLocation("minecraft", "TileNPCScripted"));
-		GameRegistry.registerTileEntity(TileScriptedDoor.class,
-				new ResourceLocation("minecraft", "TileNPCScriptedDoor"));
+		GameRegistry.registerTileEntity(TileScriptedDoor.class, new ResourceLocation("minecraft", "TileNPCScriptedDoor"));
 		GameRegistry.registerTileEntity(TileBuilder.class, new ResourceLocation("minecraft", "TileNPCBuilder"));
 		GameRegistry.registerTileEntity(TileCopy.class, new ResourceLocation("minecraft", "TileNPCCopy"));
 		GameRegistry.registerTileEntity(TileBorder.class, new ResourceLocation("minecraft", "TileNPCBorder"));
-		GameRegistry.registerTileEntity(CustomTileEntityPortal.class,
-				new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
-		GameRegistry.registerTileEntity(CustomTileEntityChest.class,
-				new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
+		GameRegistry.registerTileEntity(CustomTileEntityPortal.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityPortal"));
+		GameRegistry.registerTileEntity(CustomTileEntityChest.class, new ResourceLocation(CustomNpcs.MODID, "CustomTileEntityChest"));
 
-		RegistryNamespaced<ResourceLocation, Class<? extends TileEntity>> REGISTRY = ObfuscationHelper
-				.getValue(TileEntity.class, 1);
+		RegistryNamespaced<ResourceLocation, Class<? extends TileEntity>> REGISTRY = ObfuscationHelper.getValue(TileEntity.class, 1);
 		REGISTRY.putObject(new ResourceLocation("minecraft", "banner"), TileEntityCustomBanner.class);
 
 		CustomRegisters.redstoneBlock = new BlockNpcRedstone();
@@ -897,9 +1332,6 @@ public class CustomRegisters {
 				}
 				if (name.equals("doorexample")) {
 					hED = true;
-				}
-				if (hEB && hEL && hES && hEP && hEFB && hEEP && hEC && hED && hECc) {
-					break;
 				}
 			}
 		}
@@ -1057,8 +1489,13 @@ public class CustomRegisters {
 		CustomRegisters.soulstoneFull = new ItemSoulstoneFilled();
 		CustomRegisters.scripted_item = new ItemScripted();
 		CustomRegisters.nbt_book = new ItemNbtBook();
+		// New
 		CustomRegisters.npcboundary = new ItemBoundary();
 		CustomRegisters.npcbuilder = new ItemBuilder();
+		CustomRegisters.npcremover = new ItemRemover();
+		CustomRegisters.npcplacer = new ItemPlacer();
+		CustomRegisters.npcreplacer = new ItemReplacer();
+		CustomRegisters.npcsaver = new ItemSaver();
 
 		List<Item> items = Lists.<Item>newArrayList();
 		List<String> names = Lists.<String>newArrayList();
@@ -1075,6 +1512,10 @@ public class CustomRegisters {
 		items.add(CustomRegisters.nbt_book);
 		items.add(CustomRegisters.npcboundary);
 		items.add(CustomRegisters.npcbuilder);
+		items.add(CustomRegisters.npcremover);
+		items.add(CustomRegisters.npcplacer);
+		items.add(CustomRegisters.npcreplacer);
+		items.add(CustomRegisters.npcsaver);
 		items.add(new ItemNpcBlock(CustomRegisters.redstoneBlock));
 		items.add(new ItemNpcBlock(CustomRegisters.carpentyBench));
 		items.add(new ItemNpcBlock(CustomRegisters.mailbox).setHasSubtypes(true));
@@ -1155,7 +1596,7 @@ public class CustomRegisters {
 			LogWriter.error("Try Load custom_items.js: ", e);
 		}
 
-		boolean hEI = false, hEW = false, hEA = false, hES = false, hEB = false, hET = false, hEF = false, hFR = false;
+		boolean hEI = false, hEW = false, hEA = false, hEO = false, hES = false, hEB = false, hET = false, hEX = false, hEF = false, hFR = false;
 		boolean resave = false;
 		if (nbtItems.hasKey("Items", 9)) {
 			for (int i = 0; i < nbtItems.getTagList("Items", 10).tagCount(); i++) {
@@ -1166,35 +1607,35 @@ public class CustomRegisters {
 					hEW = true;
 				} else if (name.equals("armorexample")) {
 					hEA = true;
+				} else if (name.equals("armorobjexample")) {
+					hEO = true;
 				} else if (name.equals("shieldexample")) {
 					hES = true;
 				} else if (name.equals("bowexample")) {
 					hEB = true;
 				} else if (name.equals("toolexample")) {
 					hET = true;
+				} else if (name.equals("axeexample")) {
+					hEX = true;
 				} else if (name.equals("foodexample")) {
 					hEF = true;
 				} else if (name.equals("fishingrodexample")) {
 					hFR = true;
 				}
-				if (hEI && hEW && hEA && hES && hEB && hET && hEF && hFR) {
-					break;
-				}
 			}
 		}
-		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || !hEB || !hEW || !hEA || !hES || !hEB || !hEF
-				|| !hFR) {
-			if (!nbtItems.hasKey("Items", 9)) {
-				nbtItems.setTag("Items", new NBTTagList());
-			}
-			if (!hEB || !hEW || !hEA || !hES || !hEB || !hEF || !hFR) {
+		resave = !hEB || !hEW || !hEA || !hEO || !hES || !hEB || !hEF || !hFR || !hEX;
+		if (!itemsFile.exists() || !nbtItems.hasKey("Items", 9) || resave) {
+			if (!nbtItems.hasKey("Items", 9)) { nbtItems.setTag("Items", new NBTTagList()); }
+			if (resave) {
 				NBTTagCompound nbt = CustomRegisters.getExampleItems();
 				for (int i = 0; i < nbt.getTagList("Items", 10).tagCount(); i++) {
 					String name = nbt.getTagList("Items", 10).getCompoundTagAt(i).getString("RegistryName");
 					if ((name.equals("itemexample") && !hEI) || (name.equals("weaponexample") && !hEW)
-							|| (name.equals("armorexample") && !hEA) || (name.equals("shieldexample") && !hES)
-							|| (name.equals("bowexample") && !hEB) || (name.equals("toolexample") && !hET)
-							|| (name.equals("foodexample") && !hEF) || (name.equals("fishingrodexample") && !hFR)) {
+							|| (name.equals("armorexample") && !hEA) || (name.equals("armorobjexample") && !hEO) ||
+							(name.equals("shieldexample") && !hES) || (name.equals("bowexample") && !hEB)
+							|| (name.equals("toolexample") && !hET) || (name.equals("foodexample") && !hEF)
+							|| (name.equals("fishingrodexample") && !hFR) || (name.equals("axeexample") && !hEX)) {
 						nbtItems.getTagList("Items", 10).appendTag(nbt.getTagList("Items", 10).getCompoundTagAt(i));
 					}
 				}
@@ -1381,10 +1822,18 @@ public class CustomRegisters {
 				new ModelResourceLocation(CustomNpcs.MODID + ":nbt_book", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcboundary, 0,
 				new ModelResourceLocation(CustomNpcs.MODID + ":npcboundary", "inventory"));
-		for (int i = 0; i < 5; i++) {
-			ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcbuilder, i, new ModelResourceLocation(
-					CustomNpcs.MODID + ":npcbuilder_" + EnumBuilder.values()[i].name(), "inventory"));
-		}
+
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcbuilder, 0,
+				new ModelResourceLocation(CustomNpcs.MODID + ":npcbuilder", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcremover, 0,
+				new ModelResourceLocation(CustomNpcs.MODID + ":npcremover", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcplacer, 0,
+				new ModelResourceLocation(CustomNpcs.MODID + ":npcplacer", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcreplacer, 0,
+				new ModelResourceLocation(CustomNpcs.MODID + ":npcreplacer", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(CustomRegisters.npcsaver, 0,
+				new ModelResourceLocation(CustomNpcs.MODID + ":npcsaver", "inventory"));
+		
 		for (Item item : CustomRegisters.customitems) {
 			ModelLoader.setCustomModelResourceLocation(item, 0,
 					new ModelResourceLocation(item.getRegistryName(), "inventory"));
@@ -1412,8 +1861,7 @@ public class CustomRegisters {
 		ForgeHooksClient.registerTESRItemStack(Item.getItemFromBlock(CustomRegisters.mailbox), 2, TileMailbox3.class);
 	}
 
-	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int range, int update,
-			boolean velocity) {
+	private <E extends Entity> EntityEntryBuilder<E> registerNewentity(String name, int range, int update, boolean velocity) {
 		EntityEntryBuilder<E> builder = EntityEntryBuilder.create();
 		ResourceLocation registryName = new ResourceLocation(CustomNpcs.MODID, name);
 		return builder.id(registryName, CustomRegisters.newEntityStartId++).name(name).tracker(range, update, velocity);

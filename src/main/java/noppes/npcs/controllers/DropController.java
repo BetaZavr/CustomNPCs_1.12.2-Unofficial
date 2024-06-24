@@ -26,7 +26,9 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketClient;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.entity.data.AttributeSet;
 import noppes.npcs.entity.data.DropSet;
@@ -50,10 +52,9 @@ public class DropController {
 
 	private String filePath;
 
-	public final Map<String, DropsTemplate> templates;
+	public final Map<String, DropsTemplate> templates = Maps.<String, DropsTemplate>newTreeMap();
 
 	public DropController() {
-		this.templates = Maps.<String, DropsTemplate>newTreeMap();
 		this.filePath = CustomNpcs.Dir.getAbsolutePath();
 		DropController.instance = this;
 		this.load();
@@ -218,6 +219,25 @@ public class DropController {
 			Server.sendData(player, EnumPacketClient.DROP_GROUP_DATA, nbtTemplate);
 		}
 		Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+	}
+	
+	public void sendToServer(String dropTemplate) {
+		if (this.templates.containsKey(dropTemplate)) {
+			NBTTagCompound nbtTemplate = new NBTTagCompound();
+			nbtTemplate.setString("Name", dropTemplate);
+			nbtTemplate.setTag("Groups", this.templates.get(dropTemplate).getNBT());
+			Client.sendDirectData(EnumPacketServer.DropTemplateSave, 1, nbtTemplate);
+			return;
+		}
+		Client.sendDirectData(EnumPacketServer.DropTemplateSave, 0);
+		Map<String, DropsTemplate> tempMap = Maps.<String, DropsTemplate>newTreeMap();
+		tempMap.putAll(this.templates);
+		for (String template : tempMap.keySet()) {
+			NBTTagCompound nbtTemplate = new NBTTagCompound();
+			nbtTemplate.setString("Name", template);
+			nbtTemplate.setTag("Groups", tempMap.get(template).getNBT());
+			Client.sendDirectData(EnumPacketServer.DropTemplateSave, 1, nbtTemplate);
+		}
 	}
 
 }

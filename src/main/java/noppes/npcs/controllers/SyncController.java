@@ -1,6 +1,7 @@
 package noppes.npcs.controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.common.collect.Maps;
@@ -26,9 +27,12 @@ import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
 import noppes.npcs.items.ItemScripted;
+import noppes.npcs.util.BuilderData;
 
 public class SyncController {
 
+	public static final Map<Integer, BuilderData> dataBuilder = Maps.<Integer, BuilderData>newHashMap();
+	
 	// SYNC_ADD or SYNC_END
 	public static void add(EnumSync synctype, NBTTagCompound compound, boolean syncEnd, EntityPlayer player) {
 		switch (synctype) {
@@ -114,7 +118,7 @@ public class SyncController {
 			}
 
 			CustomNpcs.RecalculateLR = compound.getBoolean("RecalculateLR");
-			CustomNpcs.CharCurrencies = compound.getString("CharCurrencies");
+			CustomNpcs.setCharCurrencies(compound.getString("CharCurrencies"));
 			CustomNpcs.MaxBuilderBlocks = compound.getInteger("MaxBuilderBlocks");
 			CustomNpcs.MaxItemInDropsNPC = compound.getInteger("MaxItemInDropsNPC");
 			CustomNpcs.ScriptMaxTabs = compound.getInteger("ScriptMaxTabs");
@@ -422,10 +426,24 @@ public class SyncController {
 					return;
 				}
 				AnimationController.getInstance().animations.clear();
+				AnimationController.getInstance().emotions.clear();
 			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
 				AnimationController.getInstance().removeAnimation(compound.getInteger("ID"));
 			} else {
 				AnimationController.getInstance().loadAnimation(compound);
+			}
+			break;
+		}
+		case EmotionData: {
+			if (compound.getKeySet().size() == 0) {
+				if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
+					return;
+				}
+				AnimationController.getInstance().emotions.clear();
+			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+				AnimationController.getInstance().removeEmotion(compound.getInteger("ID"));
+			} else {
+				AnimationController.getInstance().loadEmotion(compound);
 			}
 			break;
 		}
@@ -487,6 +505,13 @@ public class SyncController {
 			if (compound.hasKey("SendToYourself", 1)) {
 				CustomNpcs.MailSendToYourself = compound.getBoolean("SendToYourself");
 			}
+			break;
+		}
+		case BuilderData: {
+			BuilderData builder;
+			if (SyncController.dataBuilder.containsKey(compound.getInteger("ID"))) { builder = SyncController.dataBuilder.get(compound.getInteger("ID")); }
+			else { builder = new BuilderData(compound.getInteger("ID"), compound.getInteger("BuilderType")); }
+			builder.read(compound);
 			break;
 		}
 		case Debug: {

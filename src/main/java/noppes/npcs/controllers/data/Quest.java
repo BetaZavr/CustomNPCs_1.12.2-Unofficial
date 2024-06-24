@@ -212,7 +212,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 		if (this.rewardMoney > 0) {
 			allTextLogs += ent + new TextComponentTranslation("questlog.rewardmoney",
 					AdditionalMethods.getTextReducedNumber(this.rewardMoney, true, true, false),
-					CustomNpcs.CharCurrencies).getFormattedText();
+					CustomNpcs.displayCurrencies).getFormattedText();
 		}
 		if (this.rewardExp > 0) {
 			allTextLogs += ent

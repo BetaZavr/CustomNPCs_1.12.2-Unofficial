@@ -40,8 +40,8 @@ public class AnimationEvent extends CustomNPCsEvent {
 		this.npc = npc;
 		nameEvent = name;
 		animation = anim;
-		frameId = npc.animation.frame;
-		ticks = npc.world.getTotalWorldTime() - npc.animation.startFrameTick;
+		frameId = npc.animation.animationFrame;
+		ticks = npc.world.getTotalWorldTime() - npc.animation.startAnimationTime;
 	}
 
 }

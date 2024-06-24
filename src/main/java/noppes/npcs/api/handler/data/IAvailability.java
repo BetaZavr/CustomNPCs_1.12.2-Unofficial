@@ -14,8 +14,6 @@ public interface IAvailability {
 
 	String[] getPlayerNames();
 
-	boolean getStoredDataHas(String key);
-
 	String getStoredDataValue(String key);
 
 	boolean hasDialog(int id);
@@ -62,6 +60,6 @@ public interface IAvailability {
 
 	void setScoreboard(String objective, int type, int value);
 
-	void setStoredData(String key, String value, boolean has);
+	void setStoredData(String key, String value, int type);
 
 }

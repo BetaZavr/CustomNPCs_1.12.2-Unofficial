@@ -17,14 +17,13 @@ public class ParameterizedModel {
 	public Map<String, String> materialTextures;
 	public OBJModel iModel;
 
-	public ParameterizedModel(int list, ResourceLocation file, List<String> visibleMeshes,
-			Map<String, String> replacesMaterialTextures) {
+	public ParameterizedModel(int list, ResourceLocation file, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		this.listId = list;
 		this.file = file;
 		this.iModel = null;
 		this.visibleMeshes = Lists.<String>newArrayList();
 		this.materialTextures = Maps.<String, String>newHashMap();
-		if (visibleMeshes != null && visibleMeshes.size() > 0) {
+		if (visibleMeshes != null && !visibleMeshes.isEmpty()) {
 			this.visibleMeshes = visibleMeshes;
 		}
 		if (replacesMaterialTextures != null && replacesMaterialTextures.size() > 0) {

@@ -26,7 +26,9 @@ public interface INPCStats {
 
 	String getRarityTitle();
 
-	float getResistance(int type);
+	float getResistance(String damageName);
+	
+	String[] getResistanceKeys();
 
 	int getRespawnTime();
 
@@ -56,7 +58,7 @@ public interface INPCStats {
 
 	void setRarityTitle(String rarity);
 
-	void setResistance(int type, float value);
+	void setResistance(String damageName, float value);
 
 	void setRespawnTime(int seconds);
 

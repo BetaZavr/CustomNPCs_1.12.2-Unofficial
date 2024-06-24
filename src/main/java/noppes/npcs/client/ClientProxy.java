@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -28,6 +29,7 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabFactions;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabQuests;
 import micdoodle8.mods.galacticraft.api.client.tabs.InventoryTabVanilla;
@@ -38,8 +40,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
-import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.particle.IParticleFactory;
 import net.minecraft.client.particle.Particle;
@@ -47,6 +47,8 @@ import net.minecraft.client.particle.ParticleFlame;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.particle.ParticleSmokeNormal;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.ITextureObject;
@@ -87,6 +89,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -94,6 +97,7 @@ import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.registries.IRegistryDelegate;
 import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomRegisters;
@@ -103,12 +107,14 @@ import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.PacketHandlerPlayer;
 import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.IMinecraft;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.WrapperMinecraft;
 import noppes.npcs.blocks.CustomBlock;
 import noppes.npcs.blocks.CustomBlockPortal;
 import noppes.npcs.blocks.CustomBlockSlab;
@@ -181,12 +187,13 @@ import noppes.npcs.client.gui.script.GuiScriptItem;
 import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.client.model.ModelClassicPlayer;
-import noppes.npcs.client.model.ModelNPCAlt;
 import noppes.npcs.client.model.ModelNPCGolem;
+import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.ModelNpcCrystal;
 import noppes.npcs.client.model.ModelNpcDragon;
 import noppes.npcs.client.model.ModelNpcSlime;
 import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.client.renderer.RenderCustomNpc;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.renderer.RenderNPCPony;
@@ -250,6 +257,7 @@ import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.particles.CustomParticle;
 import noppes.npcs.particles.CustomParticleSettings;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
@@ -322,32 +330,25 @@ public class ClientProxy extends CommonProxy {
 			return Minecraft.getMinecraft().fontRenderer.getStringWidth(text);
 		}
 	}
-	public static KeyBinding frontButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
-			Minecraft.getMinecraft().gameSettings, 55); // w
-	public static KeyBinding leftButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
-			Minecraft.getMinecraft().gameSettings, 56); // a
-	public static KeyBinding backButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
-			Minecraft.getMinecraft().gameSettings, 57); // s
-	public static KeyBinding rightButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
-			Minecraft.getMinecraft().gameSettings, 58); // d
-	public static KeyBinding jumpButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class,
-			Minecraft.getMinecraft().gameSettings, 59); // space
+	public static KeyBinding frontButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 55); // w
+	public static KeyBinding leftButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 56); // a
+	public static KeyBinding backButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 57); // s
+	public static KeyBinding rightButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 58); // d
+	public static KeyBinding jumpButton = (KeyBinding) ObfuscationHelper.getValue(GameSettings.class, Minecraft.getMinecraft().gameSettings, 59); // space
 
-	public static KeyBinding QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay"), Scene1, Scene2,
-			Scene3, SceneReset;
+	public static KeyBinding QuestLog = new KeyBinding("key.quest.log", 38, "key.categories.gameplay"), Scene1, Scene2, Scene3, SceneReset;
 	public static FontContainer Font;
 	public static PlayerData playerData = new PlayerData();
 
 	public static String recipeGroup, recipeName;
 	public static final Map<String, TempFile> loadFiles = Maps.<String, TempFile>newTreeMap();
 	public static Map<Integer, List<UUID>> notVisibleNPC = Maps.<Integer, List<UUID>>newHashMap();
-	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps
-			.<CreativeTabs, List<RecipeList>>newHashMap();
+	public static final Map<CreativeTabs, List<RecipeList>> MOD_RECIPES_BY_TAB = Maps.<CreativeTabs, List<RecipeList>>newHashMap();
 
-	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps
-			.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
+	public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> texturesData = Maps.<String, Map<String, TreeMap<ResourceLocation, Long>>>newHashMap();
 
 	private final static Map<Integer, KeyBinding> keyBindingMap = Maps.<Integer, KeyBinding>newHashMap();
+	public static IMinecraft mcWraper = null;
 
 	public static void bindTexture(ResourceLocation location) {
 		try {
@@ -529,9 +530,9 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	private static ResourceLocation createPlayerSkin(ResourceLocation skin) {
-		LogWriter.debug("Check skin: " + skin + "; D: " + skin.getResourceDomain().equals(CustomNpcs.MODID)
+		/*LogWriter.debug("Check skin: " + skin + "; D: " + skin.getResourceDomain().equals(CustomNpcs.MODID)
 				+ "; isCombo: " + (skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/female_") != -1
-						|| skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/male_") != -1));
+						|| skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/male_") != -1));*/
 		if (!skin.getResourceDomain().equals(CustomNpcs.MODID)
 				|| (skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/female_") == -1
 						&& skin.getResourcePath().toLowerCase().indexOf("textures/entity/custom/male_") == -1)) {
@@ -837,16 +838,14 @@ public class ClientProxy extends CommonProxy {
 		String fileName = ((Block) customblock).getRegistryName().getResourcePath();
 		String n = name.equals("blockexample") ? "Example Custom Block"
 				: name.equals("liquidexample") ? "Example Custom Fluid"
-						: name.equals("stairsexample") ? "Example Custom Stairs"
-								: name.equals("slabexample") ? "Example Custom Slab"
-										: name.equals("facingblockexample") ? "Example Custom Facing Block"
-												: name.equals("portalexample") ? "Example Custom Portal Block"
-														: name.equals("chestexample") ? "Example Custom Chest"
-																: name.equals("containerexample")
-																		? "Example Custom Container"
-																		: name.equals("doorexample")
-																				? "Example Custom Door"
-																				: name;
+				: name.equals("stairsexample") ? "Example Custom Stairs"
+				: name.equals("slabexample") ? "Example Custom Slab"
+				: name.equals("facingblockexample") ? "Example Custom Facing Block"
+				: name.equals("portalexample") ? "Example Custom Portal Block"
+				: name.equals("chestexample") ? "Example Custom Chest"
+				: name.equals("containerexample") ? "Example Custom Container"
+				: name.equals("doorexample") ? "Example Custom Door"
+				: name;
 		while (n.indexOf('_') != -1) {
 			n = n.replace('_', ' ');
 		}
@@ -1229,36 +1228,27 @@ public class ClientProxy extends CommonProxy {
 		NBTTagCompound nbtData = customitem.getCustomNbt().getMCNBT();
 
 		String n = name;
-		if (name.equals("itemexample")) {
-			n = "Example simple Custom Item";
-		} else if (name.equals("weaponexample")) {
-			n = "Example Custom Weapon";
-		} else if (name.equals("toolexample")) {
-			n = "Example Custom Tool";
-		} else if (name.equals("armorexample")) {
+		if (name.equals("itemexample")) { n = "Example simple Custom Item"; }
+		else if (name.equals("weaponexample")) { n = "Example Custom Weapon"; }
+		else if (name.equals("toolexample")) { n = "Example Custom Tool"; }
+		else if (name.equals("axeexample")) { n = "Example Custom Axe"; }
+		else if (name.equals("armorexample")) {
 			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
 			n = "Example Custom Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
-		} else if (name.equals("armorobjexample")) {
+		}
+		else if (name.equals("armorobjexample")) {
 			String slot = ((CustomArmor) customitem).getEquipmentSlot().name();
 			n = "Example Custom 3D Armor " + ("" + slot.charAt(0)).toUpperCase() + slot.toLowerCase().substring(1);
-		} else if (name.equals("shieldexample")) {
-			n = "Example Custom Shield";
-		} else if (name.equals("bowexample")) {
-			n = "Example Custom Bow";
-		} else if (name.equals("foodexample")) {
-			n = "Example Custom Food";
-		} else if (name.equals("fishingrodexample")) {
-			n = "Example Custom Fishing Rod";
 		}
-		while (n.indexOf('_') != -1) {
-			n = n.replace('_', ' ');
-		}
+		else if (name.equals("shieldexample")) { n = "Example Custom Shield"; }
+		else if (name.equals("bowexample")) { n = "Example Custom Bow"; }
+		else if (name.equals("foodexample")) { n = "Example Custom Food"; }
+		else if (name.equals("fishingrodexample")) { n = "Example Custom Fishing Rod"; }
+		while (n.indexOf('_') != -1) { n = n.replace('_', ' '); }
 		this.setLocalization("item." + fileName + ".name", n);
 		String textureName = "" + name;
 		File itemModelsDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/item");
-		if (!itemModelsDir.exists()) {
-			itemModelsDir.mkdirs();
-		}
+		if (!itemModelsDir.exists()) { itemModelsDir.mkdirs(); }
 		File itemModel = new File(itemModelsDir, fileName.toLowerCase() + ".json");
 		String texturePath = CustomNpcs.MODID + "/textures/items";
 		if (itemModel.exists()) {
@@ -1304,14 +1294,22 @@ public class ClientProxy extends CommonProxy {
 			}
 			// Models
 			boolean[] has = new boolean[] { false, false };
-			if (nbtData.hasKey("OBJData", 9)) {
+			if (nbtData.hasKey("OBJData", 9) || nbtData.hasKey("OBJData", 10)) {
 				try {
 					texture = new File(armorDir, name + ".png");
-					BufferedImage bufferedImage = new BufferedImage(64, 64, 6);
-					ImageIO.write(bufferedImage, "png", texture);
-					has[0] = true;
-				} catch (IOException e) {
+					if (texture.exists()) { return; }
+					InputStream inputStream = AdditionalMethods.instance.getModInputStream("armorobjexample.png");
+					if (inputStream != null) {
+						BufferedImage bufferedImage = ImageIO.read(inputStream);
+						ImageIO.write(bufferedImage, "png", texture);
+					} else {
+						BufferedImage bufferedImage = new BufferedImage(64, 64, 6);
+						ImageIO.write(bufferedImage, "png", texture);
+					}
+					LogWriter.debug("Create Default Armor Model Texture for \"" + name + "\" item");
 				}
+				catch (IOException e) { }
+				return;
 			} else {
 				for (int i = 1; i <= 2; i++) {
 					texture = new File(armorDir, name + "_layer_" + i + ".png");
@@ -1346,19 +1344,37 @@ public class ClientProxy extends CommonProxy {
 			}
 			texture = new File(texturesDir, textureName + ".png");
 			switch (((CustomArmor) customitem).getEquipmentSlot()) {
-			case HEAD:
-				parentName = "iron_helmet";
-				break;
-			case CHEST:
-				parentName = "iron_chestplate";
-				break;
-			case LEGS:
-				parentName = "iron_leggings";
-				break;
-			default:
-				parentName = "iron_boots";
-				break;
+				case HEAD:
+					parentName = "iron_helmet";
+					break;
+				case CHEST:
+					parentName = "iron_chestplate";
+					break;
+				case LEGS:
+					parentName = "iron_leggings";
+					break;
+				default:
+					parentName = "iron_boots";
+					break;
 			}
+		} else if (name.equals("axeexample")) {
+			texture = new File(texturesDir, name + ".png");
+			if (texture != null && !texture.exists()) {
+				try {
+					baseTexrure = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("minecraft", "textures/blocks/gold_block.png"));
+					if (baseTexrure != null) {
+						ImageIO.write(this.getBufferImageOffset(baseTexrure, 0, 0.0f, 0, 0, 0, 255), "png", texture);
+						LogWriter.debug("Create Default Texture for \"" + name + "\" item");
+						return;
+					}
+				} catch (IOException e) { }
+				try {
+					BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
+					ImageIO.write(bufferedImage, "png", texture);
+					LogWriter.debug("Create Default Empty Texture for \"" + name + "\" item");
+				} catch (IOException e) { }
+			}
+			return;
 		} else if (customitem instanceof CustomBow) {
 			boolean[] has = new boolean[] { false, false, false, false };
 			for (int i = 0; i < 4; i++) {
@@ -1734,8 +1750,7 @@ public class ClientProxy extends CommonProxy {
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.GetTileData, tile.writeToNBT(new NBTTagCompound()));
 	}
 
-	private RenderedImage getBufferImageOffset(IResource baseTexrure, int type, float offset, int addRed, int addGreen,
-			int addBlue, int alpha) {
+	private RenderedImage getBufferImageOffset(IResource baseTexrure, int type, float offset, int addRed, int addGreen, int addBlue, int alpha) {
 		BufferedImage bufferedImage = new BufferedImage(16, 16, 6);
 		if (type < 0) {
 			type = 0;
@@ -1754,8 +1769,7 @@ public class ClientProxy extends CommonProxy {
 					hsb[type] += offset;
 					hsb[type] %= 1.0f;
 					c = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
-					c = new Color((c.getRed() + addRed) % 256, (c.getGreen() + addGreen) % 256,
-							(c.getBlue() + addBlue) % 256, alpha);
+					c = new Color((c.getRed() + addRed) % 256, (c.getGreen() + addGreen) % 256, (c.getBlue() + addBlue) % 256, alpha);
 					bufferedImage.setRGB(u, v, c.getRGB());
 				}
 			}
@@ -1777,212 +1791,224 @@ public class ClientProxy extends CommonProxy {
 
 	private GuiScreen getGui(EntityNPCInterface npc, EnumGuiType gui, Container container, int x, int y, int z) {
 		switch (gui) {
-		case CustomContainer: {
-			return new GuiCustomContainer((ContainerChestCustom) container);
-		}
-		case CustomChest: {
-			return new GuiCustomChest((ContainerCustomChest) container);
-		}
-		case MainMenuDisplay: {
-			if (npc != null) {
-				return new GuiNpcDisplay(npc);
+			case CustomContainer: {
+				return new GuiCustomContainer((ContainerChestCustom) container);
 			}
-			this.getPlayer().sendMessage(new TextComponentString("Unable to find npc"));
-		}
-		case MainMenuStats: {
-			return new GuiNpcStats(npc);
-		}
-		case MainMenuInv: {
-			return new GuiNPCInv(npc, (ContainerNPCInv) container);
-		}
-		case MainMenuInvDrop: {
-			return new GuiDropEdit(npc, (ContainerNPCDropSetup) container,
-					(GuiContainer) Minecraft.getMinecraft().currentScreen, x, y, z);
-		} // New
-		case MainMenuAdvanced: {
-			return new GuiNpcAdvanced(npc);
-		}
-		case QuestReward: {
-			return new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container);
-		}
-		case QuestTypeItem: { // New
-			Quest quest = NoppesUtilServer.getEditingQuest(getPlayer());
-			if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM
-					|| quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.CRAFT) {
-				return new GuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container,
-						quest.questInterface.tasks[x]);
+			case CustomChest: {
+				return new GuiCustomChest((ContainerCustomChest) container);
 			}
-			return null;
-		}
-		case QuestRewardItem: {
-			return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x);
-		}
-		case MovingPath: {
-			if (npc == null) {
+			case MainMenuDisplay: {
+				if (npc != null) {
+					return new GuiNpcDisplay(npc);
+				}
+				this.getPlayer().sendMessage(new TextComponentString("Unable to find npc"));
+			}
+			case MainMenuStats: {
+				return new GuiNpcStats(npc);
+			}
+			case MainMenuInv: {
+				return new GuiNPCInv(npc, (ContainerNPCInv) container);
+			}
+			case MainMenuInvDrop: {
+				return new GuiDropEdit(npc, (ContainerNPCDropSetup) container,
+						(GuiContainer) Minecraft.getMinecraft().currentScreen, x, y, z);
+			} // New
+			case MainMenuAdvanced: {
+				return new GuiNpcAdvanced(npc);
+			}
+			case QuestReward: {
+				return new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container);
+			}
+			case QuestTypeItem: { // New
+				Quest quest = NoppesUtilServer.getEditingQuest(getPlayer());
+				if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM
+						|| quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.CRAFT) {
+					return new GuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container,
+							quest.questInterface.tasks[x]);
+				}
 				return null;
 			}
-			return new GuiNpcPather(npc);
-		}
-		case ManageFactions: {
-			return new GuiNPCManageFactions(npc);
-		}
-		case ManageLinked: {
-			return new GuiNPCManageLinkedNpc(npc);
-		}
-		case ManageMail: {
-			return new GuiNPCManageMail(npc);
-		}
-		case BuilderBlock: {
-			return new GuiBlockBuilder(x, y, z);
-		}
-		case ManageTransport: {
-			return new GuiNPCManageTransporters(npc, (ContainerNPCTransportSetup) container);
-		}
-		case ManageRecipes: {
-			return new GuiNPCManageRecipes(npc, (ContainerManageRecipes) container);
-		}
-		case ManageDialogs: {
-			return new GuiNPCManageDialogs(npc);
-		}
-		case ManageQuests: {
-			return new GuiNPCManageQuest(npc);
-		}
-		case ManageBanks: {
-			return new GuiNPCManageBanks(npc, (ContainerManageBanks) container);
-		}
-		case MainMenuGlobal: {
-			return new GuiNPCGlobalMainMenu(npc);
-		}
-		case MainMenuAI: {
-			return new GuiNpcAI(npc);
-		}
-		case PlayerAnvil: {
-			return new GuiNpcCarpentryBench((ContainerCarpentryBench) container);
-		}
-		case PlayerFollowerHire: {
-			return new GuiNpcFollowerHire(npc, (ContainerNPCFollowerHire) container);
-		}
-		case PlayerFollower: {
-			return new GuiNpcFollower(npc, (ContainerNPCFollowerHire) container);
-		}
-		case PlayerTrader: {
-			return new GuiNPCTrader(npc, (ContainerNPCTrader) container);
-		}
-		case PlayerBank: {
-			GuiNPCBankChest openGui = new GuiNPCBankChest(npc, (ContainerNPCBank) container);
-			Minecraft mc = Minecraft.getMinecraft();
-			if (mc.currentScreen instanceof GuiNPCBankChest
-					&& ((GuiNPCBankChest) mc.currentScreen).cont.bank.id == ((ContainerNPCBank) container).bank.id
-					&& ((GuiNPCBankChest) mc.currentScreen).cont.ceil == ((ContainerNPCBank) container).ceil) {
-				openGui.row = ((GuiNPCBankChest) mc.currentScreen).row;
+			case QuestRewardItem: {
+				return new GuiNpcQuestRewardItem((ContainerNpcQuestRewardItem) container, x);
 			}
-			return openGui;
-		}
-		case PlayerTransporter: {
-			return new GuiTransportSelection(npc);
-		}
-		case Script: {
-			return new GuiScript(npc);
-		}
-		case ScriptBlock: {
-			return new GuiScriptBlock(x, y, z);
-		}
-		case ScriptItem: {
-			return new GuiScriptItem(getPlayer());
-		}
-		case ScriptDoor: {
-			return new GuiScriptDoor(x, y, z);
-		}
-		case ScriptPlayers: {
-			return new GuiScriptGlobal();
-		}
-		case SetupFollower: {
-			return new GuiNpcFollowerSetup(npc, (ContainerNPCFollowerSetup) container);
-		}
-		case SetupItemGiver: {
-			return new GuiNpcItemGiver(npc, (ContainerNpcItemGiver) container);
-		}
-		case SetupTrader: {
-			if (x >= 0) {
-				GuiNPCManageMarcets.marcetId = x;
+			case MovingPath: {
+				if (npc == null) {
+					return null;
+				}
+				return new GuiNpcPather(npc);
 			}
-			if (y >= 0) {
-				GuiNPCManageMarcets.dealId = y;
+			case ManageFactions: {
+				return new GuiNPCManageFactions(npc);
 			}
-			return new GuiNPCManageMarcets(npc);
-		}
-		case SetupTraderDeal: {
-			return new GuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container);
-		}
-		case SetupTransporter: {
-			return new GuiNpcTransporter(npc);
-		}
-		case SetupBank: {
-			return new GuiNpcBankSetup(npc);
-		}
-		case NpcRemote: {
-			if (Minecraft.getMinecraft().currentScreen == null) {
-				return new GuiNpcRemoteEditor();
+			case ManageLinked: {
+				return new GuiNPCManageLinkedNpc(npc);
 			}
-			return null;
-		}
-		case PlayerMailbox: {
-			return new GuiMailbox();
-		}
-		case PlayerMailOpen: {
-			return new GuiMailmanWrite((ContainerMail) container, x == 1, y == 1);
-		}
-		case MerchantAdd: {
-			return new GuiMerchantAdd();
-		}
-		case NpcDimensions: {
-			return new GuiNpcDimension();
-		}
-		case Border: {
-			return new GuiBorderBlock(x, y, z);
-		}
-		case RedstoneBlock: {
-			return new GuiNpcRedstoneBlock(x, y, z);
-		}
-		case MobSpawner: {
-			return new GuiNpcMobSpawner(x, y, z);
-		}
-		case CopyBlock: {
-			return new GuiBlockCopy(x, y, z);
-		}
-		case MobSpawnerMounter: {
-			return new GuiNpcMobSpawnerMounter(x, y, z);
-		}
-		case Waypoint: {
-			return new GuiNpcWaypoint(x, y, z);
-		}
-		case Companion: {
-			return new GuiNpcCompanionStats(npc);
-		}
-		case CompanionTalent: {
-			return new GuiNpcCompanionTalents(npc);
-		}
-		case CompanionInv: {
-			return new GuiNpcCompanionInv(npc, (ContainerNPCCompanion) container);
-		}
-		case NbtBook: {
-			return new GuiNbtBook(x, y, z);
-		}
-		case CustomGui: {
-			return new GuiCustom((ContainerCustomGui) container);
-		}
-		case BoundarySetting: {
-			return new GuiBoundarySetting(x, y);
-		}
-		case BuilderSetting: {
-			return new GuiBuilderSetting((ContainerBuilderSettings) container, x);
-		}
-		case DimentionSetting: {
-			return new GuiCreateDimension(x);
-		}
-		default: {
-			return null;
-		}
+			case ManageMail: {
+				return new GuiNPCManageMail(npc);
+			}
+			case BuilderBlock: {
+				return new GuiBlockBuilder(x, y, z);
+			}
+			case ManageTransport: {
+				return new GuiNPCManageTransporters(npc, (ContainerNPCTransportSetup) container);
+			}
+			case ManageRecipes: {
+				return new GuiNPCManageRecipes(npc, (ContainerManageRecipes) container);
+			}
+			case ManageDialogs: {
+				return new GuiNPCManageDialogs(npc);
+			}
+			case ManageQuests: {
+				return new GuiNPCManageQuest(npc);
+			}
+			case ManageBanks: {
+				return new GuiNPCManageBanks(npc, (ContainerManageBanks) container);
+			}
+			case MainMenuGlobal: {
+				return new GuiNPCGlobalMainMenu(npc);
+			}
+			case MainMenuAI: {
+				return new GuiNpcAI(npc);
+			}
+			case PlayerAnvil: {
+				return new GuiNpcCarpentryBench((ContainerCarpentryBench) container);
+			}
+			case PlayerFollowerHire: {
+				return new GuiNpcFollowerHire(npc, (ContainerNPCFollowerHire) container);
+			}
+			case PlayerFollower: {
+				return new GuiNpcFollower(npc, (ContainerNPCFollowerHire) container);
+			}
+			case PlayerTrader: {
+				return new GuiNPCTrader(npc, (ContainerNPCTrader) container);
+			}
+			case PlayerBank: {
+				GuiNPCBankChest openGui = new GuiNPCBankChest(npc, (ContainerNPCBank) container);
+				Minecraft mc = Minecraft.getMinecraft();
+				if (mc.currentScreen instanceof GuiNPCBankChest
+						&& ((GuiNPCBankChest) mc.currentScreen).cont.bank.id == ((ContainerNPCBank) container).bank.id
+						&& ((GuiNPCBankChest) mc.currentScreen).cont.ceil == ((ContainerNPCBank) container).ceil) {
+					openGui.row = ((GuiNPCBankChest) mc.currentScreen).row;
+				}
+				return openGui;
+			}
+			case PlayerTransporter: {
+				return new GuiTransportSelection(npc);
+			}
+			case Script: {
+				return new GuiScript(npc);
+			}
+			case ScriptBlock: {
+				return new GuiScriptBlock(x, y, z);
+			}
+			case ScriptItem: {
+				return new GuiScriptItem(getPlayer());
+			}
+			case ScriptDoor: {
+				return new GuiScriptDoor(x, y, z);
+			}
+			case ScriptPlayers: {
+				return new GuiScriptGlobal();
+			}
+			case SetupFollower: {
+				return new GuiNpcFollowerSetup(npc, (ContainerNPCFollowerSetup) container);
+			}
+			case SetupItemGiver: {
+				return new GuiNpcItemGiver(npc, (ContainerNpcItemGiver) container);
+			}
+			case SetupTrader: {
+				if (x >= 0) {
+					GuiNPCManageMarcets.marcetId = x;
+				}
+				if (y >= 0) {
+					GuiNPCManageMarcets.dealId = y;
+				}
+				return new GuiNPCManageMarcets(npc);
+			}
+			case SetupTraderDeal: {
+				return new GuiNPCManageDeal(npc, (ContainerNPCTraderSetup) container);
+			}
+			case SetupTransporter: {
+				return new GuiNpcTransporter(npc);
+			}
+			case SetupBank: {
+				return new GuiNpcBankSetup(npc);
+			}
+			case NpcRemote: {
+				if (Minecraft.getMinecraft().currentScreen == null) {
+					return new GuiNpcRemoteEditor();
+				}
+				return null;
+			}
+			case PlayerMailbox: {
+				return new GuiMailbox();
+			}
+			case PlayerMailOpen: {
+				return new GuiMailmanWrite((ContainerMail) container, x == 1, y == 1);
+			}
+			case MerchantAdd: {
+				return new GuiMerchantAdd();
+			}
+			case NpcDimensions: {
+				return new GuiNpcDimension();
+			}
+			case Border: {
+				return new GuiBorderBlock(x, y, z);
+			}
+			case RedstoneBlock: {
+				return new GuiNpcRedstoneBlock(x, y, z);
+			}
+			case MobSpawner: {
+				return new GuiNpcMobSpawner(x, y, z);
+			}
+			case CopyBlock: {
+				return new GuiBlockCopy(x, y, z);
+			}
+			case MobSpawnerMounter: {
+				return new GuiNpcMobSpawnerMounter(x, y, z);
+			}
+			case Waypoint: {
+				return new GuiNpcWaypoint(x, y, z);
+			}
+			case Companion: {
+				return new GuiNpcCompanionStats(npc);
+			}
+			case CompanionTalent: {
+				return new GuiNpcCompanionTalents(npc);
+			}
+			case CompanionInv: {
+				return new GuiNpcCompanionInv(npc, (ContainerNPCCompanion) container);
+			}
+			case NbtBook: {
+				return new GuiNbtBook(x, y, z);
+			}
+			case CustomGui: {
+				return new GuiCustom((ContainerCustomGui) container);
+			}
+			case BoundarySetting: {
+				return new GuiBoundarySetting(x, y);
+			}
+			case BuilderSetting: {
+				return new GuiBuilderSetting((ContainerBuilderSettings) container);
+			}
+			case ReplaceSetting: {
+				return new GuiBuilderSetting((ContainerBuilderSettings) container);
+			}
+			case PlacerSetting: {
+				return new GuiBuilderSetting((ContainerBuilderSettings) container);
+			}
+			case SaverSetting: {
+				return new GuiBuilderSetting((ContainerBuilderSettings) container);
+			}
+			case RemoverSetting: {
+				return new GuiBuilderSetting((ContainerBuilderSettings) container);
+			}
+			case DimentionSetting: {
+				return new GuiCreateDimension(x);
+			}
+			default: {
+				return null;
+			}
 		}
 	}
 
@@ -2022,27 +2048,21 @@ public class ClientProxy extends CommonProxy {
 				TabRegistry.registerTab(new InventoryTabQuests());
 			}
 		}
+		// registerEntityRenderingHandler(Class<T> entityClass, IRenderFactory<? super T> renderFactory)
 		RenderingRegistry.registerEntityRenderingHandler(EntityNpcPony.class, (Render) new RenderNPCPony());
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcCrystal.class,
-				new RenderNpcCrystal(new ModelNpcCrystal(0.5f)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class,
-				new RenderNpcDragon(new ModelNpcDragon(0.0f), 0.5f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcSlime.class,
-				new RenderNpcSlime(new ModelNpcSlime(16), new ModelNpcSlime(0), 0.25f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityProjectile.class, (Render) new RenderProjectile());
-		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class,
-				new RenderCustomNpc((ModelBiped) new ModelNPCAlt(0.0f, false)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class,
-				new RenderCustomNpc(new ModelBipedAlt(0.0f)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class,
-				new RenderNPCInterface((ModelBase) new ModelNPCGolem(0.0f), 0.0f));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class,
-				new RenderCustomNpc((ModelBiped) new ModelNPCAlt(0.0f, true)));
-		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class,
-				new RenderCustomNpc((ModelBiped) new ModelClassicPlayer(0.0f)));
-		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187,
-				new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving,
-						CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcCrystal.class, new RenderNpcCrystal(new ModelNpcCrystal(0.5f)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcDragon.class, new RenderNpcDragon(new ModelNpcDragon(0.0f), 0.5f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcSlime.class, new RenderNpcSlime(new ModelNpcSlime(16), new ModelNpcSlime(0), 0.25f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityProjectile.class, new RenderProjectile());
+		
+		// Human Models
+		RenderingRegistry.registerEntityRenderingHandler(EntityNPCGolem.class, new RenderNPCInterface(new ModelNPCGolem(0.0f), 0.0f));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcClassicPlayer.class, new RenderCustomNpc(new ModelClassicPlayer(0.0f)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNPC64x32.class, new RenderCustomNpc(new ModelBipedAlt(0.0f, false)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityCustomNpc.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, false)));
+		RenderingRegistry.registerEntityRenderingHandler(EntityNpcAlex.class, new RenderCustomNpc(new ModelNpcAlt(0.0f, true)));
+		
+		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> 9127187, new Item[] { CustomRegisters.mount, CustomRegisters.cloner, CustomRegisters.moving, CustomRegisters.scripter, CustomRegisters.wand, CustomRegisters.teleporter });
 		mc.getItemColors().registerItemColorHandler((stack, tintIndex) -> {
 			IItemStack item = NpcAPI.Instance().getIItemStack(stack);
 			if (stack.getItem() == CustomRegisters.scripted_item) {
@@ -2110,29 +2130,39 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public void postload() {
+		// Set fields and methods in ArmourersWorkshop
 		ArmourersWorkshopUtil.getInstance();
-		TileEntityRendererDispatcher.instance.renderers.put(TileEntityBanner.class,
-				new TileEntityCustomBannerRenderer());
-		ObfuscationHelper.setValue(TileEntityItemStackRenderer.class, TileEntityItemStackRenderer.instance,
-				new TileEntityCustomBanner(), TileEntityBanner.class);
+		// Banner Model Replace
+		TileEntityRendererDispatcher.instance.renderers.put(TileEntityBanner.class, new TileEntityCustomBannerRenderer());
+		ObfuscationHelper.setValue(TileEntityItemStackRenderer.class, TileEntityItemStackRenderer.instance, new TileEntityCustomBanner(), TileEntityBanner.class);
+		// Shield Model Replace
 		Item shield = Item.REGISTRY.getObject(new ResourceLocation("shield"));
-		if (shield instanceof ItemShield) {
-			((ItemShield) shield).setTileEntityItemStackRenderer(new TileEntityItemStackCustomRenderer());
+		if (shield instanceof ItemShield) { ((ItemShield) shield).setTileEntityItemStackRenderer(new TileEntityItemStackCustomRenderer()); }
+		// OBJ ItemStack Model Replace
+		Minecraft mc = Minecraft.getMinecraft();
+		RenderItem ri = mc.getRenderItem();
+        ItemModelMesherForge immf = (ItemModelMesherForge) ri.getItemModelMesher();
+		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ObfuscationHelper.getValue(ItemModelMesherForge.class, immf, 1);
+		for (IRegistryDelegate<Item> key : models.keySet()) {
+			if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) { continue; }
+			IBakedModel ibm = ModelBuffer.getIBakedModel((CustomArmor) key.get());
+			if (ibm == null) { continue; }
+			models.get(key).put(0, ibm);
 		}
+		ClientProxy.mcWraper = new WrapperMinecraft(mc);
 	}
 
 	@Override
 	public void preload() {
 		ClientProxy.Font = new FontContainer(CustomNpcs.FontType, CustomNpcs.FontSize);
 		this.createFolders();
-		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
-				.registerReloadListener((IResourceManagerReloadListener) new CustomNpcResourceListener());
+		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener((IResourceManagerReloadListener) new CustomNpcResourceListener());
 		CustomNpcs.Channel.register(new PacketHandlerClient());
 		CustomNpcs.ChannelPlayer.register(new PacketHandlerPlayer());
 		new MusicController();
 		MinecraftForge.EVENT_BUS.register(new ClientTickHandler());
 		MinecraftForge.EVENT_BUS.register(new ClientGuiEventHandler());
-		Minecraft mc = Minecraft.getMinecraft();
+		
 		if (CustomNpcs.SceneButtonsEnabled) {
 			ClientProxy.Scene1 = new KeyBinding("key.scene.s.e.0", 79, "key.categories.gameplay");
 			ClientProxy.Scene2 = new KeyBinding("key.scene.s.e.1", 80, "key.categories.gameplay");
@@ -2147,23 +2177,21 @@ public class ClientProxy extends CommonProxy {
 		for (IKeySetting ks : KeyController.getInstance().getKeySettings()) {
 			KeyModifier modifer;
 			switch (ks.getModiferType()) {
-			case 1:
-				modifer = KeyModifier.SHIFT;
-				break;
-			case 2:
-				modifer = KeyModifier.CONTROL;
-				break;
-			case 3:
-				modifer = KeyModifier.ALT;
-				break;
-			default:
-				modifer = KeyModifier.NONE;
-				break;
+				case 1:
+					modifer = KeyModifier.SHIFT;
+					break;
+				case 2:
+					modifer = KeyModifier.CONTROL;
+					break;
+				case 3:
+					modifer = KeyModifier.ALT;
+					break;
+				default:
+					modifer = KeyModifier.NONE;
+					break;
 			}
-			ClientRegistry.registerKeyBinding(
-					new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory()));
+			ClientRegistry.registerKeyBinding(new KeyBinding(ks.getName(), KeyConflictContext.IN_GAME, modifer, ks.getKeyId(), ks.getCategory()));
 		}
-		mc.gameSettings.loadOptions();
 		new PresetController(CustomNpcs.Dir);
 		if (CustomNpcs.EnableUpdateChecker) {
 			VersionChecker checker = new VersionChecker();

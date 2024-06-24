@@ -12,6 +12,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.animation.GuiNpcAnimation;
+import noppes.npcs.client.gui.animation.GuiNpcEmotion;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.PlayerData;
@@ -74,7 +76,8 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 		if (k == 0) {
 			Minecraft mc = Minecraft.getMinecraft();
 			for (GuiMenuTopButton button : this.getTopButtons()) {
-				if (button.mousePressed(mc, i, j)) {
+				boolean bo = button.getVisible() && button.hover;
+				if (button.mousePressed(mc, i, j) || (bo && button.id == 4 && (mc.currentScreen instanceof GuiNpcEmotion || mc.currentScreen instanceof GuiNpcAnimation))) {
 					this.topButtonPressed(button);
 				}
 			}

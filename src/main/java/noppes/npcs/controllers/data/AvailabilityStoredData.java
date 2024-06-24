@@ -1,30 +1,38 @@
 package noppes.npcs.controllers.data;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.constants.EnumAvailabilityStoredData;
 
 public class AvailabilityStoredData {
 
 	public String key, value;
-	public boolean has;
+	public EnumAvailabilityStoredData type;
 
 	public AvailabilityStoredData(NBTTagCompound nbt) {
 		key = nbt.getString("Key");
 		value = nbt.getString("Value");
-		has = nbt.getBoolean("Has");
+		if (nbt.hasKey("Has", 1)) {
+			if (nbt.getBoolean("Has")) { type = EnumAvailabilityStoredData.ONLY; }
+			else { type = EnumAvailabilityStoredData.EXCEPT; }
+		} else {
+			int t = nbt.getInteger("Type");
+			if (t < 0) { t *= -1; }
+			type = EnumAvailabilityStoredData.values()[t % EnumAvailabilityStoredData.values().length];
+		}
 	}
 
-	public AvailabilityStoredData(String k, String v, boolean b) {
+	public AvailabilityStoredData(String k, String v, EnumAvailabilityStoredData t) {
 		key = k;
 		value = v;
-		has = b;
+		type = t;
 	}
 
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("Key", this.key);
 		nbt.setString("Value", this.value);
-		nbt.setBoolean("Has", this.has);
+		nbt.setInteger("Type", this.type.ordinal());
 		return nbt;
 	}
-
+	
 }

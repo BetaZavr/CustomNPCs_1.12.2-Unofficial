@@ -157,4 +157,6 @@ public class StoredData implements IData {
 		}
 	}
 
+	public void resetData(NBTTagCompound compound) { this.data = compound; }
+
 }

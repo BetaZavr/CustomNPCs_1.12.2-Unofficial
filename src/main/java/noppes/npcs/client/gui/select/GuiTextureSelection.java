@@ -51,8 +51,13 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	private String back = "   " + Character.toChars(0x2190)[0] + " ("
 			+ new TextComponentTranslation("gui.back").getFormattedText() + ")";
 	private String baseResource = "";
-	private boolean dark = false;
+	public static boolean dark = false;
 
+	public GuiTextureSelection(int id, EntityNPCInterface npc, String texture, String suffix, int type) {
+		this(npc, texture, suffix, type);
+		this.id = id;
+	}
+	
 	public GuiTextureSelection(EntityNPCInterface npc, String texture, String suffix, int type) {
 		this.npc = npc;
 		if (this.npc != null) {
@@ -117,7 +122,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 	@Override
 	public void actionPerformed(GuiButton guibutton) {
 		if (guibutton.id == 3) {
-			this.dark = ((GuiNpcCheckBox) guibutton).isSelected();
+			GuiTextureSelection.dark = ((GuiNpcCheckBox) guibutton).isSelected();
 			return;
 		}
 		super.actionPerformed(guibutton);
@@ -209,14 +214,14 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 			GlStateManager.translate(19.5f, 0.0f, 0.0f);
 			w = 41;
 		}
-		Gui.drawRect(x - 1, y - 1, x + w + 1, y + 81, this.dark ? 0xFFE0E0E0 : 0xFF202020);
-		Gui.drawRect(x, y, x + w, y + 80, this.dark ? 0xFF000000 : 0xFFFFFFFF);
+		Gui.drawRect(x - 1, y - 1, x + w + 1, y + 81, GuiTextureSelection.dark ? 0xFFE0E0E0 : 0xFF202020);
+		Gui.drawRect(x, y, x + w, y + 80, GuiTextureSelection.dark ? 0xFF000000 : 0xFFFFFFFF);
 		int g = 5;
 		for (int u = 0; u < w / g; u++) {
 			for (int v = 0; v < 80 / g; v++) {
 				if (u % 2 == (v % 2 == 0 ? 1 : 0)) {
 					Gui.drawRect(x + u * g, y + v * g, x + u * g + g, y + v * g + g,
-							this.dark ? 0xFF343434 : 0xFFCCCCCC);
+							GuiTextureSelection.dark ? 0xFF343434 : 0xFFCCCCCC);
 				}
 			}
 		}
@@ -287,7 +292,7 @@ public class GuiTextureSelection extends SubGuiInterface implements ICustomScrol
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 264, this.guiTop + 190, 90, 20, "gui.cancel"));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 264, this.guiTop + 170, 90, 20, "gui.done"));
 		GuiNpcCheckBox cBox = new GuiNpcCheckBox(3, this.guiLeft + 256, this.guiTop + 2, 15, 15, "");
-		cBox.setSelected(this.dark);
+		cBox.setSelected(GuiTextureSelection.dark);
 		this.addButton(cBox);
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 0)).setSize(250, 199);

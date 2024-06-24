@@ -181,8 +181,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				dText += "" + ((char) 10);
 			}
 		}
-		this.lines.add(new TextBlockClient(this.dialogNpc, dText, this.dialogWidth - (int) (13.0f / this.corr),
-				0xE0E0E0, dialogNpc, player, npc));
+		this.lines.add(new TextBlockClient(this.dialogNpc, dText, this.dialogWidth - (int) (13.0f / this.corr), 0xE0E0E0, dialogNpc, player, npc));
 		if (!d.showFits) {
 			this.setStartLine();
 		}
@@ -1004,6 +1003,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			}
 			this.options.put(slot, lines);
 		}
+		if (!this.closeOnEsc && this.options.isEmpty()) { this.closeOnEsc = true; }
 	}
 
 	@Override

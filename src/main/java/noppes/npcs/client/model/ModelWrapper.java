@@ -11,8 +11,7 @@ public class ModelWrapper extends ModelBase {
 	public ResourceLocation texture;
 	public ModelBase wrapped;
 
-	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch, float scale) {
+	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		if (this.texture != null && !this.texture.getResourcePath().isEmpty()) {
 			Minecraft.getMinecraft().getRenderManager().renderEngine.bindTexture(this.texture);
 		}

@@ -211,7 +211,6 @@ public class GuiNpcQuestTypeItem extends GuiContainerNPCInterface implements ITe
 
 	@Override
 	public void initGui() {
-		System.out.println("CNPCs: ");
 		super.initGui();
 		int x = this.guiLeft + 6;
 		int x1 = this.guiLeft + this.xSize - 55;

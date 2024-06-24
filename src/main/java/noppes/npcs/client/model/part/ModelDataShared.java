@@ -14,30 +14,24 @@ import noppes.npcs.constants.EnumParts;
 
 public class ModelDataShared {
 
-	protected ModelPartConfig arm1;
-	protected ModelPartConfig arm2;
-	protected ModelPartConfig body;
+	protected ModelPartConfig arm1 = new ModelPartConfig();
+	protected ModelPartConfig arm2 = new ModelPartConfig();
+	protected ModelPartConfig arm3 = new ModelPartConfig();
+	protected ModelPartConfig arm4 = new ModelPartConfig();
+	protected ModelPartConfig body = new ModelPartConfig();
 	public EntityLivingBase entity;
 	public Class<? extends EntityLivingBase> entityClass;
-	public NBTTagCompound extra;
-	public ModelEyeData eyes;
-	protected ModelPartConfig head;
-	protected ModelPartConfig leg1;
-	protected ModelPartConfig leg2;
-	protected ModelPartData legParts;
-	protected HashMap<EnumParts, ModelPartData> parts;
+	public NBTTagCompound extra = new NBTTagCompound();
+	public ModelEyeData eyes = new ModelEyeData();
+	protected ModelPartConfig head = new ModelPartConfig();
+	protected ModelPartConfig leg1 = new ModelPartConfig();
+	protected ModelPartConfig leg2 = new ModelPartConfig();
+	protected ModelPartConfig leg3 = new ModelPartConfig();
+	protected ModelPartConfig leg4 = new ModelPartConfig();
+	protected ModelPartData legParts = new ModelPartData("legs");
+	protected HashMap<EnumParts, ModelPartData> parts = new HashMap<EnumParts, ModelPartData>();
 
 	public ModelDataShared() {
-		this.arm1 = new ModelPartConfig();
-		this.arm2 = new ModelPartConfig();
-		this.body = new ModelPartConfig();
-		this.leg1 = new ModelPartConfig();
-		this.leg2 = new ModelPartConfig();
-		this.head = new ModelPartConfig();
-		this.legParts = new ModelPartData("legs");
-		this.eyes = new ModelEyeData();
-		this.extra = new NBTTagCompound();
-		this.parts = new HashMap<EnumParts, ModelPartData>();
 	}
 
 	public void clearEntity() {
@@ -45,7 +39,7 @@ public class ModelDataShared {
 	}
 
 	public float getBodyY() {
-		return (1.0f - this.body.scaleBase[1]) * 0.75f + this.getLegsY();
+		return (1.0f - this.body.scale[1]) * 0.75f + this.getLegsY();
 	}
 
 	public Class<? extends EntityLivingBase> getEntityClass() {
@@ -54,10 +48,10 @@ public class ModelDataShared {
 
 	public float getLegsY() {
 		ModelPartConfig legs = this.leg1;
-		if (this.leg2.notShared && this.leg2.scaleBase[1] > this.leg1.scaleBase[1]) {
+		if (this.leg2.notShared && this.leg2.scale[1] > this.leg1.scale[1]) {
 			legs = this.leg2;
 		}
-		return (1.0f - legs.scaleBase[1]) * 0.75f;
+		return (1.0f - legs.scale[1]) * 0.75f;
 	}
 
 	public ModelPartData getOrCreatePart(EnumParts type) {
@@ -75,22 +69,19 @@ public class ModelDataShared {
 	}
 
 	public ModelPartConfig getPartConfig(EnumParts type) {
-		if (type == EnumParts.BODY) {
-			return this.body;
+		switch(type) {
+			case HEAD: return this.head;
+			case BODY: return this.body;
+			case ARM_LEFT: return this.arm1;
+			case ARM_RIGHT: return this.arm2;
+			case LEG_LEFT: return this.leg1;
+			case LEG_RIGHT: return this.leg2;
+			case WRIST_LEFT: return this.arm3;
+			case WRIST_RIGHT: return this.arm4;
+			case FOOT_LEFT: return this.leg3;
+			case FOOT_RIGHT: return this.leg4;
+			default: return null;
 		}
-		if (type == EnumParts.ARM_LEFT) {
-			return this.arm1;
-		}
-		if (type == EnumParts.ARM_RIGHT) {
-			return this.arm2;
-		}
-		if (type == EnumParts.LEG_LEFT) {
-			return this.leg1;
-		}
-		if (type == EnumParts.LEG_RIGHT) {
-			return this.leg2;
-		}
-		return this.head;
 	}
 
 	public ModelPartData getPartData(EnumParts type) {
@@ -114,9 +105,17 @@ public class ModelDataShared {
 		this.setEntityName(compound.getString("EntityClass"));
 		this.arm1.readFromNBT(compound.getCompoundTag("ArmsConfig"));
 		this.arm2.readFromNBT(compound.getCompoundTag("ArmsConfig" + (this.arm1.notShared ? "2" : "")));
+		if (compound.hasKey("ArmsConfig3", 10)) {
+			this.arm3.readFromNBT(compound.getCompoundTag("ArmsConfig3"));
+			this.arm4.readFromNBT(compound.getCompoundTag("ArmsConfig" + (this.arm1.notShared ? "4" : "3")));
+		}
 		this.body.readFromNBT(compound.getCompoundTag("BodyConfig"));
 		this.leg1.readFromNBT(compound.getCompoundTag("LegsConfig"));
 		this.leg2.readFromNBT(compound.getCompoundTag("LegsConfig" + (this.leg1.notShared ? "2" : "")));
+		if (compound.hasKey("LegsConfig3", 10)) {
+			this.leg3.readFromNBT(compound.getCompoundTag("LegsConfig3"));
+			this.leg4.readFromNBT(compound.getCompoundTag("LegsConfig" + (this.leg1.notShared ? "4" : "3")));
+		}
 		this.head.readFromNBT(compound.getCompoundTag("HeadConfig"));
 		this.legParts.readFromNBT(compound.getCompoundTag("LegParts"));
 		this.eyes.readFromNBT(compound.getCompoundTag("Eyes"));
@@ -171,8 +170,8 @@ public class ModelDataShared {
 					config.setTranslate(0.0f, this.getBodyY(), 0.0f);
 				} else if (part == EnumParts.ARM_LEFT) {
 					ModelPartConfig body = this.getPartConfig(EnumParts.BODY);
-					float x = (1.0f - body.scaleBase[0]) * 0.25f + (1.0f - config.scaleBase[0]) * 0.075f;
-					float y = this.getBodyY() + (1.0f - config.scaleBase[1]) * -0.1f;
+					float x = (1.0f - body.scale[0]) * 0.25f + (1.0f - config.scale[0]) * 0.075f;
+					float y = this.getBodyY() + (1.0f - config.scale[1]) * -0.1f;
 					config.setTranslate(-x, y, 0.0f);
 					if (!config.notShared) {
 						ModelPartConfig arm = this.getPartConfig(EnumParts.ARM_RIGHT);
@@ -180,17 +179,17 @@ public class ModelDataShared {
 					}
 				} else if (part == EnumParts.ARM_RIGHT) {
 					ModelPartConfig body = this.getPartConfig(EnumParts.BODY);
-					float x = (1.0f - body.scaleBase[0]) * 0.25f + (1.0f - config.scaleBase[0]) * 0.075f;
-					float y = this.getBodyY() + (1.0f - config.scaleBase[1]) * -0.1f;
+					float x = (1.0f - body.scale[0]) * 0.25f + (1.0f - config.scale[0]) * 0.075f;
+					float y = this.getBodyY() + (1.0f - config.scale[1]) * -0.1f;
 					config.setTranslate(x, y, 0.0f);
 				} else if (part == EnumParts.LEG_LEFT) {
-					config.setTranslate(config.scaleBase[0] * 0.125f - 0.113f, this.getLegsY(), 0.0f);
+					config.setTranslate(config.scale[0] * 0.125f - 0.113f, this.getLegsY(), 0.0f);
 					if (!config.notShared) {
 						ModelPartConfig leg = this.getPartConfig(EnumParts.LEG_RIGHT);
 						leg.copyValues(config);
 					}
 				} else if (part == EnumParts.LEG_RIGHT) {
-					config.setTranslate((1.0f - config.scaleBase[0]) * 0.125f, this.getLegsY(), 0.0f);
+					config.setTranslate((1.0f - config.scale[0]) * 0.125f, this.getLegsY(), 0.0f);
 				} else if (part == EnumParts.BODY) {
 					config.setTranslate(0.0f, this.getBodyY(), 0.0f);
 				}
@@ -205,9 +204,13 @@ public class ModelDataShared {
 		}
 		compound.setTag("ArmsConfig", this.arm1.writeToNBT());
 		compound.setTag("ArmsConfig2", this.arm2.writeToNBT());
+		compound.setTag("ArmsConfig3", this.arm3.writeToNBT());
+		compound.setTag("ArmsConfig4", this.arm4.writeToNBT());
 		compound.setTag("BodyConfig", this.body.writeToNBT());
 		compound.setTag("LegsConfig", this.leg1.writeToNBT());
 		compound.setTag("LegsConfig2", this.leg2.writeToNBT());
+		compound.setTag("LegsConfig3", this.leg3.writeToNBT());
+		compound.setTag("LegsConfig4", this.leg4.writeToNBT());
 		compound.setTag("HeadConfig", this.head.writeToNBT());
 		compound.setTag("LegParts", this.legParts.writeToNBT());
 		compound.setTag("Eyes", this.eyes.writeToNBT());

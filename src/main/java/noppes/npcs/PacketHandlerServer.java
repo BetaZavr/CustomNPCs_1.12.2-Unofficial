@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
@@ -38,6 +39,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.blocks.tiles.TileCopy;
@@ -79,6 +81,7 @@ import noppes.npcs.controllers.data.DropsTemplate;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.ForgeScriptData;
 import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.controllers.data.NpcScriptData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PotionScriptData;
@@ -93,8 +96,8 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 import noppes.npcs.entity.data.DropSet;
+import noppes.npcs.entity.data.Resistances;
 import noppes.npcs.items.ItemBoundary;
-import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
 import noppes.npcs.roles.JobBard;
@@ -267,8 +270,7 @@ public class PacketHandlerServer {
 			NoppesUtilServer.sendNearbyEntitys(player, buffer.readBoolean());
 		} else if (type == EnumPacketServer.RemoteNpcsGet) {
 			NoppesUtilServer.sendNearbyEntitys(player, buffer.readBoolean());
-			Server.sendData(player, EnumPacketClient.SCROLL_SELECTED,
-					CustomNpcs.FreezeNPCs ? "Unfreeze Npcs" : "Freeze Npcs");
+			Server.sendData(player, EnumPacketClient.SCROLL_SELECTED, CustomNpcs.FreezeNPCs ? "Unfreeze Npcs" : "Freeze Npcs");
 		} else if (type == EnumPacketServer.RemoteFreeze) {
 			CustomNpcs.FreezeNPCs = !CustomNpcs.FreezeNPCs;
 			player.sendMessage(new TextComponentString(CustomNpcs.FreezeNPCs ? "Freeze Npcs" : "Unfreeze Npcs"));
@@ -1070,8 +1072,16 @@ public class PacketHandlerServer {
 			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
 			compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
 			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
+		} else if (type == EnumPacketServer.ScriptNpcsGet) {
+			NpcScriptData data = ScriptController.Instance.npcsScripts;
+			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
+			compound.setTag("Languages", ScriptController.Instance.nbtLanguages(false));
+			compound.setString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
+			Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 		} else if (type == EnumPacketServer.ScriptForgeSave) {
 			ScriptController.Instance.setForgeScripts(Server.readNBT(buffer));
+		} else if (type == EnumPacketServer.ScriptNpcsSave) {
+			ScriptController.Instance.setNPCsScripts(Server.readNBT(buffer));
 		} else if (type == EnumPacketServer.ScriptClientGet) {
 			ClientScriptData data = ScriptController.Instance.clientScripts;
 			NBTTagCompound compound = data.writeToNBT(new NBTTagCompound());
@@ -1443,44 +1453,39 @@ public class PacketHandlerServer {
 					bData.update(reg.getId());
 				}
 			}
-		} else if (type == EnumPacketServer.OpenBuilder) {
-			if (player.getHeldItemMainhand().isEmpty()
-					|| !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder)
-					|| !player.getHeldItemMainhand().hasTagCompound()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
-				return;
-			}
-			int id = player.getHeldItemMainhand().getTagCompound().getInteger("ID");
-			NBTTagCompound compound = Server.readNBT(buffer);
-			if (id != compound.getInteger("ID")) {
-				id = compound.getInteger("ID");
-				player.getHeldItemMainhand().getTagCompound().setInteger("ID", id);
-			}
-			if (!CommonProxy.dataBuilder.containsKey(id)) {
-				CommonProxy.dataBuilder.put(id, new BuilderData());
-			}
-			CommonProxy.dataBuilder.get(id).read(compound);
-			Server.sendData(player, EnumPacketClient.BUILDER_SETTING, CommonProxy.dataBuilder.get(id).getNbt());
-			NoppesUtilServer.sendOpenGui(player, EnumGuiType.BuilderSetting, null, id, 0, 0);
-		} else if (type == EnumPacketServer.BuilderSetting) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			int id = compound.getInteger("ID");
-			if (!CommonProxy.dataBuilder.containsKey(id)) {
-				CommonProxy.dataBuilder.put(id, new BuilderData());
-			}
-			CommonProxy.dataBuilder.get(id).read(compound);
-			if (player.getHeldItemMainhand().isEmpty()
-					|| !(player.getHeldItemMainhand().getItem() instanceof ItemBuilder)
-					|| !player.getHeldItemMainhand().hasTagCompound()) {
-				CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");
-				return;
-			}
-			NBTTagCompound nbtStack = player.getHeldItemMainhand().getTagCompound();
-			if (nbtStack == null) {
-				player.getHeldItemMainhand().setTagCompound(nbtStack = new NBTTagCompound());
-			}
-			for (String key : compound.getKeySet()) {
-				nbtStack.setTag(key, compound.getTag(key));
+		} else if (type == EnumPacketServer.BuilderSetting) { // from Builder GUI
+			ItemStack stack = player.getHeldItemMainhand();
+			if (stack.getItem() instanceof ISpecBuilder) {
+				NBTTagCompound compound = Server.readNBT(buffer);
+				if (compound.hasKey("ID", 3) && compound.hasKey("BuilderType", 3)) {
+					int id = compound.getInteger("ID");
+					BuilderData bd = SyncController.dataBuilder.get(id);
+					if (id < 0 || bd == null) {
+						if (id < 0 && bd != null) { SyncController.dataBuilder.remove(id); }
+						id = 0;
+						while (SyncController.dataBuilder.containsKey(id)) { id ++; }
+						bd = new BuilderData(id, compound.getInteger("BuilderType"));
+						compound.setInteger("ID", id);
+					}
+					bd.read(compound);
+					SyncController.dataBuilder.put(id, bd);
+
+					NBTTagCompound nbtStack = bd.getNbt();
+					if (compound.getInteger("BuilderType") != ((ISpecBuilder) stack.getItem()).getType()) {
+						switch(compound.getInteger("BuilderType")) {
+							case 1: stack = new ItemStack(CustomRegisters.npcbuilder); break;
+							case 2: stack = new ItemStack(CustomRegisters.npcreplacer); break;
+							case 3: stack = new ItemStack(CustomRegisters.npcplacer); break;
+							case 4: stack = new ItemStack(CustomRegisters.npcsaver); break;
+							default: stack = new ItemStack(CustomRegisters.npcremover); break;
+						}
+					}
+					else { stack = stack.copy(); }
+					stack.setTagCompound(nbtStack);
+					player.inventory.mainInventory.set(player.inventory.currentItem, stack);
+					player.openContainer.detectAndSendChanges();
+					Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.BuilderData, nbtStack);
+				}
 			}
 		} else if (type == EnumPacketServer.DialogCategoryGet) {
 			for (DialogCategory category2 : DialogController.instance.categories.values()) {
@@ -1497,6 +1502,18 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.AnimationGet) {
 			Server.sendData(player, EnumPacketClient.GUI_DATA, npc.animation.save(new NBTTagCompound()));
 			AnimationController.getInstance().sendTo(player);
+		} else if (type == EnumPacketServer.EmotionChange) {
+			NBTTagCompound compound = Server.readNBT(buffer);
+			if (compound.getKeySet().size() == 0) {
+				AnimationController.getInstance().emotions.clear();
+			} else if (compound.hasKey("delete", 1) && compound.getBoolean("delete")) {
+				AnimationController.getInstance().removeEmotion(compound.getInteger("ID"));
+			} else if (compound.hasKey("save", 1) && compound.getBoolean("save")) {
+				AnimationController.getInstance().save();
+			} else {
+				AnimationController.getInstance().loadEmotion(compound);
+			}
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, compound);
 		} else if (type == EnumPacketServer.AnimationChange) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			if (compound.getKeySet().size() == 0) {
@@ -1515,7 +1532,7 @@ public class PacketHandlerServer {
 		} else if (type == EnumPacketServer.AnimationGlobalSave) {
 			AnimationController aData = AnimationController.getInstance();
 			NBTTagCompound compound = Server.readNBT(buffer);
-			AnimationConfig ac = (AnimationConfig) aData.createNew();
+			AnimationConfig ac = (AnimationConfig) aData.createNewAnim();
 			int id = ac.id;
 			ac.readFromNBT(compound);
 			ac.id = id;
@@ -1725,6 +1742,24 @@ public class PacketHandlerServer {
 				for (EntityPlayerMP pl : player.world.getMinecraftServer().getPlayerList().getPlayers()) {
 					Server.sendData(pl, EnumPacketClient.SYNC_UPDATE, EnumSync.MailData, compound);
 				}
+			}
+		} else if (type == EnumPacketServer.GetResistances) {
+			Map<String, Integer> map = Maps.newTreeMap();
+			for (String name : Resistances.allDamageNames) { map.put(name, 0); }
+			NoppesUtilServer.sendScrollData(player, map);
+		} else if (type == EnumPacketServer.DropTemplateSave) {
+			DropController dData = DropController.getInstance();
+			int t = buffer.readInt();
+			if (t == 0) { dData.templates.clear(); }
+			else if (t == 1) {
+				NBTTagCompound nbtTemplate = Server.readNBT(buffer);
+				if (!nbtTemplate.hasKey("Name", 8) || nbtTemplate.hasKey("Groups", 10)) { return; }
+				dData.templates.put(nbtTemplate.getString("Name"), new DropsTemplate(nbtTemplate.getCompoundTag("Groups")));
+			}
+			else if (t == 2) {
+				String name = Server.readString(buffer);
+				if (name.isEmpty() || !dData.templates.containsKey(name)) { return; }
+				dData.templates.remove(name);
 			}
 		}
 		CustomNpcs.debugData.endDebug("Server", type.toString(), "PacketHandlerServer_Received");

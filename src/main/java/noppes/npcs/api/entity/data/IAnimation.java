@@ -7,9 +7,9 @@ public interface IAnimation {
 
 	IAnimationFrame addFrame();
 
-	IAnimationFrame addFrame(IAnimationFrame frame);
+	IAnimationFrame addFrame(int frameId, IAnimationFrame frame);
 
-	IAnimationFrame getFrame(int frame);
+	IAnimationFrame getFrame(int frameId);
 
 	IAnimationFrame[] getFrames();
 
@@ -23,9 +23,9 @@ public interface IAnimation {
 
 	boolean hasFrame(int frame);
 
-	boolean removeFrame(IAnimationFrame frame);
+	boolean removeFrame(IAnimationFrame frameId);
 
-	boolean removeFrame(int frame);
+	boolean removeFrame(int frameId);
 
 	void setName(String name);
 

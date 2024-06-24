@@ -19,8 +19,11 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.client.model.ModelBipedAlt;
+import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.client.util.aw.CustomSkinModelRenderHelper;
+import noppes.npcs.constants.EnumParts;
 
 @SideOnly(Side.CLIENT)
 public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterface<T> {
@@ -30,8 +33,7 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 	}
 
 	@Override
-	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch,
-			float scale) {
+	public void render(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		boolean flag = this.npc.getPrimaryHand() == EnumHandSide.RIGHT;
 		ItemStack mainhand = flag ? this.npc.getHeldItemOffhand() : this.npc.getHeldItemMainhand();
 		ItemStack offhand = flag ? this.npc.getHeldItemMainhand() : this.npc.getHeldItemOffhand();
@@ -41,28 +43,27 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 				GlStateManager.translate(0.0F, 0.75F, 0.0F);
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			}
-			if (this.npc.animation.showParts.get(1)) {
-				this.renderHeldItem(this.npc, mainhand, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND,
-						EnumHandSide.LEFT, scale);
+			if (this.npc.animation.showParts.get(EnumParts.ARM_LEFT)) {
+				boolean show = true;
+				if (this.model instanceof ModelNpcAlt) { show = ((ModelNpcAlt) this.model).leftStackData.showModel; }
+				else if (this.model instanceof ModelBipedAlt) { show = ((ModelBipedAlt) this.model).leftStackData.showModel; }
+				if (show) { this.renderHeldItem(this.npc, mainhand, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT, scale); }
 			}
-			if (this.npc.animation.showParts.get(2)) {
-				this.renderHeldItem(this.npc, offhand, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND,
-						EnumHandSide.RIGHT, scale);
+			if (this.npc.animation.showParts.get(EnumParts.ARM_RIGHT)) {
+				boolean show = true;
+				if (this.model instanceof ModelNpcAlt) { show = ((ModelNpcAlt) this.model).rightStackData.showModel; }
+				else if (this.model instanceof ModelBipedAlt) { show = ((ModelBipedAlt) this.model).leftStackData.showModel; }
+				if (show) { this.renderHeldItem(this.npc, offhand, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, EnumHandSide.RIGHT, scale); }
 			}
 			GlStateManager.popMatrix();
 		}
 	}
 
-	private void renderHeldItem(EntityLivingBase entity, ItemStack stack, ItemCameraTransforms.TransformType transform,
-			EnumHandSide handSide, float scale) {
-		if (stack.isEmpty()) {
-			return;
-		}
+	private void renderHeldItem(EntityLivingBase entity, ItemStack stack, ItemCameraTransforms.TransformType transform, EnumHandSide handSide, float scale) {
+		if (stack.isEmpty()) { return; }
 		GlStateManager.pushMatrix();
 		boolean isLeft = handSide == EnumHandSide.LEFT;
-		if (entity.isSneaking()) {
-			GlStateManager.translate(0.0F, 0.2F, 0.0F);
-		}
+		if (entity.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
 		this.model.postRenderArm(scale, handSide);
 		boolean drawStack = true;
 		if (ArmourersWorkshopClientApi.getSkinRenderHandler() != null) {
@@ -71,8 +72,7 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			if (skinCapability != null) {
 				ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack);
 				if (skinDescriptor != null) {
-					double distance = Minecraft.getMinecraft().player.getDistance(this.npc.posX, this.npc.posY,
-							this.npc.posZ);
+					double distance = Minecraft.getMinecraft().player.getDistance(this.npc.posX, this.npc.posY, this.npc.posZ);
 					int d = 0;
 					try {
 						d = (int) awu.renderDistanceSkin.get(awu.configHandlerClient);
@@ -111,8 +111,7 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 											GlStateManager.translate(0.0f, 0.1875f, -0.0625f);
 										}
 									}
-									modelRenderer.renderEquipmentPart(skin, renderData, this.npc,
-											(ModelBiped) this.render.getMainModel(), scale, null);
+									modelRenderer.renderEquipmentPart(skin, renderData, this.npc, (ModelBiped) this.render.getMainModel(), scale, null);
 								}
 							} catch (Exception e) {
 								e.printStackTrace();

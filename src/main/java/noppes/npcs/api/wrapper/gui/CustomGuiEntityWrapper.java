@@ -7,13 +7,23 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.gui.IGuiEntity;
 import noppes.npcs.controllers.PlayerSkinController;
 
-public class CustomGuiEntityWrapper extends CustomGuiComponentWrapper implements IGuiEntity {
+public class CustomGuiEntityWrapper
+extends CustomGuiComponentWrapper
+implements IGuiEntity {
 
 	public NBTTagCompound entityNbt = null;
 	IEntity<?> entity = null;
 
 	float scale = 1.0f;
 	boolean hasBorder = false, showArmor = true;
+	/**
+	 * 0 - nope
+	 * 1 - mouse
+	 * 2 - set rot
+	 */
+	public int rotType = 0;
+	public int rotYaw = 0;
+	public int rotPitch = 0;
 
 	public CustomGuiEntityWrapper() {
 		this(-1, 0, 0, null);
@@ -36,6 +46,9 @@ public class CustomGuiEntityWrapper extends CustomGuiComponentWrapper implements
 		if (entityNbt.getKeySet().isEmpty()) {
 			entity = null;
 		}
+		rotType = nbt.getInteger("RotationType");
+		rotYaw = nbt.getInteger("RotationYaw");
+		rotPitch = nbt.getInteger("RotationPitch");
 		return this;
 	}
 
@@ -107,7 +120,32 @@ public class CustomGuiEntityWrapper extends CustomGuiComponentWrapper implements
 			}
 		}
 		nbt.setTag("Entity", entityNbt);
+		nbt.setInteger("RotationType", rotType);
+		nbt.setInteger("RotationYaw", rotYaw);
+		nbt.setInteger("RotationPitch", rotPitch);
 		return nbt;
+	}
+
+	@Override
+	public int getRotationType() { return this.rotType; }
+
+	@Override
+	public void setRotationType(int type) {
+		if (type < 0) { type *= -1; }
+		this.rotType = type % 3;
+	}
+
+	@Override
+	public int getYaw() { return this.rotYaw; }
+
+	@Override
+	public int getPitch() { return this.rotPitch; }
+
+	@Override
+	public void setRotation(int yaw, int pitch) { // int horizontal, int vertical
+		while (yaw < 0) { yaw += 360; }
+		this.rotYaw = yaw % 360;
+		this.rotPitch = pitch % 91;
 	}
 
 }

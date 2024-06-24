@@ -10,7 +10,6 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.NpcAPI;
@@ -24,14 +23,12 @@ import noppes.npcs.util.ValueUtil;
 
 public class DropsTemplate {
 
-	public final Map<Integer, Map<Integer, DropSet>> groups; // <id, <pos, drop>>
-	private int dropType; // 0-only rnd, 1-only min, 2-only max, 3-all
-	private Random rnd;
+	public final Map<Integer, Map<Integer, DropSet>> groups = Maps.<Integer, Map<Integer, DropSet>>newTreeMap(); // <id, <pos, drop>>
+	private int dropType = 0; // 0-only rnd, 1-only min, 2-only max, 3-all
+	private Random rnd = new Random();
 
 	public DropsTemplate() {
-		this.groups = Maps.<Integer, Map<Integer, DropSet>>newTreeMap();
-		this.dropType = 0;
-		this.rnd = new Random();
+		this.groups.put(0, Maps.<Integer, DropSet>newTreeMap());
 	}
 
 	public DropsTemplate(NBTTagCompound nbtTemplate) {
@@ -40,7 +37,7 @@ public class DropsTemplate {
 	}
 
 	public ICustomDrop addDropItem(int id, IItemStack item, double chance) {
-		if (this.groups.containsKey(id)) {
+		if (!this.groups.containsKey(id)) {
 			id = this.groups.size();
 			this.groups.put(id, Maps.<Integer, DropSet>newTreeMap());
 		}
@@ -55,6 +52,7 @@ public class DropsTemplate {
 
 	public List<IItemStack> createDrops(double ch, boolean isLooted, EntityLivingBase attacking) {
 		List<IItemStack> list = Lists.<IItemStack>newArrayList();
+		
 		for (int groupId : this.groups.keySet()) {
 			float r = this.rnd.nextFloat();
 			Map<IItemStack, Double> preMap = Maps.<IItemStack, Double>newHashMap();
@@ -70,18 +68,21 @@ public class DropsTemplate {
 				if (ds.getQuestID() > 0) {
 					if (attacking instanceof EntityPlayer) {
 						IPlayer<?> player = (IPlayer<?>) NpcAPI.Instance().getIEntity(attacking);
-						for (IQuest q : player.getActiveQuests()) {
-							if (q.getId() == ds.getQuestID()) {
-								for (IQuestObjective objQ : q.getObjectives(player)) {
-									if (!objQ.isCompleted()) {
-										needAdd = false;
-										break;
+						if (player.getActiveQuests().length > 0) {
+							for (IQuest q : player.getActiveQuests()) {
+								if (q.getId() == ds.getQuestID()) {
+									needAdd = false;
+									for (IQuestObjective objQ : q.getObjectives(player)) {
+										if (!objQ.isCompleted()) {
+											needAdd = true;
+											break;
+										}
 									}
+									break;
 								}
-								break;
 							}
-						}
-					}
+						} else { needAdd = false; }
+					} else { needAdd = false; }
 				}
 				if (needAdd && !(ds.amount[0] == 0 && ds.amount[1] == 0)) {
 					preMap.put(ds.createLoot(ch), ds.chance);
@@ -132,7 +133,7 @@ public class DropsTemplate {
 		return list;
 	}
 
-	public NBTBase getNBT() {
+	public NBTTagCompound getNBT() {
 		NBTTagCompound nbtTemplate = new NBTTagCompound();
 		nbtTemplate.setInteger("DropType", this.dropType);
 		for (int id : this.groups.keySet()) {
@@ -195,7 +196,7 @@ public class DropsTemplate {
 		if (!this.groups.containsKey(groupId)) {
 			return;
 		}
-		this.groups.get(groupId).remove(groupId);
+		this.groups.remove(groupId);
 		Map<Integer, Map<Integer, DropSet>> newGroups = Maps.<Integer, Map<Integer, DropSet>>newTreeMap();
 		int j = 0;
 		for (int gId : this.groups.keySet()) {
@@ -207,6 +208,14 @@ public class DropsTemplate {
 		}
 		this.groups.clear();
 		this.groups.putAll(newGroups);
+	}
+	
+	public static DropsTemplate from(DropsTemplate dropTemplate) {
+		DropsTemplate dt = new DropsTemplate();
+		if (dropTemplate != null) {
+			dt.load(dropTemplate.getNBT());
+		}
+		return dt;
 	}
 
 }

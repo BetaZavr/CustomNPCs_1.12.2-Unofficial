@@ -17,9 +17,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 	public EntityCustomNpc(World world) {
 		super(world);
 		this.modelData = new ModelData();
-		if (!CustomNpcs.EnableDefaultEyes) {
-			this.modelData.eyes.type = -1;
-		}
+		if (!CustomNpcs.EnableDefaultEyes) { this.modelData.eyes.type = -1; }
 	}
 
 	@Override
@@ -61,7 +59,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 		Entity entity = this.modelData.getEntity(this);
 		if (this.modelData == null || entity == null) {
 			this.baseHeight = 1.9f - this.modelData.getBodyY()
-					+ (this.modelData.getPartConfig(EnumParts.HEAD).scaleBase[1] - 1.0f) / 2.0f;
+					+ (this.modelData.getPartConfig(EnumParts.HEAD).scale[1] - 1.0f) / 2.0f;
 			super.updateHitbox();
 		} else {
 			if (entity instanceof EntityNPCInterface) {

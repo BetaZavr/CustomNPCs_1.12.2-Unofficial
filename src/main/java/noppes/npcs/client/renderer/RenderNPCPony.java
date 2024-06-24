@@ -17,8 +17,10 @@ import noppes.npcs.client.model.ModelPony;
 import noppes.npcs.client.model.ModelPonyArmor;
 import noppes.npcs.entity.EntityNpcPony;
 
-public class RenderNPCPony<T extends EntityNpcPony> extends RenderNPCInterface<T>
-		implements IRenderFactory<EntityNpcPony> {
+public class RenderNPCPony<T extends EntityNpcPony>
+extends RenderNPCInterface<T>
+implements IRenderFactory<EntityNpcPony> {
+	
 	private ModelPonyArmor modelArmor;
 	private ModelPonyArmor modelArmorChestplate;
 	private ModelPony modelBipedMain;

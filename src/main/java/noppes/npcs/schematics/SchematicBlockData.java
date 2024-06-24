@@ -43,7 +43,7 @@ public class SchematicBlockData {
 		Block b = Block.getBlockFromItem(stack.getItem());
 		this.state = b.getDefaultState();
 		if (stack.getItemDamage() < b.getBlockState().getValidStates().size()) {
-			this.state = b.getBlockState().getValidStates().get(stack.getItemDamage());
+			this.state = b.getStateFromMeta(stack.getItemDamage());
 		}
 		this.nbtTile = null;
 		if (stack.hasTagCompound()) {

@@ -5,7 +5,6 @@ import java.util.Vector;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
@@ -23,6 +22,7 @@ import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.ObfuscationHelper;
 
 public class PlayerQuestController {
 
@@ -42,16 +42,13 @@ public class PlayerQuestController {
 				return;
 			}
 			int taskId = 0;
-			for (IQuestObjective obj : quest
-					.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayerMP) player))) {
+			for (IQuestObjective obj : quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity((EntityPlayerMP) player))) {
 				if (obj.getType() == EnumQuestTask.ITEM.ordinal()) {
-					playerdata.questData.checkQuestCompletion((EntityPlayer) player,
-							playerdata.questData.activeQuests.get(quest.id));
+					playerdata.questData.checkQuestCompletion((EntityPlayer) player, playerdata.questData.activeQuests.get(quest.id));
 				}
 				if (obj.isSetPointOnMiniMap() && !playerdata.minimap.modName.equals("non")) {
 					String name = quest.getTitle() + "_";
-					if (obj.getType() == EnumQuestTask.ITEM.ordinal()
-							|| obj.getType() == EnumQuestTask.CRAFT.ordinal()) {
+					if (obj.getType() == EnumQuestTask.ITEM.ordinal() || obj.getType() == EnumQuestTask.CRAFT.ordinal()) {
 						name += obj.getItem().getDisplayName();
 					}
 					if (obj.getType() == EnumQuestTask.DIALOG.ordinal()) {
@@ -64,14 +61,14 @@ public class PlayerQuestController {
 					} else {
 						name += obj.getTargetName();
 					}
-					MiniMapData mmd = playerdata.minimap.getQuestTask(quest.id, taskId, name,
-							obj.getCompassDimension());
+					MiniMapData mmd = playerdata.minimap.getQuestTask(quest.id, taskId, name, obj.getCompassDimension());
 					if (mmd == null) {
 						mmd = (MiniMapData) playerdata.minimap.addPoint(obj.getCompassDimension());
 					}
 					mmd.setName(AdditionalMethods.instance.deleteColor(name));
 					mmd.setPos(obj.getCompassPos());
-					player.sendMessage(new TextComponentTranslation("quest.addPoint"));
+					ObfuscationHelper.setValue(MiniMapData.class, mmd, quest.id, 0); // questId
+					ObfuscationHelper.setValue(MiniMapData.class, mmd, taskId, 1); // taskId
 				}
 				taskId++;
 			}
@@ -121,9 +118,8 @@ public class PlayerQuestController {
 	public static boolean getRemoveActiveQuest(EntityPlayer player, int id) {
 		PlayerData playerdata = PlayerData.get(player);
 		PlayerQuestData data = playerdata.questData;
-		if (!data.activeQuests.containsKey(id)) {
-			return false;
-		}
+		playerdata.minimap.removeQuestPoints(id);
+		if (!data.activeQuests.containsKey(id)) { return false; }
 		HashMap<Integer, QuestData> newData = new HashMap<Integer, QuestData>();
 		boolean del = false;
 		for (int qid : data.activeQuests.keySet()) {
@@ -176,6 +172,7 @@ public class PlayerQuestController {
 		PlayerData playerdata = PlayerData.get(player);
 		PlayerQuestData data = playerdata.questData;
 		data.activeQuests.remove(quest.id);
+		playerdata.minimap.removeQuestPoints(quest.id);
 		if (quest.repeat == EnumQuestRepeat.RLDAILY || quest.repeat == EnumQuestRepeat.RLWEEKLY) {
 			data.finishedQuests.put(quest.id, System.currentTimeMillis());
 		} else {

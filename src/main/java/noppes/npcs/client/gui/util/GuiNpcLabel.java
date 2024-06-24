@@ -13,7 +13,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiNpcLabel {
+public class GuiNpcLabel
+implements IComponentGui {
 
 	public int backColor = 0, borderColor = 0;
 	public int color;
@@ -129,4 +130,10 @@ public class GuiNpcLabel {
 					.getStringWidth(AdditionalMethods.instance.deleteColor(str));
 		}
 	}
+
+	@Override
+	public int[] getCenter() {
+		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	}
+	
 }

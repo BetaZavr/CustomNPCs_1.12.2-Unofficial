@@ -128,12 +128,14 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
 			return;
 		}
 		items.add(new ItemStack(this));
+		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
 	}
 
 	private CustomTileEntityPortal getTile(World world, BlockPos pos) {
@@ -335,5 +337,11 @@ public class CustomBlockPortal extends BlockEndPortal implements ICustomElement 
 	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos,
 			EnumFacing side) {
 		return side == EnumFacing.DOWN ? super.shouldSideBeRendered(blockState, blockAccess, pos, side) : false;
+	}
+
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		return 5;
 	}
 }

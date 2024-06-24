@@ -24,8 +24,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 	private final Map<ResourceLocation, String> data;
 	private GuiCustomScroll base;
 	private GuiCustomScroll selected;
-	private String back = "   " + Character.toChars(0x2190)[0] + " ("
-			+ new TextComponentTranslation("gui.back").getFormattedText() + ")";
+	private String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
 	private String path = "";
 
 	public GuiScriptList(Map<String, Long> scripts, ScriptContainer container) {
@@ -34,19 +33,13 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		this.setBackground("menubg.png");
 		this.xSize = 346;
 		this.ySize = 216;
-		if (scripts == null) {
-			scripts = Maps.<String, Long>newTreeMap();
-		}
+		if (scripts == null) { scripts = Maps.<String, Long>newTreeMap(); }
 		this.scripts = scripts;
 		this.data = Maps.<ResourceLocation, String>newTreeMap();
 		for (String path : this.scripts.keySet()) {
 			ResourceLocation res;
-			if (path.indexOf("/") != -1) {
-				res = new ResourceLocation(path.substring(0, path.lastIndexOf("/")),
-						path.substring(path.lastIndexOf("/") + 1));
-			} else {
-				res = new ResourceLocation("base", path);
-			}
+			if (path.indexOf("/") != -1) {res = new ResourceLocation(path.substring(0, path.lastIndexOf("/")), path.substring(path.lastIndexOf("/") + 1)); }
+			else { res = new ResourceLocation("base", path); }
 			this.data.put(res, res.getResourcePath());
 		}
 	}
@@ -114,8 +107,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 		if (this.path.length() > 20) {
 			p = "..." + this.path.substring(this.path.length() - 20);
 		}
-		this.addLabel(new GuiNpcLabel(3, ((char) 167) + "0" + ((char) 167) + "l" + p, this.guiLeft + 4,
-				this.guiTop + 16 + this.base.height));
+		this.addLabel(new GuiNpcLabel(3, ((char) 167) + "0" + ((char) 167) + "l" + p, this.guiLeft + 4, this.guiTop + 16 + this.base.height));
 
 		List<String> temp = new ArrayList<String>(this.scripts.keySet());
 		temp.removeAll(this.container.scripts);
@@ -212,8 +204,7 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			listBase.add(key);
 			if (hs.containsKey(key)) {
 				if (fs.get(key) < 0) {
-					this.base.hoversTexts[i] = new String[] { hs.get(key),
-							((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText() };
+					this.base.hoversTexts[i] = new String[] { hs.get(key), ((char) 167) + "4" + new TextComponentTranslation("gui.encrypted").getFormattedText() };
 				} else {
 					this.base.hoversTexts[i] = new String[] { hs.get(key) };
 				}
@@ -238,9 +229,10 @@ public class GuiScriptList extends SubGuiInterface implements ICustomScrollListe
 			if (l < 0L) {
 				l *= -1L;
 			}
-			String size = "" + ft.get(key);
+			String size = "" + l;
+			
 			if (l > 999) {
-				size = AdditionalMethods.getTextReducedNumber(ft.get(key), false, false, true);
+				size = AdditionalMethods.getTextReducedNumber(l, false, false, true);
 			}
 			suffixs.add(size + "b");
 			list.add(key);

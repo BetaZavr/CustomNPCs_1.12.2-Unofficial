@@ -50,13 +50,13 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 		this.id = id;
 		this.name = "Market";
 		this.updateTime = 0;
-		this.markup.put(0, new MarkupData(0, 0.15f, 0.80f, 1000));
-		this.markup.put(1, new MarkupData(1, 0.0f, 0.45f, 2200));
-		this.markup.put(2, new MarkupData(2, -0.05f, 0.0f, 5000));
+		this.markup.put(0, new MarkupData(0, 0.0f, 0.0f, 1000));
+		this.markup.put(1, new MarkupData(1, 0.0f, 0.0f, 2200));
+		this.markup.put(2, new MarkupData(2, -0.0f, 0.0f, 5000));
 		this.sections.put(0, new MarcetSection(0));
 		this.lines = new Lines();
 		this.isLimited = false;
-		this.showXP = true;
+		this.showXP = false;
 		this.limitedType = 0;
 		this.money = 0;
 		this.updateNew();
@@ -372,6 +372,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
 			for (WorldServer world : CustomNpcs.Server.worlds) {
 				List<EntityNPCInterface> npcs = world.getEntities(EntityNPCInterface.class, this);
 				for (EntityNPCInterface npc : npcs) {
+					if (!npc.isEntityAlive()) { continue; }
 					npc.saySurrounding(this.lines.getLine(true));
 				}
 			}

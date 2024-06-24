@@ -95,7 +95,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 				this.fontRenderer
 						.drawString(
 								AdditionalMethods.getTextReducedNumber(this.locSel.money, true, true, false) + " "
-										+ CustomNpcs.CharCurrencies.charAt(0),
+										+ CustomNpcs.displayCurrencies,
 								x, y, CustomNpcs.LableColor.getRGB(), false);
 			}
 		}
@@ -220,7 +220,7 @@ public class GuiTransportSelection extends GuiNPCInterface
 					if (loc.money > 0 || !loc.inventory.isEmpty()) {
 						if (loc.money > 0) {
 							sfx = AdditionalMethods.getTextReducedNumber(loc.money, true, true, false) + " "
-									+ CustomNpcs.CharCurrencies.charAt(0);
+									+ CustomNpcs.displayCurrencies;
 							if (loc.money > 0 && loc.money > ClientProxy.playerData.game.getMoney()) {
 								color = 0xFFFF0000;
 							}

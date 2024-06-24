@@ -14,6 +14,16 @@ public enum EnumSync {
 	KeysData, // 10
 	TransportData, // 11
 	PlayerQuestData, // 12
-	PlayerGameData, AnimationData, MarcetDeal, MarcetData, BankCeil, BankData, GameData, MailData, Debug;
+	PlayerGameData,
+	AnimationData,
+	EmotionData,
+	MarcetDeal,
+	MarcetData,
+	BankCeil,
+	BankData,
+	GameData,
+	MailData,
+	BuilderData,
+	Debug;
 
 }

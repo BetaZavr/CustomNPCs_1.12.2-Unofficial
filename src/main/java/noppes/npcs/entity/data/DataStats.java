@@ -201,18 +201,13 @@ public class DataStats implements INPCStats {
 	}
 
 	@Override
-	public float getResistance(int type) {
-		switch (type) {
-		case 0:
-			return this.resistances.melee;
-		case 1:
-			return this.resistances.arrow;
-		case 2:
-			return this.resistances.explosion;
-		case 3:
-			return this.resistances.knockback;
-		}
-		return 1.0f;
+	public String[] getResistanceKeys() {
+		return this.resistances.data.keySet().toArray(new String[this.resistances.data.size()]);
+	}
+	
+	@Override
+	public float getResistance(String damageName) {
+		return this.resistances.get(damageName);
 	}
 
 	@Override
@@ -266,7 +261,8 @@ public class DataStats implements INPCStats {
 	}
 
 	public void readToNBT(NBTTagCompound compound) {
-		this.resistances.readToNBT(compound.getCompoundTag("Resistances"));
+		if (compound.hasKey("Resistances", 9)) { this.resistances.readToNBT(compound.getTagList("Resistances", 10)); }
+		else { this.resistances.oldReadToNBT(compound.getCompoundTag("Resistances")); }
 		if (compound.hasKey("MaxHealth", 3)) { // Old
 			this.setMaxHealth(compound.getInteger("MaxHealth"));
 		} else {
@@ -393,17 +389,8 @@ public class DataStats implements INPCStats {
 	}
 
 	@Override
-	public void setResistance(int type, float value) {
-		value = ValueUtil.correctFloat(value, 0.0f, 2.0f);
-		if (type == 0) {
-			this.resistances.melee = value;
-		} else if (type == 1) {
-			this.resistances.arrow = value;
-		} else if (type == 2) {
-			this.resistances.explosion = value;
-		} else if (type == 3) {
-			this.resistances.knockback = value;
-		}
+	public void setResistance(String damageName, float value) {
+		this.resistances.data.put(damageName, ValueUtil.correctFloat(value, 0.0f, 2.0f));
 	}
 
 	@Override

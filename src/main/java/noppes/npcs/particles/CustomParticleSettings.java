@@ -41,4 +41,7 @@ public class CustomParticleSettings implements ICustomElement {
 		return NpcAPI.Instance().getINbt(this.nbtData);
 	}
 
+	@Override
+	public int getType() { return this.nbtData.hasKey("OBJModel", 8) && !this.nbtData.getString("OBJModel").isEmpty() ? 1 : 0; }
+
 }

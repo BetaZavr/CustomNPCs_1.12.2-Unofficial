@@ -17,6 +17,7 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResource;
@@ -31,7 +32,9 @@ import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.client.model.ModelOBJPlayerArmor;
+import noppes.npcs.client.renderer.data.CustomOBJState;
 import noppes.npcs.client.renderer.data.ParameterizedModel;
+import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 
@@ -57,8 +60,7 @@ public class ModelBuffer {
 	 *            material, Value is a new resource texture
 	 * @return ID of the drawing sheet
 	 */
-	public static int getDisplayList(ResourceLocation objModel, List<String> visibleMeshes,
-			Map<String, String> replacesMaterialTextures) {
+	public static int getDisplayList(ResourceLocation objModel, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		if (ModelBuffer.NOT_FOUND.contains(objModel)) {
 			return -1;
 		}
@@ -78,10 +80,10 @@ public class ModelBuffer {
 					return -1;
 				}
 				// model.iModel.process(ImmutableMap.of("flip-v", "true"));
+				GL11.glPushMatrix();
 				GL11.glNewList(model.listId = GL11.glGenLists(1), GL11.GL_COMPILE);
 				Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
-					if (location.toString().equals("minecraft:missingno")
-							|| location.toString().equals("minecraft:builtin/white")) {
+					if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
 						return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
 					}
 					ResourceLocation loc = location;
@@ -89,8 +91,7 @@ public class ModelBuffer {
 						loc = new ResourceLocation(replacesMaterialTextures.get(location.toString()));
 						LogWriter.debug("Replase texture: " + location + " -> " + loc);
 					}
-					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks()
-							.getAtlasSprite(loc.toString());
+					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc.toString());
 					if (sprite == Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
 						LogWriter.debug("Not load or found texture sprite: " + loc + " to " + objModel);
 					}
@@ -100,9 +101,8 @@ public class ModelBuffer {
 					model.visibleMeshes = Lists.<String>newArrayList(model.iModel.getMatLib().getGroups().keySet());
 				}
 				@SuppressWarnings("deprecation")
-				OBJBakedModel bakedmodel = (OBJBakedModel) model.iModel.bake(
-						new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true),
-						DefaultVertexFormats.ITEM, spriteFunction);
+				OBJBakedModel bakedmodel = (OBJBakedModel) model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
+				GL11.glEnable(GL11.GL_DEPTH_TEST);
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder worldrenderer = tessellator.getBuffer();
 				worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
@@ -111,6 +111,7 @@ public class ModelBuffer {
 				}
 				tessellator.draw();
 				GL11.glEndList();
+				GL11.glPopMatrix();
 				ModelBuffer.MODELS.add(model);
 			} catch (Exception e) {
 				ModelBuffer.NOT_FOUND.add(objModel);
@@ -123,8 +124,7 @@ public class ModelBuffer {
 
 	public static ResourceLocation getMainOBJTexture(ResourceLocation objModel) {
 		try {
-			ResourceLocation location = new ResourceLocation(objModel.getResourceDomain(),
-					objModel.getResourcePath().replace(".obj", ".mtl"));
+			ResourceLocation location = new ResourceLocation(objModel.getResourceDomain(), objModel.getResourcePath().replace(".obj", ".mtl"));
 			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
 			if (res != null) {
 				String mat_lib = IOUtils.toString(res.getInputStream(), Charset.forName("UTF-8"));
@@ -154,13 +154,51 @@ public class ModelBuffer {
 		if (!(entity instanceof EntityPlayer) && !(entity instanceof EntityNPCInterface)) {
 			return null;
 		}
-		if (entity instanceof EntityNPCInterface) {
-			return ((ModelBipedAlt) defModel).setShowSlot(slot);
-		}
+		if (entity instanceof EntityNPCInterface) { return (ModelBipedAlt) defModel; }
 		if (ModelBuffer.objModel == null) {
 			ModelBuffer.objModel = new ModelOBJPlayerArmor(armor);
 		}
 		return ModelBuffer.objModel;
 	}
 
+	public static IBakedModel getIBakedModel(CustomArmor armor) {
+		if (armor.objModel == null) { return null; }
+		List<String> visibleMeshes = Lists.<String>newArrayList();
+		if (armor.getEquipmentSlot() == EntityEquipmentSlot.HEAD) {
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.HEAD));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.MOHAWK));
+		} else if (armor.getEquipmentSlot() == EntityEquipmentSlot.CHEST) {
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.BODY));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.ARM_LEFT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.ARM_RIGHT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.WRIST_LEFT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.WRIST_RIGHT));
+		} else if (armor.getEquipmentSlot() == EntityEquipmentSlot.LEGS) {
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.BELT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.LEG_LEFT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.LEG_RIGHT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FOOT_LEFT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FOOT_RIGHT));
+		} else if (armor.getEquipmentSlot() == EntityEquipmentSlot.FEET) {
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FEET_LEFT));
+			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FEET_RIGHT));
+		} else { return null; }
+		try {
+			OBJModel iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(armor.objModel);
+			if (iModel == null) { return null; }
+			Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
+				if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
+					return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
+				}
+				TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
+				if (sprite == Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
+					LogWriter.debug("Not load or found texture sprite: " + location + " to " + objModel);
+				}
+				return sprite;
+			};
+			return iModel.bake(new CustomOBJState(ImmutableList.copyOf(visibleMeshes), true, armor), DefaultVertexFormats.ITEM, spriteFunction);
+		} catch (Exception e) { }
+		return null;
+	}
+	
 }

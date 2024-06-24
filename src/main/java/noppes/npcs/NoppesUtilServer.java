@@ -370,8 +370,7 @@ public class NoppesUtilServer {
 	}
 
 	public static void playSound(EntityLivingBase entity, SoundEvent sound, float volume, float pitch) {
-		entity.world.playSound((EntityPlayer) null, entity.posX, entity.posY, entity.posZ, sound, SoundCategory.NEUTRAL,
-				volume, pitch);
+		entity.world.playSound((EntityPlayer) null, entity.posX, entity.posY, entity.posZ, sound, SoundCategory.NEUTRAL, volume, pitch);
 	}
 
 	public static void playSound(World world, BlockPos pos, SoundEvent sound, SoundCategory cat, float volume,
@@ -600,13 +599,15 @@ public class NoppesUtilServer {
 		setEditingNpc(player, npc);
 		sendExtraData(player, npc, gui, x, y, z);
 		CustomNPCsScheduler.runTack(() -> {
-			if (CustomNpcs.proxy.getServerGuiElement(gui.ordinal(), player, player.world, x, y, z) != null) {
-				player.openGui(CustomNpcs.instance, gui.ordinal(), player.world, x, y, z);
-			} else {
-				Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.GUI, gui.ordinal(), x, y, z);
-				Map<String, Integer> map = getScrollData(player, gui, npc);
-				sendScrollData((EntityPlayerMP) player, map);
-			}
+			try {
+				if (CustomNpcs.proxy.getServerGuiElement(gui.ordinal(), player, player.world, x, y, z) != null) {
+					player.openGui(CustomNpcs.instance, gui.ordinal(), player.world, x, y, z);
+				} else {
+					Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.GUI, gui.ordinal(), x, y, z);
+					Map<String, Integer> map = getScrollData(player, gui, npc);
+					sendScrollData((EntityPlayerMP) player, map);
+				}
+			} catch (Exception e) { e.printStackTrace(); }
 		}, 100);
 	}
 

@@ -3,11 +3,11 @@ package noppes.npcs.client.model.animation;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
+import noppes.npcs.client.model.ModelRendererAlt;
 
 public class AniCrawling {
 
-	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
+	public static void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity, ModelBiped model) {
 		model.bipedHead.rotateAngleZ = netHeadYaw / -57.295776f;
 		if (model.bipedHead.rotateAngleZ < -0.707106f) {
 			model.bipedHead.rotateAngleZ = -0.707106f;
@@ -15,17 +15,16 @@ public class AniCrawling {
 			model.bipedHead.rotateAngleZ = 0.707106f;
 		}
 		model.bipedHead.rotateAngleY = 0.0f;
-
-		model.bipedHead.rotateAngleX = -0.95993114f
-				- (0.4f * (float) Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
-
+		model.bipedHead.rotateAngleX = -0.95993114f - (0.4f * (float) Math.abs(model.bipedHead.rotateAngleZ / 0.707106f));
 		model.bipedHeadwear.rotateAngleX = model.bipedHead.rotateAngleX;
 		model.bipedHeadwear.rotateAngleY = model.bipedHead.rotateAngleY;
 		model.bipedHeadwear.rotateAngleZ = model.bipedHead.rotateAngleZ;
-		if (limbSwingAmount > 0.25) {
-			limbSwingAmount = 0.25f;
-		}
+		if (limbSwingAmount > 0.25) { limbSwingAmount = 0.25f; }
 		float movement = MathHelper.cos(limbSwing * 0.8f + 3.1415927f) * limbSwingAmount;
+		if (model.bipedLeftArm instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedLeftArm).setIsNormal(true); }
+		if (model.bipedRightArm instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedRightArm).setIsNormal(true); }
+		if (model.bipedLeftLeg instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedLeftLeg).setIsNormal(true); }
+		if (model.bipedRightLeg instanceof ModelRendererAlt) { ((ModelRendererAlt) model.bipedRightLeg).setIsNormal(true); }
 		model.bipedLeftArm.rotateAngleX = 3.1415927f - movement * 0.25f;
 		model.bipedLeftArm.rotateAngleY = movement * -0.46f;
 		model.bipedLeftArm.rotateAngleZ = movement * -0.2f;

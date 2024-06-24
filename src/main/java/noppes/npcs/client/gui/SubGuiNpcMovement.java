@@ -25,56 +25,56 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			this.ai.setMovingType(button.getValue());
-			if (this.ai.getMovingType() != 0) {
-				this.ai.animationType = 0;
-				this.ai.setStandingType(0);
-				DataAI ai = this.ai;
-				DataAI ai2 = this.ai;
-				DataAI ai3 = this.ai;
-				float bodyOffsetX = 5.0f;
-				ai3.bodyOffsetZ = bodyOffsetX;
-				ai2.bodyOffsetY = bodyOffsetX;
-				ai.bodyOffsetX = bodyOffsetX;
+			case 0: {
+				this.ai.setMovingType(button.getValue());
+				if (this.ai.getMovingType() != 0) {
+					this.ai.animationType = 0;
+					this.ai.setStandingType(0);
+					DataAI ai = this.ai;
+					DataAI ai2 = this.ai;
+					DataAI ai3 = this.ai;
+					float bodyOffsetX = 5.0f;
+					ai3.bodyOffsetZ = bodyOffsetX;
+					ai2.bodyOffsetY = bodyOffsetX;
+					ai.bodyOffsetX = bodyOffsetX;
+				}
+				this.initGui();
+				break;
 			}
-			this.initGui();
-			break;
-		}
-		case 2: {
-			this.ai.movingPause = (button.getValue() == 1);
-			break;
-		}
-		case 4: {
-			this.ai.setAnimation(button.getValue());
-			this.initGui();
-			break;
-		}
-		case 5: {
-			this.ai.npcInteracting = (button.getValue() == 1);
-			break;
-		}
-		case 7: {
-			this.ai.setStandingType(button.getValue());
-			this.initGui();
-			break;
-		}
-		case 8: {
-			this.ai.movingPattern = button.getValue();
-			break;
-		}
-		case 13: {
-			this.ai.stopAndInteract = (button.getValue() == 1);
-			break;
-		}
-		case 15: {
-			this.ai.movementType = button.getValue();
-			break;
-		}
-		case 66: {
-			this.close();
-			break;
-		}
+			case 2: {
+				this.ai.movingPause = (button.getValue() == 1);
+				break;
+			}
+			case 4: {
+				this.ai.setAnimation(button.getValue());
+				this.initGui();
+				break;
+			}
+			case 5: {
+				this.ai.npcInteracting = (button.getValue() == 1);
+				break;
+			}
+			case 7: {
+				this.ai.setStandingType(button.getValue());
+				this.initGui();
+				break;
+			}
+			case 8: {
+				this.ai.movingPattern = button.getValue();
+				break;
+			}
+			case 13: {
+				this.ai.stopAndInteract = (button.getValue() == 1);
+				break;
+			}
+			case 15: {
+				this.ai.movementType = button.getValue();
+				break;
+			}
+			case 66: {
+				this.close();
+				break;
+			}
 		}
 	}
 
@@ -126,8 +126,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 		super.initGui();
 		int y = this.guiTop + 4;
 		this.addLabel(new GuiNpcLabel(0, "movement.type", this.guiLeft + 4, y + 5));
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 80, y, 100, 20,
-				new String[] { "ai.standing", "ai.wandering", "ai.movingpath" }, this.ai.getMovingType()));
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 80, y, 100, 20, new String[] { "ai.standing", "ai.wandering", "ai.movingpath" }, this.ai.getMovingType()));
 		y += 22;
 		this.addButton(new GuiNpcButton(15, this.guiLeft + 80, y, 100, 20,
 				new String[] { "movement.ground", "movement.flying", "movement.swimming" }, this.ai.movementType));
@@ -169,9 +168,7 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 			this.addLabel(new GuiNpcLabel(3, "movement.animation", this.guiLeft + 4, y + 5));
 			if (this.ai.animationType != 2) {
 				y += 22;
-				this.addButton(new GuiNpcButton(7, this.guiLeft + 80, y, 80, 20,
-						new String[] { "movement.body", "movement.manual", "movement.stalking", "movement.head" },
-						this.ai.getStandingType()));
+				this.addButton(new GuiNpcButton(7, this.guiLeft + 80, y, 80, 20, new String[] { "movement.body", "movement.manual", "movement.stalking", "movement.head", "movement.stalking.2" }, this.ai.getStandingType()));
 				this.addLabel(new GuiNpcLabel(1, "movement.rotation", this.guiLeft + 4, y + 5));
 			} else {
 				y += 22;
@@ -181,9 +178,8 @@ public class SubGuiNpcMovement extends SubGuiInterface implements ITextfieldList
 				this.addLabel(new GuiNpcLabel(6, "movement.rotation", this.guiLeft + 4, y + 5));
 				this.addLabel(new GuiNpcLabel(5, "(0-359)", this.guiLeft + 142, y + 5));
 			}
-			if (this.ai.getStandingType() == 1 || this.ai.getStandingType() == 3) {
-				this.addTextField(
-						new GuiNpcTextField(5, this, this.guiLeft + 165, y, 40, 20, this.ai.orientation + ""));
+			if (this.ai.getStandingType() == 1 || this.ai.getStandingType() == 3 || this.ai.getStandingType() == 4) {
+				this.addTextField(new GuiNpcTextField(5, this, this.guiLeft + 165, y, 40, 20, this.ai.orientation + ""));
 				this.getTextField(5).setNumbersOnly();
 				this.getTextField(5).setMinMaxDefault(0, 359, 0);
 				this.addLabel(new GuiNpcLabel(5, "(0-359)", this.guiLeft + 207, y + 5));

@@ -31,7 +31,7 @@ public class PlayerFactionData {
 			PlayerWrapper<?> wrapper = (PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player);
 			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction,
 					faction.defaultPoints, true);
-			EventHooks.OnPlayerFactionChange(handler, event);
+			EventHooks.onPlayerFactionChange(handler, event);
 			this.factionData.put(factionId, event.points);
 		}
 		return this.factionData.get(factionId);
@@ -62,13 +62,12 @@ public class PlayerFactionData {
 		PlayerScriptData handler = PlayerData.get(player).scriptData;
 		PlayerWrapper<?> wrapper = (PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player);
 		if (!this.factionData.containsKey(factionId)) {
-			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction,
-					faction.defaultPoints, true);
-			EventHooks.OnPlayerFactionChange(handler, event);
+			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction, faction.defaultPoints, true);
+			EventHooks.onPlayerFactionChange(handler, event);
 			this.factionData.put(factionId, event.points);
 		}
 		PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction, points, false);
-		EventHooks.OnPlayerFactionChange(handler, event);
+		EventHooks.onPlayerFactionChange(handler, event);
 		this.factionData.put(factionId, this.factionData.get(factionId) + points);
 	}
 

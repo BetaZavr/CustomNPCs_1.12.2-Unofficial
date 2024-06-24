@@ -133,7 +133,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData
 			String daysS = days + " " + ((days == 1) ? new TextComponentTranslation("follower.day").getFormattedText()
 					: new TextComponentTranslation("follower.days").getFormattedText());
 			String money = AdditionalMethods.getTextReducedNumber(this.role.rentalMoney, true, true, false) + " "
-					+ CustomNpcs.CharCurrencies;
+					+ CustomNpcs.displayCurrencies;
 			this.fontRenderer.drawString(money + " = " + daysS, this.guiLeft + 80, this.guiTop + 56,
 					CustomNpcResourceListener.DefaultTextColor);
 		}

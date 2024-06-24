@@ -12,6 +12,7 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class CustomFood extends ItemFood implements ICustomElement {
@@ -61,11 +62,16 @@ public class CustomFood extends ItemFood implements ICustomElement {
 	}
 
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-		if (tab != CustomRegisters.tabItems || (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
-				&& !this.nbtData.getBoolean("ShowInCreative"))) {
-			return;
-		}
+		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
+		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
+		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
+	}
+
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		return 6;
 	}
 
 }

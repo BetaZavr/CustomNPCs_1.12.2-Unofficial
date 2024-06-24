@@ -36,12 +36,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.items.ItemBuilder;
+import noppes.npcs.items.ItemPlacer;
 import noppes.npcs.util.BuilderData;
 
 public class SchematicWrapper {
@@ -306,9 +306,7 @@ public class SchematicWrapper {
 				this.listB = Lists.<SchematicBlockData>newArrayList();
 				this.listE = Lists.<Entity>newArrayList();
 				BlockPos ps = this.start;
-				BlockPos pe = this.start.add(this.rotation % 2 == 0 ? this.schema.getWidth() : this.schema.getLength(),
-						this.schema.getHeight(),
-						this.rotation % 2 == 0 ? this.schema.getLength() : this.schema.getWidth());
+				BlockPos pe = this.start.add(this.rotation % 2 == 0 ? this.schema.getWidth() : this.schema.getLength(), this.schema.getHeight(), this.rotation % 2 == 0 ? this.schema.getLength() : this.schema.getWidth());
 				for (Entity e : this.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(ps.getX() - 0.5d,
 						ps.getY() - 0.5d, ps.getZ() - 0.5d, pe.getX() + 0.5d, pe.getY() + 0.5d, pe.getZ() + 0.5d))) {
 					if (e instanceof EntityThrowable || e instanceof EntityProjectile || e instanceof EntityArrow
@@ -436,8 +434,7 @@ public class SchematicWrapper {
 				return null;
 			} // not place air
 			if (sbd.state != null) {
-				if (!this.builder.replaseAir && sbd.state.getBlock() != Blocks.AIR
-						&& sbd.state.getBlock().canSpawnInBlock()) {
+				if (!this.builder.replaseAir && sbd.state.getBlock() != Blocks.AIR && sbd.state.getBlock().canSpawnInBlock()) {
 					return null;
 				} // not place solid
 				@SuppressWarnings("deprecation")
@@ -487,10 +484,8 @@ public class SchematicWrapper {
 		this.isBuilding = true;
 		this.buildingPercentage = 0;
 		this.isBlock = false;
-		if (sender instanceof EntityPlayer
-				&& ((EntityPlayer) sender).getHeldItemMainhand().getItem() instanceof ItemBuilder) {
-			this.builder = CommonProxy.dataBuilder
-					.get(((EntityPlayer) sender).getHeldItemMainhand().getTagCompound().getInteger("ID"));
+		if (sender instanceof EntityPlayer && ((EntityPlayer) sender).getHeldItemMainhand().getItem() instanceof ItemPlacer) {
+			this.builder = ItemBuilder.getBuilder(((EntityPlayer) sender).getHeldItemMainhand(), (EntityPlayer) sender);
 		}
 	}
 

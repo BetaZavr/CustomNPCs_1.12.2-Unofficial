@@ -9,8 +9,6 @@ public class TextBlock {
 
 	public List<ITextComponent> lines;
 
-	public TextBlock() {
-		this.lines = new ArrayList<ITextComponent>();
-	}
+	public TextBlock() { this.lines = new ArrayList<ITextComponent>(); }
 
 }

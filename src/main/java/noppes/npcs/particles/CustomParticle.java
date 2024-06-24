@@ -30,8 +30,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 	protected float particleAngleX, particleAngleZ;
 	protected long rndStart;
 
-	public CustomParticle(NBTTagCompound data, TextureManager textureManager, World worldIn, double xCoordIn,
-			double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
+	public CustomParticle(NBTTagCompound data, TextureManager textureManager, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... parametrs) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 		this.nbtData = data;
 		this.objList = -1;
@@ -52,8 +51,7 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 			this.particleScale = data.getFloat("Scale");
 		}
 		if (data.hasKey("Texture", 8)) {
-			this.texture = new ResourceLocation(CustomNpcs.MODID,
-					"textures/particle/" + data.getString("Texture") + ".png");
+			this.texture = new ResourceLocation(CustomNpcs.MODID, "textures/particle/" + data.getString("Texture") + ".png");
 		}
 		if (data.hasKey("UVpos", 11) && data.getIntArray("UVpos").length > 1) {
 			int[] p = data.getIntArray("UVpos");
@@ -390,5 +388,8 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 		}
 		this.particleMaxAge = ticks;
 	}
+
+	@Override
+	public int getType() { return this.obj != null ? 1 : 0; }
 
 }

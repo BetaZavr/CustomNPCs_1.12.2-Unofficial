@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -31,30 +33,21 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	private Map<String, Integer> attributeSlotsName;
 	private DataInventory npcInv;
-	public List<AttributeSet> attributes;
-	public List<EnchantSet> enchants;
-	public List<DropNbtSet> tags;
-	public IItemStack item;
-	public int questId;
-	public int pos;
+	public List<AttributeSet> attributes = Lists.<AttributeSet>newArrayList();
+	public List<EnchantSet> enchants = Lists.<EnchantSet>newArrayList();
+	public List<DropNbtSet> tags = Lists.<DropNbtSet>newArrayList();
+	public IItemStack item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
+	public int questId = 0;
+	public int pos = 0;
 	public int npcLevel;
-	public int[] amount;
-	public float damage;
-	public double chance; // 0-100
-	public boolean lootMode; // dropped or get to player
-	public boolean tiedToLevel;
+	public int[] amount = new int[] { 1, 1 };
+	public float damage = 1.0f;
+	public double chance = 100.0d; // 0-100
+	public boolean lootMode = false; // dropped or get to player
+	public boolean tiedToLevel = false;
 
 	public DropSet(DataInventory ni) {
 		this.npcInv = ni;
-		this.item = NpcAPI.Instance().getIItemStack(ItemStack.EMPTY);
-		this.amount = new int[] { 1, 1 };
-		this.chance = 100.0d;
-		this.damage = 1.0f;
-		this.lootMode = false;
-		this.tiedToLevel = false;
-		this.enchants = new ArrayList<EnchantSet>();
-		this.attributes = new ArrayList<AttributeSet>();
-		this.tags = new ArrayList<DropNbtSet>();
 		Map<String, Integer> sln = new HashMap<String, Integer>();
 		sln.put("mainhand", 0);
 		sln.put("offhand", 1);
@@ -63,9 +56,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		sln.put("chest", 4);
 		sln.put("head", 5);
 		this.attributeSlotsName = sln;
-		this.questId = 0;
 		this.npcLevel = ni == null ? 1 : ni.npc.stats.getLevel();
-		this.pos = 0;
 	}
 
 	public IAttributeSet addAttribute(IAttributeSet attribute) {

@@ -29,6 +29,7 @@ import noppes.npcs.constants.EnumAvailabilityFactionType;
 import noppes.npcs.constants.EnumAvailabilityPlayerName;
 import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.constants.EnumAvailabilityScoreboard;
+import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.constants.EnumDayTime;
 import noppes.npcs.controllers.FactionController;
 import noppes.npcs.controllers.PlayerQuestController;
@@ -167,16 +168,6 @@ public class Availability implements ICompatibilty, IAvailability {
 	@Override
 	public String[] getPlayerNames() {
 		return this.playerNames.keySet().toArray(new String[this.playerNames.size()]);
-	}
-
-	@Override
-	public boolean getStoredDataHas(String key) {
-		for (AvailabilityStoredData sd : this.storeddata) {
-			if (sd.key.equals(key)) {
-				return sd.has;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -329,12 +320,24 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (!this.storeddata.isEmpty()) {
 			IData dataP = NpcAPI.Instance().getIEntity(player).getStoreddata();
 			for (AvailabilityStoredData sd : this.storeddata) {
-				if ((dataP.has(sd.key) && !sd.has) || (!dataP.has(sd.key) && sd.has)) {
-					return false;
-				}
+				EnumAvailabilityStoredData type = sd.type;
 				Object value = dataP.get(sd.key);
-				if (sd.has && !sd.value.isEmpty() && (value == null || !value.toString().equals(sd.value))) {
-					return false;
+				boolean isNumber = false;
+				if (type != EnumAvailabilityStoredData.ONLY && type != EnumAvailabilityStoredData.EXCEPT) {
+					if (!(value instanceof Number || value instanceof String)) { return false; }
+					try {
+						double aV = Double.parseDouble(sd.value);
+						double dsV = value instanceof Number ? (double) value : Double.parseDouble((String) value);
+						if (type == EnumAvailabilityStoredData.EQUAL && dsV != aV) { return false; }
+						if (type == EnumAvailabilityStoredData.BIGGER && dsV < aV) { return false; }
+						if (type == EnumAvailabilityStoredData.SMALLER && dsV > aV) { return false; }
+						isNumber = true;
+					}
+					catch (Exception e) { return false; }
+				}
+				if (!isNumber) {
+					if (type == EnumAvailabilityStoredData.EQUAL && !sd.value.equals(value.toString())) { return false; }
+					if ((dataP.has(sd.key) && type == EnumAvailabilityStoredData.EXCEPT) || (!dataP.has(sd.key) && type == EnumAvailabilityStoredData.ONLY)) { return false; }
 				}
 			}
 		}
@@ -564,14 +567,13 @@ public class Availability implements ICompatibilty, IAvailability {
 		}
 		if (compound.hasKey("AvailabilityStoredData", 9)) {
 			for (int i = 0; i < compound.getTagList("AvailabilityStoredData", 10).tagCount(); i++) {
-				AvailabilityStoredData asd = new AvailabilityStoredData(
-						compound.getTagList("AvailabilityStoredData", 10).getCompoundTagAt(i));
+				AvailabilityStoredData asd = new AvailabilityStoredData(compound.getTagList("AvailabilityStoredData", 10).getCompoundTagAt(i));
 				boolean found = false;
 				for (AvailabilityStoredData sd : this.storeddata) {
 					if (sd.key.equals(asd.key)) {
 						found = true;
 						sd.value = asd.value;
-						sd.has = asd.has;
+						sd.type = asd.type;
 						break;
 					}
 				}
@@ -777,19 +779,19 @@ public class Availability implements ICompatibilty, IAvailability {
 	}
 
 	@Override
-	public void setStoredData(String key, String value, boolean has) {
+	public void setStoredData(String key, String value, int type) {
 		boolean found = false;
+		if (type < 0) { type *= -1; }
+		EnumAvailabilityStoredData t = EnumAvailabilityStoredData.values()[type % EnumAvailabilityStoredData.values().length];
 		for (AvailabilityStoredData sd : this.storeddata) {
 			if (sd.key.equals(key)) {
 				found = true;
 				sd.value = value;
-				sd.has = has;
+				sd.type = t;
 				break;
 			}
 		}
-		if (!found) {
-			this.storeddata.add(new AvailabilityStoredData(key, value, has));
-		}
+		if (!found) { this.storeddata.add(new AvailabilityStoredData(key, value, t)); }
 		this.hasOptions = this.checkHasOptions();
 	}
 

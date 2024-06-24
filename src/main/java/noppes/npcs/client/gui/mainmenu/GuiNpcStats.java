@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
@@ -137,9 +138,13 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.respawn").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.melee").getFormattedText());
+			ITextComponent mess = new TextComponentTranslation("stats.hover.melee");
+			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
+			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.range").getFormattedText());
+			ITextComponent mess = new TextComponentTranslation("stats.hover.range");
+			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
+			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.resist.fire").getFormattedText());
 		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
@@ -151,7 +156,9 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.type").getFormattedText());
 		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.arrow").getFormattedText());
+			ITextComponent mess = new TextComponentTranslation("stats.hover.arrow");
+			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
+			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("stats.hover.resists").getFormattedText());
 		} else if (this.getButton(17) != null && this.getButton(17).isMouseOver()) {
@@ -270,14 +277,12 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, Long.MAX_VALUE, 20);
 		this.addLabel(new GuiNpcLabel(1, "stats.aggro", this.guiLeft + 275, y + 5));
-		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 355, y, 50, 18,
-				this.stats.aggroRange + ""));
+		this.addTextField(new GuiNpcTextField(1, this, this.fontRenderer, this.guiLeft + 355, y, 50, 18, this.stats.aggroRange + ""));
 		this.getTextField(1).setNumbersOnly();
 		this.getTextField(1).setMinMaxDefault(1, 64, 2);
 
 		this.addLabel(new GuiNpcLabel(34, "stats.creaturetype", this.guiLeft + 140, y + 5));
-		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 217, y, 56, 20,
-				new String[] { "stats.normal", "stats.undead", "stats.arthropod" }, this.stats.creatureType.ordinal()));
+		this.addButton(new GuiButtonBiDirectional(8, this.guiLeft + 217, y, 56, 20, new String[] { "stats.normal", "stats.undead", "stats.arthropod" }, this.stats.creatureType.ordinal()));
 		((GuiButtonBiDirectional) this.getButton(8)).cheakWidth = false;
 		y += 22;
 		this.addButton(new GuiNpcButton(0, this.guiLeft + 82, y, 56, 20, "selectServer.edit"));
@@ -285,40 +290,36 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		y += 22;
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 82, y, 56, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(5, "stats.meleeproperties", this.guiLeft + 5, y + 5));
+		this.getButton(2).setEnabled(!this.ais.aiDisabled);
 		y += 22;
 		this.addButton(new GuiNpcButton(3, this.guiLeft + 82, y, 56, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(6, "stats.rangedproperties", this.guiLeft + 5, y + 5));
 		this.addButton(new GuiNpcButton(9, this.guiLeft + 217, y, 56, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(7, "stats.projectileproperties", this.guiLeft + 140, y + 5));
+		this.getButton(3).setEnabled(!this.ais.aiDisabled);
+		this.getButton(9).setEnabled(!this.ais.aiDisabled);
 		y += 34;
 		this.addButton(new GuiNpcButton(15, this.guiLeft + 82, y, 56, 20, "selectServer.edit"));
 		this.addLabel(new GuiNpcLabel(15, "effect.resistance", this.guiLeft + 5, y + 5));
 		y += 34;
-		this.addButton(new GuiNpcButton(4, this.guiLeft + 82, y, 56, 20, new String[] { "gui.no", "gui.yes" },
-				(this.stats.immuneToFire ? 1 : 0)));
+		this.addButton(new GuiNpcButton(4, this.guiLeft + 82, y, 56, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.immuneToFire ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(10, "stats.fireimmune", this.guiLeft + 5, y + 5));
-		this.addButton(new GuiNpcButton(5, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" },
-				(this.stats.canDrown ? 1 : 0)));
+		this.addButton(new GuiNpcButton(5, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.canDrown ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(11, "stats.candrown", this.guiLeft + 140, y + 5));
-		this.addTextField(new GuiNpcTextField(14, this, this.guiLeft + 355, y, 56, 20, this.stats.healthRegen + "")
-				.setNumbersOnly());
+		this.addTextField(new GuiNpcTextField(14, this, this.guiLeft + 355, y, 56, 20, this.stats.healthRegen + "").setNumbersOnly());
 		this.addLabel(new GuiNpcLabel(14, "stats.regenhealth", this.guiLeft + 275, y + 5));
 		y += 22;
-		this.addTextField(new GuiNpcTextField(16, this, this.guiLeft + 355, y, 56, 20, this.stats.combatRegen + "")
-				.setNumbersOnly());
+		this.addTextField(new GuiNpcTextField(16, this, this.guiLeft + 355, y, 56, 20, this.stats.combatRegen + "") .setNumbersOnly());
 		this.addLabel(new GuiNpcLabel(16, "stats.combatregen", this.guiLeft + 275, y + 5));
-		this.addButton(new GuiNpcButton(6, this.guiLeft + 82, y, 56, 20, new String[] { "gui.no", "gui.yes" },
-				(this.stats.burnInSun ? 1 : 0)));
+		this.addButton(new GuiNpcButton(6, this.guiLeft + 82, y, 56, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.burnInSun ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(12, "stats.burninsun", this.guiLeft + 5, y + 5));
-		this.addButton(new GuiNpcButton(7, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" },
-				(this.stats.noFallDamage ? 1 : 0)));
+		this.addButton(new GuiNpcButton(7, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.noFallDamage ? 1 : 0)));
 		this.addLabel(new GuiNpcLabel(13, "stats.nofalldamage", this.guiLeft + 140, y + 5));
 		y += 22;
 		this.addButton(new GuiNpcButtonYesNo(17, this.guiLeft + 82, y, 56, 20, this.stats.potionImmune));
 		this.addLabel(new GuiNpcLabel(17, "stats.potionImmune", this.guiLeft + 5, y + 5));
 		this.addLabel(new GuiNpcLabel(22, "ai.cobwebAffected", this.guiLeft + 140, y + 5));
-		this.addButton(new GuiNpcButton(22, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" },
-				(this.stats.ignoreCobweb ? 0 : 1)));
+		this.addButton(new GuiNpcButton(22, this.guiLeft + 217, y, 56, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.ignoreCobweb ? 0 : 1)));
 		// new
 		String[] lvls = new String[CustomNpcs.MaxLv]; // level
 		for (int g = 0; g < CustomNpcs.MaxLv; g++) {
@@ -326,8 +327,7 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		}
 		// this.addButton(new GuiNpcButton(40, this.guiLeft + 217, this.guiTop +32, 56,
 		// 20, "selectServer.edit"));
-		this.addButton(new GuiButtonBiDirectional(41, this.guiLeft + 217, this.guiTop + 32, 56, 20, lvls,
-				this.stats.getLevel() - 1));
+		this.addButton(new GuiButtonBiDirectional(41, this.guiLeft + 217, this.guiTop + 32, 56, 20, lvls, this.stats.getLevel() - 1));
 		// this.getButton(40).setEnabled(false);
 		this.addLabel(new GuiNpcLabel(42, "stats.level", this.guiLeft + 139, this.guiTop + 37));
 		this.addButton(new GuiNpcButton(43, this.guiLeft + 217, this.guiTop + 54, 56, 20,
@@ -336,8 +336,7 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		this.addLabel(new GuiNpcLabel(44, "stats.rarity", this.guiLeft + 140, this.guiTop + 61));
 
 		this.addLabel(new GuiNpcLabel(45, "stats.calmdown", this.guiLeft + 275, this.guiTop + 40));
-		this.addButton(new GuiNpcButton(44, this.guiLeft + 355, this.guiTop + 37, 50, 20,
-				new String[] { "gui.no", "gui.yes" }, (this.stats.calmdown ? 1 : 0)));
+		this.addButton(new GuiNpcButton(44, this.guiLeft + 355, this.guiTop + 37, 50, 20, new String[] { "gui.no", "gui.yes" }, (this.stats.calmdown ? 1 : 0)));
 	}
 
 	@Override
@@ -383,10 +382,10 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		}
 		this.display.setSize(sizeModel[type]);
 		this.stats.respawnTime = time;
-		this.stats.resistances.melee = resist[0];
-		this.stats.resistances.arrow = resist[1];
-		this.stats.resistances.explosion = resist[2];
-		this.stats.resistances.knockback = resist[3];
+		this.stats.resistances.data.put("mob", resist[0]);
+		this.stats.resistances.data.put("arrow", resist[1]);
+		this.stats.resistances.data.put("explosion", resist[2]);
+		this.stats.resistances.data.put("knockback", resist[3]);
 		// Health
 		double hp = getHP();
 		this.stats.maxHealth = (int) hp;

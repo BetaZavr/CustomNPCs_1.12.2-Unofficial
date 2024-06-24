@@ -6,7 +6,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.ModelPartConfig;
-import noppes.npcs.client.model.ModelNPCAlt;
+import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.constants.EnumParts;
 
 public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T> {
@@ -16,12 +16,12 @@ public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T>
 
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
-		if (!(this.model instanceof ModelNPCAlt)) {
+		if (!(this.model instanceof ModelNpcAlt)) {
 			return;
 		}
 		if (this.npc.textureCloakLocation == null) {
 			if (this.npc.display.getCapeTexture() == null || this.npc.display.getCapeTexture().isEmpty()
-					|| !(this.model instanceof ModelNPCAlt)) {
+					|| !(this.model instanceof ModelNpcAlt)) {
 				return;
 			}
 			this.npc.textureCloakLocation = new ResourceLocation(this.npc.display.getCapeTexture());
@@ -33,12 +33,10 @@ public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T>
 		if (this.npc.isSneaking()) {
 			GlStateManager.translate(0.0f, 0.2f, 0.0f);
 		}
-		GlStateManager.translate(config.offsetBase[0], config.offsetBase[1], config.offsetBase[2]);
+		GlStateManager.translate(config.offset[0], config.offset[1], config.offset[2]);
 		GlStateManager.translate(0.0f, 0.0f, 0.125f);
-		double d = this.npc.field_20066_r + (this.npc.field_20063_u - this.npc.field_20066_r) * par7
-				- (this.npc.prevPosX + (this.npc.posX - this.npc.prevPosX) * par7);
-		double d3 = this.npc.field_20064_t + (this.npc.field_20061_w - this.npc.field_20064_t) * par7
-				- (this.npc.prevPosZ + (this.npc.posZ - this.npc.prevPosZ) * par7);
+		double d = this.npc.field_20066_r + (this.npc.field_20063_u - this.npc.field_20066_r) * par7 - (this.npc.prevPosX + (this.npc.posX - this.npc.prevPosX) * par7);
+		double d3 = this.npc.field_20064_t + (this.npc.field_20061_w - this.npc.field_20064_t) * par7 - (this.npc.prevPosZ + (this.npc.posZ - this.npc.prevPosZ) * par7);
 		float f11 = this.npc.prevRenderYawOffset + (this.npc.renderYawOffset - this.npc.prevRenderYawOffset) * par7;
 		double d4 = MathHelper.sin(f11 * 3.141593f / 180.0f);
 		double d5 = -MathHelper.cos(f11 * 3.141593f / 180.0f);
@@ -55,7 +53,7 @@ public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T>
 		GlStateManager.rotate(f13 / 2.0f, 0.0f, 0.0f, 1.0f);
 		GlStateManager.rotate(-f13 / 2.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.rotate(180.0f, 0.0f, 1.0f, 0.0f);
-		((ModelNPCAlt) this.model).renderCape(0.0625f);
+		((ModelNpcAlt) this.model).renderCape(0.0625f);
 		GlStateManager.popMatrix();
 	}
 

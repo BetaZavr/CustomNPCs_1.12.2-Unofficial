@@ -156,7 +156,7 @@ public class GuiNPCManageDeal extends GuiContainerNPCInterface2 implements IText
 		this.addLabel(new GuiNpcLabel(4, "marcet.deal.settings", x, y));
 
 		this.addLabel(new GuiNpcLabel(5, "market.currency", x, (y += 14) + 5));
-		this.addLabel(new GuiNpcLabel(6, CustomNpcs.CharCurrencies, x + 155, y + 5));
+		this.addLabel(new GuiNpcLabel(6, CustomNpcs.displayCurrencies, x + 155, y + 5));
 		this.addTextField(new GuiNpcTextField(0, this, x + 100, y, 50, 18, "" + this.deal.getMoney()));
 		this.getTextField(0).setNumbersOnly();
 		this.getTextField(0).setMinMaxDefault(0, Integer.MAX_VALUE, this.deal.getMoney());

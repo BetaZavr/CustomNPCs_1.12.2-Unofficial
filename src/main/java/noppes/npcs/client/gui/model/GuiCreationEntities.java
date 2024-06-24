@@ -1,12 +1,13 @@
 package noppes.npcs.client.gui.model;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -62,7 +63,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 		this.data.put("NPC 64x32", (Class<? extends EntityLivingBase>) EntityNPC64x32.class);
 		this.data.put("NPC Alex Arms", (Class<? extends EntityLivingBase>) EntityNpcAlex.class);
 		this.data.put("NPC Classic Player", (Class<? extends EntityLivingBase>) EntityNpcClassicPlayer.class);
-		(this.list = new ArrayList<String>(this.data.keySet())).add("NPC");
+		(this.list = Lists.newArrayList(this.data.keySet())).add("NPC");
 		Collections.sort(this.list, String.CASE_INSENSITIVE_ORDER);
 		this.active = 1;
 		this.xOffset = 60;
@@ -114,7 +115,6 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(10, this.guiLeft, this.guiTop + 46, 120, 20, "Reset To NPC"));
 		if (this.scroll == null) {
 			(this.scroll = new GuiCustomScroll(this, 0)).setListNotSorted(this.list);
 		}
@@ -129,7 +129,10 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 				}
 			}
 		}
+		
+		this.addButton(new GuiNpcButton(10, this.guiLeft, this.guiTop + 46, 120, 20, "Reset To NPC"));
 		this.getButton(10).visible = !selected.equals("NPC");
+		
 		this.scroll.setSelected(selected);
 		if (this.resetToSelected) {
 			this.scroll.scrollTo(this.scroll.getSelected());
@@ -145,10 +148,8 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 		Entity entity = this.playerdata.getEntity(this.npc);
 		if (entity != null) {
 			@SuppressWarnings("rawtypes")
-			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager()
-					.getEntityClassRenderObject(entity.getClass());
-			if (!NPCRendererHelper.getTexture(render, (EntityLivingBase) entity)
-					.equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
+			RenderLivingBase render = (RenderLivingBase) this.mc.getRenderManager().getEntityClassRenderObject(entity.getClass());
+			if (!NPCRendererHelper.getTexture(render, (EntityLivingBase) entity).equals(TextureMap.LOCATION_MISSING_TEXTURE.toString())) {
 				this.npc.display.setSkinTexture(NPCRendererHelper.getTexture(render, (EntityLivingBase) entity));
 			}
 		} else {
@@ -158,6 +159,6 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
+	
 }

@@ -37,4 +37,10 @@ public class CustomLiquid extends BlockFluidClassic implements ICustomElement {
 		return true;
 	}
 
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		return 1;
+	}
+
 }

@@ -26,8 +26,7 @@ public class GuiScriptBlock extends GuiScriptInterface implements ISubGuiListene
 		super.save();
 		try {
 			BlockPos pos = this.script.getPos();
-			Client.sendData(EnumPacketServer.ScriptBlockDataSave, pos.getX(), pos.getY(), pos.getZ(),
-					this.script.getNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.ScriptBlockDataSave, pos.getX(), pos.getY(), pos.getZ(), this.script.getNBT(new NBTTagCompound()));
 		} catch (Exception e) {
 		}
 	}

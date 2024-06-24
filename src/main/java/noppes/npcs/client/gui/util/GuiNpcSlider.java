@@ -11,7 +11,9 @@ import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.util.ValueUtil;
 
-public class GuiNpcSlider extends GuiButton {
+public class GuiNpcSlider
+extends GuiButton
+implements IComponentGui {
 
 	public boolean dragging, isVertical;
 	public int id;
@@ -92,8 +94,7 @@ public class GuiNpcSlider extends GuiButton {
 		} else if (this.hovered) {
 			l = CustomNpcs.HoverColor.getRGB();
 		}
-		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2,
-				this.y + 2 + (this.height - ClientProxy.Font.height(this.displayString)) / 2, l);
+		this.drawCenteredString(mc.fontRenderer, this.displayString, this.x + this.width / 2, this.y + 2 + (this.height - ClientProxy.Font.height(this.displayString)) / 2, l);
 	}
 
 	public String getDisplayString() {
@@ -175,4 +176,9 @@ public class GuiNpcSlider extends GuiButton {
 		this.displayString = NoppesStringUtils.translate(str);
 	}
 
+	@Override
+	public int[] getCenter() {
+		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	}
+	
 }

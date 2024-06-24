@@ -22,7 +22,9 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Quest;
 
-public class SubGuiNpcAvailabilityQuest extends SubGuiInterface implements ICustomScrollListener, GuiSelectionListener {
+public class SubGuiNpcAvailabilityQuest
+extends SubGuiInterface
+implements ICustomScrollListener, GuiSelectionListener {
 
 	private Availability availabitily;
 	private String chr = "" + ((char) 167);

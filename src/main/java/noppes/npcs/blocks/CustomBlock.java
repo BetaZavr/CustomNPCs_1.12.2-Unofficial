@@ -34,6 +34,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.IPermission;
 import noppes.npcs.util.ObfuscationHelper;
 
@@ -284,12 +285,14 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
 			return;
 		}
 		items.add(new ItemStack(this));
+		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
 	}
 
 	public boolean hasProperty() {
@@ -394,6 +397,12 @@ public class CustomBlock extends BlockInterface implements IPermission, ICustomE
 			return state.withProperty(this.FACING, rot.rotate((EnumFacing) state.getValue(FACING)));
 		}
 		return super.withRotation(state, rot);
+	}
+	
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		return 0;
 	}
 
 }

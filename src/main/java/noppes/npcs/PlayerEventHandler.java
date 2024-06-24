@@ -87,6 +87,7 @@ import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.api.handler.data.IWorldInfo;
+import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.blocks.BlockCustomBanner;
@@ -107,8 +108,8 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.dimensions.CustomWorldInfo;
 import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.Resistances;
 import noppes.npcs.items.ItemBoundary;
-import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.quests.QuestObjective;
@@ -335,6 +336,8 @@ public class PlayerEventHandler {
 		}
 		CustomNpcs.debugData.startDebug("Server", event.getEntityLiving(), "PlayerEventHandler_npcLivingAttackEvent");
 		Entity source = NoppesUtilServer.GetDamageSourcee(event.getSource());
+		String damageType = event.getSource() != null ? event.getSource().damageType : "null";
+		Resistances.addDamageName(damageType);
 		if (source instanceof EntityPlayer) {
 			PlayerData data = PlayerData.get((EntityPlayer) source);
 			PlayerScriptData handler = data.scriptData;
@@ -432,114 +435,6 @@ public class PlayerEventHandler {
 	}
 
 	@SubscribeEvent
-	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
-		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
-			return;
-		}
-		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-		// System.out.println("CNPCs: "+ClientProxy.playerData+" /
-		// "+PlayerData.get(player));
-		if (player instanceof EntityPlayerMP) {
-
-		} else {
-			try {
-
-				File dir = new File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(),
-						"src/main/java"); // CustomNpcs 1.12.2
-				// File dir = new
-				// File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(),
-				// "1.16.5/CustomNpcs Un/src"); // CustomNpcs 1.16.5
-				// File dir = new
-				// File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(),
-				// "net"); // Minecraft 1.12.2
-				// File dir = new
-				// File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(),
-				// "nit"); // Minecraft 1.16.5
-				// File dir = new
-				// File(CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(),
-				// "com");
-				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
-				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
-				// for (Method m : AdditionalMethods.class.getDeclaredMethods()) {
-				// found.put(m.getName(), null); }
-				// found.put("FMLPreInitializationEvent", null);
-				found.put("System.out.println", null);
-				// found.put("IVoxelMap", null);
-				// if (dir != null) { System.out.println("dir: "+dir.exists()+" - " + dir);
-				// return; }
-				// found.put("getScaledWidth", null);
-				for (File file : AdditionalMethods.getFiles(dir, "java")) {
-					try {
-						BufferedReader reader = Files.newReader(file, Charset.forName("UTF-8"));
-						String line;
-						int l = 1;
-						while ((line = reader.readLine()) != null) {
-							for (String key : found.keySet()) {
-								if (key.indexOf("&&") != -1) {
-									String k = key.substring(0, key.indexOf("&&"));
-									String s = key.substring(key.indexOf("&&") + 2);
-									if (line.indexOf(k) != -1 && line.toLowerCase().indexOf(s.toLowerCase()) != -1) {
-										if (found.get(key) == null) {
-											found.put(key, Maps.<String, List<Integer>>newTreeMap());
-										}
-										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
-										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, Lists.<Integer>newArrayList());
-										}
-										found.get(key).get(fPath).add(l);
-									}
-								} else if (key.indexOf("&") == 0) {
-									String k = key.replace("&", "");
-									if (line.indexOf(k) != -1) {
-										int s = line.indexOf(k) - 1;
-										int e = line.indexOf(k) + k.length();
-										if (br.indexOf("" + line.charAt(s)) != -1
-												&& br.indexOf("" + line.charAt(e)) != -1) {
-											if (found.get(key) == null) {
-												found.put(key, Maps.<String, List<Integer>>newTreeMap());
-											}
-											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
-											if (!found.get(key).containsKey(fPath)) {
-												found.get(key).put(fPath, Lists.<Integer>newArrayList());
-											}
-											found.get(key).get(fPath).add(l);
-										}
-									}
-								} else if (line.indexOf(key) != -1) {
-									if (found.get(key) == null) {
-										found.put(key, Maps.<String, List<Integer>>newTreeMap());
-									}
-									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
-									if (!found.get(key).containsKey(fPath)) {
-										found.get(key).put(fPath, Lists.<Integer>newArrayList());
-									}
-									found.get(key).get(fPath).add(l);
-								}
-							}
-							l++;
-						}
-					} catch (Exception e) {
-					}
-				}
-				for (String key : found.keySet()) {
-					if (found.get(key) == null || found.get(key).isEmpty()) {
-						System.out.println("\"" + key + "\" not found;");
-						continue;
-					}
-					System.out.println("\"" + key + "\" found in:");
-					Map<String, List<Integer>> map = found.get(key);
-					for (String fPath : map.keySet()) {
-						System.out.println(" - \"" + fPath + "\": lines:" + map.get(fPath));
-					}
-				}
-				/**/
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@SubscribeEvent
 	public void npcPlayerContainerCloseEvent(PlayerContainerEvent.Close event) {
 		if (event.getEntityPlayer().world.isRemote) {
 			return;
@@ -594,15 +489,13 @@ public class PlayerEventHandler {
 		}
 		CustomNpcs.debugData.startDebug("Server", "Players", "PlayerEventHandler_npcPlayerLeftClickBlockEvent");
 		if (event.getItemStack().getItem() == CustomRegisters.npcboundary) {
-			((ItemBoundary) event.getItemStack().getItem()).leftClick(event.getItemStack(),
-					(EntityPlayerMP) event.getEntityPlayer());
+			((ItemBoundary) event.getItemStack().getItem()).leftClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
 			event.setCanceled(true);
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLeftClickBlockEvent");
 			return;
 		}
-		if (event.getItemStack().getItem() == CustomRegisters.npcbuilder) {
-			((ItemBuilder) event.getItemStack().getItem()).leftClick(event.getItemStack(),
-					(EntityPlayerMP) event.getEntityPlayer());
+		if (event.getItemStack().getItem() instanceof ISpecBuilder) {
+			((ISpecBuilder) event.getItemStack().getItem()).leftClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
 			event.setCanceled(true);
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerLeftClickBlockEvent");
 			return;
@@ -658,8 +551,7 @@ public class PlayerEventHandler {
 					return;
 				}
 				for (QuestData qd : data.questData.activeQuests.values()) { // Changed
-					for (IQuestObjective obj : qd.quest
-							.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
+					for (IQuestObjective obj : qd.quest.getObjectives((IPlayer<?>) NpcAPI.Instance().getIEntity(player))) {
 						if (obj.getType() != 0) {
 							continue;
 						}
@@ -753,23 +645,20 @@ public class PlayerEventHandler {
 			return;
 		}
 		if (event.getItemStack().getItem() == CustomRegisters.npcboundary) {
-			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(),
-					(EntityPlayerMP) event.getEntityPlayer());
+			((ItemBoundary) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer());
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
 			event.setCanceled(true);
 			return;
 		}
-		if (event.getItemStack().getItem() == CustomRegisters.npcbuilder) {
-			((ItemBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(),
-					(EntityPlayerMP) event.getEntityPlayer());
+		if (event.getItemStack().getItem() instanceof ISpecBuilder) {
+			((ISpecBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
 			CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
 			event.setCanceled(true);
 			return;
 		}
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		handler.hadInteract = true;
-		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 2,
-				NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
+		PlayerEvent.InteractEvent ev = new PlayerEvent.InteractEvent(handler.getPlayer(), 2, NpcAPI.Instance().getIBlock(event.getWorld(), event.getPos()));
 		event.setCanceled(EventHooks.onPlayerInteract(handler, ev));
 		if (event.getItemStack().getItem() == CustomRegisters.scripted_item && !event.isCanceled()) {
 			ItemScriptedWrapper isw = ItemScripted.GetWrapper(event.getItemStack());
@@ -819,10 +708,10 @@ public class PlayerEventHandler {
 				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
 				return;
 			}
-			if (event.getItemStack().getItem() == CustomRegisters.npcbuilder) {
-				((ItemBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(),
-						(EntityPlayerMP) event.getEntityPlayer());
-				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickItemEvent");
+			if (event.getItemStack().getItem() instanceof ISpecBuilder) {
+				((ISpecBuilder) event.getItemStack().getItem()).rightClick(event.getItemStack(), (EntityPlayerMP) event.getEntityPlayer(), event.getPos());
+				CustomNpcs.debugData.endDebug("Server", "Players", "PlayerEventHandler_npcPlayerRightClickBlockEvent");
+				event.setCanceled(true);
 				return;
 			}
 		}
@@ -896,8 +785,8 @@ public class PlayerEventHandler {
 				player.setSpawnDimension(dimId);
 				player.setSpawnPoint(player.getPosition(), true);
 				player.setSpawnChunk(player.getPosition(), true, dimId);
-				ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 27); // bedLocation
-				ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 32); // spawnPos
+				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 27); } catch (Exception e) { e.printStackTrace(); } // bedLocation
+				try { ObfuscationHelper.setValue(EntityPlayer.class, player, player.getPosition(), 32); } catch (Exception e) { e.printStackTrace(); } // spawnPos
 			}
 			data.game.dimID = event.player.world.provider.getDimension();
 		}
@@ -914,21 +803,16 @@ public class PlayerEventHandler {
 			// Get Maim mod Method for All Events
 			Method m = handler.getClass().getMethod("forgeEntity", Event.class);
 			// Get Registration Method for Event Methods
-			Method register = MinecraftForge.EVENT_BUS.getClass().getDeclaredMethod("register", Class.class,
-					Object.class, Method.class, ModContainer.class);
+			Method register = MinecraftForge.EVENT_BUS.getClass().getDeclaredMethod("register", Class.class, Object.class, Method.class, ModContainer.class);
 			register.setAccessible(true);
 
 			ClassPath loader = ClassPath.from(this.getClass().getClassLoader());
 
 			// Get all loaded Forge event classes
-			List<ClassPath.ClassInfo> list = new ArrayList<ClassPath.ClassInfo>(
-					loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
+			List<ClassPath.ClassInfo> list = new ArrayList<ClassPath.ClassInfo>(loader.getTopLevelClassesRecursive("net.minecraftforge.event"));
 			list.addAll(loader.getTopLevelClassesRecursive("net.minecraftforge.fml.common"));
-
-			boolean errorLoadMods = false;
 			// New
-			if (list.isEmpty() || errorLoadMods) { // It shouldn't be like this, but perhaps the manual filling option
-													// will help.
+			if (list.size() < 100) { // It shouldn't be like this, but perhaps the manual filling option
 				LogWriter.error("CustomNpcs Error: Not found Forge Events in Loaded Classes");
 				LogWriter.info("CustomNpcs: Trying to download manually");
 				int i = 0;
@@ -1411,13 +1295,8 @@ public class PlayerEventHandler {
 			}
 			for (ClassPath.ClassInfo info : list) {
 				String name = info.getName();
-				if (name.startsWith("net.minecraftforge.event.terraingen")) {
-					continue;
-				}
-				try {
-					listCalsses.add(info.load());
-				} catch (Throwable t) {
-				}
+				if (name.startsWith("net.minecraftforge.event.terraingen")) { continue; }
+				try { listCalsses.add(info.load()); } catch (Throwable t) { t.printStackTrace(); }
 			}
 			// Not Assing List
 			List<Class<?>> notAssingException = new ArrayList<Class<?>>();
@@ -1529,13 +1408,150 @@ public class PlayerEventHandler {
 					e.printStackTrace();
 				}
 			}
-		} catch (Exception e2) {
-			e2.printStackTrace();
-		}
-		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: "
-				+ CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listCalsses.size() + "] classes");
+		} catch (Exception e) { e.printStackTrace(); }
+		LogWriter.info("CustomNpcs: Registered [Client:" + CustomNpcs.forgeClientEventNames.size() + "; Server: " + CustomNpcs.forgeEventNames.size() + "] Forge Events out of [" + listCalsses.size() + "] classes");
 		CustomNpcs.debugData.endDebug("Common", "Mod", "PlayerEventHandler_registerForgeEvents");
 		return this;
+	}
+
+	@SubscribeEvent
+	public void npcLivingJumpEvent(LivingEvent.LivingJumpEvent event) {
+		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
+			return;
+		}
+		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+		// System.out.println("CNPCs: "+ClientProxy.playerData+" /
+		// "+PlayerData.get(player));
+		/*System.out.println("CNPCs: "+player.world.loadedEntityList.size());
+		for (Entity entity : player.world.loadedEntityList) {
+			if (entity instanceof EntityPlayer) { continue; }
+			entity.isDead = true;
+		}*/
+		if (player instanceof EntityPlayerMP) {
+
+		} else {
+			try {
+				/*
+				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile();
+				dir = new File(dir, "src/main/java"); // CustomNpcs 1.12.2
+				//dir = new File(dir.getParentFile(), "1.16.5/CustomNpcs Un/src"); // CustomNpcs 1.16.5
+				//dir = new File(dir.getParentFile(), "net"); // Minecraft 1.12.2
+				//dir = new File(dir.getParentFile(), "nit"); // Minecraft 1.16.5
+				//dir = new File(dir.getParentFile(), "goblinbob");
+				//dir = new File(dir.getParentFile(), "goblinbob"); // Mo'Bends
+				Map<String, Map<String, List<Integer>>> found = Maps.<String, Map<String, List<Integer>>>newTreeMap();
+				String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
+				//for (Method m : AdditionalMethods.class.getDeclaredMethods()) {
+				//found.put(m.getName(), null); }
+				
+				found.put("System.out.println", null);
+				//found.put("SPacketParticles", null);
+				
+				for (File file : AdditionalMethods.getFiles(dir, "java")) {
+					try {
+						BufferedReader reader = Files.newReader(file, Charset.forName("UTF-8"));
+						String line;
+						int l = 1;
+						while ((line = reader.readLine()) != null) {
+							for (String key : found.keySet()) {
+								if (key.indexOf("&&") != -1) {
+									String k = key.substring(0, key.indexOf("&&"));
+									String s = key.substring(key.indexOf("&&") + 2);
+									if (line.indexOf(k) != -1 && line.toLowerCase().indexOf(s.toLowerCase()) != -1) {
+										if (found.get(key) == null) {
+											found.put(key, Maps.<String, List<Integer>>newTreeMap());
+										}
+										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
+										if (!found.get(key).containsKey(fPath)) {
+											found.get(key).put(fPath, Lists.<Integer>newArrayList());
+										}
+										found.get(key).get(fPath).add(l);
+									}
+								} else if (key.indexOf("&") == 0) {
+									String k = key.replace("&", "");
+									if (line.indexOf(k) != -1) {
+										int s = line.indexOf(k) - 1;
+										int e = line.indexOf(k) + k.length();
+										if (br.indexOf("" + line.charAt(s)) != -1
+												&& br.indexOf("" + line.charAt(e)) != -1) {
+											if (found.get(key) == null) {
+												found.put(key, Maps.<String, List<Integer>>newTreeMap());
+											}
+											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
+											if (!found.get(key).containsKey(fPath)) {
+												found.get(key).put(fPath, Lists.<Integer>newArrayList());
+											}
+											found.get(key).get(fPath).add(l);
+										}
+									}
+								} else if (line.indexOf(key) != -1) {
+									if (found.get(key) == null) {
+										found.put(key, Maps.<String, List<Integer>>newTreeMap());
+									}
+									String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath(), "");
+									if (!found.get(key).containsKey(fPath)) {
+										found.get(key).put(fPath, Lists.<Integer>newArrayList());
+									}
+									found.get(key).get(fPath).add(l);
+								}
+							}
+							l++;
+						}
+					} catch (Exception e) {
+					}
+				}
+				System.out.println("Directory: " + dir);
+				for (String key : found.keySet()) {
+					if (found.get(key) == null || found.get(key).isEmpty()) {
+						System.out.println("\"" + key + "\" not found;");
+						continue;
+					}
+					System.out.println("\"" + key + "\" found in:");
+					Map<String, List<Integer>> map = found.get(key);
+					for (String fPath : map.keySet()) {
+						System.out.println(" - \"" + fPath + "\": lines:" + map.get(fPath));
+					}
+				}
+				/**/
+				/*
+				File dir = CustomNpcs.Dir.getParentFile().getParentFile().getParentFile().getParentFile(); // CustomNpcs 1.12.2
+				dir = new File(dir, "deobfuscation");
+				if (!dir.exists()) { return; }
+				Map<String, String> ofsMap = Maps.<String, String>newHashMap();
+				File ofsFile = new File(dir, "obfuscation.json");
+				BufferedReader reader = Files.newReader(ofsFile, Charsets.UTF_8);
+				String line;
+				while((line = reader.readLine()) != null) {
+					if (line.indexOf("\":\"") == -1) { continue; }
+					int i = line.indexOf("\":\"");
+					String key = line.substring(line.indexOf("\"") + 1, i);
+					String value = line.substring(i+3, line.lastIndexOf("\""));
+					ofsMap.put(key, value);
+				}
+				System.out.println("Keys: "+ofsMap.size());
+				int i = 0, j = 0;
+				List<File> files = AdditionalMethods.getFiles(dir, "java");
+				System.out.println("Files: "+files.size());
+				for (File file : files) {
+					j++;
+					String text = Files.toString(file, Charsets.UTF_8);
+					boolean needSave = false;
+					for (String key : ofsMap.keySet()) {
+						while(text.indexOf(key) != -1) {
+							needSave = true;
+							text = text.replace(key, ofsMap.get(key));
+							i++;
+						}
+					}
+					if (needSave) { Files.write(text.getBytes(), file); }
+					//System.out.println("file: "+j + " / " + files.size());
+				}
+				System.out.println("Total replaces: "+i);
+				/**/
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

@@ -46,7 +46,7 @@ import noppes.npcs.util.BuilderData;
 
 public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICustomScrollListener, ITextfieldListener {
 
-	private static Map<String, SchematicWrapper> basefiles;
+	private static Map<String, SchematicWrapper> basefiles = Maps.<String, SchematicWrapper>newTreeMap();
 	ContainerBuilderSettings container;
 	private ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
 	private ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
@@ -57,7 +57,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	private BuilderData builder;
 	private Map<String, SchematicWrapper> files;
 
-	public GuiBuilderSetting(ContainerBuilderSettings cont, int id) {
+	public GuiBuilderSetting(ContainerBuilderSettings cont) {
 		super(null, cont);
 		this.container = cont;
 		this.closeOnEsc = true;
@@ -65,11 +65,9 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 		this.ySize = 216;
 		this.builder = cont.builderData;
 		this.maxRange = 10;
-		GuiBuilderSetting.basefiles = Maps.<String, SchematicWrapper>newTreeMap();
 		SchematicController sData = SchematicController.Instance;
 		for (String name : sData.included) {
-			InputStream stream = MinecraftServer.class
-					.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
+			InputStream stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
 			if (stream == null) {
 				File file = new File(SchematicController.getDir(), name);
 				if (!file.exists()) {
@@ -143,72 +141,55 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: { // Type
-			if (this.builder == null) {
-				return;
+			case 1: { // Fasing
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.fasing = button.getValue();
+				break;
 			}
-			this.builder.type = button.getValue();
-			Client.sendData(EnumPacketServer.OpenBuilder, this.builder.getNbt());
-			GuiNpcTextField.unfocus();
-			this.player.closeScreen();
-			this.displayGuiScreen(null);
-			this.mc.setIngameFocus();
-			this.onGuiClosed();
-			break;
-		}
-		case 1: { // Fasing
-			if (this.builder == null) {
-				return;
+			case 2: { // reg[0]
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.region[0] = button.getValue() + 1;
+				break;
 			}
-			this.builder.fasing = button.getValue();
-			break;
-		}
-		case 2: { // reg[0]
-			if (this.builder == null) {
-				return;
+			case 3: { // reg[1]
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.region[1] = button.getValue() + 1;
+				break;
 			}
-			this.builder.region[0] = button.getValue() + 1;
-			break;
-		}
-		case 3: { // reg[1]
-			if (this.builder == null) {
-				return;
+			case 4: { // reg[2]
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.region[2] = button.getValue() + 1;
+				break;
 			}
-			this.builder.region[1] = button.getValue() + 1;
-			break;
-		}
-		case 4: { // reg[2]
-			if (this.builder == null) {
-				return;
+			case 5: { // add Air
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.addAir = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			this.builder.region[2] = button.getValue() + 1;
-			break;
-		}
-		case 5: { // add Air
-			if (this.builder == null) {
-				return;
+			case 6: { // replase Air
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.replaseAir = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			this.builder.addAir = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 6: { // replase Air
-			if (this.builder == null) {
-				return;
+			case 7: { // is Solid
+				if (this.builder == null) {
+					return;
+				}
+				this.builder.isSolid = ((GuiNpcCheckBox) button).isSelected();
+				break;
 			}
-			this.builder.replaseAir = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 7: { // is Solid
-			if (this.builder == null) {
-				return;
-			}
-			this.builder.isSolid = ((GuiNpcCheckBox) button).isSelected();
-			break;
-		}
-		case 61: { // exit
-			this.close();
-			break;
-		}
 		}
 	}
 
@@ -229,7 +210,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				return;
 			}
 			// Slots
-			if (this.builder.type < 3) {
+			if (this.builder.getType() < 3) {
 				// Region
 				Gui.drawRect(140, 92, 200, 130, 0xFF404040);
 				Gui.drawRect(141, 93, 199, 129, 0xFF606060);
@@ -239,7 +220,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				// Borders
 				this.drawHorizontalLine(4, 170, 132, 0xFF808080);
 				this.drawVerticalLine(170, 131, 212, 0xFF808080);
-				if (this.builder.type == 2) {
+				if (this.builder.getType() == 2) {
 					this.drawHorizontalLine(58, 112, 108, 0xFF808080);
 					this.drawVerticalLine(58, 108, 132, 0xFF808080);
 				}
@@ -254,7 +235,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				for (int i = 1; i < 10; i++) {
 					this.drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); // main
 				}
-				if (this.builder.type == 2) {
+				if (this.builder.getType() == 2) {
 					this.drawTexturedModalRect(54, 96, 0, 0, 18, 18);
 				}
 				this.drawHorizontalLine(-3, 106, -2, 0xFF808080);
@@ -263,17 +244,16 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 
 				// Show Region
 				float r = 1.0f, g = 0.0f, b = 0.0f;
-				if (this.builder.type == 1) {
+				if (this.builder.getType() == 1) {
 					r = 0.0f;
 					g = 1.0f;
 					b = 1.0f;
-				} else if (this.builder.type == 2) {
+				} else if (this.builder.getType() == 2) {
 					r = 1.0f;
 					g = 0.0f;
 					b = 1.0f;
 				}
-				float size = (float) this.builder.region[2]
-						+ (float) (this.builder.region[0] + this.builder.region[1]) / 2.0f;
+				float size = (float) this.builder.region[2] + (float) (this.builder.region[0] + this.builder.region[1]) / 2.0f;
 				float scale = size <= 0.0f ? 7.0f : 36.0f / size;
 				GlStateManager.pushMatrix();
 				GlStateManager.enableBlend();
@@ -320,7 +300,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			return;
 		}
 		// hover text
-		int type = this.builder.type;
+		int type = this.builder.getType();
 		int t = 0, j = 0;
 		for (int i = 1; i < 10; i++) {
 			if (this.getTextField(i) != null && this.getTextField(i).isInteger()) {
@@ -360,7 +340,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 		} else if (this.getLabel(5) != null && this.getLabel(5).hovered) {
 			this.setHoverText(
 					new TextComponentTranslation("builder.hover.list", "" + this.maxRange).getFormattedText());
-		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
+		} else if (this.getLabel(3) != null && this.getLabel(3).hovered) {
 			this.setHoverText("builder.hover.type." + type);
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText("builder.hover.fasing");
@@ -382,8 +362,6 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 					.getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("schematic.schem.solid").getFormattedText());
-		} else if (this.getButton(61) != null && this.getButton(61).isMouseOver()) {
-			this.setHoverText("hover.save");
 		}
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
@@ -398,7 +376,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			return;
 		}
 		if (slotId >= 36) {
-			int id = slotId - (this.builder.type == 2 ? 36 : 35);
+			int id = slotId - (this.builder.getType() == 2 ? 36 : 35);
 			GuiNpcTextField textField = this.getTextField(id);
 			if (textField == null) {
 				return;
@@ -421,9 +399,14 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			return;
 		}
 		this.maxRange = ClientProxy.playerData.game.op ? 100 : 10;
-		int type = this.builder.type;
+		int type = this.builder.getType();
 		GuiNpcTextField textField;
 		GuiNpcCheckBox checkBox;
+		int y = this.guiTop + 4;
+		if (this.builder.getID() > -1) {
+			this.addLabel(new GuiNpcLabel(1, "ID:" + this.builder.getID(), this.guiLeft + 120, y));
+			y += 12;
+		}
 		if (type > 2) {
 			if (this.schematics == null) {
 				(this.schematics = new GuiCustomScroll(this, 0)).setSize(110, 197);
@@ -451,54 +434,36 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				}
 			}
 			this.addScroll(this.schematics);
-			this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.name").getFormattedText() + ":",
-					this.guiLeft + 120, this.guiTop + 40));
-			textField = new GuiNpcTextField(10, this, this.guiLeft + 120, this.guiTop + 54, 99, 15,
-					"" + this.builder.schematicaName);
+			this.addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.name").getFormattedText() + ":", this.guiLeft + 120, this.guiTop + 40));
+			textField = new GuiNpcTextField(10, this, this.guiLeft + 120, this.guiTop + 54, 99, 15, "" + this.builder.schematicaName);
 			this.addTextField(textField);
 		}
-		this.addButton(new GuiButtonBiDirectional(0, this.guiLeft + 120, this.guiTop + 14, 99, 20,
-				new String[] { "gui.remove", "gui.set", "gui.replace", "gui.build", "gui.save" }, type));
-		this.addButton(new GuiNpcButton(61, this.guiLeft + 173, this.guiTop + 191, 51, 20, "gui.save"));
-
 		if (type < 3) {
-			this.addLabel(
-					new GuiNpcLabel(0, new TextComponentTranslation("gui.help.block").getFormattedText() + " [?]:",
-							this.guiLeft + 4, this.guiTop + 4));
-			this.addLabel(new GuiNpcLabel(3, new TextComponentTranslation("gui.area").getFormattedText() + ":",
-					this.guiLeft + 120, this.guiTop + 38));
-
-			this.addButton(new GuiButtonBiDirectional(1, this.guiLeft + 120, this.guiTop + 69, 99, 20,
-					new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, this.builder.fasing));
-
-			for (int i = 1; i < 10; i++) { // Blocks
-				textField = new GuiNpcTextField(i, this, this.guiLeft + 28 + (i / 6) * 54,
-						this.guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15,
-						"" + (this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : ""));
-				textField.setNumbersOnly();
-				textField.setMinMaxDefault(1, 100,
-						this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : 100);
-				this.addTextField(textField);
-			}
+			this.addLabel(new GuiNpcLabel(0, new TextComponentTranslation("gui.help.block").getFormattedText() + " [?]:", this.guiLeft + 4, this.guiTop + 4));
+			this.addLabel(new GuiNpcLabel(3, new TextComponentTranslation("gui.area").getFormattedText() + " [?]:", this.guiLeft + 120, y));
+			y += 12;
 			for (int i = 0; i < 3; i++) { // Region
-				textField = new GuiNpcTextField(i + 10, this, this.guiLeft + 120 + i * 34, this.guiTop + 50, 30, 15,
-						"" + this.builder.region[i]);
+				textField = new GuiNpcTextField(i + 10, this, this.guiLeft + 120 + i * 34, y, 30, 15, "" + this.builder.region[i]);
 				textField.setNumbersOnly();
 				textField.setMinMaxDefault(1, this.maxRange, this.builder.region[i]);
 				this.addTextField(textField);
 			}
+			this.addButton(new GuiButtonBiDirectional(1, this.guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, this.builder.fasing));
+			for (int i = 1; i < 10; i++) { // Blocks
+				textField = new GuiNpcTextField(i, this, this.guiLeft + 28 + (i / 6) * 54, this.guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15, "" + (this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : ""));
+				textField.setNumbersOnly();
+				textField.setMinMaxDefault(1, 100, this.builder.chances.containsKey(i) ? this.builder.chances.get(i) : 100);
+				this.addTextField(textField);
+			}
 		} else {
-			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:",
-					this.guiLeft + 4, this.guiTop + 4));
+			this.addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", this.guiLeft + 4, this.guiTop + 4));
 		}
 		if (type < 4) {
-			checkBox = new GuiNpcCheckBox(5, this.guiLeft + 172 + (type == 3 ? -52 : 0),
-					this.guiTop + 130 + (type == 3 ? -60 : 0), 70, 15, "tile.air.name");
+			checkBox = new GuiNpcCheckBox(5, this.guiLeft + 120, y += 22, 99, 15, "tile.air.name");
 			checkBox.setSelected(this.builder.addAir);
 			this.addButton(checkBox);
 			if (type == 2 || type == 3) {
-				checkBox = new GuiNpcCheckBox(6, this.guiLeft + 172 + (type == 3 ? -52 : 0),
-						this.guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all");
+				checkBox = new GuiNpcCheckBox(6, this.guiLeft + 172 + (type == 3 ? -52 : 0), this.guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all");
 				checkBox.setSelected(this.builder.replaseAir);
 				this.addButton(checkBox);
 			}
@@ -508,8 +473,6 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 				this.addButton(checkBox);
 			}
 		}
-
-		this.addLabel(new GuiNpcLabel(1, "ID:" + this.builder.id, this.guiLeft + 120, this.guiTop + 4));
 		if (type == 2) {
 			this.addLabel(new GuiNpcLabel(4, "_[?]_", this.guiLeft + 88, this.guiTop + 116));
 		}
@@ -517,9 +480,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 
 	@Override
 	public void save() {
-		if (this.builder == null || this.container == null) {
-			return;
-		}
+		if (this.builder == null || this.container == null) { return; }
 		this.container.save();
 		Client.sendData(EnumPacketServer.BuilderSetting, this.builder.getNbt());
 	}
@@ -567,7 +528,7 @@ public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICust
 			this.builder.chances.put(textField.getId(), textField.getInteger());
 			return;
 		}
-		if (this.builder.type == 3 || this.builder.type == 4) {
+		if (this.builder.getType() == 3 || this.builder.getType() == 4) {
 			if (textField.getId() == 10) {
 				this.builder.schematicaName = textField.getText();
 				this.initGui();

@@ -94,9 +94,7 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 	@Override
 	public void render(float par2, float par3, float par4, float par5, float par6, float par7) {
 		this.renderLegs(par7);
-		if (!this.npc.animation.showParts.get(3)) {
-			return;
-		}
+		if (!this.npc.animation.showParts.get(EnumParts.BODY)) { return; }
 		this.renderTails(par7);
 	}
 
@@ -109,31 +107,31 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
 		this.preRender(data);
 		if (data.type == 1) {
-			GlStateManager.translate(0.0f, config.offsetBase[1] * 2.0f, config.offsetBase[2] * par7 + 0.04f);
-			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
+			GlStateManager.translate(0.0f, config.offset[1] * 2.0f, config.offset[2] * par7 + 0.04f);
+			GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 			this.naga.render(par7);
 		} else if (data.type == 2) {
-			GlStateManager.translate(0.0, config.offsetBase[1] * 1.76f - 0.1 * config.scaleBase[1],
-					(config.offsetBase[2] * par7));
+			GlStateManager.translate(0.0, config.offset[1] * 1.76f - 0.1 * config.scale[1],
+					(config.offset[2] * par7));
 			GlStateManager.scale(1.06f, 1.06f, 1.06f);
-			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
+			GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 			this.spiderLegs.render(par7);
 		} else if (data.type == 3) {
-			if (config.scaleBase[1] >= 1.0f) {
-				GlStateManager.translate(0.0f, config.offsetBase[1] * 1.76f, config.offsetBase[2] * par7);
+			if (config.scale[1] >= 1.0f) {
+				GlStateManager.translate(0.0f, config.offset[1] * 1.76f, config.offset[2] * par7);
 			} else {
-				GlStateManager.translate(0.0f, config.offsetBase[1] * 1.86f, config.offsetBase[2] * par7);
+				GlStateManager.translate(0.0f, config.offset[1] * 1.86f, config.offset[2] * par7);
 			}
-			GlStateManager.scale(0.79f, 0.9f - config.scaleBase[1] / 10.0f, 0.79f);
-			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
+			GlStateManager.scale(0.79f, 0.9f - config.scale[1] / 10.0f, 0.79f);
+			GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 			this.horseLegs.render(par7);
 		} else if (data.type == 4) {
-			GlStateManager.translate(0.0f, config.offsetBase[1] * 1.86f, config.offsetBase[2] * par7);
-			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
+			GlStateManager.translate(0.0f, config.offset[1] * 1.86f, config.offset[2] * par7);
+			GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 			this.mermaid.render(par7);
 		} else if (data.type == 5) {
-			GlStateManager.translate(0.0f, config.offsetBase[1] * 1.86f, config.offsetBase[2] * par7);
-			GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
+			GlStateManager.translate(0.0f, config.offset[1] * 1.86f, config.offset[2] * par7);
+			GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 			this.digitigrade.render(par7);
 		}
 		GlStateManager.popMatrix();
@@ -146,10 +144,10 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		}
 		GlStateManager.pushMatrix();
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.LEG_LEFT);
-		GlStateManager.translate(config.offsetBase[0] * par7, config.offsetBase[1] + this.rotationPointY * par7,
-				config.offsetBase[2] * par7 + this.rotationPointZ * par7);
-		GlStateManager.translate(0.0f, 0.0f, (config.scaleBase[2] - 1.0f) * 5.0f * par7);
-		GlStateManager.scale(config.scaleBase[0], config.scaleBase[1], config.scaleBase[2]);
+		GlStateManager.translate(config.offset[0] * par7, config.offset[1] + this.rotationPointY * par7,
+				config.offset[2] * par7 + this.rotationPointZ * par7);
+		GlStateManager.translate(0.0f, 0.0f, (config.scale[2] - 1.0f) * 5.0f * par7);
+		GlStateManager.scale(config.scale[0], config.scale[1], config.scale[2]);
 		this.preRender(data);
 		if (data.type == 0) {
 			if (data.pattern == 1) {
@@ -218,18 +216,18 @@ public class LayerLegs<T extends EntityLivingBase> extends LayerInterface<T> imp
 		this.rotationPointZ = 0.0f;
 		this.rotationPointY = 11.0f;
 		if (part.type == 2) {
-			this.rotationPointY = 12.0f + (config.scaleBase[1] - 1.0f) * 3.0f;
-			this.rotationPointZ = 15.0f + (config.scaleBase[2] - 1.0f) * 10.0f;
+			this.rotationPointY = 12.0f + (config.scale[1] - 1.0f) * 3.0f;
+			this.rotationPointZ = 15.0f + (config.scale[2] - 1.0f) * 10.0f;
 			if (this.npc.isPlayerSleeping() || this.npc.currentAnimation == 7) {
-				this.rotationPointY = 12.0f + 16.0f * config.scaleBase[2];
-				this.rotationPointZ = 1.0f * config.scaleBase[1];
+				this.rotationPointY = 12.0f + 16.0f * config.scale[2];
+				this.rotationPointZ = 1.0f * config.scale[1];
 				rotateAngleX = -0.7853982f;
 			}
 		} else if (part.type == 3) {
 			this.rotationPointY = 10.0f;
-			this.rotationPointZ = 16.0f + (config.scaleBase[2] - 1.0f) * 12.0f;
+			this.rotationPointZ = 16.0f + (config.scale[2] - 1.0f) * 12.0f;
 		} else {
-			this.rotationPointZ = (1.0f - config.scaleBase[2]) * 1.0f;
+			this.rotationPointZ = (1.0f - config.scale[2]) * 1.0f;
 		}
 		if (partTail != null) {
 			if (partTail.type == 2) {

@@ -6,7 +6,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class GuiNpcTextField extends GuiTextField {
+public class GuiNpcTextField
+extends GuiTextField
+implements IComponentGui {
 
 	public static char[] filePath = new char[] { ':', '*', '?', '"', '<', '>', '&', '|' };
 
@@ -242,4 +244,9 @@ public class GuiNpcTextField extends GuiTextField {
 		}
 	}
 
+	@Override
+	public int[] getCenter() {
+		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	}
+	
 }

@@ -1,40 +1,20 @@
 package noppes.npcs.client.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
+import org.lwjgl.opengl.GL11;
+
 import com.google.common.collect.Maps;
 
-import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
-import moe.plushie.armourers_workshop.api.common.capability.IEntitySkinCapability;
-import moe.plushie.armourers_workshop.api.common.capability.IWardrobeCap;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkin;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDescriptor;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkinDye;
-import moe.plushie.armourers_workshop.api.common.skin.data.ISkinProperties;
-import moe.plushie.armourers_workshop.api.common.skin.type.ISkinType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
-import noppes.npcs.CustomNpcs;
-import noppes.npcs.EventHooks;
-import noppes.npcs.ModelPartConfig;
-import noppes.npcs.api.constants.AnimationKind;
-import noppes.npcs.api.event.AnimationEvent;
-import noppes.npcs.client.gui.animation.GuiNpcAnimation;
-import noppes.npcs.client.gui.animation.SubGuiEditAnimation;
 import noppes.npcs.client.model.animation.AniBow;
 import noppes.npcs.client.model.animation.AniCrawling;
 import noppes.npcs.client.model.animation.AniDancing;
@@ -43,65 +23,83 @@ import noppes.npcs.client.model.animation.AniNo;
 import noppes.npcs.client.model.animation.AniPoint;
 import noppes.npcs.client.model.animation.AniWaving;
 import noppes.npcs.client.model.animation.AniYes;
-import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
-import noppes.npcs.client.util.aw.CustomSkinModelRenderHelper;
+import noppes.npcs.client.model.animation.AnimationStack;
+import noppes.npcs.client.model.part.AnimData;
+import noppes.npcs.client.model.part.head.ModelHeadwear;
 import noppes.npcs.constants.EnumParts;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class ModelNPCAlt extends ModelPlayer {
+/* Используется в качестве модели NPC */
+public class ModelNpcAlt
+extends ModelPlayer {
 
-	public static void copyModelAngles(ModelScaleRenderer source, ModelScaleRenderer dest) {
-		ModelBase.copyModelAngles(source, dest);
-		dest.setAnim(source);
+	public static final AnimData editAnimDataSelect = new AnimData();
+	
+	public static void copyModelAngles(ModelRendererAlt source, ModelRendererAlt dest) {
+		dest.copyModelAngles(source);
 	}
-	private Map<EnumParts, List<ModelScaleRenderer>> map;
-	private Map<EntityNPCInterface, Boolean> isAttaking;
+	
+	private ModelHeadwear bipedHeadwear_64, bipedHeadwear_128, bipedHeadwear_256, bipedHeadwear_512, bipedHeadwear_1024, bipedHeadwear_2048, bipedHeadwear_4096;
+	private ModelRendererAlt bipedCape;
+	public AnimationStack rightStackData = new AnimationStack();
+	public AnimationStack leftStackData = new AnimationStack();
 
-	private Map<EntityNPCInterface, Boolean> isJump;
-
-	public ModelNPCAlt(float scale, boolean arms) {
-		super(scale, arms);
-		this.map = Maps.<EnumParts, List<ModelScaleRenderer>>newHashMap();
-		this.isAttaking = Maps.<EntityNPCInterface, Boolean>newHashMap();
-		this.isJump = Maps.<EntityNPCInterface, Boolean>newHashMap();
-		this.bipedLeftArm = this.createScale(this.bipedLeftArm, EnumParts.ARM_LEFT);
-		this.bipedRightArm = this.createScale(this.bipedRightArm, EnumParts.ARM_RIGHT);
-		this.bipedLeftArmwear = this.createScale(this.bipedLeftArmwear, EnumParts.ARM_LEFT);
-		this.bipedRightArmwear = this.createScale(this.bipedRightArmwear, EnumParts.ARM_RIGHT);
-		this.bipedLeftLeg = this.createScale(this.bipedLeftLeg, EnumParts.LEG_LEFT);
-		this.bipedRightLeg = this.createScale(this.bipedRightLeg, EnumParts.LEG_RIGHT);
-		this.bipedLeftLegwear = this.createScale(this.bipedLeftLegwear, EnumParts.LEG_LEFT);
-		this.bipedRightLegwear = this.createScale(this.bipedRightLegwear, EnumParts.LEG_RIGHT);
-		this.bipedHead = this.createScale(this.bipedHead, EnumParts.HEAD);
-		this.bipedHeadwear = this.createScale(this.bipedHeadwear, EnumParts.HEAD);
-		this.bipedBody = this.createScale(this.bipedBody, EnumParts.BODY);
-		this.bipedBodyWear = this.createScale(this.bipedBodyWear, EnumParts.BODY);
+ 	public ModelNpcAlt(float modelSize, boolean smallArmsIn) {
+		super(modelSize, smallArmsIn);
+		
+		float wear = 0.25f;
+		float handWidth = smallArmsIn ? 3.0f : 4.0f;
+		this.bipedHead = new ModelRendererAlt(this, EnumParts.HEAD, 0, 0, true);
+		((ModelRendererAlt) this.bipedHead).setBox(-4.0F, -8.0F, -4.0F, 8, 3 , 3, 2, 8, modelSize);
+		this.bipedHead.setRotationPoint(0.0F, 0.0F, 0.0F);
+		this.bipedHeadwear_64 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 64);
+		this.bipedHeadwear_128 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 128);
+		this.bipedHeadwear_256 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 256);
+		this.bipedHeadwear_512 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 512);
+		this.bipedHeadwear_1024 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 1024);
+		this.bipedHeadwear_2048 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 2048);
+		this.bipedHeadwear_4096 = new ModelHeadwear(this, EnumParts.HEAD, 32, 0, 4096);
+		this.bipedBody = new ModelRendererAlt(this, EnumParts.BODY, 16, 16, true);
+		((ModelRendererAlt) this.bipedBody).setBox(-4.0F, 0.0F, -2.0F, 8, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		this.bipedBody.setRotationPoint(0.0F, 0.0F, 0.0F);
+		this.bipedBodyWear = new ModelRendererAlt(this, EnumParts.BODY, 16, 32, true);
+		((ModelRendererAlt) this.bipedBodyWear).setBox(-4.0F, 0.0F, -2.0F, 8, 5.5f, 3.5f, 3.0f, 4, modelSize + wear);
+		this.bipedBodyWear.setRotationPoint(0.0F, 0.0F, 0.0F);
+		
+		this.bipedCape = new ModelRendererAlt(this, EnumParts.BODY, 0, 0, true);
+		((ModelRendererAlt) this.bipedCape).setBox(-4.0F, 0.0F, -3.0F, 10, 10, 4, 1, 1, modelSize);
+		this.bipedCape.setRotationPoint(0.0F, 0.0F, 0.0F);
+		ObfuscationHelper.setValue(ModelPlayer.class, this, this.bipedCape, 5);
+		
+		this.bipedRightArm = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 16, false);
+		((ModelRendererAlt) this.bipedRightArm).setBox(-3.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
+		this.bipedRightArmwear = new ModelRendererAlt(this, EnumParts.ARM_RIGHT, 40, 32, false);
+		((ModelRendererAlt) this.bipedRightArmwear).setBox(-3.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize + wear);
+		this.bipedRightArmwear.setRotationPoint(-5.0F, 2.0F, 10.0F);
+		this.bipedRightLeg = new ModelRendererAlt(this, EnumParts.LEG_RIGHT, 0, 16, false);
+		((ModelRendererAlt) this.bipedRightLeg).setBox(-2.0F, 0.0F, -2.0F, 4, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		this.bipedRightLeg.setRotationPoint(-2.0F, 12.0F, 0.0F);
+		this.bipedRightLegwear = new ModelRendererAlt(this, EnumParts.LEG_RIGHT, 0, 32, false);
+		((ModelRendererAlt) this.bipedRightLegwear).setBox(-2.0F, 0.0F, -2.0F, 4, 5.5f, 3.5f, 3.0f, 4, modelSize + wear);
+		this.bipedRightLegwear.setRotationPoint(-2.0F, 12.0F, 0.0F);
+		this.bipedLeftArm = new ModelRendererAlt(this, EnumParts.ARM_LEFT, 32, 48, false);
+		((ModelRendererAlt) this.bipedLeftArm).setBox(-1.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
+		this.bipedLeftArmwear = new ModelRendererAlt(this, EnumParts.ARM_LEFT, 48, 48, false);
+		((ModelRendererAlt) this.bipedLeftArmwear).setBox(-1.0F, -2.0F, -2.0F, handWidth, 5.5f, 3.5f, 3.0f, 4, modelSize + wear);
+		this.bipedLeftArmwear.setRotationPoint(5.0F, 2.0F, 0.0F);
+		
+		this.bipedLeftLeg = new ModelRendererAlt(this, EnumParts.LEG_LEFT, 16, 48, false);
+		((ModelRendererAlt) this.bipedLeftLeg).setBox(-2.0F, 0.0F, -2.0F, 4, 5.5f, 3.5f, 3.0f, 4, modelSize);
+		this.bipedLeftLeg.setRotationPoint(2.0F, 12.0F, 0.0F);
+		this.bipedLeftLegwear = new ModelRendererAlt(this, EnumParts.LEG_RIGHT, 0, 48, false);
+		((ModelRendererAlt) this.bipedLeftLegwear).setBox(-2.0F, 0.0F, -2.0F, 4, 5.5f, 3.5f, 3.0f, 4, modelSize + wear);
+		this.bipedLeftLegwear.setRotationPoint(2.0F, 12.0F, 0.0F);
 	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private ModelScaleRenderer createScale(ModelRenderer renderer, EnumParts part) {
-		int textureX = ObfuscationHelper.getValue(ModelRenderer.class, renderer, 2);
-		int textureY = ObfuscationHelper.getValue(ModelRenderer.class, renderer, 3);
-		ModelScaleRenderer model = new ModelScaleRenderer((ModelBase) this, textureX, textureY, part);
-		model.textureHeight = renderer.textureHeight;
-		model.textureWidth = renderer.textureWidth;
-		if (renderer.childModels != null) {
-			model.childModels = new ArrayList(renderer.childModels);
-		}
-		model.cubeList = new ArrayList(renderer.cubeList);
-		copyModelAngles(renderer, (ModelRenderer) model);
-		List<ModelScaleRenderer> list = this.map.get(part);
-		if (list == null) {
-			this.map.put(part, list = new ArrayList<ModelScaleRenderer>());
-		}
-		list.add(model);
-		return model;
-	}
-
+	
 	protected EnumHandSide getMainHand(Entity entityIn) {
 		if (!(entityIn instanceof EntityLivingBase) || !((EntityLivingBase) entityIn).isSwingInProgress) {
 			return super.getMainHand(entityIn);
@@ -113,555 +111,292 @@ public class ModelNPCAlt extends ModelPlayer {
 		return EnumHandSide.LEFT;
 	}
 
-	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch, float scale) {
+	@Override
+	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+		EntityCustomNpc npc = (EntityCustomNpc) entityIn;
+		if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
+		if (ModelNpcAlt.editAnimDataSelect.part != null && Minecraft.getMinecraft().currentScreen == null) { ModelNpcAlt.editAnimDataSelect.part = null; }
+		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
+		Map<EnumParts, Boolean> ba = Maps.<EnumParts, Boolean>newHashMap();
+		ba.putAll(npc.animation.showParts);
+		float r = 1.0f, g = 1.0f, b = 1.0f;
+		if (npc.display.getTint() != 0xFFFFFF) {
+			r = (float)(npc.display.getTint() >> 16 & 255) / 255.0F;
+			g = (float)(npc.display.getTint() >> 8 & 255) / 255.0F;
+			b = (float)(npc.display.getTint() & 255) / 255.0F;
+		}
+		int entitySkinTextureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 		GlStateManager.pushMatrix();
-		if (entityIn.isSneaking()) {
-			GlStateManager.translate(0.0f, 0.2f, 0.0f);
-		}
-		int selPart = -1;
-		boolean showArmor = true;
-		if (Minecraft.getMinecraft().currentScreen instanceof SubGuiEditAnimation) {
-			SubGuiEditAnimation gui = (SubGuiEditAnimation) Minecraft.getMinecraft().currentScreen;
-			if (gui.getDisplayNpc().equals(entityIn)) {
-				showArmor = ((SubGuiEditAnimation) gui.subgui).showArmor;
-				selPart = gui.part.id;
-			}
-		} else if (Minecraft.getMinecraft().currentScreen instanceof GuiNpcAnimation) {
-			GuiNpcAnimation gui = (GuiNpcAnimation) Minecraft.getMinecraft().currentScreen;
-			if (gui.hasSubGui() && gui.subgui instanceof SubGuiEditAnimation
-					&& ((SubGuiEditAnimation) gui.subgui).getDisplayNpc().equals(entityIn)) {
-				showArmor = ((SubGuiEditAnimation) gui.subgui).showArmor;
-				selPart = ((SubGuiEditAnimation) gui.subgui).part.id;
-			}
-		}
-		float red = 1.0f, green = 1.0f, blue = 1.0f;
-		if (selPart != -1) {
-			red = (float) (CustomNpcs.colorAnimHoverPart >> 16 & 255) / 255.0F;
-			green = (float) (CustomNpcs.colorAnimHoverPart >> 8 & 255) / 255.0F;
-			blue = (float) (CustomNpcs.colorAnimHoverPart & 255) / 255.0F;
-		}
-		List<Boolean> ba = Lists.<Boolean>newArrayList(((EntityNPCInterface) entityIn).animation.showParts);
-		if (ArmourersWorkshopApi.isAvailable()) {
-			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
-			if (showArmor && ArmourersWorkshopApi.getSkinNBTUtils() != null) {
-				ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils()
-						.getSkinDescriptor(((EntityCustomNpc) entityIn).inventory.getStackInSlot(7));
-				if (skinDescriptor != null) {
-					try {
-						ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-						if (skin != null) {
-							ISkinProperties properties = (ISkinProperties) awu.getProperties.invoke(skin);
-							for (int i = 0; i < 6; i++) {
-								if (!ba.get(i)) {
-									continue;
-								}
-								String key;
-								switch (i) {
-								case 1:
-									key = "hideOverlayArmLeft";
-									break;
-								case 2:
-									key = "hideOverlayArmRight";
-									break;
-								case 3:
-									key = "hideOverlayChest";
-									break;
-								case 4:
-									key = "hideOverlayLegLeft";
-									break;
-								case 5:
-									key = "hideOverlayLegRight";
-									break;
-								default:
-									key = "hideOverlayHead";
-									break;
-								}
-								ba.set(i, !properties.getPropertyBoolean(key, Boolean.FALSE));
-							}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+		if (ba.get(EnumParts.HEAD) && this.bipedHead.showModel) {
+			((ModelRendererAlt) this.bipedHead).chechBacklightColor(r, g, b);
+			if (this.isChild) {
+				GlStateManager.scale(0.75F, 0.75F, 0.75F);
+				GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
+				this.bipedHead.render(scale);
+				if (!((ModelRendererAlt) this.bipedHead).isOBJModel()) {
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+					int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+					if (w >= 4096) { this.bipedHeadwear_4096.render(scale); }
+					else if (w >= 2048) { this.bipedHeadwear_2048.render(scale); }
+					else if (w >= 1024) { this.bipedHeadwear_1024.render(scale); }
+					else if (w >= 512) { this.bipedHeadwear_512.render(scale); }
+					else if (w >= 256) { this.bipedHeadwear_256.render(scale); }
+					else if (w >= 128) { this.bipedHeadwear_128.render(scale); }
+					else { this.bipedHeadwear_64.render(scale); }
+				}
+				GlStateManager.popMatrix();
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(0.5F, 0.5F, 0.5F);
+				GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
+			} else {
+				if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
+				this.bipedHead.render(scale);
+				if (!((ModelRendererAlt) this.bipedHead).isOBJModel()) {
+					GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+					int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+					if (w >= 4096) { this.bipedHeadwear_4096.render(scale); }
+					else if (w >= 2048) { this.bipedHeadwear_2048.render(scale); }
+					else if (w >= 1024) { this.bipedHeadwear_1024.render(scale); }
+					else if (w >= 512) { this.bipedHeadwear_512.render(scale); }
+					else if (w >= 256) { this.bipedHeadwear_256.render(scale); }
+					else if (w >= 128) { this.bipedHeadwear_128.render(scale); }
+					else { this.bipedHeadwear_64.render(scale); }
 				}
 			}
 		}
-		if (ba.get(0)) {
-			if (selPart == 0) {
-				GlStateManager.color(red, green, blue, 1.0f);
-			} else if (selPart != -1) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
+		if (ba.get(EnumParts.BODY) && this.bipedBody.showModel) {
+			((ModelRendererAlt) this.bipedBody).chechBacklightColor(r, g, b);
+			if (!((ModelRendererAlt) this.bipedBody).isOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+			this.bipedBody.render(scale);
+			if (this.bipedBodyWear != null && !((ModelRendererAlt) this.bipedBody).isOBJModel()) {
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+				this.bipedBodyWear.render(scale);
 			}
-			bipedHead.render(scale);
-			bipedHeadwear.render(scale);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(3)) {
-			if (selPart == 3) {
-				GlStateManager.color(red, green, blue, 1.0f);
-			} else if (selPart != -1) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
+		if (ba.get(EnumParts.ARM_RIGHT) && this.bipedRightArm.showModel) {
+			((ModelRendererAlt) this.bipedRightArm).chechBacklightColor(r, g, b);
+			if (!((ModelRendererAlt) this.bipedRightArm).isOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+			this.bipedRightArm.render(scale);
+			if (this.bipedRightArmwear != null && !((ModelRendererAlt) this.bipedLeftArm).isOBJModel()) {
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+				this.bipedRightArmwear.render(scale);
 			}
-			bipedBody.render(scale);
-			bipedBodyWear.render(scale);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(2)) {
-			if (selPart == 2) {
-				GlStateManager.color(red, green, blue, 1.0f);
-			} else if (selPart != -1) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
+		if (ba.get(EnumParts.ARM_LEFT) && this.bipedLeftArm.showModel) {
+			((ModelRendererAlt) this.bipedLeftArm).chechBacklightColor(r, g, b);
+			if (!((ModelRendererAlt) this.bipedLeftArm).isOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+			this.bipedLeftArm.render(scale);
+			if (this.bipedLeftArmwear != null && !((ModelRendererAlt) this.bipedLeftArm).isOBJModel()) {
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+				this.bipedLeftArmwear.render(scale);
 			}
-			bipedRightArm.render(scale);
-			bipedRightArmwear.render(scale);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(1)) {
-			if (selPart == 1) {
-				GlStateManager.color(red, green, blue, 1.0f);
-			} else if (selPart != -1) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
+		if (ba.get(EnumParts.LEG_RIGHT) && this.bipedRightLeg.showModel) {
+			((ModelRendererAlt) this.bipedRightLeg).chechBacklightColor(r, g, b);
+			if (!((ModelRendererAlt) this.bipedRightLeg).isOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+			this.bipedRightLeg.render(scale);
+			if (this.bipedRightLegwear != null) {
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+				this.bipedRightLegwear.render(scale);
 			}
-			bipedLeftArm.render(scale);
-			bipedLeftArmwear.render(scale);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		if (ba.get(5)) {
-			if (selPart == 5) {
-				GlStateManager.color(red, green, blue, 1.0f);
-			} else if (selPart != -1) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
+		if (ba.get(EnumParts.LEG_LEFT) && this.bipedLeftLeg.showModel) {
+			((ModelRendererAlt) this.bipedLeftLeg).chechBacklightColor(r, g, b);
+			if (!((ModelRendererAlt) this.bipedLeftLeg).isOBJModel()) { GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID); }
+			this.bipedLeftLeg.render(scale);
+			if (this.bipedLeftLegwear != null) {
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
+				this.bipedLeftLegwear.render(scale);
 			}
-			bipedRightLeg.render(scale);
-			bipedRightLegwear.render(scale);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		}
-		if (ba.get(4)) {
-			if (selPart == 4) {
-				GlStateManager.color(red, green, blue, 1.0f);
-			} else if (selPart != -1) {
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
-			}
-			bipedLeftLeg.render(scale);
-			bipedLeftLegwear.render(scale);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 		GlStateManager.popMatrix();
-		if (!showArmor || !ArmourersWorkshopApi.isAvailable()) {
-			return;
-		}
-		try {
-			IEntitySkinCapability skinCapability = ArmourersWorkshopApi.getEntitySkinCapability(entityIn);
-			if (!(skinCapability instanceof IEntitySkinCapability)) {
-				return;
-			}
-			double distance = Minecraft.getMinecraft().player.getDistance(entityIn.posX, entityIn.posY, entityIn.posZ);
-			int d = 0;
-			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();
-			try {
-				d = (int) awu.renderDistanceSkin.get(awu.configHandlerClient);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
-			if (distance > d) {
-				return;
-			}
-			ISkinType[] skinTypes = ((IEntitySkinCapability) skinCapability).getValidSkinTypes();
-			IWardrobeCap wardrobe = ArmourersWorkshopApi.getEntityWardrobeCapability(entityIn);
-
-			GlStateManager.pushMatrix();
-			GlStateManager.enableRescaleNormal();
-
-			CustomSkinModelRenderHelper modelRenderer = CustomSkinModelRenderHelper.getInstance();
-			for (int i = 0; i < skinTypes.length; i++) {
-				ISkinType skinType = skinTypes[i];
-				if (skinType.getClass().getSimpleName().equals("SkinWings")) {
-					if (!ba.get(3)) {
-						continue;
-					}
-					ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils()
-							.getSkinDescriptor(((EntityCustomNpc) entityIn).inventory.getStackInSlot(8));
-					if (skinDescriptor == null) {
-						continue;
-					}
-					ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-					if (skin == null) {
-						continue;
-					}
-					ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-					Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours,
-							distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-					modelRenderer.renderEquipmentPart(skin, renderData, (EntityCustomNpc) entityIn, this, scale, null);
-					continue;
-				}
-				if (skinType.getClass().getSimpleName().equals("SkinOutfit")) {
-					ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils()
-							.getSkinDescriptor(((EntityCustomNpc) entityIn).inventory.getStackInSlot(7));
-					if (skinDescriptor == null) {
-						continue;
-					}
-					ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-					if (skin == null) {
-						continue;
-					}
-					ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-					Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours,
-							distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-					modelRenderer.renderEquipmentPart(skin, renderData, (EntityCustomNpc) entityIn, this, scale, ba);
-					continue;
-				}
-
-				if (skinType.getVanillaArmourSlotId() == -1) {
-					continue;
-				}
-				if (i == 1 || i == 2 || i == 3 || i == 4) { // head | chest | legs | feet
-					ISkinDescriptor skinDescriptor = ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(
-							((EntityCustomNpc) entityIn).getItemStackFromSlot(i == 1 ? EntityEquipmentSlot.HEAD
-									: i == 2 ? EntityEquipmentSlot.CHEST
-											: i == 3 ? EntityEquipmentSlot.LEGS : EntityEquipmentSlot.FEET));
-					if (skinDescriptor == null) {
-						continue;
-					}
-					ISkin skin = (ISkin) awu.getSkin.invoke(awu.clientSkinCache, skinDescriptor);
-					if (skin == null) {
-						continue;
-					}
-					ISkinDye dye = (ISkinDye) awu.skinDyeConstructor.newInstance(wardrobe.getDye());
-					Object renderData = awu.skinRenderDataConstructor.newInstance(scale, dye, awu.extraColours,
-							distance, true, true, false, DefaultPlayerSkin.getDefaultSkinLegacy());
-					modelRenderer.renderEquipmentPart(skin, renderData, (EntityCustomNpc) entityIn, this, scale, ba);
-				}
-			}
-			GlStateManager.disableRescaleNormal();
-			GlStateManager.popMatrix();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
-
-	private boolean setAnimationRotationAngles(EntityNPCInterface npc, AnimationConfig anim, float ageInTicks) {
-		if (npc == null || anim == null) {
-			((ModelScaleRenderer) this.bipedHead).clearAnim();
-			((ModelScaleRenderer) this.bipedHeadwear).clearAnim();
-
-			((ModelScaleRenderer) this.bipedBody).clearAnim();
-			((ModelScaleRenderer) this.bipedBodyWear).clearAnim();
-			((ModelScaleRenderer) this.bipedLeftArm).clearAnim();
-			((ModelScaleRenderer) this.bipedLeftArmwear).clearAnim();
-			((ModelScaleRenderer) this.bipedRightArm).clearAnim();
-			((ModelScaleRenderer) this.bipedRightArmwear).clearAnim();
-
-			((ModelScaleRenderer) this.bipedLeftLeg).clearAnim();
-			((ModelScaleRenderer) this.bipedLeftLegwear).clearAnim();
-			((ModelScaleRenderer) this.bipedRightLeg).clearAnim();
-			((ModelScaleRenderer) this.bipedRightLegwear).clearAnim();
-			return false;
-		}
-		float pt = 0.0f;
-		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.currentScreen == null || mc.currentScreen.isFocused()) {
-			pt = mc.getRenderPartialTicks();
-		}
-		Map<Integer, Float[]> animData = npc.animation.getValues(npc, anim, pt);
-		if (animData == null) {
-			return false;
-		}
-		// Head
-		Float[] head = animData.get(0);
-		if (head != null) {
-			if (anim.type.isMoving()) {
-				((ModelScaleRenderer) this.bipedHead).clearRotation();
-				((ModelScaleRenderer) this.bipedHeadwear).clearRotation();
-			}
-			((ModelScaleRenderer) this.bipedHead).setAnim(head);
-			((ModelScaleRenderer) this.bipedHeadwear).setAnim(head);
-		} else {
-			((ModelScaleRenderer) this.bipedHead).clearAnim();
-			((ModelScaleRenderer) this.bipedHeadwear).clearAnim();
-		}
-
-		// Left Arm
-		Float[] leftArm = animData.get(1);
-		if (leftArm != null) {
-			if (anim.type.isMoving()) {
-				((ModelScaleRenderer) this.bipedLeftArm).clearRotation();
-				((ModelScaleRenderer) this.bipedLeftArmwear).clearRotation();
-			}
-			((ModelScaleRenderer) this.bipedLeftArm).setAnim(leftArm);
-			((ModelScaleRenderer) this.bipedLeftArmwear).setAnim(leftArm);
-			if (npc.display.getHasLivingAnimation() && (anim.type == AnimationKind.STANDING
-					|| anim.type == AnimationKind.FLY_STAND || anim.type == AnimationKind.WATER_STAND)) {
-				this.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-				this.bipedLeftArm.rotateAngleX -= MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
-			}
-		} else {
-			((ModelScaleRenderer) this.bipedLeftArm).clearAnim();
-			((ModelScaleRenderer) this.bipedLeftArmwear).clearAnim();
-		}
-		// Right Arm
-		Float[] rightArm = animData.get(2);
-		if (rightArm != null) {
-			if (anim.type.isMoving()) {
-				((ModelScaleRenderer) this.bipedRightArm).clearRotation();
-				((ModelScaleRenderer) this.bipedRightArmwear).clearRotation();
-			}
-			((ModelScaleRenderer) this.bipedRightArm).setAnim(rightArm);
-			((ModelScaleRenderer) this.bipedRightArmwear).setAnim(rightArm);
-			if (npc.display.getHasLivingAnimation()) {
-				this.bipedRightArm.rotateAngleZ += MathHelper.cos(ageInTicks * 0.09f) * 0.05f + 0.05f;
-				this.bipedRightArm.rotateAngleX += MathHelper.sin(ageInTicks * 0.067f) * 0.05f;
-			}
-		} else {
-			((ModelScaleRenderer) this.bipedRightArm).clearAnim();
-			((ModelScaleRenderer) this.bipedRightArmwear).clearAnim();
-		}
-		// Body
-		Float[] body = animData.get(3);
-		if (body != null) {
-			if (anim.type.isMoving()) {
-				((ModelScaleRenderer) this.bipedBody).clearRotation();
-				((ModelScaleRenderer) this.bipedBodyWear).clearRotation();
-			}
-			((ModelScaleRenderer) this.bipedBody).setAnim(body);
-			((ModelScaleRenderer) this.bipedBodyWear).setAnim(body);
-		} else {
-			((ModelScaleRenderer) this.bipedBody).clearAnim();
-			((ModelScaleRenderer) this.bipedBodyWear).clearAnim();
-		}
-		// Left Leg
-		Float[] leftLeg = animData.get(4);
-		if (leftLeg != null) {
-			if (anim.type.isMoving()) {
-				((ModelScaleRenderer) this.bipedLeftLeg).clearRotation();
-				((ModelScaleRenderer) this.bipedLeftLegwear).clearRotation();
-			}
-			((ModelScaleRenderer) this.bipedLeftLeg).setAnim(leftLeg);
-			((ModelScaleRenderer) this.bipedLeftLegwear).setAnim(leftLeg);
-		} else {
-			((ModelScaleRenderer) this.bipedLeftLeg).clearAnim();
-			((ModelScaleRenderer) this.bipedLeftLegwear).clearAnim();
-		}
-
-		// Right Leg
-		Float[] rightLeg = animData.get(5);
-		if (rightLeg != null) {
-			if (anim.type.isMoving()) {
-				((ModelScaleRenderer) this.bipedRightLeg).clearRotation();
-				((ModelScaleRenderer) this.bipedRightLegwear).clearRotation();
-			}
-			((ModelScaleRenderer) this.bipedRightLeg).setAnim(rightLeg);
-			((ModelScaleRenderer) this.bipedRightLegwear).setAnim(rightLeg);
-		} else {
-			((ModelScaleRenderer) this.bipedRightLeg).clearAnim();
-			((ModelScaleRenderer) this.bipedRightLegwear).clearAnim();
-		}
-		return true;
-	}
-
+	
 	@Override
-	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch, float scaleFactor, Entity entityIn) {
+	public void renderCape(float scale) { this.bipedCape.render(scale); }
+	
+	@Override
+	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
 		EntityNPCInterface npc = (EntityNPCInterface) entityIn;
 		if (npc.navigating != null && (netHeadYaw < -2.0f || netHeadYaw > 2.0f)) {
 			npc.turn(netHeadYaw / 3.0f, headPitch / 3.0f);
 			ObfuscationHelper.setValue(EntityLivingBase.class, npc, npc.rotationYaw, 58);
 			ObfuscationHelper.setValue(EntityLivingBase.class, npc, npc.rotationPitch, 59);
 		}
-		if (npc instanceof EntityCustomNpc) {
-			for (EnumParts part : this.map.keySet()) {
-				ModelPartConfig config = ((EntityCustomNpc) npc).modelData.getPartConfig(part);
-				for (ModelScaleRenderer model : this.map.get(part)) {
-					model.config = config;
-				}
-			}
-		}
-		if (!this.isRiding) {
-			this.isRiding = npc.currentAnimation == 1;
-		}
-		if (this.isSneak && npc.isPlayerSleeping()) {
-			this.isSneak = false;
-		}
-		if (npc.currentAnimation == 6 || (npc.inventory.getProjectile() != null && npc.isAttacking()
-				&& npc.stats.ranged.getHasAimAnimation())) {
+		if (!this.isRiding) { this.isRiding = npc.currentAnimation == 1; }
+		if (this.isSneak && npc.isPlayerSleeping()) { this.isSneak = false; }
+		if (npc.currentAnimation == 6 || (npc.inventory.getProjectile() != null && npc.isAttacking() && npc.stats.ranged.getHasAimAnimation())) {
 			this.rightArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
 		}
 		this.isSneak = npc.isSneaking();
-		this.bipedBody.rotationPointZ = 0.0f;
-		this.bipedBody.rotationPointY = 0.0f;
-		this.bipedBody.rotationPointX = 0.0f;
-		this.bipedBody.rotateAngleZ = 0.0f;
-		this.bipedBody.rotateAngleY = 0.0f;
-		this.bipedBody.rotateAngleX = 0.0f;
-		this.bipedHead.rotateAngleX = 0.0f;
-		this.bipedHead.rotateAngleZ = 0.0f;
-		this.bipedHead.rotationPointX = 0.0f;
-		this.bipedHead.rotationPointY = 0.0f;
-		this.bipedHead.rotationPointZ = 0.0f;
-		this.bipedHeadwear.rotateAngleX = 0.0f;
-		this.bipedHeadwear.rotateAngleZ = 0.0f;
-		this.bipedHeadwear.rotationPointX = 0.0f;
-		this.bipedHeadwear.rotationPointY = 0.0f;
-		this.bipedHeadwear.rotationPointZ = 0.0f;
-		this.bipedLeftLeg.rotateAngleX = 0.0f;
-		this.bipedLeftLeg.rotateAngleY = 0.0f;
-		this.bipedLeftLeg.rotateAngleZ = 0.0f;
-		this.bipedRightLeg.rotateAngleX = 0.0f;
-		this.bipedRightLeg.rotateAngleY = 0.0f;
-		this.bipedRightLeg.rotateAngleZ = 0.0f;
-		this.bipedLeftArm.rotationPointX = 0.0f;
-		this.bipedLeftArm.rotationPointY = 2.0f;
-		this.bipedLeftArm.rotationPointZ = 0.0f;
-		this.bipedRightArm.rotationPointX = 0.0f;
-		this.bipedRightArm.rotationPointY = 2.0f;
-		this.bipedRightArm.rotationPointZ = 0.0f;
-		// Standard
+		
+		// Standart Rotation
+		this.clearAllRotations();
+		if (npc instanceof EntityCustomNpc) {
+			this.bipedHead.showModel = true;
+			this.bipedBody.showModel = true;
+			this.bipedLeftArm.showModel = true;
+			this.bipedRightArm.showModel = true;
+			this.bipedLeftLeg.showModel = true;
+			this.bipedRightLeg.showModel = true;
+			((ModelRendererAlt) this.bipedHead).setBaseData(((EntityCustomNpc) npc).modelData.getPartConfig(EnumParts.HEAD));
+			((ModelRendererAlt) this.bipedBody).setBaseData(((EntityCustomNpc) npc).modelData.getPartConfig(EnumParts.BODY));
+			((ModelRendererAlt) this.bipedLeftArm).setBaseData(((EntityCustomNpc) npc).modelData.getPartConfig(EnumParts.ARM_LEFT));
+			((ModelRendererAlt) this.bipedRightArm).setBaseData(((EntityCustomNpc) npc).modelData.getPartConfig(EnumParts.ARM_RIGHT));
+			((ModelRendererAlt) this.bipedLeftLeg).setBaseData(((EntityCustomNpc) npc).modelData.getPartConfig(EnumParts.LEG_LEFT));
+			((ModelRendererAlt) this.bipedRightLeg).setBaseData(((EntityCustomNpc) npc).modelData.getPartConfig(EnumParts.LEG_RIGHT));
+			this.rightStackData.clear();
+			this.leftStackData.clear();
+		}
 		super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
+		
 		if (!npc.animation.hasAnim()) {
-
-			if (npc.isPlayerSleeping()) {
-				if (this.bipedHead.rotateAngleX < 0.0f) {
-					this.bipedHead.rotateAngleX = 0.0f;
-					this.bipedHeadwear.rotateAngleX = 0.0f;
+			if (npc.getAttackTarget() == null) {
+				if (npc.isPlayerSleeping()) {
+					if (this.bipedHead.rotateAngleX < 0.0f) {
+						this.bipedHead.rotateAngleX = 0.0f;
+						this.bipedHeadwear.rotateAngleX = 0.0f;
+					}
+				} else if (npc.currentAnimation != 0) {
+					if (npc.currentAnimation == 3) {
+						AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 5) {
+						AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 7) {
+						AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 8) {
+						AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 9) {
+						float n6 = 0.7f;
+						this.bipedHead.rotateAngleX = n6;
+						this.bipedHeadwear.rotateAngleX = n6;
+					} else if (npc.currentAnimation == 10) {
+						AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 11) {
+						AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 12) {
+						AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					} else if (npc.currentAnimation == 13) {
+						AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn, (ModelBiped) this);
+					}
 				}
-			} else if (npc.currentAnimation != 0 && !npc.animation.hasAnim()) {
-				if (npc.currentAnimation == 3) {
-					AniHug.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor,
-							entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 5) {
-					AniDancing.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch,
-							scaleFactor, entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 7) {
-					AniCrawling.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch,
-							scaleFactor, entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 8) {
-					AniPoint.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch,
-							scaleFactor, entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 9) {
-					ModelRenderer bipedHeadwear6 = this.bipedHeadwear;
-					ModelRenderer bipedHead6 = this.bipedHead;
-					float n6 = 0.7f;
-					bipedHead6.rotateAngleX = n6;
-					bipedHeadwear6.rotateAngleX = n6;
-				} else if (npc.currentAnimation == 10) {
-					AniWaving.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch,
-							scaleFactor, entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 11) {
-					AniBow.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor,
-							entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 12) {
-					AniNo.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor,
-							entityIn, (ModelBiped) this);
-				} else if (npc.currentAnimation == 13) {
-					AniYes.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor,
-							entityIn, (ModelBiped) this);
-				}
+			}
+			else if (npc.ais.getStandingType() == 4 && npc.lookat != null) {
+				double d0 = npc.posX - npc.lookat.posX;
+				double d1 = (npc.posY + (double) npc.getEyeHeight()) - (npc.lookat.posY + (double) npc.lookat.getEyeHeight());
+				double d2 = npc.posZ - npc.lookat.posZ;
+				double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
+				float yaw = MathHelper.wrapDegrees(npc.rotationYawHead - (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F);;
+				float pitch = MathHelper.wrapDegrees(npc.rotationPitch + (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI))));
+				if (yaw < -45.0f) { yaw = -45.0f; }
+				else if (yaw > 45.0f) { yaw = 45.0f; }
+				this.bipedHead.rotateAngleY = (float) ((-yaw * Math.PI) / 180D);
+				if (pitch < -45.0f) { pitch = -45.0f; }
+				else if (pitch > 45.0f) { pitch = 45.0f; }
+				this.bipedHead.rotateAngleX = (float) ((-pitch * Math.PI) / 180D);
 			}
 		} else {
-			AnimationConfig anim = npc.animation.activeAnim != null
-					? npc.animation.getActiveAnimation(npc.animation.activeAnim.type)
-					: null;
-			// Dies
-			if (npc.isKilled() && !npc.stats.hideKilledBody) {
-				if (anim == null || anim.type != AnimationKind.DIES) {
-					anim = npc.animation.getActiveAnimation(AnimationKind.DIES);
-				}
-			} else {
-				if (anim != null && anim.type == AnimationKind.DIES && npc.animation.isComplete && !npc.isKilled()
-						|| npc.stats.hideKilledBody) {
-					anim = null;
-					npc.animation.isComplete = false;
-				}
-				// Hit
-				if (npc.hurtTime > 0 && npc.hurtTime == npc.maxHurtTime && npc.getHealth() != 0) {
-					anim = npc.animation.getActiveAnimation(AnimationKind.HIT);
-				}
-				if (anim == null || anim.type != AnimationKind.INIT) {
-					this.isAttaking.put(npc, false);
-					if (!this.isJump.containsKey(npc)) {
-						this.isJump.put(npc, false);
-					}
-
-					if (this.isAttaking.get(npc) && this.swingProgress > 0) {
-						npc.swingProgress = 0.0f;
-						npc.swingProgressInt = 5;
-					}
-					// Swing
-					if (this.swingProgress > 0) {
-						anim = npc.animation.getActiveAnimation(AnimationKind.ATTACKING);
-						if (anim != null) {
-							npc.swingProgress = 0.0f;
-							npc.swingProgressInt = 5;
-							this.isAttaking.put(npc, true);
-						}
-					}
-					// Jump
-					if (!this.isJump.get(npc) && !(npc.isInWater() || npc.isInLava())
-							&& npc.ais.getNavigationType() == 0) {
-						if (!npc.onGround && npc.motionY > 0.0d) {
-							anim = npc.animation.getActiveAnimation(AnimationKind.JUMP);
-							if (anim != null) {
-								this.isJump.put(npc, true);
-							}
-						}
-					} else if (npc.onGround) {
-						this.isJump.put(npc, false);
-					}
-				}
-				// INIT started in EntityNPCInterface.reset()
-				if (anim == null || !anim.isEdit) {
-					// Moving or Standing
-					if (anim == null) {
-						boolean isNavigate = npc.navigating != null || npc.motionX != 0.0d || npc.motionZ != 0.0d;
-						// Revenge Target
-						if (npc.isAttacking()) {
-							if (isNavigate && (anim == null || anim.type != AnimationKind.REVENGE_WALK)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_WALK);
-							} else if (!isNavigate && (anim == null || anim.type != AnimationKind.REVENGE_STAND)) {
-								anim = npc.animation.getActiveAnimation(AnimationKind.REVENGE_STAND);
-							}
-						} else {
-							if (npc.isInWater() || npc.isInLava()) {
-								if (isNavigate && (anim == null || anim.type != AnimationKind.WATER_WALK)) {
-									anim = npc.animation.getActiveAnimation(AnimationKind.WATER_WALK);
-								} else if (!isNavigate && (anim == null || anim.type != AnimationKind.WATER_STAND)) {
-									anim = npc.animation.getActiveAnimation(AnimationKind.WATER_STAND);
-								}
-							} else {
-								if (!npc.onGround && npc.ais.getNavigationType() == 1) {
-									if (isNavigate && (anim == null || anim.type != AnimationKind.FLY_WALK)) {
-										anim = npc.animation.getActiveAnimation(AnimationKind.FLY_WALK);
-									} else if (!isNavigate && (anim == null || anim.type != AnimationKind.FLY_STAND)) {
-										anim = npc.animation.getActiveAnimation(AnimationKind.FLY_STAND);
-									}
-								} else {
-									if (isNavigate && (anim == null || anim.type != AnimationKind.WALKING)) {
-										anim = npc.animation.getActiveAnimation(AnimationKind.WALKING);
-									} else if (!isNavigate && (anim == null || anim.type != AnimationKind.STANDING)) {
-										anim = npc.animation.getActiveAnimation(AnimationKind.STANDING);
-									}
-								}
-							}
-						}
-					}
-				}
+			float partialTicks = 0.0f;
+			Minecraft mc = Minecraft.getMinecraft();
+			if (mc.currentScreen == null || mc.currentScreen.isFocused()) { partialTicks = mc.getRenderPartialTicks(); }
+			npc.animation.setRotationAngles(this.swingProgress, partialTicks);
+			if (npc.animation.showParts.get(EnumParts.HEAD)) { ((ModelRendererAlt) this.bipedHead).setAnimation(npc.animation); }
+			if (npc.animation.showParts.get(EnumParts.BODY)) { ((ModelRendererAlt) this.bipedBody).setAnimation(npc.animation); }
+			if (npc.animation.showParts.get(EnumParts.ARM_RIGHT)) {
+				((ModelRendererAlt) this.bipedRightArm).setAnimation(npc.animation);
+				this.rightStackData.setAnimation(npc.animation, EnumParts.RIGHT_STACK.patterns);
 			}
-			if (anim == null) {
-				anim = npc.animation.getActiveAnimation(AnimationKind.BASE);
+			if (npc.animation.showParts.get(EnumParts.ARM_LEFT)) {
+				((ModelRendererAlt) this.bipedLeftArm).setAnimation(npc.animation);
+				this.leftStackData.setAnimation(npc.animation, EnumParts.LEFT_STACK.patterns);
 			}
-			npc.animation.activeAnim = anim;
-			npc.animation.isAnimated = this.setAnimationRotationAngles(npc, anim, ageInTicks);
-			if (anim != null && npc.animation.isAnimated) {
-				AnimationEvent event = new AnimationEvent.UpdateEvent(npc, anim);
-				EventHooks.onEvent(ScriptController.Instance.clientScripts, event.nameEvent, event);
-			}
+			if (npc.animation.showParts.get(EnumParts.LEG_RIGHT)) { ((ModelRendererAlt) this.bipedRightLeg).setAnimation(npc.animation); }
+			if (npc.animation.showParts.get(EnumParts.LEG_LEFT)) { ((ModelRendererAlt) this.bipedLeftLeg).setAnimation(npc.animation); }
 		}
-		copyModelAngles((ModelScaleRenderer) this.bipedLeftLeg, (ModelScaleRenderer) this.bipedLeftLegwear);
-		copyModelAngles((ModelScaleRenderer) this.bipedRightLeg, (ModelScaleRenderer) this.bipedRightLegwear);
-		copyModelAngles((ModelScaleRenderer) this.bipedLeftArm, (ModelScaleRenderer) this.bipedLeftArmwear);
-		copyModelAngles((ModelScaleRenderer) this.bipedRightArm, (ModelScaleRenderer) this.bipedRightArmwear);
-		copyModelAngles((ModelScaleRenderer) this.bipedBody, (ModelScaleRenderer) this.bipedBodyWear);
-		copyModelAngles((ModelScaleRenderer) this.bipedHead, (ModelScaleRenderer) this.bipedHeadwear);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_64);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_128);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_256);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_512);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_1024);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_2048);
+		copyModelAngles((ModelRendererAlt) this.bipedHead, (ModelRendererAlt) this.bipedHeadwear_4096);
+		copyModelAngles((ModelRendererAlt) this.bipedBody, (ModelRendererAlt) this.bipedBodyWear);
+		copyModelAngles((ModelRendererAlt) this.bipedRightArm, (ModelRendererAlt) this.bipedRightArmwear);
+		copyModelAngles((ModelRendererAlt) this.bipedLeftArm, (ModelRendererAlt) this.bipedLeftArmwear);
+		copyModelAngles((ModelRendererAlt) this.bipedRightLeg, (ModelRendererAlt) this.bipedRightLegwear);
+		copyModelAngles((ModelRendererAlt) this.bipedLeftLeg, (ModelRendererAlt) this.bipedLeftLegwear);
 	}
 
+	@Override
+	public void postRenderArm(float scale, EnumHandSide side) { // for ItemStacks
+		super.postRenderArm(scale, side);
+		ModelRendererAlt modelRenderer = (ModelRendererAlt) this.bipedRightArm;
+		AnimationStack hundData = this.rightStackData;
+		if (side == EnumHandSide.LEFT) {
+			modelRenderer = (ModelRendererAlt) this.bipedLeftArm;
+			hundData = this.leftStackData;
+		}
+		if (!hundData.showModel) { return; }
+		if (!modelRenderer.isNormal) {
+			if (modelRenderer.rotateAngleX1 != 0.0f) {
+				float ofsY = modelRenderer.dy2 - modelRenderer.dy0;
+				GlStateManager.translate(0.0f, 0.625f, 0.0f);
+				float ofsZ = modelRenderer.rotateAngleX1 * (modelRenderer.dz / -2.0f) / (float) -Math.PI;
+				GlStateManager.translate(0.0f, ofsY * -0.0625f, ofsZ * 0.0625f);
+				GlStateManager.rotate(modelRenderer.rotateAngleX1 * 180.0f / (float) Math.PI, 1.0f, 0.0f, 0.0f);
+				GlStateManager.translate(0.0f, ofsY * 0.0625f, ofsZ * -0.0625f);
+				GlStateManager.translate(0.0f, -0.625f, 0.0f);
+			}
+			if (modelRenderer.rotateAngleY1 != 0.0f) {
+				float ofs = (side == EnumHandSide.RIGHT ? -1.0f : 1.0f) * 0.0625f;
+				GlStateManager.translate(ofs, 0.0f, 0.0f);
+				GlStateManager.rotate(modelRenderer.rotateAngleY1 * -180.0f / (float) Math.PI, 0.0f, 1.0f, 0.0f);
+				GlStateManager.translate(-ofs, 0.0f, 0.0f);
+			}
+		}
+		if (hundData.partSets == null) { return; }
+		if (hundData.partSets[3] != 0.0f || hundData.partSets[4] != 0.0f || hundData.partSets[5] != 0.0f) {
+			GlStateManager.translate(hundData.partSets[3], hundData.partSets[4], hundData.partSets[5]);
+		}
+		if (hundData.partSets[2] != 0.0F) {
+			GlStateManager.rotate(hundData.partSets[2] * (180F / (float) Math.PI), 0.0F, 0.0F, 1.0F);
+		}
+		if (hundData.partSets[1] != 0.0F) {
+			GlStateManager.rotate(hundData.partSets[1] * (180F / (float) Math.PI), 0.0F, 1.0F, 0.0F);
+		}
+		if (hundData.partSets[0] != 0.0F) {
+			GlStateManager.rotate(hundData.partSets[0] * (180F / (float) Math.PI), 1.0F, 0.0F, 0.0F);
+		}
+		if (hundData.partSets[6] != 1.0f || hundData.partSets[7] != 1.0f || hundData.partSets[8] != 1.0f) {
+			GlStateManager.scale(hundData.partSets[6], hundData.partSets[7], hundData.partSets[7]);
+		}
+	}
+	
+	private void clearAllRotations() {
+		// Head
+		if (this.bipedHead.showModel) { 
+			((ModelRendererAlt) this.bipedHead).clearRotations();
+			this.bipedHeadwear.rotateAngleX = 0.0f;
+			this.bipedHeadwear.rotateAngleZ = 0.0f;
+		}
+		// Body
+		if (this.bipedBody.showModel) { ((ModelRendererAlt) this.bipedBody).clearRotations(); }
+		// Arm left
+		if (this.bipedLeftArm.showModel) { ((ModelRendererAlt) this.bipedLeftArm).clearRotations(); }
+		// Arm right
+		if (this.bipedRightArm.showModel) { ((ModelRendererAlt) this.bipedRightArm).clearRotations(); }
+		// Leg left
+		if (this.bipedLeftLeg.showModel) {
+			((ModelRendererAlt) this.bipedLeftLeg).clearRotations();
+			this.bipedLeftLeg.rotationPointX = 2.0f;
+			this.bipedLeftLeg.rotationPointZ = 0.0f;
+		}
+		// Leg right
+		if (this.bipedRightLeg.showModel) {
+			((ModelRendererAlt) this.bipedRightLeg).clearRotations();
+			this.bipedRightLeg.rotationPointX = -2.0f;
+			this.bipedRightLeg.rotationPointZ = 0.0f;
+		}
+	}
+	
 }

@@ -1,5 +1,6 @@
 package noppes.npcs.client.model.animation;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -21,22 +22,15 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class AnimationConfig implements IAnimation {
 
-	public String name;
-	public int repeatLast;
-	public boolean isEdit;
-	public final Map<Integer, AnimationFrameConfig> frames; // {Frame, setting Frame]}
+	public String name = "Default Animation";
+	public int repeatLast = 0;
+	public boolean isEdit = false;
+	public final Map<Integer, AnimationFrameConfig> frames = Maps.<Integer, AnimationFrameConfig>newTreeMap(); // {Frame, setting Frame]}
 
-	public int id;
-	public AnimationKind type;
+	public int id = 0;
+	public AnimationKind type = AnimationKind.STANDING;
 
-	public AnimationConfig() {
-		this.frames = Maps.<Integer, AnimationFrameConfig>newTreeMap();
-		this.frames.put(0, new AnimationFrameConfig());
-		this.id = 0;
-		this.name = "Default Animation";
-		this.repeatLast = 0;
-		this.isEdit = false;
-	}
+	public AnimationConfig() { this.frames.put(0, new AnimationFrameConfig()); }
 
 	@Override
 	public IAnimationFrame addFrame() {
@@ -47,14 +41,27 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	@Override
-	public IAnimationFrame addFrame(IAnimationFrame frame) {
-		if (frame == null) {
-			return this.addFrame();
+	public IAnimationFrame addFrame(int frameId, IAnimationFrame frame) {
+		if (frame == null) { return this.addFrame(); }
+		if (frameId < 0) {
+			frameId = this.frames.size();
+			this.frames.put(frameId, ((AnimationFrameConfig) frame).copy());
+			this.frames.get(frameId).id = frameId;
+		} else {
+			Map<Integer, AnimationFrameConfig> newFrames = Maps.<Integer, AnimationFrameConfig>newTreeMap();
+			int j = 0;
+			for (int i : this.frames.keySet()) {
+				if (i == frameId) {
+					newFrames.put(j, ((AnimationFrameConfig) frame).copy());
+					j++;
+				}
+				newFrames.put(j, ((AnimationFrameConfig) frame).copy());
+				j++;
+			}
+			this.frames.clear();
+			this.frames.putAll(newFrames);
 		}
-		int f = this.frames.size();
-		this.frames.put(f, ((AnimationFrameConfig) frame).copy());
-		this.frames.get(f).id = f;
-		return this.frames.get(f);
+		return this.frames.get(frameId);
 	}
 
 	public AnimationConfig copy() {
@@ -64,11 +71,11 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	@Override
-	public IAnimationFrame getFrame(int frame) {
-		if (!this.frames.containsKey(frame)) {
-			throw new CustomNPCsException("Unknown frame " + frame);
+	public IAnimationFrame getFrame(int frameId) {
+		if (!this.frames.containsKey(frameId)) {
+			throw new CustomNPCsException("Unknown frame " + frameId);
 		}
-		return this.frames.get(frame);
+		return this.frames.get(frameId);
 	}
 
 	@Override
@@ -106,8 +113,8 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	@Override
-	public boolean hasFrame(int frame) {
-		return this.frames.containsKey(frame);
+	public boolean hasFrame(int frameId) {
+		return this.frames.containsKey(frameId);
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -126,12 +133,12 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	@Override
-	public boolean removeFrame(IAnimationFrame frame) {
-		if (frame == null || this.frames.size() <= 1) {
+	public boolean removeFrame(IAnimationFrame frameId) {
+		if (frameId == null || this.frames.size() <= 1) {
 			return false;
 		}
 		for (int f : this.frames.keySet()) {
-			if (this.frames.get(f).equals(frame)) {
+			if (this.frames.get(f).equals(frameId)) {
 				this.removeFrame(f);
 				return true;
 			}
@@ -198,7 +205,7 @@ public class AnimationConfig implements IAnimation {
 				|| ((ModelDataShared) npcEntity.modelData).entityClass != null) {
 			return;
 		}
-		((EntityNPCInterface) npcEntity).animation.activeAnim = this;
+		((EntityNPCInterface) npcEntity).animation.startAnimation(this);
 		if (((EntityNPCInterface) npcEntity).world == null || ((EntityNPCInterface) npcEntity).world.isRemote) {
 			return;
 		}
@@ -218,9 +225,18 @@ public class AnimationConfig implements IAnimation {
 
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		NBTTagList list = new NBTTagList();
-		for (AnimationFrameConfig afc : this.frames.values()) {
-			list.appendTag(afc.writeNBT());
+		Iterator<AnimationFrameConfig> setss = this.frames.values().iterator();
+		while(setss != null && setss.hasNext()) {
+			try {
+				AnimationFrameConfig afc = setss.next();
+				list.appendTag(afc.writeNBT());
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				break;
+			}
 		}
+		
 		compound.setTag("FrameConfigs", list);
 		compound.setInteger("ID", this.id);
 		compound.setString("Name", this.name);

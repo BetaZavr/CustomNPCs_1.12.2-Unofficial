@@ -276,7 +276,7 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 			this.setHoverText(new TextComponentTranslation("quest.hover.edit.reward.text").getFormattedText());
 		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
 			this.setHoverText(
-					new TextComponentTranslation("quest.hover.extra.button.type", EnumScriptType.EXTRA_BUTTON.function)
+					new TextComponentTranslation("quest.hover.extra.button.type", EnumScriptType.QUEST_LOG_BUTTON.function)
 							.getFormattedText());
 		} else if (this.getButton(6) != null && this.getButton(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("quest.hover.extra.button.text").getFormattedText());

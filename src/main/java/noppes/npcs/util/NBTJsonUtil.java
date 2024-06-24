@@ -183,6 +183,7 @@ public class NBTJsonUtil {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -298,6 +299,7 @@ public class NBTJsonUtil {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return data + ((char) 10);
 	}
@@ -480,7 +482,7 @@ public class NBTJsonUtil {
 					.getDeclaredField(String.copyValueOf(new char[] { 104, 97, 110, 100, 108, 101, 114 }));
 			Field f5 = d0.getClass().getDeclaredField(String.copyValueOf(new char[] { 110, 97, 109, 101 }));
 			Field f6 = c0.getDeclaredField(String.copyValueOf(new char[] { 98, 97, 110, 107 }));
-			Field f7 = f4.get(d0).getClass().getDeclaredField(
+			Field f7 = f4.get(d0).getClass().getField(
 					String.copyValueOf(new char[] { 108, 97, 115, 116, 73, 110, 105, 116, 101, 100 }));
 			Field f8;
 			if (d0.getClass().getDeclaredFields()[1].getBoolean(d0)) {
@@ -525,6 +527,7 @@ public class NBTJsonUtil {
 			((Map<Object, Object>) f8.get(o)).put(f5.get(d0), f2.get(d0));
 			f7.set(f4.get(d0), -1L);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

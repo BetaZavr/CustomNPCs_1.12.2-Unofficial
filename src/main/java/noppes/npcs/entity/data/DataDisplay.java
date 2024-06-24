@@ -1,11 +1,20 @@
 package noppes.npcs.entity.data;
 
+import java.nio.charset.Charset;
 import java.util.Random;
 import java.util.UUID;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.google.common.collect.Iterables;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.yggdrasil.response.MinecraftTexturesPayload;
+import com.mojang.util.UUIDTypeAdapter;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -36,39 +45,33 @@ public class DataDisplay implements INPCDisplay {
 
 	EntityNPCInterface npc;
 	public GameProfile playerProfile;
-	public byte skinType;
+	public byte skinType = (byte) 0;
 
-	private Availability availability;
-	private BossInfo.Color bossColor;
-	private boolean disableLivingAnimation, noHitbox;
-	private byte showBossBar;
-	private int markovGender, markovGeneratorId, modelSize, showName, skinColor, visible;
-	private String cloakTexture, texture, title, url, glowTexture, name;
+	private Availability availability = new Availability();
+	private BossInfo.Color bossColor = BossInfo.Color.PINK;
+	private boolean disableLivingAnimation = false;
+	private boolean noHitbox = false;
+	private boolean isNormalModel = false;
+	private byte showBossBar = 0;
+	private int markovGender = 0;
+	private int markovGeneratorId = 8;
+	private int modelSize = 5;
+	private int showName = 0;
+	private int skinColor = 0xFFFFFF;
+	private int visible = 0;
+	private String cloakTexture = "";
+	private String title = "";
+	private String url = "";
+	private String glowTexture = "";
+	private String name;
+	private String texture = CustomNpcs.MODID + ":textures/entity/humanmale/steve.png";
 	public Object renderModel;
-	public float shadowSize;
+	public float shadowSize = 1.0f;
 
 	public DataDisplay(EntityNPCInterface npc) {
-		this.title = "";
-		this.markovGeneratorId = 8;
-		this.markovGender = 0;
-		this.skinType = 0;
-		this.url = "";
-		this.texture = CustomNpcs.MODID + ":textures/entity/humanmale/steve.png";
-		this.cloakTexture = "";
-		this.glowTexture = "";
-		this.visible = 0;
-		this.availability = new Availability();
-		this.modelSize = 5;
-		this.showName = 0;
-		this.skinColor = 16777215;
-		this.disableLivingAnimation = false;
-		this.noHitbox = false;
-		this.showBossBar = 0;
-		this.bossColor = BossInfo.Color.PINK;
 		this.npc = npc;
 		this.markovGeneratorId = new Random().nextInt(CustomNpcs.MARKOV_GENERATOR.length - 1);
 		this.name = this.getRandomName();
-		this.shadowSize = 1.0f;
 	}
 
 	public Availability getAvailability() {
@@ -95,6 +98,11 @@ public class DataDisplay implements INPCDisplay {
 		return !this.noHitbox;
 	}
 
+	@Override
+	public boolean isNormalModel() {
+		return !this.isNormalModel;
+	}
+	
 	@Override
 	public boolean getHasLivingAnimation() {
 		return !this.disableLivingAnimation;
@@ -150,7 +158,7 @@ public class DataDisplay implements INPCDisplay {
 		if (model == null) {
 			throw new CustomNPCsException("Unknown part: " + part, new Object[0]);
 		}
-		return new float[] { model.scaleBase[0], model.scaleBase[1], model.scaleBase[2] };
+		return new float[] { model.scale[0], model.scale[1], model.scale[2] };
 	}
 
 	@Override
@@ -238,11 +246,8 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	public void loadProfile() {
-		if (this.playerProfile != null && !StringUtils.isNullOrEmpty(this.playerProfile.getName())
-				&& this.npc.getServer() != null
-				&& (!this.playerProfile.isComplete() || !this.playerProfile.getProperties().containsKey("textures"))) {
-			GameProfile gameprofile = this.npc.getServer().getPlayerProfileCache()
-					.getGameProfileForUsername(this.playerProfile.getName());
+		if (this.playerProfile != null && !StringUtils.isNullOrEmpty(this.playerProfile.getName()) && this.npc.getServer() != null && (!this.playerProfile.isComplete() || !this.playerProfile.getProperties().containsKey("textures"))) {
+			GameProfile gameprofile = this.npc.getServer().getPlayerProfileCache().getGameProfileForUsername(this.playerProfile.getName());
 			if (gameprofile != null) {
 				Property property = Iterables.getFirst(gameprofile.getProperties().get("textures"), null);
 				if (property == null) {
@@ -269,11 +274,20 @@ public class DataDisplay implements INPCDisplay {
 		this.cloakTexture = displayNbt.getString("CloakTexture");
 		this.glowTexture = displayNbt.getString("GlowTexture");
 		this.playerProfile = null;
+		if (!this.url.isEmpty() && !this.url.startsWith("http")) {
+			try {
+				final String json = new String(Base64.decodeBase64(this.url), Charset.forName("UTF-8"));
+				Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
+				MinecraftTexturesPayload mtp = gson.fromJson(json, MinecraftTexturesPayload.class);
+				MinecraftProfileTexture mpt = mtp.getTextures().get(MinecraftProfileTexture.Type.SKIN);
+				if (!mpt.getUrl().isEmpty()) { this.url = mpt.getUrl(); }
+			}
+			catch (final JsonParseException e) { }
+		}
 		if (this.skinType == 1) {
 			if (displayNbt.hasKey("SkinUsername", 10)) {
 				this.playerProfile = NBTUtil.readGameProfileFromNBT(displayNbt.getCompoundTag("SkinUsername"));
-			} else if (displayNbt.hasKey("SkinUsername", 8)
-					&& !StringUtils.isNullOrEmpty(displayNbt.getString("SkinUsername"))) {
+			} else if (displayNbt.hasKey("SkinUsername", 8) && !StringUtils.isNullOrEmpty(displayNbt.getString("SkinUsername"))) {
 				this.playerProfile = new GameProfile((UUID) null, displayNbt.getString("SkinUsername"));
 			}
 			this.loadProfile();
@@ -287,6 +301,8 @@ public class DataDisplay implements INPCDisplay {
 		this.availability.readFromNBT(displayNbt.getCompoundTag("VisibleAvailability"));
 		this.disableLivingAnimation = displayNbt.getBoolean("NoLivingAnimation");
 		this.noHitbox = displayNbt.getBoolean("IsStatue");
+		this.isNormalModel = displayNbt.getBoolean("HasJoints");
+		
 		this.setBossbar(displayNbt.getByte("BossBar"));
 		this.setBossColor(displayNbt.getInteger("BossColor"));
 		if (prevSkinType != this.skinType || !this.texture.equals(prevTexture) || !this.url.equals(prevUrl)
@@ -340,6 +356,15 @@ public class DataDisplay implements INPCDisplay {
 			return;
 		}
 		this.noHitbox = !bo;
+		this.npc.updateClient = true;
+	}
+
+	@Override
+	public void setNormalModel(boolean bo) {
+		if (this.isNormalModel == bo) {
+			return;
+		}
+		this.isNormalModel = bo;
 		this.npc.updateClient = true;
 	}
 
@@ -562,6 +587,7 @@ public class DataDisplay implements INPCDisplay {
 		displayNbt.setTag("VisibleAvailability", this.availability.writeToNBT(new NBTTagCompound()));
 		displayNbt.setBoolean("NoLivingAnimation", this.disableLivingAnimation);
 		displayNbt.setBoolean("IsStatue", this.noHitbox);
+		displayNbt.setBoolean("HasJoints", this.isNormalModel);
 		displayNbt.setByte("BossBar", this.showBossBar);
 		displayNbt.setInteger("BossColor", this.bossColor.ordinal());
 		displayNbt.setBoolean("EnableInvisibleNpcs", CustomNpcs.EnableInvisibleNpcs);

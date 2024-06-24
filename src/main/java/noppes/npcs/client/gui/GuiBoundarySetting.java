@@ -249,7 +249,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		this.initGui();
 	}
 
-	public void drawLine(double left, double top, double right, double bottom, int color, float wLine) {
+	public static void drawLine(double left, double top, double right, double bottom, int color, float wLine) {
 		float f3 = (float) (color >> 24 & 255) / 255.0F;
 		float f = (float) (color >> 16 & 255) / 255.0F;
 		float f1 = (float) (color >> 8 & 255) / 255.0F;
@@ -298,7 +298,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 			v0 = (p0.y - mv) * sv;
 			u1 = (p1.x - mu) * su;
 			v1 = (p1.y - mv) * sv;
-			this.drawLine(u0, v0, u1, v1, color, 2.0f);
+			GuiBoundarySetting.drawLine(u0, v0, u1, v1, color, 2.0f);
 		}
 		v0 = (this.region.y[1] > 255 ? 255 : this.region.y[1]) * sy;
 		v1 = (this.region.y[0] < 0 ? 0 : this.region.y[0]) * sy;
@@ -354,7 +354,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		double sv = (double) (work) / (nv - mv);
 		double sy = (double) (work) / 255.0d;
 		// Selected InSide Blue
-		if (this.region.size() > 3) {
+		if (this.region.size() >= 3) {
 			this.drawRegion(work, mu, mv, su, sv, sy, 0xFF0000FF);
 		}
 

@@ -247,16 +247,58 @@ public class DataElement implements IDataElement {
 					f.set(Modifier.isStatic(mod) ? null : this.data, value);
 					modifiersField.setInt(f, mod);
 					return true;
-				} catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-						| IllegalAccessException e) {
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					return false;
 				}
 			}
 			try {
 				f.setAccessible(true);
-				f.set(this.data, value);
+				if (f.getType() == int.class) {
+					int v = (int) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == Integer.class) {
+					Integer v = (int) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == float.class) {
+					float v = (float) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == Float.class) {
+					Float v = (float) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == long.class) {
+					long v = (long) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == Long.class) {
+					Long v = (long) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == byte.class) {
+					byte v = (byte) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == Byte.class) {
+					Byte v = (byte) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == short.class) {
+					short v = (short) ((double) value);
+					f.set(this.data, v);
+				}
+				else if (f.getType() == Short.class) {
+					Short v = (short) ((double) value);
+					f.set(this.data, v);
+				}
+				else { f.set(this.data, value); }
 				return true;
-			} catch (IllegalArgumentException | IllegalAccessException e) {
 			}
+			catch (Exception e) { e.printStackTrace(); }
 		}
 		return false;
 	}

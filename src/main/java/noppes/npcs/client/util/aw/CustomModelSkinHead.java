@@ -1,7 +1,7 @@
 package noppes.npcs.client.util.aw;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
@@ -10,13 +10,12 @@ import moe.plushie.armourers_workshop.api.common.skin.data.ISkinPart;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import noppes.npcs.client.model.ModelScaleRenderer;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityNPCInterface;
 
 public class CustomModelSkinHead extends ModelBiped {
 
-	public void render(EntityCustomNpc npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale,
-			List<Boolean> showList) {
+	public void render(EntityNPCInterface npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale, Map<EnumParts, Boolean> ba) {
 		if (skin == null || npc == null) {
 			return;
 		}
@@ -37,7 +36,7 @@ public class CustomModelSkinHead extends ModelBiped {
 				GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
 				GL11.glDisable(GL11.GL_CULL_FACE);
 				GL11.glEnable(GL11.GL_ALPHA_TEST);
-				if (showList.get(0)) {
+				if (ba.get(EnumParts.HEAD)) {
 					bipedHead.render(scale);
 				}
 				GL11.glPopAttrib();
@@ -56,13 +55,11 @@ public class CustomModelSkinHead extends ModelBiped {
 					GL11.glTranslatef(0.0F, 0.2F, 0.0F);
 					GL11.glTranslatef(0.0F, scale, 0.0F);
 				}
-				if (part.getPartType().getRegistryName().equals("armourers:head.base") && showList.get(0)) {
+				if (part.getPartType().getRegistryName().equals("armourers:head.base") && ba.get(EnumParts.HEAD)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedHead).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedHead).postAWRender(scale);
-					} else {
-						modelBiped.bipedHead.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedHead.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				}

@@ -8,22 +8,17 @@ import net.minecraft.util.WeightedRandom;
 import noppes.npcs.NBTTags;
 
 public class SpawnData extends WeightedRandom.Item {
-	public List<String> biomes;
-	public NBTTagCompound compound1;
-	public int id;
-	public boolean liquid;
-	public String name;
-	public int type;
+	
+	public List<String> biomes = new ArrayList<String>();
+	public NBTTagCompound compound1 = new NBTTagCompound();
+	public int id = -1;
+	public boolean liquid = false;
+	public String name = "";
+	public int type = 0;
+	public int group = 4;
+	public int range = 8;
 
-	public SpawnData() {
-		super(10);
-		this.biomes = new ArrayList<String>();
-		this.id = -1;
-		this.name = "";
-		this.compound1 = new NBTTagCompound();
-		this.liquid = false;
-		this.type = 0;
-	}
+	public SpawnData() { super(10); }
 
 	public void readNBT(NBTTagCompound compound) {
 		this.id = compound.getInteger("SpawnId");
@@ -35,6 +30,8 @@ public class SpawnData extends WeightedRandom.Item {
 		this.biomes = NBTTags.getStringList(compound.getTagList("SpawnBiomes", 10));
 		this.compound1 = compound.getCompoundTag("SpawnCompound1");
 		this.type = compound.getInteger("SpawnType");
+		if (compound.hasKey("MaxInGroup", 3)) { this.group = compound.getInteger("MaxInGroup"); }
+		if (compound.hasKey("GroupInRange", 3)) { this.range = compound.getInteger("GroupInRange"); }
 	}
 
 	public NBTTagCompound writeNBT(NBTTagCompound compound) {
@@ -44,6 +41,9 @@ public class SpawnData extends WeightedRandom.Item {
 		compound.setTag("SpawnBiomes", NBTTags.nbtStringList(this.biomes));
 		compound.setTag("SpawnCompound1", this.compound1);
 		compound.setInteger("SpawnType", this.type);
+		compound.setInteger("MaxInGroup", this.group);
+		compound.setInteger("GroupInRange", this.range);
 		return compound;
 	}
+
 }

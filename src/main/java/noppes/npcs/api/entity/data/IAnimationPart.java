@@ -8,6 +8,8 @@ public interface IAnimationPart {
 
 	float[] getRotation();
 
+	float[] getRotationPart();
+
 	float[] getScale();
 
 	boolean isDisable();
@@ -20,8 +22,12 @@ public interface IAnimationPart {
 
 	void setRotation(float x, float y, float z);
 
+	void setRotation(float x1, float y1);
+
 	void setScale(float x, float y, float z);
 
 	void setShow(boolean bo);
+
+	int getType();
 
 }

@@ -26,13 +26,11 @@ public interface ICustomGui {
 
 	IButton addTexturedButton(int id, String label, int x, int y, int width, int height, String texture);
 
-	IButton addTexturedButton(int id, String label, int x, int y, int width, int height, String texture, int textureX,
-			int textureY);
+	IButton addTexturedButton(int id, String label, int x, int y, int width, int height, String texture, int textureX, int textureY);
 
 	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height);
 
-	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY);
+	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY);
 
 	ICustomGuiComponent getComponent(int id);
 

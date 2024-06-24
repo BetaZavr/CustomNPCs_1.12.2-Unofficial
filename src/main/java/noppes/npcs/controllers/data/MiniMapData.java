@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IMiniMapData;
+import noppes.npcs.util.AdditionalMethods;
 
 public class MiniMapData implements IMiniMapData {
 
@@ -33,20 +34,20 @@ public class MiniMapData implements IMiniMapData {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof MiniMapData)) {
-			return false;
-		}
+		if (!(obj instanceof MiniMapData)) { return false; }
 		MiniMapData mmd = (MiniMapData) obj;
-		if (this.dimIDs.length == mmd.dimIDs.length) {
-			return false;
-		}
-		for (int i = 0; i < this.dimIDs.length; i++) {
-			if (this.dimIDs[i] != mmd.dimIDs[i]) {
-				return false;
+		boolean equalDimIDs = this.dimIDs.length == mmd.dimIDs.length;
+		if (equalDimIDs) {
+			int eq = 0;
+			for (int idp : this.dimIDs) {
+				for (int idd : mmd.dimIDs) {
+					if (idp == idd) { eq ++; break; }
+				}
 			}
+			equalDimIDs = this.dimIDs.length == eq;
 		}
-		return this.id == mmd.id && this.color == mmd.color && this.name.equals(name) && this.type.equals(type)
-				&& this.icon.equals(icon) && this.pos.getMCBlockPos().equals(mmd.pos.getMCBlockPos())
+		return equalDimIDs && this.id == mmd.id && this.color == mmd.color && this.name.equals(mmd.name) && this.type.equals(mmd.type)
+				&& this.icon.equals(mmd.icon) && this.pos.getMCBlockPos().equals(mmd.pos.getMCBlockPos())
 				&& this.isEnable == mmd.isEnable;
 	}
 
@@ -101,7 +102,7 @@ public class MiniMapData implements IMiniMapData {
 	}
 
 	public boolean isQuestTask(int questId, int taskId) {
-		return this.questId == questId && this.taskId == taskId;
+		return this.questId == questId && (taskId < 0 || this.taskId == taskId);
 	}
 
 	public boolean isUpdate() {
@@ -120,7 +121,7 @@ public class MiniMapData implements IMiniMapData {
 		color = compound.getInteger("Color");
 		id = compound.getInteger("ID");
 		type = compound.getString("Type");
-		name = compound.getString("Name");
+		name = AdditionalMethods.instance.deleteColor(compound.getString("Name"));
 		icon = compound.getString("Icon");
 		pos = NpcAPI.Instance().getIPos(BlockPos.fromLong(compound.getLong("Pos")));
 
@@ -142,7 +143,7 @@ public class MiniMapData implements IMiniMapData {
 		compound.setInteger("Color", color);
 		compound.setInteger("ID", id);
 		compound.setString("Type", type);
-		compound.setString("Name", name);
+		compound.setString("Name", AdditionalMethods.instance.deleteColor(name));
 		compound.setString("Icon", icon);
 		compound.setLong("Pos", pos.getMCBlockPos().toLong());
 
@@ -169,8 +170,8 @@ public class MiniMapData implements IMiniMapData {
 
 	@Override
 	public void setDimentions(int[] dims) {
-		// TODO Auto-generated method stub
-
+		if (dims == null || dims.length == 0) { return; }
+		this.dimIDs = dims;
 	}
 
 	@Override
@@ -187,6 +188,7 @@ public class MiniMapData implements IMiniMapData {
 
 	@Override
 	public void setName(String newName) {
+		newName = AdditionalMethods.instance.deleteColor(newName);
 		if (newName == null) {
 			newName = "";
 		}
@@ -257,9 +259,11 @@ public class MiniMapData implements IMiniMapData {
 			ds += id;
 		}
 		ds = "[" + ds + "]";
+		String qd = "";
+		if (this.questId != -1) { qd = ", QuestID: " + this.questId + ", TaskID: " + this.taskId; }
 		return "Point Data: {ID: " + this.id + ", Name: " + this.name + ", Type: " + this.type + ", Icon: " + this.icon
 				+ ", Color: " + this.color + ", Pos: " + this.pos.getMCBlockPos() + ", DimensionIDs: " + ds
-				+ ", IsEnable: " + this.isEnable + ", GsonData: " + gs + "}";
+				+ ", IsEnable: " + this.isEnable + ", GsonData: " + gs + qd + "}";
 	}
 
 }

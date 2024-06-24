@@ -95,9 +95,7 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.recipes").getFormattedText());
 		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns")
-					.appendSibling(new TextComponentString("<br>"))
-					.appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+			this.setHoverText(new TextComponentTranslation("global.hover.naturalspawns").getFormattedText());
 		} else if (this.getButton(16) != null && this.getButton(16).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("global.hover.linkeds").getFormattedText());
 		} else if (this.getButton(17) != null && this.getButton(17).isMouseOver()) {
@@ -129,7 +127,6 @@ public class GuiNPCGlobalMainMenu extends GuiNPCInterface2 {
 		this.addButton(new GuiNpcButton(13, r0, (y += 22), 110, 20, "global.playerdata"));
 		this.addButton(new GuiNpcButton(14, r0, (y += 22), 110, 20, "global.recipes"));
 		this.addButton(new GuiNpcButton(15, r0, (y += 22), 110, 20, "global.naturalspawn"));
-		this.getButton(15).enabled = false;
 		this.addButton(new GuiNpcButton(16, r0, (y += 22), 110, 20, "global.linked"));
 		y = this.guiTop + 10;
 		this.addButton(new GuiNpcButton(17, r1, y, 110, 20, "global.market"));

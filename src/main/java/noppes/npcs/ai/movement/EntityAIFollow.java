@@ -5,7 +5,9 @@ import net.minecraft.entity.ai.EntityAIBase;
 import noppes.npcs.constants.AiMutex;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class EntityAIFollow extends EntityAIBase {
+public class EntityAIFollow
+extends EntityAIBase {
+	
 	private EntityNPCInterface npc;
 	private EntityLivingBase owner;
 	public int updateTick;

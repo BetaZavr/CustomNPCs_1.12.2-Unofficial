@@ -11,32 +11,33 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
-import noppes.npcs.client.model.ModelNPCAlt;
-import noppes.npcs.client.model.ModelScaleRenderer;
+import noppes.npcs.client.model.ModelNpcAlt;
+import noppes.npcs.client.model.ModelRendererAlt;
 import noppes.npcs.client.model.animation.AddedPartConfig;
 import noppes.npcs.constants.EnumParts;
-import noppes.npcs.entity.EntityNPCInterface;
 
-public class SubGuiAddAnimationPart extends SubGuiInterface implements ISubGuiListener, ITextfieldListener {
+public class SubGuiAddAnimationPart
+extends SubGuiInterface
+implements ISubGuiListener, ITextfieldListener {
 
 	public boolean isCube;
 	private int workU, workV, workS;
-	public ModelScaleRenderer msr;
+	public ModelRendererAlt msr;
 	public AddedPartConfig part;
 
-	public SubGuiAddAnimationPart(EntityNPCInterface npc, int id, int partId) {
-		super(npc);
-		this.id = id;
+	public SubGuiAddAnimationPart(SubGuiEditAnimation gui) {
+		super(gui.npc);
 		this.xSize = 256;
 		this.ySize = 217;
 		this.closeOnEsc = true;
 		this.setBackground("menubg.png");
 
 		isCube = true;
-		msr = new ModelScaleRenderer(new ModelNPCAlt(1.0f, false), 64, 64, EnumParts.CUSTOM);
+		msr = new ModelRendererAlt(new ModelNpcAlt(0.0f, false), EnumParts.CUSTOM, 64, 64, true);
 		msr.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, 0.0F);
 		msr.setRotationPoint(0.0F, 0.0F, 0.0F);
-		part = new AddedPartConfig(partId);
+		part = new AddedPartConfig(gui.frame.parts.size());
+		part.parentPart = gui.part.id;
 	}
 
 	@Override

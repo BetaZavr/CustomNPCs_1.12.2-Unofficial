@@ -7,6 +7,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.model.part.ModelData;
 
 public class EntityNPCGolem extends EntityNPCInterface {
+	
 	public EntityNPCGolem(World world) {
 		super(world);
 		this.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/golem/Iron Golem.png");
@@ -44,4 +45,5 @@ public class EntityNPCGolem extends EntityNPCInterface {
 			this.height = 2.5f;
 		}
 	}
+	
 }

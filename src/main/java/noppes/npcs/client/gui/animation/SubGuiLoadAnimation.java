@@ -82,7 +82,7 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 		case 4: {
 			AnimationController aData = AnimationController.getInstance();
 			this.animation = this.animation.copy();
-			this.animation.id = aData.getUnusedId();
+			this.animation.id = aData.getUnusedAnimId();
 			aData.animations.put(this.animation.id, this.animation);
 			this.cancelled = false;
 			this.close();
@@ -191,7 +191,7 @@ public class SubGuiLoadAnimation extends SubGuiInterface implements ICustomScrol
 		}
 		if (this.npcAnim != null) {
 			((EntityNPCInterface) this.npcAnim).display.setName("0_" + this.npc.getName());
-			this.npcAnim.animation.activeAnim = ac;
+			this.npcAnim.animation.startAnimation(ac);
 			this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
 			this.npcAnim.deathTime = 0;
 		}

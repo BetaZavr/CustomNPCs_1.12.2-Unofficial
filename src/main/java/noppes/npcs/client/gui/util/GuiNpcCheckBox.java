@@ -13,7 +13,9 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 
-public class GuiNpcCheckBox extends GuiNpcButton {
+public class GuiNpcCheckBox
+extends GuiNpcButton
+implements IComponentGui {
 
 	public int id;
 	int offsetX;
@@ -172,4 +174,9 @@ public class GuiNpcCheckBox extends GuiNpcButton {
 		}
 	}
 
+	@Override
+	public int[] getCenter() {
+		return new int[] { this.x + this.width / 2, this.y + this.height / 2};
+	}
+	
 }

@@ -10,6 +10,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomRegisters;
 import noppes.npcs.potions.PotionData;
+import noppes.npcs.util.AdditionalMethods;
 
 public class CustomItemTippedArrow extends ItemTippedArrow {
 
@@ -23,6 +24,7 @@ public class CustomItemTippedArrow extends ItemTippedArrow {
 		if (this.getCreativeTab() == null) {
 			return;
 		}
+		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
 		for (PotionType potiontype : PotionType.REGISTRY) {
 			if (potiontype == PotionTypes.EMPTY) {
 				continue;
@@ -40,6 +42,7 @@ public class CustomItemTippedArrow extends ItemTippedArrow {
 				items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potiontype));
 			}
 		}
+		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
 	}
 
 }

@@ -10,11 +10,10 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class RoleInterface implements INPCRole {
 
 	public EntityNPCInterface npc;
-	public RoleType type;
+	public RoleType type = RoleType.DEFAULT;
 
 	public RoleInterface(EntityNPCInterface npc) {
 		this.npc = npc;
-		this.type = RoleType.DEFAULT;
 	}
 
 	public boolean aiContinueExecute() {

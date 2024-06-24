@@ -10,7 +10,7 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import noppes.npcs.client.model.ModelOBJPlayerArmor;
-import noppes.npcs.client.model.ModelScaleRenderer;
+import noppes.npcs.client.model.ModelRendererAlt;
 import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 
@@ -20,7 +20,7 @@ public class ModelOBJPatr extends ModelRenderer {
 	public ModelOBJPlayerArmor modelBase;
 	public List<String> meshes;
 	public List<String> feetMesh = Lists.<String>newArrayList();
-	public ModelScaleRenderer msr;
+	public ModelRendererAlt msr;
 	public EnumParts part;
 	public boolean smallArms;
 

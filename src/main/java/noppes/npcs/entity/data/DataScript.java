@@ -1,11 +1,11 @@
 package noppes.npcs.entity.data;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -20,17 +20,13 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class DataScript implements IScriptHandler {
 
-	private boolean enabled;
-	public long lastInited;
-	private EntityNPCInterface npc;
-	private String scriptLanguage;
-	private List<ScriptContainer> scripts;
+	private boolean enabled = false;
+	public long lastInited = -1L;
+	public EntityNPCInterface npc;
+	private String scriptLanguage = "ECMAScript";
+	private List<ScriptContainer> scripts = Lists.<ScriptContainer>newArrayList();
 
 	public DataScript(EntityNPCInterface npc) {
-		this.scripts = new ArrayList<ScriptContainer>();
-		this.scriptLanguage = "ECMAScript";
-		this.enabled = false;
-		this.lastInited = -1L;
 		this.npc = npc;
 	}
 

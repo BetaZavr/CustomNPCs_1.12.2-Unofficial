@@ -5,13 +5,19 @@ import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
+import noppes.npcs.client.gui.model.GuiCreationParts.GuiPartEyes;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
@@ -20,11 +26,15 @@ import noppes.npcs.client.gui.util.ISliderListener;
 import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.part.ModelData;
+import noppes.npcs.client.model.part.ModelDataShared;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public abstract class GuiCreationScreenInterface extends GuiNPCInterface implements ISubGuiListener, ISliderListener {
+public abstract class GuiCreationScreenInterface
+extends GuiNPCInterface
+implements ISubGuiListener, ISliderListener {
 
 	public static String Message = "";
 	private static float rotation = 0.5f;
@@ -36,6 +46,7 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
 	public ModelData playerdata;
 	private boolean saving;
 	public int xOffset;
+	public EntityLivingBase showEntity;
 
 	public GuiCreationScreenInterface(EntityNPCInterface npc) {
 		super(npc);
@@ -85,14 +96,57 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
 	public void drawScreen(int x, int y, float f) {
 		super.drawScreen(x, y, f);
 		this.entity = this.playerdata.getEntity(this.npc);
-		EntityLivingBase entity = this.entity;
-		if (entity == null) {
-			entity = this.npc;
-		} else {
-			EntityUtil.Copy(this.npc, entity);
+		this.showEntity = this.entity;
+		if (this.showEntity == null) { this.showEntity = this.npc; }
+		else { EntityUtil.Copy(this.npc, this.showEntity); }
+		if (this.subgui != null) { return; }
+		if (this.showEntity instanceof EntityNPCInterface) {
+			EntityNPCInterface npc = (EntityNPCInterface) this.showEntity;
+			if (npc.equals(this.npc) && this.npc != null) {
+				NBTTagCompound npcNbt = new NBTTagCompound();
+				this.npc.writeEntityToNBT(npcNbt);
+				this.npc.writeToNBTOptional(npcNbt);
+				Entity e = EntityList.createEntityFromNBT(npcNbt, this.mc.world);
+				if (!(e instanceof EntityNPCInterface)) {
+					e = EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), this.mc.world);
+					if (e instanceof EntityNPCInterface) { e.readFromNBT(npcNbt); }
+				}
+				if (e instanceof EntityNPCInterface) {
+					this.showEntity = (EntityNPCInterface) e;
+					npc = (EntityNPCInterface) e;
+				}
+			}
+			npc.ais.setStandingType(1);
+			npc.ticksExisted = 100;
+			if (npc instanceof EntityCustomNpc && this.npc instanceof EntityCustomNpc
+					&& ((EntityCustomNpc) npc).modelData instanceof ModelDataShared
+					&& ((EntityCustomNpc) this.npc).modelData instanceof ModelDataShared) {
+				((ModelDataShared) ((EntityCustomNpc) npc).modelData).entity = ((ModelDataShared) ((EntityCustomNpc) this.npc).modelData).entity;
+			}
+			npc.rotationYaw = 0;
+			npc.prevRotationYaw = 0;
+			npc.rotationYawHead = 0;
+			npc.rotationPitch = 0;
+			npc.prevRotationPitch = 0;
+			npc.ais.orientation = 0;
+			npc.lookPos[0] = x - 354;
+			npc.lookPos[1] = (y - 154) * -1;
+			npc.display.setShowName(1);
+			MarkData.get(npc).marks.clear();
 		}
-		this.drawNpc(entity, this.xOffset + 200, 200, 2.0f,
-				(int) (GuiCreationScreenInterface.rotation * 360.0f - 180.0f), 0, 1);
+		
+		if (this instanceof GuiCreationParts && ((GuiCreationParts) this).getPart() instanceof GuiPartEyes) {
+			int r = (int) (GuiCreationScreenInterface.rotation * 120.0f - 60.0f);
+			if (r < -60) { r = -60; } else if (r > 60) { r = 60; }
+			this.showEntity.ticksExisted = this.player.ticksExisted;
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(0.0f, 0.0f, -300.0f);
+			this.drawNpc(this.showEntity, this.xOffset + 210, 425, 6.0f, 0, 0, 0);
+			GlStateManager.popMatrix();
+		}
+		else {
+			this.drawNpc(this.showEntity, this.xOffset + 200, 200, 2.0f, (int) (GuiCreationScreenInterface.rotation * 360.0f - 180.0f), 0, 1);
+		}
 	}
 
 	@Override
@@ -101,6 +155,7 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
 		this.entity = this.playerdata.getEntity(this.npc);
 		Keyboard.enableRepeatEvents(true);
 		this.addButton(new GuiNpcButton(1, this.guiLeft + 62, this.guiTop, 60, 20, "gui.entity"));
+
 		if (this.entity == null) {
 			this.addButton(new GuiNpcButton(2, this.guiLeft, this.guiTop + 23, 60, 20, "gui.parts"));
 		} else if (!(this.entity instanceof EntityNPCInterface)) {
@@ -113,6 +168,7 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
 				return;
 			}
 		}
+		
 		if (this.entity == null) {
 			this.addButton(new GuiNpcButton(3, this.guiLeft + 62, this.guiTop + 23, 60, 20, "gui.scale"));
 		}
@@ -126,11 +182,9 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
 		}
 		this.getButton(this.active).enabled = false;
 		this.addButton(new GuiNpcButton(66, this.guiLeft + this.xSize - 20, this.guiTop, 20, 20, "X"));
-		this.addLabel(new GuiNpcLabel(0, GuiCreationScreenInterface.Message, this.guiLeft + 120,
-				this.guiTop + this.ySize - 10, 16711680));
+		this.addLabel(new GuiNpcLabel(0, GuiCreationScreenInterface.Message, this.guiLeft + 120, this.guiTop + this.ySize - 10, 16711680));
 		this.getLabel(0).center(this.xSize - 120);
-		this.addSlider(new GuiNpcSlider(this, 500, this.guiLeft + this.xOffset + 142, this.guiTop + 210, 120, 20,
-				GuiCreationScreenInterface.rotation));
+		this.addSlider(new GuiNpcSlider(this, 500, this.guiLeft + this.xOffset + 142, this.guiTop + 210, 120, 20, GuiCreationScreenInterface.rotation));
 	}
 
 	@Override

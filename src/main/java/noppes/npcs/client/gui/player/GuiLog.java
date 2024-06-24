@@ -79,7 +79,9 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.AdditionalMethods;
 
-public class GuiLog extends GuiNPCInterface implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
+public class GuiLog
+extends GuiNPCInterface
+implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 
 	public class QuestInfo {
 
@@ -375,11 +377,11 @@ public class GuiLog extends GuiNPCInterface implements GuiYesNoCallback, IGuiDat
 	 */
 	private int hoverButton;
 	private int hoverQuestId, catRow, catSelect, page;
-	private int type; // -1-inv; 0-faction; 1-quests; 2-compass
+	public int type; // -1-inv; 0-faction; 1-quests; 2-compass
 	private int step, tick, mtick, temp, guiLLeft, guiLRight, guiLTop, guiTopLog, guiCenter;
 
 	private boolean toPrePage = true;
-																													private final Random rnd = new Random();
+	private final Random rnd = new Random();
 	private ScaledResolution sw;
 	private final Map<String, Map<Integer, QuestData>> quests = Maps.<String, Map<Integer, QuestData>>newTreeMap(); // {
 	// category,
@@ -603,7 +605,7 @@ public class GuiLog extends GuiNPCInterface implements GuiYesNoCallback, IGuiDat
 				return;
 			}
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.EXTRA_BUTTON,
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.QUEST_LOG_BUTTON,
 					new QuestExtraButtonEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(player),
 							QuestController.instance.get(hoverQuestId)));
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestExtraButton, hoverQuestId);
@@ -1096,7 +1098,19 @@ public class GuiLog extends GuiNPCInterface implements GuiYesNoCallback, IGuiDat
 		}
 		int i = 0, p = 0, st = catRow * 8;
 		String selectCat = "";
-		for (String catName : categories.keySet()) {
+		for (String fullCatName : categories.keySet()) {
+			String catName = new String(fullCatName);
+			if (this.fontRenderer.getStringWidth(catName) > 80) {
+				String tempCatName = "";
+				for (int g = 0; g < catName.length(); g++) {
+					char c = catName.charAt(g);
+					if (this.fontRenderer.getStringWidth(tempCatName + c + "...") > 86) {
+						break;
+					}
+					tempCatName += c;
+				}
+				catName = tempCatName + "...";
+			}
 			if (p < st) {
 				if (catSelect == p && step < 0) {
 					selectCat = catName;
@@ -1113,8 +1127,7 @@ public class GuiLog extends GuiNPCInterface implements GuiYesNoCallback, IGuiDat
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(scaleW, scaleH, 1.0f);
-			this.drawTexturedModalRect(4 - (int) (catW / scaleW) + i, i * 16, 0,
-					90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
+			this.drawTexturedModalRect(4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
 			GlStateManager.popMatrix();
 			if (catSelect == p && step < 0) {
 				selectCat = catName;

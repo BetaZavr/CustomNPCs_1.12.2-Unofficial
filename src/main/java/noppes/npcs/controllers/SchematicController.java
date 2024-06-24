@@ -44,14 +44,13 @@ public class SchematicController {
 		if (player == null || pos == null || schema == null) {
 			return;
 		}
-		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time
-				+ (long) Math.floor(schema.blockIdsArray.length / CustomNpcs.MaxBuilderBlocks) * 1000L;
-		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, "" + pos.getX(),
-				"" + pos.getY(), "" + pos.getZ(), AdditionalMethods.ticksToElapsedTime(ticks, true, true, false)));
+		long ticks = 3000L + schema.blockIdsArray.length * SchematicController.time + (long) Math.floor(schema.blockIdsArray.length / CustomNpcs.MaxBuilderBlocks) * 1000L;
+		player.sendMessage(new TextComponentTranslation("schematic.info.started", schema.name, "" + pos.getX(), "" + pos.getY(), "" + pos.getZ(), AdditionalMethods.ticksToElapsedTime(ticks, true, true, false)));
 		SchematicWrapper sw = new SchematicWrapper(schema);
 		sw.init(pos.east().south(), player.world, rotaion * 90);
 		SchematicController.Instance.build(sw, player);
 	}
+	
 	public static File getDir() {
 		File schematicDir = new File(CustomNpcs.getWorldSaveDirectory(), "schematics");
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
@@ -116,9 +115,7 @@ public class SchematicController {
 			return;
 		}
 		for (SchematicWrapper sm : this.buildingList) {
-			this.sendMessage(sender, "schematic.info.0", this.chr + "7" + sm.schema.getName(),
-					this.chr + "7" + sm.getPercentage(), this.chr + "7%",
-					(sm.sender == null ? "" : new TextComponentTranslation("schematic.info.1").getFormattedText()));
+			this.sendMessage(sender, "schematic.info.0", this.chr + "7" + sm.schema.getName(), this.chr + "7" + sm.getPercentage(), this.chr + "7%", (sm.sender == null ? "" : new TextComponentTranslation("schematic.info.1").getFormattedText()));
 		}
 	}
 
@@ -236,8 +233,7 @@ public class SchematicController {
 		for (SchematicWrapper sm : this.buildingList) {
 			sm.build();
 			if (sm.sender != null && sm.getPercentage() - sm.buildingPercentage >= 10) {
-				this.sendMessage(sm.sender, "schematic.info.build.percentage", this.chr + "7" + sm.schema.getName(),
-						this.chr + "7" + sm.getPercentage(), this.chr + "7%");
+				this.sendMessage(sm.sender, "schematic.info.build.percentage", this.chr + "7" + sm.schema.getName(), this.chr + "7" + sm.getPercentage(), this.chr + "7%");
 				sm.buildingPercentage = sm.getPercentage();
 			}
 			if (!sm.isBuilding) {

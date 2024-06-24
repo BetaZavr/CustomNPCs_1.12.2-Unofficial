@@ -31,13 +31,14 @@ import noppes.npcs.client.ImageDownloadAlt;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLiving<T> {
 
 	private static final DynamicTexture TEXTURE_BRIGHTNESS = new DynamicTexture(16, 16);
-	public static int LastTextureTick;
+	public static int LastTextureTick; // ++ in ClientTickHandler.npcClientTick()
 
 	public RenderNPCInterface(ModelBase model, float f) {
 		super(Minecraft.getMinecraft().getRenderManager(), model, f);
@@ -61,8 +62,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	public void doRender(T npc, double x, double y, double z, float entityYaw, float partialTicks) {
-		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)
-				|| npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) {
+		if (npc.isInvisibleToPlayer(Minecraft.getMinecraft().player) || npc.isKilled() && npc.stats.hideKilledBody && npc.deathTime > 20) {
 			return;
 		}
 		if (npc.ais.getStandingType() == 3 && !npc.isWalking() && !npc.isInteracting()) {
@@ -78,15 +78,13 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 	}
 
-	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8,
-			float par9) {
+	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8, float par9) {
 		EntityNPCInterface npc = (EntityNPCInterface) par1Entity;
 		this.shadowSize = npc.width / 1.25f * npc.display.shadowSize;
 		if (!npc.isKilled()) {
 			if (npc.display.getVisible() == 1 && npc.isInvisibleToPlayer(Minecraft.getMinecraft().player)) {
 				this.shadowOpaque = 0.0f;
-			} else if (npc.display.getVisible() == 2
-					&& Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand) {
+			} else if (npc.display.getVisible() == 2 && Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand) {
 				this.shadowOpaque = 0.3f;
 			} else {
 				this.shadowOpaque = 1.0f;
@@ -96,57 +94,74 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	public ResourceLocation getEntityTexture(T npc) {
-		if (npc.textureLocation == null) {
+		return RenderNPCInterface.getNpcTexture(npc);
+	}
+	
+	public static ResourceLocation getNpcTexture(EntityNPCInterface npc) {
+		boolean isEmpty = npc.textureLocation == null || npc.textureLocation.getResourcePath().isEmpty();
+		if (isEmpty) {
 			if (npc.display.skinType == 0) {
 				npc.textureLocation = new ResourceLocation(npc.display.getSkinTexture());
 			} else {
 				if (RenderNPCInterface.LastTextureTick < 5) {
 					return DefaultPlayerSkin.getDefaultSkinLegacy();
 				}
-				if (npc.display.skinType == 1 && npc.display.playerProfile != null) {
-					Minecraft minecraft = Minecraft.getMinecraft();
-					Map<Type, MinecraftProfileTexture> map = minecraft.getSkinManager()
-							.loadSkinFromCache(npc.display.playerProfile);
-					if (map.containsKey(MinecraftProfileTexture.Type.SKIN)) {
-						npc.textureLocation = minecraft.getSkinManager().loadSkin(
-								(MinecraftProfileTexture) map.get(MinecraftProfileTexture.Type.SKIN),
-								MinecraftProfileTexture.Type.SKIN);
+				if (npc.display.skinType == 1) {
+					if (npc.display.playerProfile == null) { npc.display.loadProfile(); }
+					if (npc.display.playerProfile != null) {
+						PlayerSkinController pData = PlayerSkinController.getInstance();
+						Map<Type, ResourceLocation> map = pData.getData(npc.display.playerProfile.getId());
+						if (map != null && map.containsKey(MinecraftProfileTexture.Type.SKIN)) {
+							npc.textureLocation = map.get(MinecraftProfileTexture.Type.SKIN);
+						}
+						else {
+							Minecraft minecraft = Minecraft.getMinecraft();
+							Map<Type, MinecraftProfileTexture> mapMC = minecraft.getSkinManager().loadSkinFromCache(npc.display.playerProfile);
+							if (mapMC.containsKey(MinecraftProfileTexture.Type.SKIN)) {
+								npc.textureLocation = minecraft.getSkinManager().loadSkin((MinecraftProfileTexture) mapMC.get(MinecraftProfileTexture.Type.SKIN), MinecraftProfileTexture.Type.SKIN);
+							}
+						}
 					}
 				} else if (npc.display.skinType == 2) {
 					try {
 						MessageDigest digest = MessageDigest.getInstance("MD5");
 						byte[] hash = digest.digest(npc.display.getSkinUrl().getBytes("UTF-8"));
 						StringBuilder sb = new StringBuilder(2 * hash.length);
-						for (byte b : hash) {
-							sb.append(String.format("%02x", b & 0xFF));
-						}
-						this.loadSkin(null, npc.textureLocation = new ResourceLocation("skins/" + sb.toString()),
-								npc.display.getSkinUrl());
-					} catch (Exception ex) {
+						for (byte b : hash) { sb.append(String.format("%02x", b & 0xFF)); }
+						RenderNPCInterface.loadSkin(null, npc.textureLocation = new ResourceLocation("skins/" + sb.toString()), npc.display.getSkinUrl());
 					}
+					catch (Exception ex) { }
 				}
 			}
 		}
-		if (npc.textureLocation == null) {
-			return DefaultPlayerSkin.getDefaultSkinLegacy();
+		if (npc.textureLocation == null || npc.textureLocation.getResourcePath().isEmpty()) {
+			npc.textureLocation = DefaultPlayerSkin.getDefaultSkinLegacy();
+			npc.display.setSkinTexture(npc.textureLocation.toString());
+		}
+		else if (npc.display.skinType == 1 && RenderNPCInterface.LastTextureTick % 100 == 0) {
+			if (npc.display.playerProfile == null) { npc.display.loadProfile(); }
+			if (npc.display.playerProfile != null) {
+				PlayerSkinController pData = PlayerSkinController.getInstance();
+				Map<Type, ResourceLocation> map = pData.getData(npc.display.playerProfile.getId());
+				if (map != null && map.containsKey(MinecraftProfileTexture.Type.SKIN)) {
+					npc.textureLocation = map.get(MinecraftProfileTexture.Type.SKIN);
+				}
+			}
 		}
 		return npc.textureLocation;
 	}
 
 	protected float handleRotationFloat(T npc, float par2) {
-		if (npc.isKilled() || !npc.display.getHasLivingAnimation()) {
-			return 0.0f;
-		}
+		if (npc.isKilled() || !npc.display.getHasLivingAnimation()) { return 0.0f; }
 		return super.handleRotationFloat(npc, par2);
 	}
 
-	private void loadSkin(File file, ResourceLocation resource, String par1Str) {
+	private static void loadSkin(File file, ResourceLocation resource, String par1Str) {
 		TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
 		if (texturemanager.getTexture(resource) != null) {
 			return;
 		}
-		ITextureObject object = (ITextureObject) new ImageDownloadAlt(file, par1Str,
-				DefaultPlayerSkin.getDefaultSkinLegacy(), (IImageBuffer) new ImageBufferDownloadAlt());
+		ITextureObject object = (ITextureObject) new ImageDownloadAlt(file, par1Str, DefaultPlayerSkin.getDefaultSkinLegacy(), (IImageBuffer) new ImageBufferDownloadAlt());
 		texturemanager.loadTexture(resource, object);
 	}
 
@@ -157,8 +172,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	protected void renderColor(EntityNPCInterface npc) {
-		if (npc.hurtTime <= 0 && npc.deathTime <= 0
-				&& (npc.animation.activeAnim == null || npc.animation.activeAnim.type != AnimationKind.DIES)) {
+		if (npc.hurtTime <= 0 && npc.deathTime <= 0 && npc.animation.isAnimated(AnimationKind.DIES)) {
 			float red = (npc.display.getTint() >> 16 & 0xFF) / 255.0f;
 			float green = (npc.display.getTint() >> 8 & 0xFF) / 255.0f;
 			float blue = (npc.display.getTint() & 0xFF) / 255.0f;
@@ -186,8 +200,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		super.renderLivingAt(npc, d + xOffset, d1 + yOffset, d2 + zOffset);
 	}
 
-	protected void renderLivingLabel(EntityNPCInterface npc, double x, double y, double z, int i, String name,
-			String title) {
+	protected void renderLivingLabel(EntityNPCInterface npc, double x, double y, double z, int i, String name, String title) {
 		FontRenderer fontrenderer = this.getFontRendererFromRenderManager();
 		float f1 = npc.baseHeight / 5.0f * npc.display.getSize();
 		float f2 = 0.01666667f * f1;
@@ -261,7 +274,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
 		boolean isInvisible = false;
 		if (npc.display.getVisible() == 1) {
-			isInvisible = npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
+			isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand && npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
 		} else if (npc.display.getVisible() == 2) {
 			isInvisible = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomRegisters.wand;
 		}
@@ -338,7 +351,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		int i = this.getColorMultiplier(npc, f, partialTicks);
 		boolean flag = (i >> 24 & 255) > 0;
 		boolean flag1 = npc.hurtTime > 0 || npc.deathTime > 0;
-		if (flag1 && npc.animation.activeAnim != null && npc.animation.activeAnim.type == AnimationKind.DIES) {
+		if (flag1 && npc.animation.isAnimated(AnimationKind.DIES)) {
 			flag1 = false; // cancel red death color
 		}
 		if (!flag && !flag1) {

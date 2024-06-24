@@ -127,6 +127,7 @@ public class CustomNpcs {
 
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
 	public static String CharCurrencies = "20AC";
+	public static String displayCurrencies = null;
 	@ConfigProp(info = "Number of chunk loading npcs that can be active at the same time", def = "20")
 	public static int ChuckLoaders = 20;
 	@ConfigProp(info = "Minimum and maximum melle and range Damage of NPCs for 1 and Maximum level, respectively (rarity Boss)", def = "8,52,6,26", min = "0,0,0,0")
@@ -253,6 +254,10 @@ public class CustomNpcs {
 	public static int DialogShowFitsSpeed = 30;
 	@ConfigProp(info = "When a player's dimension changes, their home position will change to portal position", def = "true")
 	public static boolean SetPlayerHomeWhenChangingDimension = true;
+	@ConfigProp(info = "Displaying joints on an NPC model", def = "true", type = Configuration.CATEGORY_CLIENT)
+	public static boolean ShowJoints = false;
+	@ConfigProp(info = "Send a message to the player's chat about a completed transaction", def = "false", type = Configuration.CATEGORY_CLIENT)
+	public static boolean sendMarcetInfo = false;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
@@ -275,6 +280,7 @@ public class CustomNpcs {
 			((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
+	
 	public static int colorAnimHoverPart = 0xFA7800;
 
 	static {
@@ -434,10 +440,8 @@ public class CustomNpcs {
 		// Capabilities
 		CapabilityManager.INSTANCE.register(IPlayerDataHandler.class, new PlayerDataStorage(), PlayerData::new);
 		CapabilityManager.INSTANCE.register(IMarkDataHandler.class, new MarkDataStorage(), MarkData::new);
-		CapabilityManager.INSTANCE.register(IWrapperEntityDataHandler.class, new WrapperEntityDataStorage(),
-				WrapperEntityData::new);
-		CapabilityManager.INSTANCE.register(IItemStackWrapperHandler.class, new ItemStackWrapperStorage(),
-				ItemStackWrapper::new);
+		CapabilityManager.INSTANCE.register(IWrapperEntityDataHandler.class, new WrapperEntityDataStorage(), WrapperEntityData::new);
+		CapabilityManager.INSTANCE.register(IItemStackWrapperHandler.class, new ItemStackWrapperStorage(), ItemStackWrapper::new);
 
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, CustomNpcs.proxy);
 
@@ -599,6 +603,12 @@ public class CustomNpcs {
 			CustomNpcs.showDebugs();
 		}
 		CustomNpcs.Server = null;
+	}
+
+	public static void setCharCurrencies(String unicode) {
+		CustomNpcs.CharCurrencies = unicode;
+		try { CustomNpcs.displayCurrencies = "" + ((char) Integer.parseInt(unicode, 16)); }
+		catch (Exception e) { CustomNpcs.displayCurrencies = "" + unicode.charAt(0); }
 	}
 
 }

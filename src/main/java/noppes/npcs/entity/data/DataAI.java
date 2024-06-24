@@ -1,7 +1,8 @@
 package noppes.npcs.entity.data;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,77 +18,46 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobBuilder;
 import noppes.npcs.roles.JobFarmer;
 
-public class DataAI implements INPCAi {
+public class DataAI
+implements INPCAi {
 
-	public int animationType;
-	public boolean attackInvisible;
-	public boolean avoidsSun;
-	public boolean avoidsWater;
-	public float bodyOffsetX;
-	public float bodyOffsetY;
-	public float bodyOffsetZ;
-	public boolean canLeap;
-	public boolean canSprint;
-	public boolean canSwim;
-	public boolean directLOS;
-	public int doorInteract;
-	public int findShelter;
-	public int movementType;
-	private int moveSpeed;
-	private List<int[]> movingPath;
-	public int movingPattern;
-	public boolean movingPause;
-	public int movingPos;
-	private int movingType;
+	public int animationType = 0;
+	public boolean attackInvisible = false;
+	public boolean avoidsSun = false;
+	public boolean avoidsWater = false;
+	public float bodyOffsetX = 5.0f;
+	public float bodyOffsetY = 5.0f;
+	public float bodyOffsetZ = 5.0f;
+	public boolean canLeap = false;
+	public boolean canSprint = false;
+	public boolean canSwim = true;
+	public boolean directLOS = true;
+	public int doorInteract = 2;
+	public int findShelter = 2;
+	public int movementType = 0;
+	private int moveSpeed = 5;
+	private List<int[]> movingPath = Lists.<int[]>newArrayList();
+	public int movingPattern = 0;
+	public boolean movingPause = true;
+	public int movingPos = 0;
+	private int movingType = 0;
 	private EntityNPCInterface npc;
-	public boolean npcInteracting;
-	public int onAttack;
-	public int orientation;
-	public boolean reactsToFire;
-	public boolean returnToStart;
-	private int standingType;
-	private BlockPos startPos;
-	public boolean stopAndInteract;
-	private int tacticalRadius;
-	public int tacticalVariant;
-	public int walkingRange;
-	public float stepheight;
+	public boolean npcInteracting = true;
+	public int onAttack = 0;
+	public int orientation = 0;
+	public boolean reactsToFire = false;
+	public boolean returnToStart = true;
+	private int standingType = 0;
+	private BlockPos startPos = null;
+	public boolean stopAndInteract = true;
+	private int tacticalRadius = 8;
+	public int tacticalVariant = 0;
+	public int walkingRange = 10;
+	public float stepheight = 0.6f;
+	public boolean aiDisabled = false;
 
 	public DataAI(EntityNPCInterface npc) {
-		this.onAttack = 0;
-		this.doorInteract = 2;
-		this.findShelter = 2;
-		this.canSwim = true;
-		this.reactsToFire = false;
-		this.avoidsWater = false;
-		this.avoidsSun = false;
-		this.returnToStart = true;
-		this.directLOS = true;
-		this.canLeap = false;
-		this.canSprint = false;
-		this.stopAndInteract = true;
-		this.attackInvisible = false;
-		this.tacticalVariant = 0;
-		this.tacticalRadius = 8;
-		this.movementType = 0;
-		this.animationType = 0;
-		this.standingType = 0;
-		this.movingType = 0;
-		this.npcInteracting = true;
-		this.orientation = 0;
-		this.bodyOffsetX = 5.0f;
-		this.bodyOffsetY = 5.0f;
-		this.bodyOffsetZ = 5.0f;
-		this.stepheight = 0.6f;
-		this.walkingRange = 10;
-		this.moveSpeed = 5;
-		this.movingPath = new ArrayList<int[]>();
-		this.startPos = null;
-		this.movingPos = 0;
-		this.movingPattern = 0;
-		this.movingPause = true;
 		this.npc = npc;
-		// this.setStandingType(type);
 	}
 
 	public void appendMovingPath(int[] pos) {
@@ -313,6 +283,7 @@ public class DataAI implements INPCAi {
 		this.findShelter = compound.getInteger("FindShelter");
 		this.directLOS = compound.getBoolean("DirectLOS");
 		this.canLeap = compound.getBoolean("CanLeap");
+		this.aiDisabled = compound.getBoolean("AIDisabled");
 		this.canSprint = compound.getBoolean("CanSprint");
 		this.tacticalRadius = compound.getInteger("TacticalRadius");
 		this.movingPause = compound.getBoolean("MovingPause");
@@ -451,7 +422,7 @@ public class DataAI implements INPCAi {
 
 	@Override
 	public void setStandingType(int type) {
-		if (type < 0 || type > 3) {
+		if (type < 0 || type > 4) {
 			throw new CustomNPCsException("Unknown standing type: " + type, new Object[0]);
 		}
 		this.standingType = type;
@@ -530,6 +501,7 @@ public class DataAI implements INPCAi {
 		compound.setInteger("FindShelter", this.findShelter);
 		compound.setBoolean("DirectLOS", this.directLOS);
 		compound.setBoolean("CanLeap", this.canLeap);
+		compound.setBoolean("AIDisabled", this.aiDisabled);
 		compound.setBoolean("CanSprint", this.canSprint);
 		compound.setInteger("TacticalRadius", this.tacticalRadius);
 		compound.setBoolean("MovingPause", this.movingPause);
@@ -555,4 +527,11 @@ public class DataAI implements INPCAi {
 		compound.setBoolean("AttackInvisible", this.attackInvisible);
 		return compound;
 	}
+
+	@Override
+	public boolean isAIDisabled() { return aiDisabled; }
+
+	@Override
+	public void setIsAIDisabled(boolean bo) { this.aiDisabled = bo; }
+	
 }

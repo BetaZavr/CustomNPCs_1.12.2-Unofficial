@@ -63,8 +63,7 @@ public class PlayerSkinController {
 	public Map<Type, ResourceLocation> getData(UUID uuid) {
 		if (!playerTextures.containsKey(uuid)) {
 			playerTextures.put(uuid, Maps.newEnumMap(Type.class));
-			playerTextures.get(uuid).put(Type.SKIN, new ResourceLocation("minecraft",
-					(uuid.hashCode() & 1) == 1 ? "textures/entity/alex.png" : "textures/entity/steve.png")); // DefaultPlayerSkin
+			playerTextures.get(uuid).put(Type.SKIN, new ResourceLocation("minecraft", (uuid.hashCode() & 1) == 1 ? "textures/entity/alex.png" : "textures/entity/steve.png")); // DefaultPlayerSkin
 		}
 		return playerTextures.get(uuid);
 	}
@@ -74,6 +73,7 @@ public class PlayerSkinController {
 
 		NBTTagList listUUIDs = new NBTTagList();
 		for (UUID uuid : playerTextures.keySet()) {
+			if (uuid == null) { continue; }
 			NBTTagCompound nbtPlayer = new NBTTagCompound();
 			nbtPlayer.setUniqueId("UUID", uuid);
 			NBTTagList listTxrs = new NBTTagList();

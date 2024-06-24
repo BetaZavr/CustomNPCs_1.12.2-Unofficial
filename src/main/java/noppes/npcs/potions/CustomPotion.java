@@ -203,4 +203,9 @@ public class CustomPotion extends Potion implements ICustomElement {
 		}
 	}
 
+	@Override
+	public int getType() {
+		return 7;
+	}
+
 }

@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -45,6 +47,7 @@ public class MarcetController implements IMarcetHandler {
 		return file != null && !MarcetController.instance.filePath.equals(file.getAbsolutePath());
 	}
 	private String filePath;
+	private int version = 1;
 
 	public final Map<Integer, Marcet> marcets;
 
@@ -165,6 +168,8 @@ public class MarcetController implements IMarcetHandler {
 			dList.appendTag(nbtDeal);
 		}
 		compound.setTag("Deals", dList);
+		
+		compound.setInteger("Version", this.version);
 		return compound;
 	}
 
@@ -223,19 +228,59 @@ public class MarcetController implements IMarcetHandler {
 	public void load(NBTTagCompound nbtFile) throws IOException {
 		this.marcets.clear();
 		this.deals.clear();
-		if (nbtFile.hasKey("Deals", 9)) {
-			for (int i = 0; i < nbtFile.getTagList("Deals", 10).tagCount(); ++i) {
-				Deal deal = this.loadDeal(nbtFile.getTagList("Deals", 10).getCompoundTagAt(i));
-				if (deal != null) {
-					this.deals.put(deal.getId(), deal);
+		int v = nbtFile.getInteger("Version");
+		if (v == 0) {
+			Map<Integer, Map<Integer, List<Deal>>> marketDeals = Maps.<Integer, Map<Integer, List<Deal>>>newHashMap();
+			if (nbtFile.hasKey("Deals", 9)) {
+				for (int i = 0; i < nbtFile.getTagList("Deals", 10).tagCount(); ++i) {
+					NBTTagCompound nbtDeal = nbtFile.getTagList("Deals", 10).getCompoundTagAt(i);
+					Deal deal = this.loadDeal(nbtDeal);
+					if (deal != null) {
+						this.deals.put(deal.getId(), deal);
+						int mId = nbtDeal.getInteger("MarcetID");
+						if (!marketDeals.containsKey(mId)) { marketDeals.put(mId, Maps.<Integer, List<Deal>>newTreeMap()); }
+						int tab = nbtDeal.getInteger("SectionID");
+						if (!marketDeals.get(mId).containsKey(tab)) { marketDeals.get(mId).put(tab, Lists.<Deal>newArrayList()); }
+						Deal d = deal.copy();
+						d.updateNew();
+						marketDeals.get(mId).get(tab).add(d);
+					}
+				}
+			}
+			if (nbtFile.hasKey("Marcets", 9)) {
+				for (int i = 0; i < nbtFile.getTagList("Marcets", 10).tagCount(); ++i) {
+					Marcet marcet = this.loadMarcet(nbtFile.getTagList("Marcets", 10).getCompoundTagAt(i));
+					if (marcet != null) {
+						this.marcets.put(marcet.getId(), marcet);
+						Map<Integer, List<Deal>> sections = marketDeals.get(marcet.getId());
+						if (!sections.isEmpty()) {
+							for (int tab : sections.keySet()) {
+								if (!marcet.sections.containsKey(tab)) { marcet.sections.put(tab, new MarcetSection(tab)); }
+								for (Deal d : sections.get(tab)) {
+									marcet.sections.get(tab).deals.add(d);
+								}
+							}
+						}
+						
+					}
 				}
 			}
 		}
-		if (nbtFile.hasKey("Marcets", 9)) {
-			for (int i = 0; i < nbtFile.getTagList("Marcets", 10).tagCount(); ++i) {
-				Marcet marcet = this.loadMarcet(nbtFile.getTagList("Marcets", 10).getCompoundTagAt(i));
-				if (marcet != null) {
-					this.marcets.put(marcet.getId(), marcet);
+		else if (v == 1) {
+			if (nbtFile.hasKey("Deals", 9)) {
+				for (int i = 0; i < nbtFile.getTagList("Deals", 10).tagCount(); ++i) {
+					Deal deal = this.loadDeal(nbtFile.getTagList("Deals", 10).getCompoundTagAt(i));
+					if (deal != null) {
+						this.deals.put(deal.getId(), deal);
+					}
+				}
+			}
+			if (nbtFile.hasKey("Marcets", 9)) {
+				for (int i = 0; i < nbtFile.getTagList("Marcets", 10).tagCount(); ++i) {
+					Marcet marcet = this.loadMarcet(nbtFile.getTagList("Marcets", 10).getCompoundTagAt(i));
+					if (marcet != null) {
+						this.marcets.put(marcet.getId(), marcet);
+					}
 				}
 			}
 		}
@@ -293,16 +338,11 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	public Marcet loadMarcet(NBTTagCompound nbtMarcet) {
-		if (nbtMarcet == null || !nbtMarcet.hasKey("MarcetID", 3) || nbtMarcet.getInteger("MarcetID") < 0) {
-			return null;
-		}
+		if (nbtMarcet == null || !nbtMarcet.hasKey("MarcetID", 3) || nbtMarcet.getInteger("MarcetID") < 0) { return null; }
 		int id = nbtMarcet.getInteger("MarcetID");
 		Marcet marcet;
-		if (marcets.containsKey(id)) {
-			marcet = marcets.get(id);
-		} else {
-			marcet = new Marcet(id);
-		}
+		if (marcets.containsKey(id)) { marcet = marcets.get(id); }
+		else { marcet = new Marcet(id); }
 		marcet.readFromNBT(nbtMarcet);
 		marcets.put(marcet.getId(), marcet);
 		return marcets.get(marcet.getId());

@@ -32,13 +32,15 @@ import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener, ICustomScrollListener, IGuiData {
+public class GuiNpcAnimation
+extends GuiNPCInterface2
+implements ISubGuiListener, ICustomScrollListener, IGuiData {
 
 	public static int backColor = 0xFF000000;
 	private GuiCustomScroll scrollType, scrollAnims;
 	private final String[][] typeHovers;
-	private final Map<String, AnimationKind> dataType;
-	private final Map<String, AnimationConfig> dataAnims;
+	private final Map<String, AnimationKind> dataType = Maps.<String, AnimationKind>newLinkedHashMap();
+	private final Map<String, AnimationConfig> dataAnims = Maps.<String, AnimationConfig>newHashMap();
 	private EntityNPCInterface npcAnim;
 	private DataAnimation animation;
 	private String selType, selAnim;
@@ -50,30 +52,21 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 		this.animation = new DataAnimation(npc);
 		this.setBackground("bgfilled.png");
 
-		this.dataType = Maps.<String, AnimationKind>newLinkedHashMap();
+		this.dataType.clear();
 		this.dataType.put("puppet." + AnimationKind.INIT.name().toLowerCase().replace("_", ""), AnimationKind.INIT);
 		this.dataType.put("puppet." + AnimationKind.JUMP.name().toLowerCase().replace("_", ""), AnimationKind.JUMP);
-		this.dataType.put("puppet." + AnimationKind.ATTACKING.name().toLowerCase().replace("_", ""),
-				AnimationKind.ATTACKING);
+		this.dataType.put("puppet." + AnimationKind.ATTACKING.name().toLowerCase().replace("_", ""), AnimationKind.ATTACKING);
 		this.dataType.put("puppet." + AnimationKind.HIT.name().toLowerCase().replace("_", ""), AnimationKind.HIT);
 		this.dataType.put("puppet." + AnimationKind.DIES.name().toLowerCase().replace("_", ""), AnimationKind.DIES);
 		this.dataType.put("puppet." + AnimationKind.BASE.name().toLowerCase().replace("_", ""), AnimationKind.BASE);
-		this.dataType.put("puppet." + AnimationKind.STANDING.name().toLowerCase().replace("_", ""),
-				AnimationKind.STANDING);
-		this.dataType.put("puppet." + AnimationKind.FLY_STAND.name().toLowerCase().replace("_", ""),
-				AnimationKind.FLY_STAND);
-		this.dataType.put("puppet." + AnimationKind.WATER_STAND.name().toLowerCase().replace("_", ""),
-				AnimationKind.WATER_STAND);
-		this.dataType.put("puppet." + AnimationKind.REVENGE_STAND.name().toLowerCase().replace("_", ""),
-				AnimationKind.REVENGE_STAND);
-		this.dataType.put("puppet." + AnimationKind.WALKING.name().toLowerCase().replace("_", ""),
-				AnimationKind.WALKING);
-		this.dataType.put("puppet." + AnimationKind.FLY_WALK.name().toLowerCase().replace("_", ""),
-				AnimationKind.FLY_WALK);
-		this.dataType.put("puppet." + AnimationKind.WATER_WALK.name().toLowerCase().replace("_", ""),
-				AnimationKind.WATER_WALK);
-		this.dataType.put("puppet." + AnimationKind.REVENGE_WALK.name().toLowerCase().replace("_", ""),
-				AnimationKind.REVENGE_WALK);
+		this.dataType.put("puppet." + AnimationKind.STANDING.name().toLowerCase().replace("_", ""), AnimationKind.STANDING);
+		this.dataType.put("puppet." + AnimationKind.FLY_STAND.name().toLowerCase().replace("_", ""), AnimationKind.FLY_STAND);
+		this.dataType.put("puppet." + AnimationKind.WATER_STAND.name().toLowerCase().replace("_", ""), AnimationKind.WATER_STAND);
+		this.dataType.put("puppet." + AnimationKind.REVENGE_STAND.name().toLowerCase().replace("_", ""), AnimationKind.REVENGE_STAND);
+		this.dataType.put("puppet." + AnimationKind.WALKING.name().toLowerCase().replace("_", ""), AnimationKind.WALKING);
+		this.dataType.put("puppet." + AnimationKind.FLY_WALK.name().toLowerCase().replace("_", ""), AnimationKind.FLY_WALK);
+		this.dataType.put("puppet." + AnimationKind.WATER_WALK.name().toLowerCase().replace("_", ""), AnimationKind.WATER_WALK);
+		this.dataType.put("puppet." + AnimationKind.REVENGE_WALK.name().toLowerCase().replace("_", ""), AnimationKind.REVENGE_WALK);
 		typeHovers = new String[this.dataType.size()][];
 		int i = 0;
 		for (AnimationKind ak : this.dataType.values()) {
@@ -81,7 +74,6 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 					new TextComponentTranslation("animation.hover.anim." + ak.get()).getFormattedText() };
 			i++;
 		}
-		this.dataAnims = Maps.<String, AnimationConfig>newHashMap();
 		selType = "";
 		selAnim = "";
 		npcAnim = AdditionalMethods.copyToGUI(npc, mc.world, false);
@@ -92,39 +84,39 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 	public void buttonEvent(GuiNpcButton button) {
 		AnimationConfig anim = this.getAnim();
 		switch (button.id) {
-		case 0: { // add anim
-			if (this.scrollType == null || !this.scrollType.hasSelected()) {
-				return;
+			case 0: { // add anim
+				if (this.scrollType == null || !this.scrollType.hasSelected()) {
+					return;
+				}
+				this.setSubGui(new SubGuiEditText(1,
+						AdditionalMethods.instance
+								.deleteColor(new TextComponentTranslation(this.scrollType.getSelected()).getFormattedText()
+										+ "_" + aData.getUnusedAnimId())));
+				break;
 			}
-			this.setSubGui(new SubGuiEditText(1,
-					AdditionalMethods.instance
-							.deleteColor(new TextComponentTranslation(this.scrollType.getSelected()).getFormattedText()
-									+ "_" + aData.getUnusedId())));
-			break;
-		}
-		case 1: { // del anim
-			if (anim == null || !dataType.containsKey(scrollType.getSelected())) {
-				return;
+			case 1: { // del anim
+				if (anim == null || !dataType.containsKey(scrollType.getSelected())) {
+					return;
+				}
+				if (this.animation.removeAnimation(dataType.get(scrollType.getSelected()).get(), anim.id)) {
+					this.selAnim = "";
+				}
+				this.initGui();
+	
+				break;
 			}
-			if (this.animation.removeAnimation(dataType.get(scrollType.getSelected()).get(), anim.id)) {
-				this.selAnim = "";
+			case 2: { // edit
+				this.setSubGui(new SubGuiEditAnimation(this.npc, anim, 4, this));
+				break;
 			}
-			this.initGui();
-
-			break;
-		}
-		case 2: { // edit
-			this.setSubGui(new SubGuiEditAnimation(this.npc, anim, 4, this));
-			break;
-		}
-		case 3: { // load anim
-			this.setSubGui(new SubGuiLoadAnimation(2, this.npc));
-			break;
-		}
-		case 66: { // exit
-			this.close();
-			break;
-		}
+			case 3: { // load anim
+				this.setSubGui(new SubGuiLoadAnimation(2, this.npc));
+				break;
+			}
+			case 66: { // exit
+				this.close();
+				break;
+			}
 		}
 	}
 
@@ -132,6 +124,15 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 	public void close() {
 		this.save();
 		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
+	}
+
+	@Override
+	public void save() {
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setBoolean("save", true);
+		Client.sendData(EnumPacketServer.EmotionChange, nbt);
+		Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound()));
+		CustomNPCsScheduler.runTack(() -> { Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound())); }, 500);
 	}
 
 	@Override
@@ -201,6 +202,7 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 		this.scrollType.guiLeft = x;
 		this.scrollType.guiTop = y;
 		this.addScroll(this.scrollType);
+		
 		if (selType.isEmpty()) {
 			for (String key : this.dataType.keySet()) {
 				if (this.dataType.get(key) == AnimationKind.STANDING) {
@@ -229,6 +231,7 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 		this.scrollAnims.guiLeft = x;
 		this.scrollAnims.guiTop = y;
 		this.addScroll(this.scrollAnims);
+		
 		if (selAnim.isEmpty() && !this.scrollAnims.getList().isEmpty()) {
 			for (String key : this.scrollAnims.getList()) {
 				selAnim = key;
@@ -265,24 +268,11 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 		AnimationConfig ac = anim.copy();
 		ac.isEdit = true;
 		ac.type = AnimationKind.STANDING;
-		NBTTagCompound npcNbt = new NBTTagCompound();
+		this.npcAnim.display.setName(this.npc.getName()+"_animation");
 		this.npcAnim.animation.clear();
-		this.npcAnim.writeEntityToNBT(npcNbt);
-		this.npcAnim.writeToNBTOptional(npcNbt);
-		this.npcAnim.display.setName("1_" + this.npc.getName());
-		this.npcAnim.animation.activeAnim = ac;
+		this.npcAnim.animation.startAnimation(ac);
 		this.npcAnim.setHealth(this.npcAnim.getMaxHealth());
-		npcAnim.deathTime = 0;
-	}
-
-	@Override
-	public void save() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setBoolean("save", true);
-		Client.sendData(EnumPacketServer.AnimationChange, nbt);
-		CustomNPCsScheduler.runTack(() -> {
-			Client.sendData(EnumPacketServer.AnimationSave, this.animation.save(new NBTTagCompound()));
-		}, 500);
+		this.npcAnim.deathTime = 0;
 	}
 
 	@Override
@@ -320,7 +310,7 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 					|| !this.dataType.containsKey(this.scrollType.getSelected())) {
 				return;
 			}
-			AnimationConfig newAnim = (AnimationConfig) AnimationController.getInstance().createNew();
+			AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
 			newAnim.name = ((SubGuiEditText) subgui).text[0];
 			animation.data.get(type).add(newAnim.id);
 			this.selAnim = newAnim.getSettingName();
@@ -357,6 +347,7 @@ public class GuiNpcAnimation extends GuiNPCInterface2 implements ISubGuiListener
 				return;
 			}
 			this.selAnim = ((SubGuiEditAnimation) subgui).anim.getSettingName();
+			if (!this.animation.data.containsKey(type)) { this.animation.data.put(type, Lists.<Integer>newArrayList()); }
 			if (!this.animation.data.get(type).contains(anim.id)) {
 				this.animation.data.get(type).add(anim.id);
 			}

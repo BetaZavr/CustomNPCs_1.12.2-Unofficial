@@ -1,5 +1,9 @@
 package noppes.npcs.client.gui.script;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,11 +34,18 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITextChangeListener {
+public class GuiScriptInterface
+extends GuiNPCInterface
+implements IGuiData, ITextChangeListener {
+	
 	protected int activeTab;
 	public IScriptHandler handler;
 	public Map<String, Map<String, Long>> languages;
 	public String path, ext;
+	private String web_site = "http://www.kodevelopment.nl/minecraft/customnpcs/scripting";
+	private String api_doc_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
+	private String api_site = "https://github.com/BetaZavr/CustomNPCsAPI-Unofficial";
+	private String dis_site = "https://discord.gg/RGb4JqE6Qz";
 
 	public GuiScriptInterface() {
 		this.activeTab = 0;
@@ -69,10 +80,10 @@ public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITe
 		if (guibutton.id == 101) {
 			((GuiTextArea) this.get(2)).setText(NoppesStringUtils.getClipboardContents());
 		}
-		if (guibutton.id == 102) {
+		if (guibutton.id == 102) { // clear text
 			if (this.activeTab > 0) {
-				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
-				container.script = "";
+				GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 5);
+				this.displayGuiScreen(guiyesno);
 			} else {
 				this.handler.clearConsole();
 			}
@@ -85,8 +96,7 @@ public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITe
 			this.handler.setEnabled(((GuiNpcButton) guibutton).getValue() == 1);
 		}
 		if (guibutton.id == 105) {
-			GuiYesNo guiyesno = new GuiYesNo(this, "",
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 10);
+			GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 10);
 			this.displayGuiScreen(guiyesno);
 		}
 		if (guibutton.id == 106) {
@@ -97,8 +107,7 @@ public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITe
 			if (container == null) {
 				this.handler.getScripts().add(container = new ScriptContainer(this.handler, true));
 			}
-			this.setSubGui(new GuiScriptList(
-					this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
+			this.setSubGui(new GuiScriptList(this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage())), container));
 		}
 		if (guibutton.id == 108) {
 			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
@@ -107,18 +116,16 @@ public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITe
 			}
 		}
 		if (guibutton.id == 109) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this,
-					"http://www.kodevelopment.nl/minecraft/customnpcs/scripting", 0, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.web_site , 0, true));
 		}
 		if (guibutton.id == 110) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this, "http://www.kodevelopment.nl/customnpcs/api/", 1, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.api_doc_site, 1, true));
 		}
 		if (guibutton.id == 111) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this, "https://github.com/Noppes/CustomNPCsAPI", 2, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.api_site, 2, true));
 		}
 		if (guibutton.id == 112) {
-			this.displayGuiScreen(new GuiConfirmOpenLink(this,
-					"http://www.minecraftforge.net/forum/index.php/board,122.0.html", 3, true));
+			this.displayGuiScreen(new GuiConfirmOpenLink(this, this.dis_site, 3, true));
 		}
 		if (guibutton.id == 115) {
 			GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.remove.all").getFormattedText(),
@@ -132,24 +139,21 @@ public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITe
 			}
 		}
 	}
-
+	
+	@Override
 	public void confirmClicked(boolean flag, int i) {
 		if (flag) {
-			if (i == 0) {
-				this.openLink("http://www.kodevelopment.nl/minecraft/customnpcs/scripting");
-			}
-			if (i == 1) {
-				this.openLink("http://www.kodevelopment.nl/customnpcs/api/");
-			}
-			if (i == 2) {
-				this.openLink("http://www.kodevelopment.nl/minecraft/customnpcs/scripting");
-			}
-			if (i == 3) {
-				this.openLink("http://www.minecraftforge.net/forum/index.php/board,122.0.html");
-			}
+			if (i == 0) { this.openLink(this.web_site); }
+			if (i == 1) { this.openLink(this.api_doc_site); }
+			if (i == 2) { this.openLink(this.api_site); }
+			if (i == 3) { this.openLink(this.dis_site); }
 			if (i == 4) {
 				this.handler.getScripts().clear();
 				this.activeTab = 0;
+			}
+			if (i == 5) {
+				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+				container.script = "";
 			}
 			if (i == 10) {
 				this.handler.getScripts().remove(this.activeTab - 1);
@@ -161,14 +165,53 @@ public class GuiScriptInterface extends GuiNPCInterface implements IGuiData, ITe
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (this.getButton(118) != null) {
-			ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
-			this.getButton(118).setEnabled(container != null && !container.getFullCode().isEmpty());
+		if (this.mc.world.getTotalWorldTime()%5 == 0) {
+			if (this.activeTab > 0) {
+				ScriptContainer container = this.handler.getScripts().get(this.activeTab - 1);
+				boolean e = container == null || container.script.isEmpty();
+				if (this.getButton(100) != null) { // copy
+					if (this.getButton(100).enabled && e) { this.getButton(100).setEnabled(false); }
+					else if (!this.getButton(100).enabled && !e) { this.getButton(100).setEnabled(true); }
+				}
+				if (this.getButton(102) != null) { // clear
+					if (this.getButton(102).enabled && e) { this.getButton(102).setEnabled(false); }
+					else if (!this.getButton(102).enabled && !e) { this.getButton(102).setEnabled(true); }
+				}
+				if (this.getButton(118) != null) { // encode
+					this.getButton(118).setEnabled(container != null && !container.getFullCode().isEmpty());
+				}
+				
+				if (this.getButton(107) != null) { // files
+					Map<String, Long> map = this.languages.get(AdditionalMethods.instance.deleteColor(this.handler.getLanguage()));
+					e = map != null && !map.isEmpty();
+					if (this.getButton(107).enabled && !e) { this.getButton(107).setEnabled(false); }
+					else if (!this.getButton(107).enabled && e) { this.getButton(107).setEnabled(true); }
+				}
+				if (this.getButton(101) != null) { // paste
+					try {
+						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+						Transferable contents = clipboard.getContents(null);
+						e = contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+						if (this.getButton(101).enabled && !e) { this.getButton(101).setEnabled(false); }
+						else if (!this.getButton(101).enabled && e) { this.getButton(101).setEnabled(true); }
+					}
+					catch (Exception ex) { }
+				}
+			} else {
+				boolean e = this.handler == null || this.handler.getConsoleText().isEmpty();
+				if (this.getButton(100) != null) { // copy
+					if (this.getButton(100).enabled && e) { this.getButton(100).setEnabled(false); }
+					else if (!this.getButton(100).enabled && !e) { this.getButton(100).setEnabled(true); }
+				}
+				if (this.getButton(102) != null) { // clear
+					if (this.getButton(102).enabled && e) { this.getButton(102).setEnabled(false); }
+					else if (!this.getButton(102).enabled && !e) { this.getButton(102).setEnabled(true); }
+				}
+			}
 		}
+		
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.anim.del").getFormattedText());
 		}

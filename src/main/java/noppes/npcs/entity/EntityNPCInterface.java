@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import io.netty.buffer.ByteBuf;
@@ -166,8 +167,9 @@ import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.GameProfileAlt;
 import noppes.npcs.util.ObfuscationHelper;
 
-public abstract class EntityNPCInterface extends EntityCreature
-		implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
+public abstract class EntityNPCInterface
+extends EntityCreature
+implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimals {
 
 	public static FakePlayer ChatEventPlayer;
 	public static FakePlayer CommandPlayer;
@@ -175,22 +177,14 @@ public abstract class EntityNPCInterface extends EntityCreature
 	public static GameProfileAlt ChatEventProfile = new GameProfileAlt();
 	public static GameProfileAlt CommandProfile = new GameProfileAlt();
 	public static GameProfileAlt GenericProfile = new GameProfileAlt();
-	protected static DataParameter<Integer> Animation = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.VARINT);
-	public static DataParameter<Boolean> Attacking = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
-	private static DataParameter<Integer> FactionData = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.VARINT);
-	private static DataParameter<Boolean> Interacting = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
-	private static DataParameter<Boolean> IsDead = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
-	private static DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.STRING);
-	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.STRING);
-	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class,
-			DataSerializers.BOOLEAN);
+	protected static DataParameter<Integer> Animation = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.VARINT);
+	public static DataParameter<Boolean> Attacking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	private static DataParameter<Integer> FactionData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.VARINT);
+	private static DataParameter<Boolean> Interacting = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	private static DataParameter<Boolean> IsDead = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
+	private static DataParameter<String> JobData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
+	private static DataParameter<String> RoleData = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.STRING);
+	private static DataParameter<Boolean> Walking = EntityDataManager.createKey(EntityNPCInterface.class, DataSerializers.BOOLEAN);
 	public DataAbilities abilities;
 	public DataDisplay display;
 	public DataStats stats;
@@ -198,48 +192,49 @@ public abstract class EntityNPCInterface extends EntityCreature
 	public DataInventory inventory;
 	public DataAdvanced advanced;
 	public DataScript script;
-	public int animationStart, currentAnimation;
-	public float baseHeight;
+	public DataAnimation animation;
+	public int animationStart = 0;
+	public int currentAnimation = 0;
+	public float baseHeight = 1.8f;
 	public BossInfoServer bossInfo;
 	public CombatHandler combatHandler;
-	public int[] dialogs; // Changed
+	public int[] dialogs = new int[0];
 	public Faction faction;
 	public double field_20061_w, field_20062_v, field_20063_u, field_20064_t, field_20065_s, field_20066_r;
-	public boolean hasDied;
-	public List<EntityLivingBase> interactingEntities;
-
-	// AIs
+	public boolean hasDied = false;
+	public List<EntityLivingBase> interactingEntities = Lists.<EntityLivingBase>newArrayList();
 	public EntityAICustom aiAttackTarget;
 	public final EntityAITargetController aiTargetAnalysis;
 	public EntityAIAnimation animateAi;
 	public EntityAILook lookAi;
+	public Entity lookat = null;
+	public float[] lookPos = new float[] { -1.0f, -1.0f };
+	public boolean updateLook = false;
 	public EntityNPCInterface aiOwnerNPC;
 	public boolean aiIsSneak;
-
-	// New
-	public long killedtime;
-	public int lastInteract, homeDimensionId;
+	public long killedtime = 0L;
+	public int lastInteract = 0;
+	public int homeDimensionId;
 	public LinkedNpcController.LinkedData linkedData;
-	public long linkedLast;
-	public String linkedName;
+	public long linkedLast = 0L;
+	public String linkedName = "";
 	public IChatMessages messages;
-	public int npcVersion;
+	public int npcVersion = VersionCompatibility.ModRev;
 	public float scaleX;
 	public float scaleY;
 	public float scaleZ;
-	private double startYPos;
-	private int taskCount;
-	public ResourceLocation textureCloakLocation;
-	public ResourceLocation textureGlowLocation;
-	public ResourceLocation textureLocation;
+	private double startYPos = -1.0;
+	private int taskCount = 1;
+	public ResourceLocation textureCloakLocation = null;
+	public ResourceLocation textureGlowLocation = null;
+	public ResourceLocation textureLocation = null;
 	public DataTimers timers;
-	public long totalTicksAlive;
+	public long totalTicksAlive = 0L;
 	public DataTransform transform;
-	public boolean updateClient;
-	private boolean wasKilled;
+	public boolean updateClient = false;
+	private boolean wasKilled = false;
 	public ICustomNpc<?> wrappedNPC;
-	public boolean updateAI;
-	public DataAnimation animation;
+	public boolean updateAI = true;
 	public Path navigating;
 	private long initTime;
 
@@ -248,27 +243,8 @@ public abstract class EntityNPCInterface extends EntityCreature
 		super(world);
 		this.homeDimensionId = world.provider.getDimension();
 		this.combatHandler = new CombatHandler(this);
-		this.linkedName = "";
-		this.linkedLast = 0L;
-		this.baseHeight = 1.8f;
-		this.wasKilled = false;
-		this.hasDied = false;
-		this.killedtime = 0L;
-		this.totalTicksAlive = 0L;
-		this.taskCount = 1;
-		this.lastInteract = 0;
-		this.interactingEntities = new ArrayList<EntityLivingBase>();
-		this.textureLocation = null;
-		this.textureGlowLocation = null;
-		this.textureCloakLocation = null;
-		this.currentAnimation = 0;
-		this.animationStart = 0;
-		this.npcVersion = VersionCompatibility.ModRev;
-		this.updateClient = false;
 		this.bossInfo = new BossInfoServer(this.getDisplayName(), BossInfo.Color.PURPLE, BossInfo.Overlay.PROGRESS);
-		this.startYPos = -1.0;
 		this.wrappedNPC = new NPCWrapper(this);
-		this.dialogs = new int[0];
 		if (!CustomNpcs.DefaultInteractLine.isEmpty()) {
 			this.advanced.interactLines.lines.put(0, new Line(CustomNpcs.DefaultInteractLine));
 		}
@@ -280,18 +256,13 @@ public abstract class EntityNPCInterface extends EntityCreature
 		this.faction = this.getFaction();
 		this.setFaction(this.faction.id);
 		this.setSize(1.0f, 1.0f);
-		this.updateAI = true;
 		this.bossInfo.setVisible(false);
 		this.stepHeight = this.ais.stepheight;
 		// New
 		this.getNavigator();
-		if (this.world.isRemote) {
-			this.initTime = System.currentTimeMillis();
-		}
+		this.initTime = System.currentTimeMillis();
 		this.aiTargetAnalysis = new EntityAITargetController(this);
-		if (world.isRemote) {
-			CustomNpcs.proxy.checkTexture(this);
-		}
+		if (world.isRemote) { CustomNpcs.proxy.checkTexture(this); }
 	}
 
 	public void addInteract(EntityLivingBase entity) {
@@ -316,8 +287,10 @@ public abstract class EntityNPCInterface extends EntityCreature
 		}
 		this.tasks.addTask(this.taskCount++, (this.lookAi = new EntityAILook(this)));
 		this.tasks.addTask(this.taskCount++, new EntityAIWorldLines(this));
-		this.tasks.addTask(this.taskCount++, new EntityAIJob(this));
-		this.tasks.addTask(this.taskCount++, new EntityAIRole(this));
+		if (!this.ais.aiDisabled) {
+			this.tasks.addTask(this.taskCount++, new EntityAIJob(this));
+			this.tasks.addTask(this.taskCount++, new EntityAIRole(this));
+		}
 		this.tasks.addTask(this.taskCount++, (this.animateAi = new EntityAIAnimation(this)));
 		if (this.transform.isValid()) {
 			this.tasks.addTask(this.taskCount++, new EntityAITransform(this));
@@ -363,26 +336,27 @@ public abstract class EntityNPCInterface extends EntityCreature
 		this.getEntityAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue((this.getSpeed() * 2.0f));
 	}
 
-	public boolean attackEntityAsMob(Entity par1Entity) {
+	public boolean attackEntityAsMob(Entity entity) {
+		if (this.ais.aiDisabled) { return false; }
 		float f = this.stats.melee.getStrength();
 		if (this.stats.melee.getDelay() < 10) {
-			par1Entity.hurtResistantTime = 0;
+			entity.hurtResistantTime = 0;
 		}
-		if (par1Entity instanceof EntityLivingBase) {
+		if (entity instanceof EntityLivingBase) {
 			NpcEvent.MeleeAttackEvent event = new NpcEvent.MeleeAttackEvent(this.wrappedNPC,
-					(EntityLivingBase) par1Entity, f);
+					(EntityLivingBase) entity, f);
 			if (EventHooks.onNPCAttacksMelee(this, event)) {
 				return false;
 			}
 			f = event.damage;
 		}
-		boolean var4 = par1Entity.attackEntityFrom((DamageSource) new NpcDamageSource("mob", this), f);
+		boolean var4 = entity.attackEntityFrom((DamageSource) new NpcDamageSource("mob", this), f);
 		if (var4) {
 			if (this.getOwner() instanceof EntityPlayer) {
-				EntityUtil.setRecentlyHit((EntityLivingBase) par1Entity);
+				EntityUtil.setRecentlyHit((EntityLivingBase) entity);
 			}
 			if (this.stats.melee.getKnockback() > 0) {
-				par1Entity.addVelocity(
+				entity.addVelocity(
 						(-MathHelper.sin(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback()
 								* 0.5f),
 						0.1, (MathHelper.cos(this.rotationYaw * 3.1415927f / 180.0f) * this.stats.melee.getKnockback()
@@ -391,16 +365,16 @@ public abstract class EntityNPCInterface extends EntityCreature
 				this.motionZ *= 0.6;
 			}
 			if (this.advanced.roleInterface instanceof RoleCompanion) {
-				((RoleCompanion) this.advanced.roleInterface).attackedEntity(par1Entity);
+				((RoleCompanion) this.advanced.roleInterface).attackedEntity(entity);
 			}
 		}
 		if (this.stats.melee.getEffectType() != 0) {
 			if (this.stats.melee.getEffectType() != 1) {
-				((EntityLivingBase) par1Entity)
+				((EntityLivingBase) entity)
 						.addPotionEffect(new PotionEffect(PotionEffectType.getMCType(this.stats.melee.getEffectType()),
 								this.stats.melee.getEffectTime() * 20, this.stats.melee.getEffectStrength()));
 			} else {
-				par1Entity.setFire(this.stats.melee.getEffectTime());
+				entity.setFire(this.stats.melee.getEffectTime());
 			}
 		}
 		return var4;
@@ -494,6 +468,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public void attackEntityWithRangedAttack(EntityLivingBase entity, float distanceFactor) {
+		if (this.ais.aiDisabled) { return; }
 		ItemStack proj = ItemStackWrapper.MCItem(this.inventory.getProjectile());
 		if (proj == null) {
 			this.updateAI = true;
@@ -571,8 +546,8 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	@SuppressWarnings("rawtypes")
-	public boolean canAttackClass(Class par1Class) {
-		return EntityBat.class != par1Class;
+	public boolean canAttackClass(Class clazz) {
+		return !this.ais.aiDisabled && EntityBat.class != clazz;
 	}
 
 	public boolean canBeCollidedWith() {
@@ -890,13 +865,12 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public String getName() {
-		if (display == null) {
-			return "Display is null!";
-		}
+		if (display == null) { return "Display is null!"; }
 		return this.display.getName();
 	}
 
 	public EntityLivingBase getOwner() {
+		if (this.ais.aiDisabled) { return null; }
 		if (this.advanced.scenes.getOwner() != null) {
 			return this.advanced.scenes.getOwner();
 		}
@@ -959,9 +933,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public void givePlayerItem(EntityPlayer player, ItemStack item) {
-		if (this.world.isRemote) {
-			return;
-		}
+		if (this.ais.aiDisabled || this.world.isRemote) { return; }
 		item = item.copy();
 		float f = 0.7f;
 		double d = this.world.rand.nextFloat() * f + (1.0f - f);
@@ -983,6 +955,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public boolean hasOwner() {
+		if (this.ais.aiDisabled) { return false; }
 		return this.advanced.scenes.getOwner() != null
 				|| (this.advanced.roleInterface instanceof RoleFollower
 						&& ((RoleFollower) this.advanced.roleInterface).hasOwner())
@@ -997,10 +970,12 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public boolean isEntityAlive() {
+		if (this.ais.aiDisabled) { return false; }
 		return super.isEntityAlive() && !this.isKilled();
 	}
 
 	public boolean isFollower() {
+		if (this.ais.aiDisabled) { return false; }
 		return this.advanced.scenes.getOwner() != null || this.advanced.roleInterface.isFollowing()
 				|| this.advanced.jobInterface.isFollowing();
 	}
@@ -1105,8 +1080,8 @@ public abstract class EntityNPCInterface extends EntityCreature
 				|| (boolean) this.dataManager.get(EntityNPCInterface.Walking);
 	}
 
-	public void knockBack(Entity par1Entity, float strength, double ratioX, double ratioZ) {
-		super.knockBack(par1Entity, strength * (2.0f - this.stats.resistances.knockback), ratioX, ratioZ);
+	public void knockBack(Entity entity, float strength, double ratioX, double ratioZ) {
+		super.knockBack(entity, strength * (2.0f - this.stats.resistances.get("knockback")), ratioX, ratioZ);
 	}
 
 	public boolean nearPosition(BlockPos pos) {
@@ -1119,21 +1094,19 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public void onAttack(EntityLivingBase entity) {
-		if (entity == null || entity == this || this.isAttacking() || this.ais.onAttack == 3
-				|| entity == this.getOwner()) {
+		if (this.ais.aiDisabled || entity == null || entity == this || this.isAttacking() || this.ais.onAttack == 3 || entity == this.getOwner()) {
 			return;
 		}
 		super.setAttackTarget(entity);
 	}
 
 	public void onCollide() {
-		if (!this.isEntityAlive() || this.ticksExisted % 4 != 0 || this.world.isRemote) {
+		if (this.ais.aiDisabled || !this.isEntityAlive() || this.ticksExisted % 4 != 0 || this.world.isRemote) {
 			return;
 		}
 		AxisAlignedBB axisalignedbb = null;
 		if (this.getRidingEntity() != null && this.getRidingEntity().isEntityAlive()) {
-			axisalignedbb = this.getEntityBoundingBox().union(this.getRidingEntity().getEntityBoundingBox()).grow(1.0,
-					0.0, 1.0);
+			axisalignedbb = this.getEntityBoundingBox().union(this.getRidingEntity().getEntityBoundingBox()).grow(1.0, 0.0, 1.0);
 		} else {
 			axisalignedbb = this.getEntityBoundingBox().grow(1.0, 0.5, 1.0);
 		}
@@ -1163,7 +1136,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 		}
 		if (!this.isRemote()) {
 			this.advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
-			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity);
+			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity, this.aiTargetAnalysis);
 			event.droppedItems = this.inventory.getItemsRNG(
 					(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null);
 			event.lootedItems = this.inventory.getItemsRNGL(
@@ -1180,6 +1153,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 				}
 				((RoleFollower) this.advanced.roleInterface).inventory.clear();
 			}
+			//
 			EventHooks.onNPCDied(this, event);
 			this.bossInfo.setVisible(false);
 			this.inventory.dropStuff(event, attackingEntity, damagesource);
@@ -1188,7 +1162,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 						(attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
 		}
-		if (this.animation.getActiveAnimation(AnimationKind.DIES) != null) {
+		if (this.animation.hasAnim(AnimationKind.DIES)) {
 			this.motionX = 0.0d;
 			this.motionY = 0.0d;
 			this.motionZ = 0.0d;
@@ -1231,38 +1205,43 @@ public abstract class EntityNPCInterface extends EntityCreature
 			this.faction = this.getFaction();
 		}
 		if (!this.world.isRemote) {
-			if (this.aiAttackTarget != null) {
-				this.aiAttackTarget.update();
-			}
-			if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
-				this.advanced.scenes.update();
-				if (this.getHealth() < this.getMaxHealth()) {
-					if (this.stats.healthRegen > 0 && !this.isAttacking()) {
-						this.heal(this.stats.healthRegen);
-					}
-					if (this.stats.combatRegen > 0 && this.isAttacking()) {
-						this.heal(this.stats.combatRegen);
-					}
+			if (!this.ais.aiDisabled) {
+				if (this.aiAttackTarget != null) {
+					this.aiAttackTarget.update();
 				}
-				if (this.faction.getsAttacked && !this.isAttacking()) {
-					List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class,
-							this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
-					for (EntityMob mob : list) {
-						if (mob.getAttackTarget() == null && this.canSee(mob)) {
-							mob.setAttackTarget(this);
+				if (!this.isKilled() && this.totalTicksAlive % 20 == 0) {
+					this.advanced.scenes.update();
+					if (this.getHealth() < this.getMaxHealth()) {
+						if (this.stats.healthRegen > 0 && !this.isAttacking()) {
+							this.heal(this.stats.healthRegen);
+						}
+						if (this.stats.combatRegen > 0 && this.isAttacking()) {
+							this.heal(this.stats.combatRegen);
 						}
 					}
+					if (this.faction.getsAttacked && !this.isAttacking()) {
+						List<EntityMob> list = this.world.getEntitiesWithinAABB(EntityMob.class,
+								this.getEntityBoundingBox().grow(16.0, 16.0, 16.0));
+						for (EntityMob mob : list) {
+							if (mob.getAttackTarget() == null && this.canSee(mob)) {
+								mob.setAttackTarget(this);
+							}
+						}
+					}
+					if (this.linkedData != null && this.linkedData.time > this.linkedLast) {
+						LinkedNpcController.Instance.loadNpcData(this);
+					}
+					if (this.updateClient) {
+						this.updateClient();
+					}
+					if (this.updateAI) {
+						this.updateTasks();
+						this.updateAI = false;
+					}
 				}
-				if (this.linkedData != null && this.linkedData.time > this.linkedLast) {
-					LinkedNpcController.Instance.loadNpcData(this);
-				}
-				if (this.updateClient) {
-					this.updateClient();
-				}
-				if (this.updateAI) {
-					this.updateTasks();
-					this.updateAI = false;
-				}
+			}
+			if (this.updateLook) {
+				Server.sendToAll(this.world.getMinecraftServer(), EnumPacketClient.NPC_LOOK_POS, this.world.provider.getDimension(), this.getEntityId(), this.lookat == null ? -1 : this.lookat.getEntityId());
 			}
 			if (this.getHealth() <= 0.0f && !this.isKilled()) {
 				this.clearActivePotions();
@@ -1291,6 +1270,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 			}
 		}
 		super.onLivingUpdate();
+		
 		if (this.world.isRemote) {
 			this.advanced.roleInterface.clientUpdate();
 			if (this.textureCloakLocation != null) {
@@ -1301,7 +1281,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 				this.animationStart = this.ticksExisted;
 				this.updateHitbox();
 			}
-			if (this.advanced.jobInterface instanceof JobBard) {
+			if (!this.ais.aiDisabled && this.advanced.jobInterface instanceof JobBard) {
 				((JobBard) this.advanced.jobInterface).onLivingUpdate();
 			}
 		}
@@ -1314,7 +1294,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	public void onUpdate() {
 		CustomNpcs.debugData.startDebug(!this.world.isRemote ? "Server" : "Client", this, "NPCUpdate");
 		super.onUpdate();
-		if (this.ticksExisted % 10 == 0) {
+		if (!this.ais.aiDisabled && this.ticksExisted % 10 == 0) {
 			if (this.initTime != 0L && this.world.isRemote && this.initTime < System.currentTimeMillis() - 1000L) {
 				NoppesUtilPlayer.sendData(EnumPlayerPacket.NpcData, this.getEntityId());
 				this.initTime = 0L;
@@ -1358,7 +1338,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 				&& ((EntityPlayer) this.getAttackTarget()).capabilities.disableDamage)) {
 			super.setAttackTarget(null);
 		}
-		this.timers.update();
+		if (!this.ais.aiDisabled) {  this.timers.update(); }
 		if (this.world.isRemote && this.wasKilled != this.isKilled()) {
 			this.deathTime = 0;
 			this.updateHitbox();
@@ -1415,7 +1395,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 				return true;
 			}
 		}
-		if (EventHooks.onNPCInteract(this, player)) {
+		if (!this.ais.aiDisabled && EventHooks.onNPCInteract(this, player)) {
 			return false;
 		}
 		if (this.getFaction().isAggressiveToPlayer(player)) {
@@ -1428,7 +1408,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(
 					(PlayerWrapper<?>) NpcAPI.Instance().getIEntity(player), this.faction, this.faction.defaultPoints,
 					true);
-			EventHooks.OnPlayerFactionChange(PlayerData.get(player).scriptData, event);
+			EventHooks.onPlayerFactionChange(PlayerData.get(player).scriptData, event);
 			pd.factionData.factionData.put(this.faction.id, event.points);
 		}
 		QuestData data = pd.questData.getQuestCompletion(player, this);
@@ -1436,7 +1416,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.QUEST_COMPLETION, data.quest.id);
 		} else if (dialog != null) {
 			NoppesUtilServer.openDialog(player, this, dialog);
-		} else if (this.advanced.roleInterface.getType() > 0) {
+		} else if (!this.ais.aiDisabled && this.advanced.roleInterface.getType() > 0) {
 			this.advanced.roleInterface.interact(player);
 		} else {
 			this.say(player, this.advanced.getInteractLine());
@@ -1542,6 +1522,8 @@ public abstract class EntityNPCInterface extends EntityCreature
 		this.deathTime = 0;
 		this.setFire(0);
 		this.aiTargetAnalysis.map.clear();
+		this.lookat = null;
+		updateLook = false;
 		if (this.ais.returnToStart && (this.advanced.jobInterface instanceof JobFollower || !this.hasOwner())
 				&& !this.isRemote() && !this.isRiding()) {
 			double x = this.getStartXPos();
@@ -1607,9 +1589,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public void say(EntityPlayer player, Line line) {
-		if (line == null || !this.getEntitySenses().canSee(player)) {
-			return;
-		}
+		if (line == null || !this.getEntitySenses().canSee(player)) { return; }
 		if (!line.getSound().isEmpty()) {
 			BlockPos pos = this.getPosition();
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.PLAY_SOUND, line.getSound(), pos.getX(),
@@ -1652,6 +1632,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public void seekShelter() {
+		if (this.ais.aiDisabled) { return; }
 		if (this.ais.findShelter == 0) {
 			this.tasks.addTask(this.taskCount++, new EntityAIMoveIndoors(this));
 		} else if (this.ais.findShelter == 1) {
@@ -1666,7 +1647,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 	}
 
 	public void setAttackTarget(EntityLivingBase entityTarget) {
-		if (this.getAttackTarget() == entityTarget) {
+		if (this.ais.aiDisabled && !this.isEntityAlive() || this.getAttackTarget() == entityTarget) {
 			return;
 		}
 		// Next sets
@@ -1700,8 +1681,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 				return;
 			}
 		}
-		if (entityTarget != null && entityTarget != this && this.ais.onAttack != 3 && !this.isAttacking()
-				&& !this.isRemote()) {
+		if (entityTarget != null && entityTarget != this && this.ais.onAttack != 3 && !this.isAttacking() && !this.isRemote()) {
 			Line line = this.advanced.getAttackLine();
 			if (line != null) {
 				this.saySurrounding(Line.formatTarget(line, entityTarget));
@@ -1742,8 +1722,10 @@ public abstract class EntityNPCInterface extends EntityCreature
 			if (this.killedtime <= 0L) {
 				this.killedtime = this.stats.respawnTime * 1000 + System.currentTimeMillis();
 			}
-			this.advanced.roleInterface.killed();
-			this.advanced.jobInterface.killed();
+			if (!this.ais.aiDisabled) {
+				this.advanced.roleInterface.killed();
+				this.advanced.jobInterface.killed();
+			}
 		}
 	}
 
@@ -1801,6 +1783,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 		this.aiAttackTarget = null;
 		this.aiIsSneak = false;
 		this.aiOwnerNPC = null;
+		if (this.ais.aiDisabled) { return; }
 		if (this.ais.canSprint) {
 			this.tasks.addTask(this.taskCount++, new EntityAISprintToTarget(this));
 		}
@@ -1915,6 +1898,7 @@ public abstract class EntityNPCInterface extends EntityCreature
 		double d2 = this.posY;
 		double d3 = this.posZ;
 		super.travel(f1, f2, f3);
+		if (this.ais.aiDisabled) { return; }
 		if (this.advanced.roleInterface instanceof RoleCompanion && !this.isRemote()) {
 			((RoleCompanion) this.advanced.roleInterface).addMovementStat(this.posX - d0, this.posY - d2,
 					this.posZ - d3);
@@ -1965,9 +1949,9 @@ public abstract class EntityNPCInterface extends EntityCreature
 		if (this.display.getModel() == null && this instanceof EntityCustomNpc) {
 			ModelData modeldata = ((EntityCustomNpc) this).modelData;
 			ModelPartConfig model = modeldata.getPartConfig(EnumParts.HEAD);
-			float scaleHead = model.scaleBase[0] > model.scaleBase[2] ? model.scaleBase[0] : model.scaleBase[2];
+			float scaleHead = model.scale[0] > model.scale[2] ? model.scale[0] : model.scale[2];
 			model = modeldata.getPartConfig(EnumParts.BODY);
-			float scaleBody = model.scaleBase[0] > model.scaleBase[2] ? model.scaleBase[0] : model.scaleBase[2];
+			float scaleBody = model.scale[0] > model.scale[2] ? model.scale[0] : model.scale[2];
 			this.width *= scaleHead > scaleBody ? scaleHead : scaleBody;
 			this.width = this.width / 5.0f * this.display.getSize();
 			this.height = this.height / 5.0f * this.display.getSize();

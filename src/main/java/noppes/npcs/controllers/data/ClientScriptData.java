@@ -1,34 +1,37 @@
 package noppes.npcs.controllers.data;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.LogWriter;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.ForgeEvent.RunNameEvent;
+import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.wrapper.data.StoredData;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.IScriptHandler;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.util.AdditionalMethods;
+import noppes.npcs.util.NBTJsonUtil;
 
-public class ClientScriptData implements IScriptHandler {
+public class ClientScriptData
+extends BaseScriptData {
 
-	private boolean enabled;
-	public boolean hadInteract;
-	public long lastInited;
-	private String scriptLanguage;
-	protected ScriptContainer script;
+	public boolean loadDefault = false;
+	
+	public ScriptContainer script = null;
 
-	public ClientScriptData() {
-		this.script = null;
-		this.scriptLanguage = "ECMAScript";
-		this.lastInited = -1L;
-		this.hadInteract = true;
-		this.enabled = false;
-	}
+	public final StoredData storedData = new StoredData();
 
 	public void clear() {
 		for (ScriptContainer scr : this.getScripts()) {
@@ -37,43 +40,13 @@ public class ClientScriptData implements IScriptHandler {
 			scr.scripts.clear();
 		}
 	}
-
-	@Override
-	public void clearConsole() {
-		for (ScriptContainer scr : this.getScripts()) {
-			scr.console.clear();
-		}
-	}
-
+	
 	private void createScript() {
 		if (this.script == null) {
 			this.script = new ScriptContainer(this, true);
 		}
 	}
-
-	@Override
-	public Map<Long, String> getConsoleText() {
-		Map<Long, String> map = new TreeMap<Long, String>();
-		int tab = 0;
-		for (ScriptContainer script : this.getScripts()) {
-			++tab;
-			for (Map.Entry<Long, String> entry : script.console.entrySet()) {
-				map.put(entry.getKey(), " tab " + tab + ":\n" + entry.getValue());
-			}
-		}
-		return map;
-	}
-
-	@Override
-	public boolean getEnabled() {
-		return this.enabled;
-	}
-
-	@Override
-	public String getLanguage() {
-		return this.scriptLanguage;
-	}
-
+	
 	@Override
 	public List<ScriptContainer> getScripts() {
 		if (this.script == null) {
@@ -83,17 +56,13 @@ public class ClientScriptData implements IScriptHandler {
 	}
 
 	@Override
-	public boolean isClient() {
-		return Thread.currentThread().getName().toLowerCase().indexOf("client") != -1;
-	}
-
 	public boolean isEnabled() {
-		return this.enabled && ScriptController.HasStart && this.script != null;
+		return this.enabled && this.script != null;
 	}
 
 	@Override
 	public String noticeString() {
-		return "ClientForgeScript";
+		return "ClientScript";
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -102,7 +71,7 @@ public class ClientScriptData implements IScriptHandler {
 		}
 		this.script.clear();
 		this.script.readFromNBT(compound.getCompoundTag("Scripts"), true);
-		this.scriptLanguage = compound.getString("ScriptLanguage");
+		this.scriptLanguage = AdditionalMethods.instance.deleteColor(compound.getString("ScriptLanguage"));
 		this.enabled = compound.getBoolean("ScriptEnabled");
 	}
 
@@ -120,19 +89,10 @@ public class ClientScriptData implements IScriptHandler {
 		if (this.script == null) {
 			this.createScript();
 		}
+		this.script.run("runEventName", new RunNameEvent(type), false);
 		this.script.run(type, event, false);
 	}
-
-	@Override
-	public void setEnabled(boolean bo) {
-		this.enabled = bo;
-	}
-
-	@Override
-	public void setLanguage(String lang) {
-		this.scriptLanguage = lang;
-	}
-
+	
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		if (this.script == null) {
 			this.createScript();
@@ -142,5 +102,116 @@ public class ClientScriptData implements IScriptHandler {
 		compound.setBoolean("ScriptEnabled", this.enabled);
 		return compound;
 	}
+	
+	public void loadDefaultScripts() {
+		if (this.loadDefault) { return; }
+		File saveDir = new File(CustomNpcs.Dir, "client_default");
+		if (!saveDir.exists()) { saveDir.mkdirs(); }
+		// Stored Data
+		ScriptController.Instance.compound = new NBTTagCompound();
+		File sData = new File(saveDir, "world_data.json");
+		try {
+			if (!sData.exists()) {
+				NBTJsonUtil.SaveFile(sData, new NBTTagCompound());
+			} else {
+				ScriptController.Instance.compound = NBTJsonUtil.LoadFile(sData);
+			}
+			LogWriter.debug("Load default client stored data - done");
+		} catch (Exception e) {
+			LogWriter.error("Error Default loading: " + sData.getName(), e);
+		}
+		this.storedData.resetData(ScriptController.Instance.compound);
+		// Modules
+		String language = this.getLanguage().toLowerCase();
+		saveDir = new File(saveDir, language);
+		if (!saveDir.exists()) { saveDir.mkdirs(); }
+		ScriptController.Instance.clients.clear();
+		ScriptController.Instance.clientSizes.clear();
+		ScriptController.Instance.loadDir(saveDir, "", ScriptController.Instance.languages.get(AdditionalMethods.instance.deleteColor(this.getLanguage())), true);
+		LogWriter.debug("Load default client modules - "+ScriptController.Instance.clients.size());
+		// Main tab
+		saveDir = new File(CustomNpcs.Dir, "client_default");
+		File file = new File(saveDir, "client_scripts.json");
+		try {
+			if (!file.exists()) {
+				if (this.script == null) {
+					this.enabled = true;
+					this.script = new ScriptContainer(this, true);
+				}
+				NBTJsonUtil.SaveFile(file, writeToNBT(new NBTTagCompound()));
+				LogWriter.debug("Create default client scripts - done");
+			} else {
+				NBTTagCompound nbt = NBTJsonUtil.LoadFile(file);
+				if (nbt.hasKey("Constants", 10) || nbt.hasKey("Functions", 9)) {
+					NBTTagCompound constants = new NBTTagCompound();
+					constants.setTag("Constants", nbt.getCompoundTag("Constants"));
+					constants.setTag("Functions", nbt.getTagList("Functions", 8));
+					ScriptController.Instance.constants = constants;
+				}
+				ScriptContainer.reloadConstants();
+				this.script = new ScriptContainer(this, true);
+				this.readFromNBT(nbt);
+				LogWriter.debug("Load default client scripts - done: " + nbt.getCompoundTag("Scripts").toString().length() + " size.");
+			}
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.INIT, new PlayerEvent.InitEvent((IPlayer<?>) null));
+		} catch (Exception e) {
+			LogWriter.error("Error Default loading: " + file.getName(), e);
+		}
+		this.loadDefault = true;
+		return;
+	}
 
+	public void saveDefaultScripts() {
+		File saveDir = new File(CustomNpcs.Dir, "client_default");
+		if (!saveDir.exists()) { saveDir.mkdirs(); }
+		// Stored Data
+		try {
+			NBTJsonUtil.SaveFile(new File(saveDir, "world_data.json"), ScriptController.Instance.compound.copy());
+			LogWriter.debug("Save Default Client stored data - done");
+		} catch (Exception e) {
+			LogWriter.error("Error Default saving: \"world_data.json\"", e);
+		}
+		// Modules
+		if (!ScriptController.Instance.clients.isEmpty()) {
+			String language = this.getLanguage().toLowerCase();
+			saveDir = new File(saveDir, language);
+			if (!saveDir.exists()) { saveDir.mkdirs(); }
+			for (String name : ScriptController.Instance.clients.keySet()) {
+				try {
+					File f = new File(saveDir, name);
+					if (!f.getParentFile().exists()) { f.getParentFile().mkdirs(); }
+					Files.write(ScriptController.Instance.clients.get(name).getBytes(), new File(saveDir, name));
+				} catch (IOException e) {
+					LogWriter.error("Error Default saving: " + name, e);
+				}
+			}
+			LogWriter.debug("Save Default Client modules - done");
+		}
+		// Main tab
+		if (this.script == null) {
+			this.enabled = true;
+			this.script = new ScriptContainer(this, true);
+		}
+		try {
+			NBTTagCompound nbt = writeToNBT(new NBTTagCompound());
+			NBTTagCompound constants = new NBTTagCompound();
+			NBTTagList functions = new NBTTagList();
+			if (!ScriptController.Instance.constants.hasNoTags()) {
+				for (String key : ScriptController.Instance.constants.getCompoundTag("Constants").getKeySet()) {
+					constants.setTag(key, ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key));
+				}
+				for (NBTBase tag : ScriptController.Instance.constants.getTagList("Functions", 8)) {
+					functions.appendTag(tag);
+				}
+			}
+			nbt.setTag("Constants", constants);
+			nbt.setTag("Functions", functions);
+			NBTJsonUtil.SaveFile(new File(saveDir, "client_scripts.json"), nbt);
+			LogWriter.debug("Save Default Client scripts - done");
+		} catch (Exception e) {
+			LogWriter.error("Error Default saving: \"client_scripts.json\"", e);
+		}
+		this.loadDefault = false;
+	}
+	
 }

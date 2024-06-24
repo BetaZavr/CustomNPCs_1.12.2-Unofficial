@@ -14,7 +14,8 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.entity.EntityCustomNpc;
 
-public abstract class LayerInterface<T extends EntityLivingBase> implements LayerRenderer<T> {
+public abstract class LayerInterface<T extends EntityLivingBase>
+implements LayerRenderer<T> {
 
 	public ModelBiped model;
 	protected EntityCustomNpc npc;
@@ -45,16 +46,13 @@ public abstract class LayerInterface<T extends EntityLivingBase> implements Laye
 		return R << 16 | G << 8 | B;
 	}
 
-	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks,
-			float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+	public void doRenderLayer(EntityLivingBase entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		this.npc = (EntityCustomNpc) entity;
-		if (this instanceof LayerHeadwear && !this.npc.equals(((LayerHeadwear<?>) this).npc)) {
-			((LayerHeadwear<?>) this).preRender(this.npc);
-		}
 		if (this.npc.isInvisibleToPlayer((EntityPlayer) Minecraft.getMinecraft().player)) {
 			return;
 		}
 		this.playerdata = this.npc.modelData;
+		if (!(this.render.getMainModel() instanceof ModelBiped)) { return; }
 		this.model = (ModelBiped) this.render.getMainModel();
 		this.rotate(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 		GlStateManager.pushMatrix();

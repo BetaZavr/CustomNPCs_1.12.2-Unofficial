@@ -38,6 +38,10 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (this.npc == null) {
+			this.close();
+			return;
+		}
 		if (this.drawDefaultBackground) {
 			this.drawDefaultBackground();
 		}
@@ -111,21 +115,21 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 					}
 					case "menu.ai": {
 						switch (this.npc.ais.onAttack) {
-						case 0:
-							str = "gui.retaliate";
-							break;
-						case 1:
-							str = "gui.panic";
-							break;
-						case 2:
-							str = "gui.retreat";
-							break;
-						default:
-							str = "gui.nothing";
-						}
-						text += "<br>" + chr + "7" + new TextComponentTranslation("ai.enemyresponse").getFormattedText()
-								+ chr + "7: " + chr + "r" + new TextComponentTranslation(str).getFormattedText() + chr
-								+ "7;";
+							case 0:
+								str = "gui.retaliate";
+								break;
+							case 1:
+								str = "gui.panic";
+								break;
+							case 2:
+								str = "gui.retreat";
+								break;
+							default:
+								str = "gui.nothing";
+							}
+							text += "<br>" + chr + "7" + new TextComponentTranslation("ai.enemyresponse").getFormattedText()
+									+ chr + "7: " + chr + "r" + new TextComponentTranslation(str).getFormattedText() + chr
+									+ "7;";
 						switch (this.npc.ais.getMovingType()) {
 						case 0:
 							str = "ai.standing";
@@ -155,13 +159,11 @@ public abstract class GuiNPCInterface2 extends GuiNPCInterface {
 					case "menu.advanced": {
 						text += "<br>" + chr + "7" + new TextComponentTranslation("role.name").getFormattedText() + chr
 								+ "7: " + chr + "r"
-								+ new TextComponentTranslation(this.npc.advanced.roleInterface.getEnumType().name)
-										.getFormattedText()
+								+ new TextComponentTranslation(this.npc.advanced.roleInterface.getEnumType().name).getFormattedText()
 								+ chr + "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("job.name").getFormattedText() + chr
 								+ "7: " + chr + "r"
-								+ new TextComponentTranslation(this.npc.advanced.jobInterface.getEnumType().name)
-										.getFormattedText()
+								+ new TextComponentTranslation(this.npc.advanced.jobInterface.getEnumType().name).getFormattedText()
 								+ chr + "7;";
 						text += "<br>" + chr + "7" + new TextComponentTranslation("menu.factions").getFormattedText()
 								+ chr + "7: " + chr + "r"

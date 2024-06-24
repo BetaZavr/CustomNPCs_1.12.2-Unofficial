@@ -2,9 +2,18 @@ package noppes.npcs.api.constants;
 
 public enum AnimationKind {
 
-	ATTACKING(0, false), DIES(1, false), FLY_STAND(2, false), FLY_WALK(3, true), INIT(4, false), JUMP(5,
-			false), STANDING(6, false), WALKING(7, true), WATER_STAND(8, false), WATER_WALK(9,
-					true), REVENGE_STAND(10, false), REVENGE_WALK(11, true), HIT(12, true), BASE(13, false);
+	ATTACKING(0, false),
+	DIES(1, false),
+	FLY_STAND(2, false),
+	FLY_WALK(3, true),
+	INIT(4, false),
+	JUMP(5, false),
+	STANDING(6, false), WALKING(7, true), WATER_STAND(8, false),
+	WATER_WALK(9, true),
+	REVENGE_STAND(10, false),
+	REVENGE_WALK(11, true),
+	HIT(12, true),
+	BASE(13, false);
 
 	public static AnimationKind get(int type) {
 		for (AnimationKind ak : AnimationKind.values()) {

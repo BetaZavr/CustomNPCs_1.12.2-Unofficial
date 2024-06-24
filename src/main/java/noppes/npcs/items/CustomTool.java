@@ -23,9 +23,12 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 
-public class CustomTool extends ItemTool implements ICustomElement {
+public class CustomTool
+extends ItemTool
+implements ICustomElement {
 
 	protected NBTTagCompound nbtData = new NBTTagCompound();
 	protected Material collectionMaterial = null;
@@ -35,8 +38,7 @@ public class CustomTool extends ItemTool implements ICustomElement {
 
 	protected int harvestLevel = 0;
 
-	public CustomTool(float attackDamageIn, float attackSpeedIn, Item.ToolMaterial materialIn,
-			Set<Block> effectiveBlocksIn, NBTTagCompound nbtItem) {
+	public CustomTool(float attackDamageIn, float attackSpeedIn, Item.ToolMaterial materialIn, Set<Block> effectiveBlocksIn, NBTTagCompound nbtItem) {
 		super(attackDamageIn, attackSpeedIn, materialIn, effectiveBlocksIn);
 		this.nbtData = nbtItem;
 		this.setRegistryName(CustomNpcs.MODID, "custom_" + nbtItem.getString("RegistryName"));
@@ -133,16 +135,21 @@ public class CustomTool extends ItemTool implements ICustomElement {
 	}
 
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-		if (tab != CustomRegisters.tabItems || (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
-				&& !this.nbtData.getBoolean("ShowInCreative"))) {
-			return;
-		}
+		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
+		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
+		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
 	}
 
 	@SideOnly(Side.CLIENT)
 	public boolean isFull3D() {
 		return this.bFull3D;
+	}
+
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		return 2;
 	}
 
 }

@@ -15,6 +15,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.util.EnumHand;
@@ -58,7 +60,9 @@ import noppes.npcs.util.TempFile;
 public class ClientTickHandler {
 
 	public static boolean cheakMails = false;
+	public static boolean inGame = false;
 	public static Map<ISound, MusicData> musics = Maps.<ISound, MusicData>newHashMap();
+	
 	public static void loadFiles() {
 		if (ClientProxy.loadFiles.isEmpty()) {
 			return;
@@ -98,9 +102,7 @@ public class ClientTickHandler {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void npcClientTick(TickEvent.ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END) {
-			return;
-		}
+		if (event.phase == TickEvent.Phase.END) { return; }
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientTickHandler_npcClientTick");
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null && mc.player.openContainer instanceof ContainerPlayer) {
@@ -111,6 +113,31 @@ public class ClientTickHandler {
 		} else {
 			this.otherContainer = true;
 		}
+		if (mc.player == null) {
+			if (ClientTickHandler.inGame) {
+				LogWriter.debug("Client Player: Exit game");
+				ClientTickHandler.inGame = false;
+				ScriptController.Instance.clientScripts.saveDefaultScripts();
+				EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGOUT, new PlayerEvent.LogoutEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player)));
+				if (CustomNpcs.VerboseDebug) { CustomNpcs.showDebugs(); }
+			} else if (!ScriptController.Instance.clientScripts.loadDefault) {
+				ScriptController.Instance.clientScripts.loadDefaultScripts();
+			}
+		}
+		
+		char c0 = Keyboard.getEventCharacter();
+        if (Keyboard.getEventKey() == 0 && c0 >= ' ' || Keyboard.getEventKeyState()) {
+        	if (mc.currentScreen instanceof GuiYesNo) {
+        		if (Keyboard.getEventKey() == 1) { // ESC
+        			GuiYesNoCallback parentScreen = ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, GuiYesNoCallback.class);
+        			parentScreen.confirmClicked(false, ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, int.class));
+        		}
+        		if (Keyboard.getEventKey() == 28) { // Enter
+        			GuiYesNoCallback parentScreen = ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, GuiYesNoCallback.class);
+        			parentScreen.confirmClicked(true, ObfuscationHelper.getValue(GuiYesNo.class, (GuiYesNo) mc.currentScreen, int.class));
+        		}
+        	}
+        }
 		++CustomNpcs.ticks;
 		++RenderNPCInterface.LastTextureTick;
 		if (this.prevWorld != mc.world) {
@@ -178,6 +205,9 @@ public class ClientTickHandler {
 			MarcetController.getInstance().updateTime();
 			MusicController.Instance.cheakBards(mc.player);
 			ClientTickHandler.loadFiles();
+		}
+		if (ScriptController.Instance.clientScripts.isEnabled()) {
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(mc.player)));
 		}
 		if (ClientTickHandler.cheakMails || CustomNpcs.MailWindow != -1 && CustomNpcs.ticks % 100 == 0) {
 			boolean hasNewMail = false;
@@ -268,17 +298,21 @@ public class ClientTickHandler {
 			if (isDown) {
 				ClientProxy.playerData.hud.keyPress.add(key);
 				ClientProxy.pressed(key);
+				if (key == 29 || key == 157) { isCtrlPressed = true; }
+				if (key == 42 || key == 54) { isShiftPressed = true; }
+				if (key == 56 || key == 184) { isAltPressed = true; }
+				if (key == 219 || key == 220) { isMetaPressed = true; }
 			} else {
 				if (ClientProxy.playerData.hud.hasOrKeysPressed(key)) {
 					ClientProxy.playerData.hud.keyPress.remove((Integer) key);
 				}
+				if (key == 29 || key == 157) { isCtrlPressed = false; }
+				if (key == 42 || key == 54) { isShiftPressed = false; }
+				if (key == 56 || key == 184) { isAltPressed = false; }
+				if (key == 219 || key == 220) { isMetaPressed = false; }
 			}
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed,
-					isAltPressed, isMetaPressed);
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved,
-					ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(),
-							ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(),
-							ClientProxy.rightButton.getKeyCode()));
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, key, isDown, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.IsMoved, ClientProxy.playerData.hud.hasOrKeysPressed(ClientProxy.frontButton.getKeyCode(), ClientProxy.backButton.getKeyCode(), ClientProxy.leftButton.getKeyCode(), ClientProxy.rightButton.getKeyCode()));
 		} else if (ClientProxy.playerData.hud.keyPress.size() > 0) {
 			ClientProxy.playerData.hud.keyPress.clear();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.KeyPressed, -1);

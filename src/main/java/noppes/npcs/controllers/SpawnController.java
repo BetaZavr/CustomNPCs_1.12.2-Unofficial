@@ -66,9 +66,7 @@ public class SpawnController {
 
 	public SpawnData getRandomSpawnData(String biome, boolean isAir) {
 		List<SpawnData> list = this.getSpawnList(biome);
-		if (list == null || list.isEmpty()) {
-			return null;
-		}
+		if (list == null || list.isEmpty()) { return null; }
 		return WeightedRandom.getRandomItem(this.random, list);
 	}
 
@@ -89,9 +87,7 @@ public class SpawnController {
 		return null;
 	}
 
-	public List<SpawnData> getSpawnList(String biome) {
-		return this.biomes.get(biome);
-	}
+	public List<SpawnData> getSpawnList(String biome) { return this.biomes.get(biome); }
 
 	public int getUnusedId() {
 		return ++this.lastUsedID;
@@ -191,4 +187,5 @@ public class SpawnController {
 		this.fillBiomeData();
 		this.saveData();
 	}
+
 }

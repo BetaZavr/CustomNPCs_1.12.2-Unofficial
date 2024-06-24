@@ -1,6 +1,5 @@
 package noppes.npcs.client.model;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
@@ -11,43 +10,36 @@ public class ModelNPCGolem extends ModelBipedAlt {
 	private ModelRenderer bipedLowerBody;
 
 	public ModelNPCGolem(float scale) {
-		super(scale);
+		super(scale, false);
 		this.init(0.0f, 0.0f);
 	}
-
+	
 	public void init(float f, float f1) {
 		short short1 = 128;
 		short short2 = 128;
 		float f2 = -7.0f;
-		(this.bipedHead = new ModelRenderer((ModelBase) this).setTextureSize(short1, short2)).setRotationPoint(0.0f, f2,
-				-2.0f);
+		(this.bipedHead = new ModelRenderer(this).setTextureSize(short1, short2)).setRotationPoint(0.0f, f2, -2.0f);
 		this.bipedHead.setTextureOffset(0, 0).addBox(-4.0f, -12.0f, -5.5f, 8, 10, 8, f);
 		this.bipedHead.setTextureOffset(24, 0).addBox(-1.0f, -5.0f, -7.5f, 2, 4, 2, f);
-		(this.bipedHeadwear = new ModelRenderer((ModelBase) this).setTextureSize(short1, short2)).setRotationPoint(0.0f,
-				f2, -2.0f);
+		(this.bipedHeadwear = new ModelRenderer(this).setTextureSize(short1, short2)).setRotationPoint(0.0f, f2, -2.0f);
 		this.bipedHeadwear.setTextureOffset(0, 85).addBox(-4.0f, -12.0f, -5.5f, 8, 10, 8, f + 0.5f);
-		(this.bipedBody = new ModelRenderer((ModelBase) this).setTextureSize(short1, short2)).setRotationPoint(0.0f,
-				0.0f + f2, 0.0f);
+		(this.bipedBody = new ModelRenderer(this).setTextureSize(short1, short2)).setRotationPoint(0.0f, 0.0f + f2, 0.0f);
 		this.bipedBody.setTextureOffset(0, 40).addBox(-9.0f, -2.0f, -6.0f, 18, 12, 11, f + 0.2f);
 		this.bipedBody.setTextureOffset(0, 21).addBox(-9.0f, -2.0f, -6.0f, 18, 8, 11, f);
-		(this.bipedLowerBody = new ModelRenderer((ModelBase) this).setTextureSize(short1, short2))
-				.setRotationPoint(0.0f, 0.0f + f2, 0.0f);
+		(this.bipedLowerBody = new ModelRenderer(this).setTextureSize(short1, short2)).setRotationPoint(0.0f, 0.0f + f2, 0.0f);
 		this.bipedLowerBody.setTextureOffset(0, 70).addBox(-4.5f, 10.0f, -3.0f, 9, 5, 6, f + 0.5f);
 		this.bipedLowerBody.setTextureOffset(30, 70).addBox(-4.5f, 6.0f, -3.0f, 9, 9, 6, f + 0.4f);
-		(this.bipedRightArm = new ModelRenderer((ModelBase) this).setTextureSize(short1, short2)).setRotationPoint(0.0f,
-				f2, 0.0f);
+		(this.bipedRightArm = new ModelRenderer(this).setTextureSize(short1, short2)).setRotationPoint(0.0f, f2, 0.0f);
 		this.bipedRightArm.setTextureOffset(60, 21).addBox(-13.0f, -2.5f, -3.0f, 4, 30, 6, f + 0.2f);
 		this.bipedRightArm.setTextureOffset(80, 21).addBox(-13.0f, -2.5f, -3.0f, 4, 20, 6, f);
 		this.bipedRightArm.setTextureOffset(100, 21).addBox(-13.0f, -2.5f, -3.0f, 4, 20, 6, f + 1.0f);
-		(this.bipedLeftArm = new ModelRenderer((ModelBase) this).setTextureSize(short1, short2)).setRotationPoint(0.0f,
-				f2, 0.0f);
+		(this.bipedLeftArm = new ModelRenderer(this).setTextureSize(short1, short2)).setRotationPoint(0.0f, f2, 0.0f);
 		this.bipedLeftArm.setTextureOffset(60, 58).addBox(9.0f, -2.5f, -3.0f, 4, 30, 6, f + 0.2f);
 		this.bipedLeftArm.setTextureOffset(80, 58).addBox(9.0f, -2.5f, -3.0f, 4, 20, 6, f);
 		this.bipedLeftArm.setTextureOffset(100, 58).addBox(9.0f, -2.5f, -3.0f, 4, 20, 6, f + 1.0f);
-		(this.bipedLeftLeg = new ModelRenderer((ModelBase) this, 0, 22).setTextureSize(short1, short2))
-				.setRotationPoint(-4.0f, 18.0f + f2, 0.0f);
+		(this.bipedLeftLeg = new ModelRenderer(this, 0, 22).setTextureSize(short1, short2)).setRotationPoint(-4.0f, 18.0f + f2, 0.0f);
 		this.bipedLeftLeg.setTextureOffset(37, 0).addBox(-3.5f, -3.0f, -3.0f, 6, 16, 5, f);
-		this.bipedRightLeg = new ModelRenderer((ModelBase) this, 0, 22).setTextureSize(short1, short2);
+		this.bipedRightLeg = new ModelRenderer(this, 0, 22).setTextureSize(short1, short2);
 		this.bipedRightLeg.mirror = true;
 		this.bipedRightLeg.setTextureOffset(60, 0).addBox(-3.5f, -3.0f, -3.0f, 6, 16, 5, f);
 		this.bipedRightLeg.setRotationPoint(5.0f, 18.0f + f2, 0.0f);

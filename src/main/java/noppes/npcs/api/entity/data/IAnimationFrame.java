@@ -16,4 +16,12 @@ public interface IAnimationFrame {
 
 	void setSpeed(int ticks);
 
+	String getStartSound();
+
+	void setStartSound(String sound);
+
+	int getStartEmotion();
+
+	void setStartEmotion(int id);
+
 }

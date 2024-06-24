@@ -17,9 +17,7 @@ import com.google.gson.Gson;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiLanguage;
-import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiOptions;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -63,19 +61,26 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomPacketHandler;
+import noppes.npcs.EventHooks;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.client.gui.GuiNpcPather;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.player.GuiNpcCarpentryBench;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.renderer.MarkRenderer;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.SchematicController;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.controllers.data.MiniMapData;
 import noppes.npcs.controllers.data.PlayerData;
@@ -91,8 +96,7 @@ import noppes.npcs.util.ObfuscationHelper;
 
 public class ClientEventHandler {
 
-	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = Maps
-			.<EntityPlayer, RenderChatMessages>newHashMap();
+	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = Maps.<EntityPlayer, RenderChatMessages>newHashMap();
 	public static GuiScreen gui;
 
 	public static SubGuiInterface subgui;
@@ -101,7 +105,7 @@ public class ClientEventHandler {
 	public static Schematic schema;
 	public static int rotaion;
 	public static long secs;
-	private boolean inGame, miniMapLoaded;
+	private boolean miniMapLoaded;
 
 	@SubscribeEvent
 	public void cnpcJoinServer(ClientConnectedToServerEvent event) {
@@ -115,20 +119,38 @@ public class ClientEventHandler {
 		CustomNpcs.debugData.startDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
 		ClientEventHandler.gui = event.getGui();
 		ClientEventHandler.subgui = null;
-		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass())
-				+ "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenGui,
-				event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName(),
-				mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
-
+		LogWriter.debug(((event.getGui() == null ? "Cloce GUI " : "Open GUI - " + event.getGui().getClass()) + "; OLD - " + (mc.currentScreen == null ? "null" : mc.currentScreen.getClass().getSimpleName())));
+		mc.getRenderPartialTicks();
+		
+		String newGUI = event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName();
+		if (event.getGui() instanceof GuiLog) {
+			switch(((GuiLog) event.getGui()).type) {
+				case 0: newGUI = "GuiFactionLog"; break;
+				case 1: newGUI = "GuiQuestLog"; break;
+				case 2: newGUI = "GuiCompassLog"; break;
+				default: newGUI = "GuiInventoryLog"; break;
+			}
+		}
+		NoppesUtilPlayer.sendData(EnumPlayerPacket.OpenGui, newGUI, mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName());
 		if (mc.currentScreen instanceof GuiNpcPather) {
 			ClientGuiEventHandler.movingPath.clear();
 		} else if (event.getGui() instanceof GuiNpcCarpentryBench || event.getGui() instanceof GuiCrafting) {
 			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
 			event.getGui().mc = mc;
-		} else if (event.getGui() instanceof GuiInventory && !mc.player.capabilities.isCreativeMode) {
-			AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
-			event.getGui().mc = mc;
+		} else if (event.getGui() instanceof GuiInventory) {
+			if (mc.player.getHeldItemMainhand().getItem() instanceof ISpecBuilder) {
+				event.setCanceled(true);
+				ISpecBuilder item = (ISpecBuilder) mc.player.getHeldItemMainhand().getItem();
+				BuilderData builder = ItemBuilder.getBuilder(mc.player.getHeldItemMainhand(), mc.player);
+				int id = builder == null ? -1 : builder.getID();
+				int type = builder == null ? item.getType() : builder.getType();
+				if (id > -1) { NoppesUtilPlayer.sendData(EnumPlayerPacket.GetBuildData, id, type); }
+				CustomNPCsScheduler.runTack(() -> { Client.sendData(EnumPacketServer.Gui, item.getGUIType(), id, type, 0); }, 100);
+				return;
+			} else if (!mc.player.capabilities.isCreativeMode) {
+				AdditionalMethods.resetRecipes(mc.player, (GuiContainer) event.getGui());
+				event.getGui().mc = mc;
+			}
 		}
 		if (event.getGui() instanceof GuiOptions && mc.currentScreen instanceof GuiLanguage) {
 			ClientProxy.checkLocalization();
@@ -148,58 +170,6 @@ public class ClientEventHandler {
 			}
 			ClientProxy.playerData.hud.clearGuiComponents();
 		}
-		if (event.getGui() instanceof GuiIngameMenu) {
-			if (!this.inGame) {
-				this.inGame = true;
-				this.miniMapLoaded = false;
-				this.updateMiniMaps(true);
-				LogWriter.debug("Login: Start game");
-			}
-		} else if (mc.player == null
-				&& (event.getGui() instanceof GuiMainMenu || mc.currentScreen instanceof GuiIngameMenu)) {
-			/*
-			 * if (mc.currentScreen == null && !this.postLoad) { this.postLoad = true;
-			 * List<String> list = Lists.<String>newArrayList(); Option<JSONType> mainSounds
-			 * = null; scala.Option<JSONType> customSounds = null; try { customSounds =
-			 * JSON.parseRaw(IOUtils.toString(new FileInputStream( new File(CustomNpcs.Dir,
-			 * "assets/" + CustomNpcs.MODID+"/sounds.json")), StandardCharsets.UTF_8)); }
-			 * catch (IOException e1) {} for (ModContainer mod :
-			 * Loader.instance().getModList()) { if (mainSounds!=null) { break; } if
-			 * (mod.getSource().exists()) { try { if (!mod.getSource().isDirectory() &&
-			 * (mod.getSource().getName().endsWith(".jar") ||
-			 * mod.getSource().getName().endsWith(".zip"))) { ZipFile zip = new
-			 * ZipFile(mod.getSource()); ZipEntry entry =
-			 * zip.getEntry("assets/customnpcs/sounds.json"); if (entry == null) { entry =
-			 * zip.getEntry("assets\\customnpcs\\sounds.json"); } try (InputStream is =
-			 * zip.getInputStream(entry)) { try (@SuppressWarnings("resource") Scanner s =
-			 * new Scanner(is, "UTF-8").useDelimiter("\\A")) { Object fileAsString =
-			 * s.hasNext() ? s.next() : ""; mainSounds =
-			 * JSON.parseRaw(fileAsString.toString()); } } zip.close(); } else if
-			 * (mod.getSource().isDirectory()) { File file = new File(mod.getSource(),
-			 * "assets/customnpcs/sounds.json"); if (file.exists()) { try { mainSounds =
-			 * JSON.parseRaw(IOUtils.toString(new FileInputStream(file),
-			 * StandardCharsets.UTF_8)); } catch (IOException e1) {} } } } catch (Exception
-			 * e) { } } } if (mainSounds!=null) { String keys = ((JSONObject)
-			 * mainSounds.get()).obj().keySet().toString().replace("Set(", "").replace(")",
-			 * ""); for (String key : keys.split(", ")) { list.add(key); } } if
-			 * (customSounds!=null) { String keys = ((JSONObject)
-			 * customSounds.get()).obj().keySet().toString().replace("Set(",
-			 * "").replace(")", ""); for (String key : keys.split(", ")) { list.add(key); }
-			 * } SoundHandler sh = Minecraft.getMinecraft().getSoundHandler(); for (String
-			 * name : list) { LogWriter.debug("Load Sound: \"" + CustomNpcs.MODID + ":" +
-			 * name + "\""); ResourceLocation res = new ResourceLocation(CustomNpcs.MODID,
-			 * name); sh.playSound(new PositionedSoundRecord(res, SoundCategory.MUSIC,
-			 * 0.00001f, 1.0f, false, 0, ISound.AttenuationType.NONE, 0.0f, 0.0f, 0.0f)); }
-			 * try { sh.stop("", SoundCategory.MUSIC); } catch (Exception e) {} }
-			 */
-			if (this.inGame) {
-				LogWriter.debug("Logout: Exit game");
-				this.inGame = false;
-				if (CustomNpcs.VerboseDebug) {
-					CustomNpcs.showDebugs();
-				}
-			}
-		}
 		CustomNpcs.debugData.endDebug("Client", "Players", "ClientEventHandler_onOpenGUIEvent");
 	}
 
@@ -213,12 +183,9 @@ public class ClientEventHandler {
 				break;
 			}
 		}
-		if (event.getEntity() instanceof EntityPlayer
-				&& ClientEventHandler.chatMessages.containsKey((EntityPlayer) event.getEntity())) {
+		if (event.getEntity() instanceof EntityPlayer && ClientEventHandler.chatMessages.containsKey((EntityPlayer) event.getEntity())) {
 			float height = event.getEntity().height + 0.9f;
-			ClientEventHandler.chatMessages.get(event.getEntity()).renderPlayerMessages(event.getX(),
-					event.getY() + height, event.getZ(), 0.666667f * height, this.isInRange(
-							Minecraft.getMinecraft().player, event.getX(), event.getY() + 1.2d, event.getZ(), 16.0f));
+			ClientEventHandler.chatMessages.get(event.getEntity()).renderPlayerMessages(event.getX(), event.getY() + height, event.getZ(), 0.666667f * height, this.isInRange(Minecraft.getMinecraft().player, event.getX(), event.getY() + 1.2d, event.getZ(), 16.0f));
 		}
 		CustomNpcs.debugData.endDebug("Client", event.getEntity(), "ClientEventHandler_postRenderLivingEvent");
 	}
@@ -229,13 +196,17 @@ public class ClientEventHandler {
 		CustomNpcs.debugData.startDebug("Client", player, "ClientEventHandler_onRenderTick");
 		ClientEventHandler.schema = null;
 		ClientEventHandler.schemaPos = null;
-		if (!player.getHeldItemMainhand().isEmpty() && player.getHeldItemMainhand().getItem() instanceof ItemBuilder
-				&& player.getHeldItemMainhand().hasTagCompound()
-				&& CommonProxy.dataBuilder.containsKey(player.getHeldItemMainhand().getTagCompound().getInteger("ID"))
-				&& ClientGuiEventHandler.result != null && ClientGuiEventHandler.result.getBlockPos() != null) {
-			BuilderData bd = CommonProxy.dataBuilder
-					.get(player.getHeldItemMainhand().getTagCompound().getInteger("ID"));
-			if (bd.type == 3 && !bd.schematicaName.isEmpty()) {
+		if (!ClientTickHandler.inGame) {
+			ClientTickHandler.inGame = true;
+			this.miniMapLoaded = false;
+			this.updateMiniMaps(true);
+			NoppesUtilPlayer.sendData(EnumPlayerPacket.InGame);
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent((IPlayer<?>) NpcAPI.Instance().getIEntity(player)));
+			LogWriter.debug("Client Player: Start game");
+		}
+		BuilderData bd = ItemBuilder.getBuilder(player.getHeldItemMainhand(), player);
+		if (bd != null && ClientGuiEventHandler.result != null && ClientGuiEventHandler.result.getBlockPos() != null) {
+			if (bd.getType() == 3 && !bd.schematicaName.isEmpty()) {
 				SchematicWrapper schema = SchematicController.Instance.getSchema(bd.schematicaName + ".schematic");
 				if (schema != null) {
 					Schematic sc = (Schematic) schema.schema;
@@ -522,7 +493,7 @@ public class ClientEventHandler {
 			}
 		}
 		// Cheak save client Points:
-		Map<Integer, List<MiniMapData>> ps = Maps.<Integer, List<MiniMapData>>newTreeMap();
+		List<MiniMapData> points = Lists.<MiniMapData>newArrayList();
 		if (hasJourneyMap) {
 			mm.addData.clear();
 			if (!mm.modName.equals("journeymap")) {
@@ -561,29 +532,16 @@ public class ClientEventHandler {
 						mmd.dimIDs[i] = dim;
 						i++;
 					}
-					int dimId = mmd.dimIDs[0];
 
-					if (!ps.containsKey(dimId)) {
-						ps.put(dimId, Lists.<MiniMapData>newArrayList());
-					}
-					mmd.id = ps.get(dimId).size();
-					ps.get(dimId).add(mmd);
-
-					if (!mm.points.containsKey(dimId)) {
-						update = true;
-					} else if (mm.points.get(dimId).get(mmd.id) == null
-							|| !mm.points.get(dimId).get(mmd.id).equals(mmd)) {
-						update = true;
-					} else if (mm.points.get(dimId).get(mmd.id) != null) {
-						MiniMapData mmdB = mm.points.get(dimId).get(mmd.id);
-						if (mmdB.name.equals(mmd.name)) {
-							mmd.setQuest(mmdB);
-						}
-					}
+					mmd.id = points.size();
+					points.add(mmd);
+					
+					MiniMapData mmp = mm.get(mmd);
+					if (mmp != null) { mmd.setQuest(mmp); } else { update = true; }
 				}
-			} catch (Exception e) {
-			}
-		} else if (hasXaeroMap) {
+			} catch (Exception e) { }
+		}
+		else if (hasXaeroMap) {
 			if (!mm.modName.equals("xaerominimap")) {
 				mm.modName = "xaerominimap";
 				update = true;
@@ -639,10 +597,8 @@ public class ClientEventHandler {
 								continue;
 							}
 							Object waypointWorld = worldMap.get(k1); // WaypointWorld
-							int dimId = (int) waypointWorld.getClass().getDeclaredMethod("getDimId")
-									.invoke(waypointWorld);
-							HashMap<String, Object> sets = (HashMap<String, Object>) waypointWorld.getClass()
-									.getDeclaredMethod("getSets").invoke(waypointWorld);
+							int dimId = (int) waypointWorld.getClass().getDeclaredMethod("getDimId") .invoke(waypointWorld);
+							HashMap<String, Object> sets = (HashMap<String, Object>) waypointWorld.getClass().getDeclaredMethod("getSets").invoke(waypointWorld);
 							for (String ks : sets.keySet()) {
 								Object waypointSet = sets.get(ks); // WaypointSet
 								List<Object> list = (List<Object>) waypointSet.getClass().getDeclaredMethod("getList")
@@ -663,23 +619,11 @@ public class ClientEventHandler {
 									mmd.gsonData.put("temporary",
 											gson.toJson(wc.getDeclaredMethod("isTemporary").invoke(waypoint)));
 
-									if (!ps.containsKey(dimId)) {
-										ps.put(dimId, Lists.<MiniMapData>newArrayList());
-									}
-									mmd.id = ps.get(dimId).size();
-									ps.get(dimId).add(mmd);
-
-									if (!mm.points.containsKey(dimId)) {
-										update = true;
-									} else if (mm.points.get(dimId).get(mmd.id) == null
-											|| !mm.points.get(dimId).get(mmd.id).equals(mmd)) {
-										update = true;
-									} else if (mm.points.get(dimId).get(mmd.id) != null) {
-										MiniMapData mmdB = mm.points.get(dimId).get(mmd.id);
-										if (mmdB.name.equals(mmd.name)) {
-											mmd.setQuest(mmdB);
-										}
-									}
+									mmd.id = points.size();
+									points.add(mmd);
+									
+									MiniMapData mmp = mm.get(mmd);
+									if (mmp != null) { mmd.setQuest(mmp); } else { update = true; }
 								}
 							}
 						}
@@ -688,7 +632,8 @@ public class ClientEventHandler {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else if (hasVoxelMap) {
+		}
+		else if (hasVoxelMap) {
 			mm.addData.clear();
 			if (!mm.modName.equals("voxelmap")) {
 				mm.modName = "voxelmap";
@@ -708,9 +653,7 @@ public class ClientEventHandler {
 					}, 50);
 					return;
 				}
-				List<Object> waypoints = (List<Object>) waypointManager.getClass().getMethod("getWaypoints")
-						.invoke(waypointManager);
-
+				List<Object> waypoints = (List<Object>) waypointManager.getClass().getMethod("getWaypoints").invoke(waypointManager);
 				for (Object waypoint : waypoints) {
 					Class<?> wc = waypoint.getClass();
 					MiniMapData mmd = new MiniMapData();
@@ -732,29 +675,14 @@ public class ClientEventHandler {
 						mmd.dimIDs[i] = dim;
 						i++;
 					}
-					int dimId = mmd.dimIDs[0];
-
-					if (!ps.containsKey(dimId)) {
-						ps.put(dimId, Lists.<MiniMapData>newArrayList());
-					}
-					mmd.id = ps.get(dimId).size();
-					ps.get(dimId).add(mmd);
-
-					if (!mm.points.containsKey(dimId)) {
-						update = true;
-					} else if (mm.points.get(dimId).get(mmd.id) == null
-							|| !mm.points.get(dimId).get(mmd.id).equals(mmd)) {
-						update = true;
-					} else if (mm.points.get(dimId).get(mmd.id) != null) {
-						MiniMapData mmdB = mm.points.get(dimId).get(mmd.id);
-						if (mmdB.name.equals(mmd.name)) {
-							mmd.setQuest(mmdB);
-						}
-					}
+					mmd.id = points.size();
+					points.add(mmd);
+					
+					MiniMapData mmp = mm.get(mmd);
+					if (mmp != null) { mmd.setQuest(mmp); } else { update = true; }
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				;
 			}
 		} else {
 			mm.addData.clear();
@@ -763,27 +691,11 @@ public class ClientEventHandler {
 				update = true;
 			}
 		}
-		if (!update) {
-			update = ps.size() != mm.points.size();
-		}
-		if (!update) {
-			for (int id : ps.keySet()) {
-				if (!mm.points.containsKey(id)) {
-					update = true;
-					break;
-				} else {
-					update = ps.get(id).size() != mm.points.get(id).size();
-					if (update) {
-						break;
-					}
-				}
-			}
-		}
+		if (!update && points.size() != mm.points.size()) { update = true; }
 		// Send
 		if (update) {
-			LogWriter.debug("MiniMap update: " + mm.modName + "; dims: " + mm.points.size());
 			mm.points.clear();
-			mm.points.putAll(ps);
+			mm.points.addAll(points);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.MiniMapData, mm.saveNBTData(new NBTTagCompound()));
 		}
 	}

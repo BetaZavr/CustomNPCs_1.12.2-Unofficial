@@ -124,11 +124,11 @@ public class DataInventory implements IInventory, INPCInventory {
 				}
 			}
 		}
-		if (this.dropType == 1 && !this.saveDropsName.isEmpty()) {
+		if (this.dropType != 0 && !this.saveDropsName.isEmpty()) {
 			DropController dData = DropController.getInstance();
 			prelist = dData.createDrops(this.saveDropsName, ch, isLooted, attacking);
 		}
-		if (prelist.isEmpty() || this.dropType == 2) {
+		if (this.dropType != 1) {
 			for (DropSet ds : this.drops.values()) {
 				double c = ds.chance * ch / 100.0d;
 				double r = Math.random();

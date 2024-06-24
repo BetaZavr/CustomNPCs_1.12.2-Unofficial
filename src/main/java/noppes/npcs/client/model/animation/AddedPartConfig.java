@@ -1,21 +1,27 @@
 package noppes.npcs.client.model.animation;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagFloat;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.util.ValueUtil;
 
 public class AddedPartConfig extends PartConfig {
 
 	public ResourceLocation location;
 	public ResourceLocation obj;
 	public int parentPart;
-
-	public AddedPartConfig() {
-		super();
-	}
+	
+	public int textureU, textureV;
+	public boolean isNormal;
+	public final float[] pos = new float[] { 0.0f, 0.0f, 0.0f }; // start pos [x, y, z]
+	public final float[] rot = new float[] { 0.0f, 0.0f, 0.0f }; // start rot [x, y, z]
+	public final float[] size = new float[] { 4.0f, 5.5f, 3.5f, 3.0f, 4.0f }; // end pos [dx, dy0, dy1, dy2, dz]
 
 	public AddedPartConfig(int id) {
-		super(id);
+		super(id, EnumParts.CUSTOM);
 	}
 
 	@Override
@@ -33,6 +39,13 @@ public class AddedPartConfig extends PartConfig {
 		if (compound.hasKey("OBJLocation", 8)) {
 			this.obj = new ResourceLocation(compound.getString("LOBJLocationocation"));
 		}
+		for (int i = 0; i < 3; i++) {
+			try { this.pos[i] = ValueUtil.correctFloat(compound.getTagList("BasePosition", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
+			try { this.rot[i] = ValueUtil.correctFloat(compound.getTagList("BaseRotation", 5).getFloatAt(i), -5.0f, 5.0f); } catch (Exception e) { }
+		}
+		for (int i = 0; i < 5; i++) {
+			try { this.size[i] = ValueUtil.correctFloat(compound.getTagList("BaseSize", 5).getFloatAt(i), -1.0f, 1.0f); } catch (Exception e) { }
+		}
 	}
 
 	public NBTTagCompound writeNBT() {
@@ -42,6 +55,20 @@ public class AddedPartConfig extends PartConfig {
 		if (this.obj != null) {
 			compound.setString("OBJLocation", this.obj.toString());
 		}
+		NBTTagList listPos = new NBTTagList();
+		NBTTagList listRot = new NBTTagList();
+		for (int i = 0; i < 3; i++) {
+			listPos.appendTag(new NBTTagFloat(this.pos[i]));
+			listRot.appendTag(new NBTTagFloat(this.rot[i]));
+		}
+		compound.setTag("BasePosition", listPos);
+		compound.setTag("BaseRotation", listRot);
+
+		NBTTagList listSize = new NBTTagList();
+		for (int i = 0; i < 5; i++) {
+			listSize.appendTag(new NBTTagFloat(this.size[i]));
+		}
+		compound.setTag("BaseSize", listSize);
 		return compound;
 	}
 }

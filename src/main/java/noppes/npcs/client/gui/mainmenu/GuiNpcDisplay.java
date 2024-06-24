@@ -38,75 +38,73 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: {
-			this.display.setShowName(button.getValue());
-			break;
-		}
-		case 1: {
-			NoppesUtil.openGUI((EntityPlayer) this.player, new GuiCreationParts(this.npc));
-			break;
-		}
-		case 2: {
-			this.display.setSkinUrl("");
-			this.display.setSkinPlayer(null);
-			this.display.skinType = (byte) button.getValue();
-			this.initGui();
-			break;
-		}
-		case 3: {
-			this.setSubGui(new GuiTextureSelection(this.npc, this.npc.display.getSkinTexture(), "png", 0));
-			break;
-		}
-		case 4: {
-			this.display.setShadowType(button.getValue());
-			break;
-		}
-		case 5: {
-			this.display.setHasLivingAnimation(button.getValue() == 0);
-			break;
-		}
-		case 7: {
-			this.display.setVisible(button.getValue());
-			this.initGui();
-			break;
-		}
-		case 8: {
-			this.setSubGui(new GuiTextureSelection(this.npc, this.npc.display.getCapeTexture(), "png", 1));
-			break;
-		}
-		case 9: {
-			this.setSubGui(new GuiTextureSelection(this.npc, this.npc.display.getOverlayTexture(), "png", 2));
-			break;
-		}
-		case 10: {
-			this.display.setBossbar(button.getValue());
-			break;
-		}
-		case 12: {
-			this.display.setBossColor(button.getValue());
-			break;
-		}
-		case 13: {
-			this.display.setHasHitbox(((GuiNpcButtonYesNo) button).getBoolean());
-			break;
-		}
-		case 14: {
-			String name = this.display.getRandomName();
-			this.display.setName(name);
-			this.getTextField(0).setText(name);
-			break;
-		}
-		case 15: {
-			this.setSubGui(new SubGuiNpcName(this.display));
-			break;
-		}
-		case 16: {
-			this.setSubGui(new SubGuiNpcAvailability(this.display.getAvailability()));
-			break;
-		}
-		default: {
-
-		}
+			case 0: {
+				this.display.setShowName(button.getValue());
+				break;
+			}
+			case 1: {
+				NoppesUtil.openGUI((EntityPlayer) this.player, new GuiCreationParts(this.npc));
+				break;
+			}
+			case 2: {
+				this.display.setSkinUrl("");
+				this.display.setSkinPlayer(null);
+				this.display.skinType = (byte) button.getValue();
+				this.initGui();
+				break;
+			}
+			case 3: {
+				this.setSubGui(new GuiTextureSelection(this.npc, this.npc.display.getSkinTexture(), "png", 0));
+				break;
+			}
+			case 4: {
+				this.display.setShadowType(button.getValue());
+				break;
+			}
+			case 5: {
+				this.display.setHasLivingAnimation(button.getValue() == 0);
+				break;
+			}
+			case 7: {
+				this.display.setVisible(button.getValue());
+				this.initGui();
+				break;
+			}
+			case 8: {
+				this.setSubGui(new GuiTextureSelection(this.npc, this.npc.display.getCapeTexture(), "png", 1));
+				break;
+			}
+			case 9: {
+				this.setSubGui(new GuiTextureSelection(this.npc, this.npc.display.getOverlayTexture(), "png", 2));
+				break;
+			}
+			case 10: {
+				this.display.setBossbar(button.getValue());
+				break;
+			}
+			case 12: {
+				this.display.setBossColor(button.getValue());
+				break;
+			}
+			case 13: {
+				this.display.setHasHitbox(((GuiNpcButtonYesNo) button).getBoolean());
+				break;
+			}
+			case 14: {
+				String name = this.display.getRandomName();
+				this.display.setName(name);
+				this.getTextField(0).setText(name);
+				break;
+			}
+			case 15: {
+				this.setSubGui(new SubGuiNpcName(this.display));
+				break;
+			}
+			case 16: {
+				this.setSubGui(new SubGuiNpcAvailability(this.display.getAvailability()));
+				break;
+			}
+			default: break;
 		}
 	}
 
@@ -127,7 +125,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 		} else if (this.getTextField(2) != null && this.getTextField(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.size").getFormattedText());
 		} else if (this.getTextField(3) != null && this.getTextField(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.skin").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("display.hover.skin."+this.display.skinType).getFormattedText());
 		} else if (this.getTextField(6) != null && this.getTextField(6).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.color").getFormattedText());
 		} else if (this.getTextField(8) != null && this.getTextField(8).isMouseOver()) {
@@ -141,7 +139,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 		} else if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.set.model").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.texture.type").getFormattedText());
+			this.setHoverText(new TextComponentTranslation("display.hover.texture.type."+this.display.skinType).getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.texture.set").getFormattedText());
 		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver()) {

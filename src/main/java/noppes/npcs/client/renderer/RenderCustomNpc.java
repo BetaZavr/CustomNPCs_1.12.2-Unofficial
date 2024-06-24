@@ -1,6 +1,8 @@
 package noppes.npcs.client.renderer;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
@@ -26,10 +28,10 @@ import noppes.npcs.client.layer.LayerCustomArmor;
 import noppes.npcs.client.layer.LayerCustomHeldItem;
 import noppes.npcs.client.layer.LayerEyes;
 import noppes.npcs.client.layer.LayerHead;
-import noppes.npcs.client.layer.LayerHeadwear;
 import noppes.npcs.client.layer.LayerLegs;
 import noppes.npcs.client.layer.LayerNpcCloak;
 import noppes.npcs.client.layer.LayerPreRender;
+import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.PixelmonHelper;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -40,13 +42,13 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	public ModelBiped npcmodel;
 	private float partialTicks;
 	private RenderLivingBase<EntityLivingBase> renderEntity;
+	private Method applyRotations;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public RenderCustomNpc(ModelBiped model) {
 		super((ModelBase) model, 0.5f);
 		this.npcmodel = (ModelBiped) this.mainModel;
 		this.layerRenderers.add(new LayerEyes(this));
-		this.layerRenderers.add(new LayerHeadwear(this));
 		this.layerRenderers.add(new LayerHead(this));
 		this.layerRenderers.add(new LayerArms(this));
 		this.layerRenderers.add(new LayerLegs(this));
@@ -55,19 +57,33 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		this.addLayer(new LayerCustomHead(this.npcmodel.bipedHead));
 		this.addLayer(new LayerCustomHeldItem(this));
 		this.addLayer(new LayerCustomArmor(this));
+		for (Method m : RenderLivingBase.class.getDeclaredMethods()) {
+			if (m.getName().equals("applyRotations")) {
+				try {
+					this.applyRotations = m;
+					this.applyRotations.setAccessible(true);
+				} catch (Exception e) { e.printStackTrace(); }
+				break;
+			}
+		}
 	}
 
 	@Override
 	protected void applyRotations(T npc, float handleRotation, float rotationYaw, float partialTicks) {
+		if (this.renderEntity != null) {
+			if (this.applyRotations != null) {
+				try { this.applyRotations.invoke(this.renderEntity, npc, handleRotation, rotationYaw, partialTicks); }
+				catch (Exception e) { e.printStackTrace(); }
+			}
+			return;
+		}
 		if (npc.isEntityAlive()) {
 			super.applyRotations(npc, handleRotation, rotationYaw, partialTicks);
 			return;
 		}
 		GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
 		if (npc.deathTime > 0) {
-			boolean flag = npc.animation.activeAnim != null ? npc.animation.activeAnim.type == AnimationKind.DIES
-					: npc.animation.getActiveAnimation(AnimationKind.DIES) != null;
-			if (flag) {
+			if (npc.animation.hasAnim(AnimationKind.DIES)) {
 				return;
 			}
 			float f = ((float) npc.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
@@ -90,12 +106,6 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	public void doRender(T npc, double d, double d1, double d2, float f, float partialTicks) {
 		this.partialTicks = partialTicks;
 		this.entity = npc.modelData.getEntity(npc);
-		List<LayerRenderer<T>> list = (List<LayerRenderer<T>>) this.layerRenderers;
-		for (LayerRenderer<T> layer : list) {
-			if (layer instanceof LayerPreRender) {
-				((LayerPreRender) layer).preRender(npc);
-			}
-		}
 		if (this.entity != null) {
 			Render<?> render = this.renderManager.getEntityRenderObject(this.entity);
 			if (render instanceof RenderLivingBase) {
@@ -106,6 +116,12 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			}
 		} else {
 			this.renderEntity = null;
+			List<LayerRenderer<T>> list = (List<LayerRenderer<T>>)this.layerRenderers;
+			for (LayerRenderer<T> layer : list) {
+				if (layer instanceof LayerPreRender) {
+					((LayerPreRender)layer).preRender(npc);
+				}
+			}
 		}
 		this.npcmodel.rightArmPose = this.getPose(npc, npc.getHeldItemMainhand());
 		this.npcmodel.leftArmPose = this.getPose(npc, npc.getHeldItemOffhand());
@@ -129,11 +145,11 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	}
 
 	@Override
-	protected float handleRotationFloat(T par1EntityLivingBase, float par2) {
+	protected float handleRotationFloat(T par1EntityLivingBase, float partialTicks) {
 		if (this.renderEntity != null) {
-			return NPCRendererHelper.handleRotationFloat(this.entity, par2, this.renderEntity);
+			return NPCRendererHelper.handleRotationFloat(this.entity, partialTicks, this.renderEntity);
 		}
-		return super.handleRotationFloat(par1EntityLivingBase, par2);
+		return super.handleRotationFloat(par1EntityLivingBase, partialTicks);
 	}
 
 	@Override
@@ -146,27 +162,23 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			}
 			NPCRendererHelper.preRenderCallback(this.entity, f, this.renderEntity);
 			npc.display.setSize(size);
-			GlStateManager.scale(0.2f * npc.display.getSize(), 0.2f * npc.display.getSize(),
-					0.2f * npc.display.getSize());
+			GlStateManager.scale(0.2f * npc.display.getSize(), 0.2f * npc.display.getSize(), 0.2f * npc.display.getSize());
 		} else {
 			super.preRenderCallback(npc, f);
 		}
 	}
 
-	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks,
-			float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
+	protected void renderLayers(T entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scaleIn) {
 		if (this.entity != null && this.renderEntity != null) {
-			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw,
-					headPitch, scaleIn, this.renderEntity);
+			NPCRendererHelper.drawLayers(this.entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, this.renderEntity);
 		} else {
-			List<Boolean> sp = ((EntityCustomNpc) entitylivingbaseIn).animation.showParts;
+			Map<EnumParts, Boolean> sp = ((EntityCustomNpc) entitylivingbaseIn).animation.showParts;
 			for (LayerRenderer<T> layerrenderer : this.layerRenderers) {
 				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
-						|| layerrenderer instanceof LayerHeadwear
-						|| layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(0)) {
+						|| layerrenderer.getClass().getSimpleName().equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) {
 					continue;
 				}
-				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(3)) {
+				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(EnumParts.BODY)) {
 					continue;
 				}
 				if (layerrenderer.getClass().getSimpleName().equals("SkinLayerRendererCustomNPC")) {
@@ -184,7 +196,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 	}
 
 	@Override
-	protected void renderModel(T npc, float par2, float par3, float par4, float par5, float par6, float par7) {
+	protected void renderModel(T npc, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor) {
 		if (this.renderEntity != null) {
 			boolean isInvisible = npc.isInvisible();
 			if (npc.display.getVisible() == 1) {
@@ -194,11 +206,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			}
 			if (isInvisible) {
 				GlStateManager.pushMatrix();
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.15f);
-				GlStateManager.depthMask(false);
-				GlStateManager.enableBlend();
-				GlStateManager.blendFunc(770, 771);
-				GlStateManager.alphaFunc(516, 0.003921569f);
+				GlStateManager.enableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
 			}
 			ModelBase model = this.renderEntity.getMainModel();
 			if (PixelmonHelper.isPixelmon(this.entity)) {
@@ -209,13 +217,11 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				}
 			}
 			model.swingProgress = this.mainModel.swingProgress;
-			model.isRiding = (this.entity.isRiding() && this.entity.getRidingEntity() != null
-					&& this.entity.getRidingEntity().shouldRiderSit());
-			model.setLivingAnimations(this.entity, par2, par3, this.partialTicks);
-			model.setRotationAngles(par2, par3, par4, par5, par6, par7, this.entity);
+			model.isRiding = (this.entity.isRiding() && this.entity.getRidingEntity() != null && this.entity.getRidingEntity().shouldRiderSit());
+			model.setLivingAnimations(this.entity, limbSwing, limbSwingAmount, this.partialTicks);
+			model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.entity);
 			model.isChild = this.entity.isChild();
-			NPCRendererHelper.renderModel(this.entity, par2, par3, par4, par5, par6, par7, this.renderEntity, model,
-					this.getEntityTexture(npc));
+			NPCRendererHelper.renderModel(this.entity, npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, this.getEntityTexture(npc));
 			if (!npc.display.getOverlayTexture().isEmpty()) {
 				GlStateManager.depthFunc(515);
 				if (npc.textureGlowLocation == null) {
@@ -225,16 +231,12 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				GlStateManager.enableBlend();
 				GlStateManager.blendFunc(1, 1);
 				GlStateManager.disableLighting();
-				if (npc.isInvisible()) {
-					GlStateManager.depthMask(false);
-				} else {
-					GlStateManager.depthMask(true);
-				}
+				if (npc.isInvisible()) { GlStateManager.depthMask(false); }
+				else { GlStateManager.depthMask(true); }
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.pushMatrix();
 				GlStateManager.scale(1.001f, 1.001f, 1.001f);
-				NPCRendererHelper.renderModel(this.entity, par2, par3, par4, par5, par6, par7, this.renderEntity, model,
-						npc.textureGlowLocation);
+				NPCRendererHelper.renderModel(this.entity, npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, this.renderEntity, model, npc.textureGlowLocation);
 				GlStateManager.popMatrix();
 				GlStateManager.enableLighting();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, f1);
@@ -242,13 +244,10 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				GlStateManager.disableBlend();
 			}
 			if (isInvisible) {
-				GlStateManager.disableBlend();
-				GlStateManager.alphaFunc(516, 0.1f);
-				GlStateManager.popMatrix();
-				GlStateManager.depthMask(true);
+				GlStateManager.disableBlendProfile(GlStateManager.Profile.TRANSPARENT_MODEL);
 			}
 		} else {
-			super.renderModel(npc, par2, par3, par4, par5, par6, par7);
+			super.renderModel(npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor);
 		}
 	}
 

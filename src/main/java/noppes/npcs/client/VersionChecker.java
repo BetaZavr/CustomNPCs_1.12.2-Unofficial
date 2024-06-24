@@ -24,8 +24,7 @@ public class VersionChecker extends Thread {
 		}
 		TextComponentTranslation mes = new TextComponentTranslation("cnpcs.version");
 		TextComponentTranslation link = new TextComponentTranslation("click.here");
-		link.getStyle().setClickEvent(
-				new ClickEvent(ClickEvent.Action.OPEN_URL, "http://www.kodevelopment.nl/minecraft/customnpcs/"));
+		link.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "http://www.kodevelopment.nl/minecraft/customnpcs/"));
 		player.sendMessage(mes.appendSibling(link));
 
 		mes = new TextComponentTranslation("cnpcs.scripters");

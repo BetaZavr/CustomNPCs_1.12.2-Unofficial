@@ -6,21 +6,39 @@ import com.google.common.collect.Maps;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.entity.data.IAnimationFrame;
 import noppes.npcs.api.entity.data.IAnimationPart;
+import noppes.npcs.constants.EnumParts;
 
-public class AnimationFrameConfig implements IAnimationFrame {
+public class AnimationFrameConfig
+implements IAnimationFrame {
 
 	public static final AnimationFrameConfig EMPTY_PART = new AnimationFrameConfig();
 	public boolean smooth;
-	public int speed, delay;
-	public final Map<Integer, PartConfig> parts; // 0:head, 1:left arm, 2:right arm, 3:body, 4:left leg, 5:right leg
-	public int id;
+	public int speed = 10;
+	public int delay = 0;
+	public int id = 0;
+	
+	/* 0:head
+	 * 1:left arm
+	 * 2:right arm
+	 * 3:body
+	 * 4:left leg
+	 * 5:right leg
+	 * 6:left stack
+	 * 7:right stack
+	 */
+	public final Map<Integer, PartConfig> parts = Maps.<Integer, PartConfig>newTreeMap();
+	public ResourceLocation sound = null;
+	public int emotionId = -1;
+	private int version = 1;
 
 	public AnimationFrameConfig() {
-		this.parts = Maps.<Integer, PartConfig>newTreeMap();
-		for (int i = 0; i < 6; i++) {
-			this.parts.put(i, new PartConfig(i));
+		this.parts.clear();
+		for (int i = 0; i < 8; i++) {
+			PartConfig pc = new PartConfig(i, AnimationFrameConfig.getPartType(i));
+			this.parts.put(i, pc);
 		}
 		this.id = 0;
 		this.clear();
@@ -54,6 +72,11 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		if (change) {
 			this.parts.clear();
 			this.parts.putAll(newParts);
+			for (int p = 0; p < 8; p++) {
+				if (!this.parts.containsKey(p)) {
+					this.parts.put(p, new PartConfig(p, AnimationFrameConfig.getPartType(p)));
+				}
+			}
 		}
 	}
 
@@ -100,23 +123,43 @@ public class AnimationFrameConfig implements IAnimationFrame {
 		this.setSmooth(compound.getBoolean("IsSmooth"));
 		this.setSpeed(compound.getInteger("Speed"));
 		this.setEndDelay(compound.getInteger("EndDelay"));
+		if (compound.hasKey("StartSound", 8)) { this.setStartSound(compound.getString("StartSound")); }
+		if (compound.hasKey("EmotionID", 3)) { this.setStartEmotion(compound.getInteger("EmotionID")); }
 		this.parts.clear();
 		for (int i = 0; i < compound.getTagList("PartConfigs", 10).tagCount(); i++) {
 			NBTTagCompound nbt = compound.getTagList("PartConfigs", 10).getCompoundTagAt(i);
 			PartConfig pc;
-			if (nbt.hasKey("", 8)) {
-				pc = new AddedPartConfig(i);
-			} else {
-				pc = new PartConfig(i);
-			}
+			if (nbt.hasKey("Part", 3) && this.parts.containsKey(nbt.getInteger("Part"))) { pc = this.parts.get(nbt.getInteger("Part")); }
+			else { pc = new PartConfig(i, AnimationFrameConfig.getPartType(i)); }
 			pc.readNBT(nbt);
+			if (pc.type == EnumParts.WRIST_RIGHT || pc.type == EnumParts.WRIST_LEFT || pc.type == EnumParts.FOOT_RIGHT || pc.type == EnumParts.FOOT_LEFT) { continue; }
 			this.parts.put(pc.id, pc);
+if (i == 7) { break; }
+		}
+		for (int p = 0; p < 8; p++) {
+			if (!this.parts.containsKey(p)) {
+				this.parts.put(p, new PartConfig(p, AnimationFrameConfig.getPartType(p)));
+			}
 		}
 		fixParts();
 	}
 
+	public static EnumParts getPartType(int id) {
+		switch(id) {
+			case 0: return EnumParts.ARM_LEFT;
+			case 1: return EnumParts.ARM_LEFT;
+			case 2: return EnumParts.ARM_RIGHT;
+			case 3: return EnumParts.BODY;
+			case 4: return EnumParts.LEG_LEFT;
+			case 5: return EnumParts.LEG_RIGHT;
+			case 6: return EnumParts.LEFT_STACK;
+			case 7: return EnumParts.RIGHT_STACK;
+			default: return EnumParts.CUSTOM;
+		}
+	}
+
 	public boolean removePart(PartConfig part) {
-		if (part == null || this.parts.size() <= 6) {
+		if (part == null || this.parts.size() <= 8) {
 			return false;
 		}
 		for (Integer id : this.parts.keySet()) {
@@ -168,8 +211,29 @@ public class AnimationFrameConfig implements IAnimationFrame {
 			list.appendTag(this.parts.get(id).writeNBT());
 		}
 		compound.setTag("PartConfigs", list);
-
+		compound.setString("StartSound", this.getStartSound());
+		compound.setInteger("EmotionID", this.emotionId);
+		compound.setInteger("Version", this.version);
 		return compound;
 	}
 
+	@Override
+	public String getStartSound() { return this.sound == null ? "" : this.sound.toString(); }
+
+	@Override
+	public void setStartSound(String sound) {
+		if (sound == null || sound.isEmpty()) { this.sound = null; }
+		this.sound = new ResourceLocation(sound);
+		if (this.sound.getResourcePath().isEmpty() || this.sound.getResourceDomain().isEmpty()) { this.sound = null; }
+	}
+	
+	public void setStartSound(ResourceLocation resource) { this.sound = resource; }
+
+	@Override
+	public int getStartEmotion() { return emotionId; }
+
+	@Override
+	public void setStartEmotion(int id) { this.emotionId = id; }
+
+	
 }

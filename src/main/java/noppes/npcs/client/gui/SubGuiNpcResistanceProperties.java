@@ -1,19 +1,40 @@
 package noppes.npcs.client.gui;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.Client;
+import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcSlider;
+import noppes.npcs.client.gui.util.GuiNpcTextField;
+import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.client.gui.util.ISliderListener;
+import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.data.Resistances;
+import noppes.npcs.util.AdditionalMethods;
 
-public class SubGuiNpcResistanceProperties extends SubGuiInterface implements ISliderListener {
+public class SubGuiNpcResistanceProperties
+extends SubGuiInterface
+implements ICustomScrollListener, ISliderListener, IScrollData, ITextfieldListener {
 
 	private Resistances resistances;
+	private final Map<String, String> data = Maps.<String, String>newHashMap();
+	private GuiCustomScroll scroll;
+	private String select = "";
 
 	public SubGuiNpcResistanceProperties(Resistances resistances) {
 		this.resistances = resistances;
@@ -21,6 +42,7 @@ public class SubGuiNpcResistanceProperties extends SubGuiInterface implements IS
 		this.xSize = 256;
 		this.ySize = 216;
 		this.closeOnEsc = true;
+		Client.sendData(EnumPacketServer.GetResistances);
 	}
 
 	@Override
@@ -33,17 +55,16 @@ public class SubGuiNpcResistanceProperties extends SubGuiInterface implements IS
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getSlider(0) != null && this.getSlider(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.knockback").getFormattedText());
-		} else if (this.getSlider(1) != null && this.getSlider(1).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.range").getFormattedText());
-		} else if (this.getSlider(2) != null && this.getSlider(2).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.melle").getFormattedText());
-		} else if (this.getSlider(3) != null && this.getSlider(3).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("stats.hover.resist.explosion").getFormattedText());
+		if (!CustomNpcs.ShowDescriptions || this.scroll == null) { return; }
+		if ((this.getSlider(0) != null && this.getSlider(0).isMouseOver()) ||
+				(this.getTextField(0) != null && this.getTextField(0).isMouseOver())) {
+			ITextComponent mes = new TextComponentTranslation("stats.hover.resist", AdditionalMethods.instance.deleteColor(this.select));
+			String damageType = this.data.get(this.select);
+			float v = Math.round(this.resistances.get(damageType) * 120.0f - 140.0f);
+			if (v == 0.0f) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.0")); }
+			else if (v < 0.0f) { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.1", "" + (v * -1.0f))); }
+			else { mes.appendSibling(new TextComponentTranslation("stats.hover.resist.2", "" + v)); }
+			this.setHoverText(mes.getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
 		}
@@ -56,44 +77,115 @@ public class SubGuiNpcResistanceProperties extends SubGuiInterface implements IS
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(0, "enchantment.knockback", this.guiLeft + 4, this.guiTop + 15));
-		this.addSlider(new GuiNpcSlider(this, 0, this.guiLeft + 94, this.guiTop + 10,
-				(this.resistances.knockback * 100.0f - 100.0f) + "%", this.resistances.knockback / 2.0f));
-		this.addLabel(new GuiNpcLabel(1, "item.arrow.name", this.guiLeft + 4, this.guiTop + 37));
-		this.addSlider(new GuiNpcSlider(this, 1, this.guiLeft + 94, this.guiTop + 32,
-				(this.resistances.arrow * 100.0f - 100.0f) + "%", this.resistances.arrow / 2.0f));
-		this.addLabel(new GuiNpcLabel(2, "stats.melee", this.guiLeft + 4, this.guiTop + 59));
-		this.addSlider(new GuiNpcSlider(this, 2, this.guiLeft + 94, this.guiTop + 54,
-				(this.resistances.melee * 100.0f - 100.0f) + "%", this.resistances.melee / 2.0f));
-		this.addLabel(new GuiNpcLabel(3, "stats.explosion", this.guiLeft + 4, this.guiTop + 81));
-		this.addSlider(new GuiNpcSlider(this, 3, this.guiLeft + 94, this.guiTop + 76,
-				(this.resistances.explosion * 100.0f - 100.0f) + "%", this.resistances.explosion / 2.0f));
-		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, this.guiTop + 190, 60, 20, "gui.done"));
+		
+		List<String> names = Lists.<String>newArrayList();
+		List<String> notList = Lists.<String>newArrayList();
+		Map<String, String> mapSfx = Maps.newHashMap();
+		for (String name : this.data.keySet()) {
+			if (this.resistances.data.containsKey(this.data.get(name))) {
+				names.add(name);
+				float v = (2.0f - this.resistances.data.get(this.data.get(name)));
+				int t = (int) (v * -100.0f + 100.0f);
+				mapSfx.put(name, (t == 0 ? "" : (((char) 167) + (t < 0 ? "c" : "a+"))) + t + "%");
+			}
+			else {
+				String key = ((char) 167) + "7" + name;
+				notList.add(key);
+				mapSfx.put(key, ((char) 167) + "70%");
+			}
+		}
+		Collections.sort(names);
+		Collections.sort(notList);
+		names.addAll(notList);
+		if (this.select.isEmpty() && !names.isEmpty()) { this.select = AdditionalMethods.instance.deleteColor(names.get(0)); }
+		
+		List<String> suffixs = Lists.<String>newArrayList();
+		for (String key : names) { suffixs.add("" + mapSfx.get(key)); }
+		
+		if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(248, 176); }
+		this.scroll.guiLeft = this.guiLeft + 4;
+		this.scroll.guiTop = this.guiTop + 4;
+		this.scroll.setSelected(this.npc.linkedName);
+		this.scroll.setListNotSorted(names);
+		this.scroll.setSuffixs(suffixs);
+		this.scroll.setSelected(this.select);
+		
+		this.addScroll(this.scroll);
+		
+		int y = this.guiTop + this.ySize - 34;
+		
+		if (!this.select.isEmpty()) {
+			float v = (2.0f - this.resistances.get(this.data.get(this.select)));
+			int t = (int) (v * -100.0f + 100.0f);
+			GuiNpcSlider slider = new GuiNpcSlider(this, 0, this.guiLeft + 4, y, (t == 0 ? "" : (((char) 167) + (t < 0 ? "c" : "a+"))) + String.valueOf(t).replace(".", ",") + "%", (float) t * 0.001667f + 0.833333f);
+			slider.height = 14;
+			slider.width = 248;
+			this.addSlider(slider);
+			
+			GuiNpcTextField textField = new GuiNpcTextField(0, this, this.guiLeft + 4, y + 16, 60, 14, "" + t);
+			textField.setNumbersOnly();
+			textField.setMinMaxDefault(-500, 100, t);
+			this.addTextField(textField);
+		}
+		
+		this.addButton(new GuiNpcButton(66, this.guiLeft + 190, y + 16, 60, 14, "gui.done"));
 	}
 
 	@Override
 	public void mouseDragged(GuiNpcSlider slider) {
-		slider.displayString = (slider.sliderValue * 200.0f - 100.0f) + "%";
+		float n = 5.0f / 6.0f;
+		slider.displayString = (slider.sliderValue == n ? "" : (((char) 167) + (slider.sliderValue < n ? "c" : "a+"))) + String.valueOf(Math.round(slider.sliderValue * 600.0f - 500.0f)).replace(".", ",") + "%";
 	}
 
 	@Override
-	public void mousePressed(GuiNpcSlider slider) {
-	}
+	public void mousePressed(GuiNpcSlider slider) { }
 
 	@Override
 	public void mouseReleased(GuiNpcSlider slider) {
-		if (slider.id == 0) {
-			this.resistances.knockback = slider.sliderValue * 2.0f;
+		if (!this.data.containsKey(this.select)) { return; }
+		this.setValue(this.data.get(this.select), (int) (slider.sliderValue * 600.0f - 500.0f));
+	}
+
+	@Override
+	public void setData(Vector<String> list, HashMap<String, Integer> data) {
+		this.data.clear();
+		for (String name : list) {
+			String trName = AdditionalMethods.instance.deleteColor(new TextComponentTranslation("resistance." + name.toLowerCase()).getFormattedText());
+			if (trName.equals("resistance." + name.toLowerCase())) { trName = name; }
+			this.data.put(trName, name);
 		}
-		if (slider.id == 1) {
-			this.resistances.arrow = slider.sliderValue * 2.0f;
+		this.initGui();
+	}
+
+	@Override
+	public void setSelected(String select) { }
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+		if (!scroll.hasSelected() || !this.data.containsKey(AdditionalMethods.instance.deleteColor(scroll.getSelected()))) { return; }
+		this.select = AdditionalMethods.instance.deleteColor(scroll.getSelected());
+		this.initGui();
+	}
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+
+	@Override
+	public void unFocused(GuiNpcTextField textField) {
+		if (!this.data.containsKey(this.select)) { return; }
+		this.setValue(this.data.get(this.select), textField.getInteger());
+	}
+
+	private void setValue(String damageType, int value) {
+		if (value == 0 && !damageType.equals("arrow") && !damageType.equals("thrown") &&
+				!damageType.equals("player") && !damageType.equals("mob") && 
+				!damageType.equals("explosion") && !damageType.equals("explosion.player") &&
+				!damageType.equals("knockback")) {
+			this.resistances.data.remove(damageType);
+		} else {
+			this.resistances.data.put(damageType, value * 0.01f + 1.0f);
 		}
-		if (slider.id == 2) {
-			this.resistances.melee = slider.sliderValue * 2.0f;
-		}
-		if (slider.id == 3) {
-			this.resistances.explosion = slider.sliderValue * 2.0f;
-		}
+		this.initGui();
 	}
 
 }

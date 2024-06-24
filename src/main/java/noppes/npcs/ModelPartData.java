@@ -35,9 +35,7 @@ public class ModelPartData {
 	}
 
 	public ResourceLocation getResource() {
-		if (this.location != null) {
-			return this.location;
-		}
+		if (this.location != null) { return this.location; }
 		String texture = this.name + "/" + this.type;
 		if ((this.location = ModelPartData.resources.get(texture)) != null) {
 			return this.location;

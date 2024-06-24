@@ -413,17 +413,11 @@ public class GuiNPCManageQuest extends GuiNPCInterface2
 			this.initGui();
 		}
 		if (subgui.id == 3) { // rename category
-			if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) {
-				return;
-			}
+			if (((SubGuiEditText) subgui).text[0].isEmpty() || !this.categoryData.containsKey(this.selectedCategory)) { return; }
 			QuestCategory category = this.categoryData.get(this.selectedCategory).copy();
-			if (category.title.equals(((SubGuiEditText) subgui).text[0])) {
-				return;
-			}
+			if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
 			category.title = ((SubGuiEditText) subgui).text[0];
-			while (QuestController.instance.containsCategoryName(category)) {
-				category.title += "_";
-			}
+			while (QuestController.instance.containsCategoryName(category)) { category.title += "_"; }
 			this.selectedCategory = category.title;
 			Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
 			this.initGui();

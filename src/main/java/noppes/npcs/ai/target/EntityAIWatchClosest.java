@@ -45,11 +45,13 @@ public class EntityAIWatchClosest extends EntityAIBase {
 			return false;
 		}
 		if (this.npc.getAttackTarget() == null) {
+			if (this.npc.isMoving() || this.npc.ais.getStandingType() != 0 && this.npc.ais.getStandingType() != 2) {
+				return false;
+			}
 			if (this.watchedClass == EntityPlayer.class) {
 				this.closestEntity = this.npc.world.getClosestPlayerToEntity(this.npc, this.maxDistance);
 			} else {
-				this.closestEntity = this.npc.world.findNearestEntityWithinAABB((Class<Entity>) this.watchedClass,
-						this.npc.getEntityBoundingBox().grow(this.maxDistance, 3.0, this.maxDistance), this.npc);
+				this.closestEntity = this.npc.world.findNearestEntityWithinAABB((Class<Entity>) this.watchedClass, this.npc.getEntityBoundingBox().grow(this.maxDistance, 3.0, this.maxDistance), this.npc);
 			}
 		}
 		if (this.closestEntity != null) {

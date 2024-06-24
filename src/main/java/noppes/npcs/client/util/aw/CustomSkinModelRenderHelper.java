@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
 
@@ -17,7 +17,8 @@ import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityNPCInterface;
 
 @SideOnly(Side.CLIENT)
 public class CustomSkinModelRenderHelper {
@@ -78,8 +79,7 @@ public class CustomSkinModelRenderHelper {
 		}
 	}
 
-	public boolean renderEquipmentPart(ISkin skin, Object renderData, EntityCustomNpc npc, ModelBiped modelBiped,
-			float scale, List<Boolean> showList) {
+	public boolean renderEquipmentPart(ISkin skin, Object renderData, EntityNPCInterface npc, ModelBiped modelBiped, float scale, Map<EnumParts, Boolean> ba) {
 		if (skin == null) {
 			return false;
 		}
@@ -99,19 +99,19 @@ public class CustomSkinModelRenderHelper {
 			if (key.equals("armourers:wings")) {
 				modelBiped.bipedBody.postRender(scale);
 			} else if (key.equals("armourers:head")) {
-				((CustomModelSkinHead) model).render(npc, skin, modelBiped, renderData, scale, showList);
+				((CustomModelSkinHead) model).render(npc, skin, modelBiped, renderData, scale, ba);
 				canDraw = false;
 			} else if (key.equals("armourers:chest")) {
-				((CustomModelSkinChest) model).render(npc, skin, modelBiped, renderData, scale, showList);
+				((CustomModelSkinChest) model).render(npc, skin, modelBiped, renderData, scale, ba);
 				canDraw = false;
 			} else if (key.equals("armourers:legs")) {
-				((CustomModelSkinLegs) model).render(npc, skin, modelBiped, renderData, scale, showList);
+				((CustomModelSkinLegs) model).render(npc, skin, modelBiped, renderData, scale, ba);
 				canDraw = false;
 			} else if (key.equals("armourers:feet")) {
-				((CustomModelSkinFeet) model).render(npc, skin, modelBiped, renderData, scale, showList);
+				((CustomModelSkinFeet) model).render(npc, skin, modelBiped, renderData, scale, ba);
 				canDraw = false;
 			} else if (key.equals("armourers:outfit")) {
-				((CustomModelSkinOutfit) model).render(npc, skin, modelBiped, renderData, scale, showList);
+				((CustomModelSkinOutfit) model).render(npc, skin, modelBiped, renderData, scale, ba);
 				canDraw = false;
 			}
 			if (canDraw) {

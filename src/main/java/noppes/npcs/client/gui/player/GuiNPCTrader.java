@@ -147,11 +147,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 					this.money = ClientProxy.playerData.game.getMoney();
 					if (this.selectDealData.buyMoney > 0) {
 						String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true,
-								false) + CustomNpcs.CharCurrencies.charAt(0) + " / "
-								+ ClientProxy.playerData.game.getTextMoney() + CustomNpcs.CharCurrencies.charAt(0);
+								false) + CustomNpcs.displayCurrencies + " / "
+								+ ClientProxy.playerData.game.getTextMoney() + CustomNpcs.displayCurrencies;
 						if (this.marcet.isLimited) {
 							text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false)
-									+ CustomNpcs.CharCurrencies.charAt(0);
+									+ CustomNpcs.displayCurrencies;
 						}
 						this.getLabel(4).setLabel(text);
 					}
@@ -322,8 +322,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				buyMoney = (int) this.selectDealData.buyMoney;
 			}
 			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0",
-					new Object[] { "" + buyMoney, CustomNpcs.CharCurrencies.charAt(0), "" + this.money,
-							CustomNpcs.CharCurrencies.charAt(0) });
+					new Object[] { "" + buyMoney, CustomNpcs.displayCurrencies, "" + this.money,
+							CustomNpcs.displayCurrencies });
 			if (this.marcet.isLimited) {
 				text.appendSibling(new TextComponentTranslation("market.hover.currency.1", "" + this.marcet.money));
 			}
@@ -361,7 +361,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 				}
 				if (this.selectDealData.sellMoney > 0) {
 					text.appendSibling(new TextComponentTranslation("market.hover.sell.2",
-							new Object[] { "" + this.selectDealData.sellMoney, CustomNpcs.CharCurrencies.charAt(0) }));
+							new Object[] { "" + this.selectDealData.sellMoney, CustomNpcs.displayCurrencies }));
 				}
 			}
 			this.setHoverText(text.getFormattedText());
@@ -482,7 +482,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			}
 			if (dm.buyMoney > 0) {
 				info.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
-				info.add("" + dm.buyMoney + CustomNpcs.CharCurrencies.charAt(0));
+				info.add("" + dm.buyMoney + CustomNpcs.displayCurrencies);
 			}
 			infoList.add(info.toArray(new String[info.size()]));
 		}
@@ -514,11 +514,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface implements ICustomScr
 			this.getLabel(3).enabled = true;
 			this.getLabel(4).enabled = true;
 			String text = AdditionalMethods.getTextReducedNumber(this.selectDealData.buyMoney, true, true, false)
-					+ CustomNpcs.CharCurrencies.charAt(0) + " / " + ClientProxy.playerData.game.getTextMoney()
-					+ CustomNpcs.CharCurrencies.charAt(0);
+					+ CustomNpcs.displayCurrencies + " / " + ClientProxy.playerData.game.getTextMoney()
+					+ CustomNpcs.displayCurrencies;
 			if (this.marcet.isLimited) {
 				text += " / " + AdditionalMethods.getTextReducedNumber(this.marcet.money, true, true, false)
-						+ CustomNpcs.CharCurrencies.charAt(0);
+						+ CustomNpcs.displayCurrencies;
 			}
 			this.getLabel(4).setLabel(text);
 		} else {

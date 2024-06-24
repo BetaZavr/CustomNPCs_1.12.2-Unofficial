@@ -1,12 +1,47 @@
 package noppes.npcs.constants;
 
-public enum EnumParts {
-	EARS("ears"), HORNS("horns"), HAIR("hair"), MOHAWK("mohawk"), SNOUT("snout"), BEARD("beard"), TAIL("tail"), CLAWS(
-			"claws"), LEGS("legs"), FIN("fin"), SKIRT("skirt"), WINGS("wings"), HEAD("head"), BODY("body"), BREASTS(
-					"breasts"), PARTICLES("particles"), ARM_LEFT("armleft"), ARM_RIGHT("armright"), LEG_LEFT(
-							"legleft"), LEG_RIGHT("legright"), EYES("eyes"), BELT(
-									"belt"), FEET_LEFT("legleft"), FEET_RIGHT("legright"), CUSTOM("custom");
-
+public enum EnumParts
+{
+	EARS("ears", -1), 
+	HORNS("horns", -1), 
+	HAIR("hair", -1), 
+	MOHAWK("mohawk", -1), 
+	SNOUT("snout", -1), 
+	BEARD("beard", -1), 
+	TAIL("tail", -1), 
+	CLAWS("claws", -1), 
+	LEGS("legs", 4), 
+	FIN("fin", -1), 
+	SKIRT("skirt", -1), 
+	WINGS("wings", -1), 
+	HEAD("head", 0), 
+	BODY("body", 3), 
+	BREASTS("breasts", -1), 
+	PARTICLES("particles", -1), 
+	ARM_LEFT("armleft", 1), 
+	ARM_RIGHT("armright", 2), 
+	WRIST_LEFT("wristleft", 1), 
+	WRIST_RIGHT("wristright", 2), 
+	LEFT_STACK("left_stack", 6), 
+	RIGHT_STACK("right_stack", 7), 
+	LEG_LEFT("legleft", 4), 
+	LEG_RIGHT("legright", 5), 
+	FOOT_LEFT("footleft", 4), 
+	FOOT_RIGHT("footright", 5), 
+	EYES("eyes", -1),
+	BELT("belt", -1), 
+	FEET_LEFT("bootleft", 4), 
+	FEET_RIGHT("bootright", 5),
+	CUSTOM("custom", -2);
+	
+	public String name;
+	public int patterns;
+	
+	private EnumParts(String name, int id) {
+		this.patterns = id;
+		this.name = name;
+	}
+	
 	public static EnumParts FromName(String name) {
 		for (EnumParts e : values()) {
 			if (e.name.equals(name)) {
@@ -14,13 +49,5 @@ public enum EnumParts {
 			}
 		}
 		return null;
-	}
-	public String name;
-
-	public int patterns;
-
-	private EnumParts(String name) {
-		this.patterns = 1;
-		this.name = name;
 	}
 }

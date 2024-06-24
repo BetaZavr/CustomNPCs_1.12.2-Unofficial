@@ -1,5 +1,7 @@
 package noppes.npcs.client.model;
 
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
@@ -47,29 +49,31 @@ public class ModelOBJPlayerArmor extends ModelBiped {
 	}
 
 	public void addLayer(CustomArmor armor) {
-		this.bipedHead.addChild(
-				new ModelOBJPatr(this, EnumParts.FEET_LEFT, armor.getMeshNames(EnumParts.HEAD), 0.0f, 1.5f, 0.0f));
+		this.bipedHead.addChild(new ModelOBJPatr(this, EnumParts.FEET_LEFT, armor.getMeshNames(EnumParts.HEAD), 0.0f, 1.5f, 0.0f));
 
-		this.bipedBody
-				.addChild(new ModelOBJPatr(this, EnumParts.BODY, armor.getMeshNames(EnumParts.BODY), 0.0f, 1.5f, 0.0f));
-		this.childRightArm = new ModelOBJPatr(this, EnumParts.ARM_RIGHT, armor.getMeshNames(EnumParts.ARM_RIGHT),
-				0.3175f, 1.375f, 0.0f);
+		this.bipedBody.addChild(new ModelOBJPatr(this, EnumParts.BODY, armor.getMeshNames(EnumParts.BODY), 0.0f, 1.5f, 0.0f));
+		this.bipedBelt.addChild(new ModelOBJPatr(this, EnumParts.BELT, armor.getMeshNames(EnumParts.BELT), 0.0f, 1.5f, 0.0f));
+
+		List<String> listAR = armor.getMeshNames(EnumParts.ARM_RIGHT);
+		listAR.addAll(armor.getMeshNames(EnumParts.WRIST_RIGHT));
+		this.childRightArm = new ModelOBJPatr(this, EnumParts.ARM_RIGHT, listAR, 0.3175f, 1.375f, 0.0f);
 		this.bipedRightArm.addChild(this.childRightArm);
-		this.childLeftArm = new ModelOBJPatr(this, EnumParts.ARM_LEFT, armor.getMeshNames(EnumParts.ARM_LEFT), -0.3175f,
-				1.375f, 0.0f);
+		
+		List<String> listAL = armor.getMeshNames(EnumParts.ARM_LEFT);
+		listAL.addAll(armor.getMeshNames(EnumParts.WRIST_LEFT));
+		this.childLeftArm = new ModelOBJPatr(this, EnumParts.ARM_LEFT, listAL, -0.3175f, 1.375f, 0.0f);
 		this.bipedLeftArm.addChild(this.childLeftArm);
 
-		this.bipedBelt
-				.addChild(new ModelOBJPatr(this, EnumParts.BELT, armor.getMeshNames(EnumParts.BELT), 0.0f, 1.5f, 0.0f));
-		this.bipedRightLeg.addChild(new ModelOBJPatr(this, EnumParts.LEG_RIGHT, armor.getMeshNames(EnumParts.LEG_RIGHT),
-				0.125f, 0.75f, 0.0f));
-		this.bipedLeftLeg.addChild(new ModelOBJPatr(this, EnumParts.LEG_LEFT, armor.getMeshNames(EnumParts.LEG_LEFT),
-				-0.115f, 0.75f, 0.0f));
+		List<String> listLR = armor.getMeshNames(EnumParts.LEG_RIGHT);
+		listLR.addAll(armor.getMeshNames(EnumParts.FOOT_RIGHT));
+		this.bipedRightLeg.addChild(new ModelOBJPatr(this, EnumParts.LEG_RIGHT, listLR, 0.125f, 0.75f, 0.0f));
 
-		this.bipedRightFeet.addChild(new ModelOBJPatr(this, EnumParts.FEET_RIGHT,
-				armor.getMeshNames(EnumParts.FEET_RIGHT), 0.125f, 0.75f, 0.0f));
-		this.bipedLeftFeet.addChild(new ModelOBJPatr(this, EnumParts.FEET_LEFT, armor.getMeshNames(EnumParts.FEET_LEFT),
-				-0.115f, 0.75f, 0.0f));
+		List<String> listLL = armor.getMeshNames(EnumParts.LEG_LEFT);
+		listLL.addAll(armor.getMeshNames(EnumParts.FOOT_LEFT));
+		this.bipedLeftLeg.addChild(new ModelOBJPatr(this, EnumParts.LEG_LEFT, listLL, -0.115f, 0.75f, 0.0f));
+
+		this.bipedRightFeet.addChild(new ModelOBJPatr(this, EnumParts.FEET_RIGHT, armor.getMeshNames(EnumParts.FEET_RIGHT), 0.125f, 0.75f, 0.0f));
+		this.bipedLeftFeet.addChild(new ModelOBJPatr(this, EnumParts.FEET_LEFT, armor.getMeshNames(EnumParts.FEET_LEFT), -0.115f, 0.75f, 0.0f));
 	}
 
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
@@ -84,33 +88,28 @@ public class ModelOBJPlayerArmor extends ModelBiped {
 			GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
 			this.bipedHead.render(scale);
 			GlStateManager.popMatrix();
+			
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
-			this.bipedBody.render(scale);
-			this.bipedRightArm.render(scale);
-			this.bipedLeftArm.render(scale);
-			this.bipedRightLeg.render(scale);
-			this.bipedLeftLeg.render(scale);
-
-			this.bipedBelt.render(scale);
-			this.bipedRightFeet.render(scale);
-			this.bipedLeftFeet.render(scale);
 		} else {
 			if (entityIn.isSneaking()) {
 				GlStateManager.translate(0.0F, 0.2F, 0.0F);
 			}
 			this.bipedHead.render(scale);
-			this.bipedBody.render(scale);
-			this.bipedRightArm.render(scale);
-			this.bipedLeftArm.render(scale);
-			this.bipedRightLeg.render(scale);
-			this.bipedLeftLeg.render(scale);
-
-			this.bipedBelt.render(scale);
-			this.bipedRightFeet.render(scale);
-			this.bipedLeftFeet.render(scale);
 		}
+		this.bipedBody.render(scale);
+		this.bipedRightArm.render(scale);
+		this.bipedLeftArm.render(scale);
+		
+		this.bipedRightLeg.render(scale);
+		this.bipedLeftLeg.render(scale);
+
+		this.bipedBelt.showModel = this.bipedRightLeg.showModel;
+		this.bipedBelt.isHidden = this.bipedRightLeg.isHidden;
+		this.bipedBelt.render(scale);
+		this.bipedRightFeet.render(scale);
+		this.bipedLeftFeet.render(scale);
 		GlStateManager.popMatrix();
 	}
 
@@ -129,8 +128,8 @@ public class ModelOBJPlayerArmor extends ModelBiped {
 		this.setVisible(false);
 
 		ItemStack headItem = entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-		if (headItem.getItem() instanceof CustomArmor
-				&& ((CustomArmor) headItem.getItem()).objModel.equals(this.objModel)) {
+		if (headItem.getItem() instanceof CustomArmor && ((CustomArmor) headItem.getItem()).objModel != null &&
+				((CustomArmor) headItem.getItem()).objModel.equals(this.objModel)) {
 			this.bipedHead.isHidden = false;
 			this.bipedHead.showModel = true;
 		}

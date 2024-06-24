@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -14,6 +15,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ITextfieldListener;
@@ -58,19 +60,33 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.renderEngine.bindTexture(GuiModelColor.colorPicker);
-		this.drawTexturedModalRect(this.colorX, this.colorY, 0, 0, 120, 120);
+		
 		if (this.npcSkin != null) {
+			// back
 			this.mc.renderEngine.bindTexture(GuiModelColor.colorgui);
-			int x = this.colorX + 128;
-			int y = this.colorY;
-			this.drawTexturedModalRect(x + 1, y - 5, 9, 0, 136, 124);
-			this.drawTexturedModalRect(x, y + 119, 8, 169, 137, 4);
+			int xs = this.colorX + 128;
+			int ys = this.colorY;
+			this.drawTexturedModalRect(xs + 3, ys - 5, 11, 0, 134, 1);
+			this.drawTexturedModalRect(xs + 2, ys - 4, 10, 1, 135, 1);
+			this.drawTexturedModalRect(xs + 1, ys - 3, 9, 2, 136, 122);
+			this.drawTexturedModalRect(xs, ys + 119, 8, 169, 137, 4);
+			
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + 4, y, 0.0f);
+			GlStateManager.translate(xs + 4, ys, 0.0f);
 			GlStateManager.scale(0.46f, 0.46f, 0.46f);
 			this.mc.renderEngine.bindTexture(this.npcSkin);
+			
+			Gui.drawRect(-1, -1, 258, 258, GuiTextureSelection.dark ? 0xFFE0E0E0 : 0xFF202020);
+			Gui.drawRect(0, 0, 256, 256, GuiTextureSelection.dark ? 0xFF000000 : 0xFFFFFFFF);
+			int g = 16;
+			for (int u = 0; u < 16; u ++) {
+				for (int v = 0; v < 16; v ++) {
+					if (u % 2 == (v % 2 == 0 ? 1 : 0)) {
+						Gui.drawRect(u * g, v * g, u * g + g, v * g + g, GuiTextureSelection.dark ? 0xFF343434 : 0xFFCCCCCC);
+					}
+				}
+			}
+			
 			this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 
@@ -96,41 +112,51 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 			try {
 				IResource resource = this.mc.getResourceManager().getResource(GuiModelColor.colorPicker);
 				this.bufferColor = ImageIO.read(stream = resource.getInputStream());
-			} catch (IOException ex) {
-			} finally {
+			}
+			catch (IOException ex) { }
+			finally {
 				if (stream != null) {
-					try {
-						stream.close();
-					} catch (IOException ex2) {
-					}
+					try { stream.close(); }
+					catch (IOException ex2) { }
 				}
 			}
-		} else if (mouseX >= this.colorX && mouseX <= this.colorX + 120 && mouseY >= this.colorY
-				&& mouseY <= this.colorY + 120) {
-			this.hover = this.bufferColor.getRGB((mouseX - this.colorX) * 4, (mouseY - this.colorY) * 4) & 0xFFFFFF;
+		}
+
+		int x = this.colorX + 4, y = this.colorY;
+		this.drawGradientRect(x - 2, y - 2, x + 120, y + 119, 0xFFF0F0F0, 0xFF202020);
+		this.drawGradientRect(x - 1, y - 1, x + 119, y + 118, 0xFF202020, 0xFFF0F0F0);
+		this.mc.renderEngine.bindTexture(GuiModelColor.colorPicker);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		this.drawTexturedModalRect(x, y, 0, 1, 120, 120);
+		
+		if (this.bufferColor != null && isMouseHover(mouseX, mouseY, x, y, 117, 117)) {
+			int xb = (mouseX - x) * 4;
+			int yb = (mouseY - y + 1) * 4;
+			this.hover = this.bufferColor.getRGB(xb, yb) & 0xFFFFFF;
 			this.hovered = true;
-		} else if (this.bufferSkin != null) {
-			int x = (int) ((float) (mouseX - this.colorX - 132) / 0.46f);
-			int y = (int) ((float) (mouseY - this.colorY) / 0.46f);
-			if (x >= 0 && x < 256 && y >= 0 && y < 256) {
+		}
+		else {
+			x = this.colorX + 132;
+			if (this.bufferSkin != null && isMouseHover(mouseX, mouseY, x, y, 118, 118)) {
+				float xb = (float) (mouseX - x) / 0.458823f;
+				float yb = (float) (mouseY - y) / 0.458823f;
 				float w = 256.0f / (float) this.bufferSkin.getWidth();
 				float h = 256.0f / (float) this.bufferSkin.getHeight();
-				try {
-					this.hover = this.bufferSkin.getRGB((int) ((float) x / w), (int) ((float) y / h)) & 0xFFFFFF;
-				} catch (Exception e) {
-				}
+				try { this.hover = this.bufferSkin.getRGB((int) ((float) xb / w), (int) ((float) yb / h)) & 0xFFFFFF; }
+				catch (Exception e) { }
 				this.hovered = true;
 			}
 		}
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(this.colorX + 5, this.colorY - 25, 1.0f);
+		int c = this.hovered ? this.hover : this.color;
 		this.drawGradientRect(-1, -1, 21, 21, 0x80000000, 0x80000000);
-		this.drawGradientRect(0, 0, 20, 20, 0xFF000000 + this.hover, 0xFF000000 + this.hover);
-		this.drawGradientRect(0, 0, 20, 20, this.hover, this.hover);
+		this.drawGradientRect(0, 0, 20, 20, 0xFF000000 + c, 0xFF000000 + c);
+		this.drawGradientRect(0, 0, 20, 20, c, c);
 		GlStateManager.popMatrix();
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
+		
+		if (!CustomNpcs.ShowDescriptions) { return; }
 		if (this.getTextField(0) != null && this.getTextField(0).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.set.color").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
@@ -154,10 +180,8 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		super.initGui();
 		this.colorX = this.guiLeft + 4;
 		this.colorY = this.guiTop + 50;
-		this.addTextField(this.textfield = new GuiNpcTextField(0, this, this.guiLeft + 35, this.guiTop + 25, 60, 20,
-				this.getColor()));
+		this.addTextField(this.textfield = new GuiNpcTextField(0, this, this.guiLeft + 35, this.guiTop + 25, 60, 20, this.getColor()));
 		this.addButton(new GuiNpcButton(66, this.guiLeft + 107, this.guiTop + 8, 20, 20, "X"));
-		this.textfield.setTextColor(this.color);
 	}
 
 	@Override
@@ -171,7 +195,6 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		try {
 			this.color = Integer.parseInt(this.textfield.getText(), 16);
 			this.callback.color(this.color);
-			this.textfield.setTextColor(this.color);
 		} catch (NumberFormatException e) {
 			this.textfield.setText(prev);
 		}
@@ -183,7 +206,6 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 		if (this.hovered && this.hover != 0) {
 			this.color = this.hover;
 			this.callback.color(this.hover);
-			this.textfield.setTextColor(this.hover);
 			this.textfield.setText(this.getColor());
 		}
 	}
@@ -200,7 +222,6 @@ public class GuiModelColor extends SubGuiInterface implements ITextfieldListener
 			this.color = 0;
 		}
 		this.callback.color(this.color);
-		textfield.setTextColor(this.color);
 	}
 
 }

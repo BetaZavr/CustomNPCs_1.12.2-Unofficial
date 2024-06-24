@@ -1,8 +1,10 @@
 package noppes.npcs;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.BitSet;
@@ -83,13 +85,12 @@ import noppes.npcs.items.CustomTool;
 import noppes.npcs.items.CustomWeapon;
 import noppes.npcs.items.crafting.NpcShapedRecipes;
 import noppes.npcs.items.crafting.NpcShapelessRecipes;
-import noppes.npcs.util.BuilderData;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
 import noppes.npcs.util.TempFile;
 
 public class CommonProxy implements IGuiHandler {
 
-	public static Map<Integer, BuilderData> dataBuilder = Maps.<Integer, BuilderData>newTreeMap();
 	public static Map<String, TempFile> loadFiles = Maps.<String, TempFile>newHashMap();
 	public boolean newVersionAvailable;
 	public int revision;
@@ -749,20 +750,32 @@ public class CommonProxy implements IGuiHandler {
 		String crEnt = "" + ((char) 10);
 		String crTab = "" + ((char) 9);
 		String jsonModel = "";
-		if (customitem instanceof CustomArmor && nbtData.hasKey("OBJData", 9)) {
+		if (customitem instanceof CustomArmor && (nbtData.hasKey("OBJData", 9) || nbtData.hasKey("OBJData", 10))) {
 			File armorModelsDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/armor");
-			if (!armorModelsDir.exists()) {
-				armorModelsDir.mkdirs();
-			}
+			if (!armorModelsDir.exists()) { armorModelsDir.mkdirs(); }
 
 			File objModel = new File(armorModelsDir, name.toLowerCase() + ".obj");
 			if (!objModel.exists()) {
-				String model = "mtllib " + name + ".mtl";
-				this.saveFile(objModel, model);
-
-				String mat_lib = "newmtl material" + crEnt + "Kd 1.000000 1.000000 1.000000" + crEnt + "d 1.000000"
-						+ crEnt + "map_Kd customnpcs:models/armor/" + name;
-				this.saveFile(new File(armorModelsDir, name.toLowerCase() + ".mtl"), mat_lib);
+				InputStream inputStreamOBJ = AdditionalMethods.instance.getModInputStream("armorobjexample.obj");
+				if (inputStreamOBJ != null) {
+					try {
+						ByteArrayOutputStream result = new ByteArrayOutputStream();
+						byte[] buffer = new byte[1024];
+						for (int length; (length = inputStreamOBJ.read(buffer)) != -1; ) { result.write(buffer, 0, length); }
+						this.saveFile(objModel, result.toString("UTF-8").replace("mtllib armorobjexample.mtl", "mtllib " + name.toLowerCase() + ".mtl"));
+					}
+					catch (IOException e) { }
+				}
+				InputStream inputStreamMTL = AdditionalMethods.instance.getModInputStream("armorobjexample.mtl");
+				if (inputStreamMTL != null) {
+					try {
+						ByteArrayOutputStream result = new ByteArrayOutputStream();
+						byte[] buffer = new byte[1024];
+						for (int length; (length = inputStreamMTL.read(buffer)) != -1; ) { result.write(buffer, 0, length); }
+						this.saveFile(new File(armorModelsDir, name.toLowerCase() + ".mtl"), result.toString("UTF-8"));
+					}
+					catch (IOException e) { }
+				}
 			}
 		}
 		if (!itemModel.exists()) {
@@ -899,6 +912,399 @@ public class CommonProxy implements IGuiHandler {
 						LogWriter.debug("Create Default Fishing Rod Cast Item Model for \"" + name + "\" item");
 					}
 				}
+			} else if (name.equals("axeexample")) {
+				File blockModelsDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/models/block/obj");
+				if (!blockModelsDir.exists()) { blockModelsDir.mkdirs(); }
+				File objModel = new File(blockModelsDir, name.toLowerCase() + ".obj");
+				if (!objModel.exists()) {
+					String model = "mtllib " + name + ".mtl" + crEnt +
+							"o lever" + crEnt +
+							"v 0.500000 0.000000 0.475000" + crEnt + 
+							"v 0.500000 0.031250 0.450000" + crEnt + 
+							"v 0.514401 0.000000 0.487500" + crEnt + 
+							"v 0.528801 0.031250 0.475000" + crEnt + 
+							"v 0.514401 0.000000 0.512500" + crEnt + 
+							"v 0.528801 0.031250 0.525000" + crEnt + 
+							"v 0.500000 0.000000 0.525000" + crEnt + 
+							"v 0.500000 0.031250 0.550000" + crEnt + 
+							"v 0.485599 0.000000 0.512500" + crEnt + 
+							"v 0.471199 0.031250 0.525000" + crEnt + 
+							"v 0.485599 0.000000 0.487500" + crEnt + 
+							"v 0.471199 0.031250 0.475000" + crEnt + 
+							"v 0.528801 0.375000 0.453080" + crEnt + 
+							"v 0.500000 0.375000 0.428080" + crEnt + 
+							"v 0.528801 0.375000 0.503080" + crEnt + 
+							"v 0.500000 0.375000 0.528080" + crEnt + 
+							"v 0.471199 0.375000 0.502500" + crEnt + 
+							"v 0.471199 0.375000 0.452500" + crEnt + 
+							"v 0.528801 0.625000 0.486048" + crEnt + 
+							"v 0.500000 0.625000 0.461048" + crEnt + 
+							"v 0.528801 0.625000 0.536048" + crEnt + 
+							"v 0.500000 0.625000 0.561048" + crEnt + 
+							"v 0.471199 0.625000 0.535000" + crEnt + 
+							"v 0.471199 0.625000 0.485000" + crEnt + 
+							"v 0.528801 0.906250 0.475000" + crEnt + 
+							"v 0.500000 0.906250 0.450000" + crEnt + 
+							"v 0.528801 0.906250 0.525000" + crEnt + 
+							"v 0.500000 0.906250 0.550000" + crEnt + 
+							"v 0.471198 0.906250 0.525000" + crEnt + 
+							"v 0.471198 0.906250 0.475000" + crEnt + 
+							"v 0.514400 0.937500 0.487500" + crEnt + 
+							"v 0.500000 0.937500 0.475000" + crEnt + 
+							"v 0.514400 0.937500 0.512500" + crEnt + 
+							"v 0.500000 0.937500 0.525000" + crEnt + 
+							"v 0.485599 0.937500 0.512500" + crEnt + 
+							"v 0.485599 0.937500 0.487500" + crEnt + 
+							"v 0.500000 0.937500 0.500000" + crEnt + 
+							"v 0.500000 0.000000 0.500000" + crEnt + 
+							"vt 0.348695 0.664113" + crEnt + 
+							"vt 0.337822 0.999917" + crEnt + 
+							"vt 0.000083 0.750561" + crEnt + 
+							"vt 0.257537 0.580868" + crEnt + 
+							"vt 0.000083 0.228448" + crEnt + 
+							"vt 0.243238 0.423492" + crEnt + 
+							"vt 0.349025 0.000083" + crEnt + 
+							"vt 0.338152 0.335887" + crEnt + 
+							"vt 0.686764 0.249439" + crEnt + 
+							"vt 0.429310 0.419132" + crEnt + 
+							"vt 0.998413 0.246264" + crEnt + 
+							"vt 0.999946 0.289130" + crEnt + 
+							"vt 0.612561 0.286810" + crEnt + 
+							"vt 0.613155 0.243154" + crEnt + 
+							"vt 0.686764 0.771552" + crEnt + 
+							"vt 0.443609 0.576508" + crEnt + 
+							"vt 0.343423 0.500000" + crEnt + 
+							"vt 0.614805 0.188081" + crEnt + 
+							"vt 0.325409 0.250380" + crEnt + 
+							"vt 0.327744 0.192040" + crEnt + 
+							"vt 0.998402 0.048901" + crEnt + 
+							"vt 0.995142 0.104528" + crEnt + 
+							"vt 0.614792 0.106585" + crEnt + 
+							"vt 0.613120 0.051496" + crEnt + 
+							"vt 0.995134 0.190627" + crEnt + 
+							"vt 0.993464 0.147574" + crEnt + 
+							"vt 0.615646 0.147534" + crEnt + 
+							"vt 0.999946 0.006034" + crEnt + 
+							"vt 0.612551 0.008256" + crEnt + 
+							"vt 0.328947 0.147508" + crEnt + 
+							"vt 0.001011 0.189997" + crEnt + 
+							"vt 0.000054 0.147589" + crEnt + 
+							"vt 0.325364 0.043865" + crEnt + 
+							"vt 0.324357 0.000054" + crEnt + 
+							"vt 0.327685 0.102164" + crEnt + 
+							"vt 0.324357 0.295006" + crEnt + 
+							"vt 0.000083 0.771552" + crEnt + 
+							"vt 0.000083 0.249439" + crEnt + 
+							"vt 0.257538 0.419132" + crEnt + 
+							"vt 0.243239 0.576508" + crEnt + 
+							"vt 0.003100 0.290517" + crEnt + 
+							"vt 0.002580 0.246612" + crEnt + 
+							"vt 0.000990 0.105181" + crEnt + 
+							"vt 0.002604 0.048566" + crEnt + 
+							"vt 0.003106 0.004637" + crEnt + 
+							"vt 0.429311 0.580868" + crEnt + 
+							"vt 0.343424 0.500000" + crEnt + 
+							"vt 0.443610 0.423492" + crEnt + 
+							"vt 0.337822 0.000083" + crEnt + 
+							"vt 0.686765 0.228448" + crEnt + 
+							"vt 0.348696 0.335887" + crEnt + 
+							"vt 0.686765 0.750561" + crEnt + 
+							"vt 0.349025 0.999917" + crEnt + 
+							"vt 0.338153 0.664113" + crEnt + 
+							"vn 0.5611 -0.5171 -0.6464" + crEnt + 
+							"vn 0.9082 -0.4185 0.0000" + crEnt + 
+							"vn 0.5611 -0.5171 0.6464" + crEnt + 
+							"vn -0.5611 -0.5171 0.6464" + crEnt + 
+							"vn -0.6590 0.0485 0.7505" + crEnt + 
+							"vn -0.9082 -0.4185 0.0000" + crEnt + 
+							"vn -0.5611 -0.5171 -0.6464" + crEnt + 
+							"vn 0.0000 -1.0000 0.0000" + crEnt + 
+							"vn -1.0000 -0.0000 0.0000" + crEnt + 
+							"vn 1.0000 0.0000 0.0000" + crEnt + 
+							"vn 0.6548 -0.0481 -0.7543" + crEnt + 
+							"vn 0.6548 0.0481 0.7543" + crEnt + 
+							"vn -0.6504 -0.0490 -0.7580" + crEnt + 
+							"vn -0.6473 -0.0285 -0.7617" + crEnt + 
+							"vn 0.6523 -0.0991 0.7515" + crEnt + 
+							"vn 0.6523 0.0991 -0.7515" + crEnt + 
+							"vn -0.6399 0.0998 -0.7620" + crEnt + 
+							"vn -0.6643 -0.0970 0.7412" + crEnt + 
+							"vn -0.9082 0.4185 0.0000" + crEnt + 
+							"vn -0.6630 0.0280 0.7481" + crEnt + 
+							"vn 0.6552 0.0297 0.7549" + crEnt + 
+							"vn 0.6552 -0.0297 -0.7549" + crEnt + 
+							"vn 0.0000 1.0000 0.0000" + crEnt + 
+							"vn 0.5611 0.5171 0.6464" + crEnt + 
+							"vn 0.5611 0.5171 -0.6464" + crEnt + 
+							"vn -0.5611 0.5171 -0.6464" + crEnt + 
+							"vn -0.5611 0.5171 0.6464" + crEnt + 
+							"vn 0.9082 0.4185 0.0000" + crEnt + 
+							"usemtl wood" + crEnt + 
+							"f 1/1/1 2/2/1 4/3/1 3/4/1" + crEnt + 
+							"f 3/4/2 4/3/2 6/5/2 5/6/2" + crEnt + 
+							"f 5/6/3 6/5/3 8/7/3 7/8/3" + crEnt + 
+							"f 7/8/4 8/7/4 10/9/4 9/10/4" + crEnt + 
+							"f 10/11/5 8/12/5 16/13/5 17/14/5" + crEnt + 
+							"f 9/10/6 10/9/6 12/15/6 11/16/6" + crEnt + 
+							"f 11/16/7 12/15/7 2/2/7 1/1/7" + crEnt + 
+							"f 1/1/8 38/17/8 11/16/8" + crEnt + 
+							"f 18/18/9 17/14/9 23/19/9 24/20/9" + crEnt + 
+							"f 6/21/10 4/22/10 13/23/10 15/24/10" + crEnt + 
+							"f 12/25/9 10/11/9 17/14/9 18/18/9" + crEnt + 
+							"f 4/22/11 2/26/11 14/27/11 13/23/11" + crEnt + 
+							"f 8/28/12 6/21/12 15/24/12 16/29/12" + crEnt + 
+							"f 2/26/13 12/25/13 18/18/13 14/27/13" + crEnt + 
+							"f 20/30/14 24/20/14 30/31/14 26/32/14" + crEnt + 
+							"f 16/29/15 15/24/15 21/33/15 22/34/15" + crEnt + 
+							"f 13/23/16 14/27/16 20/30/16 19/35/16" + crEnt + 
+							"f 14/27/17 18/18/17 24/20/17 20/30/17" + crEnt + 
+							"f 17/14/18 16/13/18 22/36/18 23/19/18" + crEnt + 
+							"f 15/24/10 13/23/10 19/35/10 21/33/10" + crEnt + 
+							"f 30/37/19 29/38/19 35/39/19 36/40/19" + crEnt + 
+							"f 23/19/20 22/36/20 28/41/20 29/42/20" + crEnt + 
+							"f 21/33/10 19/35/10 25/43/10 27/44/10" + crEnt + 
+							"f 24/20/9 23/19/9 29/42/9 30/31/9" + crEnt + 
+							"f 22/34/21 21/33/21 27/44/21 28/45/21" + crEnt + 
+							"f 19/35/22 20/30/22 26/32/22 25/43/22" + crEnt + 
+							"f 31/46/23 37/47/23 33/48/23" + crEnt + 
+							"f 28/49/24 27/50/24 33/48/24 34/51/24" + crEnt + 
+							"f 25/52/25 26/53/25 32/54/25 31/46/25" + crEnt + 
+							"f 26/53/26 30/37/26 36/40/26 32/54/26" + crEnt + 
+							"f 29/38/27 28/49/27 34/51/27 35/39/27" + crEnt + 
+							"f 27/50/28 25/52/28 31/46/28 33/48/28" + crEnt + 
+							"f 33/48/23 37/47/23 34/51/23" + crEnt + 
+							"f 34/51/23 37/47/23 35/39/23" + crEnt + 
+							"f 35/39/23 37/47/23 36/40/23" + crEnt + 
+							"f 36/40/23 37/47/23 32/54/23" + crEnt + 
+							"f 32/54/23 37/47/23 31/46/23" + crEnt + 
+							"f 11/16/8 38/17/8 9/10/8" + crEnt + 
+							"f 9/10/8 38/17/8 7/8/8" + crEnt + 
+							"f 7/8/8 38/17/8 5/6/8" + crEnt + 
+							"f 5/6/8 38/17/8 3/4/8" + crEnt + 
+							"f 3/4/8 38/17/8 1/1/8" + crEnt + 
+							"o tip" + crEnt + 
+							"v 0.519134 0.744683 0.450562" + crEnt + 
+							"v 0.519134 0.849607 0.446199" + crEnt + 
+							"v 0.546194 0.735976 0.487599" + crEnt + 
+							"v 0.546194 0.860900 0.483237" + crEnt + 
+							"v 0.546194 0.737312 0.525844" + crEnt + 
+							"v 0.546194 0.862235 0.521482" + crEnt + 
+							"v 0.519134 0.738605 0.562881" + crEnt + 
+							"v 0.519134 0.863529 0.558519" + crEnt + 
+							"v 0.480866 0.738605 0.562881" + crEnt + 
+							"v 0.480866 0.863529 0.558519" + crEnt + 
+							"v 0.453806 0.737312 0.525844" + crEnt + 
+							"v 0.453806 0.862235 0.521482" + crEnt + 
+							"v 0.453806 0.735976 0.487599" + crEnt + 
+							"v 0.453806 0.860900 0.483237" + crEnt + 
+							"v 0.480866 0.744683 0.450562" + crEnt + 
+							"v 0.480866 0.849607 0.446199" + crEnt + 
+							"v 0.500000 0.861568 0.502359" + crEnt + 
+							"v 0.500000 0.736644 0.506721" + crEnt + 
+							"v 0.514134 0.701589 0.326729" + crEnt + 
+							"v 0.514134 0.883975 0.320185" + crEnt + 
+							"v 0.485866 0.883975 0.307685" + crEnt + 
+							"v 0.485866 0.701589 0.314229" + crEnt + 
+							"v 0.509134 0.668177 0.265357" + crEnt + 
+							"v 0.509134 0.925525 0.256632" + crEnt + 
+							"v 0.490866 0.925525 0.229132" + crEnt + 
+							"v 0.490866 0.655677 0.237857" + crEnt + 
+							"v 0.500000 0.612096 0.197150" + crEnt + 
+							"v 0.500000 0.966925 0.187378" + crEnt + 
+							"v 0.500000 0.859607 0.446199" + crEnt + 
+							"v 0.500000 0.898975 0.307685" + crEnt + 
+							"v 0.500000 0.940525 0.229132" + crEnt + 
+							"v 0.500000 0.734683 0.450562" + crEnt + 
+							"v 0.500000 0.686589 0.314229" + crEnt + 
+							"v 0.500000 0.640677 0.237857" + crEnt + 
+							"vt 0.431093 0.620684" + crEnt + 
+							"vt 0.431105 0.381410" + crEnt + 
+							"vt 0.326543 0.375022" + crEnt + 
+							"vt 0.326537 0.624983" + crEnt + 
+							"vt 0.239346 0.375022" + crEnt + 
+							"vt 0.239341 0.624983" + crEnt + 
+							"vt 0.134789 0.375022" + crEnt + 
+							"vt 0.134784 0.624983" + crEnt + 
+							"vt 0.001506 0.624983" + crEnt + 
+							"vt 0.002403 0.375022" + crEnt + 
+							"vt 0.134784 0.375022" + crEnt + 
+							"vt 0.134789 0.624983" + crEnt + 
+							"vt 0.239341 0.375022" + crEnt + 
+							"vt 0.239346 0.624983" + crEnt + 
+							"vt 0.326537 0.375022" + crEnt + 
+							"vt 0.326543 0.624983" + crEnt + 
+							"vt 0.377976 0.403815" + crEnt + 
+							"vt 0.437329 0.249987" + crEnt + 
+							"vt 0.503853 0.400852" + crEnt + 
+							"vt 0.431093 0.381415" + crEnt + 
+							"vt 0.431105 0.620689" + crEnt + 
+							"vt 0.426840 0.332426" + crEnt + 
+							"vt 0.718547 0.318400" + crEnt + 
+							"vt 0.716322 0.271013" + crEnt + 
+							"vt 0.247887 0.190795" + crEnt + 
+							"vt 0.437329 0.249987" + crEnt + 
+							"vt 0.250383 0.316644" + crEnt + 
+							"vt 0.216249 0.254372" + crEnt + 
+							"vt 0.623868 0.309238" + crEnt + 
+							"vt 0.621372 0.183387" + crEnt + 
+							"vt 0.497818 0.096603" + crEnt + 
+							"vt 0.371923 0.098634" + crEnt + 
+							"vt 0.247887 0.190795" + crEnt + 
+							"vt 0.250383 0.316644" + crEnt + 
+							"vt 0.216249 0.254372" + crEnt + 
+							"vt 0.377976 0.403815" + crEnt + 
+							"vt 0.503853 0.400852" + crEnt + 
+							"vt 0.623868 0.309238" + crEnt + 
+							"vt 0.621372 0.183387" + crEnt + 
+							"vt 0.497818 0.096603" + crEnt + 
+							"vt 0.371923 0.098634" + crEnt + 
+							"vt 0.718538 0.683697" + crEnt + 
+							"vt 0.863010 0.752527" + crEnt + 
+							"vt 0.863025 0.249572" + crEnt + 
+							"vt 0.718538 0.318401" + crEnt + 
+							"vt 0.718547 0.683699" + crEnt + 
+							"vt 0.426840 0.669673" + crEnt + 
+							"vt 0.716322 0.731086" + crEnt + 
+							"vt 0.863010 0.249572" + crEnt + 
+							"vt 0.863122 0.209512" + crEnt + 
+							"vt 0.937494 0.180668" + crEnt + 
+							"vt 0.863025 0.752526" + crEnt + 
+							"vt 0.863123 0.792587" + crEnt + 
+							"vt 0.937494 0.821431" + crEnt + 
+							"vn 0.8076 -0.0224 -0.5893" + crEnt + 
+							"vn 1.0000 -0.0000 0.0000" + crEnt + 
+							"vn 0.8076 0.0206 0.5893" + crEnt + 
+							"vn 0.0000 0.0349 0.9994" + crEnt + 
+							"vn -0.8076 0.0206 0.5893" + crEnt + 
+							"vn -1.0000 0.0000 0.0000" + crEnt + 
+							"vn 0.0000 0.9994 -0.0349" + crEnt + 
+							"vn -0.8076 -0.0224 -0.5893" + crEnt + 
+							"vn 0.5327 0.8178 0.2179" + crEnt + 
+							"vn 0.0000 -0.9994 0.0349" + crEnt + 
+							"vn 0.0831 0.9685 -0.2346" + crEnt + 
+							"vn -0.0831 0.9685 -0.2346" + crEnt + 
+							"vn 0.0843 -0.9820 -0.1693" + crEnt + 
+							"vn -0.0843 -0.9820 -0.1693" + crEnt + 
+							"vn 0.9968 -0.0028 -0.0800" + crEnt + 
+							"vn -0.9993 -0.0014 -0.0363" + crEnt + 
+							"vn 0.9992 -0.0015 -0.0399" + crEnt + 
+							"vn -0.5819 -0.7744 0.2483" + crEnt + 
+							"vn -0.8114 0.4941 0.3124" + crEnt + 
+							"vn 0.2536 0.8389 0.4816" + crEnt + 
+							"vn -0.9979 -0.0022 -0.0644" + crEnt + 
+							"vn -0.7475 -0.5798 0.3241" + crEnt + 
+							"vn -0.9763 -0.0064 -0.2161" + crEnt + 
+							"vn 0.5917 -0.6598 0.4632" + crEnt + 
+							"vn 0.9913 -0.0040 -0.1313" + crEnt + 
+							"vn -0.7571 0.5872 0.2865" + crEnt + 
+							"vn -0.5889 0.7836 0.1979" + crEnt + 
+							"vn 0.6169 -0.6915 0.3758" + crEnt + 
+							"vn 0.5090 -0.8153 0.2760" + crEnt + 
+							"vn -0.2157 0.8253 0.5218" + crEnt + 
+							"vn -0.8023 -0.4885 0.3430" + crEnt + 
+							"usemtl top" + crEnt + 
+							"f 39/55/29 40/56/29 42/57/29 41/58/29" + crEnt + 
+							"f 41/58/30 42/57/30 44/59/30 43/60/30" + crEnt + 
+							"f 43/60/31 44/59/31 46/61/31 45/62/31" + crEnt + 
+							"f 45/63/32 46/64/32 48/65/32 47/66/32" + crEnt + 
+							"f 47/66/33 48/65/33 50/67/33 49/68/33" + crEnt + 
+							"f 49/68/34 50/67/34 52/69/34 51/70/34" + crEnt + 
+							"f 42/71/35 55/72/35 44/73/35" + crEnt + 
+							"f 51/70/36 52/69/36 54/74/36 53/75/36" + crEnt + 
+							"f 67/76/37 40/56/37 58/77/37 68/78/37" + crEnt + 
+							"f 39/79/38 56/80/38 53/81/38 70/82/38" + crEnt + 
+							"f 44/73/35 55/72/35 46/83/35" + crEnt + 
+							"f 46/83/35 55/72/35 48/84/35" + crEnt + 
+							"f 48/84/35 55/72/35 50/85/35" + crEnt + 
+							"f 50/85/35 55/72/35 52/86/35" + crEnt + 
+							"f 52/86/39 55/72/39 54/87/39" + crEnt + 
+							"f 54/87/35 55/72/35 40/88/35 67/89/35" + crEnt + 
+							"f 40/88/40 55/72/40 42/71/40" + crEnt + 
+							"f 53/81/41 56/80/41 51/90/41" + crEnt + 
+							"f 51/90/38 56/80/38 49/91/38" + crEnt + 
+							"f 49/91/38 56/80/38 47/92/38" + crEnt + 
+							"f 47/92/38 56/80/38 45/93/38" + crEnt + 
+							"f 45/93/38 56/80/38 43/94/38" + crEnt + 
+							"f 43/94/38 56/80/38 41/95/38" + crEnt + 
+							"f 41/95/42 56/80/42 39/79/42" + crEnt + 
+							"f 58/77/43 57/96/43 61/97/43 62/98/43" + crEnt + 
+							"f 53/75/44 54/74/44 59/99/44 60/100/44" + crEnt + 
+							"f 40/56/45 39/55/45 57/96/45 58/77/45" + crEnt + 
+							"f 70/101/46 53/75/46 60/100/46 71/102/46" + crEnt + 
+							"f 63/103/47 69/104/47 66/105/47" + crEnt + 
+							"f 68/78/48 58/77/48 62/98/48 69/104/48" + crEnt + 
+							"f 60/100/49 59/99/49 63/103/49 64/106/49" + crEnt + 
+							"f 71/102/50 60/100/50 64/106/50 72/107/50" + crEnt + 
+							"f 64/106/51 63/103/51 66/105/51 65/108/51" + crEnt + 
+							"f 61/97/52 72/107/52 65/108/52" + crEnt + 
+							"f 62/98/53 61/97/53 65/108/53 66/105/53" + crEnt + 
+							"f 59/99/54 68/78/54 69/104/54 63/103/54" + crEnt + 
+							"f 54/74/55 67/76/55 68/78/55 59/99/55" + crEnt + 
+							"f 57/96/56 71/102/56 72/107/56 61/97/56" + crEnt + 
+							"f 39/55/57 70/101/57 71/102/57 57/96/57" + crEnt + 
+							"f 66/105/58 69/104/58 62/98/58" + crEnt + 
+							"f 65/108/59 72/107/59 64/106/59";
+					this.saveFile(objModel, model);
+
+					String mat_lib = "newmtl top" + crEnt +
+							"Kd 1.000000 1.000000 1.000000" + crEnt +
+							"d 1.000000" + crEnt +
+							"map_Kd customnpcs:items/" + name + crEnt + crEnt + 
+							"newmtl wood" + crEnt +
+							"Kd 0.200000 0.050000 0.010000" + crEnt +
+							"d 1.000000";
+					this.saveFile(new File(blockModelsDir, name.toLowerCase() + ".mtl"), mat_lib);
+				}
+				File blockStatesDir = new File(CustomNpcs.Dir, "assets/" + CustomNpcs.MODID + "/blockstates");
+				if (!blockStatesDir.exists()) { blockStatesDir.mkdirs(); }
+				File itemState = new File(blockStatesDir, "custom_" + name.toLowerCase() + ".json");
+				if (!itemState.exists()) {
+					String state = "{" + crEnt + crTab +
+							"\"forge_marker\": 1," + crEnt + crTab +
+							"\"defaults\": {" + crEnt + crTab + crTab +
+							"\"model\": \"customnpcs:obj/" + name + ".obj\"" + crEnt + crTab + "}," + crEnt + crTab + 
+							"\"variants\": {" + crEnt + crTab + crTab +
+							"\"inventory\":[{" + crEnt + crTab + crTab + crTab +
+							"\"transform\": {" + crEnt + crTab + crTab + crTab + crTab +
+							"\"firstperson\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"x\": 20 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"firstperson_lefthand\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"x\": 20 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"thirdperson\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"translation\": [0, 0.1875, 0.0625]," + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"x\": -5 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"thirdperson_lefthand\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"translation\": [0, 0.1875, 0.0625]," + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"x\": -5 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"gui\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"translation\": [0, -0.0625, 0]," + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"z\": -45 }, { \"y\": 90 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"ground\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"scale\": 0.75," + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"x\": 45 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"head\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"translation\": [0.0625, 0.4375, -0.6875]," + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"scale\": 1.5," + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"x\": 60 }, { \"y\": 195 }, { \"z\": -30 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}," + crEnt + crTab + crTab + crTab + crTab +
+							"\"fixed\": {" + crEnt + crTab + crTab + crTab + crTab + crTab + 
+							"\"rotation\": [ { \"y\": 90 } ]" + crEnt + crTab + crTab + crTab + crTab +
+							"}" + crEnt + crTab + crTab + crTab + 
+							"}" + crEnt + crTab + crTab +  "}]," + crEnt + crTab + crTab +
+							"\"normal\": [{}]" + crEnt + crTab + "}" + crEnt + "}";
+					this.saveFile(itemState, state);
+				}
+				jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom Item Axe Model created by default\"," + crEnt + crTab +
+						"\"parent\": \"customnpcs:block/" + name.toLowerCase() + "\"" + crEnt + "}";
+				
+				if (this.saveFile(itemModel, jsonModel)) { LogWriter.debug("Create Default Item Axe Model for \"" + name + "\" item"); }
+				else { LogWriter.debug("Error Create Default Item Axe Model for \"" + name + "\" item"); }
 			}
 			if (jsonModel.isEmpty()) {
 				jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom Item Model created by default\"," + crEnt
@@ -908,13 +1314,17 @@ public class CommonProxy implements IGuiHandler {
 					jsonModel += crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/weapons/"
 							+ name.toLowerCase() + "\"" + crEnt;
 				} else if (customitem instanceof CustomTool) {
-					jsonModel += crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/" + name.toLowerCase()
-							+ "\"" + crEnt;
+					jsonModel += crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/" + name.toLowerCase() + "\"" + crEnt;
 					jsonModel = jsonModel.replace("item/generated", "item/handheld");
 				} else if (customitem instanceof CustomArmor) {
-					jsonModel += crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/armor/"
-							+ name.toLowerCase() + "_" + ((CustomArmor) customitem).armorType.name().toLowerCase()
-							+ "\"" + crEnt;
+					if (((CustomArmor) customitem).objModel == null) {
+						jsonModel += crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/armor/"
+								+ name.toLowerCase() + "_" + ((CustomArmor) customitem).armorType.name().toLowerCase()
+								+ "\"" + crEnt;
+					} else {
+						jsonModel = "{" + crEnt + crTab + "\"_comment\": \"Custom Item Armor OBJ Model created by default\"," + crEnt
+								+ crTab + "\"parent\": \"minecraft:item/generated\"" + crEnt + "}";
+					}
 				} else {
 					jsonModel += crTab + crTab + "\"layer0\": \"" + CustomNpcs.MODID + ":items/" + name.toLowerCase()
 							+ "\"" + crEnt;
@@ -953,107 +1363,119 @@ public class CommonProxy implements IGuiHandler {
 
 	public Container getContainer(EnumGuiType gui, EntityPlayer player, int x, int y, int z, EntityNPCInterface npc) {
 		switch (gui) {
-		case CustomContainer: {
-			TileEntity tile = player.world.getTileEntity(new BlockPos(x, y, z));
-			if (tile instanceof CustomTileEntityChest) {
-				return ((CustomTileEntityChest) tile).createContainer(player.inventory, player);
+			case CustomContainer: {
+				TileEntity tile = player.world.getTileEntity(new BlockPos(x, y, z));
+				if (tile instanceof CustomTileEntityChest) {
+					return ((CustomTileEntityChest) tile).createContainer(player.inventory, player);
+				}
+				return null;
 			}
-			return null;
-		}
-		case CustomChest: {
-			return new ContainerCustomChest(player, x);
-		}
-		case MainMenuInv: {
-			return new ContainerNPCInv(npc, player);
-		}
-		case MainMenuInvDrop: {
-			return new ContainerNPCDropSetup(npc, player, x, y, z);
-		} // New
-		case ManageTransport: {
-			TransportLocation loc = TransportController.getInstance().getTransport(x);
-			if (loc == null) {
-				loc = new TransportLocation();
-				loc.id = x;
-				loc.category = TransportController.getInstance().categories.get(y);
+			case CustomChest: {
+				return new ContainerCustomChest(player, x);
 			}
-			if (player.world.isRemote) {
-				loc = loc.copy();
+			case MainMenuInv: {
+				return new ContainerNPCInv(npc, player);
 			}
-			return new ContainerNPCTransportSetup(player, loc, y);
-		}
-		case PlayerAnvil: {
-			return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z));
-		}
-		case PlayerBank: {
-			Bank bank = BankController.getInstance().getBank(x);
-			if (bank == null) {
-				bank = new Bank();
+			case MainMenuInvDrop: {
+				return new ContainerNPCDropSetup(npc, player, x, y, z);
+			} // New
+			case ManageTransport: {
+				TransportLocation loc = TransportController.getInstance().getTransport(x);
+				if (loc == null) {
+					loc = new TransportLocation();
+					loc.id = x;
+					loc.category = TransportController.getInstance().categories.get(y);
+				}
+				if (player.world.isRemote) {
+					loc = loc.copy();
+				}
+				return new ContainerNPCTransportSetup(player, loc, y);
 			}
-			return new ContainerNPCBank(player, bank, y, z);
-		}
-		case PlayerFollowerHire: {
-			return new ContainerNPCFollowerHire(npc, player, x);
-		}
-		case PlayerFollower: {
-			return new ContainerNPCFollowerHire(npc, player, x);
-		}
-		case PlayerTrader: {
-			if (npc != null) {
-				return new ContainerNPCTrader(npc, player);
+			case PlayerAnvil: {
+				return new ContainerCarpentryBench(player.inventory, player.world, new BlockPos(x, y, z));
 			}
-			return new ContainerNPCTrader(x, player);
-		}
-		case SetupItemGiver: {
-			return new ContainerNpcItemGiver(npc, player);
-		}
-		case SetupTraderDeal: { // Change
-			MarcetController mData = MarcetController.getInstance();
-			Marcet marcet = (Marcet) mData.getMarcet(x);
-			if (marcet == null) {
-				marcet = new Marcet(x);
+			case PlayerBank: {
+				Bank bank = BankController.getInstance().getBank(x);
+				if (bank == null) {
+					bank = new Bank();
+				}
+				return new ContainerNPCBank(player, bank, y, z);
 			}
-			Deal deal = (Deal) mData.getDeal(y);
-			if (deal == null) {
-				deal = new Deal(y);
+			case PlayerFollowerHire: {
+				return new ContainerNPCFollowerHire(npc, player, x);
 			}
-			return new ContainerNPCTraderSetup(marcet, deal, player);
-		}
-		case SetupFollower: {
-			return new ContainerNPCFollowerSetup(npc, player);
-		}
-		case QuestReward: {
-			return new ContainerNpcQuestReward(player);
-		}
-		case QuestTypeItem: {
-			return new ContainerNpcQuestTypeItem(player, x);
-		}
-		case QuestRewardItem: {
-			return new ContainerNpcQuestRewardItem(player, x);
-		} // New
-		case ManageRecipes: {
-			return new ContainerManageRecipes(player, x);
-		} // Change
-		case ManageBanks: {
-			return new ContainerManageBanks(player);
-		}
-		case MerchantAdd: {
-			return new ContainerMerchantAdd(player, (IMerchant) ServerEventsHandler.Merchant, player.world);
-		}
-		case PlayerMailOpen: {
-			return new ContainerMail(player, x == 1, y == 1);
-		}
-		case CompanionInv: {
-			return new ContainerNPCCompanion(npc, player);
-		}
-		case CustomGui: {
-			return new ContainerCustomGui(getPlayer(), new InventoryBasic("", false, x));
-		}
-		case BuilderSetting: {
-			return new ContainerBuilderSettings(player, x);
-		} // New
-		default: {
-			return null;
-		}
+			case PlayerFollower: {
+				return new ContainerNPCFollowerHire(npc, player, x);
+			}
+			case PlayerTrader: {
+				if (npc != null) {
+					return new ContainerNPCTrader(npc, player);
+				}
+				return new ContainerNPCTrader(x, player);
+			}
+			case SetupItemGiver: {
+				return new ContainerNpcItemGiver(npc, player);
+			}
+			case SetupTraderDeal: { // Change
+				MarcetController mData = MarcetController.getInstance();
+				Marcet marcet = (Marcet) mData.getMarcet(x);
+				if (marcet == null) {
+					marcet = new Marcet(x);
+				}
+				Deal deal = (Deal) mData.getDeal(y);
+				if (deal == null) {
+					deal = new Deal(y);
+				}
+				return new ContainerNPCTraderSetup(marcet, deal, player);
+			}
+			case SetupFollower: {
+				return new ContainerNPCFollowerSetup(npc, player);
+			}
+			case QuestReward: {
+				return new ContainerNpcQuestReward(player);
+			}
+			case QuestTypeItem: {
+				return new ContainerNpcQuestTypeItem(player, x);
+			}
+			case QuestRewardItem: {
+				return new ContainerNpcQuestRewardItem(player, x);
+			} // New
+			case ManageRecipes: {
+				return new ContainerManageRecipes(player, x);
+			} // Change
+			case ManageBanks: {
+				return new ContainerManageBanks(player);
+			}
+			case MerchantAdd: {
+				return new ContainerMerchantAdd(player, (IMerchant) ServerEventsHandler.Merchant, player.world);
+			}
+			case PlayerMailOpen: {
+				return new ContainerMail(player, x == 1, y == 1);
+			}
+			case CompanionInv: {
+				return new ContainerNPCCompanion(npc, player);
+			}
+			case CustomGui: {
+				return new ContainerCustomGui(getPlayer(), new InventoryBasic("", false, x));
+			}
+			case BuilderSetting: {
+				return new ContainerBuilderSettings(player, x, y);
+			}
+			case ReplaceSetting: {
+				return new ContainerBuilderSettings(player, x, y);
+			}
+			case PlacerSetting: {
+				return new ContainerBuilderSettings(player, x, y);
+			}
+			case SaverSetting: {
+				return new ContainerBuilderSettings(player, x, y);
+			}
+			case RemoverSetting: {
+				return new ContainerBuilderSettings(player, x, y);
+			}
+			default: {
+				return null;
+			}
 		}
 	}
 
@@ -1237,6 +1659,7 @@ public class CommonProxy implements IGuiHandler {
 		}
 
 		/** Update All Recipes */
+		if (RecipeController.Registry == null) { return; }
 		// Delete Old
 		List<ResourceLocation> del = Lists.<ResourceLocation>newArrayList();
 		RecipeController.Registry.unfreeze();

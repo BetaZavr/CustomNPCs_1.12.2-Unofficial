@@ -119,13 +119,13 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 		ModelPartConfig config2 = this.playerdata.getPartConfig(GuiCreationScale.selected);
 		int y = this.guiTop + 65;
 		this.addLabel(new GuiNpcLabel(10, "scale.width", this.guiLeft + 102, y + 5, 16777215));
-		this.addSlider(new GuiNpcSlider(this, 10, this.guiLeft + 150, y, 100, 20, config2.scaleBase[0] - 0.5f));
+		this.addSlider(new GuiNpcSlider(this, 10, this.guiLeft + 150, y, 100, 20, config2.scale[0] - 0.5f));
 		y += 22;
 		this.addLabel(new GuiNpcLabel(11, "scale.height", this.guiLeft + 102, y + 5, 16777215));
-		this.addSlider(new GuiNpcSlider(this, 11, this.guiLeft + 150, y, 100, 20, config2.scaleBase[1] - 0.5f));
+		this.addSlider(new GuiNpcSlider(this, 11, this.guiLeft + 150, y, 100, 20, config2.scale[1] - 0.5f));
 		y += 22;
 		this.addLabel(new GuiNpcLabel(12, "scale.depth", this.guiLeft + 102, y + 5, 16777215));
-		this.addSlider(new GuiNpcSlider(this, 12, this.guiLeft + 150, y, 100, 20, config2.scaleBase[2] - 0.5f));
+		this.addSlider(new GuiNpcSlider(this, 12, this.guiLeft + 150, y, 100, 20, config2.scale[2] - 0.5f));
 		if (GuiCreationScale.selected == EnumParts.ARM_LEFT || GuiCreationScale.selected == EnumParts.LEG_LEFT) {
 			y += 22;
 			this.addLabel(new GuiNpcLabel(13, "scale.shared", this.guiLeft + 102, y + 5, 16777215));
@@ -142,13 +142,13 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 			slider.setString(percent + "%");
 			ModelPartConfig config = this.playerdata.getPartConfig(GuiCreationScale.selected);
 			if (slider.id == 10) {
-				config.scaleBase[0] = slider.sliderValue + 0.5f;
+				config.scale[0] = slider.sliderValue + 0.5f;
 			}
 			if (slider.id == 11) {
-				config.scaleBase[1] = slider.sliderValue + 0.5f;
+				config.scale[1] = slider.sliderValue + 0.5f;
 			}
 			if (slider.id == 12) {
-				config.scaleBase[2] = slider.sliderValue + 0.5f;
+				config.scale[2] = slider.sliderValue + 0.5f;
 			}
 			this.updateTransate();
 		}
@@ -174,8 +174,8 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 					config.setTranslate(0.0f, this.playerdata.getBodyY(), 0.0f);
 				} else if (part == EnumParts.ARM_LEFT) {
 					ModelPartConfig body = this.playerdata.getPartConfig(EnumParts.BODY);
-					float x = (1.0f - body.scaleBase[0]) * 0.25f + (1.0f - config.scaleBase[0]) * 0.075f;
-					float y = this.playerdata.getBodyY() + (1.0f - config.scaleBase[1]) * -0.1f;
+					float x = (1.0f - body.scale[0]) * 0.25f + (1.0f - config.scale[0]) * 0.075f;
+					float y = this.playerdata.getBodyY() + (1.0f - config.scale[1]) * -0.1f;
 					config.setTranslate(-x, y, 0.0f);
 					if (!config.notShared) {
 						ModelPartConfig arm = this.playerdata.getPartConfig(EnumParts.ARM_RIGHT);
@@ -183,17 +183,17 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
 					}
 				} else if (part == EnumParts.ARM_RIGHT) {
 					ModelPartConfig body = this.playerdata.getPartConfig(EnumParts.BODY);
-					float x = (1.0f - body.scaleBase[0]) * 0.25f + (1.0f - config.scaleBase[0]) * 0.075f;
-					float y = this.playerdata.getBodyY() + (1.0f - config.scaleBase[1]) * -0.1f;
+					float x = (1.0f - body.scale[0]) * 0.25f + (1.0f - config.scale[0]) * 0.075f;
+					float y = this.playerdata.getBodyY() + (1.0f - config.scale[1]) * -0.1f;
 					config.setTranslate(x, y, 0.0f);
 				} else if (part == EnumParts.LEG_LEFT) {
-					config.setTranslate(config.scaleBase[0] * 0.125f - 0.113f, this.playerdata.getLegsY(), 0.0f);
+					config.setTranslate(config.scale[0] * 0.125f - 0.113f, this.playerdata.getLegsY(), 0.0f);
 					if (!config.notShared) {
 						ModelPartConfig leg = this.playerdata.getPartConfig(EnumParts.LEG_RIGHT);
 						leg.copyValues(config);
 					}
 				} else if (part == EnumParts.LEG_RIGHT) {
-					config.setTranslate((1.0f - config.scaleBase[0]) * 0.125f, this.playerdata.getLegsY(), 0.0f);
+					config.setTranslate((1.0f - config.scale[0]) * 0.125f, this.playerdata.getLegsY(), 0.0f);
 				} else if (part == EnumParts.BODY) {
 					config.setTranslate(0.0f, this.playerdata.getBodyY(), 0.0f);
 				}

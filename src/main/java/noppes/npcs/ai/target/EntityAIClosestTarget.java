@@ -22,8 +22,7 @@ public class EntityAIClosestTarget extends EntityAITarget {
 	private Predicate<EntityLivingBase> targetEntitySelector;
 	private EntityAINearestAttackableTarget.Sorter theNearestAttackableTargetSorter;
 
-	public EntityAIClosestTarget(EntityNPCInterface npc, Class<EntityLivingBase> targetClass, int targetChance,
-			boolean directLOS, boolean onlyNearby, Predicate<EntityLivingBase> attackEntitySelector) {
+	public EntityAIClosestTarget(EntityNPCInterface npc, Class<EntityLivingBase> targetClass, int targetChance, boolean directLOS, boolean onlyNearby, Predicate<EntityLivingBase> attackEntitySelector) {
 		super((EntityCreature) npc, directLOS, onlyNearby);
 		this.targetClass = targetClass;
 		this.targetChance = targetChance;

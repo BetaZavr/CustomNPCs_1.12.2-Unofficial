@@ -75,93 +75,93 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 	@Override
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
-		case 0: { // Add market
-			save();
-			selectedMarcet = (Marcet) mData.addMarcet();
-			marcetId = selectedMarcet.getId();
-			initGui();
-			CustomNPCsScheduler.runTack(() -> {
+			case 0: { // Add market
+				save();
+				selectedMarcet = (Marcet) mData.addMarcet();
+				marcetId = selectedMarcet.getId();
+				initGui();
+				CustomNPCsScheduler.runTack(() -> {
+					setSubGui(new SubGuiNpcMarketSettings(selectedMarcet));
+				}, 50);
+				break;
+			}
+			case 1: { // Del market
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollMarcets.getSelected(),
+						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
+				displayGuiScreen((GuiScreen) guiyesno);
+				break;
+			}
+			case 2: { // Market settings
 				setSubGui(new SubGuiNpcMarketSettings(selectedMarcet));
-			}, 50);
-			break;
-		}
-		case 1: { // Del market
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollMarcets.getSelected(),
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
-			displayGuiScreen((GuiScreen) guiyesno);
-			break;
-		}
-		case 2: { // Market settings
-			setSubGui(new SubGuiNpcMarketSettings(selectedMarcet));
-			break;
-		}
-		case 3: { // Add deal
-			save();
-			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, mData.getUnusedDealId(), 0);
-			break;
-		}
-		case 4: { // Del deal
-			GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollDeals.getSelected(),
-					new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
-			displayGuiScreen((GuiScreen) guiyesno);
-			break;
-		}
-		case 5: { // Deal settings
-			if (scrollAllDeals.selected < 0 || dealId < 0) {
-				return;
+				break;
 			}
-			NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
-			close();
-			break;
-		}
-		case 6: { // tab
-			tabSelect = button.getValue();
-			initGui();
-			break;
-		}
-		case 7: { // <
-			if (selectedMarcet == null || selectedDeal == null) {
-				return;
+			case 3: { // Add deal
+				save();
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, mData.getUnusedDealId(), 0);
+				break;
 			}
-			int tab = selectedMarcet.getSection(selectedDeal.getId());
-			if (tab == tabSelect) {
-				return;
+			case 4: { // Del deal
+				GuiYesNo guiyesno = new GuiYesNo((GuiYesNoCallback) this, scrollDeals.getSelected(),
+						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 1);
+				displayGuiScreen((GuiScreen) guiyesno);
+				break;
 			}
-			selectedMarcet.sections.get(tabSelect).addDeal(selectedDeal.getId());
-			setGuiData(null);
-			initGui();
-			break;
-		}
-		case 8: { // >
-			if (!dataDeals.containsKey(scrollDeals.getSelected())) {
-				return;
+			case 5: { // Deal settings
+				if (scrollAllDeals.selected < 0 || dealId < 0) {
+					return;
+				}
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, marcetId, dealId, 0);
+				close();
+				break;
 			}
-			int id = dataDeals.get(scrollDeals.getSelected());
-			selectedMarcet.sections.get(tabSelect).removeDeal(id);
-			setGuiData(null);
-			initGui();
-			break;
-		}
-		case 9: { // <<
-			if (dataDeals.isEmpty()) {
-				return;
+			case 6: { // tab
+				tabSelect = button.getValue();
+				initGui();
+				break;
 			}
-			for (int id : dataDeals.values()) {
-				selectedMarcet.sections.get(tabSelect).addDeal(id);
+			case 7: { // <
+				if (selectedMarcet == null || selectedDeal == null) {
+					return;
+				}
+				int tab = selectedMarcet.getSection(selectedDeal.getId());
+				if (tab == tabSelect) {
+					return;
+				}
+				selectedMarcet.sections.get(tabSelect).addDeal(selectedDeal.getId());
+				setGuiData(null);
+				initGui();
+				break;
 			}
-			setGuiData(null);
-			initGui();
-			break;
-		}
-		case 10: { // >>
-			if (scrollDeals.getList().isEmpty()) {
-				return;
+			case 8: { // >
+				if (!dataDeals.containsKey(scrollDeals.getSelected())) {
+					return;
+				}
+				int id = dataDeals.get(scrollDeals.getSelected());
+				selectedMarcet.sections.get(tabSelect).removeDeal(id);
+				setGuiData(null);
+				initGui();
+				break;
 			}
-			selectedMarcet.sections.get(tabSelect).removeAllDeals();
-			setGuiData(null);
-			initGui();
-			break;
-		}
+			case 9: { // <<
+				if (dataDeals.isEmpty()) {
+					return;
+				}
+				for (int id : dataDeals.values()) {
+					selectedMarcet.sections.get(tabSelect).addDeal(id);
+				}
+				setGuiData(null);
+				initGui();
+				break;
+			}
+			case 10: { // >>
+				if (scrollDeals.getList().isEmpty()) {
+					return;
+				}
+				selectedMarcet.sections.get(tabSelect).removeAllDeals();
+				setGuiData(null);
+				initGui();
+				break;
+			}
 		}
 	}
 
@@ -256,8 +256,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 				Marcet marcet = (Marcet) mData.getMarcet(id);
 				List<String> info = new ArrayList<String>();
 				info.add(((char) 167) + "7ID: " + ((char) 167) + "r" + marcet.getId());
-				info.add(((char) 167) + "7" + new TextComponentTranslation("gui.name").getFormattedText() + ((char) 167)
-						+ "7: " + ((char) 167) + "r" + marcet.name);
+				info.add(((char) 167) + "7" + new TextComponentTranslation("gui.name").getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "r" + marcet.name);
 				if (!marcet.isValid()) {
 					info.add(new TextComponentTranslation("market.hover.nv.market").getFormattedText());
 					for (MarcetSection ms : selectedMarcet.sections.values()) {
@@ -355,7 +354,7 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 					}
 					if (dm.baseMoney > 0) {
 						totalInfo.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
-						totalInfo.add("" + dm.baseMoney + CustomNpcs.CharCurrencies.charAt(0));
+						totalInfo.add("" + dm.baseMoney + CustomNpcs.displayCurrencies);
 					}
 					totalInfo.add(
 							((char) 167) + "e" + (new TextComponentTranslation("market.deal.type." + dm.deal.getType())
@@ -455,27 +454,29 @@ public class GuiNPCManageMarcets extends GuiNPCInterface2
 
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
-		switch (scroll.id) {
-		case 0: { // Marcets
-			if (!dataMarcets.containsKey(scroll.getSelected())) {
-				return;
+		try {
+			switch (scroll.id) {
+				case 0: { // Marcets
+					if (!dataMarcets.containsKey(scroll.getSelected())) {
+						return;
+					}
+					selectedMarcet = (Marcet) mData.getMarcet(dataMarcets.get(scroll.getSelected()));
+					marcetId = selectedMarcet.getId();
+					initGui();
+					break;
+				}
+				case 1: // Deals
+				case 2: { // All Deals
+					if (!dataDeals.containsKey(scroll.getSelected())) {
+						return;
+					}
+					selectedDeal = (Deal) mData.getDeal(dataDeals.get(scroll.getSelected()));
+					dealId = selectedDeal.getId();
+					initGui();
+					break;
+				}
 			}
-			selectedMarcet = (Marcet) mData.getMarcet(dataMarcets.get(scroll.getSelected()));
-			marcetId = selectedMarcet.getId();
-			initGui();
-			break;
-		}
-		case 1: // Deals
-		case 2: { // All Deals
-			if (!dataDeals.containsKey(scroll.getSelected())) {
-				return;
-			}
-			selectedDeal = (Deal) mData.getDeal(dataDeals.get(scroll.getSelected()));
-			dealId = selectedDeal.getId();
-			initGui();
-			break;
-		}
-		}
+		} catch (Exception e) { e.printStackTrace(); }
 	}
 
 	@Override

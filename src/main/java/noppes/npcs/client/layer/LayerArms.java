@@ -35,13 +35,13 @@ public class LayerArms<T extends EntityLivingBase> extends LayerInterface<T> {
 			return;
 		}
 		this.preRender(data);
-		if (this.npc.animation.showParts.get(1) && (data.pattern == 0 || data.pattern == 1)) {
+		if (this.npc.animation.showParts.get(EnumParts.ARM_LEFT) && (data.pattern == 0 || data.pattern == 1)) {
 			GlStateManager.pushMatrix();
 			this.model.bipedLeftArm.postRender(0.0625f);
 			this.lClaw.render(par7);
 			GlStateManager.popMatrix();
 		}
-		if (this.npc.animation.showParts.get(2) && (data.pattern == 0 || data.pattern == 2)) {
+		if (this.npc.animation.showParts.get(EnumParts.ARM_RIGHT) && (data.pattern == 0 || data.pattern == 2)) {
 			GlStateManager.pushMatrix();
 			this.model.bipedRightArm.postRender(0.0625f);
 			this.rClaw.render(par7);

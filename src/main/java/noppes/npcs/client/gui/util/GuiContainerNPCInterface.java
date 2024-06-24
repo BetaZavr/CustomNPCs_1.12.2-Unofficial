@@ -5,9 +5,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -24,18 +28,23 @@ import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.containers.ContainerEmpty;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ObfuscationHelper;
 
-public abstract class GuiContainerNPCInterface extends GuiContainer implements IEditNPC {
+public abstract class GuiContainerNPCInterface
+extends GuiContainer
+implements IEditNPC {
 
 	public static ResourceLocation ball = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 
-	public boolean closeOnEsc, drawDefaultBackground;
+	public boolean closeOnEsc = false;
+	public boolean hoverMiniWin = false;
+	public boolean drawDefaultBackground = false;
 	public int guiLeft, guiTop, mouseX, mouseY;
-	public float bgScale;
-	public String title;
+	public float bgScale = 1.0f;
+	public String title = "Npc Mainmenu";
 	public String[] hoverText;
 
 	public ResourceLocation background;
@@ -44,33 +53,23 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 	public SubGuiInterface subgui;
 
 	private Poses[] ps;
-	private final List<IGui> components;
-	private final HashMap<Integer, GuiNpcLabel> labels;
-	private final HashMap<Integer, GuiCustomScroll> scrolls;
-	private final HashMap<Integer, GuiNpcSlider> sliders;
-	private final HashMap<Integer, GuiNpcTextField> textfields;
-	private final HashMap<Integer, GuiMenuTopButton> topbuttons;
-	private final HashMap<Integer, GuiNpcButton> buttons;
+	private final List<int[]> line = Lists.<int[]>newArrayList();; // startX, startY, endX, endY, color, lineSize
+	private final List<IGui> components = Lists.<IGui>newArrayList();
+	private final HashMap<Integer, GuiNpcLabel> labels = new HashMap<Integer, GuiNpcLabel>();
+	private final HashMap<Integer, GuiCustomScroll> scrolls = new HashMap<Integer, GuiCustomScroll>();
+	private final HashMap<Integer, GuiNpcSlider> sliders = new HashMap<Integer, GuiNpcSlider>();
+	private final HashMap<Integer, GuiNpcTextField> textfields = new HashMap<Integer, GuiNpcTextField>();
+	private final HashMap<Integer, GuiMenuTopButton> topbuttons = new HashMap<Integer, GuiMenuTopButton>();
+	private final HashMap<Integer, GuiNpcButton> buttons = new HashMap<Integer, GuiNpcButton>();
+	protected final Map<Integer, GuiNpcMiniWindow> mwindows = new ConcurrentHashMap<Integer, GuiNpcMiniWindow>();
 
 	public GuiContainerNPCInterface(EntityNPCInterface npc, Container cont) {
 		super(cont);
-		this.drawDefaultBackground = false;
-		this.components = new ArrayList<IGui>();
-		this.buttons = new HashMap<Integer, GuiNpcButton>();
-		this.topbuttons = new HashMap<Integer, GuiMenuTopButton>();
-		this.textfields = new HashMap<Integer, GuiNpcTextField>();
-		this.labels = new HashMap<Integer, GuiNpcLabel>();
-		this.scrolls = new HashMap<Integer, GuiCustomScroll>();
-		this.sliders = new HashMap<Integer, GuiNpcSlider>();
-		this.closeOnEsc = false;
-		this.player = Minecraft.getMinecraft().player;
 		this.npc = npc;
-		this.title = "Npc Mainmenu";
 		this.mc = Minecraft.getMinecraft();
+		this.player = this.mc.player;
 		this.itemRender = this.mc.getRenderItem();
 		this.fontRenderer = this.mc.fontRenderer;
-		// New
-		this.bgScale = 1.0f;
 		this.ps = new Poses[] { new Poses(this, 0), new Poses(this, 1), new Poses(this, 2), new Poses(this, 3),
 				new Poses(this, 4), new Poses(this, 5), new Poses(this, 6), new Poses(this, 7) };
 	}
@@ -82,6 +81,10 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 		if (this.subgui != null) {
 			this.subgui.buttonEvent((GuiNpcButton) guibutton);
 		} else {
+			for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
+				mwin.buttonEvent((GuiNpcButton) guibutton);
+			}
+			if (this.hoverMiniWin) { return; }
 			this.buttonEvent((GuiNpcButton) guibutton);
 		}
 	}
@@ -118,6 +121,11 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 		this.buttonList.add(button);
 	}
 
+	public void addMiniWindow(GuiNpcMiniWindow miniwindows) {
+		this.mwindows.put(miniwindows.id, miniwindows);
+		miniwindows.resetButtons();
+	}
+	
 	public void buttonEvent(GuiNpcButton button) {
 	}
 
@@ -163,13 +171,22 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 				}
 				GlStateManager.popMatrix();
 			}
+			this.postDrawBackground();
 			super.drawDefaultBackground();
 		}
 	}
 
+	public void postDrawBackground() { }
+
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation(this.title).getFormattedText(),
-				this.width / 2, this.guiTop - 8, 16777215);
+		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation(this.title).getFormattedText(), this.width / 2, this.guiTop - 8, 16777215);
+		if (!this.line.isEmpty()) {
+			for (int[] ln : this.line) {
+				if (ln == null || ln.length < 6) { continue; }
+				GuiBoundarySetting.drawLine(ln[0], ln[1], ln[2], ln[3], ln[4], ln[5]);
+			}
+			this.line.clear();
+		}
 		for (GuiNpcLabel label : new ArrayList<GuiNpcLabel>(this.labels.values())) {
 			label.drawLabel((GuiScreen) this, this.fontRenderer, mouseX, mouseY, partialTicks);
 		}
@@ -191,6 +208,11 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 					(!this.hasSubGui() && (scroll.hovered || (this.scrolls.size() == 0 && !hasArea)))
 							? Mouse.getDWheel()
 							: 0);
+		}
+		this.hoverMiniWin = false;
+		for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
+			mwin.drawScreen(mouseX, mouseY, partialTicks);
+			if (mwin.hovered) { this.hoverMiniWin = true; }
 		}
 	}
 
@@ -294,7 +316,6 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 		} else {
 			this.renderHoveredToolTip(this.mouseX, this.mouseY);
 		}
-		// New
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, fontRenderer);
 			this.hoverText = null;
@@ -379,6 +400,10 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 	public GuiMenuTopButton getTopButton(int i) {
 		return this.topbuttons.get(i);
 	}
+	
+	public GuiNpcMiniWindow getMiniWindow(int i) {
+		return this.mwindows.get(i);
+	}
 
 	@Override
 	public boolean hasSubGui() {
@@ -396,6 +421,7 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 		this.sliders.clear();
 		this.labels.clear();
 		this.textfields.clear();
+		this.mwindows.clear();
 		Keyboard.enableRepeatEvents(true);
 		if (this.subgui != null) {
 			this.subgui.setWorldAndResolution(this.mc, this.width, this.height);
@@ -421,53 +447,64 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 	protected void keyTyped(char c, int i) {
 		if (this.subgui != null) {
 			this.subgui.keyTyped(c, i);
-		} else {
-			boolean helpButtons = false;
-			if (i == 56 || i == 29 || i == 184) {
-				helpButtons = Keyboard.isKeyDown(35);
-			} else if (i == 35) {
-				helpButtons = Keyboard.isKeyDown(56) || Keyboard.isKeyDown(29) || Keyboard.isKeyDown(184);
-			}
-			if (helpButtons) {
-				CustomNpcs.ShowDescriptions = !CustomNpcs.ShowDescriptions;
-			}
-			for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
-				tf.textboxKeyTyped(c, i);
-			}
-			if (this.closeOnEsc && (i == 1
-					|| (i == this.mc.gameSettings.keyBindInventory.getKeyCode() && !GuiNpcTextField.isActive()))) {
-				this.close();
-			}
-			for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-				scroll.keyTyped(c, i);
-			}
+			return;
+		}
+		for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
+			mwin.keyTyped(c, i);
+		}
+		if (this.hoverMiniWin) { return; }
+		boolean helpButtons = false;
+		if (i == 56 || i == 29 || i == 184) {
+			helpButtons = Keyboard.isKeyDown(35);
+		} else if (i == 35) {
+			helpButtons = Keyboard.isKeyDown(56) || Keyboard.isKeyDown(29) || Keyboard.isKeyDown(184);
+		}
+		if (helpButtons) {
+			CustomNpcs.ShowDescriptions = !CustomNpcs.ShowDescriptions;
+		}
+		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
+			tf.textboxKeyTyped(c, i);
+		}
+		if (this.closeOnEsc && (i == 1
+				|| (i == this.mc.gameSettings.keyBindInventory.getKeyCode() && !GuiNpcTextField.isActive()))) {
+			this.close();
+		}
+		for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
+			scroll.keyTyped(c, i);
 		}
 	}
 
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		if (this.subgui != null) {
 			this.subgui.mouseClicked(mouseX, mouseY, mouseButton);
-		} else {
-			for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
-				if (tf.enabled) {
-					tf.mouseClicked(mouseX, mouseY, mouseButton);
-				}
+			return;
+		}
+		for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
+			mwin.mouseClicked(mouseX, mouseY, mouseButton);
+		}
+		if (this.hoverMiniWin) { return; }
+		for (GuiNpcTextField tf : new ArrayList<GuiNpcTextField>(this.textfields.values())) {
+			if (tf.enabled) {
+				tf.mouseClicked(mouseX, mouseY, mouseButton);
 			}
-			if (mouseButton == 0) {
-				for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
-					scroll.mouseClicked(mouseX, mouseY, mouseButton);
-				}
+		}
+		if (mouseButton == 0) {
+			for (GuiCustomScroll scroll : new ArrayList<GuiCustomScroll>(this.scrolls.values())) {
+				scroll.mouseClicked(mouseX, mouseY, mouseButton);
 			}
-			this.mouseEvent(mouseX, mouseY, mouseButton);
-			try {
-				super.mouseClicked(mouseX, mouseY, mouseButton);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		}
+		this.mouseEvent(mouseX, mouseY, mouseButton);
+		try {
+			super.mouseClicked(mouseX, mouseY, mouseButton);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	public void mouseEvent(int i, int j, int k) {
+	public void mouseEvent(int mouseX, int mouseY, int mouseButton) {
+		for (GuiNpcMiniWindow mwin : this.mwindows.values()) {
+			mwin.mouseEvent(mouseX, mouseY, mouseButton);
+		}
 	}
 
 	public abstract void save();
@@ -517,4 +554,36 @@ public abstract class GuiContainerNPCInterface extends GuiContainer implements I
 		super.updateScreen();
 	}
 
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) { }
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+
+	@Override
+	public void mouseDragged(GuiNpcSlider slider) { }
+
+	@Override
+	public void mousePressed(GuiNpcSlider slider) { }
+
+	@Override
+	public void mouseReleased(GuiNpcSlider slider) {
+	}
+
+	@Override
+	public void unFocused(GuiNpcTextField textField) { }
+	
+	@Override
+	public void addLine(int sX, int sY, int eX, int eY, int color, int size) {
+		this.line.add(new int[] { sX, sY, eX, eY, color, size });
+	}
+	
+	@Override
+	public void closeMiniWindow(GuiNpcMiniWindow miniWindow) {
+		this.mwindows.remove(miniWindow.id);
+	}
+	
+	@Override
+	public void setMiniHoverText(int id, IComponentGui component) {}
+	
 }

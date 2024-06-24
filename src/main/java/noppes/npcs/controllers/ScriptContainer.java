@@ -59,6 +59,7 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.DataObject;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.util.ObfuscationHelper;
 
 public class ScriptContainer {
@@ -71,6 +72,7 @@ public class ScriptContainer {
 		}
 
 	}
+	
 	public class Log implements Function<Object, Void> {
 		@Override
 		public Void apply(Object o) {
@@ -79,10 +81,12 @@ public class ScriptContainer {
 			return null;
 		}
 	}
+	
 	public static ScriptContainer Current;
 	public static HashMap<String, Object> Data = Maps.<String, Object>newHashMap();
 	private static Method luaCall;
 	private static Method luaCoerce;
+	
 	static {
 		FillMap(AnimationKind.class);
 		FillMap(AnimationType.class);
@@ -97,9 +101,11 @@ public class ScriptContainer {
 		FillMap(SideType.class);
 		FillMap(TacticalType.class);
 		FillMap(ScriptController.Instance.constants);
-		ScriptContainer.Data.put("API", NpcAPI.Instance());
+		ScriptContainer.Data.put("api", NpcAPI.Instance());
+		ScriptContainer.Data.put("cnpcs", CustomNpcs.instance);
 		ScriptContainer.Data.put("PosZero", new BlockPosWrapper(BlockPos.ORIGIN));
 	}
+	
 	private static void FillMap(Class<?> c) {
 		if (!c.isEnum()) {
 			return;
@@ -112,14 +118,13 @@ public class ScriptContainer {
 					continue;
 				}
 				ScriptContainer.Data.put(c.getSimpleName() + "_" + ((Enum<?>) e).name(), (int) m.invoke(e));
-				// LogWriter.debug("Add Base Script Constant: \"" + c.getSimpleName() + "_" +
-				// ((Enum<?>) e).name() + "\" == " + ((int) m.invoke(e)));
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException error) {
 				error.printStackTrace();
 			}
 		}
 	}
+	
 	private static void FillMap(NBTTagCompound c) {
 		if (!c.hasKey("Constants", 10)) {
 			return;
@@ -129,10 +134,10 @@ public class ScriptContainer {
 			Object value = getNBTValue(tag);
 			if (value != null) {
 				ScriptContainer.Data.put(key, value);
-				// LogWriter.debug("Add Custom Script Constant: " + key + " == " + value);
 			}
 		}
 	}
+	
 	private static Object getNBTValue(NBTBase tag) {
 		Object value = null;
 		switch (tag.getId()) {
@@ -189,9 +194,11 @@ public class ScriptContainer {
 		}
 		return value;
 	}
+	
 	public static void reloadConstants() {
 		ScriptContainer.Data.remove("dump");
 	}
+	
 	public TreeMap<Long, String> console;
 	public ScriptEngine engine;
 	public boolean errored;
@@ -304,19 +311,16 @@ public class ScriptContainer {
 		Object key = event instanceof BlockEvent ? "Block"
 				: event instanceof PlayerEvent ? "Player"
 						: event instanceof ItemEvent ? "Item" : event instanceof NpcEvent ? "Npc" : null;
-		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type,
-				"ScriptContainer_run");
+		CustomNpcs.debugData.startDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type, "ScriptContainer_run");
 		this.run(type, event);
-		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type,
-				"ScriptContainer_run");
+		CustomNpcs.debugData.endDebug(side ? "Server" : "Client", "Run" + key + "Script_" + type, "ScriptContainer_run");
 	}
 
 	private void run(String type, Object event) {
 		if (this.engine == null) {
 			this.setEngine(this.handler.getLanguage());
 		}
-		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting
-				|| this.engine == null) {
+		if (this.errored || !this.hasCode() || this.unknownFunctions.contains(type) || !CustomNpcs.EnableScripting || this.engine == null) {
 			return;
 		}
 		if (ScriptController.Instance.lastLoaded > this.lastCreated) {
@@ -330,6 +334,12 @@ public class ScriptContainer {
 			this.engine.getContext().setWriter(pw);
 			this.engine.getContext().setErrorWriter(pw);
 			try {
+				if (this.engine.get("dump") == null) {
+					this.fillEngine();
+				}
+				else if (this.isClient && (this.engine.get("mc") == null || this.engine.get("storedData") == null)) {
+					this.fillEngineClient();
+				}
 				if (!this.init) {
 					this.engine.eval(this.getFullCode());
 					this.init = true;
@@ -355,8 +365,8 @@ public class ScriptContainer {
 			} catch (Throwable e) {
 				this.errored = true;
 				e.printStackTrace(pw);
-				// e.printStackTrace();
-				NoppesUtilServer.NotifyOPs(this.handler.noticeString() + " script errored", new Object[0]);
+				if (!this.isClient) { NoppesUtilServer.NotifyOPs(this.handler.noticeString() + " script errored"); }
+				LogWriter.error(this.handler.noticeString() + " script errored: " + e);
 			} finally {
 				this.appandConsole(sw.getBuffer().toString().trim());
 				pw.close();
@@ -371,47 +381,60 @@ public class ScriptContainer {
 			this.errored = true;
 			return;
 		}
-		if (!ScriptContainer.Data.containsKey("dump")) {
-			for (int i = 0; i < ScriptController.Instance.constants.getTagList("Functions", 8).tagCount(); i++) {
-				String body = ScriptController.Instance.constants.getTagList("Functions", 8).getStringTagAt(i);
-				if (body.toLowerCase().indexOf("function ") != 0) {
-					continue;
-				}
-				try {
-					String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
-					ScriptContainer.Data.put(key, this.engine.eval(body));
-					ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i)
-							.removeTag("EvalIsError");
-				} catch (Exception e) {
-					ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i)
-							.setBoolean("EvalIsError", true);
-				}
-			}
-			for (String key : ScriptController.Instance.constants.getCompoundTag("Constants").getKeySet()) {
-				NBTBase tag = ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key);
-				if (tag.getId() == 8) {
-					try {
-						ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
-					} catch (Exception e) {
-					}
-				}
-			}
-			ScriptContainer.Data.put("dump", new Dump());
-			ScriptContainer.Data.put("log", new Log());
-			try {
-				ScriptContainer.Data.put("date", this.engine.eval("Java.type('" + Date.class.getName() + "')"));
-				ScriptContainer.Data.put("calendar", this.engine.eval("Java.type('" + Calendar.class.getName() + "')"));
-			} catch (Exception e) {
-			}
-		}
-		try {
-			for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
-				this.engine.put(entry.getKey(), entry.getValue());
-			}
-		} catch (Exception e) {
-		}
-		this.engine.put("currentThread", Thread.currentThread().getName());
+		if (this.engine.get("dump") == null) { this.fillEngine(); }
 		this.init = false;
+	}
+
+	private void fillEngine() {
+		// Custom Functions
+		for (int i = 0; i < ScriptController.Instance.constants.getTagList("Functions", 8).tagCount(); i++) {
+			String body = ScriptController.Instance.constants.getTagList("Functions", 8).getStringTagAt(i);
+			if (body.toLowerCase().indexOf("function ") != 0) {
+				continue;
+			}
+			try {
+				String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
+				ScriptContainer.Data.put(key, this.engine.eval(body));
+				ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).removeTag("EvalIsError");
+			} catch (Exception e) {
+				ScriptController.Instance.constants.getTagList("Functions", 10).getCompoundTagAt(i).setBoolean("EvalIsError", true);
+			}
+		}
+		// Custom Constants
+		for (String key : ScriptController.Instance.constants.getCompoundTag("Constants").getKeySet()) {
+			NBTBase tag = ScriptController.Instance.constants.getCompoundTag("Constants").getTag(key);
+			if (tag.getId() == 8) {
+				try {
+					ScriptContainer.Data.put(key, this.engine.eval(((NBTTagString) tag).getString()));
+				}
+				catch (Exception e) {}
+			}
+		}
+		// Base Functions
+		ScriptContainer.Data.put("dump", new Dump());
+		ScriptContainer.Data.put("log", new Log());
+		// Base Constants
+		try {
+			ScriptContainer.Data.put("date", this.engine.eval("Java.type('" + Date.class.getName() + "')"));
+			ScriptContainer.Data.put("calendar", this.engine.eval("Java.type('" + Calendar.class.getName() + "')"));
+		}
+		catch (Exception e) { }
+		// Try put all
+		for (Map.Entry<String, Object> entry : ScriptContainer.Data.entrySet()) {
+			try { this.engine.put(entry.getKey(), entry.getValue()); }
+			catch (Exception e) { e.printStackTrace(); }
+		}
+		if (this.isClient) { this.fillEngineClient(); }
+		this.engine.put("currentThread", Thread.currentThread().getName());
+	}
+
+	private void fillEngineClient() {
+		if (!this.isClient) { return; }
+		// Try put MC
+		try { this.engine.put("mc", ClientProxy.mcWraper); }
+		catch (Exception er) { er.printStackTrace(); }
+		try { this.engine.put("storedData", ScriptController.Instance.clientScripts.storedData); }
+		catch (Exception er) { er.printStackTrace(); }
 	}
 
 	public boolean varIsConstant(String name) {

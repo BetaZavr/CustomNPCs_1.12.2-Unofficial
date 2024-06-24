@@ -36,42 +36,29 @@ import noppes.npcs.util.CustomNPCsScheduler;
 
 public class PlayerOverlayHUD implements IOverlayHUD {
 
-	public boolean isMoved;
+	public boolean isMoved = false;
 	private byte[] showElementTypes;
-	private double[] windowSize;
-	public List<Integer> keyPress;
-	public List<Integer> mousePress;
-	private int offsetType;
-	public int questID;
+	private double[] windowSize = new double[] { 0, 0 };
+	public List<Integer> keyPress = Lists.<Integer>newArrayList();
+	public List<Integer> mousePress = Lists.<Integer>newArrayList();
+	private int offsetType = 0;
+	public int questID = 0;
 
-	Map<Integer, List<ICustomGuiComponent>> components;
-	private Map<Integer, List<IItemSlot>> slots;
-	private TreeMap<Integer, TreeMap<Integer, IGuiComponent>> guiComponents;
-	private TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots;
+	Map<Integer, List<ICustomGuiComponent>> components = Maps.<Integer, List<ICustomGuiComponent>>newTreeMap();
+	private Map<Integer, List<IItemSlot>> slots = Maps.<Integer, List<IItemSlot>>newTreeMap();
+	private TreeMap<Integer, TreeMap<Integer, IGuiComponent>> guiComponents = Maps.<Integer, TreeMap<Integer, IGuiComponent>>newTreeMap();
+	private TreeMap<Integer, TreeMap<Integer, IItemSlot>> guiSlots = Maps.<Integer, TreeMap<Integer, IItemSlot>>newTreeMap();
 
-	private boolean update;
-	private EntityPlayerMP player;
-	public PlayerCompassHUDData compassData;
+	private boolean update = false;
+	private EntityPlayerMP player = null;
+	public PlayerCompassHUDData compassData = new PlayerCompassHUDData();
 	public String currentGUI = "";
 
 	public PlayerOverlayHUD() {
-		this.isMoved = false;
 		this.showElementTypes = new byte[22];
 		for (int i = 0; i < 22; i++) {
 			this.showElementTypes[i] = (byte) 1;
 		}
-		this.windowSize = new double[] { 0, 0 };
-		this.keyPress = Lists.<Integer>newArrayList();
-		this.mousePress = Lists.<Integer>newArrayList();
-		this.components = Maps.<Integer, List<ICustomGuiComponent>>newTreeMap();
-		this.guiComponents = Maps.<Integer, TreeMap<Integer, IGuiComponent>>newTreeMap();
-		this.guiSlots = Maps.<Integer, TreeMap<Integer, IItemSlot>>newTreeMap();
-		this.slots = Maps.<Integer, List<IItemSlot>>newTreeMap();
-		this.update = false;
-		this.player = null;
-		this.offsetType = 0;
-		this.questID = 0;
-		this.compassData = new PlayerCompassHUDData();
 	}
 
 	@Override

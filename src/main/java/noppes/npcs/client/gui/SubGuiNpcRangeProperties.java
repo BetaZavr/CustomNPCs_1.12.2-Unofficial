@@ -16,7 +16,9 @@ import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.entity.data.DataRanged;
 import noppes.npcs.entity.data.DataStats;
 
-public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfieldListener, ISubGuiListener {
+public class SubGuiNpcRangeProperties
+extends SubGuiInterface
+implements ITextfieldListener, ISubGuiListener {
 
 	private DataRanged ranged;
 	private GuiNpcTextField soundSelected;
@@ -128,8 +130,8 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 		this.addTextField(new GuiNpcTextField(2, this, this.fontRenderer, this.guiLeft + 80, y, 50, 18,
 				this.ranged.getRange() + ""));
 		this.addLabel(new GuiNpcLabel(2, "gui.range", this.guiLeft + 5, y + 5));
-		this.getTextField(2).setNumbersOnly();
-		this.getTextField(2).setMinMaxDefault(1, 64, 2);
+		this.getTextField(2).setDoubleNumbersOnly();
+		this.getTextField(2).setMinMaxDoubleDefault(2.0d, 64.0d, this.ranged.getRange());
 		this.addTextField(new GuiNpcTextField(9, this, this.fontRenderer, this.guiLeft + 200, y, 30, 20,
 				this.ranged.getMeleeRange() + ""));
 		this.addLabel(new GuiNpcLabel(16, "stats.meleerange", this.guiLeft + 135, y + 5));
@@ -196,7 +198,7 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 		if (textfield.getId() == 1) {
 			this.ranged.setAccuracy(textfield.getInteger());
 		} else if (textfield.getId() == 2) {
-			this.ranged.setRange(textfield.getInteger());
+			this.ranged.setRange(textfield.getDouble());
 		} else if (textfield.getId() == 3) {
 			this.ranged.setDelay(textfield.getInteger(), this.ranged.getDelayMax());
 			this.initGui();

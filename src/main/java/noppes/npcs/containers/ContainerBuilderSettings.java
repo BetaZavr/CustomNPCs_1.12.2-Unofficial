@@ -7,7 +7,7 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import noppes.npcs.CommonProxy;
+import noppes.npcs.controllers.SyncController;
 import noppes.npcs.util.BuilderData;
 
 public class ContainerBuilderSettings extends Container {
@@ -15,16 +15,14 @@ public class ContainerBuilderSettings extends Container {
 	public BuilderData builderData;
 	EntityPlayer player;
 
-	public ContainerBuilderSettings(EntityPlayer player, int id) {
+	public ContainerBuilderSettings(EntityPlayer player, int id, int type) {
 		this.player = player;
-		BuilderData base = CommonProxy.dataBuilder.get(id);
-		this.builderData = new BuilderData();
-		if (base == null) {
-			this.builderData.id = id;
-		} else {
-			this.builderData.read(base.getNbt());
-		}
-		if (this.builderData != null && this.builderData.type < 3) {
+		BuilderData base = SyncController.dataBuilder.get(id);
+		
+		if (base != null) { this.builderData = base; }
+		else { this.builderData = new BuilderData(id, type); }
+		
+		if (this.builderData != null && this.builderData.getType() < 3) {
 			for (int i = 0; i < 9; ++i) {
 				this.addSlotToContainer(new Slot(player.inventory, i, i * 18 + 8, 194));
 			}
@@ -33,7 +31,7 @@ public class ContainerBuilderSettings extends Container {
 					this.addSlotToContainer(new Slot(player.inventory, x + y * 9 + 9, x * 18 + 8, 136 + y * 18));
 				}
 			}
-			if (this.builderData.type == 2) {
+			if (this.builderData.getType() == 2) {
 				this.addSlotToContainer(new Slot(this.builderData.inv, 0, 62, 113));
 			}
 			for (int i = 1; i < 10; i++) {
@@ -53,10 +51,10 @@ public class ContainerBuilderSettings extends Container {
 	}
 
 	public void save() {
-		if (this.builderData == null || this.builderData.type > 2) {
+		if (this.builderData == null || this.builderData.getType() > 2) {
 			return;
 		}
-		int s = this.builderData.type == 2 ? 0 : 1;
+		int s = this.builderData.getType() == 2 ? 0 : 1;
 		for (int i = 36; i < this.inventorySlots.size(); i++) {
 			this.builderData.inv.setInventorySlotContents(s + i - 36, this.getSlot(i).getStack());
 		}

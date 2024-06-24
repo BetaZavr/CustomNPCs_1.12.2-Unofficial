@@ -1,5 +1,9 @@
 package noppes.npcs.client;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.command.ICommandSender;
@@ -14,6 +18,7 @@ public class TextBlockClient extends TextBlock {
 
 	public int color;
 	private String name;
+	private String corr = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 	private ICommandSender sender;
 	private Style style;
 	public Entity entity;
@@ -56,36 +61,45 @@ public class TextBlockClient extends TextBlock {
 
 	public void resetWidth(int lineWidth, boolean mcFont) {
 		String line = "";
-		String[] words = this.text.split(" ");
+		String tempText = new String(this.text);
+		List<String> tempList = Lists.newArrayList();
+		int fm;
+		while (true) {
+			fm = -1;
+			for (int i = 0; i < corr.length(); i++) {
+				int found = tempText.indexOf("" + corr.charAt(i));
+				if (found != -1 && (found < fm || fm == -1)) { fm = found; }
+			}
+			if (fm >= 0) {
+				String subWorld = tempText.substring(0, fm + 1);
+				tempList.add(subWorld);
+				tempText = tempText.substring(fm + 1);
+			}
+			else { break; }
+		}
+		tempList.add(tempText);
+		String[] words = tempList.toArray(new String[tempList.size()]);
 		FontRenderer font = Minecraft.getMinecraft().fontRenderer;
 		String color = ((char) 167) + "r";
 		for (String word : words) {
-			Label_0235: {
-				if (!word.isEmpty()) {
-					if (word.length() == 1) {
-						char c = word.charAt(0);
-						if (c == '\r' || c == '\n') {
-							this.addLine(color + line);
-							color = AdditionalMethods.getLastColor(color, line);
-							line = "";
-							break Label_0235;
-						}
-					}
-					String newLine;
-					if (line.isEmpty()) {
-						newLine = word;
-					} else {
-						newLine = line + " " + word;
-					}
-					if ((mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine)) > lineWidth) {
-						this.addLine(color + line);
-						color = AdditionalMethods.getLastColor(color, line);
-						line = word.trim();
-					} else {
-						line = newLine;
-					}
+			if (word.isEmpty()) { continue; }
+			if (word.length() == 1) {
+				char c = word.charAt(0);
+				if (c == '\r' || c == '\n') {
+					this.addLine(color + line);
+					color = AdditionalMethods.getLastColor(color, line);
+					line = "";
+					continue;
 				}
 			}
+			String newLine = line + word;
+			int widthLine = (mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine));
+			if (widthLine > lineWidth && !line.isEmpty()) {
+				this.addLine(color + line);
+				color = AdditionalMethods.getLastColor(color, line);
+				line = word;
+			}
+			else { line = newLine; }
 		}
 		if (!line.isEmpty()) {
 			this.addLine(color + line);

@@ -19,6 +19,7 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.constants.EnumPacketServer;
+import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.IPermission;
 
 public class CustomItem extends Item implements IPermission, ICustomElement {
@@ -214,16 +215,21 @@ public class CustomItem extends Item implements IPermission, ICustomElement {
 	}
 
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-		if (tab != CustomRegisters.tabItems || (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
-				&& !this.nbtData.getBoolean("ShowInCreative"))) {
-			return;
-		}
+		if (tab != CustomRegisters.tabItems && tab != CreativeTabs.SEARCH) { return; }
+		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1) && !this.nbtData.getBoolean("ShowInCreative")) { return; }
 		items.add(new ItemStack(this));
+		if (tab == CustomRegisters.tabItems) { AdditionalMethods.instance.sort(items); }
 	}
 
 	@Override
 	public boolean isAllowed(EnumPacketServer enumPacket) {
 		return true;
+	}
+
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("ItemType", 1)) { return (int) this.nbtData.getByte("ItemType"); }
+		return 9;
 	}
 
 }

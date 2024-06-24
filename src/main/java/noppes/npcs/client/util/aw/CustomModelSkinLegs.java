@@ -1,7 +1,7 @@
 package noppes.npcs.client.util.aw;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
@@ -11,14 +11,13 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.math.Vec3d;
-import noppes.npcs.client.model.ModelScaleRenderer;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityNPCInterface;
 
 public class CustomModelSkinLegs extends ModelBiped {
 
 	@SuppressWarnings("unchecked")
-	public void render(EntityCustomNpc npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale,
-			List<Boolean> showList) {
+	public void render(EntityNPCInterface npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale, Map<EnumParts, Boolean> ba) {
 		if (skin == null || npc == null) {
 			return;
 		}
@@ -45,11 +44,11 @@ public class CustomModelSkinLegs extends ModelBiped {
 				}
 				GL11.glTranslated(0, 0, 0.005F);
 				GL11.glTranslated(0.02F, 0, 0);
-				if (showList.get(4)) {
+				if (ba.get(EnumParts.LEG_LEFT)) {
 					bipedLeftLeg.render(scale);
 				}
 				GL11.glTranslated(-0.02F, 0, 0);
-				if (showList.get(5)) {
+				if (ba.get(EnumParts.LEG_RIGHT)) {
 					bipedRightLeg.render(scale);
 				}
 				GL11.glTranslated(0, 0, -0.005F);
@@ -74,31 +73,25 @@ public class CustomModelSkinLegs extends ModelBiped {
 					GL11.glTranslated(0, -3.0F * scale, 4.0F * scale);
 				}
 
-				if (part.getPartType().getRegistryName().equals("armourers:legs.leftLeg") && showList.get(4)) {
+				if (part.getPartType().getRegistryName().equals("armourers:legs.leftLeg") && ba.get(EnumParts.LEG_LEFT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedLeftLeg).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedLeftLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedLeftLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedLeftLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:legs.rightLeg") && showList.get(5)) {
+				} else if (part.getPartType().getRegistryName().equals("armourers:legs.rightLeg") && ba.get(EnumParts.LEG_RIGHT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedRightLeg).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				} else if (part.getPartType().getRegistryName().equals("armourers:legs.skirt")) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedBody).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				} else if (part.getPartType().getPartName().equals("advanced_part")) {
@@ -176,7 +169,7 @@ public class CustomModelSkinLegs extends ModelBiped {
 		}
 	}
 
-	private void renderAdvancedSkin(ISkin skin, Object renderData, EntityCustomNpc npc, Object advancedData,
+	private void renderAdvancedSkin(ISkin skin, Object renderData, EntityNPCInterface npc, Object advancedData,
 			Object base) {
 		try {
 			ArmourersWorkshopUtil awu = ArmourersWorkshopUtil.getInstance();

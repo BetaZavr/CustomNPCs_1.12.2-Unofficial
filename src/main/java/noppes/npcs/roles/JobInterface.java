@@ -12,15 +12,12 @@ import noppes.npcs.entity.EntityNPCInterface;
 public class JobInterface implements INPCJob {
 
 	public EntityNPCInterface npc;
-	public boolean overrideMainHand;
-	public boolean overrideOffHand;
-	public JobType type;
+	public boolean overrideMainHand = false;
+	public boolean overrideOffHand = false;
+	public JobType type = JobType.DEFAULT;
 
 	public JobInterface(EntityNPCInterface npc) {
-		this.overrideMainHand = false;
-		this.overrideOffHand = false;
 		this.npc = npc;
-		this.type = JobType.DEFAULT;
 	}
 
 	public boolean aiContinueExecute() {

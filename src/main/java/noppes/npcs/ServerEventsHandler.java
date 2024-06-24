@@ -399,8 +399,7 @@ public class ServerEventsHandler {
 				}
 			}
 		}
-		CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(),
-				"ServerEventsHandler_npcPlayerInteract");
+		CustomNpcs.debugData.endDebug(!isClient ? "Server" : "Client", event.getEntityPlayer(), "ServerEventsHandler_npcPlayerInteract");
 	}
 
 	@SubscribeEvent
@@ -428,11 +427,9 @@ public class ServerEventsHandler {
 
 	@SubscribeEvent
 	public void npcPopulateChunk(PopulateChunkEvent.Post event) {
-		CustomNpcs.debugData.startDebug(!event.getWorld().isRemote ? "Server" : "Client", null,
-				"ServerEventsHandler_npcPopulateChunk");
+		CustomNpcs.debugData.startDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
 		NPCSpawning.performWorldGenSpawning(event.getWorld(), event.getChunkX(), event.getChunkZ(), event.getRand());
-		CustomNpcs.debugData.endDebug(!event.getWorld().isRemote ? "Server" : "Client", null,
-				"ServerEventsHandler_npcPopulateChunk");
+		CustomNpcs.debugData.endDebug(!event.getWorld().isRemote ? "Server" : "Client", null, "ServerEventsHandler_npcPopulateChunk");
 	}
 
 	@SubscribeEvent

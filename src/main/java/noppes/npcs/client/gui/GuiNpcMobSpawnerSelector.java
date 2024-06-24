@@ -110,14 +110,23 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 
 	public NBTTagCompound getCompound() {
 		String sel = this.scroll.getSelected();
-		if (sel == null) {
-			return null;
-		}
+		if (sel == null) { return null; }
 		NBTTagCompound nbtEntity = null;
 		if (this.showingClones == 0) {
 			nbtEntity = ClientCloneController.Instance.getCloneData(this.player, sel, this.activeTab);
 		} else if (this.showingClones == 1) {
-			nbtEntity = this.spawnData.compound;
+			if (this.spawnData != null) { nbtEntity = this.spawnData.compound; }
+			else {
+				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+					if (ent.getName().equals(sel)) {
+						Entity entity = EntityList.createEntityByIDFromName(ent.getRegistryName(), Minecraft.getMinecraft().world);
+						if (entity instanceof EntityLivingBase) {
+							nbtEntity = entity.writeToNBT(new NBTTagCompound());
+							nbtEntity.setString("id", ent.getRegistryName().toString());
+						}
+					}
+				}
+			}
 		}
 		return nbtEntity;
 	}
@@ -233,8 +242,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 		} else if (this.showingClones == 1) { // mob
 			for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
 				if (ent.getName().equals(sel)) {
-					Entity entity = EntityList.createEntityByIDFromName(ent.getRegistryName(),
-							Minecraft.getMinecraft().world);
+					Entity entity = EntityList.createEntityByIDFromName(ent.getRegistryName(), Minecraft.getMinecraft().world);
 					if (entity instanceof EntityLivingBase) {
 						this.selectNpc = (EntityLivingBase) entity;
 						if (this.spawnData != null) {
@@ -263,9 +271,7 @@ public class GuiNpcMobSpawnerSelector extends SubGuiInterface
 	@Override
 	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		String sel = this.scroll.getSelected();
-		if (sel == null) {
-			return;
-		}
+		if (sel == null) { return; }
 		this.resetEntity();
 	}
 

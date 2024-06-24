@@ -43,6 +43,7 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.blocks.tiles.CustomTileEntityChest;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.util.AdditionalMethods;
 
 public class CustomChest extends BlockInterface implements ICustomElement {
 
@@ -144,12 +145,14 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 	}
 
 	@Override
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+		if (tab != CustomRegisters.tabBlocks && tab != CreativeTabs.SEARCH) { return; }
 		if (this.nbtData != null && this.nbtData.hasKey("ShowInCreative", 1)
 				&& !this.nbtData.getBoolean("ShowInCreative")) {
 			return;
 		}
 		items.add(new ItemStack(this));
+		if (tab == CustomRegisters.tabBlocks) { AdditionalMethods.instance.sort(items); }
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -279,4 +282,10 @@ public class CustomChest extends BlockInterface implements ICustomElement {
 		return state.withProperty(CustomChest.FACING, rot.rotate((EnumFacing) state.getValue(CustomChest.FACING)));
 	}
 
+	@Override
+	public int getType() {
+		if (this.nbtData != null && this.nbtData.hasKey("BlockType", 1)) { return (int) this.nbtData.getByte("BlockType"); }
+		return 2;
+	}
+	
 }

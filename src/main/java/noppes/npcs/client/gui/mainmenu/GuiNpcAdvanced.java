@@ -2,9 +2,10 @@ package noppes.npcs.client.gui.mainmenu;
 
 import java.util.Arrays;
 
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.JobType;
@@ -43,16 +44,20 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.entity.data.DataAI;
 import noppes.npcs.roles.RoleTrader;
 
 public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGuiListener {
 
 	private boolean hasChanges;
+	private DataAI ais;
 
 	public GuiNpcAdvanced(EntityNPCInterface npc) {
 		super(npc, 4);
+		this.ais = npc.ais;
 		this.hasChanges = false;
-		Client.sendData(EnumPacketServer.MainmenuAdvancedGet, new Object[0]);
+		Client.sendData(EnumPacketServer.MainmenuAIGet);
+		Client.sendData(EnumPacketServer.MainmenuAdvancedGet);
 	}
 
 	@Override
@@ -130,15 +135,20 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		if (!CustomNpcs.ShowDescriptions) {
 			return;
 		}
-		if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
-			this.setHoverText(
-					new TextComponentTranslation("advanced.menu.hover.job." + this.npc.advanced.jobInterface.getType())
-							.getFormattedText());
+		if (this.getButton(3) != null && this.getButton(3).isMouseOver() && this.ais.aiDisabled) {
+			this.setHoverText(new TextComponentTranslation("hover.ai.disabled").getFormattedText());
+		} else if (this.getButton(4) != null && this.getButton(4).isMouseOver() && this.ais.aiDisabled) {
+			this.setHoverText(new TextComponentTranslation("hover.ai.disabled").getFormattedText());
+		} else if (this.getButton(5) != null && this.getButton(5).isMouseOver()) {
+			ITextComponent mess = new TextComponentTranslation("advanced.menu.hover.job." + this.npc.advanced.jobInterface.getType());
+			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
+			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(7) != null && this.getButton(7).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.says").getFormattedText());
 		} else if (this.getButton(8) != null && this.getButton(8).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation(
-					"advanced.menu.hover.role." + this.npc.advanced.roleInterface.getType()).getFormattedText());
+			ITextComponent mess = new TextComponentTranslation("advanced.menu.hover.role." + this.npc.advanced.roleInterface.getType());
+			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
+			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(9) != null && this.getButton(9).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.faction").getFormattedText());
 		} else if (this.getButton(10) != null && this.getButton(10).isMouseOver()) {
@@ -150,7 +160,9 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		} else if (this.getButton(13) != null && this.getButton(13).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.lines").getFormattedText());
 		} else if (this.getButton(14) != null && this.getButton(14).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.scenes").getFormattedText());
+			ITextComponent mess = new TextComponentTranslation("advanced.menu.hover.scenes");
+			if (this.ais.aiDisabled) { mess.appendSibling(new TextComponentTranslation("hover.ai.disabled")); }
+			this.setHoverText(mess.getFormattedText());
 		} else if (this.getButton(15) != null && this.getButton(15).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("advanced.menu.hover.marks").getFormattedText());
 		} else if (this.getButton(16) != null && this.getButton(16).isMouseOver()) {
@@ -158,9 +170,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		} else if (this.getButton(18) != null && this.getButton(18).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("animation.hover.eye",
 					new TextComponentTranslation("gui.help.general").getFormattedText(),
-					new TextComponentTranslation("selectServer.edit").getFormattedText())
-							.appendSibling(new TextComponentString("<br>"))
-							.appendSibling(new TextComponentTranslation("gui.wip")).getFormattedText());
+					new TextComponentTranslation("selectServer.edit").getFormattedText()).getFormattedText());
 		}
 		if (this.hoverText != null) {
 			this.drawHoveringText(Arrays.asList(this.hoverText), mouseX, mouseY, this.fontRenderer);
@@ -175,15 +185,16 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		int y = this.guiTop + 8;
 		this.addLabel(new GuiNpcLabel(0, "role.name", x, y + 5));
 		this.addButton(new GuiNpcButton(3, x + 230, y, 52, 20, "selectServer.edit"));
-		this.getButton(3).setEnabled(this.npc.advanced.roleInterface.getEnumType().hasSettings);
-		this.addButton(new GuiButtonBiDirectional(8, x + 70, y, 155, 20, RoleType.getNames(),
-				this.npc.advanced.roleInterface.getType()));
+		this.getButton(3).setEnabled(!this.ais.aiDisabled && this.npc.advanced.roleInterface.getEnumType().hasSettings);
+		this.addButton(new GuiButtonBiDirectional(8, x + 70, y, 155, 20, RoleType.getNames(), this.npc.advanced.roleInterface.getType()));
+		this.getButton(8).setEnabled(!this.ais.aiDisabled);
 
 		this.addLabel(new GuiNpcLabel(1, "job.name", x, (y += 22) + 5));
 		this.addButton(new GuiNpcButton(4, x + 230, y, 52, 20, "selectServer.edit"));
-		this.getButton(4).setEnabled(this.npc.advanced.jobInterface.getEnumType().hasSettings);
-		this.addButton(new GuiButtonBiDirectional(5, x + 70, y, 155, 20, JobType.getNames(),
-				this.npc.advanced.jobInterface.getType()));
+		this.getButton(4).setEnabled(!this.ais.aiDisabled && this.npc.advanced.jobInterface.getEnumType().hasSettings);
+		this.addButton(new GuiButtonBiDirectional(5, x + 70, y, 155, 20, JobType.getNames(), this.npc.advanced.jobInterface.getType()));
+		this.getButton(5).setEnabled(!this.ais.aiDisabled);
+		
 		x1 += 126;
 		this.addButton(new GuiNpcButton(7, x, y += 22, 195, 20, "advanced.lines"));
 		this.addButton(new GuiNpcButton(9, x1, y, 195, 20, "menu.factions"));
@@ -195,16 +206,18 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		this.addButton(new GuiNpcButton(13, x1, y, 195, 20, "global.linked"));
 
 		this.addButton(new GuiNpcButton(14, x, y += 22, 195, 20, "advanced.scenes"));
+		this.getButton(14).setEnabled(!this.ais.aiDisabled);
 		this.addButton(new GuiNpcButton(15, x1, y, 195, 20, "advanced.marks"));
 
+		Class<? extends EntityLivingBase> model = null;
+		if (this.npc instanceof EntityCustomNpc) {
+			model = ((EntityCustomNpc) this.npc).modelData.entityClass;
+		}
+		boolean bo = model == null;
 		this.addButton(new GuiNpcButton(16, x, y += 22, 195, 20, "movement.animation"));
-		this.getButton(16).enabled = (this.npc instanceof EntityCustomNpc)
-				&& ((EntityCustomNpc) this.npc).modelData.entityClass == null;
-
+		this.getButton(16).setEnabled(bo);
 		this.addButton(new GuiNpcButton(18, x, y += 22, 195, 20, "advanced.emotion"));
-		// this.getButton(18).enabled = (this.npc instanceof EntityCustomNpc) &&
-		// ((EntityCustomNpc) this.npc).modelData.eyes.type!=(byte)-1;
-		this.getButton(18).enabled = false; // WIP
+		this.getButton(18).setEnabled(bo);
 	}
 
 	@Override
@@ -298,6 +311,8 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData, ISubGu
 		} else if (compound.hasKey("NpcInv", 9)) {
 			this.npc.inventory.readEntityFromNBT(compound);
 			this.initGui();
+		} else if (compound.hasKey("MovementType", 3)) {
+			this.ais.readToNBT(compound);
 		}
 	}
 

@@ -8,9 +8,9 @@ public interface IPlayerMiniMap {
 
 	String getModName();
 
-	IMiniMapData getPoint(int dimentionId, int id);
+	IMiniMapData getPoint(int id);
 
-	IMiniMapData getPoint(int dimentionId, String name);
+	IMiniMapData getPoint(String name);
 
 	IMiniMapData[] getPoints(int dimentionId);
 
@@ -18,8 +18,10 @@ public interface IPlayerMiniMap {
 
 	Object getSpecificValue(String key);
 
-	boolean removePoint(int dimentionId, int id);
+	boolean removePoint(int id);
 
-	boolean removePoint(int dimentionId, String name);
+	boolean removePoint(String name);
+	
+	boolean removePoints(int dimentionId);
 
 }

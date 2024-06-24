@@ -27,6 +27,7 @@ import noppes.npcs.api.wrapper.gui.CustomGuiEntityWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.controllers.PlayerSkinController;
+import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.AdditionalMethods;
 import noppes.npcs.util.ObfuscationHelper;
@@ -34,15 +35,14 @@ import noppes.npcs.util.ObfuscationHelper;
 public class CustomGuiEntity extends Gui implements IGuiComponent {
 
 	public static CustomGuiEntity fromComponent(CustomGuiEntityWrapper component) {
-		CustomGuiEntity entt = new CustomGuiEntity(component.getId(), component.getPosX(), component.getPosY(),
-				component.getScale(), component.hasBorder(), component.isShowArmorAndItems(), component.entityNbt);
+		CustomGuiEntity entt = new CustomGuiEntity(component.getId(), component.getPosX(), component.getPosY(), component.getScale(), component.hasBorder(), component.isShowArmorAndItems(), component.entityNbt, component.rotType, component.rotYaw, component.rotPitch);
 		if (component.hasHoverText()) {
 			entt.hoverText = component.getHoverText();
 		}
 		return entt;
 	}
 
-	int id = 0, x = 0, y = 0, width = 53, height = 70;
+	int id = 0, x = 0, y = 0, width = 53, height = 70, rotType = 0, rotYaw = 0, rotPitch = 0;
 	long initTime = System.currentTimeMillis();
 	boolean hasBorder = false, showArmor = true;
 	String[] hoverText;
@@ -52,8 +52,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 	NBTTagCompound entityNbt;
 	public Entity entity;
 
-	public CustomGuiEntity(int id, int x, int y, float scale, boolean hasBorder, boolean showArmor,
-			NBTTagCompound entityNbt) {
+	public CustomGuiEntity(int id, int x, int y, float scale, boolean hasBorder, boolean showArmor, NBTTagCompound entityNbt, int rotType, int rotYaw, int rotPitch) {
 		this.id = id;
 		this.x = GuiCustom.guiLeft + x;
 		this.y = GuiCustom.guiTop + y;
@@ -62,13 +61,16 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 		this.showArmor = showArmor;
 		offsets = new int[] { 0, 0 };
 		this.entityNbt = entityNbt;
+		this.rotType = rotType;
+		this.rotYaw = rotYaw;
+		this.rotPitch = rotPitch;
 	}
 
 	private void createEntity(Minecraft mc) {
 		if (entityNbt.getBoolean("IsPlayer")) {
-			EntityNPCInterface npc = (EntityNPCInterface) EntityList
-					.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), mc.world);
-			if (npc != null) {
+			EntityNPCInterface npc = (EntityNPCInterface) EntityList.createEntityByIDFromName(new ResourceLocation(CustomNpcs.MODID, "customnpc"), mc.world);
+			if (npc instanceof EntityCustomNpc) {
+				((EntityCustomNpc) npc).modelData.eyes.type = -1;
 				UUID uuid = entityNbt.getUniqueId("UUID");
 				if (entityNbt.hasKey("SkinData", 10)) {
 					NBTTagList list = entityNbt.getCompoundTag("SkinData").getTagList("Textures", 10);
@@ -93,8 +95,7 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 				} else {
 					NetHandlerPlayClient netHandler = Minecraft.getMinecraft().getConnection();
 					if (netHandler != null) {
-						Map<UUID, NetworkPlayerInfo> playerInfoMap = ObfuscationHelper
-								.getValue(NetHandlerPlayClient.class, netHandler, Map.class);
+						Map<UUID, NetworkPlayerInfo> playerInfoMap = ObfuscationHelper.getValue(NetHandlerPlayClient.class, netHandler, Map.class);
 						if (playerInfoMap.containsKey(uuid)) {
 							NetworkPlayerInfo npi = playerInfoMap.get(uuid);
 							if (npi.getLocationSkin() != null) {
@@ -168,41 +169,42 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x + 26.5f * scale, y + 65.0f * scale, 350.0f);
-		if (entity.height > 2.4) {
-			scale = 2.0f / entity.height;
-		}
+		if (entity.height > 2.4) { scale = 2.0f / entity.height; }
 		GlStateManager.scale(-30.0f * scale, 30.0f * scale, 30.0f * scale);
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
 		RenderHelper.enableStandardItemLighting();
-		float f2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).renderYawOffset
-				: entity.rotationYaw;
+		float f2 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).renderYawOffset : entity.rotationYaw;
 		float f3 = entity.rotationYaw;
 		float f4 = entity.rotationPitch;
-		float f5 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).rotationYawHead
-				: entity.rotationYaw;
-		float f6 = x + (26.5f * scale) - mouseX;
-		float f7 = y + (15.0f + scale) - mouseY;
+		float f5 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).rotationYawHead : entity.rotationYaw;
+		float f6 = this.rotType == 0 ? 0 : this.rotType == 1 ? x + (26.5f * scale) - mouseX : this.rotYaw;
+		float f7 = this.rotType == 0 ? 0 : this.rotType == 1 ? y + (15.0f + scale) - mouseY : this.rotPitch;
+		
 		int orientation = 0;
 		if (npc != null) {
 			orientation = npc.ais.orientation;
 			npc.ais.orientation = 0;
 		}
-		GlStateManager.rotate((float) (-Math.atan(f6 / 400.0f) * 20.0f), 0.0f, 1.0f, 0.0f);
-		GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
-		if (entity instanceof EntityLivingBase) {
-			((EntityLivingBase) entity).renderYawOffset = 0;
+		if (this.rotType == 1) {
+			GlStateManager.rotate((float) (-Math.atan(f6 / 400.0f) * 20.0f), 0.0f, 1.0f, 0.0f);
+			GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
+			entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + 0);
+			entity.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
 		}
-		entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + 0);
-		entity.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
+		else if (this.rotType == 2) {
+			GlStateManager.rotate(f6, 0.0f, 1.0f, 0.0f);
+			GlStateManager.rotate(f7, 1.0f, 0.0f, 0.0f);
+			entity.rotationYaw = f6;
+			entity.rotationPitch = f7;
+		}
 		if (entity instanceof EntityLivingBase) {
+			((EntityLivingBase) entity).renderYawOffset = this.rotType == 2 ? f6 : 0;
 			((EntityLivingBase) entity).rotationYawHead = entity.rotationYaw;
 		}
 		mc.getRenderManager().playerViewY = 180.0f;
 		mc.getRenderManager().renderEntity(entity, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
 		if (entity instanceof EntityLivingBase) {
 			((EntityLivingBase) entity).renderYawOffset = f2;
-		}
-		if (entity instanceof EntityLivingBase) {
 			((EntityLivingBase) entity).prevRenderYawOffset = f2;
 		}
 		entity.rotationYaw = f3;
@@ -211,8 +213,6 @@ public class CustomGuiEntity extends Gui implements IGuiComponent {
 		entity.prevRotationPitch = f4;
 		if (entity instanceof EntityLivingBase) {
 			((EntityLivingBase) entity).rotationYawHead = f5;
-		}
-		if (entity instanceof EntityLivingBase) {
 			((EntityLivingBase) entity).prevRotationYawHead = f5;
 		}
 		if (npc != null) {

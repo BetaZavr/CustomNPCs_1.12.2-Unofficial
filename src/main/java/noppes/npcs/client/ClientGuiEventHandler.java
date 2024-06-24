@@ -61,7 +61,6 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import noppes.npcs.CommonProxy;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.NpcAPI;
@@ -975,7 +974,7 @@ public class ClientGuiEventHandler extends Gui {
 	}
 
 	private void drawZone(BuilderData builder, BlockPos pos) {
-		if (builder.type < 3) {
+		if (builder.getType() < 3) {
 			int[] s = new int[] { 0, 0, 0 };
 			int[] e = new int[] { 1, 1, 1 };
 			float r = 1.0f, g = 0.0f, b = 0.0f;
@@ -985,11 +984,11 @@ public class ClientGuiEventHandler extends Gui {
 					s[j] = m[j];
 					e[j] = m[j + 3];
 				}
-				if (builder.type == 1) {
+				if (builder.getType() == 1) {
 					r = 0.0f;
 					g = 1.0f;
 					b = 1.0f;
-				} else if (builder.type == 2) {
+				} else if (builder.getType() == 2) {
 					r = 1.0f;
 					g = 0.0f;
 					b = 1.0f;
@@ -1028,7 +1027,7 @@ public class ClientGuiEventHandler extends Gui {
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
-		} else if (builder.type == 4) {
+		} else if (builder.getType() == 4) {
 			if (!builder.schMap.containsKey(0)) {
 				return;
 			}
@@ -1587,9 +1586,6 @@ public class ClientGuiEventHandler extends Gui {
 				RenderHelper.enableStandardItemLighting();
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
 
-				// ClientGuiEventHandler.compasRes = new
-				// ResourceLocation(CustomNpcs.MODID+":models/util/compass2.obj");
-
 				// Body
 				GlStateManager.pushMatrix();
 				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS,
@@ -1867,16 +1863,9 @@ public class ClientGuiEventHandler extends Gui {
 				GlStateManager.popMatrix();
 			}
 		}
-
-		if (this.mc.player.getHeldItemMainhand().getItem() instanceof ItemBuilder) {
-			int id = this.mc.player.getHeldItemMainhand().getTagCompound().getInteger("ID");
-			if (!CommonProxy.dataBuilder.containsKey(id)) {
-				NoppesUtilPlayer.sendDataCheakDelay(EnumPlayerPacket.GetBuildData, this.mc.player, 1000);
-				CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
-				return;
-			}
-			BuilderData builder = CommonProxy.dataBuilder.get(id);
-			if (builder.type == 4) {
+		BuilderData builder = ItemBuilder.getBuilder(this.mc.player.getHeldItemMainhand(), this.mc.player);
+		if (builder != null && builder.getID() > -1) {
+			if (builder.getType() == 4) {
 				this.drawZone(builder, null);
 				CustomNpcs.debugData.endDebug("Client", "Players", "ClientGuiEventHandler_npcRenderWorldLastEvent");
 				return;
@@ -2019,7 +2008,7 @@ public class ClientGuiEventHandler extends Gui {
 		if (event.getGui() instanceof GuiInventory && CustomNpcs.ShowMoney) {
 			String text = AdditionalMethods
 					.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(mc.player).game.getMoney(), true, true, false)
-					+ CustomNpcs.CharCurrencies;
+					+ CustomNpcs.displayCurrencies;
 			GlStateManager.pushMatrix();
 			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
 			int x = 0, y = 0;

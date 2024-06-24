@@ -36,7 +36,7 @@ public class CmdPlayers extends CommandNoppesBase {
 			long money = Long.parseLong(args[1]);
 			playerdata.game.addMoney(money);
 			sender.sendMessage(new TextComponentTranslation("command.player." + (money >= 0 ? "add" : "del") + "money",
-					playerdata.playername, "" + money, "" + playerdata.game.getMoney(), CustomNpcs.CharCurrencies)
+					playerdata.playername, "" + money, "" + playerdata.game.getMoney(), CustomNpcs.displayCurrencies)
 							.appendSibling(new TextComponentTranslation(isOnline ? "gui.online" : "gui.offline")));
 		} catch (Exception e) {
 		}
@@ -56,7 +56,7 @@ public class CmdPlayers extends CommandNoppesBase {
 			throw new PlayerNotFoundException("commands.generic.player.notFound", new Object[] { args[0] });
 		}
 		sender.sendMessage(new TextComponentTranslation("command.player.getmoney", playerdata.playername,
-				"" + playerdata.game.getMoney(), "" + CustomNpcs.CharCurrencies.charAt(0))
+				"" + playerdata.game.getMoney(), "" + CustomNpcs.displayCurrencies)
 						.appendSibling(new TextComponentTranslation(isOnline ? "gui.online" : "gui.offline")));
 	}
 

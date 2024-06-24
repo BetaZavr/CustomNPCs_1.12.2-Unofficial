@@ -476,8 +476,7 @@ public class WorldWrapper implements IWorld {
 	}
 
 	@Override
-	public void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz,
-			double speed, int count) {
+	public void spawnParticle(String particle, double x, double y, double z, double dx, double dy, double dz, double speed, int count) {
 		EnumParticleTypes particleType = null;
 		for (EnumParticleTypes enumParticle : EnumParticleTypes.values()) {
 			if (enumParticle.getArgumentCount() > 0) {
@@ -493,6 +492,8 @@ public class WorldWrapper implements IWorld {
 		if (particleType != null) {
 			if (this.world instanceof WorldServer) {
 				((WorldServer) this.world).spawnParticle(particleType, x, y, z, count, dx, dy, dz, speed, new int[0]);
+			} else {
+				this.world.spawnParticle(particleType, false, x, y, z, dx * speed, dy * speed, dz * speed, count);
 			}
 		}
 	}
@@ -504,8 +505,7 @@ public class WorldWrapper implements IWorld {
 
 	@Override
 	public void trigger(int id, Object... arguments) {
-		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this,
-				this.getBlock(0, 0, 0).getPos(), null, arguments);
+		EventHooks.onScriptTriggerEvent(ScriptController.Instance.forgeScripts, id, this, this.getBlock(0, 0, 0).getPos(), null, arguments);
 	}
 
 }

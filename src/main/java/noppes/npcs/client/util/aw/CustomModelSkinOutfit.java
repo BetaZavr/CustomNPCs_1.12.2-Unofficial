@@ -1,7 +1,7 @@
 package noppes.npcs.client.util.aw;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
@@ -12,14 +12,13 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.EnumFacing;
-import noppes.npcs.client.model.ModelScaleRenderer;
-import noppes.npcs.entity.EntityCustomNpc;
+import noppes.npcs.constants.EnumParts;
+import noppes.npcs.entity.EntityNPCInterface;
 
 /** Changed AWMod.client.model.skin.ModelSkinOutfit extends ModelTypeHelper */
 public class CustomModelSkinOutfit extends ModelBiped {
 
-	public void render(EntityCustomNpc npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale,
-			List<Boolean> showList) {
+	public void render(EntityNPCInterface npc, ISkin skin, ModelBiped modelBiped, Object renderData, float scale, Map<EnumParts, Boolean> ba) {
 		if (skin == null || npc == null) {
 			return;
 		}
@@ -44,25 +43,25 @@ public class CustomModelSkinOutfit extends ModelBiped {
 					GlStateManager.enablePolygonOffset();
 					GlStateManager.doPolygonOffset(-2, 1);
 				}
-				if (showList.get(0)) {
+				if (ba.get(EnumParts.HEAD)) {
 					bipedHead.render(scale);
 				}
-				if (showList.get(3)) {
+				if (ba.get(EnumParts.BODY)) {
 					bipedBody.render(scale);
 				}
-				if (showList.get(1)) {
+				if (ba.get(EnumParts.ARM_LEFT)) {
 					bipedLeftArm.render(scale);
 				}
-				if (showList.get(2)) {
+				if (ba.get(EnumParts.ARM_RIGHT)) {
 					bipedRightArm.render(scale);
 				}
 				GL11.glTranslated(0, 0, 0.005F);
 				GL11.glTranslated(0.02F, 0, 0);
-				if (showList.get(4)) {
+				if (ba.get(EnumParts.LEG_LEFT)) {
 					bipedLeftLeg.render(scale);
 				}
 				GL11.glTranslated(-0.02F, 0, 0);
-				if (showList.get(5)) {
+				if (ba.get(EnumParts.LEG_RIGHT)) {
 					bipedRightLeg.render(scale);
 				}
 				GL11.glTranslated(0, 0, -0.005F);
@@ -82,91 +81,73 @@ public class CustomModelSkinOutfit extends ModelBiped {
 					GL11.glScalef(1.0F / f6, 1.0F / f6, 1.0F / f6);
 					GL11.glTranslatef(0.0F, 24.0F * scale, 0.0F);
 				}
-				if (part.getPartType().getRegistryName().equals("armourers:head.base") && showList.get(0)) {
+				if (part.getPartType().getRegistryName().equals("armourers:head.base") && ba.get(EnumParts.HEAD)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedHead).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedHead).postAWRender(scale);
-					} else {
-						modelBiped.bipedHead.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedHead.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				}
 
-				if (part.getPartType().getRegistryName().equals("armourers:chest.base") && showList.get(3)) {
+				if (part.getPartType().getRegistryName().equals("armourers:chest.base") && ba.get(EnumParts.BODY)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedBody).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedBody).postAWRender(scale);
-					} else {
-						modelBiped.bipedBody.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedBody.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:chest.leftArm") && showList.get(1)) {
+				} else if (part.getPartType().getRegistryName().equals("armourers:chest.leftArm") && ba.get(EnumParts.ARM_LEFT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedLeftArm).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedLeftArm).postAWRender(scale);
-					} else {
-						modelBiped.bipedLeftArm.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedLeftArm.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:chest.rightArm") && showList.get(2)) {
+				} else if (part.getPartType().getRegistryName().equals("armourers:chest.rightArm") && ba.get(EnumParts.ARM_RIGHT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedRightArm).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightArm).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightArm.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightArm.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				}
 
-				if (part.getPartType().getRegistryName().equals("armourers:legs.leftLeg") && showList.get(4)) {
+				if (part.getPartType().getRegistryName().equals("armourers:legs.leftLeg") && ba.get(EnumParts.LEG_LEFT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedLeftLeg).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedLeftLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedLeftLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedLeftLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:legs.rightLeg") && showList.get(5)) {
+				} else if (part.getPartType().getRegistryName().equals("armourers:legs.rightLeg") && ba.get(EnumParts.LEG_RIGHT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedRightLeg).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				} else if (part.getPartType().getRegistryName().equals("armourers:legs.skirt")) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedBody).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				}
 
-				if (part.getPartType().getRegistryName().equals("armourers:feet.leftFoot") && showList.get(4)) {
+				if (part.getPartType().getRegistryName().equals("armourers:feet.leftFoot") && ba.get(EnumParts.LEG_LEFT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedLeftLeg).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedLeftLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedLeftLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedLeftLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
-				} else if (part.getPartType().getRegistryName().equals("armourers:feet.rightFoot") && showList.get(5)) {
+				} else if (part.getPartType().getRegistryName().equals("armourers:feet.rightFoot") && ba.get(EnumParts.LEG_RIGHT)) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedRightLeg).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedRightLeg).postAWRender(scale);
-					} else {
-						modelBiped.bipedRightLeg.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedRightLeg.postRender(scale);
 					renderPart(awu.skinPartRenderDataConstructor.newInstance(part, renderData));
 					GL11.glPopMatrix();
 				}
@@ -174,21 +155,17 @@ public class CustomModelSkinOutfit extends ModelBiped {
 				double angle = (double) awu.getFlapAngleForWings.invoke(awu.skinUtils, npc, skin, i);
 				if (part.getPartType().getRegistryName().equals("armourers:wings.leftWing")) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedBody).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedBody).postAWRender(scale);
-					} else {
-						modelBiped.bipedBody.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedBody.postRender(scale);
 					renderLeftWing(awu, awu.skinPartRenderDataConstructor.newInstance(part, renderData), angle);
 					GL11.glPopMatrix();
 				}
 				if (part.getPartType().getRegistryName().equals("armourers:wings.rightWing")) {
 					GL11.glPushMatrix();
-					if (((ModelScaleRenderer) modelBiped.bipedBody).config != null) {
-						((ModelScaleRenderer) modelBiped.bipedBody).postAWRender(scale);
-					} else {
-						modelBiped.bipedBody.postRender(scale);
-					}
+					GlStateManager.translate(0.0f, -1.5f, 0.0f);
+					GlStateManager.scale(2.0f, 2.0f, 2.0f);
+					modelBiped.bipedBody.postRender(scale);
 					renderRightWing(awu, awu.skinPartRenderDataConstructor.newInstance(part, renderData), -angle);
 					GL11.glPopMatrix();
 				}

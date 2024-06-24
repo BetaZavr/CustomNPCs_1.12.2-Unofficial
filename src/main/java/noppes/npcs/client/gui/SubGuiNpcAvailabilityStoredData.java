@@ -15,6 +15,7 @@ import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
+import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.AvailabilityStoredData;
 
@@ -42,10 +43,8 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 	public void buttonEvent(GuiNpcButton button) {
 		switch (button.id) {
 		case 0: {
-			if (this.select == null) {
-				return;
-			}
-			this.select.has = button.getValue() == 0;
+			if (this.select == null) { return; }
+			this.select.type = EnumAvailabilityStoredData.values()[button.getValue()];
 			this.initGui();
 			break;
 		}
@@ -81,7 +80,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 				}
 				this.select.key = key;
 				this.select.value = this.getTextField(1).getText();
-				this.select.has = this.getButton(0).getValue() == 0;
+				this.select.type = EnumAvailabilityStoredData.values()[this.getButton(0).getValue()];
 				this.select = null;
 			} else {
 				String key = this.getTextField(0).getText();
@@ -97,8 +96,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 						i = 0;
 					}
 				}
-				this.availabitily.storeddata.add(new AvailabilityStoredData(key, this.getTextField(1).getText(),
-						this.getButton(0).getValue() == 0));
+				this.availabitily.storeddata.add(new AvailabilityStoredData(key, this.getTextField(1).getText(), EnumAvailabilityStoredData.values()[this.getButton(0).getValue()]));
 			}
 			this.initGui();
 			break;
@@ -137,8 +135,7 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 		} else if (this.getTextField(1) != null && this.getTextField(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.sd.value").getFormattedText());
 		} else if (this.getButton(0) != null && this.getButton(0).isMouseOver()) {
-			this.setHoverText(new TextComponentTranslation("availabitily.hover.sdtype." + this.getButton(0).getValue())
-					.getFormattedText());
+			this.setHoverText(new TextComponentTranslation("availabitily.hover.sdtype." + this.getButton(0).getValue()).getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("availabitily.hover.remove").getFormattedText());
 		} else if (this.getButton(3) != null && this.getButton(3).isMouseOver()) {
@@ -162,12 +159,16 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 		this.data.clear();
 		String selKey = "";
 		for (AvailabilityStoredData sd : this.availabitily.storeddata) {
-			String key = ((char) 167) + (sd.has ? "a+" : "c-") + ((char) 167) + "6\"" + ((char) 167) + "r" + sd.key
-					+ ((char) 167) + "6\"";
-			if (!sd.value.isEmpty()) {
-				key += ((char) 167) + "r == " + ((char) 167) + "b\"" + ((char) 167) + "r" + sd.value + ((char) 167)
-						+ "b\"";
+			String type = "" + ((char) 167);
+			switch(sd.type) {
+				case ONLY: type += "a+"; break;
+				case EXCEPT: type += "c-"; break;
+				case SMALLER: type += "e<"; break;
+				case EQUAL: type += "d="; break;
+				case BIGGER: type += "b>"; break;
 			}
+			String key = type + ((char) 167) + "6\"" + ((char) 167) + "r" + sd.key + ((char) 167) + "6\"";
+			if (!sd.value.isEmpty()) { key += ((char) 167) + "r - " + ((char) 167) + "b\"" + ((char) 167) + "r" + sd.value + ((char) 167) + "b\""; }
 			this.data.put(key, sd);
 			if (this.select != null && this.select.key.equals(sd.key)) {
 				this.select = sd;
@@ -189,14 +190,17 @@ public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface
 			this.scroll.selected = -1;
 		}
 		this.addScroll(this.scroll);
-		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, y, 50, 20,
-				new String[] { "availability.only", "availability.except" },
-				this.select == null || this.select.has ? 0 : 1));
+		String[] enumNames = new String[EnumAvailabilityStoredData.values().length];
+		int i = 0;
+		for (EnumAvailabilityStoredData easd : EnumAvailabilityStoredData.values()) {
+			enumNames[i] = "availability." + easd.name().toLowerCase();
+			i++;
+		}
+		this.addButton(new GuiNpcButton(0, this.guiLeft + 6, y, 50, 20, enumNames, this.select == null ? 0 : this.select.type.ordinal()));
 		this.addButton(new GuiNpcButton(2, this.guiLeft + 290, y, 20, 20, "X"));
 		this.getButton(2).setEnabled(this.select != null);
 		int x = this.guiLeft + 58;
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y + 1, 112, 18,
-				this.select != null ? this.select.key : "");
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y + 1, 112, 18, this.select != null ? this.select.key : "");
 		textField.setMaxStringLength(120);
 		this.addTextField(textField);
 		textField = new GuiNpcTextField(1, this, x + 116, y + 1, 112, 18, this.select != null ? this.select.value : "");

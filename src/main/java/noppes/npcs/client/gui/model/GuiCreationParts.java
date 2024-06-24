@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartData;
+import noppes.npcs.client.gui.select.GuiTextureSelection;
 import noppes.npcs.client.gui.util.GuiButtonBiDirectional;
 import noppes.npcs.client.gui.util.GuiColorButton;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
@@ -16,14 +17,19 @@ import noppes.npcs.client.gui.util.GuiNpcButtonYesNo;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
 import noppes.npcs.client.gui.util.GuiNpcTextField;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
+import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.ITextfieldListener;
+import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.client.model.part.ModelEyeData;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiCreationParts extends GuiCreationScreenInterface implements ITextfieldListener, ICustomScrollListener {
+public class GuiCreationParts
+extends GuiCreationScreenInterface
+implements ITextfieldListener, ICustomScrollListener, ISubGuiListener  {
 
-	class GuiPart {
+	class GuiPart implements ISubGuiListener {
+		
 		protected boolean canBeDeleted;
 		protected ModelPartData data;
 		protected boolean hasPlayerOption;
@@ -62,8 +68,7 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 				GuiCreationParts.this.initGui();
 			}
 			if (btn.id == 23) {
-				GuiCreationParts.this.setSubGui(
-						new GuiModelColor(GuiCreationParts.this, this.data.color, color -> this.data.color = color));
+				GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.data.color, color -> this.data.color = color));
 			}
 		}
 
@@ -71,24 +76,18 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 			this.data = GuiCreationParts.this.playerdata.getPartData(this.part);
 			int y = GuiCreationParts.this.guiTop + 50;
 			if (this.data == null || !this.data.playerTexture || !this.noPlayerTypes) {
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(20, "gui.type", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(20, GuiCreationParts.this.guiLeft + 145, y,
-						100, 20, this.types, (this.data == null) ? 0 : (this.data.type + 1)));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(20, "gui.type", GuiCreationParts.this.guiLeft + 102, y + 5, 0xFFFFFF));
+				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(20, GuiCreationParts.this.guiLeft + 145, y, 100, 20, this.types, (this.data == null) ? 0 : (this.data.type + 1)));
 				y += 25;
 			}
 			if (this.data != null && this.hasPlayerOption) {
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(21, "gui.playerskin", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts.this.addButton(
-						new GuiNpcButtonYesNo(21, GuiCreationParts.this.guiLeft + 170, y, this.data.playerTexture));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(21, "gui.playerskin", GuiCreationParts.this.guiLeft + 102, y + 5, 0xFFFFFF));
+				GuiCreationParts.this.addButton(new GuiNpcButtonYesNo(21, GuiCreationParts.this.guiLeft + 170, y, this.data.playerTexture));
 				y += 25;
 			}
 			if (this.data != null && !this.data.playerTexture) {
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(23, "gui.color", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts.this
-						.addButton(new GuiColorButton(23, GuiCreationParts.this.guiLeft + 170, y, this.data.color));
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(23, "gui.color", GuiCreationParts.this.guiLeft + 102, y + 5, 0xFFFFFF));
+				GuiCreationParts.this.addButton(new GuiColorButton(23, GuiCreationParts.this.guiLeft + 170, y, this.data.color));
 				y += 25;
 			}
 			return y;
@@ -108,6 +107,10 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 			this.types = types;
 			return this;
 		}
+		
+		@Override
+		public void subGuiClosed(SubGuiInterface subgui) { }
+		
 	}
 
 	class GuiPartBeard extends GuiPart {
@@ -130,20 +133,19 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 			if (this.data == null) {
 				return y;
 			}
-			GuiCreationParts.this
-					.addLabel(new GuiNpcLabel(22, "gui.pattern", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-			GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y, 100,
-					20, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
+			GuiCreationParts.this.addLabel(new GuiNpcLabel(22, "gui.pattern", GuiCreationParts.this.guiLeft + 102, y + 5, 0xFFFFFF));
+			GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
 			return y;
 		}
 	}
 
 	class GuiPartEyes extends GuiPart {
+		
 		private ModelEyeData eyes;
 
 		public GuiPartEyes() {
 			super(EnumParts.EYES);
-			this.types = new String[] { "gui.none", "1", "2" };
+			this.types = new String[] { "gui.none", "gui.small", "gui.normal", "gui.select" };
 			this.noPlayerOptions();
 			this.canBeDeleted = false;
 			this.eyes = (ModelEyeData) this.data;
@@ -152,72 +154,201 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 		@Override
 		protected void actionPerformed(GuiButton btn) {
 			switch (btn.id) {
-			case 34:
-				this.eyes.glint = ((GuiNpcButtonYesNo) btn).getBoolean();
-				break;
-			case 35:
-				GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.browColor,
-						color -> this.eyes.browColor = color));
-				break;
-			case 36:
-				GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.skinColor,
-						color -> this.eyes.skinColor = color));
-				break;
-			case 37:
-				this.eyes.eyePos = ((GuiButtonBiDirectional) btn).getValue() - 1;
-				break;
-			case 38:
-				this.eyes.browThickness = ((GuiButtonBiDirectional) btn).getValue();
-				break;
-			case 39:
-				this.eyes.closed = ((GuiNpcButtonYesNo) btn).getBoolean();
-				break;
+				case 23:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.eyeColor[1], color -> this.eyes.eyeColor[1] = color));
+					break;
+				case 24:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.eyeColor[0], color -> this.eyes.eyeColor[0] = color));
+					break;
+				case 25:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.pupilColor[0], color -> this.eyes.pupilColor[0] = color));
+					break;
+				case 26:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.pupilColor[1], color -> this.eyes.pupilColor[1] = color));
+					break;
+				case 27:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.browColor[1], color -> this.eyes.browColor[1] = color));
+					break;
+				case 28:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.browColor[0], color -> this.eyes.browColor[0] = color));
+					break;
+				case 29:
+					this.eyes.browThickness = ((GuiNpcButton) btn).getValue();
+					break;
+				case 30:
+					GuiCreationParts.this.setSubGui(new GuiModelColor(GuiCreationParts.this, this.eyes.skinColor, color -> this.eyes.skinColor = color));
+					break;
+				case 31:
+					this.eyes.closed = ((GuiNpcButton) btn).getValue();
+					break;
+				case 32:
+					this.eyes.eyePos = ((GuiNpcButton) btn).getValue() - 1;
+					break;
+				case 33:
+					this.eyes.glint = ((GuiNpcButtonYesNo) btn).getBoolean();
+					break;
+				case 34:
+					GuiCreationParts.this.setSubGui(new GuiTextureSelection(0, null, this.eyes.eyeRight.toString(), "png", 5));
+					break;
+				case 35:
+					GuiCreationParts.this.setSubGui(new GuiTextureSelection(1, null, this.eyes.eyeLeft.toString(), "png", 5));
+					break;
+				case 36:
+					GuiCreationParts.this.setSubGui(new GuiTextureSelection(2, null, this.eyes.pupilRight.toString(), "png", 5));
+					break;
+				case 37:
+					GuiCreationParts.this.setSubGui(new GuiTextureSelection(3, null, this.eyes.pupilLeft.toString(), "png", 5));
+					break;
+				case 38:
+					GuiCreationParts.this.setSubGui(new GuiTextureSelection(4, null, this.eyes.browRight.toString(), "png", 5));
+					break;
+				case 39:
+					GuiCreationParts.this.setSubGui(new GuiTextureSelection(5, null, this.eyes.browLeft.toString(), "png", 5));
+					break;
+				case 40:
+					this.eyes.reset();
+					this.initGui();
+					break;
+				case 41:
+					this.eyes.activeRight = ((GuiNpcButtonYesNo) btn).getBoolean();
+					break;
+				case 42:
+					this.eyes.activeLeft = ((GuiNpcButtonYesNo) btn).getBoolean();
+					break;
 			}
-			super.actionPerformed(btn);
+			if (btn.id < 23) { super.actionPerformed(btn); }
 		}
 
 		@Override
 		public int initGui() {
-			int y = super.initGui();
+			int y = super.initGui(); // button IDs: 20 ... 23 
 			if (this.data != null && this.eyes.isEnabled()) {
-				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y,
-						100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(22, "gui.draw", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				y += 25;
-				GuiCreationParts.this
-						.addButton(new GuiButtonBiDirectional(37, GuiCreationParts.this.guiLeft + 145, y, 100, 20,
-								new String[] { new TextComponentTranslation("gui.down").getFormattedText() + " x2",
-										"gui.down", "gui.normal", "gui.up",
-										new TextComponentTranslation("gui.up").getFormattedText() + " x2" },
-								this.eyes.eyePos + 1));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(37, "gui.position", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				y += 25;
-				GuiCreationParts.this
-						.addButton(new GuiNpcButtonYesNo(34, GuiCreationParts.this.guiLeft + 145, y, this.eyes.glint));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(34, "eye.glint", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				y += 25;
-				GuiCreationParts.this
-						.addButton(new GuiColorButton(35, GuiCreationParts.this.guiLeft + 170, y, this.eyes.browColor));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(35, "eye.brow", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
-				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(38, GuiCreationParts.this.guiLeft + 225, y,
-						50, 20, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, this.eyes.browThickness));
-				y += 25;
-				GuiCreationParts.this
-						.addButton(new GuiColorButton(36, GuiCreationParts.this.guiLeft + 170, y, this.eyes.skinColor));
-				GuiCreationParts.this
-						.addLabel(new GuiNpcLabel(36, "eye.lid", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
+				int x0 = GuiCreationParts.this.guiLeft + 102;
+				int x1 = GuiCreationParts.this.guiLeft + 155;
 				y = GuiCreationParts.this.guiTop + 50;
-				GuiCreationParts.this
-						.addButton(new GuiNpcButtonYesNo(39, GuiCreationParts.this.guiLeft + 300, y, this.eyes.closed));
-				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(39, "eye.closed", GuiCreationParts.this.guiLeft + 255, y + 5, 16777215));
+				GuiNpcLabel lable = GuiCreationParts.this.getLabel(20);
+				GuiNpcButton button = GuiCreationParts.this.getButton(20);
+				lable.y = y + 3;
+				button.x = x1;
+				button.y = y;
+				button.height = 14;
+				if (this.eyes.type != -1) {
+					GuiCreationParts.this.addButton(new GuiNpcButton(40, x1 + 104, y, 31, 14, "RND"));
+				}
+				
+				// eye color
+				y += 16;
+				// left
+				lable = GuiCreationParts.this.getLabel(23);
+				button = GuiCreationParts.this.getButton(23);
+				lable.setLabel("eye.color.0");
+				lable.y = y + 3;
+				button.y = y;
+				button.x = x1;
+				button.height = 14;
+				((GuiColorButton) button).color = this.eyes.eyeColor[1];
+				// right
+				button = new GuiColorButton(24, x1 + 52, y, this.eyes.eyeColor[0]);
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				if (this.data.type == 2) {
+					GuiCreationParts.this.addButton(new GuiNpcButton(34, x1 + 104, y, 14, 14, "EL"));
+					GuiCreationParts.this.addButton(new GuiNpcButton(35, x1 + 120, y, 14, 14, "ER"));
+				}
+				
+				// pupil color
+				y += 16;
+				// left
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(25, "eye.color.1", x0, y + 3, 0xFFFFFF));
+				button = new GuiColorButton(25, x1, y, this.eyes.pupilColor[0]);
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				// right
+				button = new GuiColorButton(26, x1 + 52, y, this.eyes.pupilColor[1]);
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				if (this.data.type == 2) {
+					GuiCreationParts.this.addButton(new GuiNpcButton(36, x1 + 104, y, 14, 14, "PL"));
+					GuiCreationParts.this.addButton(new GuiNpcButton(37, x1 + 120, y, 14, 14, "PR"));
+				}
+				
+				// brow color
+				y += 16;
+				// left
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(27, "eye.color.2", x0, y + 3, 0xFFFFFF));
+				button = new GuiColorButton(27, x1 + 52, y, this.eyes.browColor[1]);
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				// right
+				button = new GuiColorButton(28, x1, y, this.eyes.browColor[0]);
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				if (this.data.type == 2) {
+					GuiCreationParts.this.addButton(new GuiNpcButton(38, x1 + 104, y, 14, 14, "BL"));
+					GuiCreationParts.this.addButton(new GuiNpcButton(39, x1 + 120, y, 14, 14, "BR"));
+				}
+				
+				// brow size
+				y += 16;
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(29, "eye.brow", x0, y + 3, 0xFFFFFF));
+				GuiCreationParts.this.addButton(new GuiNpcButton(29, x1, y, 100, 14, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, this.eyes.browThickness));
+
+				// skin color
+				y += 16;
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(30, "eye.lid", x0, y + 3, 0xFFFFFF));
+				button = new GuiColorButton(30, x1, y, this.eyes.skinColor);
+				button.width = 100;
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				
+				// both eyes
+				y += 16;
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(22, "gui.draw", x0, y + 3, 0xFFFFFF));
+				GuiCreationParts.this.addButton(new GuiNpcButton(22, x1, y, 100, 14, new String[] { "gui.both", "gui.left", "gui.right" }, this.data.pattern));
+
+				// closed
+				y += 16;
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(31, "eye.closed", x0, y + 3, 0xFFFFFF));
+				button = new GuiNpcButton(31, x1, y, 100, 14, new String[] { "gui.none", "gui.both", "gui.left", "gui.right" }, this.eyes.closed);
+				GuiCreationParts.this.addButton(button);
+				button = new GuiNpcButtonYesNo(41, x1 + 104, y, this.eyes.activeRight);
+				button.width = 20;
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				button = new GuiNpcButtonYesNo(42, x1 + 126, y, this.eyes.activeLeft);
+				button.width = 20;
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
+				
+				// vertical pos
+				y += 16;
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(32, "gui.position", x0, y + 3, 0xFFFFFF));
+				GuiCreationParts.this.addButton(new GuiNpcButton(32, x1, y, 100, 14, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + " x2", "gui.down", "gui.normal", "gui.up", new TextComponentTranslation("gui.up").getFormattedText() + " x2" }, this.eyes.eyePos + 1));
+
+				// glint
+				y += 16;
+				GuiCreationParts.this.addLabel(new GuiNpcLabel(33, "eye.glint", x0, y + 3, 0xFFFFFF));
+				button = new GuiNpcButtonYesNo(33, x1, y, this.eyes.glint);
+				button.width = 100;
+				button.height = 14;
+				GuiCreationParts.this.addButton(button);
 			}
 			return y;
 		}
+		
+		@Override
+		public void subGuiClosed(SubGuiInterface subgui) {
+			if (subgui instanceof GuiTextureSelection) {
+				GuiTextureSelection tGui = (GuiTextureSelection) subgui;
+				if (subgui.id == 0) { this.eyes.eyeRight = tGui.resource; }
+				else if (subgui.id == 1) { this.eyes.eyeLeft = tGui.resource; }
+				else if (subgui.id == 2) { this.eyes.pupilRight = tGui.resource; }
+				else if (subgui.id == 3) { this.eyes.pupilLeft = tGui.resource; }
+				else if (subgui.id == 4) { this.eyes.browRight = tGui.resource; }
+				else if (subgui.id == 5) { this.eyes.browLeft = tGui.resource; }
+			}
+		}
+		
 	}
 
 	class GuiPartHair extends GuiPart {
@@ -239,7 +370,7 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 			int y = super.initGui();
 			if (this.data != null && this.data.type == 2) {
 				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(22, "gui.pattern", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
+						new GuiNpcLabel(22, "gui.pattern", GuiCreationParts.this.guiLeft + 102, y + 5, 0xFFFFFF));
 				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y,
 						100, 20, new String[] { "1", "2" }, this.data.pattern));
 			}
@@ -310,7 +441,7 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 			int y = super.initGui();
 			if (this.data != null && this.data.type == 0) {
 				GuiCreationParts.this.addLabel(
-						new GuiNpcLabel(22, "gui.pattern", GuiCreationParts.this.guiLeft + 102, y + 5, 16777215));
+						new GuiNpcLabel(22, "gui.pattern", GuiCreationParts.this.guiLeft + 102, y + 5, 0xFFFFFF));
 				GuiCreationParts.this.addButton(new GuiButtonBiDirectional(22, GuiCreationParts.this.guiLeft + 145, y,
 						100, 20, new String[] { "1", "2" }, this.data.pattern));
 			}
@@ -371,17 +502,17 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 	@Override
 	protected void actionPerformed(GuiButton btn) {
 		super.actionPerformed(btn);
-		if (this.parts[GuiCreationParts.selected] != null) {
-			this.parts[GuiCreationParts.selected].actionPerformed(btn);
+		if (this.getPart() != null) {
+			this.getPart().actionPerformed(btn);
 		}
 	}
-
+	
+	public GuiPart getPart() { return this.parts[GuiCreationParts.selected]; }
+	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
+		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
 		if (this.getButton(1) != null && this.getButton(1).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
 		} else if (this.getButton(2) != null && this.getButton(2).isMouseOver()) {
@@ -400,13 +531,50 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 			this.setHoverText(new TextComponentTranslation("display.hover.part.pattern").getFormattedText());
 		} else if (this.getButton(66) != null && this.getButton(66).isMouseOver()) {
 			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
+		} else if (this.getPart() instanceof GuiPartEyes) {
+			if (this.getButton(23) != null && this.getButton(23).visible && isMouseHover(mouseX, mouseY, this.getButton(23).x, this.getButton(23).y, this.getButton(23).width, this.getButton(23).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color.r").getFormattedText());
+			} else if (this.getButton(24) != null && this.getButton(24).visible && isMouseHover(mouseX, mouseY, this.getButton(24).x, this.getButton(24).y, this.getButton(24).width, this.getButton(24).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color.l").getFormattedText());
+			} else if (this.getButton(25) != null && this.getButton(25).visible && isMouseHover(mouseX, mouseY, this.getButton(25).x, this.getButton(25).y, this.getButton(25).width, this.getButton(25).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color.r").getFormattedText());
+			} else if (this.getButton(26) != null && this.getButton(26).visible && isMouseHover(mouseX, mouseY, this.getButton(26).x, this.getButton(26).y, this.getButton(26).width, this.getButton(26).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color.l").getFormattedText());
+			} else if (this.getButton(27) != null && this.getButton(27).visible && isMouseHover(mouseX, mouseY, this.getButton(27).x, this.getButton(27).y, this.getButton(27).width, this.getButton(27).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.r").getFormattedText());
+			} else if (this.getButton(28) != null && this.getButton(28).visible && isMouseHover(mouseX, mouseY, this.getButton(28).x, this.getButton(28).y, this.getButton(28).width, this.getButton(28).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.l").getFormattedText());
+			} else if (this.getButton(29) != null && this.getButton(29).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.size").getFormattedText());
+			} else if (this.getButton(30) != null && this.getButton(30).visible && isMouseHover(mouseX, mouseY, this.getButton(30).x, this.getButton(30).y, this.getButton(30).width, this.getButton(30).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.skin.color").getFormattedText());
+			} else if (this.getButton(31) != null && this.getButton(31).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.closed").getFormattedText());
+			} else if (this.getButton(32) != null && this.getButton(32).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.pos").getFormattedText());
+			} else if (this.getButton(33) != null && this.getButton(33).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.glint").getFormattedText());
+			} else if (this.getButton(34) != null && this.getButton(34).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.txr.r").getFormattedText());
+			} else if (this.getButton(35) != null && this.getButton(35).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.txr.l").getFormattedText());
+			} else if (this.getButton(36) != null && this.getButton(36).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.txr.r").getFormattedText());
+			} else if (this.getButton(37) != null && this.getButton(37).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.txr.l").getFormattedText());
+			} else if (this.getButton(38) != null && this.getButton(38).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.txr.r").getFormattedText());
+			} else if (this.getButton(39) != null && this.getButton(39).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.txr.l").getFormattedText());
+			} else if (this.getButton(40) != null && this.getButton(40).isMouseOver()) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.rnd").getFormattedText());
+			} else if ((this.getButton(41) != null && this.getButton(41).isMouseOver()) || (this.getButton(42) != null && this.getButton(42).isMouseOver())) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.active").getFormattedText());
+			}
 		} else {
-			if (this.getButton(23) != null && this.getButton(23).visible) {
-				if (isMouseHover(mouseX, mouseY, this.getButton(23).x, this.getButton(23).y, this.getButton(23).width,
-						this.getButton(23).height)) {
-					this.setHoverText(new TextComponentTranslation("display.hover.part.color").getFormattedText());
-					return;
-				}
+			if (this.getButton(23) != null && this.getButton(23).visible && isMouseHover(mouseX, mouseY, this.getButton(23).x, this.getButton(23).y, this.getButton(23).width, this.getButton(23).height)) {
+				this.setHoverText(new TextComponentTranslation("display.hover.part.color").getFormattedText());
+				return;
 			}
 			for (GuiButton b : this.buttonList) {
 				if (b != null && b.isMouseOver()) {
@@ -440,11 +608,9 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 		this.scroll.guiTop = this.guiTop + 46;
 		this.scroll.setSize(100, this.ySize - 74);
 		this.addScroll(this.scroll);
-		if (this.parts[GuiCreationParts.selected] != null) {
-			this.scroll
-					.setSelected(new TextComponentTranslation("part." + this.parts[GuiCreationParts.selected].part.name)
-							.getFormattedText());
-			this.parts[GuiCreationParts.selected].initGui();
+		if (this.getPart() != null) {
+			this.scroll.setSelected(new TextComponentTranslation("part." + this.getPart().part.name).getFormattedText());
+			this.getPart().initGui();
 		}
 	}
 
@@ -465,5 +631,13 @@ public class GuiCreationParts extends GuiCreationScreenInterface implements ITex
 		if (textfield.getId() == 23) {
 		}
 	}
-
+	
+	@Override
+	public void subGuiClosed(SubGuiInterface subgui) {
+		if (this.getPart() != null) {
+			this.getPart().subGuiClosed(subgui);
+		}
+		this.initGui();
+	}
+	
 }
